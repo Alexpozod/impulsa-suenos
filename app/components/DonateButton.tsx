@@ -7,8 +7,17 @@ export default function DonateButton({ campaignId }: { campaignId: string }) {
   const [loading, setLoading] = useState(false)
 
   const handleDonate = async () => {
-    const amount = prompt("¿Cuánto deseas donar?")
-    if (!amount) return
+
+    const quantity = prompt("¿Cuántos tickets deseas comprar? (cada ticket $1000)")
+    if (!quantity) return
+
+    const ticketPrice = 1000
+    const total = Number(quantity) * ticketPrice
+
+    if (isNaN(total) || total <= 0) {
+      alert("Cantidad inválida")
+      return
+    }
 
     setLoading(true)
 
@@ -19,7 +28,7 @@ export default function DonateButton({ campaignId }: { campaignId: string }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount,
+          amount: total,
           campaign_id: campaignId,
         }),
       })
@@ -49,7 +58,4 @@ export default function DonateButton({ campaignId }: { campaignId: string }) {
           : 'bg-green-500 hover:bg-green-600 hover:scale-105 shadow-lg'
         }`}
     >
-      {loading ? "Procesando..." : "💚 Donar ahora"}
-    </button>
-  )
-}
+      {loading ? "Proc

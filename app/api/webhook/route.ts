@@ -50,6 +50,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true })
       }
 
+      // 🔒 Evitar duplicados
       const { data: existing } = await supabase
         .from("donations")
         .select("id")
@@ -61,16 +62,62 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true })
       }
 
-      const { error } = await supabase.from("donations").insert({
-        campaign_id,
-        amount,
-        payment_id: payment.id,
-      })
+      // 💾 Guardar donación
+      const { error: donationError } = await supabase
+        .from("donations")
+        .insert({
+          campaign_id,
+          amount,
+          payment_id: payment.id,
+        })
 
-      if (error) {
-        console.error("❌ Error DB:", error)
+      if (donationError) {
+        console.error("❌ Error DB donation:", donationError)
+        return NextResponse.json({ ok: true })
+      }
+
+      console.log("✅ Donación guardada")
+
+      // 🎟️ GENERACIÓN DE TICKETS
+
+      const ticketPrice = 1000 // puedes cambiarlo después
+      const quantity = Math.floor(amount / ticketPrice)
+
+      if (quantity <= 0) {
+        console.log("⚠️ No genera tickets")
+        return NextResponse.json({ ok: true })
+      }
+
+      // obtener último ticket
+      const { data: lastTicket } = await supabase
+        .from("tickets")
+        .select("ticket_number")
+        .eq("campaign_id", campaign_id)
+        .order("ticket_number", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      let startNumber = lastTicket?.ticket_number || 0
+
+      const tickets = []
+
+      for (let i = 1; i <= quantity; i++) {
+        tickets.push({
+          campaign_id,
+          payment_id: payment.id,
+          ticket_number: startNumber + i,
+        })
+      }
+
+      // guardar tickets
+      const { error: ticketError } = await supabase
+        .from("tickets")
+        .insert(tickets)
+
+      if (ticketError) {
+        console.error("❌ Error tickets:", ticketError)
       } else {
-        console.log("✅ Donación guardada")
+        console.log(`🎟️ ${quantity} tickets generados`)
       }
     }
 

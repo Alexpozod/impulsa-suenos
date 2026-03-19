@@ -26,7 +26,11 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     .limit(5)
 
   if (error || !data) {
-    return <div style={{ padding: 40 }}>Campaña no encontrada</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        Campaña no encontrada
+      </div>
+    )
   }
 
   const totalDonated =
@@ -38,114 +42,79 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   )
 
   return (
-    <div style={{
-      backgroundColor: '#f5f7fa',
-      minHeight: '100vh',
-      padding: '40px 20px',
-      display: 'flex',
-      justifyContent: 'center'
-    }}>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
 
-      <div style={{
-        maxWidth: 700,
-        width: '100%',
-        backgroundColor: 'white',
-        borderRadius: 12,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-        padding: 24
-      }}>
+      <div className="max-w-3xl mx-auto bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
 
         {/* IMAGEN */}
-        {data.image_url && (
-          <img
-            src={data.image_url}
-            alt="Imagen campaña"
-            style={{
-              width: '100%',
-              height: 300,
-              objectFit: 'cover',
-              borderRadius: 10,
-              marginBottom: 20
-            }}
-          />
-        )}
+        <img
+          src={data.image_url || "https://via.placeholder.com/800"}
+          alt="Imagen campaña"
+          className="w-full h-72 object-cover"
+        />
 
-        {/* TITULO */}
-        <h1 style={{
-          fontSize: 28,
-          fontWeight: 'bold',
-          marginBottom: 10,
-          color: '#222'
-        }}>
-          {data.title}
-        </h1>
+        <div className="p-6">
 
-        {/* DESCRIPCIÓN */}
-        <p style={{
-          color: '#555',
-          lineHeight: 1.6,
-          marginBottom: 20
-        }}>
-          {data.description}
-        </p>
+          {/* TITULO */}
+          <h1 className="text-3xl font-bold mb-3">
+            {data.title}
+          </h1>
 
-        {/* PROGRESO */}
-        <div style={{ marginBottom: 20 }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: 8,
-            fontWeight: 500
-          }}>
-            <span>${totalDonated.toLocaleString()} recaudados</span>
-            <span>{progress.toFixed(0)}%</span>
-          </div>
-
-          <div style={{
-            width: '100%',
-            height: 12,
-            backgroundColor: '#e5e7eb',
-            borderRadius: 10,
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              width: `${progress}%`,
-              height: '100%',
-              background: 'linear-gradient(90deg, #22c55e, #16a34a)',
-              transition: 'width 0.3s ease'
-            }} />
-          </div>
-
-          <p style={{
-            marginTop: 8,
-            fontSize: 14,
-            color: '#777'
-          }}>
-            Meta: ${data.goal_amount.toLocaleString()}
+          {/* DESCRIPCIÓN */}
+          <p className="text-gray-300 mb-6 leading-relaxed">
+            {data.description}
           </p>
-        </div>
 
-        {/* BOTÓN DONAR */}
-        <div style={{ textAlign: 'center' }}>
-          <DonateButton campaignId={data.id} />
-        </div>
+          {/* PROGRESO */}
+          <div className="mb-6">
 
-        {/* DONACIONES */}
-        <div style={{ marginTop: 40 }}>
-          <h3 style={{ marginBottom: 10 }}>Últimas donaciones</h3>
+            <div className="flex justify-between mb-2 text-sm">
+              <span className="font-semibold text-green-400">
+                ${totalDonated.toLocaleString()} recaudados
+              </span>
+              <span>{progress.toFixed(0)}%</span>
+            </div>
 
-          {donations && donations.length > 0 ? (
-            donations.map((d) => (
-              <div key={d.id} style={{
-                padding: 10,
-                borderBottom: '1px solid #eee'
-              }}>
-                💚 Alguien donó ${Number(d.amount).toLocaleString()}
-              </div>
-            ))
-          ) : (
-            <p style={{ color: '#777' }}>Aún no hay donaciones</p>
-          )}
+            <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-3 bg-gradient-to-r from-green-400 to-green-600 transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            <p className="text-xs text-gray-400 mt-2">
+              Meta: ${data.goal_amount.toLocaleString()}
+            </p>
+          </div>
+
+          {/* BOTÓN DONAR */}
+          <div className="mb-8">
+            <DonateButton campaignId={data.id} />
+          </div>
+
+          {/* DONACIONES */}
+          <div>
+            <h3 className="text-xl font-semibold mb-3">
+              Últimas donaciones
+            </h3>
+
+            {donations && donations.length > 0 ? (
+              donations.map((d) => (
+                <div
+                  key={d.id}
+                  className="bg-gray-700 rounded-lg p-3 mb-2 text-sm"
+                >
+                  💚 Alguien donó ${Number(d.amount).toLocaleString()}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400">
+                Aún no hay donaciones
+              </p>
+            )}
+
+          </div>
+
         </div>
 
       </div>

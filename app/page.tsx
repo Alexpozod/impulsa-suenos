@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
-import Link from 'next/link'
+import Link from "next/link"
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,58 +9,57 @@ const supabase = createClient(
 export default async function Home() {
 
   const { data: campaigns } = await supabase
-    .from('campaigns')
-    .select('*')
-    .order('created_at', { ascending: false })
+    .from("campaigns")
+    .select("*")
+    .order("created_at", { ascending: false })
 
   return (
+    <main className="min-h-screen bg-gray-900 text-white p-8">
 
-    <div style={{padding:40}}>
+      <h1 className="text-4xl font-bold mb-10">
+        ImpulsaSueños 🚀
+      </h1>
 
-      <h1>ImpulsaSueños</h1>
+      <div className="grid md:grid-cols-3 gap-6">
 
-      <h2>Campañas activas</h2>
+        {campaigns?.map((c) => (
+          <div
+            key={c.id}
+            className="bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition"
+          >
 
-      {campaigns?.map((campaign)=> (
-
-        <div 
-          key={campaign.id} 
-          style={{
-            marginBottom:30,
-            border:'1px solid #ccc',
-            padding:20,
-            borderRadius:10
-          }}
-        >
-
-          {campaign.image_url && (
+            {/* Imagen */}
             <img
-              src={campaign.image_url}
-              alt="imagen campaña"
-              style={{
-                width:'100%',
-                maxWidth:400,
-                borderRadius:10,
-                marginBottom:10
-              }}
+              src={c.image_url || "https://via.placeholder.com/400"}
+              className="w-full h-48 object-cover"
             />
-          )}
 
-          <h3>{campaign.title}</h3>
+            <div className="p-4">
 
-          <p>{campaign.description}</p>
+              <h2 className="text-xl font-semibold">
+                {c.title}
+              </h2>
 
-          <p><strong>Meta:</strong> ${campaign.goal_amount}</p>
+              <p className="text-gray-400 text-sm mt-2 line-clamp-2">
+                {c.description}
+              </p>
 
-          <Link href={`/campaign/${campaign.id}`}>
-            Ver campaña
-          </Link>
+              <p className="mt-4 font-bold">
+                Meta: ${c.goal_amount}
+              </p>
 
-        </div>
+              <Link href={`/campaign/${c.id}`}>
+                <button className="mt-4 w-full bg-blue-500 hover:bg-blue-600 p-2 rounded-lg">
+                  Ver campaña
+                </button>
+              </Link>
 
-      ))}
+            </div>
 
-    </div>
+          </div>
+        ))}
 
+      </div>
+    </main>
   )
 }

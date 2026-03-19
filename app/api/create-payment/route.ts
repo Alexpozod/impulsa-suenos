@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         items: [
           {
             id: "donation",
-            title: "Donación",
+            title: "🎟️ Ticket ImpulsaSueños",
             quantity: 1,
             unit_price: Number(amount),
           },
