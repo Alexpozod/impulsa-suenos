@@ -52,10 +52,13 @@ export default function DonateButton({ campaignId }: { campaignId: string }) {
     <button
       onClick={handleDonate}
       disabled={loading}
-      className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-200
-        ${loading
+      className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-200 ${
+        loading
           ? 'bg-gray-500 cursor-not-allowed'
           : 'bg-green-500 hover:bg-green-600 hover:scale-105 shadow-lg'
-        }`}
+      }`}
     >
-      {loading ? "Proc
+      {loading ? "Procesando..." : "🎟️ Comprar tickets"}
+    </button>
+  )
+}
