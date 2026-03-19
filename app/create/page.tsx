@@ -5,10 +5,10 @@ import { supabase } from '@/src/lib/supabase'
 
 export default function CreateCampaign() {
 
-  const [title,setTitle] = useState('')
-  const [description,setDescription] = useState('')
-  const [goal,setGoal] = useState('')
-  const [image,setImage] = useState(null)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [goal, setGoal] = useState('')
+  const [image, setImage] = useState<File | null>(null)
 
   const createCampaign = async () => {
 
@@ -16,15 +16,15 @@ export default function CreateCampaign() {
 
     let imageUrl = null
 
-    if(image){
+    if (image) {
 
       const fileName = Date.now() + "-" + image.name
 
       const { error: uploadError } = await supabase.storage
         .from('campaign-images')
-        .upload(fileName,image)
+        .upload(fileName, image)
 
-      if(!uploadError){
+      if (!uploadError) {
 
         const { data } = supabase.storage
           .from('campaign-images')
@@ -47,9 +47,9 @@ export default function CreateCampaign() {
         }
       ])
 
-    if(error){
+    if (error) {
       alert(error.message)
-    }else{
+    } else {
       alert('Campaña creada')
     }
 
@@ -57,40 +57,40 @@ export default function CreateCampaign() {
 
   return (
 
-    <div style={{padding:40}}>
+    <div style={{ padding: 40 }}>
 
       <h1>Crear campaña</h1>
 
       <input
         placeholder="Título"
         value={title}
-        onChange={(e)=>setTitle(e.target.value)}
+        onChange={(e) => setTitle(e.target.value)}
       />
 
-      <br/><br/>
+      <br /><br />
 
       <textarea
         placeholder="Descripción"
         value={description}
-        onChange={(e)=>setDescription(e.target.value)}
+        onChange={(e) => setDescription(e.target.value)}
       />
 
-      <br/><br/>
+      <br /><br />
 
       <input
         placeholder="Meta de dinero"
         value={goal}
-        onChange={(e)=>setGoal(e.target.value)}
+        onChange={(e) => setGoal(e.target.value)}
       />
 
-      <br/><br/>
+      <br /><br />
 
       <input
         type="file"
-        onChange={(e)=>setImage(e.target.files[0])}
+        onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
       />
 
-      <br/><br/>
+      <br /><br />
 
       <button onClick={createCampaign}>
         Crear campaña
