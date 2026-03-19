@@ -87,7 +87,10 @@ export default function CreateCampaign() {
 
       <input
         type="file"
-        onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+        onChange={(e) => {
+          const file = e.target.files?.[0] || null
+          setImage(file)
+        }}
       />
 
       <br /><br />
