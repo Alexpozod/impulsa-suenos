@@ -7,6 +7,8 @@ const client = new MercadoPagoConfig({
 
 const preferenceClient = new Preference(client)
 
+const BASE_URL = "https://impulsa-suenos.vercel.app"
+
 export async function POST(req: Request) {
   try {
     const { amount, campaign_id } = await req.json()
@@ -16,32 +18,27 @@ export async function POST(req: Request) {
     const response = await preferenceClient.create({
       body: {
         items: [
-  {
-    id: "donation",
-    title: "Donación",
-    quantity: 1,
-    unit_price: Number(amount),
-  },
-],
+          {
+            id: "donation",
+            title: "Donación",
+            quantity: 1,
+            unit_price: Number(amount),
+          },
+        ],
 
-
-        // ✅ GUARDA EL ID DE LA CAMPAÑA
         metadata: {
           campaign_id: String(campaign_id),
         },
 
-        // ✅ BACKUP (MUY IMPORTANTE)
         external_reference: String(campaign_id),
 
-        // 🚨 AQUÍ ESTABA EL ERROR
-        notification_url: "https://resumptive-leon-evolvable.ngrok-free.dev/api/webhook",
+        notification_url: `${BASE_URL}/api/webhook`,
 
-        // ✅ REDIRECCIÓN DESPUÉS DEL PAGO
         back_urls: {
-  success: "https://resumptive-leon-evolvable.ngrok-free.dev/",
-  failure: "https://resumptive-leon-evolvable.ngrok-free.dev/",
-  pending: "https://resumptive-leon-evolvable.ngrok-free.dev/",
-},
+          success: BASE_URL,
+          failure: BASE_URL,
+          pending: BASE_URL,
+        },
 
         auto_return: "approved",
       },
