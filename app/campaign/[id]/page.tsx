@@ -26,7 +26,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     .limit(5)
 
   if (error || !data) {
-    return <div>Campaña no encontrada</div>
+    return <div style={{ padding: 40 }}>Campaña no encontrada</div>
   }
 
   const totalDonated =
@@ -38,65 +38,115 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   )
 
   return (
-    <div style={{ padding: 40 }}>
+    <div style={{
+      backgroundColor: '#f5f7fa',
+      minHeight: '100vh',
+      padding: '40px 20px',
+      display: 'flex',
+      justifyContent: 'center'
+    }}>
 
-      {/* IMAGEN */}
-      {data.image_url && (
-        <img
-          src={data.image_url}
-          alt="Imagen campaña"
-          style={{
-            width: '100%',
-            maxWidth: 500,
-            borderRadius: 10,
-            marginBottom: 20
-          }}
-        />
-      )}
-
-      <h1>{data.title}</h1>
-
-      <p>{data.description}</p>
-
-      <p><strong>Meta:</strong> ${data.goal_amount}</p>
-
-      <p><strong>Recaudado:</strong> ${totalDonated}</p>
-
-      <p><strong>Progreso:</strong> {progress.toFixed(0)}%</p>
-
-      {/* Barra de progreso */}
       <div style={{
+        maxWidth: 700,
         width: '100%',
-        height: 20,
-        backgroundColor: '#ddd',
-        borderRadius: 10,
-        overflow: 'hidden',
-        marginBottom: 20
+        backgroundColor: 'white',
+        borderRadius: 12,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        padding: 24
       }}>
-        <div style={{
-          width: `${progress}%`,
-          height: '100%',
-          backgroundColor: 'green'
-        }} />
-      </div>
 
-      {/* ✅ BOTÓN DONAR (CLIENT COMPONENT) */}
-      <DonateButton campaignId={data.id} />
-
-      {/* ÚLTIMAS DONACIONES */}
-      <div style={{ marginTop: 40 }}>
-
-        <h3>Últimas donaciones</h3>
-
-        {donations && donations.length > 0 ? (
-          donations.map((d) => (
-            <p key={d.id}>
-              Alguien donó ${d.amount}
-            </p>
-          ))
-        ) : (
-          <p>Aún no hay donaciones</p>
+        {/* IMAGEN */}
+        {data.image_url && (
+          <img
+            src={data.image_url}
+            alt="Imagen campaña"
+            style={{
+              width: '100%',
+              height: 300,
+              objectFit: 'cover',
+              borderRadius: 10,
+              marginBottom: 20
+            }}
+          />
         )}
+
+        {/* TITULO */}
+        <h1 style={{
+          fontSize: 28,
+          fontWeight: 'bold',
+          marginBottom: 10,
+          color: '#222'
+        }}>
+          {data.title}
+        </h1>
+
+        {/* DESCRIPCIÓN */}
+        <p style={{
+          color: '#555',
+          lineHeight: 1.6,
+          marginBottom: 20
+        }}>
+          {data.description}
+        </p>
+
+        {/* PROGRESO */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: 8,
+            fontWeight: 500
+          }}>
+            <span>${totalDonated.toLocaleString()} recaudados</span>
+            <span>{progress.toFixed(0)}%</span>
+          </div>
+
+          <div style={{
+            width: '100%',
+            height: 12,
+            backgroundColor: '#e5e7eb',
+            borderRadius: 10,
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #22c55e, #16a34a)',
+              transition: 'width 0.3s ease'
+            }} />
+          </div>
+
+          <p style={{
+            marginTop: 8,
+            fontSize: 14,
+            color: '#777'
+          }}>
+            Meta: ${data.goal_amount.toLocaleString()}
+          </p>
+        </div>
+
+        {/* BOTÓN DONAR */}
+        <div style={{ textAlign: 'center' }}>
+          <DonateButton campaignId={data.id} />
+        </div>
+
+        {/* DONACIONES */}
+        <div style={{ marginTop: 40 }}>
+          <h3 style={{ marginBottom: 10 }}>Últimas donaciones</h3>
+
+          {donations && donations.length > 0 ? (
+            donations.map((d) => (
+              <div key={d.id} style={{
+                padding: 10,
+                borderBottom: '1px solid #eee'
+              }}>
+                💚 Alguien donó ${Number(d.amount).toLocaleString()}
+              </div>
+            ))
+          ) : (
+            <p style={{ color: '#777' }}>Aún no hay donaciones</p>
+          )}
+        </div>
 
       </div>
 

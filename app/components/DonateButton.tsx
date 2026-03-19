@@ -1,10 +1,16 @@
 'use client'
 
+import { useState } from "react"
+
 export default function DonateButton({ campaignId }: { campaignId: string }) {
+
+  const [loading, setLoading] = useState(false)
 
   const handleDonate = async () => {
     const amount = prompt("¿Cuánto deseas donar?")
     if (!amount) return
+
+    setLoading(true)
 
     try {
       const res = await fetch("/api/create-payment", {
@@ -20,35 +26,30 @@ export default function DonateButton({ campaignId }: { campaignId: string }) {
 
       const payment = await res.json()
 
-      console.log("Respuesta backend:", payment)
-
-      // 🔥 VALIDACIÓN CORRECTA
-      if (payment.id) {
-        window.location.href = `https://www.mercadopago.cl/checkout/v1/redirect?pref_id=${payment.id}`
+      if (payment.url) {
+        window.location.href = payment.url
       } else {
         alert("Error al crear el pago")
       }
 
     } catch (error) {
-      console.error("Error:", error)
-      alert("Error al procesar el pago")
+      alert("Error inesperado")
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <button
       onClick={handleDonate}
-      style={{
-        padding: 12,
-        borderRadius: 6,
-        backgroundColor: '#009ee3',
-        color: 'white',
-        border: 'none',
-        cursor: 'pointer',
-        marginTop: 20
-      }}
+      disabled={loading}
+      className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-200
+        ${loading
+          ? 'bg-gray-500 cursor-not-allowed'
+          : 'bg-green-500 hover:bg-green-600 hover:scale-105 shadow-lg'
+        }`}
     >
-      Donar con MercadoPago
+      {loading ? "Procesando..." : "💚 Donar ahora"}
     </button>
   )
 }
