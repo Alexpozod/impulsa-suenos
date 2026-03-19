@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         payment.metadata?.campaign_id ||
         payment.external_reference
 
-      const amount = payment.transaction_amount
+      const amount = Number(payment.transaction_amount || 0)
 
       if (!campaign_id) {
         console.log("⚠️ No campaign_id")
