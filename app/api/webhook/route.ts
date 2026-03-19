@@ -9,7 +9,7 @@ const client = new MercadoPagoConfig({
 const paymentClient = new Payment(client)
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
@@ -17,33 +17,28 @@ export async function POST(req: Request) {
   try {
     const url = new URL(req.url)
 
-// 🔥 soporta TODOS los formatos de MercadoPago
-let paymentId =
-  url.searchParams.get("data.id") ||
-  url.searchParams.get("id")
+    let paymentId =
+      url.searchParams.get("data.id") ||
+      url.searchParams.get("id")
 
-// 🔥 fallback (cuando viene en body)
-if (!paymentId) {
-  const body = await req.json().catch(() => null)
-  paymentId = body?.data?.id
-}
+    if (!paymentId) {
+      const body = await req.json().catch(() => null)
+      paymentId = body?.data?.id
+    }
 
-console.log("📩 WEBHOOK RAW URL:", req.url)
-console.log("📩 WEBHOOK BODY:", paymentId)
-
-    console.log("📩 WEBHOOK RAW:", req.url)
-    console.log("💳 PAYMENT ID:", paymentId)
+    console.log("📩 WEBHOOK RAW URL:", req.url)
+    console.log("📩 PAYMENT ID:", paymentId)
 
     if (!paymentId) {
       return NextResponse.json({ ok: true })
     }
 
-    // ✅ SDK V2 CORRECTO
     const payment = await paymentClient.get({ id: paymentId })
 
     console.log("💳 PAYMENT:", payment)
 
     if (payment.status === "approved") {
+
       const campaign_id =
         payment.metadata?.campaign_id ||
         payment.external_reference
@@ -55,7 +50,6 @@ console.log("📩 WEBHOOK BODY:", paymentId)
         return NextResponse.json({ ok: true })
       }
 
-      // evitar duplicados
       const { data: existing } = await supabase
         .from("donations")
         .select("id")
@@ -67,7 +61,6 @@ console.log("📩 WEBHOOK BODY:", paymentId)
         return NextResponse.json({ ok: true })
       }
 
-      // guardar donación
       const { error } = await supabase.from("donations").insert({
         campaign_id,
         amount,
