@@ -45,34 +45,32 @@ export async function POST(req: Request) {
 
     if (payment.status === "approved") {
 
-      // 🔥 OBTENER DATOS IMPORTANTES
+      // 🔥 DATOS
       const campaign_id =
         payment.metadata?.campaign_id ||
         payment.external_reference ||
         null
 
       let user_email =
-  payment.metadata?.user_email ||
-  payment.payer?.email ||
-  null
+        payment.metadata?.user_email ||
+        payment.payer?.email ||
+        null
 
-if (!user_email) {
-  console.log("⚠️ Email no disponible, usando fallback temporal")
-  user_email = `guest_${payment.id}@impulsasuenos.com`
-}
+      if (!user_email) {
+        console.log("⚠️ Email no disponible, usando fallback")
+        user_email = `guest_${payment.id}@impulsasuenos.com`
+      }
 
       const amount = Number(payment.transaction_amount || 0)
 
-      console.log("📦 METADATA:", payment.metadata)
-      console.log("📧 EMAIL DETECTADO:", user_email)
+      console.log("📧 EMAIL:", user_email)
       console.log("🎯 CAMPAIGN:", campaign_id)
 
       if (!campaign_id) {
-        console.log("⚠️ No campaign_id")
         return NextResponse.json({ ok: true })
       }
 
-      // 🔒 EVITAR PAGOS DUPLICADOS
+      // 🔒 EVITAR DUPLICADOS
       const { data: existing } = await supabase
         .from("donations")
         .select("id")
@@ -85,28 +83,21 @@ if (!user_email) {
       }
 
       // 💰 GUARDAR DONACIÓN
-      const { error: donationError } = await supabase
-        .from("donations")
-        .insert({
-          campaign_id,
-          amount,
-          payment_id: payment.id,
-        })
-
-      if (donationError) {
-        console.error("❌ Error guardando donación:", donationError)
-      }
+      await supabase.from("donations").insert({
+        campaign_id,
+        amount,
+        payment_id: payment.id,
+      })
 
       // 🎟️ GENERAR TICKETS
       const ticketPrice = 1000
       const quantity = Math.floor(amount / ticketPrice)
 
       if (quantity <= 0) {
-        console.log("⚠️ No genera tickets")
         return NextResponse.json({ ok: true })
       }
 
-      // 🔢 OBTENER ÚLTIMO TICKET DE LA CAMPAÑA
+      // 🔢 ÚLTIMO TICKET
       const { data: lastTicket } = await supabase
         .from("tickets")
         .select("ticket_number")
@@ -121,7 +112,7 @@ if (!user_email) {
 
       for (let i = 1; i <= quantity; i++) {
         tickets.push({
-          campaign_id, // 🔥 ASOCIADO A CAMPAÑA
+          campaign_id,
           payment_id: payment.id,
           ticket_number: startNumber + i,
           user_email,
@@ -133,9 +124,28 @@ if (!user_email) {
         .insert(tickets)
 
       if (ticketError) {
-        console.error("❌ Error guardando tickets:", ticketError)
+        console.error("❌ Error tickets:", ticketError)
       } else {
-        console.log(`🎟️ ${quantity} tickets generados correctamente`)
+        console.log(`🎟️ ${quantity} tickets generados`)
+      }
+
+      // 📧 ENVIAR EMAIL AUTOMÁTICO
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: user_email,
+            tickets,
+            campaign: campaign_id,
+          }),
+        })
+
+        console.log("📧 Email enviado correctamente")
+      } catch (err) {
+        console.error("❌ Error enviando email", err)
       }
     }
 
