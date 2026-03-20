@@ -10,20 +10,12 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
   const { id } = await params
 
-  // Obtener campaña
+  // 📌 Obtener campaña
   const { data, error } = await supabase
     .from('campaigns')
     .select('*')
     .eq('id', id)
     .single()
-
-  // Obtener donaciones
-  const { data: donations } = await supabase
-    .from('donations')
-    .select('*')
-    .eq('campaign_id', id)
-    .order('created_at', { ascending: false })
-    .limit(5)
 
   if (error || !data) {
     return (
@@ -33,13 +25,33 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     )
   }
 
+  // 💰 TODAS las donaciones (no solo últimas)
+  const { data: allDonations } = await supabase
+    .from('donations')
+    .select('amount')
+    .eq('campaign_id', id)
+
   const totalDonated =
-    donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+    allDonations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+
+  // 🎟️ tickets vendidos
+  const { count: ticketsSold } = await supabase
+    .from('tickets')
+    .select('*', { count: 'exact', head: true })
+    .eq('campaign_id', id)
 
   const progress = Math.min(
     (totalDonated / data.goal_amount) * 100,
     100
   )
+
+  // 📌 últimas donaciones (solo para UI)
+  const { data: donations } = await supabase
+    .from('donations')
+    .select('*')
+    .eq('campaign_id', id)
+    .order('created_at', { ascending: false })
+    .limit(5)
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
@@ -65,7 +77,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             {data.description}
           </p>
 
-          {/* PROGRESO */}
+          {/* 📊 PROGRESO */}
           <div className="mb-6">
 
             <div className="flex justify-between mb-2 text-sm">
@@ -87,7 +99,17 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             </p>
           </div>
 
-          {/* BOTÓN DONAR */}
+          {/* 🎟️ TICKETS (NUEVO 🔥) */}
+          <div className="mb-6 bg-gray-700 p-4 rounded-xl text-center">
+            <p className="text-sm text-gray-400 mb-1">
+              🎟️ Tickets vendidos
+            </p>
+            <p className="text-2xl font-bold">
+              {ticketsSold || 0} / {data.total_tickets}
+            </p>
+          </div>
+
+          {/* BOTÓN */}
           <div className="mb-8">
             <DonateButton campaignId={data.id} />
           </div>
@@ -95,7 +117,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
           {/* DONACIONES */}
           <div>
             <h3 className="text-xl font-semibold mb-3">
-              Últimas donaciones
+              Últimas compras
             </h3>
 
             {donations && donations.length > 0 ? (
@@ -104,15 +126,14 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
                   key={d.id}
                   className="bg-gray-700 rounded-lg p-3 mb-2 text-sm"
                 >
-                  💚 Alguien donó ${Number(d.amount).toLocaleString()}
+                  🎟️ Alguien compró ${Number(d.amount).toLocaleString()}
                 </div>
               ))
             ) : (
               <p className="text-gray-400">
-                Aún no hay donaciones
+                Aún no hay compras
               </p>
             )}
-
           </div>
 
         </div>
