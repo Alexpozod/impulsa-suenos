@@ -32,27 +32,42 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    const payment = await paymentClient.get({ id: paymentId })
+    let payment
 
-    console.log("💳 PAYMENT:", payment)
+    try {
+      payment = await paymentClient.get({ id: paymentId })
+    } catch (error) {
+      console.log("⚠️ Payment no encontrado (normal en webhooks múltiples)")
+      return NextResponse.json({ ok: true })
+    }
+
+    console.log("💳 PAYMENT STATUS:", payment.status)
 
     if (payment.status === "approved") {
-      console.log("📦 METADATA:", payment.metadata)
 
+      // 🔥 OBTENER DATOS IMPORTANTES
       const campaign_id =
         payment.metadata?.campaign_id ||
-        payment.external_reference
+        payment.external_reference ||
+        null
 
       const user_email =
-  payment.metadata?.user_email || null
+        payment.metadata?.user_email ||
+        payment.payer?.email ||
+        "no-email"
 
       const amount = Number(payment.transaction_amount || 0)
 
+      console.log("📦 METADATA:", payment.metadata)
+      console.log("📧 EMAIL DETECTADO:", user_email)
+      console.log("🎯 CAMPAIGN:", campaign_id)
+
       if (!campaign_id) {
+        console.log("⚠️ No campaign_id")
         return NextResponse.json({ ok: true })
       }
 
-      // evitar duplicados
+      // 🔒 EVITAR PAGOS DUPLICADOS
       const { data: existing } = await supabase
         .from("donations")
         .select("id")
@@ -60,25 +75,33 @@ export async function POST(req: Request) {
         .maybeSingle()
 
       if (existing) {
+        console.log("⚠️ Pago ya procesado")
         return NextResponse.json({ ok: true })
       }
 
-      // guardar donación
-      await supabase.from("donations").insert({
-        campaign_id,
-        amount,
-        payment_id: payment.id,
-      })
+      // 💰 GUARDAR DONACIÓN
+      const { error: donationError } = await supabase
+        .from("donations")
+        .insert({
+          campaign_id,
+          amount,
+          payment_id: payment.id,
+        })
 
-      // generar tickets
+      if (donationError) {
+        console.error("❌ Error guardando donación:", donationError)
+      }
+
+      // 🎟️ GENERAR TICKETS
       const ticketPrice = 1000
       const quantity = Math.floor(amount / ticketPrice)
 
       if (quantity <= 0) {
+        console.log("⚠️ No genera tickets")
         return NextResponse.json({ ok: true })
       }
 
-      // obtener último ticket
+      // 🔢 OBTENER ÚLTIMO TICKET DE LA CAMPAÑA
       const { data: lastTicket } = await supabase
         .from("tickets")
         .select("ticket_number")
@@ -93,16 +116,22 @@ export async function POST(req: Request) {
 
       for (let i = 1; i <= quantity; i++) {
         tickets.push({
-          campaign_id,
+          campaign_id, // 🔥 ASOCIADO A CAMPAÑA
           payment_id: payment.id,
           ticket_number: startNumber + i,
           user_email,
         })
       }
 
-      await supabase.from("tickets").insert(tickets)
+      const { error: ticketError } = await supabase
+        .from("tickets")
+        .insert(tickets)
 
-      console.log(`🎟️ ${quantity} tickets generados`)
+      if (ticketError) {
+        console.error("❌ Error guardando tickets:", ticketError)
+      } else {
+        console.log(`🎟️ ${quantity} tickets generados correctamente`)
+      }
     }
 
     return NextResponse.json({ ok: true })
