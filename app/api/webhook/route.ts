@@ -37,6 +37,7 @@ export async function POST(req: Request) {
     console.log("💳 PAYMENT:", payment)
 
     if (payment.status === "approved") {
+      console.log("📦 METADATA:", payment.metadata)
 
       const campaign_id =
         payment.metadata?.campaign_id ||
