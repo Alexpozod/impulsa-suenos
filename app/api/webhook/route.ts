@@ -26,7 +26,6 @@ export async function POST(req: Request) {
       paymentId = body?.data?.id
     }
 
-    console.log("📩 WEBHOOK RAW URL:", req.url)
     console.log("📩 PAYMENT ID:", paymentId)
 
     if (!paymentId) {
@@ -43,14 +42,16 @@ export async function POST(req: Request) {
         payment.metadata?.campaign_id ||
         payment.external_reference
 
+      const user_email =
+        payment.metadata?.user_email || "test@email.com"
+
       const amount = Number(payment.transaction_amount || 0)
 
       if (!campaign_id) {
-        console.log("⚠️ No campaign_id")
         return NextResponse.json({ ok: true })
       }
 
-      // 🔒 Evitar duplicados
+      // evitar duplicados
       const { data: existing } = await supabase
         .from("donations")
         .select("id")
@@ -58,33 +59,21 @@ export async function POST(req: Request) {
         .maybeSingle()
 
       if (existing) {
-        console.log("⚠️ Pago duplicado")
         return NextResponse.json({ ok: true })
       }
 
-      // 💾 Guardar donación
-      const { error: donationError } = await supabase
-        .from("donations")
-        .insert({
-          campaign_id,
-          amount,
-          payment_id: payment.id,
-        })
+      // guardar donación
+      await supabase.from("donations").insert({
+        campaign_id,
+        amount,
+        payment_id: payment.id,
+      })
 
-      if (donationError) {
-        console.error("❌ Error DB donation:", donationError)
-        return NextResponse.json({ ok: true })
-      }
-
-      console.log("✅ Donación guardada")
-
-      // 🎟️ GENERACIÓN DE TICKETS
-
-      const ticketPrice = 1000 // puedes cambiarlo después
+      // generar tickets
+      const ticketPrice = 1000
       const quantity = Math.floor(amount / ticketPrice)
 
       if (quantity <= 0) {
-        console.log("⚠️ No genera tickets")
         return NextResponse.json({ ok: true })
       }
 
@@ -106,25 +95,19 @@ export async function POST(req: Request) {
           campaign_id,
           payment_id: payment.id,
           ticket_number: startNumber + i,
+          user_email,
         })
       }
 
-      // guardar tickets
-      const { error: ticketError } = await supabase
-        .from("tickets")
-        .insert(tickets)
+      await supabase.from("tickets").insert(tickets)
 
-      if (ticketError) {
-        console.error("❌ Error tickets:", ticketError)
-      } else {
-        console.log(`🎟️ ${quantity} tickets generados`)
-      }
+      console.log(`🎟️ ${quantity} tickets generados`)
     }
 
-    return NextResponse.json({ received: true })
+    return NextResponse.json({ ok: true })
 
   } catch (error) {
-    console.error("❌ Error webhook:", error)
+    console.error("❌ ERROR WEBHOOK:", error)
     return NextResponse.json({ error: "error" }, { status: 500 })
   }
 }
