@@ -8,6 +8,11 @@ export default function DonateButton({ campaignId }: { campaignId: string }) {
 
   const handleDonate = async () => {
 
+    alert("CLICK FUNCIONANDO") // 🔥 DEBUG
+
+    const email = prompt("Ingresa tu email")
+    if (!email) return
+
     const quantity = prompt("¿Cuántos tickets deseas comprar? (cada ticket $1000)")
     if (!quantity) return
 
@@ -30,6 +35,7 @@ export default function DonateButton({ campaignId }: { campaignId: string }) {
         body: JSON.stringify({
           amount: total,
           campaign_id: campaignId,
+          user_email: email,
         }),
       })
 
@@ -42,6 +48,7 @@ export default function DonateButton({ campaignId }: { campaignId: string }) {
       }
 
     } catch (error) {
+      console.error(error)
       alert("Error inesperado")
     } finally {
       setLoading(false)
