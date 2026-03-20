@@ -6,29 +6,52 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
-    const { searchParams } = new URL(req.url)
-    const email = searchParams.get("email")
+    const { email } = await req.json()
 
     if (!email) {
-      return NextResponse.json({ error: "No email provided" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Email requerido" },
+        { status: 400 }
+      )
     }
+
+    console.log("🔍 Buscando tickets para:", email)
 
     const { data, error } = await supabase
       .from("tickets")
-      .select("*")
+      .select(`
+        ticket_number,
+        created_at,
+        campaigns (
+          id,
+          title
+        )
+      `)
       .eq("user_email", email)
+      .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("❌ DB error:", error)
-      return NextResponse.json({ error: "Database error" }, { status: 500 })
+      console.error("❌ Error DB:", error)
+      return NextResponse.json(
+        { error: "Error en base de datos" },
+        { status: 500 }
+      )
     }
 
-    return NextResponse.json({ tickets: data || [] })
+    console.log("🎟️ Tickets encontrados:", data?.length || 0)
 
-  } catch (err) {
-    console.error("❌ API error:", err)
-    return NextResponse.json({ error: "Server error" }, { status: 500 })
+    return NextResponse.json({
+      tickets: data || []
+    })
+
+  } catch (error) {
+    console.error("❌ Error servidor:", error)
+
+    return NextResponse.json(
+      { error: "Error servidor" },
+      { status: 500 }
+    )
   }
 }
