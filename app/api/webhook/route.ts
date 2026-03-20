@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         payment.external_reference
 
       const user_email =
-        payment.metadata?.user_email || "test@email.com"
+  payment.metadata?.user_email || null
 
       const amount = Number(payment.transaction_amount || 0)
 
