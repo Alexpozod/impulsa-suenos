@@ -7,44 +7,44 @@ export async function POST(req: Request) {
   try {
     const { email, tickets, campaign } = await req.json()
 
-    if (!email) {
-      return NextResponse.json(
-        { error: "Email requerido" },
-        { status: 400 }
-      )
+    if (!email || !tickets || tickets.length === 0) {
+      return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
     }
 
-    await resend.emails.send({
+    const ticketNumbers = tickets.map((t: any) => `#${t.ticket_number}`).join(", ")
+
+    const response = await resend.emails.send({
       from: "ImpulsaSueños <onboarding@resend.dev>",
       to: email,
-      subject: "🎟️ Compra confirmada - ImpulsaSueños",
+      subject: "🎟️ Tus tickets - ImpulsaSueños",
       html: `
-        <h2>¡Gracias por participar!</h2>
+        <div style="font-family: Arial; padding: 20px;">
+          <h2>🎉 ¡Compra exitosa!</h2>
+          
+          <p>Gracias por participar en <strong>ImpulsaSueños</strong></p>
+          
+          <p><strong>Campaña:</strong> ${campaign}</p>
+          
+          <p><strong>Tus tickets:</strong></p>
+          <p style="font-size:18px; font-weight:bold;">
+            ${ticketNumbers}
+          </p>
 
-        <p>Tu compra fue confirmada correctamente.</p>
+          <hr/>
 
-        <p><strong>Campaña:</strong> ${campaign}</p>
-
-        <p><strong>Tus tickets:</strong></p>
-
-        <ul>
-          ${(tickets || [])
-            .map((t: any) => `<li>#${t.ticket_number}</li>`)
-            .join("")}
-        </ul>
-
-        <p>Mucha suerte 🍀</p>
+          <p style="font-size:12px; color:gray;">
+            Guarda este correo como comprobante de participación.
+          </p>
+        </div>
       `,
     })
+
+    console.log("📧 Email enviado:", response)
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
     console.error("❌ ERROR EMAIL:", error)
-
-    return NextResponse.json(
-      { error: "Error enviando email" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "error" }, { status: 500 })
   }
 }
