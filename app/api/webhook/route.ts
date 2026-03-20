@@ -51,10 +51,15 @@ export async function POST(req: Request) {
         payment.external_reference ||
         null
 
-      const user_email =
-        payment.metadata?.user_email ||
-        payment.payer?.email ||
-        "no-email"
+      let user_email =
+  payment.metadata?.user_email ||
+  payment.payer?.email ||
+  null
+
+if (!user_email) {
+  console.log("⚠️ Email no disponible, usando fallback temporal")
+  user_email = `guest_${payment.id}@impulsasuenos.com`
+}
 
       const amount = Number(payment.transaction_amount || 0)
 
