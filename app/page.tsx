@@ -79,3 +79,49 @@ export default async function Home() {
                   </h2>
 
                   <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                    {c.description}
+                  </p>
+
+                  {/* progreso */}
+                  <div className="text-sm mb-1">
+                    ${(c.current_amount || 0).toLocaleString()} / ${c.goal_amount.toLocaleString()}
+                  </div>
+
+                  <div className="w-full bg-gray-700 h-2 rounded-full mb-4">
+                    <div
+                      className="bg-indigo-500 h-2 rounded-full"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+
+                  <Link href={`/campaign/${c.id}`}>
+                    <button className="w-full bg-indigo-600 hover:bg-indigo-700 py-2 rounded-lg">
+                      Ver campaña
+                    </button>
+                  </Link>
+
+                </div>
+
+              </div>
+            )
+          })}
+
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="text-center py-20">
+        <h2 className="text-3xl font-bold mb-6">
+          ¿Listo para participar?
+        </h2>
+
+        <Link href="/my-tickets">
+          <button className="bg-green-500 hover:bg-green-600 px-8 py-4 rounded-xl font-semibold text-lg">
+            🎟️ Ver mis tickets
+          </button>
+        </Link>
+      </section>
+
+    </main>
+  )
+}
