@@ -28,11 +28,7 @@ export default function MyTicketsPage() {
 
       const data = await res.json()
 
-      if (data.tickets) {
-        setTickets(data.tickets)
-      } else {
-        setTickets([])
-      }
+      setTickets(data.tickets || [])
 
     } catch (error) {
       alert("Error al buscar tickets")
@@ -43,59 +39,67 @@ export default function MyTicketsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <h1 className="text-3xl font-bold mb-6">🎟️ Mis Tickets</h1>
+    <div className="min-h-screen bg-[#0B0F1A] text-white p-6">
 
-      {/* BUSCADOR */}
-      <div className="flex gap-2 mb-6">
-        <input
-          type="email"
-          placeholder="Ingresa tu email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="p-3 rounded text-black w-full"
-        />
+      <div className="max-w-xl mx-auto">
 
-        <button
-          onClick={handleSearch}
-          className="bg-green-500 px-4 rounded font-bold"
-        >
-          {loading ? "Buscando..." : "Buscar"}
-        </button>
-      </div>
+        <h1 className="text-3xl font-bold mb-6">
+          🎟️ Tus tickets
+        </h1>
 
-      {/* ESTADOS */}
-      {loading && <p className="text-gray-400">Cargando tickets...</p>}
+        {/* buscador */}
+        <div className="flex gap-2 mb-6">
+          <input
+            type="email"
+            placeholder="Ingresa tu correo"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700"
+          />
 
-      {!loading && searched && tickets.length === 0 && (
-        <p className="text-gray-400">No tienes tickets aún</p>
-      )}
-
-      {/* LISTA */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {tickets.map((ticket) => (
-          <div
-            key={ticket.ticket_number + ticket.created_at}
-            className="bg-gray-800 p-4 rounded-xl text-center shadow-lg"
+          <button
+            onClick={handleSearch}
+            className="bg-indigo-600 hover:bg-indigo-700 px-4 rounded font-semibold"
           >
-            <p className="text-sm text-gray-400">🎟️ Ticket</p>
-            <p className="text-2xl font-bold mb-2">
-              #{ticket.ticket_number}
-            </p>
+            {loading ? "..." : "Buscar"}
+          </button>
+        </div>
 
-            <p className="text-xs text-gray-400">
-              📌 Campaña:
-            </p>
-            <p className="text-sm break-all mb-2">
-              {ticket.campaign_id}
-            </p>
+        {/* estados */}
+        {loading && <p className="text-gray-400">Buscando tickets...</p>}
 
-            <p className="text-xs text-gray-500">
-              {new Date(ticket.created_at).toLocaleString()}
-            </p>
-          </div>
-        ))}
+        {!loading && searched && tickets.length === 0 && (
+          <p className="text-gray-400">No tienes tickets aún</p>
+        )}
+
+        {/* lista */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {tickets.map((ticket) => (
+            <div
+              key={ticket.ticket_number + ticket.created_at}
+              className="bg-[#111827] p-4 rounded-xl text-center"
+            >
+              <p className="text-sm text-gray-400">🎟️ Ticket</p>
+
+              <p className="text-2xl font-bold mb-2">
+                #{ticket.ticket_number}
+              </p>
+
+              <p className="text-xs text-gray-400">📌 Campaña:</p>
+
+              <p className="text-sm font-semibold mb-2">
+                {ticket.campaigns?.title || "Campaña"}
+              </p>
+
+              <p className="text-xs text-gray-500">
+                {new Date(ticket.created_at).toLocaleString()}
+              </p>
+            </div>
+          ))}
+        </div>
+
       </div>
+
     </div>
   )
 }

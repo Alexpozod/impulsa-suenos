@@ -14,52 +14,68 @@ export default async function Home() {
     .order("created_at", { ascending: false })
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white p-8">
+    <main className="bg-[#0B0F1A] text-white min-h-screen">
 
-      <h1 className="text-4xl font-bold mb-10">
-        ImpulsaSueños 🚀
-      </h1>
+      {/* HERO */}
+      <section className="text-center py-20 px-6">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          Haz realidad sueños.{" "}
+          <span className="text-indigo-500">Participa y gana.</span>
+        </h1>
 
-      <div className="grid md:grid-cols-3 gap-6">
+        <p className="text-gray-400 max-w-2xl mx-auto mb-8">
+          Compra tickets, apoya campañas reales y participa automáticamente en sorteos con premios increíbles.
+        </p>
 
-        {campaigns?.map((c) => (
-          <div
-            key={c.id}
-            className="bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition"
-          >
+        <div className="flex justify-center gap-4">
+          <a href="#campaigns">
+            <button className="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl font-semibold">
+              🎟️ Ver campañas
+            </button>
+          </a>
 
-            {/* Imagen */}
-            <img
-              src={c.image_url || "https://via.placeholder.com/400"}
-              className="w-full h-48 object-cover"
-            />
+          <Link href="/my-tickets">
+            <button className="bg-gray-800 hover:bg-gray-700 px-6 py-3 rounded-xl font-semibold">
+              🎫 Mis tickets
+            </button>
+          </Link>
+        </div>
 
-            <div className="p-4">
+        <div className="flex justify-center gap-6 mt-6 text-sm text-gray-400 flex-wrap">
+          <span>✔ Pagos seguros</span>
+          <span>✔ Tickets únicos</span>
+          <span>✔ Sorteos transparentes</span>
+        </div>
+      </section>
 
-              <h2 className="text-xl font-semibold">
-                {c.title}
-              </h2>
+      {/* CAMPAÑAS */}
+      <section id="campaigns" className="py-16 px-6 max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold mb-8">Campañas activas</h2>
 
-              <p className="text-gray-400 text-sm mt-2 line-clamp-2">
-                {c.description}
-              </p>
+        <div className="grid md:grid-cols-3 gap-6">
 
-              <p className="mt-4 font-bold">
-                Meta: ${c.goal_amount}
-              </p>
+          {campaigns?.map((c) => {
 
-              <Link href={`/campaign/${c.id}`}>
-                <button className="mt-4 w-full bg-blue-500 hover:bg-blue-600 p-2 rounded-lg">
-                  Ver campaña
-                </button>
-              </Link>
+            const progress = Math.min(
+              ((c.current_amount || 0) / c.goal_amount) * 100,
+              100
+            )
 
-            </div>
+            return (
+              <div
+                key={c.id}
+                className="bg-[#111827] rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition"
+              >
+                {/* Imagen */}
+                <img
+                  src={c.image_url || "https://via.placeholder.com/400"}
+                  className="w-full h-48 object-cover"
+                />
 
-          </div>
-        ))}
+                <div className="p-5">
 
-      </div>
-    </main>
-  )
-}
+                  <h2 className="text-lg font-semibold mb-2">
+                    {c.title}
+                  </h2>
+
+                  <p className="text-gray-400 text-sm mb-4 line-clamp-2">

@@ -11,7 +11,6 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
   const { id } = await params
 
-  // 📌 Obtener campaña
   const { data, error } = await supabase
     .from('campaigns')
     .select('*')
@@ -20,13 +19,12 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A] text-white">
         Campaña no encontrada
       </div>
     )
   }
 
-  // 💰 total recaudado
   const { data: allDonations } = await supabase
     .from('donations')
     .select('amount')
@@ -35,7 +33,6 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   const totalDonated =
     allDonations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
-  // 🎟️ tickets vendidos
   const { count: ticketsSold } = await supabase
     .from('tickets')
     .select('*', { count: 'exact', head: true })
@@ -46,7 +43,6 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     100
   )
 
-  // 📌 últimas compras
   const { data: donations } = await supabase
     .from('donations')
     .select('*')
@@ -54,7 +50,6 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     .order('created_at', { ascending: false })
     .limit(5)
 
-  // 🔒 BLOQUEOS AUTOMÁTICOS
   const isExpired =
     data.end_date && new Date(data.end_date) < new Date()
 
@@ -62,68 +57,78 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     (ticketsSold || 0) >= data.total_tickets
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-[#0B0F1A] text-white p-6">
 
-      <div className="max-w-3xl mx-auto bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
 
-        {/* IMAGEN */}
-        <img
-          src={data.image_url || "https://via.placeholder.com/800"}
-          alt="Imagen campaña"
-          className="w-full h-72 object-cover"
-        />
+        {/* IZQUIERDA */}
+        <div>
+          <img
+            src={data.image_url || "https://via.placeholder.com/800"}
+            className="w-full h-80 object-cover rounded-2xl mb-6"
+          />
 
-        <div className="p-6">
-
-          {/* TITULO */}
-          <h1 className="text-3xl font-bold mb-3">
+          <h1 className="text-3xl font-bold mb-4">
             {data.title}
           </h1>
 
-          {/* ⏳ COUNTDOWN */}
           {data.end_date && (
             <Countdown endDate={data.end_date} />
           )}
 
-          {/* DESCRIPCIÓN */}
-          <p className="text-gray-300 mb-6 leading-relaxed">
+          <p className="text-gray-400 mt-4 leading-relaxed">
             {data.description}
           </p>
 
-          {/* 📊 PROGRESO */}
-          <div className="mb-6">
+          {/* últimas compras */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-3">
+              Últimas compras
+            </h3>
 
-            <div className="flex justify-between mb-2 text-sm">
-              <span className="font-semibold text-green-400">
-                ${totalDonated.toLocaleString()} recaudados
-              </span>
-              <span>{progress.toFixed(0)}%</span>
+            {donations && donations.length > 0 ? (
+              donations.map((d) => (
+                <div
+                  key={d.id}
+                  className="bg-[#111827] rounded-lg p-3 mb-2 text-sm"
+                >
+                  🎟️ Alguien compró ${Number(d.amount).toLocaleString()}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400">
+                Aún no hay compras
+              </p>
+            )}
+          </div>
+
+        </div>
+
+        {/* DERECHA */}
+        <div className="bg-[#111827] p-6 rounded-2xl h-fit">
+
+          <div className="mb-4">
+            <div className="text-xl font-semibold text-green-400">
+              ${totalDonated.toLocaleString()}
             </div>
-
-            <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
-              <div
-                className="h-3 bg-gradient-to-r from-green-400 to-green-600 transition-all"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            <p className="text-xs text-gray-400 mt-2">
+            <div className="text-gray-400">
               Meta: ${data.goal_amount.toLocaleString()}
-            </p>
+            </div>
           </div>
 
-          {/* 🎟️ TICKETS */}
-          <div className="mb-6 bg-gray-700 p-4 rounded-xl text-center">
-            <p className="text-sm text-gray-400 mb-1">
-              🎟️ Tickets vendidos
-            </p>
-            <p className="text-2xl font-bold">
-              {ticketsSold || 0} / {data.total_tickets}
-            </p>
+          <div className="w-full bg-gray-700 h-3 rounded-full mb-6">
+            <div
+              className="bg-indigo-500 h-3 rounded-full"
+              style={{ width: `${progress}%` }}
+            />
           </div>
 
-          {/* 🔘 BOTÓN / ESTADO */}
-          <div className="mb-8">
+          <div className="mb-6 text-sm text-gray-400">
+            🎟️ {ticketsSold || 0} / {data.total_tickets} tickets
+          </div>
+
+          {/* botón */}
+          <div className="mb-6">
             {isExpired ? (
               <div className="bg-red-700 p-4 rounded-xl text-center font-bold">
                 ⛔ Campaña finalizada
@@ -137,26 +142,11 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             )}
           </div>
 
-          {/* 📌 DONACIONES */}
-          <div>
-            <h3 className="text-xl font-semibold mb-3">
-              Últimas compras
-            </h3>
-
-            {donations && donations.length > 0 ? (
-              donations.map((d) => (
-                <div
-                  key={d.id}
-                  className="bg-gray-700 rounded-lg p-3 mb-2 text-sm"
-                >
-                  🎟️ Alguien compró ${Number(d.amount).toLocaleString()}
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400">
-                Aún no hay compras
-              </p>
-            )}
+          {/* confianza */}
+          <div className="text-sm text-gray-400">
+            ✔ Pago seguro con MercadoPago <br />
+            ✔ Tickets enviados automáticamente <br />
+            ✔ Participación garantizada
           </div>
 
         </div>
