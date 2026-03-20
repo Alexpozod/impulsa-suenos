@@ -1,3 +1,4 @@
+import Countdown from '@/app/components/Countdown'
 import DonateButton from '@/app/components/DonateButton'
 import { createClient } from '@supabase/supabase-js'
 
@@ -25,7 +26,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     )
   }
 
-  // 💰 TODAS las donaciones (no solo últimas)
+  // 💰 total recaudado
   const { data: allDonations } = await supabase
     .from('donations')
     .select('amount')
@@ -45,13 +46,20 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     100
   )
 
-  // 📌 últimas donaciones (solo para UI)
+  // 📌 últimas compras
   const { data: donations } = await supabase
     .from('donations')
     .select('*')
     .eq('campaign_id', id)
     .order('created_at', { ascending: false })
     .limit(5)
+
+  // 🔒 BLOQUEOS AUTOMÁTICOS
+  const isExpired =
+    data.end_date && new Date(data.end_date) < new Date()
+
+  const soldOut =
+    (ticketsSold || 0) >= data.total_tickets
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
@@ -71,6 +79,11 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
           <h1 className="text-3xl font-bold mb-3">
             {data.title}
           </h1>
+
+          {/* ⏳ COUNTDOWN */}
+          {data.end_date && (
+            <Countdown endDate={data.end_date} />
+          )}
 
           {/* DESCRIPCIÓN */}
           <p className="text-gray-300 mb-6 leading-relaxed">
@@ -99,7 +112,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             </p>
           </div>
 
-          {/* 🎟️ TICKETS (NUEVO 🔥) */}
+          {/* 🎟️ TICKETS */}
           <div className="mb-6 bg-gray-700 p-4 rounded-xl text-center">
             <p className="text-sm text-gray-400 mb-1">
               🎟️ Tickets vendidos
@@ -109,12 +122,22 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             </p>
           </div>
 
-          {/* BOTÓN */}
+          {/* 🔘 BOTÓN / ESTADO */}
           <div className="mb-8">
-            <DonateButton campaignId={data.id} />
+            {isExpired ? (
+              <div className="bg-red-700 p-4 rounded-xl text-center font-bold">
+                ⛔ Campaña finalizada
+              </div>
+            ) : soldOut ? (
+              <div className="bg-yellow-600 p-4 rounded-xl text-center font-bold">
+                🎟️ Tickets agotados
+              </div>
+            ) : (
+              <DonateButton campaignId={data.id} />
+            )}
           </div>
 
-          {/* DONACIONES */}
+          {/* 📌 DONACIONES */}
           <div>
             <h3 className="text-xl font-semibold mb-3">
               Últimas compras
