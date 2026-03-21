@@ -19,12 +19,13 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-white text-black">
         Campaña no encontrada
       </div>
     )
   }
 
+  // 💰 total recaudado
   const { data: allDonations } = await supabase
     .from('donations')
     .select('amount')
@@ -33,6 +34,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   const totalDonated =
     allDonations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
+  // 🎟️ tickets
   const { count: ticketsSold } = await supabase
     .from('tickets')
     .select('*', { count: 'exact', head: true })
@@ -57,42 +59,45 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     (ticketsSold || 0) >= data.total_tickets
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white p-6">
+    <div className="min-h-screen bg-white text-gray-900 py-10 px-6">
 
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
 
         {/* IZQUIERDA */}
-        <div>
-          <img
-            src={data.image_url || "https://via.placeholder.com/800"}
-            className="w-full h-80 object-cover rounded-2xl mb-6"
-          />
+        <div className="md:col-span-2">
 
           <h1 className="text-3xl font-bold mb-4">
             {data.title}
           </h1>
 
+          <img
+            src={data.image_url || "https://via.placeholder.com/800"}
+            className="w-full h-96 object-cover rounded-xl mb-6"
+          />
+
           {data.end_date && (
-            <Countdown endDate={data.end_date} />
+            <div className="mb-6">
+              <Countdown endDate={data.end_date} />
+            </div>
           )}
 
-          <p className="text-gray-400 mt-4 leading-relaxed">
+          <p className="text-gray-600 leading-relaxed">
             {data.description}
           </p>
 
           {/* últimas compras */}
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold mb-3">
-              Últimas compras
+          <div className="mt-10">
+            <h3 className="text-lg font-semibold mb-4">
+              Actividad reciente
             </h3>
 
             {donations && donations.length > 0 ? (
               donations.map((d) => (
                 <div
                   key={d.id}
-                  className="bg-[#111827] rounded-lg p-3 mb-2 text-sm"
+                  className="border rounded-lg p-3 mb-2 text-sm"
                 >
-                  🎟️ Alguien compró ${Number(d.amount).toLocaleString()}
+                  🎟️ Compra de ${Number(d.amount).toLocaleString()}
                 </div>
               ))
             ) : (
@@ -104,48 +109,48 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
         </div>
 
-        {/* DERECHA */}
-        <div className="bg-[#111827] p-6 rounded-2xl h-fit">
+        {/* DERECHA (CLAVE DE CONVERSIÓN) */}
+        <div className="border rounded-xl p-6 h-fit shadow-sm">
 
           <div className="mb-4">
-            <div className="text-xl font-semibold text-green-400">
+            <div className="text-2xl font-bold text-green-600">
               ${totalDonated.toLocaleString()}
             </div>
-            <div className="text-gray-400">
-              Meta: ${data.goal_amount.toLocaleString()}
+
+            <div className="text-gray-500 text-sm">
+              recaudados de ${data.goal_amount.toLocaleString()}
             </div>
           </div>
 
-          <div className="w-full bg-gray-700 h-3 rounded-full mb-6">
+          {/* barra */}
+          <div className="w-full bg-gray-200 h-2 rounded-full mb-4">
             <div
-              className="bg-indigo-500 h-3 rounded-full"
+              className="bg-green-500 h-2 rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          <div className="mb-6 text-sm text-gray-400">
-            🎟️ {ticketsSold || 0} / {data.total_tickets} tickets
+          <div className="text-sm text-gray-500 mb-6">
+            🎟️ {ticketsSold || 0} / {data.total_tickets} tickets vendidos
           </div>
 
           {/* botón */}
-          <div className="mb-6">
-            {isExpired ? (
-              <div className="bg-red-700 p-4 rounded-xl text-center font-bold">
-                ⛔ Campaña finalizada
-              </div>
-            ) : soldOut ? (
-              <div className="bg-yellow-600 p-4 rounded-xl text-center font-bold">
-                🎟️ Tickets agotados
-              </div>
-            ) : (
-              <DonateButton campaignId={data.id} />
-            )}
-          </div>
+          {isExpired ? (
+            <div className="bg-red-500 text-white p-3 rounded-lg text-center font-semibold">
+              Campaña finalizada
+            </div>
+          ) : soldOut ? (
+            <div className="bg-yellow-400 p-3 rounded-lg text-center font-semibold">
+              Tickets agotados
+            </div>
+          ) : (
+            <DonateButton campaignId={data.id} />
+          )}
 
           {/* confianza */}
-          <div className="text-sm text-gray-400">
+          <div className="mt-6 text-sm text-gray-500">
             ✔ Pago seguro con MercadoPago <br />
-            ✔ Tickets enviados automáticamente <br />
+            ✔ Tickets automáticos <br />
             ✔ Participación garantizada
           </div>
 
