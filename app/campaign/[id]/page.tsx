@@ -65,11 +65,10 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   const soldOut =
     (ticketsSold || 0) >= data.total_tickets
 
-  // 🔥 NUEVO: bloqueo total
   const isFinished = isExpired || soldOut || winner
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 py-10 px-6">
+    <div className="min-h-screen bg-gray-50 text-gray-900 py-10 px-6">
 
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
 
@@ -82,7 +81,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
           <img
             src={data.image_url || "https://via.placeholder.com/800"}
-            className="w-full h-96 object-cover rounded-xl mb-6"
+            className="w-full h-96 object-cover rounded-2xl mb-6 shadow"
           />
 
           {data.end_date && (
@@ -95,7 +94,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             {data.description}
           </p>
 
-          {/* últimas compras */}
+          {/* actividad */}
           <div className="mt-10">
             <h3 className="text-lg font-semibold mb-4">
               Actividad reciente
@@ -105,7 +104,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
               donations.map((d) => (
                 <div
                   key={d.id}
-                  className="border rounded-lg p-3 mb-2 text-sm"
+                  className="bg-white border rounded-xl p-3 mb-2 text-sm shadow-sm"
                 >
                   🎟️ Compra de ${Number(d.amount).toLocaleString()}
                 </div>
@@ -119,11 +118,12 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
         </div>
 
-        {/* DERECHA */}
-        <div className="border rounded-xl p-6 h-fit shadow-sm">
+        {/* DERECHA (MODO CONFIANZA BANCARIA) */}
+        <div className="bg-white border rounded-2xl p-6 h-fit shadow-xl">
 
+          {/* 💰 MONTO */}
           <div className="mb-4">
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-3xl font-extrabold text-green-600">
               ${totalDonated.toLocaleString()}
             </div>
 
@@ -132,10 +132,10 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
-          {/* barra */}
-          <div className="w-full bg-gray-200 h-2 rounded-full mb-4">
+          {/* 📊 PROGRESO */}
+          <div className="w-full bg-gray-200 h-3 rounded-full mb-4 overflow-hidden">
             <div
-              className="bg-green-500 h-2 rounded-full"
+              className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -146,29 +146,50 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
           {/* 🏆 GANADOR */}
           {winner && (
-            <div className="bg-green-100 border border-green-300 p-4 rounded-lg mb-6 text-center">
-              <p className="text-sm text-gray-600">🏆 Ganador</p>
+            <div className="bg-green-100 border border-green-300 p-4 rounded-xl mb-6 text-center">
+              <p className="text-sm text-gray-600">🏆 Ganador confirmado</p>
               <p className="text-xl font-bold text-green-700">
                 Ticket #{winner.ticket_number}
               </p>
             </div>
           )}
 
-          {/* 🔒 BLOQUEO */}
+          {/* 🔘 BOTÓN / BLOQUEO */}
           {isFinished ? (
-            <div className="bg-gray-200 text-gray-700 p-3 rounded-lg text-center font-semibold">
+            <div className="bg-gray-200 text-gray-700 p-3 rounded-xl text-center font-semibold">
               Sorteo finalizado
             </div>
           ) : (
             <DonateButton campaignId={data.id} />
           )}
 
-          {/* confianza */}
-          <div className="mt-6 text-sm text-gray-500">
-            ✔ Pago seguro con MercadoPago <br />
-            ✔ Tickets automáticos <br />
-            ✔ Participación garantizada
+          {/* 🔒 CONFIANZA PRO */}
+          <div className="mt-6 border-t pt-4 space-y-2 text-sm text-gray-600">
+
+            <p className="flex items-center gap-2">
+              🔒 Pagos protegidos con MercadoPago
+            </p>
+
+            <p className="flex items-center gap-2">
+              🎟️ Tickets asignados automáticamente
+            </p>
+
+            <p className="flex items-center gap-2">
+              🎥 Sorteo en vivo (Instagram / TikTok)
+            </p>
+
+            <p className="flex items-center gap-2">
+              🧾 Resultados públicos y verificables
+            </p>
+
           </div>
+
+          {/* 🚨 URGENCIA */}
+          {!isFinished && (
+            <div className="mt-6 bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-xs text-yellow-800 text-center">
+              ⚠️ Alta demanda — quedan pocos tickets disponibles
+            </div>
+          )}
 
         </div>
 
