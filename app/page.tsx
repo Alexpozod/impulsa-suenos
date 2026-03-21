@@ -13,102 +13,126 @@ export default async function Home() {
     .select("*")
     .order("created_at", { ascending: false })
 
+  // 🏆 últimos ganadores
+  const { data: winners } = await supabase
+    .from("winners")
+    .select(`
+      *,
+      campaigns (
+        title
+      )
+    `)
+    .order("created_at", { ascending: false })
+    .limit(3)
+
   return (
-    <main className="bg-white text-gray-900 min-h-screen">
+    <main className="min-h-screen bg-white text-gray-900 p-8">
 
-      {/* HERO */}
-      <section className="text-center py-24 px-6 max-w-4xl mx-auto">
-
-        <h1 className="text-5xl font-bold leading-tight mb-6">
-          Aquí comienzan los sueños que sí se cumplen
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-10">
+        <h1 className="text-3xl font-bold">
+          ImpulsaSueños 🚀
         </h1>
 
-        <p className="text-lg text-gray-500 mb-8">
-          Apoya campañas reales o participa en sorteos con premios increíbles.
-        </p>
+        <Link href="/winners">
+          <button className="bg-black text-white px-4 py-2 rounded-lg">
+            Ver ganadores
+          </button>
+        </Link>
+      </div>
 
-        <div className="flex justify-center gap-4">
-          <a href="#campaigns">
-            <button className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full font-semibold">
-              Explorar campañas
-            </button>
-          </a>
+      {/* CAMPAÑAS */}
+      <h2 className="text-2xl font-semibold mb-6">
+        Campañas activas
+      </h2>
 
-          <Link href="/my-tickets">
-            <button className="border border-gray-300 px-8 py-3 rounded-full font-semibold">
-              Ver mis tickets
-            </button>
+      <div className="grid md:grid-cols-3 gap-6 mb-16">
+
+        {campaigns?.map((c) => (
+          <div
+            key={c.id}
+            className="border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition"
+          >
+
+            <img
+              src={c.image_url || "https://via.placeholder.com/400"}
+              className="w-full h-48 object-cover"
+            />
+
+            <div className="p-4">
+
+              <h2 className="text-lg font-semibold">
+                {c.title}
+              </h2>
+
+              <p className="text-gray-500 text-sm mt-2 line-clamp-2">
+                {c.description}
+              </p>
+
+              <p className="mt-3 font-bold text-green-600">
+                Meta: ${c.goal_amount}
+              </p>
+
+              <Link href={`/campaign/${c.id}`}>
+                <button className="mt-4 w-full bg-black text-white p-2 rounded-lg hover:opacity-80">
+                  Ver campaña
+                </button>
+              </Link>
+
+            </div>
+
+          </div>
+        ))}
+
+      </div>
+
+      {/* 🏆 GANADORES */}
+      <div className="max-w-4xl mx-auto">
+
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold">
+            🏆 Últimos ganadores
+          </h2>
+
+          <Link href="/winners">
+            <span className="text-sm text-gray-500 hover:underline cursor-pointer">
+              Ver todos
+            </span>
           </Link>
         </div>
 
-      </section>
+        {winners && winners.length > 0 ? (
+          <div className="space-y-4">
 
-      {/* CAMPAÑAS */}
-      <section id="campaigns" className="max-w-6xl mx-auto px-6 pb-20">
+            {winners.map((w) => (
+              <div
+                key={w.id}
+                className="border rounded-xl p-4"
+              >
 
-        <h2 className="text-2xl font-semibold mb-6">
-          Campañas activas
-        </h2>
+                <p className="text-sm text-gray-500">
+                  {w.campaigns?.title || "Campaña"}
+                </p>
 
-        <div className="grid md:grid-cols-3 gap-8">
+                <p className="text-lg font-bold text-green-600">
+                  🎟️ Ticket #{w.ticket_number}
+                </p>
 
-          {campaigns?.map((c) => {
-
-            const progress = Math.min(
-              ((c.current_amount || 0) / c.goal_amount) * 100,
-              100
-            )
-
-            return (
-              <div key={c.id} className="border rounded-xl overflow-hidden hover:shadow-md transition">
-
-                {/* imagen */}
-                <img
-                  src={c.image_url || "https://via.placeholder.com/400"}
-                  className="w-full h-48 object-cover"
-                />
-
-                <div className="p-4">
-
-                  <h3 className="font-semibold text-lg mb-2">
-                    {c.title}
-                  </h3>
-
-                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">
-                    {c.description}
-                  </p>
-
-                  {/* progreso */}
-                  <div className="text-sm font-medium mb-1">
-                    ${(c.current_amount || 0).toLocaleString()} recaudados
-                  </div>
-
-                  <div className="w-full bg-gray-200 h-2 rounded-full mb-2">
-                    <div
-                      className="bg-green-500 h-2 rounded-full"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-
-                  <p className="text-xs text-gray-400 mb-4">
-                    Meta: ${c.goal_amount.toLocaleString()}
-                  </p>
-
-                  <Link href={`/campaign/${c.id}`}>
-                    <button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg">
-                      Ver campaña
-                    </button>
-                  </Link>
-
-                </div>
+                <p className="text-xs text-gray-400">
+                  {new Date(w.created_at).toLocaleString()}
+                </p>
 
               </div>
-            )
-          })}
+            ))}
 
-        </div>
+          </div>
+        ) : (
+          <p className="text-gray-400">
+            Aún no hay ganadores
+          </p>
+        )}
 
-      </section>
+      </div>
 
     </main>
   )
