@@ -52,6 +52,13 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     .order('created_at', { ascending: false })
     .limit(5)
 
+  // 🏆 ganador
+  const { data: winner } = await supabase
+    .from('winners')
+    .select('*')
+    .eq('campaign_id', id)
+    .maybeSingle()
+
   const isExpired =
     data.end_date && new Date(data.end_date) < new Date()
 
@@ -109,7 +116,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
         </div>
 
-        {/* DERECHA (CLAVE DE CONVERSIÓN) */}
+        {/* DERECHA */}
         <div className="border rounded-xl p-6 h-fit shadow-sm">
 
           <div className="mb-4">
@@ -133,6 +140,16 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
           <div className="text-sm text-gray-500 mb-6">
             🎟️ {ticketsSold || 0} / {data.total_tickets} tickets vendidos
           </div>
+
+          {/* 🏆 GANADOR */}
+          {winner && (
+            <div className="bg-green-100 border border-green-300 p-4 rounded-lg mb-6 text-center">
+              <p className="text-sm text-gray-600">🏆 Ganador</p>
+              <p className="text-xl font-bold text-green-700">
+                Ticket #{winner.ticket_number}
+              </p>
+            </div>
+          )}
 
           {/* botón */}
           {isExpired ? (
