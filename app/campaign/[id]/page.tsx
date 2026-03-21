@@ -65,6 +65,9 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   const soldOut =
     (ticketsSold || 0) >= data.total_tickets
 
+  // 🔥 NUEVO: bloqueo total
+  const isFinished = isExpired || soldOut || winner
+
   return (
     <div className="min-h-screen bg-white text-gray-900 py-10 px-6">
 
@@ -151,14 +154,10 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             </div>
           )}
 
-          {/* botón */}
-          {isExpired ? (
-            <div className="bg-red-500 text-white p-3 rounded-lg text-center font-semibold">
-              Campaña finalizada
-            </div>
-          ) : soldOut ? (
-            <div className="bg-yellow-400 p-3 rounded-lg text-center font-semibold">
-              Tickets agotados
+          {/* 🔒 BLOQUEO */}
+          {isFinished ? (
+            <div className="bg-gray-200 text-gray-700 p-3 rounded-lg text-center font-semibold">
+              Sorteo finalizado
             </div>
           ) : (
             <DonateButton campaignId={data.id} />
