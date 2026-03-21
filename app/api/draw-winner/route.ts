@@ -17,7 +17,21 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🎟️ obtener todos los tickets
+    // 🔒 verificar si ya existe ganador
+    const { data: existingWinner } = await supabase
+      .from("winners")
+      .select("*")
+      .eq("campaign_id", campaign_id)
+      .maybeSingle()
+
+    if (existingWinner) {
+      return NextResponse.json({
+        winner: existingWinner,
+        message: "Ya existe un ganador",
+      })
+    }
+
+    // 🎟️ obtener tickets
     const { data: tickets, error } = await supabase
       .from("tickets")
       .select("*")
@@ -30,19 +44,23 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🎯 seleccionar ganador aleatorio
+    // 🎯 elegir ganador
     const randomIndex = Math.floor(Math.random() * tickets.length)
     const winner = tickets[randomIndex]
 
     // 💾 guardar ganador
-    await supabase.from("winners").insert({
-      campaign_id,
-      ticket_number: winner.ticket_number,
-      user_email: winner.user_email,
-    })
+    const { data: savedWinner } = await supabase
+      .from("winners")
+      .insert({
+        campaign_id,
+        ticket_number: winner.ticket_number,
+        user_email: winner.user_email,
+      })
+      .select()
+      .single()
 
     return NextResponse.json({
-      winner,
+      winner: savedWinner,
     })
 
   } catch (error) {
