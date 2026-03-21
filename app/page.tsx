@@ -30,7 +30,6 @@ export default async function Home() {
 
       {/* NAVBAR */}
       <nav className="flex justify-between items-center px-8 py-6 border-b border-slate-800 bg-slate-950/70 backdrop-blur sticky top-0 z-50">
-
         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
           ImpulsaSueños
         </h1>
@@ -39,31 +38,40 @@ export default async function Home() {
           <Link href="/winners">Ganadores</Link>
           <Link href="/my-tickets">Mis tickets</Link>
         </div>
-
       </nav>
 
       {/* HERO */}
       <section className="text-center py-20 px-6 max-w-4xl mx-auto">
 
-        <h2 className="text-5xl font-extrabold mb-6 leading-tight">
+        <h2 className="text-5xl font-extrabold mb-4 leading-tight">
           Participa en sorteos reales y gana premios verificables
         </h2>
 
-        <p className="text-slate-400 text-lg mb-8">
+        <p className="text-slate-400 text-lg mb-6">
           Transmisiones en vivo • Tickets únicos • Resultados públicos
         </p>
 
+        <div className="text-sm text-emerald-400 mb-6 font-semibold">
+          ✔ Pagos seguros con MercadoPago
+        </div>
+
         <Link href="#campaigns">
-          <button className="bg-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-500 transition shadow-lg shadow-blue-500/20">
-            Ver campañas activas
+          <button className="bg-blue-600 px-10 py-4 rounded-xl font-semibold hover:bg-blue-500 hover:scale-105 transition shadow-lg shadow-blue-500/20">
+            Participar ahora
           </button>
         </Link>
 
       </section>
 
+      {/* 🔴 ACTIVIDAD EN VIVO */}
+      <div className="max-w-4xl mx-auto px-6 mb-10">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-300 text-center animate-pulse">
+          🔴 En vivo: alguien acaba de comprar tickets hace unos segundos
+        </div>
+      </div>
+
       {/* STATS */}
       <section className="max-w-4xl mx-auto px-6 mb-16">
-
         <div className="grid grid-cols-3 gap-4 border-y border-slate-800 py-6 text-center">
 
           <div>
@@ -85,16 +93,13 @@ export default async function Home() {
           </div>
 
           <div>
-            <p className="text-2xl font-bold">
-              ✔
-            </p>
+            <p className="text-2xl font-bold">✔</p>
             <p className="text-slate-500 text-xs uppercase">
               Pagos seguros
             </p>
           </div>
 
         </div>
-
       </section>
 
       {/* CAMPAÑAS */}
@@ -109,7 +114,7 @@ export default async function Home() {
           {campaigns?.map((c) => (
             <div
               key={c.id}
-              className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-blue-500/50 hover:shadow-lg transition"
+              className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-blue-500/50 hover:shadow-xl hover:-translate-y-1 transition"
             >
 
               <div className="relative">
@@ -125,9 +130,14 @@ export default async function Home() {
 
               <div className="p-5">
 
-                <h3 className="font-bold text-lg mb-2">
+                <h3 className="font-bold text-lg mb-1">
                   {c.title}
                 </h3>
+
+                {/* 🔥 FOMO */}
+                <p className="text-xs text-red-400 font-semibold mb-2">
+                  🔥 Alta demanda
+                </p>
 
                 <p className="text-slate-400 text-sm mb-4 line-clamp-2">
                   {c.description}
@@ -139,7 +149,7 @@ export default async function Home() {
 
                 <Link href={`/campaign/${c.id}`}>
                   <button className="w-full py-2 bg-white text-black font-semibold rounded-lg hover:bg-slate-200 transition">
-                    Ver campaña
+                    Participar ahora
                   </button>
                 </Link>
 
@@ -176,7 +186,7 @@ export default async function Home() {
               {winners.map((w) => (
                 <div
                   key={w.id}
-                  className="bg-slate-800 border border-slate-700 rounded-xl p-5 text-center"
+                  className="bg-slate-800 border border-slate-700 rounded-xl p-5 text-center shadow-md hover:shadow-lg transition"
                 >
 
                   <p className="text-sm text-slate-400">
@@ -184,7 +194,7 @@ export default async function Home() {
                   </p>
 
                   <p className="text-xl font-bold text-yellow-400">
-                    🎟️ #{w.ticket_number}
+                    🏆 Ticket ganador #{w.ticket_number}
                   </p>
 
                   <p className="text-xs text-slate-500 mt-2">
