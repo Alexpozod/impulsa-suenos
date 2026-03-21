@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { createClient } from "@supabase/supabase-js"
+import { Trophy, Users } from "lucide-react"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,77 +26,70 @@ export default async function Home() {
     .limit(3)
 
   return (
-    <main className="min-h-screen bg-white text-gray-900">
+    <main className="min-h-screen bg-slate-950 text-white">
 
-      {/* HEADER */}
-      <header className="flex justify-between items-center px-8 py-6 border-b bg-white sticky top-0 z-50">
-        <h1 className="text-xl font-bold tracking-tight">
+      {/* NAVBAR */}
+      <nav className="flex justify-between items-center px-8 py-6 border-b border-slate-800 bg-slate-950/70 backdrop-blur sticky top-0 z-50">
+
+        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
           ImpulsaSueños
         </h1>
 
-        <div className="flex gap-6 items-center">
-          <Link href="/winners">
-            <span className="text-sm text-gray-600 hover:text-black cursor-pointer">
-              Ganadores
-            </span>
-          </Link>
-
-          <Link href="/my-tickets">
-            <span className="text-sm text-gray-600 hover:text-black cursor-pointer">
-              Mis tickets
-            </span>
-          </Link>
+        <div className="flex gap-6 text-sm text-slate-300">
+          <Link href="/winners">Ganadores</Link>
+          <Link href="/my-tickets">Mis tickets</Link>
         </div>
-      </header>
+
+      </nav>
 
       {/* HERO */}
-      <section className="max-w-5xl mx-auto text-center py-20 px-6">
+      <section className="text-center py-20 px-6 max-w-4xl mx-auto">
 
-        <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-          Participa desde $1.000 y gana premios reales 🎁
+        <h2 className="text-5xl font-extrabold mb-6 leading-tight">
+          Participa en sorteos reales y gana premios verificables
         </h2>
 
-        <p className="text-gray-600 text-lg mb-8">
-          Sorteos en vivo • Tickets verificables • Ganadores reales
+        <p className="text-slate-400 text-lg mb-8">
+          Transmisiones en vivo • Tickets únicos • Resultados públicos
         </p>
 
         <Link href="#campaigns">
-          <button className="bg-black text-white px-8 py-4 rounded-xl text-lg font-semibold hover:opacity-80">
+          <button className="bg-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-500 transition shadow-lg shadow-blue-500/20">
             Ver campañas activas
           </button>
         </Link>
 
       </section>
 
-      {/* 💡 CÓMO FUNCIONA */}
-      <section className="bg-gray-50 py-16 px-6">
+      {/* STATS */}
+      <section className="max-w-4xl mx-auto px-6 mb-16">
 
-        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8 text-center">
+        <div className="grid grid-cols-3 gap-4 border-y border-slate-800 py-6 text-center">
 
           <div>
-            <h3 className="text-lg font-semibold mb-2">
-              🎟️ Compra tickets
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Participa desde montos accesibles y recibe tus números automáticamente
+            <p className="text-2xl font-bold">
+              {campaigns?.length || 0}
+            </p>
+            <p className="text-slate-500 text-xs uppercase">
+              Campañas
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-2">
-              🎥 Sorteos en vivo
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Los ganadores se eligen en transmisiones en directo para total transparencia
+            <p className="text-2xl font-bold">
+              {winners?.length || 0}
+            </p>
+            <p className="text-slate-500 text-xs uppercase">
+              Ganadores
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-2">
-              🏆 Gana premios
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Si tu ticket es elegido, ganas el premio y se publica públicamente
+            <p className="text-2xl font-bold">
+              ✔
+            </p>
+            <p className="text-slate-500 text-xs uppercase">
+              Pagos seguros
             </p>
           </div>
 
@@ -104,10 +98,10 @@ export default async function Home() {
       </section>
 
       {/* CAMPAÑAS */}
-      <section id="campaigns" className="max-w-6xl mx-auto px-6 py-16">
+      <section id="campaigns" className="max-w-6xl mx-auto px-6 pb-20">
 
-        <h2 className="text-2xl font-semibold mb-8">
-          Campañas activas
+        <h2 className="text-2xl font-bold mb-8 flex items-center gap-2">
+          <Users className="text-blue-500" /> Campañas activas
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -115,30 +109,36 @@ export default async function Home() {
           {campaigns?.map((c) => (
             <div
               key={c.id}
-              className="border rounded-2xl overflow-hidden hover:shadow-lg transition bg-white"
+              className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-blue-500/50 hover:shadow-lg transition"
             >
 
-              <img
-                src={c.image_url || "https://via.placeholder.com/400"}
-                className="w-full h-52 object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={c.image_url || "https://via.placeholder.com/400"}
+                  className="w-full h-48 object-cover"
+                />
+
+                <div className="absolute top-3 left-3 bg-emerald-500 text-black text-xs font-bold px-2 py-1 rounded">
+                  ACTIVO
+                </div>
+              </div>
 
               <div className="p-5">
 
-                <h3 className="text-lg font-semibold mb-2">
+                <h3 className="font-bold text-lg mb-2">
                   {c.title}
                 </h3>
 
-                <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+                <p className="text-slate-400 text-sm mb-4 line-clamp-2">
                   {c.description}
                 </p>
 
-                <p className="text-green-600 font-bold mb-4">
+                <p className="text-blue-400 font-bold mb-4">
                   Meta: ${c.goal_amount}
                 </p>
 
                 <Link href={`/campaign/${c.id}`}>
-                  <button className="w-full bg-black text-white py-2 rounded-lg hover:opacity-80">
+                  <button className="w-full py-2 bg-white text-black font-semibold rounded-lg hover:bg-slate-200 transition">
                     Ver campaña
                   </button>
                 </Link>
@@ -153,17 +153,18 @@ export default async function Home() {
       </section>
 
       {/* GANADORES */}
-      <section className="bg-gray-50 py-16 px-6">
+      <section className="bg-slate-900 py-16 px-6">
 
         <div className="max-w-4xl mx-auto">
 
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-semibold">
-              🏆 Últimos ganadores
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <Trophy className="text-yellow-400" />
+              Últimos ganadores
             </h2>
 
             <Link href="/winners">
-              <span className="text-sm text-gray-500 hover:underline cursor-pointer">
+              <span className="text-sm text-slate-400 hover:underline cursor-pointer">
                 Ver todos
               </span>
             </Link>
@@ -175,18 +176,18 @@ export default async function Home() {
               {winners.map((w) => (
                 <div
                   key={w.id}
-                  className="bg-white border rounded-xl p-4 text-center shadow-sm"
+                  className="bg-slate-800 border border-slate-700 rounded-xl p-5 text-center"
                 >
 
-                  <p className="text-sm text-gray-500 mb-1">
+                  <p className="text-sm text-slate-400">
                     {w.campaigns?.title || "Campaña"}
                   </p>
 
-                  <p className="text-xl font-bold text-green-600">
+                  <p className="text-xl font-bold text-yellow-400">
                     🎟️ #{w.ticket_number}
                   </p>
 
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-slate-500 mt-2">
                     {new Date(w.created_at).toLocaleString()}
                   </p>
 
@@ -195,7 +196,7 @@ export default async function Home() {
 
             </div>
           ) : (
-            <p className="text-gray-400">
+            <p className="text-slate-500">
               Aún no hay ganadores
             </p>
           )}
@@ -204,9 +205,9 @@ export default async function Home() {
 
       </section>
 
-      {/* FOOTER SIMPLE */}
-      <footer className="text-center text-sm text-gray-500 py-10">
-        © {new Date().getFullYear()} ImpulsaSueños — Todos los derechos reservados
+      {/* FOOTER */}
+      <footer className="text-center text-xs text-slate-600 py-10 border-t border-slate-800">
+        © {new Date().getFullYear()} ImpulsaSueños — Plataforma de sorteos y crowdfunding
       </footer>
 
     </main>
