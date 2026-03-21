@@ -6,9 +6,20 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// 🔒 clave secreta
+const ADMIN_SECRET = process.env.ADMIN_SECRET
+
 export async function POST(req: Request) {
   try {
-    const { campaign_id } = await req.json()
+    const { campaign_id, secret } = await req.json()
+
+    // 🔐 validación de acceso
+    if (secret !== ADMIN_SECRET) {
+      return NextResponse.json(
+        { error: "No autorizado" },
+        { status: 401 }
+      )
+    }
 
     if (!campaign_id) {
       return NextResponse.json(
