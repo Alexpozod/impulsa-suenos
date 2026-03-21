@@ -7,6 +7,16 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+function timeAgo(date: string) {
+  const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000)
+
+  if (seconds < 60) return "hace unos segundos"
+  if (seconds < 3600) return `hace ${Math.floor(seconds / 60)} min`
+  if (seconds < 86400) return `hace ${Math.floor(seconds / 3600)} horas`
+
+  return `hace ${Math.floor(seconds / 86400)} días`
+}
+
 export default async function Home() {
 
   const { data: campaigns } = await supabase
@@ -24,6 +34,12 @@ export default async function Home() {
     `)
     .order("created_at", { ascending: false })
     .limit(3)
+
+  const { data: recentDonations } = await supabase
+    .from("donations")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(1)
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -63,11 +79,17 @@ export default async function Home() {
 
       </section>
 
-      {/* 🔴 ACTIVIDAD EN VIVO */}
+      {/* 🔴 ACTIVIDAD REAL */}
       <div className="max-w-4xl mx-auto px-6 mb-10">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-300 text-center animate-pulse">
-          🔴 En vivo: alguien acaba de comprar tickets hace unos segundos
-        </div>
+        {recentDonations && recentDonations.length > 0 ? (
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-300 text-center">
+            🔴 En vivo: alguien compró ${Number(recentDonations[0].amount).toLocaleString()} {timeAgo(recentDonations[0].created_at)}
+          </div>
+        ) : (
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-500 text-center">
+            Aún no hay actividad
+          </div>
+        )}
       </div>
 
       {/* STATS */}
@@ -134,7 +156,6 @@ export default async function Home() {
                   {c.title}
                 </h3>
 
-                {/* 🔥 FOMO */}
                 <p className="text-xs text-red-400 font-semibold mb-2">
                   🔥 Alta demanda
                 </p>
