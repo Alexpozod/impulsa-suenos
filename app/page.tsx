@@ -1,3 +1,4 @@
+import Notifications from "./components/Notifications"
 import LiveFeed from "./components/LiveFeed"
 import Link from "next/link"
 import { createClient } from "@supabase/supabase-js"
@@ -223,6 +224,9 @@ export default async function Home() {
       <footer className="text-center text-xs text-slate-600 py-10 border-t border-slate-800">
         © {new Date().getFullYear()} ImpulsaSueños — Plataforma de sorteos y crowdfunding
       </footer>
+
+{/* 🔔 NOTIFICACIONES TIPO CASINO */}
+<Notifications donations={recentDonations || []} />
 
     </main>
   )
