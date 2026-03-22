@@ -1,3 +1,4 @@
+import LiveWinner from "@/app/components/LiveWinner"
 import Countdown from '@/app/components/Countdown'
 import DonateButton from '@/app/components/DonateButton'
 import { createClient } from '@supabase/supabase-js'
@@ -150,6 +151,8 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
               <p className="text-sm text-gray-600">🏆 Ganador confirmado</p>
               <p className="text-xl font-bold text-green-700">
                 Ticket #{winner.ticket_number}
+                <LiveWinner campaignId={data.id} />
+
               </p>
             </div>
           )}
