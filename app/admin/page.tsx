@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 
 export default function AdminPage() {
   const [campaigns, setCampaigns] = useState<any[]>([])
@@ -51,30 +52,43 @@ export default function AdminPage() {
         {campaigns.map((c) => (
           <div
             key={c.id}
-            className="bg-slate-900 border border-slate-800 rounded-xl p-6"
+            className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-blue-500/40 transition"
           >
 
             <h2 className="text-xl font-bold mb-2">
               {c.title}
             </h2>
 
-            <p className="text-sm text-slate-400 mb-2">
-              Tickets vendidos: {c.tickets_sold}
+            <p className="text-sm text-slate-400 mb-1">
+              🎟️ Tickets: {c.tickets_sold}
             </p>
 
             <p className="text-sm text-slate-400 mb-4">
-              Total recaudado: ${c.total_raised}
+              💰 Total: ${c.total_raised}
             </p>
 
-            <button
-              onClick={() => drawWinner(c.id)}
-              disabled={loadingId === c.id}
-              className="w-full bg-red-600 hover:bg-red-500 py-3 rounded-lg font-semibold transition"
-            >
-              {loadingId === c.id
-                ? "Sorteando..."
-                : "🎯 REALIZAR SORTEO"}
-            </button>
+            {/* BOTONES */}
+            <div className="flex gap-3">
+
+              {/* SORTEO */}
+              <button
+                onClick={() => drawWinner(c.id)}
+                disabled={loadingId === c.id}
+                className="w-full bg-red-600 hover:bg-red-500 py-3 rounded-lg font-semibold transition"
+              >
+                {loadingId === c.id
+                  ? "Sorteando..."
+                  : "🎯 Sortear"}
+              </button>
+
+              {/* VER DETALLE */}
+              <Link href={`/admin/campaign/${c.id}`} className="w-full">
+                <button className="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-semibold transition">
+                  Ver detalle
+                </button>
+              </Link>
+
+            </div>
 
             {/* RESULTADO */}
             {result?.campaign_id === c.id && result?.data?.winner && (
