@@ -148,12 +148,16 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
           {/* 🏆 GANADOR */}
           {winner && (
             <div className="bg-green-100 border border-green-300 p-4 rounded-xl mb-6 text-center">
-              <p className="text-sm text-gray-600">🏆 Ganador confirmado</p>
+              <p className="text-sm text-gray-600 mb-1">
+                🏆 Ganador confirmado
+              </p>
+
               <p className="text-xl font-bold text-green-700">
                 Ticket #{winner.ticket_number}
-                <LiveWinner campaignId={data.id} />
-
               </p>
+
+              {/* animación / efecto */}
+              <LiveWinner campaignId={data.id} />
             </div>
           )}
 
@@ -169,21 +173,10 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
           {/* 🔒 CONFIANZA PRO */}
           <div className="mt-6 border-t pt-4 space-y-2 text-sm text-gray-600">
 
-            <p className="flex items-center gap-2">
-              🔒 Pagos protegidos con MercadoPago
-            </p>
-
-            <p className="flex items-center gap-2">
-              🎟️ Tickets asignados automáticamente
-            </p>
-
-            <p className="flex items-center gap-2">
-              🎥 Sorteo en vivo (Instagram / TikTok)
-            </p>
-
-            <p className="flex items-center gap-2">
-              🧾 Resultados públicos y verificables
-            </p>
+            <p>🔒 Pagos protegidos con MercadoPago</p>
+            <p>🎟️ Tickets asignados automáticamente</p>
+            <p>🎥 Sorteo en vivo (Instagram / TikTok)</p>
+            <p>🧾 Resultados públicos y verificables</p>
 
           </div>
 
