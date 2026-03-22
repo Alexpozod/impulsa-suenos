@@ -1,4 +1,5 @@
 import DrawButton from "@/app/components/DrawButton"
+import LiveDraw from "@/app/components/LiveDraw"
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -37,7 +38,8 @@ export default async function AdminCampaign({ params }: { params: { id: string }
     .eq("campaign_id", id)
     .maybeSingle()
 
-  const total = donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+  const total =
+    donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-10">
@@ -72,17 +74,21 @@ export default async function AdminCampaign({ params }: { params: { id: string }
 
       </div>
 
-      {/* BOTÓN SORTEO */}
+      {/* 🎰 ANIMACIÓN SORTEO (SHOW EN VIVO) */}
       {!winner && (
-        <form action="/api/draw-winner" method="POST" className="mb-10">
-          <input type="hidden" name="campaign_id" value={id} />
-          <button className="bg-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-500">
-            🎯 REALIZAR SORTEO EN VIVO
-          </button>
-        </form>
+        <div className="mb-10">
+          <LiveDraw tickets={tickets || []} />
+        </div>
       )}
 
-      {/* GANADOR */}
+      {/* 🎯 BOTÓN REAL (GUARDA EN BD) */}
+      {!winner && (
+        <div className="mb-10">
+          <DrawButton campaignId={id} />
+        </div>
+      )}
+
+      {/* 🏆 GANADOR */}
       {winner && (
         <div className="bg-green-900/40 border border-green-500 p-6 rounded-xl mb-10 text-center">
           <p className="text-sm">Ganador</p>
@@ -92,7 +98,7 @@ export default async function AdminCampaign({ params }: { params: { id: string }
         </div>
       )}
 
-      {/* DONACIONES */}
+      {/* 💰 DONACIONES */}
       <div className="mb-10">
         <h2 className="text-xl font-bold mb-4">
           Últimas compras
@@ -110,7 +116,7 @@ export default async function AdminCampaign({ params }: { params: { id: string }
         </div>
       </div>
 
-      {/* TICKETS */}
+      {/* 🎟️ TICKETS */}
       <div>
         <h2 className="text-xl font-bold mb-4">
           Tickets generados
