@@ -20,13 +20,12 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white text-black">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
         Campaña no encontrada
       </div>
     )
   }
 
-  // 💰 total recaudado
   const { data: allDonations } = await supabase
     .from('donations')
     .select('amount')
@@ -35,7 +34,6 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   const totalDonated =
     allDonations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
-  // 🎟️ tickets
   const { count: ticketsSold } = await supabase
     .from('tickets')
     .select('*', { count: 'exact', head: true })
@@ -53,7 +51,6 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
     .order('created_at', { ascending: false })
     .limit(5)
 
-  // 🏆 ganador
   const { data: winner } = await supabase
     .from('winners')
     .select('*')
@@ -76,13 +73,13 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
         {/* IZQUIERDA */}
         <div className="md:col-span-2">
 
-          <h1 className="text-3xl font-bold mb-4">
+          <h1 className="text-4xl font-bold mb-4">
             {data.title}
           </h1>
 
           <img
             src={data.image_url || "https://via.placeholder.com/800"}
-            className="w-full h-96 object-cover rounded-2xl mb-6 shadow"
+            className="w-full h-96 object-cover rounded-2xl mb-6 shadow-md"
           />
 
           {data.end_date && (
@@ -91,12 +88,12 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             </div>
           )}
 
-          <p className="text-gray-600 leading-relaxed">
+          <p className="text-gray-700 leading-relaxed text-lg">
             {data.description}
           </p>
 
-          {/* actividad */}
-          <div className="mt-10">
+          {/* ACTIVIDAD */}
+          <div className="mt-12">
             <h3 className="text-lg font-semibold mb-4">
               Actividad reciente
             </h3>
@@ -119,29 +116,31 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
         </div>
 
-        {/* DERECHA (MODO CONFIANZA BANCARIA) */}
-        <div className="bg-white border rounded-2xl p-6 h-fit shadow-xl">
+        {/* DERECHA */}
+        <div className="bg-white border rounded-2xl p-6 h-fit shadow-xl sticky top-24">
 
-          {/* 💰 MONTO */}
-          <div className="mb-4">
-            <div className="text-3xl font-extrabold text-green-600">
+          {/* 💰 MONTO DESTACADO */}
+          <div className="mb-5 text-center">
+
+            <div className="text-4xl font-extrabold text-green-600">
               ${totalDonated.toLocaleString()}
             </div>
 
             <div className="text-gray-500 text-sm">
               recaudados de ${data.goal_amount.toLocaleString()}
             </div>
+
           </div>
 
           {/* 📊 PROGRESO */}
           <div className="w-full bg-gray-200 h-3 rounded-full mb-4 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all"
+              className="bg-green-600 h-3 rounded-full transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          <div className="text-sm text-gray-500 mb-6">
+          <div className="text-sm text-gray-600 mb-6 text-center">
             🎟️ {ticketsSold || 0} / {data.total_tickets} tickets vendidos
           </div>
 
@@ -156,34 +155,41 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
                 Ticket #{winner.ticket_number}
               </p>
 
-              {/* animación / efecto */}
               <LiveWinner campaignId={data.id} />
             </div>
           )}
 
-          {/* 🔘 BOTÓN / BLOQUEO */}
+          {/* CTA */}
           {isFinished ? (
-            <div className="bg-gray-200 text-gray-700 p-3 rounded-xl text-center font-semibold">
+            <div className="bg-gray-200 text-gray-700 p-4 rounded-xl text-center font-semibold">
               Sorteo finalizado
             </div>
           ) : (
-            <DonateButton campaignId={data.id} />
+            <div className="space-y-3">
+
+              <DonateButton campaignId={data.id} />
+
+              <p className="text-xs text-center text-gray-500">
+                Compra segura con MercadoPago
+              </p>
+
+            </div>
           )}
 
-          {/* 🔒 CONFIANZA PRO */}
+          {/* 🔒 CONFIANZA */}
           <div className="mt-6 border-t pt-4 space-y-2 text-sm text-gray-600">
 
-            <p>🔒 Pagos protegidos con MercadoPago</p>
-            <p>🎟️ Tickets asignados automáticamente</p>
-            <p>🎥 Sorteo en vivo (Instagram / TikTok)</p>
-            <p>🧾 Resultados públicos y verificables</p>
+            <p>🔒 Pagos protegidos</p>
+            <p>🎟️ Tickets automáticos</p>
+            <p>🎥 Sorteo en vivo</p>
+            <p>🧾 Resultado verificable</p>
 
           </div>
 
           {/* 🚨 URGENCIA */}
           {!isFinished && (
-            <div className="mt-6 bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-xs text-yellow-800 text-center">
-              ⚠️ Alta demanda — quedan pocos tickets disponibles
+            <div className="mt-6 bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-xs text-yellow-800 text-center font-medium">
+              ⚠️ Alta demanda — quedan pocos tickets
             </div>
           )}
 
