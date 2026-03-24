@@ -37,20 +37,26 @@ export async function POST(req: Request) {
     try {
       payment = await paymentClient.get({ id: paymentId })
     } catch (error) {
-      console.log("⚠️ Payment no encontrado (normal en webhooks múltiples)")
+      console.log("⚠️ Payment no encontrado (normal)")
       return NextResponse.json({ ok: true })
     }
 
-    console.log("💳 PAYMENT STATUS:", payment.status)
+    console.log("💳 STATUS:", payment.status)
 
     if (payment.status === "approved") {
 
-      // 🔥 DATOS
+      // 🎯 CAMPAÑA
       const campaign_id =
         payment.metadata?.campaign_id ||
         payment.external_reference ||
         null
 
+      if (!campaign_id) {
+        console.log("❌ Sin campaign_id")
+        return NextResponse.json({ ok: true })
+      }
+
+      // 📧 EMAIL (AQUÍ ESTÁ payerEmail)
       let user_email =
         payment.metadata?.user_email ||
         payment.payer?.email ||
@@ -61,14 +67,10 @@ export async function POST(req: Request) {
         user_email = `guest_${payment.id}@impulsasuenos.com`
       }
 
-      const amount = Number(payment.transaction_amount || 0)
-
       console.log("📧 EMAIL:", user_email)
       console.log("🎯 CAMPAIGN:", campaign_id)
 
-      if (!campaign_id) {
-        return NextResponse.json({ ok: true })
-      }
+      const amount = Number(payment.transaction_amount || 0)
 
       // 🔒 EVITAR DUPLICADOS
       const { data: existing } = await supabase
@@ -82,12 +84,20 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true })
       }
 
-      // 💰 GUARDAR DONACIÓN
-      await supabase.from("donations").insert({
-        campaign_id,
-        amount,
-        payment_id: payment.id,
-      })
+      // 💰 GUARDAR DONACIÓN (🔥 AQUÍ ESTÁ EL FIX)
+      const { error: donationError } = await supabase
+        .from("donations")
+        .insert({
+          campaign_id,
+          amount,
+          payment_id: payment.id,
+          user_email, // ✅ AHORA SE GUARDA
+        })
+
+      if (donationError) {
+        console.error("❌ Error guardando donación:", donationError)
+        return NextResponse.json({ ok: true })
+      }
 
       // 🎟️ GENERAR TICKETS
       const ticketPrice = 1000
@@ -129,7 +139,7 @@ export async function POST(req: Request) {
         console.log(`🎟️ ${quantity} tickets generados`)
       }
 
-      // 📧 ENVIAR EMAIL AUTOMÁTICO
+      // 📧 EMAIL AUTOMÁTICO
       try {
         await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-email`, {
           method: "POST",
