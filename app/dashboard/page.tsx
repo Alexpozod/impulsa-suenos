@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
   const [tickets, setTickets] = useState<any[]>([])
   const [donations, setDonations] = useState<any[]>([])
+  const [kyc, setKyc] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -25,22 +26,30 @@ export default function Dashboard() {
 
       setUser(userData.user)
 
-      // 🎟️ Tickets del usuario
+      // 🎟️ Tickets
       const { data: userTickets } = await supabase
         .from('tickets')
         .select('*')
         .eq('user_email', userData.user.email)
         .order('created_at', { ascending: false })
 
-      // 💰 Compras del usuario
+      // 💰 Donaciones
       const { data: userDonations } = await supabase
         .from('donations')
         .select('*')
         .eq('user_email', userData.user.email)
         .order('created_at', { ascending: false })
 
+      // 🛡️ KYC
+      const { data: kycData } = await supabase
+        .from('kyc')
+        .select('*')
+        .eq('user_email', userData.user.email)
+        .maybeSingle()
+
       setTickets(userTickets || [])
       setDonations(userDonations || [])
+      setKyc(kycData || null)
 
       setLoading(false)
     }
@@ -61,6 +70,9 @@ export default function Dashboard() {
     )
   }
 
+  // 🎯 Estado KYC
+  const kycStatus = kyc?.status || 'none'
+
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10">
 
@@ -74,7 +86,7 @@ export default function Dashboard() {
               👋 Hola, {user?.email}
             </h1>
             <p className="text-gray-500 text-sm">
-              Bienvenido a tu panel de usuario
+              Panel de usuario
             </p>
           </div>
 
@@ -86,6 +98,36 @@ export default function Dashboard() {
           </button>
 
         </div>
+
+        {/* 🚨 BLOQUE KYC */}
+        {kycStatus !== 'approved' && (
+          <div className="mb-8 bg-yellow-50 border border-yellow-200 p-5 rounded-xl">
+
+            <h2 className="font-bold mb-2">
+              🔒 Verificación requerida
+            </h2>
+
+            {kycStatus === 'none' && (
+              <p className="text-sm text-gray-600 mb-3">
+                Debes verificar tu identidad para crear campañas.
+              </p>
+            )}
+
+            {kycStatus === 'pending' && (
+              <p className="text-sm text-gray-600 mb-3">
+                Tu verificación está en revisión.
+              </p>
+            )}
+
+            <button
+              onClick={() => router.push('/kyc')}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
+            >
+              Completar verificación
+            </button>
+
+          </div>
+        )}
 
         {/* STATS */}
         <div className="grid md:grid-cols-3 gap-6 mb-10">
@@ -101,13 +143,25 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <p className="text-sm text-gray-500">🔥 Estado</p>
-            <p className="text-green-600 font-semibold">Activo</p>
+            <p className="text-sm text-gray-500">🛡️ KYC</p>
+
+            {kycStatus === 'approved' && (
+              <p className="text-green-600 font-semibold">Verificado</p>
+            )}
+
+            {kycStatus === 'pending' && (
+              <p className="text-yellow-600 font-semibold">En revisión</p>
+            )}
+
+            {kycStatus === 'none' && (
+              <p className="text-red-500 font-semibold">No verificado</p>
+            )}
+
           </div>
 
         </div>
 
-        {/* TICKETS */}
+        {/* 🎟️ TICKETS */}
         <div className="bg-white p-6 rounded-xl shadow-sm border mb-10">
 
           <h2 className="font-bold mb-4">🎟️ Tus tickets</h2>
@@ -143,7 +197,7 @@ export default function Dashboard() {
 
         </div>
 
-        {/* COMPRAS */}
+        {/* 💰 COMPRAS */}
         <div className="bg-white p-6 rounded-xl shadow-sm border mb-10">
 
           <h2 className="font-bold mb-4">💰 Compras recientes</h2>
@@ -169,15 +223,24 @@ export default function Dashboard() {
 
         </div>
 
-        {/* CTA */}
+        {/* 🚀 CREAR CAMPAÑA */}
         <div className="text-center">
 
-          <button
-            onClick={() => router.push('/')}
-            className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700"
-          >
-            🎯 Ver campañas
-          </button>
+          {kycStatus === 'approved' ? (
+            <button
+              onClick={() => router.push('/create-campaign')}
+              className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700"
+            >
+              🚀 Crear campaña
+            </button>
+          ) : (
+            <button
+              onClick={() => router.push('/kyc')}
+              className="bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold"
+            >
+              🔒 Completa KYC para crear campañas
+            </button>
+          )}
 
         </div>
 
