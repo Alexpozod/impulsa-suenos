@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true })
       }
 
-      // 📧 EMAIL (AQUÍ ESTÁ payerEmail)
+      // 📧 EMAIL
       let user_email =
         payment.metadata?.user_email ||
         payment.payer?.email ||
@@ -67,10 +67,11 @@ export async function POST(req: Request) {
         user_email = `guest_${payment.id}@impulsasuenos.com`
       }
 
+      const amount = Number(payment.transaction_amount || 0)
+
       console.log("📧 EMAIL:", user_email)
       console.log("🎯 CAMPAIGN:", campaign_id)
-
-      const amount = Number(payment.transaction_amount || 0)
+      console.log("💰 MONTO:", amount)
 
       // 🔒 EVITAR DUPLICADOS
       const { data: existing } = await supabase
@@ -84,14 +85,14 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true })
       }
 
-      // 💰 GUARDAR DONACIÓN (🔥 AQUÍ ESTÁ EL FIX)
+      // 💰 GUARDAR DONACIÓN
       const { error: donationError } = await supabase
         .from("donations")
         .insert({
           campaign_id,
           amount,
           payment_id: payment.id,
-          user_email, // ✅ AHORA SE GUARDA
+          user_email,
         })
 
       if (donationError) {
@@ -99,63 +100,86 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true })
       }
 
+      // 🧠 OBTENER DUEÑO DE CAMPAÑA (CLAVE PARA WALLET)
+      const { data: campaign } = await supabase
+        .from("campaigns")
+        .select("user_email")
+        .eq("id", campaign_id)
+        .maybeSingle()
+
+      const owner_email = campaign?.user_email
+
+      if (owner_email) {
+        console.log("👤 OWNER:", owner_email)
+
+        // 💸 SUMAR SALDO AL WALLET
+        const { error: walletError } = await supabase.rpc("add_balance", {
+          user_email_input: owner_email,
+          amount_input: amount
+        })
+
+        if (walletError) {
+          console.error("❌ Error sumando wallet:", walletError)
+        } else {
+          console.log("💰 Wallet actualizado")
+        }
+      }
+
       // 🎟️ GENERAR TICKETS
       const ticketPrice = 1000
       const quantity = Math.floor(amount / ticketPrice)
 
-      if (quantity <= 0) {
-        return NextResponse.json({ ok: true })
-      }
+      if (quantity > 0) {
 
-      // 🔢 ÚLTIMO TICKET
-      const { data: lastTicket } = await supabase
-        .from("tickets")
-        .select("ticket_number")
-        .eq("campaign_id", campaign_id)
-        .order("ticket_number", { ascending: false })
-        .limit(1)
-        .maybeSingle()
+        const { data: lastTicket } = await supabase
+          .from("tickets")
+          .select("ticket_number")
+          .eq("campaign_id", campaign_id)
+          .order("ticket_number", { ascending: false })
+          .limit(1)
+          .maybeSingle()
 
-      let startNumber = lastTicket?.ticket_number || 0
+        let startNumber = lastTicket?.ticket_number || 0
 
-      const tickets = []
+        const tickets = []
 
-      for (let i = 1; i <= quantity; i++) {
-        tickets.push({
-          campaign_id,
-          payment_id: payment.id,
-          ticket_number: startNumber + i,
-          user_email,
-        })
-      }
+        for (let i = 1; i <= quantity; i++) {
+          tickets.push({
+            campaign_id,
+            payment_id: payment.id,
+            ticket_number: startNumber + i,
+            user_email,
+          })
+        }
 
-      const { error: ticketError } = await supabase
-        .from("tickets")
-        .insert(tickets)
+        const { error: ticketError } = await supabase
+          .from("tickets")
+          .insert(tickets)
 
-      if (ticketError) {
-        console.error("❌ Error tickets:", ticketError)
-      } else {
-        console.log(`🎟️ ${quantity} tickets generados`)
-      }
+        if (ticketError) {
+          console.error("❌ Error tickets:", ticketError)
+        } else {
+          console.log(`🎟️ ${quantity} tickets generados`)
+        }
 
-      // 📧 EMAIL AUTOMÁTICO
-      try {
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-email`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: user_email,
-            tickets,
-            campaign: campaign_id,
-          }),
-        })
+        // 📧 EMAIL
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-email`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: user_email,
+              tickets,
+              campaign: campaign_id,
+            }),
+          })
 
-        console.log("📧 Email enviado correctamente")
-      } catch (err) {
-        console.error("❌ Error enviando email", err)
+          console.log("📧 Email enviado")
+        } catch (err) {
+          console.error("❌ Error enviando email", err)
+        }
       }
     }
 
