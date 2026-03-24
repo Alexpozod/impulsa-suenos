@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const ticketNumbers = tickets.map((t: any) => `#${t.ticket_number}`).join(", ")
 
     const response = await resend.emails.send({
-      from: "Tickets <contacto@impulsasuenos.com>",
+      from: "Tickets <alex.taz17@gmail.com>",
       to: email,
       subject: "🎟️ Tus tickets - ImpulsaSueños",
       html: `
