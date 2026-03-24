@@ -1,40 +1,48 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
 
-  const url = req.nextUrl
+  const res = NextResponse.next()
 
-  // proteger rutas admin
-  if (url.pathname.startsWith("/admin")) {
-
-    const auth = req.headers.get("authorization")
-
-    if (!auth) {
-      return new Response("Auth required", {
-        status: 401,
-        headers: {
-          "WWW-Authenticate": 'Basic realm="Admin Panel"',
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (key) => req.cookies.get(key)?.value,
+        set: (key, value, options) => {
+          res.cookies.set(key, value, options)
         },
-      })
+        remove: (key, options) => {
+          res.cookies.set(key, '', options)
+        }
+      }
+    }
+  )
+
+  const { data } = await supabase.auth.getUser()
+  const user = data.user
+
+  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
+
+  if (isAdminRoute) {
+
+    // ❌ no logueado
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    const base64 = auth.split(" ")[1]
-    const decoded = atob(base64)
-
-    const [user, pass] = decoded.split(":")
-
-    if (
-      user !== process.env.ADMIN_USER ||
-      pass !== process.env.ADMIN_PASS
-    ) {
-      return new Response("Unauthorized", { status: 401 })
+    // ❌ no es admin
+    if (user.email !== 'alex.taz17@gmail.com') {
+      return NextResponse.redirect(new URL('/', req.url))
     }
   }
 
-  return NextResponse.next()
+  return res
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ['/admin/:path*'],
 }
