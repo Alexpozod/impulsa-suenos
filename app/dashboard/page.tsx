@@ -3,6 +3,14 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts'
 
 export default function Dashboard() {
 
@@ -31,14 +39,13 @@ export default function Dashboard() {
         .from('tickets')
         .select('*')
         .eq('user_email', userData.user.email)
-        .order('created_at', { ascending: false })
 
       // 💰 Donaciones
       const { data: userDonations } = await supabase
         .from('donations')
         .select('*')
         .eq('user_email', userData.user.email)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: true })
 
       // 🛡️ KYC
       const { data: kycData } = await supabase
@@ -72,6 +79,15 @@ export default function Dashboard() {
 
   // 🎯 Estado KYC
   const kycStatus = kyc?.status || 'none'
+
+  // 💰 total invertido
+  const totalSpent = donations.reduce((sum, d) => sum + Number(d.amount), 0)
+
+  // 📊 gráfico
+  const chartData = donations.map((d, i) => ({
+    name: `#${i + 1}`,
+    amount: Number(d.amount)
+  }))
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10">
@@ -130,39 +146,68 @@ export default function Dashboard() {
         )}
 
         {/* STATS */}
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <div className="grid md:grid-cols-4 gap-6 mb-10">
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
+          <div className="bg-white p-6 rounded-xl border">
             <p className="text-sm text-gray-500">🎟️ Tickets</p>
             <p className="text-2xl font-bold">{tickets.length}</p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
+          <div className="bg-white p-6 rounded-xl border">
             <p className="text-sm text-gray-500">💰 Compras</p>
             <p className="text-2xl font-bold">{donations.length}</p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
+          <div className="bg-white p-6 rounded-xl border">
+            <p className="text-sm text-gray-500">💵 Total invertido</p>
+            <p className="text-2xl font-bold text-green-600">
+              ${totalSpent.toLocaleString()}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl border">
             <p className="text-sm text-gray-500">🛡️ KYC</p>
 
-            {kycStatus === 'approved' && (
-              <p className="text-green-600 font-semibold">Verificado</p>
-            )}
-
-            {kycStatus === 'pending' && (
-              <p className="text-yellow-600 font-semibold">En revisión</p>
-            )}
-
-            {kycStatus === 'none' && (
-              <p className="text-red-500 font-semibold">No verificado</p>
-            )}
+            <p className={`font-semibold ${
+              kycStatus === 'approved'
+                ? 'text-green-600'
+                : kycStatus === 'pending'
+                ? 'text-yellow-600'
+                : 'text-red-500'
+            }`}>
+              {kycStatus}
+            </p>
 
           </div>
 
         </div>
 
+        {/* 📊 GRÁFICO */}
+        <div className="bg-white p-6 rounded-xl border mb-10">
+
+          <h2 className="font-bold mb-4">
+            📊 Historial de compras
+          </h2>
+
+          {chartData.length > 0 ? (
+            <div className="w-full h-64">
+              <ResponsiveContainer>
+                <LineChart data={chartData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="amount" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <p className="text-gray-400">Sin datos aún</p>
+          )}
+
+        </div>
+
         {/* 🎟️ TICKETS */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border mb-10">
+        <div className="bg-white p-6 rounded-xl border mb-10">
 
           <h2 className="font-bold mb-4">🎟️ Tus tickets</h2>
 
@@ -198,7 +243,7 @@ export default function Dashboard() {
         </div>
 
         {/* 💰 COMPRAS */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border mb-10">
+        <div className="bg-white p-6 rounded-xl border mb-10">
 
           <h2 className="font-bold mb-4">💰 Compras recientes</h2>
 
