@@ -7,27 +7,42 @@ const client = new MercadoPagoConfig({
 
 const preferenceClient = new Preference(client)
 
-const BASE_URL = "https://impulsa-suenos.vercel.app"
-
 export async function POST(req: Request) {
   try {
-    const { amount, campaign_id } = await req.json()
+    const { amount, campaign_id, user_email } = await req.json()
 
-    console.log("🔥 CREATE PAYMENT:", { amount, campaign_id })
+    console.log("🔥 CREATE PAYMENT:", {
+      amount,
+      campaign_id,
+      user_email,
+    })
+
+    // 🛡️ VALIDACIÓN
+    if (!amount || !campaign_id || !user_email) {
+      console.log("❌ Datos incompletos")
+      return NextResponse.json(
+        { error: "Faltan datos" },
+        { status: 400 }
+      )
+    }
+
+    const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
 
     const response = await preferenceClient.create({
       body: {
         items: [
           {
-            id: "donation",
+            id: "ticket",
             title: "🎟️ Ticket ImpulsaSueños",
             quantity: 1,
             unit_price: Number(amount),
           },
         ],
 
+        // 🔥 CLAVE TOTAL
         metadata: {
-          campaign_id: String(campaign_id),
+          campaign_id: campaign_id,
+          user_email: user_email,
         },
 
         external_reference: String(campaign_id),
@@ -35,16 +50,16 @@ export async function POST(req: Request) {
         notification_url: `${BASE_URL}/api/webhook`,
 
         back_urls: {
-          success: BASE_URL,
-          failure: BASE_URL,
-          pending: BASE_URL,
+          success: `${BASE_URL}/dashboard`,
+          failure: `${BASE_URL}/dashboard`,
+          pending: `${BASE_URL}/dashboard`,
         },
 
         auto_return: "approved",
       },
     })
 
-    console.log("✅ PREFERENCE:", response)
+    console.log("✅ PREFERENCE OK")
 
     return NextResponse.json({
       id: response.id,
@@ -53,6 +68,10 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("❌ ERROR CREATE PAYMENT:", error)
-    return NextResponse.json({ error: "error" }, { status: 500 })
+
+    return NextResponse.json(
+      { error: "Error creando pago" },
+      { status: 500 }
+    )
   }
 }
