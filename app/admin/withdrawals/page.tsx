@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/src/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function AdminWithdrawals() {
+
+  const router = useRouter()
 
   const [list, setList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -11,31 +14,59 @@ export default function AdminWithdrawals() {
   const load = async () => {
     setLoading(true)
 
-    const { data } = await supabase
-      .from('withdrawals')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const res = await fetch('/api/admin/withdrawals')
+    const data = await res.json()
 
     setList(data || [])
     setLoading(false)
   }
 
   useEffect(() => {
-    load()
+
+    const checkAdmin = async () => {
+
+      // 🔐 verificar usuario
+      const { data: userData } = await supabase.auth.getUser()
+
+      if (!userData.user) {
+        router.push('/login')
+        return
+      }
+
+      // 🔐 verificar rol
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userData.user.id)
+        .single()
+
+      if (!profile || profile.role !== 'admin') {
+        router.push('/')
+        return
+      }
+
+      load()
+    }
+
+    checkAdmin()
+
   }, [])
 
-  const update = async (id: string, status: string) => {
+  const update = async (id: string, action: string) => {
 
-    const confirmAction = confirm(`¿Seguro que quieres ${status}?`)
+    const confirmAction = confirm(`¿Seguro que quieres ${action}?`)
     if (!confirmAction) return
 
-    const { error } = await supabase
-      .from('withdrawals')
-      .update({ status })
-      .eq('id', id)
+    const res = await fetch('/api/admin/withdrawals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action })
+    })
 
-    if (error) {
-      alert('Error actualizando')
+    const data = await res.json()
+
+    if (!res.ok) {
+      alert(data.error || 'Error')
       return
     }
 
@@ -46,7 +77,7 @@ export default function AdminWithdrawals() {
     <main className="min-h-screen bg-slate-950 text-white p-10">
 
       <h1 className="text-3xl font-bold mb-8">
-        💸 Panel de Retiros
+        💸 Panel de Retiros (Admin)
       </h1>
 
       {loading ? (
@@ -92,19 +123,18 @@ export default function AdminWithdrawals() {
 
               </div>
 
-              {/* BOTONES SOLO SI ESTÁ PENDIENTE */}
               {w.status === 'pending' && (
                 <div className="flex gap-3 mt-4">
 
                   <button
-                    onClick={() => update(w.id, 'approved')}
+                    onClick={() => update(w.id, 'approve')}
                     className="bg-green-600 px-4 py-2 rounded-lg text-sm hover:bg-green-700"
                   >
                     ✅ Aprobar
                   </button>
 
                   <button
-                    onClick={() => update(w.id, 'rejected')}
+                    onClick={() => update(w.id, 'reject')}
                     className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700"
                   >
                     ❌ Rechazar
