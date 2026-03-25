@@ -22,23 +22,39 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 🔥 CAMBIO CLAVE
+  const {
+    data: { session }
+  } = await supabase.auth.getSession()
+
+  const user = session?.user
+
+  console.log("👤 SESSION USER:", user?.email)
 
   const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
 
   if (isAdminRoute) {
 
-    // ❌ no logueado → login
     if (!user) {
+      console.log("❌ NO USER SESSION")
       return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    // 🔥 validar admin por email (SIN profiles por ahora)
-    if (user.email !== 'alex.taz17@gmail.com') {
+    // 🔥 buscar profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    console.log("📄 PROFILE:", profile)
+
+    if (!profile || profile.role !== 'admin') {
+      console.log("❌ NO ADMIN")
       return NextResponse.redirect(new URL('/', req.url))
     }
 
-    // ✅ admin OK
+    console.log("✅ ADMIN OK")
     return res
   }
 
