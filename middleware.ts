@@ -34,8 +34,20 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/login', req.url))
       }
 
-      // ❌ no es admin → home (NO dashboard)
-      if (user.email !== 'alex.taz17@gmail.com') {
+      // 🔥 BUSCAR ROLE EN PROFILES
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (error || !profile) {
+        console.log('❌ No profile encontrado')
+        return NextResponse.redirect(new URL('/', req.url))
+      }
+
+      // ❌ no es admin
+      if (profile.role !== 'admin') {
         return NextResponse.redirect(new URL('/', req.url))
       }
 
