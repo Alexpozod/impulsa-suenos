@@ -6,62 +6,63 @@ export async function middleware(req: NextRequest) {
 
   const res = NextResponse.next()
 
-  try {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get: (key) => req.cookies.get(key)?.value,
-          set: (key, value, options) => {
-            res.cookies.set(key, value, options)
-          },
-          remove: (key, options) => {
-            res.cookies.set(key, '', options)
-          }
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (key) => req.cookies.get(key)?.value,
+        set: (key, value, options) => {
+          res.cookies.set(key, value, options)
+        },
+        remove: (key, options) => {
+          res.cookies.set(key, '', options)
         }
       }
-    )
+    }
+  )
 
-    const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error
+  } = await supabase.auth.getUser()
 
-    const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
+  console.log("👤 USER:", user?.email)
 
-    if (isAdminRoute) {
+  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
 
-      // ❌ no logueado → login
-      if (!user) {
-        return NextResponse.redirect(new URL('/login', req.url))
-      }
+  if (isAdminRoute) {
 
-      // 🔥 BUSCAR ROLE EN PROFILES
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      if (error || !profile) {
-        console.log('❌ No profile encontrado')
-        return NextResponse.redirect(new URL('/', req.url))
-      }
-
-      // ❌ no es admin
-      if (profile.role !== 'admin') {
-        return NextResponse.redirect(new URL('/', req.url))
-      }
-
-      // ✅ es admin → dejar pasar
-      return res
+    // ❌ no logueado
+    if (!user) {
+      console.log("❌ NO USER")
+      return NextResponse.redirect(new URL('/login', req.url))
     }
 
+    // 🔥 buscar profile REAL
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    console.log("📄 PROFILE:", profile)
+
+    if (profileError || !profile) {
+      console.log("❌ PROFILE NO ENCONTRADO")
+      return NextResponse.redirect(new URL('/', req.url))
+    }
+
+    if (profile.role !== 'admin') {
+      console.log("❌ NO ES ADMIN")
+      return NextResponse.redirect(new URL('/', req.url))
+    }
+
+    console.log("✅ ADMIN OK")
     return res
-
-  } catch (error) {
-    console.error('❌ Middleware error:', error)
-
-    return NextResponse.redirect(new URL('/login', req.url))
   }
+
+  return res
 }
 
 export const config = {
