@@ -14,9 +14,10 @@ const supabase = createClient(
 export default async function Home() {
 
   const { data: campaigns } = await supabase
-    .from("campaigns")
-    .select("*")
-    .order("created_at", { ascending: false })
+  .from("campaigns")
+  .select("*")
+  .eq("status", "active")
+  .order("created_at", { ascending: false })
 
   const { data: winners } = await supabase
     .from("winners")
