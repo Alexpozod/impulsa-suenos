@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import Notifications from "./components/Notifications"
 import LiveFeed from "./components/LiveFeed"
 import Link from "next/link"
