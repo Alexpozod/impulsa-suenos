@@ -24,58 +24,89 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadData = async () => {
-
-      const { data: userData } = await supabase.auth.getUser()
-
-      if (!userData.user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(userData.user)
-
-      // 🎟️ Tickets
-      const { data: userTickets } = await supabase
-        .from('tickets')
-        .select('*')
-        .eq('user_email', userData.user.email)
-
-      // 💰 Donaciones
-      const { data: userDonations } = await supabase
-        .from('donations')
-        .select('*')
-        .eq('user_email', userData.user.email)
-        .order('created_at', { ascending: true })
-
-      // 🛡️ KYC
-      const { data: kycData } = await supabase
-        .from('kyc')
-        .select('*')
-        .eq('user_email', userData.user.email)
-        .maybeSingle()
-
-      // 💰 WALLET
-      const { data: walletData } = await supabase
-        .from('wallets')
-        .select('*')
-        .eq('user_email', userData.user.email)
-        .maybeSingle()
-
-      setTickets(userTickets || [])
-      setDonations(userDonations || [])
-      setKyc(kycData || null)
-      setWallet(walletData || null)
-
-      setLoading(false)
-    }
-
     loadData()
   }, [])
+
+  const loadData = async () => {
+
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData.user) {
+      router.push('/login')
+      return
+    }
+
+    setUser(userData.user)
+
+    // 🎟️ Tickets
+    const { data: userTickets } = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('user_email', userData.user.email)
+
+    // 💰 Donaciones
+    const { data: userDonations } = await supabase
+      .from('donations')
+      .select('*')
+      .eq('user_email', userData.user.email)
+      .order('created_at', { ascending: true })
+
+    // 🛡️ KYC
+    const { data: kycData } = await supabase
+      .from('kyc')
+      .select('*')
+      .eq('user_email', userData.user.email)
+      .maybeSingle()
+
+    // 💰 WALLET
+    const { data: walletData } = await supabase
+      .from('wallets')
+      .select('*')
+      .eq('user_email', userData.user.email)
+      .maybeSingle()
+
+    setTickets(userTickets || [])
+    setDonations(userDonations || [])
+    setKyc(kycData || null)
+    setWallet(walletData || null)
+
+    setLoading(false)
+  }
 
   const logout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
+  }
+
+  const requestWithdraw = async () => {
+    const amountInput = prompt("¿Cuánto deseas retirar?")
+
+    if (!amountInput) return
+
+    const amount = Number(amountInput)
+
+    if (isNaN(amount) || amount <= 0) {
+      alert("Monto inválido")
+      return
+    }
+
+    const res = await fetch('/api/withdraw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: user.email,
+        amount
+      })
+    })
+
+    const data = await res.json()
+
+    if (data.error) {
+      alert(data.error)
+    } else {
+      alert("✅ Retiro solicitado")
+      loadData() // 🔥 recarga wallet
+    }
   }
 
   if (loading) {
@@ -102,11 +133,9 @@ export default function Dashboard() {
         {/* HEADER */}
         <div className="flex justify-between items-center mb-10">
 
-          <div>
-            <h1 className="text-2xl font-bold">
-              👋 Hola, {user?.email}
-            </h1>
-          </div>
+          <h1 className="text-2xl font-bold">
+            👋 Hola, {user?.email}
+          </h1>
 
           <button
             onClick={logout}
@@ -158,28 +187,21 @@ export default function Dashboard() {
             </p>
 
             <button
-              onClick={async () => {
-                await fetch('/api/withdraw', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    email: user.email,
-                    amount: 1000
-                  })
-                })
-                alert('Solicitud enviada')
-              }}
-              className="mt-2 bg-black text-white px-3 py-1 rounded text-sm"
+              onClick={requestWithdraw}
+              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
             >
-              Retirar
+              💸 Retirar dinero
             </button>
           </div>
 
         </div>
 
-        {/* GRÁFICO */}
+        {/* 📊 GRÁFICO */}
         <div className="bg-white p-6 rounded-xl border mb-10">
-          <h2 className="mb-4 font-bold">📊 Historial</h2>
+
+          <h2 className="mb-4 font-bold">
+            📊 Historial
+          </h2>
 
           {chartData.length > 0 ? (
             <div className="w-full h-64">
