@@ -22,43 +22,23 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser()
-
-  console.log("👤 USER:", user?.email)
+  const { data: { user } } = await supabase.auth.getUser()
 
   const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
 
   if (isAdminRoute) {
 
-    // ❌ no logueado
+    // ❌ no logueado → login
     if (!user) {
-      console.log("❌ NO USER")
       return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    // 🔥 buscar profile REAL
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    console.log("📄 PROFILE:", profile)
-
-    if (profileError || !profile) {
-      console.log("❌ PROFILE NO ENCONTRADO")
+    // 🔥 validar admin por email (SIN profiles por ahora)
+    if (user.email !== 'alex.taz17@gmail.com') {
       return NextResponse.redirect(new URL('/', req.url))
     }
 
-    if (profile.role !== 'admin') {
-      console.log("❌ NO ES ADMIN")
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-
-    console.log("✅ ADMIN OK")
+    // ✅ admin OK
     return res
   }
 
