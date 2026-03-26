@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
   const [tickets, setTickets] = useState<any[]>([])
   const [donations, setDonations] = useState<any[]>([])
+  const [transactions, setTransactions] = useState<any[]>([])
   const [kyc, setKyc] = useState<any>(null)
   const [wallet, setWallet] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -51,6 +52,13 @@ export default function Dashboard() {
       .eq('user_email', userData.user.email)
       .order('created_at', { ascending: true })
 
+    // 📊 TRANSACCIONES (🔥 CLAVE)
+    const { data: userTransactions } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_email', userData.user.email)
+      .order('created_at', { ascending: true })
+
     // 🛡️ KYC
     const { data: kycData } = await supabase
       .from('kyc')
@@ -67,6 +75,7 @@ export default function Dashboard() {
 
     setTickets(userTickets || [])
     setDonations(userDonations || [])
+    setTransactions(userTransactions || [])
     setKyc(kycData || null)
     setWallet(walletData || null)
 
@@ -120,10 +129,20 @@ export default function Dashboard() {
   const kycStatus = kyc?.status || 'none'
   const totalSpent = donations.reduce((sum, d) => sum + Number(d.amount), 0)
 
-  const chartData = donations.map((d, i) => ({
-    name: `#${i + 1}`,
-    amount: Number(d.amount)
-  }))
+  // 🔥 FORMATEAR DATOS PARA GRÁFICO REAL
+  let balance = 0
+
+  const chartData = transactions.map((t, i) => {
+
+    if (t.type === 'deposit') balance += Number(t.amount)
+    if (t.type === 'withdraw') balance -= Number(t.amount)
+    if (t.type === 'purchase') balance -= Number(t.amount)
+
+    return {
+      name: `#${i + 1}`,
+      balance
+    }
+  })
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10">
@@ -215,11 +234,11 @@ export default function Dashboard() {
 
         </div>
 
-        {/* 📊 GRÁFICO */}
+        {/* 📊 GRÁFICO REAL */}
         <div className="bg-white p-6 rounded-xl border mb-10">
 
           <h2 className="mb-4 font-bold">
-            📊 Historial
+            📊 Evolución del saldo
           </h2>
 
           {chartData.length > 0 ? (
@@ -229,12 +248,12 @@ export default function Dashboard() {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="amount" />
+                  <Line type="monotone" dataKey="balance" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p>Sin datos</p>
+            <p>Sin movimientos aún</p>
           )}
 
         </div>
