@@ -22,6 +22,7 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<any[]>([])
   const [kyc, setKyc] = useState<any>(null)
   const [wallet, setWallet] = useState<any>(null)
+  const [risk, setRisk] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export default function Dashboard() {
       .eq('user_email', userData.user.email)
       .order('created_at', { ascending: true })
 
-    // 📊 TRANSACCIONES (🔥 CLAVE)
+    // 📊 Transacciones
     const { data: userTransactions } = await supabase
       .from('transactions')
       .select('*')
@@ -66,9 +67,16 @@ export default function Dashboard() {
       .eq('user_email', userData.user.email)
       .maybeSingle()
 
-    // 💰 WALLET
+    // 💰 Wallet
     const { data: walletData } = await supabase
       .from('wallets')
+      .select('*')
+      .eq('user_email', userData.user.email)
+      .maybeSingle()
+
+    // 🚨 RIESGO (🔥 NUEVO)
+    const { data: riskData } = await supabase
+      .from('user_risk')
       .select('*')
       .eq('user_email', userData.user.email)
       .maybeSingle()
@@ -78,6 +86,7 @@ export default function Dashboard() {
     setTransactions(userTransactions || [])
     setKyc(kycData || null)
     setWallet(walletData || null)
+    setRisk(riskData || null)
 
     setLoading(false)
   }
@@ -87,7 +96,20 @@ export default function Dashboard() {
     router.push('/login')
   }
 
+  // 🚨 RETIRO PROTEGIDO
   const requestWithdraw = async () => {
+
+    // 🔴 BLOQUEO POR RIESGO
+    if (risk?.status === 'blocked') {
+      alert("🚫 Tu cuenta está bloqueada por seguridad")
+      return
+    }
+
+    if (risk?.score > 70) {
+      alert("⚠️ Riesgo alto detectado. Contacta soporte")
+      return
+    }
+
     const amountInput = prompt("¿Cuánto deseas retirar?")
 
     if (!amountInput) return
@@ -129,7 +151,7 @@ export default function Dashboard() {
   const kycStatus = kyc?.status || 'none'
   const totalSpent = donations.reduce((sum, d) => sum + Number(d.amount), 0)
 
-  // 🔥 FORMATEAR DATOS PARA GRÁFICO REAL
+  // 📊 Balance real
   let balance = 0
 
   const chartData = transactions.map((t, i) => {
@@ -165,24 +187,33 @@ export default function Dashboard() {
 
         </div>
 
-        {/* 🔥 BOTONES ADMIN */}
+        {/* 🔥 ADMIN */}
         <div className="flex gap-4 mb-10">
 
           <button
             onClick={() => router.push('/admin/withdrawals')}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm"
           >
             💸 Panel Retiros
           </button>
 
           <button
             onClick={() => router.push('/admin/earnings')}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700"
+            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
           >
             💰 Ver Ganancias
           </button>
 
         </div>
+
+        {/* 🚨 ALERTA RIESGO */}
+        {risk?.score > 50 && (
+          <div className="mb-6 bg-red-50 border border-red-200 p-4 rounded-xl">
+            <p className="text-red-600 font-bold">
+              ⚠️ Actividad sospechosa detectada
+            </p>
+          </div>
+        )}
 
         {/* 🚨 KYC */}
         {kycStatus !== 'approved' && (
@@ -217,7 +248,6 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* 💰 WALLET */}
           <div className="bg-white p-6 rounded-xl border">
             <p>💰 Saldo</p>
             <p className="text-2xl font-bold text-green-600">
@@ -226,7 +256,7 @@ export default function Dashboard() {
 
             <button
               onClick={requestWithdraw}
-              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
+              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm"
             >
               💸 Retirar dinero
             </button>
@@ -234,7 +264,7 @@ export default function Dashboard() {
 
         </div>
 
-        {/* 📊 GRÁFICO REAL */}
+        {/* 📊 GRÁFICO */}
         <div className="bg-white p-6 rounded-xl border mb-10">
 
           <h2 className="mb-4 font-bold">
