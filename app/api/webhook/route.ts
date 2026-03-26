@@ -41,207 +41,153 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    console.log("💳 STATUS:", payment.status)
+    if (payment.status !== "approved") {
+      return NextResponse.json({ ok: true })
+    }
 
-    if (payment.status === "approved") {
+    // 🎯 CAMPAÑA
+    const campaign_id =
+      payment.metadata?.campaign_id ||
+      payment.external_reference ||
+      null
 
-      // 🎯 CAMPAÑA
-      const campaign_id =
-        payment.metadata?.campaign_id ||
-        payment.external_reference ||
-        null
+    if (!campaign_id) {
+      console.log("❌ Sin campaign_id")
+      return NextResponse.json({ ok: true })
+    }
 
-      if (!campaign_id) {
-        console.log("❌ Sin campaign_id")
-        return NextResponse.json({ ok: true })
-      }
+    // 📧 EMAIL
+    let user_email =
+      payment.metadata?.user_email ||
+      payment.payer?.email ||
+      null
 
-      // 📧 EMAIL USUARIO
-      let user_email =
-        payment.metadata?.user_email ||
-        payment.payer?.email ||
-        null
+    if (!user_email) {
+      user_email = `guest_${payment.id}@impulsasuenos.com`
+    }
 
-      if (!user_email) {
-        user_email = `guest_${payment.id}@impulsasuenos.com`
-      }
+    const amount = Number(payment.transaction_amount || 0)
 
-      const amount = Number(payment.transaction_amount || 0)
+    // =========================
+    // ⚙️ COMISIÓN DINÁMICA REAL
+    // =========================
+    let commissionRate = 0.1
 
-      // =========================
-      // ⚙️ COMISIÓN DINÁMICA (DESDE DB)
-      // =========================
-      let commissionRate = 0.1 // fallback
+    const { data: setting } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "commission_rate")
+      .maybeSingle()
 
-      const { data: setting } = await supabase
-        .from("settings")
-        .select("value")
-        .eq("key", "commission")
-        .maybeSingle()
+    if (setting?.value) {
+      commissionRate = Number(setting.value)
+    }
 
-      if (setting?.value) {
-        commissionRate = Number(setting.value)
-      }
+    const commission = amount * commissionRate
+    const netAmount = amount - commission
 
-      const commission = amount * commissionRate
-      const netAmount = amount - commission
+    console.log("💰 TOTAL:", amount)
+    console.log("💸 NETO:", netAmount)
+    console.log("🏦 COMISIÓN:", commission)
 
-      console.log("📧 USER:", user_email)
-      console.log("🎯 CAMPAIGN:", campaign_id)
-      console.log("💰 TOTAL:", amount)
-      console.log("💸 NETO:", netAmount)
-      console.log("🏦 COMISIÓN:", commission)
+    // 🔒 ANTIDUPLICADO
+    const { data: existing } = await supabase
+      .from("donations")
+      .select("id")
+      .eq("payment_id", payment.id)
+      .maybeSingle()
 
-      // 🔒 EVITAR DUPLICADOS
-      const { data: existing } = await supabase
-        .from("donations")
-        .select("id")
-        .eq("payment_id", payment.id)
-        .maybeSingle()
+    if (existing) {
+      console.log("⚠️ Pago duplicado")
+      return NextResponse.json({ ok: true })
+    }
 
-      if (existing) {
-        console.log("⚠️ Pago ya procesado")
-        return NextResponse.json({ ok: true })
-      }
+    // 💰 DONACIÓN
+    await supabase.from("donations").insert({
+      campaign_id,
+      amount,
+      payment_id: payment.id,
+      user_email,
+    })
 
-      // =========================
-      // 💰 GUARDAR DONACIÓN
-      // =========================
-      const { error: donationError } = await supabase
-        .from("donations")
-        .insert({
-          campaign_id,
-          amount,
-          payment_id: payment.id,
-          user_email,
-        })
+    // 🧾 COMPRA
+    await supabase.from("transactions").insert({
+      user_email,
+      type: "purchase",
+      amount,
+      status: "completed",
+      reference_id: campaign_id
+    })
 
-      if (donationError) {
-        console.error("❌ Error donación:", donationError)
-        return NextResponse.json({ ok: true })
-      }
+    // 👤 OWNER
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("user_email")
+      .eq("id", campaign_id)
+      .maybeSingle()
 
-      // =========================
-      // 🧾 LEDGER → COMPRA USUARIO
-      // =========================
-      await supabase.from("transactions").insert({
-        user_email: user_email,
-        type: "purchase",
-        amount: amount,
-        status: "completed",
-        reference_id: campaign_id
-      })
+    const owner_email = campaign?.user_email
 
-      // =========================
-      // 👤 OBTENER DUEÑO CAMPAÑA
-      // =========================
-      const { data: campaign } = await supabase
-        .from("campaigns")
-        .select("user_email")
-        .eq("id", campaign_id)
-        .maybeSingle()
+    if (owner_email) {
 
-      const owner_email = campaign?.user_email
-
-      if (owner_email) {
-
-        // 💰 SUMAR WALLET (NETO)
-        const { error: walletError } = await supabase.rpc("add_balance", {
-          user_email_input: owner_email,
-          amount_input: netAmount
-        })
-
-        if (walletError) {
-          console.error("❌ Error wallet:", walletError)
-        } else {
-          console.log("💰 Wallet campaña actualizado")
-        }
-
-        // 🧾 LEDGER → DEPÓSITO (NETO)
-        await supabase.from("transactions").insert({
-          user_email: owner_email,
-          type: "deposit",
-          amount: netAmount,
-          status: "completed",
-          reference_id: payment.id
-        })
-      }
-
-      // =========================
-      // 💰 GANANCIA PLATAFORMA
-      // =========================
+      // 💰 WALLET (NETO)
       await supabase.rpc("add_balance", {
-        user_email_input: "platform@impulsasuenos.com",
-        amount_input: commission
+        user_email_input: owner_email,
+        amount_input: netAmount
       })
 
-      // 🧾 LEDGER → COMISIÓN
+      // 🧾 DEPÓSITO
       await supabase.from("transactions").insert({
-        user_email: "platform@impulsasuenos.com",
-        type: "commission",
-        amount: commission,
+        user_email: owner_email,
+        type: "deposit",
+        amount: netAmount,
         status: "completed",
         reference_id: payment.id
       })
+    }
 
-      // =========================
-      // 🎟️ GENERAR TICKETS
-      // =========================
-      const ticketPrice = 1000
-      const quantity = Math.floor(amount / ticketPrice)
+    // 💰 COMISIÓN PLATAFORMA
+    await supabase.rpc("add_balance", {
+      user_email_input: "platform@impulsasuenos.com",
+      amount_input: commission
+    })
 
-      if (quantity > 0) {
+    await supabase.from("transactions").insert({
+      user_email: "platform@impulsasuenos.com",
+      type: "commission",
+      amount: commission,
+      status: "completed",
+      reference_id: payment.id
+    })
 
-        const { data: lastTicket } = await supabase
-          .from("tickets")
-          .select("ticket_number")
-          .eq("campaign_id", campaign_id)
-          .order("ticket_number", { ascending: false })
-          .limit(1)
-          .maybeSingle()
+    // 🎟️ TICKETS
+    const ticketPrice = 1000
+    const quantity = Math.floor(amount / ticketPrice)
 
-        let startNumber = lastTicket?.ticket_number || 0
+    if (quantity > 0) {
 
-        const tickets = []
+      const { data: lastTicket } = await supabase
+        .from("tickets")
+        .select("ticket_number")
+        .eq("campaign_id", campaign_id)
+        .order("ticket_number", { ascending: false })
+        .limit(1)
+        .maybeSingle()
 
-        for (let i = 1; i <= quantity; i++) {
-          tickets.push({
-            campaign_id,
-            payment_id: payment.id,
-            ticket_number: startNumber + i,
-            user_email,
-          })
-        }
+      let start = lastTicket?.ticket_number || 0
 
-        const { error: ticketError } = await supabase
-          .from("tickets")
-          .insert(tickets)
+      const tickets = []
 
-        if (ticketError) {
-          console.error("❌ Error tickets:", ticketError)
-        } else {
-          console.log(`🎟️ ${quantity} tickets generados`)
-        }
-
-        // 📧 EMAIL
-        try {
-          await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-email`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: user_email,
-              tickets,
-              campaign: campaign_id,
-            }),
-          })
-
-          console.log("📧 Email enviado")
-        } catch (err) {
-          console.error("❌ Error email", err)
-        }
+      for (let i = 1; i <= quantity; i++) {
+        tickets.push({
+          campaign_id,
+          payment_id: payment.id,
+          ticket_number: start + i,
+          user_email,
+        })
       }
+
+      await supabase.from("tickets").insert(tickets)
     }
 
     return NextResponse.json({ ok: true })
