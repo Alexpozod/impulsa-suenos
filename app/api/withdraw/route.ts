@@ -8,20 +8,25 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { email, amount } = await req.json()
+    const { email, amount, otp } = await req.json()
 
-    if (!email || !amount || amount <= 0) {
-      return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+    // 🚨 Validación fuerte
+    if (!email || !amount || amount <= 0 || !otp) {
+      return NextResponse.json(
+        { error: "Datos inválidos" },
+        { status: 400 }
+      )
     }
 
-    // 🔥 LLAMADA RPC (LÓGICA SEGURA EN DB)
+    // 🔥 LLAMADA RPC SEGURA (CON OTP)
     const { data, error } = await supabase.rpc("request_withdraw", {
       p_user_email: email,
-      p_amount: amount
+      p_amount: amount,
+      p_otp_code: otp
     })
 
     if (error) {
-      console.error("RPC error:", error)
+      console.error("❌ RPC ERROR:", error)
 
       return NextResponse.json(
         { error: "Error procesando retiro" },
@@ -29,7 +34,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // ⚠️ ERROR CONTROLADO DESDE LA FUNCIÓN SQL
+    // ⚠️ ERRORES CONTROLADOS DESDE SQL
     if (data?.error) {
       return NextResponse.json(
         { error: data.error },

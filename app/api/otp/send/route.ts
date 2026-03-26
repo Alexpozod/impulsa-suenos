@@ -15,7 +15,10 @@ export async function POST(req: Request) {
     const { email } = await req.json()
 
     if (!email) {
-      return NextResponse.json({ error: "Email requerido" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Email requerido" },
+        { status: 400 }
+      )
     }
 
     const code = generateCode()
@@ -23,19 +26,42 @@ export async function POST(req: Request) {
     const expires = new Date()
     expires.setMinutes(expires.getMinutes() + 5)
 
-    // guardar código
-    await supabase.from("otp_codes").insert({
+    // 🚫 INVALIDAR OTP ANTERIORES (CLAVE DE SEGURIDAD)
+    await supabase
+      .from("otp_codes")
+      .update({ used: true })
+      .eq("user_email", email)
+      .eq("used", false)
+
+    // 💾 CREAR NUEVO OTP
+    const { error } = await supabase.from("otp_codes").insert({
       user_email: email,
       code,
-      expires_at: expires
+      expires_at: expires,
+      verified: false,
+      used: false
     })
 
-    // ⚠️ SIMULACIÓN SMS (luego puedes conectar Twilio)
-    console.log("📲 OTP:", code)
+    if (error) {
+      console.error("❌ Error guardando OTP:", error)
+
+      return NextResponse.json(
+        { error: "Error generando código" },
+        { status: 500 }
+      )
+    }
+
+    // 📲 SIMULACIÓN (REEMPLAZAR POR EMAIL O SMS REAL)
+    console.log("🔐 OTP:", code)
 
     return NextResponse.json({ ok: true })
 
   } catch (err) {
-    return NextResponse.json({ error: "error" }, { status: 500 })
+    console.error("❌ ERROR OTP:", err)
+
+    return NextResponse.json(
+      { error: "Error servidor" },
+      { status: 500 }
+    )
   }
 }
