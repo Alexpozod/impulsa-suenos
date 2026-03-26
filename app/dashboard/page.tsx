@@ -105,7 +105,7 @@ export default function Dashboard() {
       alert(data.error)
     } else {
       alert("✅ Retiro solicitado")
-      loadData() // 🔥 recarga wallet
+      loadData()
     }
   }
 
@@ -131,7 +131,7 @@ export default function Dashboard() {
       <div className="max-w-6xl mx-auto">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex justify-between items-center mb-6">
 
           <h1 className="text-2xl font-bold">
             👋 Hola, {user?.email}
@@ -142,6 +142,25 @@ export default function Dashboard() {
             className="bg-black text-white px-4 py-2 rounded-lg text-sm"
           >
             Cerrar sesión
+          </button>
+
+        </div>
+
+        {/* 🔥 BOTONES ADMIN */}
+        <div className="flex gap-4 mb-10">
+
+          <button
+            onClick={() => router.push('/admin/withdrawals')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
+          >
+            💸 Panel Retiros
+          </button>
+
+          <button
+            onClick={() => router.push('/admin/earnings')}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700"
+          >
+            💰 Ver Ganancias
           </button>
 
         </div>
