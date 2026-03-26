@@ -90,14 +90,18 @@ export async function POST(req: Request) {
     })
 
     // =========================
-    // 🚨 MULTICUENTAS
+    // 🚨 MULTICUENTAS (FIX REAL)
     // =========================
-    const { data: sameIpUsers = [] } = await supabase
+    const sameIpUsersRes = await supabase
       .from("fraud_logs")
       .select("user_email")
       .eq("ip", ip)
 
-    const uniqueUsers = [...new Set(sameIpUsers.map(u => u.user_email))]
+    const sameIpUsers = sameIpUsersRes.data || []
+
+    const uniqueUsers = [
+      ...new Set(sameIpUsers.map((u: any) => u.user_email))
+    ]
 
     if (uniqueUsers.length > 3) {
       await supabase.rpc("add_risk", {
@@ -125,9 +129,9 @@ export async function POST(req: Request) {
     }
 
     // =========================
-    // ⏱️ MUCHOS PAGOS RAPIDOS
+    // ⏱️ MUCHOS PAGOS RAPIDOS (FIX REAL)
     // =========================
-    const { data: recentPayments = [] } = await supabase
+    const recentPaymentsRes = await supabase
       .from("fraud_logs")
       .select("id")
       .eq("user_email", user_email)
@@ -135,6 +139,8 @@ export async function POST(req: Request) {
         "created_at",
         new Date(Date.now() - 5 * 60 * 1000).toISOString()
       )
+
+    const recentPayments = recentPaymentsRes.data || []
 
     if (recentPayments.length > 5) {
       await supabase.rpc("add_risk", {
@@ -225,7 +231,7 @@ export async function POST(req: Request) {
       reference_id: campaign_id
     })
 
-    // riesgo leve por actividad
+    // riesgo leve
     await supabase.rpc("add_risk", {
       user_email_input: user_email,
       points: 2
@@ -251,7 +257,7 @@ export async function POST(req: Request) {
     }
 
     // =========================
-    // 💰 COMISIÓN PLATAFORMA
+    // 💰 COMISIÓN
     // =========================
     await supabase.rpc("add_balance", {
       user_email_input: "platform@impulsasuenos.com",
