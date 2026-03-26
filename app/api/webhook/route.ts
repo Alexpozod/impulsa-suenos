@@ -131,7 +131,10 @@ export async function POST(req: Request) {
       .from("fraud_logs")
       .select("id")
       .eq("user_email", user_email)
-      .gte("created_at", new Date(Date.now() - 5 * 60 * 1000).toISOString())
+      .gte(
+        "created_at",
+        new Date(Date.now() - 5 * 60 * 1000).toISOString()
+      )
 
     if (recentPayments.length > 5) {
       await supabase.rpc("add_risk", {
@@ -141,7 +144,7 @@ export async function POST(req: Request) {
     }
 
     // =========================
-    // ⚙️ COMISIÓN
+    // ⚙️ COMISIÓN DINÁMICA
     // =========================
     let commissionRate = 0.1
 
@@ -158,7 +161,9 @@ export async function POST(req: Request) {
     const commission = amount * commissionRate
     const netAmount = amount - commission
 
+    // =========================
     // 🔒 ANTIDUPLICADO
+    // =========================
     const { data: existing } = await supabase
       .from("donations")
       .select("id")
@@ -167,7 +172,9 @@ export async function POST(req: Request) {
 
     if (existing) return NextResponse.json({ ok: true })
 
+    // =========================
     // 👤 OWNER
+    // =========================
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("user_email")
@@ -207,7 +214,9 @@ export async function POST(req: Request) {
       user_email,
     })
 
+    // =========================
     // 🧾 COMPRA
+    // =========================
     await supabase.from("transactions").insert({
       user_email,
       type: "purchase",
@@ -216,12 +225,15 @@ export async function POST(req: Request) {
       reference_id: campaign_id
     })
 
-    // sumar riesgo leve
+    // riesgo leve por actividad
     await supabase.rpc("add_risk", {
       user_email_input: user_email,
       points: 2
     })
 
+    // =========================
+    // 💰 WALLET CAMPAÑA
+    // =========================
     if (owner_email) {
 
       await supabase.rpc("add_balance", {
@@ -238,7 +250,9 @@ export async function POST(req: Request) {
       })
     }
 
-    // 💰 COMISIÓN
+    // =========================
+    // 💰 COMISIÓN PLATAFORMA
+    // =========================
     await supabase.rpc("add_balance", {
       user_email_input: "platform@impulsasuenos.com",
       amount_input: commission
@@ -252,7 +266,9 @@ export async function POST(req: Request) {
       reference_id: payment.id
     })
 
+    // =========================
     // 🎟️ TICKETS
+    // =========================
     const ticketPrice = 1000
     const quantity = Math.floor(amount / ticketPrice)
 
