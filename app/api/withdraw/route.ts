@@ -10,68 +10,121 @@ export async function POST(req: Request) {
   try {
     const { email, amount } = await req.json()
 
-    console.log("💸 WITHDRAW REQUEST:", { email, amount })
-
-    // 🚨 Validación básica
     if (!email || !amount || amount <= 0) {
+      return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
+    }
+
+    // 🔍 Obtener usuario
+    const { data: user } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", email)
+      .single()
+
+    if (!user) {
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+    }
+
+    const userId = user.id
+
+    // 🚨 VALIDAR RIESGO
+    const { data: risk } = await supabase
+      .from("user_risk")
+      .select("status")
+      .eq("user_id", userId)
+      .single()
+
+    if (risk?.status === "blocked") {
+      return NextResponse.json({ error: "Usuario bloqueado" }, { status: 403 })
+    }
+
+    // 🔐 VALIDAR KYC
+    const { data: kyc } = await supabase
+      .from("kyc")
+      .select("status")
+      .eq("user_id", userId)
+      .single()
+
+    if (kyc?.status !== "approved") {
       return NextResponse.json(
-        { error: "Datos inválidos" },
-        { status: 400 }
+        { error: "Debes completar verificación KYC" },
+        { status: 403 }
       )
     }
 
     // 💰 Obtener wallet
-    const { data: wallet, error: walletError } = await supabase
+    const { data: wallet } = await supabase
       .from("wallets")
       .select("balance")
       .eq("user_email", email)
       .single()
 
-    if (walletError || !wallet) {
-      return NextResponse.json(
-        { error: "Wallet no encontrada" },
-        { status: 404 }
-      )
-    }
-
-    if (wallet.balance < amount) {
+    if (!wallet || wallet.balance < amount) {
       return NextResponse.json(
         { error: "Saldo insuficiente" },
         { status: 400 }
       )
     }
 
-    // 💸 Descontar saldo (CLAVE)
-    const { error: updateError } = await supabase
+    // 🚫 Validar retiros pendientes
+    const { data: pending } = await supabase
+      .from("withdrawals")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("status", "pending")
+
+    if (pending && pending.length > 0) {
+      return NextResponse.json(
+        { error: "Ya tienes un retiro pendiente" },
+        { status: 400 }
+      )
+    }
+
+    // 💸 Descontar saldo
+    const newBalance = wallet.balance - amount
+
+    const { error: walletError } = await supabase
       .from("wallets")
-      .update({
-        balance: wallet.balance - amount
-      })
+      .update({ balance: newBalance })
       .eq("user_email", email)
 
-    if (updateError) {
-      console.error("❌ Error actualizando wallet:", updateError)
-
+    if (walletError) {
       return NextResponse.json(
-        { error: "Error procesando retiro" },
+        { error: "Error actualizando saldo" },
         { status: 500 }
       )
     }
 
-    // 📤 Crear solicitud de retiro
+    // 🧾 Registrar transaction (CLAVE FINTECH)
+    const { error: txError } = await supabase
+      .from("transactions")
+      .insert({
+        user_id: userId,
+        type: "withdraw",
+        amount: -amount,
+        status: "pending"
+      })
+
+    if (txError) {
+      console.error("Error transaction:", txError)
+    }
+
+    // 📤 Crear retiro
     const { error: withdrawError } = await supabase
       .from("withdrawals")
       .insert({
+        user_id: userId,
         user_email: email,
         amount,
         status: "pending"
       })
 
     if (withdrawError) {
-      console.error("❌ Error creando retiro:", withdrawError)
+      return NextResponse.json(
+        { error: "Error creando retiro" },
+        { status: 500 }
+      )
     }
-
-    console.log("✅ RETIRO CREADO")
 
     return NextResponse.json({ ok: true })
 
