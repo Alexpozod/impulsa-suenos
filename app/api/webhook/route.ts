@@ -56,22 +56,21 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true })
       }
 
-      // 📧 EMAIL
+      // 📧 EMAIL USUARIO
       let user_email =
         payment.metadata?.user_email ||
         payment.payer?.email ||
         null
 
       if (!user_email) {
-        console.log("⚠️ Email no disponible, usando fallback")
         user_email = `guest_${payment.id}@impulsasuenos.com`
       }
 
       const amount = Number(payment.transaction_amount || 0)
 
-      console.log("📧 EMAIL:", user_email)
+      console.log("📧 USER:", user_email)
       console.log("🎯 CAMPAIGN:", campaign_id)
-      console.log("💰 MONTO:", amount)
+      console.log("💰 AMOUNT:", amount)
 
       // 🔒 EVITAR DUPLICADOS
       const { data: existing } = await supabase
@@ -85,7 +84,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true })
       }
 
+      // =========================
       // 💰 GUARDAR DONACIÓN
+      // =========================
       const { error: donationError } = await supabase
         .from("donations")
         .insert({
@@ -96,11 +97,24 @@ export async function POST(req: Request) {
         })
 
       if (donationError) {
-        console.error("❌ Error guardando donación:", donationError)
+        console.error("❌ Error donación:", donationError)
         return NextResponse.json({ ok: true })
       }
 
-      // 🧠 OBTENER DUEÑO DE CAMPAÑA (CLAVE PARA WALLET)
+      // =========================
+      // 🧾 LEDGER → COMPRA USUARIO
+      // =========================
+      await supabase.from("transactions").insert({
+        user_email: user_email,
+        type: "purchase",
+        amount: amount,
+        status: "completed",
+        reference_id: campaign_id
+      })
+
+      // =========================
+      // 👤 OBTENER DUEÑO CAMPAÑA
+      // =========================
       const { data: campaign } = await supabase
         .from("campaigns")
         .select("user_email")
@@ -110,22 +124,34 @@ export async function POST(req: Request) {
       const owner_email = campaign?.user_email
 
       if (owner_email) {
-        console.log("👤 OWNER:", owner_email)
 
-        // 💸 SUMAR SALDO AL WALLET
+        // 💰 SUMAR WALLET
         const { error: walletError } = await supabase.rpc("add_balance", {
           user_email_input: owner_email,
           amount_input: amount
         })
 
         if (walletError) {
-          console.error("❌ Error sumando wallet:", walletError)
+          console.error("❌ Error wallet:", walletError)
         } else {
           console.log("💰 Wallet actualizado")
         }
+
+        // =========================
+        // 🧾 LEDGER → DEPÓSITO
+        // =========================
+        await supabase.from("transactions").insert({
+          user_email: owner_email,
+          type: "deposit",
+          amount: amount,
+          status: "completed",
+          reference_id: payment.id
+        })
       }
 
+      // =========================
       // 🎟️ GENERAR TICKETS
+      // =========================
       const ticketPrice = 1000
       const quantity = Math.floor(amount / ticketPrice)
 
@@ -162,7 +188,9 @@ export async function POST(req: Request) {
           console.log(`🎟️ ${quantity} tickets generados`)
         }
 
+        // =========================
         // 📧 EMAIL
+        // =========================
         try {
           await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-email`, {
             method: "POST",
@@ -178,7 +206,7 @@ export async function POST(req: Request) {
 
           console.log("📧 Email enviado")
         } catch (err) {
-          console.error("❌ Error enviando email", err)
+          console.error("❌ Error email", err)
         }
       }
     }

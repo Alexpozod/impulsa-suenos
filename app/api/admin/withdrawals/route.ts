@@ -14,7 +14,10 @@ export async function GET() {
     .order("created_at", { ascending: false })
 
   if (error) {
-    return NextResponse.json({ error: "Error cargando retiros" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Error cargando retiros" },
+      { status: 500 }
+    )
   }
 
   return NextResponse.json(data)
@@ -32,7 +35,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔍 1. OBTENER RETIRO REAL DESDE BD
+    // 🔍 1. OBTENER RETIRO
     const { data: withdrawal, error: findError } = await supabase
       .from("withdrawals")
       .select("*")
@@ -54,9 +57,27 @@ export async function POST(req: Request) {
       )
     }
 
-    // ✅ APROBAR
+    // =========================
+    // ✅ APROBAR RETIRO
+    // =========================
     if (action === "approve") {
 
+      // 💰 1. DESCONTAR WALLET
+      const { error: walletError } = await supabase.rpc("subtract_balance", {
+        user_email_input: withdrawal.user_email,
+        amount_input: withdrawal.amount
+      })
+
+      if (walletError) {
+        console.error("❌ Error descontando saldo:", walletError)
+
+        return NextResponse.json(
+          { error: "Error descontando saldo" },
+          { status: 500 }
+        )
+      }
+
+      // 📤 2. ACTUALIZAR ESTADO
       const { error: updateError } = await supabase
         .from("withdrawals")
         .update({ status: "approved" })
@@ -69,14 +90,26 @@ export async function POST(req: Request) {
         )
       }
 
+      // 🧾 3. REGISTRAR TRANSACCIÓN (LEDGER)
+      await supabase.from("transactions").insert({
+        user_email: withdrawal.user_email,
+        type: "withdrawal",
+        amount: withdrawal.amount,
+        status: "completed",
+        reference_id: withdrawal.id
+      })
+
       console.log("✅ RETIRO APROBADO:", id)
 
       return NextResponse.json({ ok: true })
     }
 
-    // ❌ RECHAZAR (DEVOLVER DINERO)
+    // =========================
+    // ❌ RECHAZAR RETIRO
+    // =========================
     if (action === "reject") {
 
+      // 💰 1. DEVOLVER DINERO
       const { error: walletError } = await supabase.rpc("add_balance", {
         user_email_input: withdrawal.user_email,
         amount_input: withdrawal.amount
@@ -84,12 +117,14 @@ export async function POST(req: Request) {
 
       if (walletError) {
         console.error("❌ Error devolviendo saldo:", walletError)
+
         return NextResponse.json(
           { error: "Error devolviendo saldo" },
           { status: 500 }
         )
       }
 
+      // 📤 2. ACTUALIZAR ESTADO
       const { error: updateError } = await supabase
         .from("withdrawals")
         .update({ status: "rejected" })
@@ -101,6 +136,15 @@ export async function POST(req: Request) {
           { status: 500 }
         )
       }
+
+      // 🧾 3. REGISTRAR TRANSACCIÓN
+      await supabase.from("transactions").insert({
+        user_email: withdrawal.user_email,
+        type: "refund",
+        amount: withdrawal.amount,
+        status: "completed",
+        reference_id: withdrawal.id
+      })
 
       console.log("❌ RETIRO RECHAZADO:", id)
 
