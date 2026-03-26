@@ -1,3 +1,4 @@
+import { detectFraud } from "@/lib/fraud/detector"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -15,6 +16,16 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Datos inválidos" },
         { status: 400 }
+      )
+    }
+
+    // 🔥 ANTI FRAUDE (AQUÍ SE BLOQUEA SI ES SOSPECHOSO)
+    const fraud = await detectFraud(email)
+
+    if (fraud.isDanger) {
+      return NextResponse.json(
+        { error: "Cuenta bloqueada por actividad sospechosa" },
+        { status: 403 }
       )
     }
 
