@@ -68,8 +68,21 @@ export async function POST(req: Request) {
 
       const amount = Number(payment.transaction_amount || 0)
 
-      // 💰 COMISIÓN (TU GANANCIA)
-      const commissionRate = 0.1 // 10%
+      // =========================
+      // ⚙️ COMISIÓN DINÁMICA (DESDE DB)
+      // =========================
+      let commissionRate = 0.1 // fallback
+
+      const { data: setting } = await supabase
+        .from("settings")
+        .select("value")
+        .eq("key", "commission")
+        .maybeSingle()
+
+      if (setting?.value) {
+        commissionRate = Number(setting.value)
+      }
+
       const commission = amount * commissionRate
       const netAmount = amount - commission
 
@@ -155,7 +168,7 @@ export async function POST(req: Request) {
       }
 
       // =========================
-      // 💰 TU GANANCIA (PLATAFORMA)
+      // 💰 GANANCIA PLATAFORMA
       // =========================
       await supabase.rpc("add_balance", {
         user_email_input: "platform@impulsasuenos.com",
@@ -210,9 +223,7 @@ export async function POST(req: Request) {
           console.log(`🎟️ ${quantity} tickets generados`)
         }
 
-        // =========================
         // 📧 EMAIL
-        // =========================
         try {
           await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send-email`, {
             method: "POST",
