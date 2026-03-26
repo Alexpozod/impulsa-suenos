@@ -17,6 +17,17 @@ export async function POST(req: Request) {
   try {
     const url = new URL(req.url)
 
+    // =========================
+    // 🌐 IP + DEVICE (ANTIFRAUDE)
+    // =========================
+    const ip =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      "unknown"
+
+    const device =
+      req.headers.get("user-agent") || "unknown"
+
     let paymentId =
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
@@ -69,7 +80,41 @@ export async function POST(req: Request) {
     const amount = Number(payment.transaction_amount || 0)
 
     // =========================
-    // ⚙️ COMISIÓN DINÁMICA REAL
+    // 🛡️ REGISTRO ACTIVIDAD
+    // =========================
+    await supabase.from("fraud_logs").insert({
+      user_email,
+      ip,
+      device,
+      action: "payment"
+    })
+
+    // =========================
+    // 🚨 DETECTAR MULTICUENTAS
+    // =========================
+    const { data: sameIpUsers } = await supabase
+      .from("fraud_logs")
+      .select("user_email")
+      .eq("ip", ip)
+
+    const uniqueUsers = [
+      ...new Set(sameIpUsers?.map(u => u.user_email))
+    ]
+
+    if (uniqueUsers.length > 3) {
+      console.log("🚨 MULTICUENTA DETECTADA")
+
+      await supabase.from("fraud_logs").insert({
+        user_email,
+        ip,
+        device,
+        action: "multi_account_detected",
+        risk_level: "high"
+      })
+    }
+
+    // =========================
+    // ⚙️ COMISIÓN DINÁMICA
     // =========================
     let commissionRate = 0.1
 
@@ -102,6 +147,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
+    // 👤 OWNER
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("user_email")
+      .eq("id", campaign_id)
+      .maybeSingle()
+
+    const owner_email = campaign?.user_email
+
+    // =========================
+    // 🚫 BLOQUEO AUTO-COMPRA
+    // =========================
+    if (owner_email === user_email) {
+      console.log("🚨 AUTO COMPRA BLOQUEADA")
+
+      await supabase.from("fraud_logs").insert({
+        user_email,
+        ip,
+        device,
+        action: "self_purchase_blocked",
+        risk_level: "high"
+      })
+
+      return NextResponse.json({ ok: true })
+    }
+
     // 💰 DONACIÓN
     await supabase.from("donations").insert({
       campaign_id,
@@ -118,15 +189,6 @@ export async function POST(req: Request) {
       status: "completed",
       reference_id: campaign_id
     })
-
-    // 👤 OWNER
-    const { data: campaign } = await supabase
-      .from("campaigns")
-      .select("user_email")
-      .eq("id", campaign_id)
-      .maybeSingle()
-
-    const owner_email = campaign?.user_email
 
     if (owner_email) {
 
@@ -146,7 +208,7 @@ export async function POST(req: Request) {
       })
     }
 
-    // 💰 COMISIÓN PLATAFORMA
+    // 💰 COMISIÓN
     await supabase.rpc("add_balance", {
       user_email_input: "platform@impulsasuenos.com",
       amount_input: commission
