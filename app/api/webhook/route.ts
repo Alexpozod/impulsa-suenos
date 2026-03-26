@@ -68,9 +68,16 @@ export async function POST(req: Request) {
 
       const amount = Number(payment.transaction_amount || 0)
 
+      // 💰 COMISIÓN (TU GANANCIA)
+      const commissionRate = 0.1 // 10%
+      const commission = amount * commissionRate
+      const netAmount = amount - commission
+
       console.log("📧 USER:", user_email)
       console.log("🎯 CAMPAIGN:", campaign_id)
-      console.log("💰 AMOUNT:", amount)
+      console.log("💰 TOTAL:", amount)
+      console.log("💸 NETO:", netAmount)
+      console.log("🏦 COMISIÓN:", commission)
 
       // 🔒 EVITAR DUPLICADOS
       const { data: existing } = await supabase
@@ -125,29 +132,44 @@ export async function POST(req: Request) {
 
       if (owner_email) {
 
-        // 💰 SUMAR WALLET
+        // 💰 SUMAR WALLET (NETO)
         const { error: walletError } = await supabase.rpc("add_balance", {
           user_email_input: owner_email,
-          amount_input: amount
+          amount_input: netAmount
         })
 
         if (walletError) {
           console.error("❌ Error wallet:", walletError)
         } else {
-          console.log("💰 Wallet actualizado")
+          console.log("💰 Wallet campaña actualizado")
         }
 
-        // =========================
-        // 🧾 LEDGER → DEPÓSITO
-        // =========================
+        // 🧾 LEDGER → DEPÓSITO (NETO)
         await supabase.from("transactions").insert({
           user_email: owner_email,
           type: "deposit",
-          amount: amount,
+          amount: netAmount,
           status: "completed",
           reference_id: payment.id
         })
       }
+
+      // =========================
+      // 💰 TU GANANCIA (PLATAFORMA)
+      // =========================
+      await supabase.rpc("add_balance", {
+        user_email_input: "platform@impulsasuenos.com",
+        amount_input: commission
+      })
+
+      // 🧾 LEDGER → COMISIÓN
+      await supabase.from("transactions").insert({
+        user_email: "platform@impulsasuenos.com",
+        type: "commission",
+        amount: commission,
+        status: "completed",
+        reference_id: payment.id
+      })
 
       // =========================
       // 🎟️ GENERAR TICKETS
