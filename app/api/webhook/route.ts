@@ -92,12 +92,12 @@ export async function POST(req: Request) {
     // =========================
     // 🚨 MULTICUENTAS
     // =========================
-    const { data: sameIpUsers } = await supabase
+    const { data: sameIpUsers = [] } = await supabase
       .from("fraud_logs")
       .select("user_email")
       .eq("ip", ip)
 
-    const uniqueUsers = [...new Set(sameIpUsers?.map(u => u.user_email))]
+    const uniqueUsers = [...new Set(sameIpUsers.map(u => u.user_email))]
 
     if (uniqueUsers.length > 3) {
       await supabase.rpc("add_risk", {
@@ -127,13 +127,13 @@ export async function POST(req: Request) {
     // =========================
     // ⏱️ MUCHOS PAGOS RAPIDOS
     // =========================
-    const { data: recentPayments } = await supabase
+    const { data: recentPayments = [] } = await supabase
       .from("fraud_logs")
-      .select("*")
+      .select("id")
       .eq("user_email", user_email)
       .gte("created_at", new Date(Date.now() - 5 * 60 * 1000).toISOString())
 
-    if (recentPayments?.length > 5) {
+    if (recentPayments.length > 5) {
       await supabase.rpc("add_risk", {
         user_email_input: user_email,
         points: 20
@@ -216,7 +216,7 @@ export async function POST(req: Request) {
       reference_id: campaign_id
     })
 
-    // sumar riesgo leve por actividad
+    // sumar riesgo leve
     await supabase.rpc("add_risk", {
       user_email_input: user_email,
       points: 2
