@@ -11,6 +11,13 @@ export async function POST(req: Request) {
   try {
     const { email, amount, otp } = await req.json()
 
+    const ip =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      "unknown"
+
+    const userAgent = req.headers.get("user-agent") || "unknown"
+
     // 🚨 Validación fuerte
     if (!email || !amount || amount <= 0 || !otp) {
       return NextResponse.json(
@@ -19,7 +26,14 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔥 ANTI FRAUDE (AQUÍ SE BLOQUEA SI ES SOSPECHOSO)
+    // 💾 Guardar dispositivo SIEMPRE
+    await supabase.from("user_devices").insert({
+      user_email: email,
+      ip,
+      user_agent: userAgent
+    })
+
+    // 🔥 ANTI FRAUDE
     const fraud = await detectFraud(email)
 
     if (fraud.isDanger) {
@@ -29,7 +43,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔥 LLAMADA RPC SEGURA (CON OTP)
+    // 🔥 RPC retiro
     const { data, error } = await supabase.rpc("request_withdraw", {
       p_user_email: email,
       p_amount: amount,
@@ -45,7 +59,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // ⚠️ ERRORES CONTROLADOS DESDE SQL
     if (data?.error) {
       return NextResponse.json(
         { error: data.error },

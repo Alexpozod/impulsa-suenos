@@ -8,29 +8,35 @@ const supabase = createClient(
 export async function detectFraud(user_email: string) {
   let riskScore = 0
 
-  // 1. Retiros recientes (últimas 24h)
+  // 1. Retiros recientes (24h)
   const { data: withdrawals } = await supabase
     .from("withdrawals")
-    .select("*")
+    .select("id")
     .eq("user_email", user_email)
-    .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+    .gte(
+      "created_at",
+      new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    )
 
   if (withdrawals && withdrawals.length >= 3) {
     riskScore += 40
   }
 
-  // 2. OTP abusado
+  // 2. OTP abuso
   const { data: otps } = await supabase
     .from("otp_codes")
-    .select("*")
+    .select("id")
     .eq("user_email", user_email)
-    .gte("created_at", new Date(Date.now() - 60 * 60 * 1000).toISOString())
+    .gte(
+      "created_at",
+      new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    )
 
   if (otps && otps.length >= 5) {
     riskScore += 30
   }
 
-  // 3. Score existente
+  // 3. Score previo
   const { data: risk } = await supabase
     .from("user_risk")
     .select("score")
@@ -41,10 +47,30 @@ export async function detectFraud(user_email: string) {
     riskScore += 30
   }
 
-  // 4. Resultado final
+  // 4. Dispositivos/IP (multi-cuenta)
+  const { data: devices } = await supabase
+    .from("user_devices")
+    .select("ip")
+    .eq("user_email", user_email)
+
+  if (devices && devices.length >= 3) {
+    riskScore += 40
+  }
+
+  // 5. IP compartida (multi-cuenta)
+  const { data: sameIp } = await supabase
+    .from("user_devices")
+    .select("user_email")
+    .eq("ip", devices?.[0]?.ip || "")
+
+  if (sameIp && sameIp.length >= 3) {
+    riskScore += 50
+  }
+
+  // 🔥 resultado final
   const isDanger = riskScore >= 70
 
-  // Guardar score actualizado
+  // actualizar score
   await supabase
     .from("user_risk")
     .update({
@@ -53,11 +79,11 @@ export async function detectFraud(user_email: string) {
     })
     .eq("user_email", user_email)
 
-  // Log si es crítico
+  // log fraude
   if (isDanger) {
     await supabase.from("fraud_logs").insert({
       user_email,
-      reason: `AUTO-DETECT: score ${riskScore}`
+      reason: `AUTO-DETECT SCORE: ${riskScore}`
     })
   }
 
