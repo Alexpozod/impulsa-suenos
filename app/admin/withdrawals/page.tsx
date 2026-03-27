@@ -22,7 +22,6 @@ export default function AdminWithdrawals() {
   useEffect(() => {
 
     const checkAdmin = async () => {
-
       const { data: userData } = await supabase.auth.getUser()
 
       if (!userData.user) {
@@ -82,11 +81,24 @@ export default function AdminWithdrawals() {
     load()
   }
 
+  const getRiskColor = (score: number) => {
+    if (score >= 70) return "bg-red-600"
+    if (score >= 40) return "bg-yellow-500"
+    return "bg-green-600"
+  }
+
+  const getStatusColor = (status: string) => {
+    if (status === "pending") return "bg-yellow-500"
+    if (status === "approved") return "bg-green-600"
+    if (status === "rejected") return "bg-red-600"
+    return "bg-gray-500"
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 text-white p-10">
 
       <h1 className="text-3xl font-bold mb-8">
-        💸 Panel de Retiros (Admin)
+        💸 Panel de Retiros
       </h1>
 
       {loading ? (
@@ -94,80 +106,91 @@ export default function AdminWithdrawals() {
       ) : list.length === 0 ? (
         <p className="text-slate-400">No hay retiros</p>
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-5">
 
-          {list.map((w) => (
+          {list.map((w) => {
 
-            <div
-              key={w.id}
-              className="bg-slate-900 border border-slate-800 p-5 rounded-xl"
-            >
+            const risk = w.user_risk?.score || 0
 
-              <div className="flex justify-between items-center">
+            return (
+              <div
+                key={w.id}
+                className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg"
+              >
 
-                <div>
-                  <p className="font-semibold">
-                    {w.user_email}
-                  </p>
+                {/* HEADER */}
+                <div className="flex justify-between items-center">
 
-                  <p className="text-sm text-slate-400">
-                    {new Date(w.created_at).toLocaleString()}
-                  </p>
+                  <div>
+                    <p className="font-semibold text-lg">
+                      {w.user_email}
+                    </p>
 
-                  {/* 🔥 RIESGO */}
-                  <p className="text-sm mt-1">
-                    Riesgo:{" "}
-                    <span className={`
-                      font-bold
-                      ${w.user_risk?.score >= 70 && 'text-red-500'}
-                      ${w.user_risk?.score >= 40 && w.user_risk?.score < 70 && 'text-yellow-400'}
-                      ${w.user_risk?.score < 40 && 'text-green-400'}
-                    `}>
-                      {w.user_risk?.score || 0}
+                    <p className="text-xs text-slate-400">
+                      {new Date(w.created_at).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-green-400">
+                      ${Number(w.amount).toLocaleString()}
+                    </p>
+
+                    <span className={`text-xs px-3 py-1 rounded-full ${getStatusColor(w.status)}`}>
+                      {w.status.toUpperCase()}
                     </span>
-                  </p>
+                  </div>
+
                 </div>
 
-                <div className="text-right">
-                  <p className="text-xl font-bold text-green-400">
-                    ${Number(w.amount).toLocaleString()}
-                  </p>
+                {/* RIESGO */}
+                <div className="mt-4 flex items-center gap-3">
 
-                  <p className={`
-                    text-sm font-semibold
-                    ${w.status === 'pending' && 'text-yellow-400'}
-                    ${w.status === 'approved' && 'text-green-500'}
-                    ${w.status === 'rejected' && 'text-red-500'}
-                  `}>
-                    {w.status.toUpperCase()}
-                  </p>
+                  <span className="text-sm text-slate-400">
+                    Riesgo:
+                  </span>
+
+                  <span className={`text-xs px-3 py-1 rounded-full ${getRiskColor(risk)}`}>
+                    {risk}
+                  </span>
+
+                  <span className="text-xs text-slate-400">
+                    {w.user_risk?.status || "normal"}
+                  </span>
+
                 </div>
+
+                {/* MOTIVO RECHAZO */}
+                {w.rejection_reason && (
+                  <div className="mt-3 text-sm text-red-400">
+                    Motivo: {w.rejection_reason}
+                  </div>
+                )}
+
+                {/* BOTONES */}
+                {w.status === 'pending' && (
+                  <div className="flex gap-3 mt-5">
+
+                    <button
+                      onClick={() => update(w.id, 'approve')}
+                      className="bg-green-600 px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
+                    >
+                      ✅ Aprobar
+                    </button>
+
+                    <button
+                      onClick={() => update(w.id, 'reject')}
+                      className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
+                    >
+                      ❌ Rechazar
+                    </button>
+
+                  </div>
+                )}
 
               </div>
-
-              {w.status === 'pending' && (
-                <div className="flex gap-3 mt-4">
-
-                  <button
-                    onClick={() => update(w.id, 'approve')}
-                    className="bg-green-600 px-4 py-2 rounded-lg text-sm hover:bg-green-700"
-                  >
-                    ✅ Aprobar
-                  </button>
-
-                  <button
-                    onClick={() => update(w.id, 'reject')}
-                    className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700"
-                  >
-                    ❌ Rechazar
-                  </button>
-
-                </div>
-              )}
-
-            </div>
-
-          ))}
+            )
+          })}
 
         </div>
       )}
