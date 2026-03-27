@@ -17,9 +17,6 @@ export async function POST(req: Request) {
   try {
     const url = new URL(req.url)
 
-    // =========================
-    // 🌐 IP + DEVICE
-    // =========================
     const ip =
       req.headers.get("x-forwarded-for") ||
       req.headers.get("x-real-ip") ||
@@ -45,6 +42,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
+    // 🔒 LOCK ANTIDUPLICADO (NIVEL PRODUCCIÓN)
+    const lockKey = `lock_${payment.id}`
+
+    const { data: lock } = await supabase
+      .from("transactions")
+      .select("id")
+      .eq("reference_id", lockKey)
+      .maybeSingle()
+
+    if (lock) {
+      return NextResponse.json({ ok: true })
+    }
+
+    await supabase.from("transactions").insert({
+      user_email: "system",
+      type: "lock",
+      amount: 0,
+      status: "processing",
+      reference_id: lockKey
+    })
+
     // 🎯 CAMPAÑA
     const campaign_id =
       payment.metadata?.campaign_id ||
@@ -65,9 +83,7 @@ export async function POST(req: Request) {
 
     const amount = Number(payment.transaction_amount || 0)
 
-    // =========================
     // 🚫 BLOQUEO POR RIESGO
-    // =========================
     const { data: risk } = await supabase
       .from("user_risk")
       .select("*")
@@ -75,13 +91,10 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (risk?.status === "blocked") {
-      console.log("🚫 USUARIO BLOQUEADO")
       return NextResponse.json({ ok: true })
     }
 
-    // =========================
     // 🛡️ LOG ACTIVIDAD
-    // =========================
     await supabase.from("fraud_logs").insert({
       user_email,
       ip,
@@ -89,18 +102,14 @@ export async function POST(req: Request) {
       action: "payment"
     })
 
-    // =========================
-    // 🚨 MULTICUENTAS (FIX REAL)
-    // =========================
+    // 🚨 MULTICUENTAS
     const sameIpUsersRes = await supabase
       .from("fraud_logs")
       .select("user_email")
       .eq("ip", ip)
 
-    const sameIpUsers = sameIpUsersRes.data || []
-
     const uniqueUsers = [
-      ...new Set(sameIpUsers.map((u: any) => u.user_email))
+      ...new Set((sameIpUsersRes.data || []).map((u: any) => u.user_email))
     ]
 
     if (uniqueUsers.length > 3) {
@@ -108,19 +117,8 @@ export async function POST(req: Request) {
         user_email_input: user_email,
         points: 25
       })
-
-      await supabase.from("fraud_logs").insert({
-        user_email,
-        ip,
-        device,
-        action: "multi_account_detected",
-        risk_level: "high"
-      })
     }
 
-    // =========================
-    // ⚠️ IP MUY SOSPECHOSA
-    // =========================
     if (uniqueUsers.length > 5) {
       await supabase.rpc("add_risk", {
         user_email_input: user_email,
@@ -128,9 +126,7 @@ export async function POST(req: Request) {
       })
     }
 
-    // =========================
-    // ⏱️ MUCHOS PAGOS RAPIDOS (FIX REAL)
-    // =========================
+    // ⏱️ MUCHOS PAGOS RÁPIDOS
     const recentPaymentsRes = await supabase
       .from("fraud_logs")
       .select("id")
@@ -140,18 +136,14 @@ export async function POST(req: Request) {
         new Date(Date.now() - 5 * 60 * 1000).toISOString()
       )
 
-    const recentPayments = recentPaymentsRes.data || []
-
-    if (recentPayments.length > 5) {
+    if ((recentPaymentsRes.data || []).length > 5) {
       await supabase.rpc("add_risk", {
         user_email_input: user_email,
         points: 20
       })
     }
 
-    // =========================
-    // ⚙️ COMISIÓN DINÁMICA
-    // =========================
+    // 💰 COMISIÓN
     let commissionRate = 0.1
 
     const { data: setting } = await supabase
@@ -167,9 +159,7 @@ export async function POST(req: Request) {
     const commission = amount * commissionRate
     const netAmount = amount - commission
 
-    // =========================
-    // 🔒 ANTIDUPLICADO
-    // =========================
+    // 🚫 ANTIDUPLICADO EXTRA
     const { data: existing } = await supabase
       .from("donations")
       .select("id")
@@ -178,41 +168,25 @@ export async function POST(req: Request) {
 
     if (existing) return NextResponse.json({ ok: true })
 
-    // =========================
     // 👤 OWNER
-    // =========================
     const { data: campaign } = await supabase
       .from("campaigns")
-      .select("user_email")
+      .select("user_email, total_tickets")
       .eq("id", campaign_id)
       .maybeSingle()
 
     const owner_email = campaign?.user_email
 
-    // =========================
     // 🚫 AUTO COMPRA
-    // =========================
     if (owner_email === user_email) {
-
       await supabase.rpc("add_risk", {
         user_email_input: user_email,
         points: 50
       })
-
-      await supabase.from("fraud_logs").insert({
-        user_email,
-        ip,
-        device,
-        action: "self_purchase_blocked",
-        risk_level: "high"
-      })
-
       return NextResponse.json({ ok: true })
     }
 
-    // =========================
     // 💰 DONACIÓN
-    // =========================
     await supabase.from("donations").insert({
       campaign_id,
       amount,
@@ -220,9 +194,13 @@ export async function POST(req: Request) {
       user_email,
     })
 
-    // =========================
-    // 🧾 COMPRA
-    // =========================
+    // 📊 ACTUALIZAR CAMPAÑA (🔥 NUEVO)
+    await supabase.rpc("increment_campaign_amount", {
+      campaign_id_input: campaign_id,
+      amount_input: amount
+    })
+
+    // 🧾 TRANSACCIÓN USUARIO
     await supabase.from("transactions").insert({
       user_email,
       type: "purchase",
@@ -231,17 +209,8 @@ export async function POST(req: Request) {
       reference_id: campaign_id
     })
 
-    // riesgo leve
-    await supabase.rpc("add_risk", {
-      user_email_input: user_email,
-      points: 2
-    })
-
-    // =========================
-    // 💰 WALLET CAMPAÑA
-    // =========================
+    // 💰 WALLET DUEÑO
     if (owner_email) {
-
       await supabase.rpc("add_balance", {
         user_email_input: owner_email,
         amount_input: netAmount
@@ -256,9 +225,7 @@ export async function POST(req: Request) {
       })
     }
 
-    // =========================
-    // 💰 COMISIÓN
-    // =========================
+    // 💰 COMISIÓN PLATAFORMA
     await supabase.rpc("add_balance", {
       user_email_input: "platform@impulsasuenos.com",
       amount_input: commission
@@ -272,13 +239,25 @@ export async function POST(req: Request) {
       reference_id: payment.id
     })
 
-    // =========================
     // 🎟️ TICKETS
-    // =========================
     const ticketPrice = 1000
     const quantity = Math.floor(amount / ticketPrice)
 
     if (quantity > 0) {
+
+      // 🔥 VALIDAR STOCK (NUEVO)
+      const { count: sold } = await supabase
+        .from("tickets")
+        .select("*", { count: "exact", head: true })
+        .eq("campaign_id", campaign_id)
+
+      const available =
+        (campaign?.total_tickets || 0) - (sold || 0)
+
+      if (quantity > available) {
+        console.log("⚠️ SIN STOCK")
+        return NextResponse.json({ ok: true })
+      }
 
       const { data: lastTicket } = await supabase
         .from("tickets")
