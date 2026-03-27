@@ -1,60 +1,58 @@
 import LiveWinner from "@/app/components/LiveWinner"
-import Countdown from '@/app/components/Countdown'
-import DonateButton from '@/app/components/DonateButton'
-import { createClient } from '@supabase/supabase-js'
+import Countdown from "@/app/components/Countdown"
+import DonateButton from "@/app/components/DonateButton"
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export default async function CampaignPage({ params }: { params: Promise<{ id: string }> }) {
-
+export default async function CampaignPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const { id } = await params
 
   const { data, error } = await supabase
-    .from('campaigns')
-    .select('*')
-    .eq('id', id)
+    .from("campaigns")
+    .select("*")
+    .eq("id", id)
     .single()
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
+      <div className="min-h-screen flex items-center justify-center">
         Campaña no encontrada
       </div>
     )
   }
 
-  const { data: allDonations } = await supabase
-    .from('donations')
-    .select('amount')
-    .eq('campaign_id', id)
-
-  const totalDonated =
-    allDonations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+  const { data: donations } = await supabase
+    .from("donations")
+    .select("*")
+    .eq("campaign_id", id)
+    .order("created_at", { ascending: false })
+    .limit(5)
 
   const { count: ticketsSold } = await supabase
-    .from('tickets')
-    .select('*', { count: 'exact', head: true })
-    .eq('campaign_id', id)
+    .from("tickets")
+    .select("*", { count: "exact", head: true })
+    .eq("campaign_id", id)
+
+  const totalDonated =
+    donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
   const progress = Math.min(
     (totalDonated / data.goal_amount) * 100,
     100
   )
 
-  const { data: donations } = await supabase
-    .from('donations')
-    .select('*')
-    .eq('campaign_id', id)
-    .order('created_at', { ascending: false })
-    .limit(5)
-
   const { data: winner } = await supabase
-    .from('winners')
-    .select('*')
-    .eq('campaign_id', id)
+    .from("winners")
+    .select("*")
+    .eq("campaign_id", id)
     .maybeSingle()
 
   const isExpired =
@@ -73,7 +71,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
         {/* IZQUIERDA */}
         <div className="md:col-span-2">
 
-          <h1 className="text-4xl font-bold mb-4">
+          <h1 className="text-4xl font-extrabold mb-4 leading-tight">
             {data.title}
           </h1>
 
@@ -82,6 +80,14 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             className="w-full h-96 object-cover rounded-2xl mb-6 shadow-md"
           />
 
+          {/* URGENCIA */}
+          {!isFinished && (
+            <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6 text-red-700 text-sm font-semibold">
+              ⚠️ Alta demanda — quedan pocos tickets disponibles
+            </div>
+          )}
+
+          {/* COUNTDOWN */}
           {data.end_date && (
             <div className="mb-6">
               <Countdown endDate={data.end_date} />
@@ -116,11 +122,11 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
         </div>
 
-        {/* DERECHA */}
+        {/* DERECHA (DONDE SE CONVIERTE) */}
         <div className="bg-white border rounded-2xl p-6 h-fit shadow-xl sticky top-24">
 
-          {/* 💰 MONTO DESTACADO */}
-          <div className="mb-5 text-center">
+          {/* MONTO */}
+          <div className="mb-6 text-center">
 
             <div className="text-4xl font-extrabold text-green-600">
               ${totalDonated.toLocaleString()}
@@ -132,7 +138,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
 
           </div>
 
-          {/* 📊 PROGRESO */}
+          {/* PROGRESS */}
           <div className="w-full bg-gray-200 h-3 rounded-full mb-4 overflow-hidden">
             <div
               className="bg-green-600 h-3 rounded-full transition-all"
@@ -144,7 +150,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             🎟️ {ticketsSold || 0} / {data.total_tickets} tickets vendidos
           </div>
 
-          {/* 🏆 GANADOR */}
+          {/* GANADOR */}
           {winner && (
             <div className="bg-green-100 border border-green-300 p-4 rounded-xl mb-6 text-center">
               <p className="text-sm text-gray-600 mb-1">
@@ -170,13 +176,13 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
               <DonateButton campaignId={data.id} />
 
               <p className="text-xs text-center text-gray-500">
-                Compra segura con MercadoPago
+                🔒 Compra segura con MercadoPago
               </p>
 
             </div>
           )}
 
-          {/* 🔒 CONFIANZA */}
+          {/* CONFIANZA */}
           <div className="mt-6 border-t pt-4 space-y-2 text-sm text-gray-600">
 
             <p>🔒 Pagos protegidos</p>
@@ -185,13 +191,6 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             <p>🧾 Resultado verificable</p>
 
           </div>
-
-          {/* 🚨 URGENCIA */}
-          {!isFinished && (
-            <div className="mt-6 bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-xs text-yellow-800 text-center font-medium">
-              ⚠️ Alta demanda — quedan pocos tickets
-            </div>
-          )}
 
         </div>
 

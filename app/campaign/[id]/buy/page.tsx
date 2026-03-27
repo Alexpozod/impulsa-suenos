@@ -32,6 +32,11 @@ export default function BuyPage() {
   }, [id])
 
   const handleBuy = async () => {
+    if (!quantity || quantity <= 0) {
+      alert("Cantidad inválida")
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -70,47 +75,69 @@ export default function BuyPage() {
   const total = quantity * campaign.ticket_price
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
+    <main className="min-h-screen bg-gray-50 px-6 py-12">
 
-      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10">
+      <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
 
         {/* IZQUIERDA */}
         <div>
 
-          <h1 className="text-2xl font-bold mb-4">
+          <h1 className="text-3xl font-extrabold mb-4">
             {campaign.title}
           </h1>
 
           <img
-            src={campaign.image_url}
-            className="w-full rounded-xl mb-4"
+            src={campaign.image_url || "https://via.placeholder.com/600"}
+            className="w-full rounded-2xl mb-6 shadow-md"
           />
 
-          <p className="text-gray-600 text-sm">
-            Estás participando en esta campaña. Cada ticket es una oportunidad de ganar.
-          </p>
+          <div className="bg-white border rounded-xl p-4 text-sm text-gray-600 space-y-2">
+            <p>🎟️ Cada ticket = 1 oportunidad de ganar</p>
+            <p>🏆 Sorteo verificable y transparente</p>
+            <p>🔒 Pago seguro con MercadoPago</p>
+          </div>
 
         </div>
 
-        {/* DERECHA */}
-        <div className="bg-white p-6 rounded-2xl shadow-md">
+        {/* DERECHA (CHECKOUT) */}
+        <div className="bg-white p-8 rounded-2xl shadow-xl border">
 
-          <h2 className="text-lg font-semibold mb-4">
-            Compra de tickets
+          <h2 className="text-xl font-bold mb-6">
+            Compra tus tickets
           </h2>
 
           {/* PRECIO */}
-          <div className="flex justify-between mb-4">
-            <span className="text-gray-600">Precio por ticket</span>
-            <span className="font-bold">
+          <div className="flex justify-between mb-4 text-sm">
+            <span className="text-gray-500">Precio por ticket</span>
+            <span className="font-semibold">
               ${campaign.ticket_price}
             </span>
           </div>
 
-          {/* CANTIDAD */}
-          <div className="mb-4">
-            <label className="text-sm text-gray-600">
-              Cantidad
+          {/* SELECTOR RÁPIDO */}
+          <div className="grid grid-cols-4 gap-2 mb-4">
+
+            {[1, 3, 5, 10].map((q) => (
+              <button
+                key={q}
+                onClick={() => setQuantity(q)}
+                className={`
+                  border rounded-lg py-2 text-sm font-semibold
+                  ${quantity === q 
+                    ? 'bg-green-600 text-white border-green-600'
+                    : 'hover:bg-gray-100'}
+                `}
+              >
+                {q}
+              </button>
+            ))}
+
+          </div>
+
+          {/* INPUT */}
+          <div className="mb-5">
+            <label className="text-sm text-gray-500">
+              Cantidad personalizada
             </label>
 
             <input
@@ -118,27 +145,29 @@ export default function BuyPage() {
               min="1"
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-full border p-3 rounded-lg mt-1"
+              className="w-full border p-3 rounded-lg mt-1 focus:ring-2 focus:ring-green-500 outline-none"
             />
           </div>
 
           {/* TOTAL */}
           <div className="flex justify-between mb-6 text-lg font-bold">
             <span>Total</span>
-            <span>${total}</span>
+            <span className="text-green-600">
+              ${total.toLocaleString()}
+            </span>
           </div>
 
           {/* BOTÓN */}
           <button
             onClick={handleBuy}
             disabled={loading}
-            className="w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition disabled:opacity-50"
+            className="w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition shadow-md disabled:opacity-50"
           >
-            {loading ? 'Procesando...' : 'Pagar con MercadoPago'}
+            {loading ? 'Procesando...' : 'Pagar ahora'}
           </button>
 
-          {/* SEGURIDAD */}
-          <div className="mt-6 text-xs text-gray-500 space-y-1">
+          {/* CONFIANZA */}
+          <div className="mt-6 text-xs text-gray-500 space-y-1 text-center">
             <p>🔒 Pago 100% seguro</p>
             <p>🎟️ Tickets automáticos</p>
             <p>🧾 Confirmación inmediata</p>
