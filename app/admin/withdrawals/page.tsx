@@ -10,13 +10,11 @@ export default function AdminWithdrawals() {
 
   const [list, setList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [adminEmail, setAdminEmail] = useState("")
 
   const load = async () => {
-    setLoading(true)
-
     const res = await fetch('/api/admin/withdrawals')
     const data = await res.json()
-
     setList(data || [])
     setLoading(false)
   }
@@ -25,7 +23,6 @@ export default function AdminWithdrawals() {
 
     const checkAdmin = async () => {
 
-      // 🔐 verificar usuario
       const { data: userData } = await supabase.auth.getUser()
 
       if (!userData.user) {
@@ -33,7 +30,8 @@ export default function AdminWithdrawals() {
         return
       }
 
-      // 🔐 verificar rol
+      setAdminEmail(userData.user.email || "")
+
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -57,10 +55,21 @@ export default function AdminWithdrawals() {
     const confirmAction = confirm(`¿Seguro que quieres ${action}?`)
     if (!confirmAction) return
 
+    let reason = null
+
+    if (action === "reject") {
+      reason = prompt("Motivo del rechazo:")
+    }
+
     const res = await fetch('/api/admin/withdrawals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, action })
+      body: JSON.stringify({
+        withdrawalId: id,
+        action,
+        adminEmail,
+        reason
+      })
     })
 
     const data = await res.json()
@@ -103,6 +112,19 @@ export default function AdminWithdrawals() {
 
                   <p className="text-sm text-slate-400">
                     {new Date(w.created_at).toLocaleString()}
+                  </p>
+
+                  {/* 🔥 RIESGO */}
+                  <p className="text-sm mt-1">
+                    Riesgo:{" "}
+                    <span className={`
+                      font-bold
+                      ${w.user_risk?.score >= 70 && 'text-red-500'}
+                      ${w.user_risk?.score >= 40 && w.user_risk?.score < 70 && 'text-yellow-400'}
+                      ${w.user_risk?.score < 40 && 'text-green-400'}
+                    `}>
+                      {w.user_risk?.score || 0}
+                    </span>
                   </p>
                 </div>
 

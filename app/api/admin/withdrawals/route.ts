@@ -6,12 +6,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// 📥 OBTENER RETIROS
+// 📥 OBTENER RETIROS + RIESGO
 export async function GET() {
   try {
     const { data, error } = await supabase
       .from("withdrawals")
-      .select("*")
+      .select(`
+        *,
+        user_risk (
+          score,
+          status
+        )
+      `)
       .order("created_at", { ascending: false })
 
     if (error) {
@@ -35,12 +41,11 @@ export async function GET() {
   }
 }
 
-// ✅ APROBAR / ❌ RECHAZAR (SEGURO)
+// ✅ APROBAR / ❌ RECHAZAR (SEGURO + RPC)
 export async function POST(req: Request) {
   try {
     const { withdrawalId, action, adminEmail, reason } = await req.json()
 
-    // 🚨 Validación fuerte
     if (!withdrawalId || !action || !adminEmail) {
       return NextResponse.json(
         { error: "Faltan datos" },
@@ -55,7 +60,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔐 Validar admin REAL
+    // 🔐 Validar admin
     const { data: admin, error: adminError } = await supabase
       .from("profiles")
       .select("id, role")
@@ -76,7 +81,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔥 VALIDAR QUE EL RETIRO EXISTE (extra seguridad)
+    // 🔍 Validar retiro
     const { data: withdrawal } = await supabase
       .from("withdrawals")
       .select("id, status")
@@ -97,7 +102,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔥 LLAMADA RPC SEGURA (LÓGICA EN DB)
+    // 🔥 RPC (LÓGICA SEGURA)
     const { data, error } = await supabase.rpc("process_withdraw", {
       p_withdrawal_id: withdrawalId,
       p_action: action,
