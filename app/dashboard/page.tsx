@@ -40,53 +40,52 @@ export default function Dashboard() {
 
     setUser(userData.user)
 
-    // 🎟️ Tickets
-    const { data: userTickets } = await supabase
-      .from('tickets')
-      .select('*')
-      .eq('user_email', userData.user.email)
+    const email = userData.user.email
 
-    // 💰 Donaciones
-    const { data: userDonations } = await supabase
-      .from('donations')
-      .select('*')
-      .eq('user_email', userData.user.email)
-      .order('created_at', { ascending: true })
+    // 🔥 TODAS LAS CONSULTAS EN PARALELO (MEJOR PERFORMANCE)
+    const [
+      ticketsRes,
+      donationsRes,
+      transactionsRes,
+      kycRes,
+      walletRes,
+      riskRes
+    ] = await Promise.all([
 
-    // 📊 Transacciones
-    const { data: userTransactions } = await supabase
-      .from('transactions')
-      .select('*')
-      .eq('user_email', userData.user.email)
-      .order('created_at', { ascending: true })
+      supabase.from('tickets').select('*').eq('user_email', email),
 
-    // 🛡️ KYC
-    const { data: kycData } = await supabase
-      .from('kyc')
-      .select('*')
-      .eq('user_email', userData.user.email)
-      .maybeSingle()
+      supabase.from('donations')
+        .select('*')
+        .eq('user_email', email)
+        .order('created_at', { ascending: true }),
 
-    // 💰 Wallet
-    const { data: walletData } = await supabase
-      .from('wallets')
-      .select('*')
-      .eq('user_email', userData.user.email)
-      .maybeSingle()
+      supabase.from('transactions')
+        .select('*')
+        .eq('user_email', email)
+        .order('created_at', { ascending: true }),
 
-    // 🚨 RIESGO (🔥 NUEVO)
-    const { data: riskData } = await supabase
-      .from('user_risk')
-      .select('*')
-      .eq('user_email', userData.user.email)
-      .maybeSingle()
+      supabase.from('kyc')
+        .select('*')
+        .eq('user_email', email)
+        .maybeSingle(),
 
-    setTickets(userTickets || [])
-    setDonations(userDonations || [])
-    setTransactions(userTransactions || [])
-    setKyc(kycData || null)
-    setWallet(walletData || null)
-    setRisk(riskData || null)
+      supabase.from('wallets')
+        .select('*')
+        .eq('user_email', email)
+        .maybeSingle(),
+
+      supabase.from('user_risk')
+        .select('*')
+        .eq('user_email', email)
+        .maybeSingle()
+    ])
+
+    setTickets(ticketsRes.data || [])
+    setDonations(donationsRes.data || [])
+    setTransactions(transactionsRes.data || [])
+    setKyc(kycRes.data || null)
+    setWallet(walletRes.data || null)
+    setRisk(riskRes.data || null)
 
     setLoading(false)
   }
@@ -96,28 +95,36 @@ export default function Dashboard() {
     router.push('/login')
   }
 
-  // 🚨 RETIRO PROTEGIDO
+  // 🚨 RETIRO (MEJORADO)
   const requestWithdraw = async () => {
 
-    // 🔴 BLOQUEO POR RIESGO
     if (risk?.status === 'blocked') {
-      alert("🚫 Tu cuenta está bloqueada por seguridad")
+      alert("🚫 Cuenta bloqueada por seguridad")
       return
     }
 
     if (risk?.score > 70) {
-      alert("⚠️ Riesgo alto detectado. Contacta soporte")
+      alert("⚠️ Riesgo alto. Contacta soporte")
       return
     }
 
-    const amountInput = prompt("¿Cuánto deseas retirar?")
+    if (!wallet?.balance || wallet.balance <= 0) {
+      alert("No tienes saldo disponible")
+      return
+    }
 
+    const amountInput = prompt(`Saldo disponible: $${wallet.balance}\n¿Cuánto deseas retirar?`)
     if (!amountInput) return
 
     const amount = Number(amountInput)
 
     if (isNaN(amount) || amount <= 0) {
       alert("Monto inválido")
+      return
+    }
+
+    if (amount > wallet.balance) {
+      alert("Saldo insuficiente")
       return
     }
 
@@ -135,34 +142,34 @@ export default function Dashboard() {
     if (data.error) {
       alert(data.error)
     } else {
-      alert("✅ Retiro solicitado")
+      alert("✅ Retiro solicitado correctamente")
       loadData()
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Cargando dashboard...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        Cargando dashboard...
       </div>
     )
   }
 
-  const kycStatus = kyc?.status || 'none'
   const totalSpent = donations.reduce((sum, d) => sum + Number(d.amount), 0)
+  const balanceReal = Number(wallet?.balance || 0)
 
-  // 📊 Balance real
-  let balance = 0
+  // 📊 GRÁFICO REAL
+  let runningBalance = 0
 
   const chartData = transactions.map((t, i) => {
 
-    if (t.type === 'deposit') balance += Number(t.amount)
-    if (t.type === 'withdraw') balance -= Number(t.amount)
-    if (t.type === 'purchase') balance -= Number(t.amount)
+    if (t.type === 'deposit') runningBalance += Number(t.amount)
+    if (t.type === 'withdraw') runningBalance -= Number(t.amount)
+    if (t.type === 'purchase') runningBalance -= Number(t.amount)
 
     return {
       name: `#${i + 1}`,
-      balance
+      balance: runningBalance
     }
   })
 
@@ -172,11 +179,14 @@ export default function Dashboard() {
       <div className="max-w-6xl mx-auto">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-8">
 
-          <h1 className="text-2xl font-bold">
-            👋 Hola, {user?.email}
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold">
+              👋 Hola
+            </h1>
+            <p className="text-gray-500 text-sm">{user?.email}</p>
+          </div>
 
           <button
             onClick={logout}
@@ -187,43 +197,21 @@ export default function Dashboard() {
 
         </div>
 
-        {/* 🔥 ADMIN */}
-        <div className="flex gap-4 mb-10">
-
-          <button
-            onClick={() => router.push('/admin/withdrawals')}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm"
-          >
-            💸 Panel Retiros
-          </button>
-
-          <button
-            onClick={() => router.push('/admin/earnings')}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
-          >
-            💰 Ver Ganancias
-          </button>
-
-        </div>
-
-        {/* 🚨 ALERTA RIESGO */}
+        {/* ALERTAS */}
         {risk?.score > 50 && (
           <div className="mb-6 bg-red-50 border border-red-200 p-4 rounded-xl">
-            <p className="text-red-600 font-bold">
-              ⚠️ Actividad sospechosa detectada
-            </p>
+            ⚠️ Actividad sospechosa detectada
           </div>
         )}
 
-        {/* 🚨 KYC */}
-        {kycStatus !== 'approved' && (
-          <div className="mb-8 bg-yellow-50 border p-5 rounded-xl">
-            <p>Debes verificar tu identidad</p>
+        {kyc?.status !== 'approved' && (
+          <div className="mb-6 bg-yellow-50 border p-4 rounded-xl">
+            Debes completar tu verificación (KYC)
             <button
               onClick={() => router.push('/kyc')}
-              className="bg-green-600 text-white px-4 py-2 mt-2 rounded"
+              className="ml-3 bg-green-600 text-white px-3 py-1 rounded"
             >
-              Completar KYC
+              Verificar
             </button>
           </div>
         )}
@@ -232,31 +220,31 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-4 gap-6 mb-10">
 
           <div className="bg-white p-6 rounded-xl border">
-            <p>🎟️ Tickets</p>
+            <p className="text-gray-500 text-sm">Tickets</p>
             <p className="text-2xl font-bold">{tickets.length}</p>
           </div>
 
           <div className="bg-white p-6 rounded-xl border">
-            <p>💰 Compras</p>
+            <p className="text-gray-500 text-sm">Compras</p>
             <p className="text-2xl font-bold">{donations.length}</p>
           </div>
 
           <div className="bg-white p-6 rounded-xl border">
-            <p>💵 Total invertido</p>
+            <p className="text-gray-500 text-sm">Invertido</p>
             <p className="text-2xl font-bold text-green-600">
               ${totalSpent.toLocaleString()}
             </p>
           </div>
 
           <div className="bg-white p-6 rounded-xl border">
-            <p>💰 Saldo</p>
+            <p className="text-gray-500 text-sm">Saldo</p>
             <p className="text-2xl font-bold text-green-600">
-              ${Number(wallet?.balance || 0).toLocaleString()}
+              ${balanceReal.toLocaleString()}
             </p>
 
             <button
               onClick={requestWithdraw}
-              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm"
+              className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg text-sm hover:bg-green-700"
             >
               💸 Retirar dinero
             </button>
@@ -264,7 +252,7 @@ export default function Dashboard() {
 
         </div>
 
-        {/* 📊 GRÁFICO */}
+        {/* GRÁFICO */}
         <div className="bg-white p-6 rounded-xl border mb-10">
 
           <h2 className="mb-4 font-bold">
@@ -283,7 +271,7 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p>Sin movimientos aún</p>
+            <p className="text-gray-400">Sin movimientos</p>
           )}
 
         </div>
