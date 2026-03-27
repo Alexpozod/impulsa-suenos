@@ -8,19 +8,31 @@ const supabase = createClient(
 
 // 📥 OBTENER RETIROS
 export async function GET() {
-  const { data, error } = await supabase
-    .from("withdrawals")
-    .select("*")
-    .order("created_at", { ascending: false })
+  try {
+    const { data, error } = await supabase
+      .from("withdrawals")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-  if (error) {
+    if (error) {
+      console.error("❌ ERROR GET WITHDRAWALS:", error)
+
+      return NextResponse.json(
+        { error: "Error cargando retiros" },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(data)
+
+  } catch (err) {
+    console.error("❌ ERROR GENERAL GET:", err)
+
     return NextResponse.json(
-      { error: "Error cargando retiros" },
+      { error: "Error servidor" },
       { status: 500 }
     )
   }
-
-  return NextResponse.json(data)
 }
 
 // ✅ APROBAR / ❌ RECHAZAR (SEGURO)
@@ -28,7 +40,7 @@ export async function POST(req: Request) {
   try {
     const { withdrawalId, action, adminEmail, reason } = await req.json()
 
-    // 🚨 Validación básica
+    // 🚨 Validación fuerte
     if (!withdrawalId || !action || !adminEmail) {
       return NextResponse.json(
         { error: "Faltan datos" },
@@ -43,21 +55,49 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔐 Validar admin
+    // 🔐 Validar admin REAL
     const { data: admin, error: adminError } = await supabase
       .from("profiles")
       .select("id, role")
       .eq("email", adminEmail)
       .single()
 
-    if (adminError || !admin || admin.role !== "admin") {
+    if (adminError || !admin) {
+      return NextResponse.json(
+        { error: "Admin no encontrado" },
+        { status: 404 }
+      )
+    }
+
+    if (admin.role !== "admin") {
       return NextResponse.json(
         { error: "No autorizado" },
         { status: 403 }
       )
     }
 
-    // 🔥 LLAMADA RPC SEGURA
+    // 🔥 VALIDAR QUE EL RETIRO EXISTE (extra seguridad)
+    const { data: withdrawal } = await supabase
+      .from("withdrawals")
+      .select("id, status")
+      .eq("id", withdrawalId)
+      .single()
+
+    if (!withdrawal) {
+      return NextResponse.json(
+        { error: "Retiro no encontrado" },
+        { status: 404 }
+      )
+    }
+
+    if (withdrawal.status !== "pending") {
+      return NextResponse.json(
+        { error: "Retiro ya procesado" },
+        { status: 400 }
+      )
+    }
+
+    // 🔥 LLAMADA RPC SEGURA (LÓGICA EN DB)
     const { data, error } = await supabase.rpc("process_withdraw", {
       p_withdrawal_id: withdrawalId,
       p_action: action,
