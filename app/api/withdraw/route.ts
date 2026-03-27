@@ -1,4 +1,5 @@
-import { detectFraud } from "@/lib/fraud/detector"
+import { securityGuard } from "@/lib/security/guard"
+import { rateLimit } from "@/lib/security/rateLimit"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -26,15 +27,18 @@ export async function POST(req: Request) {
       )
     }
 
-    // 💾 Guardar dispositivo SIEMPRE
-    await supabase.from("user_devices").insert({
-      user_email: email,
-      ip,
-      user_agent: userAgent
-    })
+    // 🚫 RATE LIMIT (PRIMERO)
+    const limit = await rateLimit(email, "withdraw")
 
-    // 🔥 ANTI FRAUDE
-    const fraud = await detectFraud(email)
+    if (limit.blocked) {
+      return NextResponse.json(
+        { error: limit.reason },
+        { status: 429 }
+      )
+    }
+
+    // 🔥 ANTI FRAUDE (SEGUNDO)
+    const fraud = await securityGuard(email)
 
     if (fraud.isDanger) {
       return NextResponse.json(
@@ -42,6 +46,13 @@ export async function POST(req: Request) {
         { status: 403 }
       )
     }
+
+    // 💾 Guardar dispositivo SOLO SI PASA FILTROS
+    await supabase.from("user_devices").insert({
+      user_email: email,
+      ip,
+      user_agent: userAgent
+    })
 
     // 🔥 RPC retiro
     const { data, error } = await supabase.rpc("request_withdraw", {
