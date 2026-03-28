@@ -1,6 +1,6 @@
-export const dynamic = "force-dynamic"
-
 'use client'
+
+export const dynamic = "force-dynamic"
 
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -18,7 +18,7 @@ export default function SuccessPage() {
     if (paymentId) {
       setTimeout(() => {
         setLoading(false)
-      }, 1000)
+      }, 800)
     }
   }, [paymentId])
 
