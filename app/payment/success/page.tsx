@@ -7,55 +7,45 @@ import { useEffect, useState } from 'react'
 
 export default function SuccessPage() {
 
-  const params = useSearchParams()
+  const searchParams = useSearchParams()
   const router = useRouter()
 
-  const [loading, setLoading] = useState(true)
-
-  const paymentId = params.get('payment_id')
+  const [status, setStatus] = useState('Procesando pago...')
 
   useEffect(() => {
-    if (paymentId) {
-      setTimeout(() => {
-        setLoading(false)
-      }, 800)
+
+    const payment_id = searchParams.get('payment_id')
+    const statusParam = searchParams.get('status')
+
+    if (statusParam === 'approved') {
+      setStatus('✅ Pago aprobado')
+    } else if (statusParam === 'pending') {
+      setStatus('⏳ Pago pendiente')
+    } else {
+      setStatus('❌ Pago rechazado')
     }
-  }, [paymentId])
+
+  }, [])
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
+    <main className="min-h-screen flex items-center justify-center bg-gray-50">
 
-      <div className="bg-white p-10 rounded-2xl shadow-xl max-w-lg text-center">
+      <div className="bg-white p-10 rounded-2xl shadow-xl text-center">
 
-        <h1 className="text-3xl font-bold text-green-600 mb-4">
-          🎉 Pago exitoso
+        <h1 className="text-2xl font-bold mb-4">
+          Resultado del pago
         </h1>
 
         <p className="text-gray-600 mb-6">
-          Tu compra fue procesada correctamente.
+          {status}
         </p>
 
-        <div className="bg-gray-100 p-4 rounded-xl mb-6 text-sm">
-          ID de pago: <b>{paymentId}</b>
-        </div>
-
-        <div className="space-y-3">
-
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold"
-          >
-            Ir a mi dashboard
-          </button>
-
-          <button
-            onClick={() => router.push('/campaigns')}
-            className="w-full border py-3 rounded-xl"
-          >
-            Ver más campañas
-          </button>
-
-        </div>
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="bg-green-600 text-white px-6 py-3 rounded-lg"
+        >
+          Ir al dashboard
+        </button>
 
       </div>
 
