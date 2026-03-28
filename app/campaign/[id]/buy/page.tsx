@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useParams, useSearchParams } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -12,13 +12,24 @@ const supabase = createClient(
 export default function BuyPage() {
 
   const { id } = useParams()
+  const searchParams = useSearchParams()
 
   const [campaign, setCampaign] = useState<any>(null)
+  const [user, setUser] = useState<any>(null)
+
   const [quantity, setQuantity] = useState(1)
+  const [selectedPack, setSelectedPack] = useState<any>(null)
+
   const [loading, setLoading] = useState(false)
 
+  // 📦 LOAD DATA
   useEffect(() => {
-    const fetchCampaign = async () => {
+
+    const load = async () => {
+
+      const { data: userData } = await supabase.auth.getUser()
+      setUser(userData.user)
+
       const { data } = await supabase
         .from('campaigns')
         .select('*')
@@ -26,35 +37,63 @@ export default function BuyPage() {
         .single()
 
       setCampaign(data)
+
+      // 🎯 PACK DESDE URL
+      const packQty = searchParams.get('pack')
+
+      if (packQty && data?.ticket_pack) {
+        const pack = data.ticket_pack.find((p: any) => p.qty == packQty)
+        if (pack) {
+          setSelectedPack(pack)
+          setQuantity(pack.qty)
+        }
+      }
     }
 
-    fetchCampaign()
+    load()
+
   }, [id])
 
-  const handleBuy = async () => {
-    if (!quantity || quantity <= 0) {
-      alert("Cantidad inválida")
+  // 💰 TOTAL
+  const getTotal = () => {
+    if (!campaign) return 0
+
+    if (selectedPack) {
+      return Number(selectedPack.price)
+    }
+
+    return quantity * Number(campaign.ticket_price || 1000)
+  }
+
+  // 💳 PAGO
+  const handlePay = async () => {
+
+    if (!user) {
+      alert('Debes iniciar sesión')
       return
     }
 
     setLoading(true)
 
     try {
+      const amount = getTotal()
+
       const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          campaignId: id,
-          quantity
+          amount,
+          campaign_id: id,
+          user_email: user.email
         })
       })
 
       const data = await res.json()
 
-      if (data.init_point) {
-        window.location.href = data.init_point
+      if (data.url) {
+        window.location.href = data.url
       } else {
-        alert('Error al iniciar pago')
+        alert('Error iniciando pago')
       }
 
     } catch (err) {
@@ -67,76 +106,78 @@ export default function BuyPage() {
   if (!campaign) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Cargando...
+        Cargando campaña...
       </div>
     )
   }
 
-  const total = quantity * campaign.ticket_price
-
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-12">
+    <main className="min-h-screen bg-gray-50 px-6 py-10">
 
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
 
-        {/* IZQUIERDA */}
+        {/* ================= IZQUIERDA ================= */}
         <div>
 
-          <h1 className="text-3xl font-extrabold mb-4">
+          <h1 className="text-2xl font-bold mb-4">
             {campaign.title}
           </h1>
 
           <img
-            src={campaign.image_url || "https://via.placeholder.com/600"}
-            className="w-full rounded-2xl mb-6 shadow-md"
+            src={campaign.image_url || "https://via.placeholder.com/500"}
+            className="w-full rounded-xl mb-4"
           />
 
-          <div className="bg-white border rounded-xl p-4 text-sm text-gray-600 space-y-2">
-            <p>🎟️ Cada ticket = 1 oportunidad de ganar</p>
-            <p>🏆 Sorteo verificable y transparente</p>
-            <p>🔒 Pago seguro con MercadoPago</p>
-          </div>
+          <p className="text-sm text-gray-600">
+            Estás participando en esta campaña. Cada ticket aumenta tus probabilidades de ganar.
+          </p>
 
         </div>
 
-        {/* DERECHA (CHECKOUT) */}
-        <div className="bg-white p-8 rounded-2xl shadow-xl border">
+        {/* ================= DERECHA ================= */}
+        <div className="bg-white p-6 rounded-2xl shadow-lg border">
 
-          <h2 className="text-xl font-bold mb-6">
-            Compra tus tickets
+          <h2 className="text-lg font-semibold mb-4">
+            🎟️ Compra de tickets
           </h2>
 
-          {/* PRECIO */}
-          <div className="flex justify-between mb-4 text-sm">
-            <span className="text-gray-500">Precio por ticket</span>
-            <span className="font-semibold">
-              ${campaign.ticket_price}
-            </span>
-          </div>
+          {/* 🎯 PACKS */}
+          {campaign.ticket_pack?.length > 0 && (
+            <div className="mb-6 space-y-2">
 
-          {/* SELECTOR RÁPIDO */}
-          <div className="grid grid-cols-4 gap-2 mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                Packs recomendados
+              </p>
 
-            {[1, 3, 5, 10].map((q) => (
-              <button
-                key={q}
-                onClick={() => setQuantity(q)}
-                className={`
-                  border rounded-lg py-2 text-sm font-semibold
-                  ${quantity === q 
-                    ? 'bg-green-600 text-white border-green-600'
-                    : 'hover:bg-gray-100'}
-                `}
-              >
-                {q}
-              </button>
-            ))}
+              {campaign.ticket_pack.map((pack: any, i: number) => (
 
-          </div>
+                <button
+                  key={i}
+                  onClick={() => {
+                    setSelectedPack(pack)
+                    setQuantity(pack.qty)
+                  }}
+                  className={`w-full border p-3 rounded-lg text-left transition ${
+                    selectedPack?.qty === pack.qty
+                      ? 'border-green-600 bg-green-50'
+                      : 'hover:bg-gray-50'
+                  }`}
+                >
+                  🎟️ {pack.qty} tickets  
+                  <span className="float-right font-bold">
+                    ${pack.price}
+                  </span>
+                </button>
 
-          {/* INPUT */}
-          <div className="mb-5">
-            <label className="text-sm text-gray-500">
+              ))}
+
+            </div>
+          )}
+
+          {/* ✍️ CUSTOM */}
+          <div className="mb-6">
+
+            <label className="text-sm text-gray-600">
               Cantidad personalizada
             </label>
 
@@ -144,30 +185,38 @@ export default function BuyPage() {
               type="number"
               min="1"
               value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-full border p-3 rounded-lg mt-1 focus:ring-2 focus:ring-green-500 outline-none"
+              onChange={(e) => {
+                setSelectedPack(null)
+                setQuantity(Number(e.target.value))
+              }}
+              className="w-full border p-3 rounded-lg mt-1"
             />
+
           </div>
 
-          {/* TOTAL */}
-          <div className="flex justify-between mb-6 text-lg font-bold">
+          {/* 💰 PRECIO UNITARIO */}
+          <div className="flex justify-between mb-2 text-sm text-gray-600">
+            <span>Precio por ticket</span>
+            <span>${campaign.ticket_price || 1000}</span>
+          </div>
+
+          {/* 💵 TOTAL */}
+          <div className="flex justify-between mb-6 text-xl font-bold">
             <span>Total</span>
-            <span className="text-green-600">
-              ${total.toLocaleString()}
-            </span>
+            <span>${getTotal().toLocaleString()}</span>
           </div>
 
-          {/* BOTÓN */}
+          {/* 💳 CTA */}
           <button
-            onClick={handleBuy}
+            onClick={handlePay}
             disabled={loading}
-            className="w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition shadow-md disabled:opacity-50"
+            className="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition disabled:opacity-50"
           >
             {loading ? 'Procesando...' : 'Pagar ahora'}
           </button>
 
-          {/* CONFIANZA */}
-          <div className="mt-6 text-xs text-gray-500 space-y-1 text-center">
+          {/* 🔒 CONFIANZA */}
+          <div className="mt-6 text-xs text-gray-500 space-y-1">
             <p>🔒 Pago 100% seguro</p>
             <p>🎟️ Tickets automáticos</p>
             <p>🧾 Confirmación inmediata</p>
