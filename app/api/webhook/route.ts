@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
+import { sendTicketEmail } from "@/lib/email" // ✅ NUEVO
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 🔒 LOCK ANTIDUPLICADO (NIVEL PRODUCCIÓN)
+    // 🔒 LOCK ANTIDUPLICADO
     const lockKey = `lock_${payment.id}`
 
     const { data: lock } = await supabase
@@ -51,9 +52,7 @@ export async function POST(req: Request) {
       .eq("reference_id", lockKey)
       .maybeSingle()
 
-    if (lock) {
-      return NextResponse.json({ ok: true })
-    }
+    if (lock) return NextResponse.json({ ok: true })
 
     await supabase.from("transactions").insert({
       user_email: "system",
@@ -83,7 +82,7 @@ export async function POST(req: Request) {
 
     const amount = Number(payment.transaction_amount || 0)
 
-    // 🚫 BLOQUEO POR RIESGO
+    // 🚫 RIESGO
     const { data: risk } = await supabase
       .from("user_risk")
       .select("*")
@@ -94,54 +93,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 🛡️ LOG ACTIVIDAD
+    // 🛡️ LOG
     await supabase.from("fraud_logs").insert({
       user_email,
       ip,
       device,
       action: "payment"
     })
-
-    // 🚨 MULTICUENTAS
-    const sameIpUsersRes = await supabase
-      .from("fraud_logs")
-      .select("user_email")
-      .eq("ip", ip)
-
-    const uniqueUsers = [
-      ...new Set((sameIpUsersRes.data || []).map((u: any) => u.user_email))
-    ]
-
-    if (uniqueUsers.length > 3) {
-      await supabase.rpc("add_risk", {
-        user_email_input: user_email,
-        points: 25
-      })
-    }
-
-    if (uniqueUsers.length > 5) {
-      await supabase.rpc("add_risk", {
-        user_email_input: user_email,
-        points: 15
-      })
-    }
-
-    // ⏱️ MUCHOS PAGOS RÁPIDOS
-    const recentPaymentsRes = await supabase
-      .from("fraud_logs")
-      .select("id")
-      .eq("user_email", user_email)
-      .gte(
-        "created_at",
-        new Date(Date.now() - 5 * 60 * 1000).toISOString()
-      )
-
-    if ((recentPaymentsRes.data || []).length > 5) {
-      await supabase.rpc("add_risk", {
-        user_email_input: user_email,
-        points: 20
-      })
-    }
 
     // 💰 COMISIÓN
     let commissionRate = 0.1
@@ -159,7 +117,7 @@ export async function POST(req: Request) {
     const commission = amount * commissionRate
     const netAmount = amount - commission
 
-    // 🚫 ANTIDUPLICADO EXTRA
+    // 🚫 DUPLICADO
     const { data: existing } = await supabase
       .from("donations")
       .select("id")
@@ -168,10 +126,10 @@ export async function POST(req: Request) {
 
     if (existing) return NextResponse.json({ ok: true })
 
-    // 👤 OWNER
+    // 👤 CAMPAÑA INFO
     const { data: campaign } = await supabase
       .from("campaigns")
-      .select("user_email, total_tickets")
+      .select("user_email, total_tickets, title")
       .eq("id", campaign_id)
       .maybeSingle()
 
@@ -194,13 +152,13 @@ export async function POST(req: Request) {
       user_email,
     })
 
-    // 📊 ACTUALIZAR CAMPAÑA (🔥 NUEVO)
+    // 📊 UPDATE CAMPAIGN
     await supabase.rpc("increment_campaign_amount", {
       campaign_id_input: campaign_id,
       amount_input: amount
     })
 
-    // 🧾 TRANSACCIÓN USUARIO
+    // 🧾 TRANSACCIÓN USER
     await supabase.from("transactions").insert({
       user_email,
       type: "purchase",
@@ -209,7 +167,7 @@ export async function POST(req: Request) {
       reference_id: campaign_id
     })
 
-    // 💰 WALLET DUEÑO
+    // 💰 WALLET OWNER
     if (owner_email) {
       await supabase.rpc("add_balance", {
         user_email_input: owner_email,
@@ -243,9 +201,10 @@ export async function POST(req: Request) {
     const ticketPrice = 1000
     const quantity = Math.floor(amount / ticketPrice)
 
+    let createdTickets: number[] = []
+
     if (quantity > 0) {
 
-      // 🔥 VALIDAR STOCK (NUEVO)
       const { count: sold } = await supabase
         .from("tickets")
         .select("*", { count: "exact", head: true })
@@ -272,16 +231,35 @@ export async function POST(req: Request) {
       const tickets = []
 
       for (let i = 1; i <= quantity; i++) {
+        const ticketNumber = start + i
+
         tickets.push({
           campaign_id,
           payment_id: payment.id,
-          ticket_number: start + i,
+          ticket_number: ticketNumber,
           user_email,
         })
+
+        createdTickets.push(ticketNumber)
       }
 
       await supabase.from("tickets").insert(tickets)
     }
+
+    // 📧 EMAIL (🔥 CLAVE)
+    if (createdTickets.length > 0) {
+      try {
+        await sendTicketEmail({
+          to: user_email,
+          tickets: createdTickets,
+          campaign: campaign?.title || "Campaña"
+        })
+      } catch (err) {
+        console.error("❌ ERROR EMAIL:", err)
+      }
+    }
+
+    console.log("✅ PAYMENT COMPLETED:", payment.id)
 
     return NextResponse.json({ ok: true })
 

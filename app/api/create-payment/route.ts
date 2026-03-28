@@ -50,10 +50,10 @@ export async function POST(req: Request) {
         notification_url: `${BASE_URL}/api/webhook`,
 
         back_urls: {
-          success: `${BASE_URL}/dashboard`,
-          failure: `${BASE_URL}/dashboard`,
-          pending: `${BASE_URL}/dashboard`,
-        },
+  success: `${BASE_URL}/payment/success`,
+  failure: `${BASE_URL}/payment/failure`,
+  pending: `${BASE_URL}/payment/pending`,
+},
 
         auto_return: "approved",
       },
