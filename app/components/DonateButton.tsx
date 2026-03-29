@@ -1,56 +1,69 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/src/lib/supabase'
 
 export default function DonateButton({
-  campaignId
+  campaignId,
+  ticketPrice = 1000
 }: {
   campaignId: string
+  ticketPrice?: number
 }) {
 
+  const [amount, setAmount] = useState<number>(ticketPrice)
+  const [tickets, setTickets] = useState<number>(1)
   const [loading, setLoading] = useState(false)
-  const [customAmount, setCustomAmount] = useState('')
-  const [tip, setTip] = useState(0)
+  const [tip, setTip] = useState<number>(0)
+  const [custom, setCustom] = useState(false)
 
+  // 🎯 PACKS (puedes luego traerlos desde DB)
   const packs = [
-    { label: '1 Ticket', amount: 1000 },
-    { label: '🔥 3 Tickets', amount: 2500, popular: true },
-    { label: '🚀 5 Tickets', amount: 4000 }
+    { tickets: 1, price: ticketPrice },
+    { tickets: 3, price: ticketPrice * 2.5 }, // 🔥 descuento
+    { tickets: 5, price: ticketPrice * 4 },
+    { tickets: 10, price: ticketPrice * 7.5 },
   ]
 
-  const handleBuy = async (amount: number) => {
+  const selectPack = (p: any) => {
+    setCustom(false)
+    setTickets(p.tickets)
+    setAmount(Math.round(p.price))
+  }
 
+  const handleCustom = (value: number) => {
+    setCustom(true)
+    setAmount(value)
+    setTickets(Math.floor(value / ticketPrice))
+  }
+
+  const total = amount + tip
+
+  const donate = async () => {
     setLoading(true)
 
-    const { data: userData } = await supabase.auth.getUser()
-
-    if (!userData.user) {
-      alert('Debes iniciar sesión')
-      setLoading(false)
-      return
-    }
-
-    const total = amount + tip
-
-    const res = await fetch('/api/create-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: total,
-        campaign_id: campaignId,
-        user_email: userData.user.email,
-        base_amount: amount,
-        platform_tip: tip
+    try {
+      const res = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount,
+          platform_tip: tip,
+          campaign_id: campaignId,
+          user_email: localStorage.getItem('user_email') // ⚠️ puedes mejorar esto luego
+        })
       })
-    })
 
-    const data = await res.json()
+      const data = await res.json()
 
-    if (data.url) {
-      window.location.href = data.url
-    } else {
-      alert('Error al crear pago')
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('Error al crear pago')
+      }
+
+    } catch (err) {
+      console.error(err)
+      alert('Error inesperado')
     }
 
     setLoading(false)
@@ -59,91 +72,96 @@ export default function DonateButton({
   return (
     <div className="space-y-4">
 
-      {/* 🔥 PACKS */}
-      {packs.map((p, i) => (
-        <button
-          key={i}
-          onClick={() => handleBuy(p.amount)}
-          disabled={loading}
-          className={`
-            w-full p-4 rounded-xl border text-left transition
-            ${p.popular
-              ? 'border-green-600 bg-green-50 scale-105 shadow-md'
-              : 'bg-white hover:shadow'}
-          `}
-        >
-          <div className="flex justify-between">
+      {/* 🎟️ PACKS */}
+      <div className="grid grid-cols-2 gap-2">
 
-            <div>
-              <p className="font-semibold">{p.label}</p>
-
-              {p.popular && (
-                <p className="text-xs text-green-600 font-bold">
-                  ⭐ Más elegido
-                </p>
-              )}
+        {packs.map((p, i) => (
+          <button
+            key={i}
+            onClick={() => selectPack(p)}
+            className={`p-3 rounded-xl border text-sm font-semibold transition
+              ${tickets === p.tickets && !custom
+                ? 'bg-green-600 text-white'
+                : 'bg-white hover:bg-gray-100'
+              }
+            `}
+          >
+            🎟️ {p.tickets} ticket{p.tickets > 1 && 's'}
+            <div className="text-xs opacity-80">
+              ${Math.round(p.price).toLocaleString()}
             </div>
-
-            <p className="font-bold text-green-600">
-              ${p.amount.toLocaleString()}
-            </p>
-
-          </div>
-        </button>
-      ))}
-
-      {/* 💰 DONACIÓN PLATAFORMA */}
-      <div className="bg-gray-50 p-4 rounded-xl border">
-
-        <p className="text-sm font-semibold mb-2">
-          ❤️ Apoyar ImpulsaSueños
-        </p>
-
-        <div className="flex gap-2">
-
-          {[0, 500, 1000].map((t) => (
-            <button
-              key={t}
-              onClick={() => setTip(t)}
-              className={`
-                px-3 py-2 rounded-lg text-sm border
-                ${tip === t
-                  ? 'bg-green-600 text-white'
-                  : 'bg-white'}
-              `}
-            >
-              {t === 0 ? 'No' : `$${t}`}
-            </button>
-          ))}
-
-        </div>
-
-        <p className="text-xs text-gray-500 mt-2">
-          Nos ayuda a mantener la plataforma 🙌
-        </p>
+          </button>
+        ))}
 
       </div>
 
-      {/* ✍️ CUSTOM */}
-      <div className="pt-2 border-t">
-
+      {/* 💰 INPUT PERSONALIZADO */}
+      <div>
         <input
           type="number"
           placeholder="Monto personalizado"
-          value={customAmount}
-          onChange={(e) => setCustomAmount(e.target.value)}
-          className="w-full border p-3 rounded-lg mb-2"
+          className="w-full border p-3 rounded-lg"
+          onChange={(e) => handleCustom(Number(e.target.value))}
         />
+      </div>
 
-        <button
-          onClick={() => handleBuy(Number(customAmount))}
-          disabled={loading || !customAmount}
-          className="w-full bg-black text-white py-3 rounded-lg font-semibold"
-        >
-          Comprar monto personalizado
-        </button>
+      {/* 🎯 INFO */}
+      <div className="text-sm text-gray-600 text-center">
+        Obtienes <b>{tickets}</b> ticket(s)
+      </div>
+
+      {/* ❤️ DONACIÓN A PLATAFORMA */}
+      <div className="bg-gray-50 p-3 rounded-xl text-sm">
+
+        <label className="flex items-center justify-between cursor-pointer">
+
+          <span>❤️ Apoyar la plataforma</span>
+
+          <input
+            type="checkbox"
+            onChange={(e) => {
+              if (e.target.checked) {
+                setTip(Math.round(amount * 0.1)) // sugerido 10%
+              } else {
+                setTip(0)
+              }
+            }}
+          />
+
+        </label>
+
+        {tip > 0 && (
+          <div className="mt-2 text-xs text-gray-500">
+            Aporte: ${tip.toLocaleString()}
+          </div>
+        )}
 
       </div>
+
+      {/* 💵 TOTAL */}
+      <div className="text-center">
+
+        <p className="text-sm text-gray-500">Total</p>
+
+        <p className="text-2xl font-bold text-green-600">
+          ${total.toLocaleString()}
+        </p>
+
+      </div>
+
+      {/* 🚀 CTA */}
+      <button
+        onClick={donate}
+        disabled={loading || amount <= 0}
+        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:scale-105 transition"
+      >
+        {loading ? 'Procesando...' : 'Comprar ahora'}
+      </button>
+
+      {/* 🔒 TRUST */}
+      <p className="text-xs text-center text-gray-400">
+        🔒 Pago seguro con MercadoPago
+      </p>
 
     </div>
   )
