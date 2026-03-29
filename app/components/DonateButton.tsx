@@ -11,8 +11,7 @@ export default function DonateButton({
 
   const [loading, setLoading] = useState(false)
   const [customAmount, setCustomAmount] = useState('')
-
-  const ticketPrice = 1000
+  const [tip, setTip] = useState(0)
 
   const packs = [
     { label: '1 Ticket', amount: 1000 },
@@ -21,6 +20,7 @@ export default function DonateButton({
   ]
 
   const handleBuy = async (amount: number) => {
+
     setLoading(true)
 
     const { data: userData } = await supabase.auth.getUser()
@@ -31,13 +31,17 @@ export default function DonateButton({
       return
     }
 
+    const total = amount + tip
+
     const res = await fetch('/api/create-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        amount,
+        amount: total,
         campaign_id: campaignId,
-        user_email: userData.user.email
+        user_email: userData.user.email,
+        base_amount: amount,
+        platform_tip: tip
       })
     })
 
@@ -56,45 +60,71 @@ export default function DonateButton({
     <div className="space-y-4">
 
       {/* 🔥 PACKS */}
-      <div className="grid grid-cols-1 gap-3">
+      {packs.map((p, i) => (
+        <button
+          key={i}
+          onClick={() => handleBuy(p.amount)}
+          disabled={loading}
+          className={`
+            w-full p-4 rounded-xl border text-left transition
+            ${p.popular
+              ? 'border-green-600 bg-green-50 scale-105 shadow-md'
+              : 'bg-white hover:shadow'}
+          `}
+        >
+          <div className="flex justify-between">
 
-        {packs.map((p, i) => (
-          <button
-            key={i}
-            onClick={() => handleBuy(p.amount)}
-            disabled={loading}
-            className={`
-              w-full p-4 rounded-xl border text-left transition
-              ${p.popular
-                ? 'border-green-600 bg-green-50 scale-105 shadow-md'
-                : 'bg-white hover:shadow'}
-            `}
-          >
+            <div>
+              <p className="font-semibold">{p.label}</p>
 
-            <div className="flex justify-between items-center">
-
-              <div>
-                <p className="font-semibold">{p.label}</p>
-
-                {p.popular && (
-                  <p className="text-xs text-green-600 font-bold">
-                    ⭐ Más elegido
-                  </p>
-                )}
-              </div>
-
-              <p className="font-bold text-green-600">
-                ${p.amount.toLocaleString()}
-              </p>
-
+              {p.popular && (
+                <p className="text-xs text-green-600 font-bold">
+                  ⭐ Más elegido
+                </p>
+              )}
             </div>
 
-          </button>
-        ))}
+            <p className="font-bold text-green-600">
+              ${p.amount.toLocaleString()}
+            </p>
+
+          </div>
+        </button>
+      ))}
+
+      {/* 💰 DONACIÓN PLATAFORMA */}
+      <div className="bg-gray-50 p-4 rounded-xl border">
+
+        <p className="text-sm font-semibold mb-2">
+          ❤️ Apoyar ImpulsaSueños
+        </p>
+
+        <div className="flex gap-2">
+
+          {[0, 500, 1000].map((t) => (
+            <button
+              key={t}
+              onClick={() => setTip(t)}
+              className={`
+                px-3 py-2 rounded-lg text-sm border
+                ${tip === t
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white'}
+              `}
+            >
+              {t === 0 ? 'No' : `$${t}`}
+            </button>
+          ))}
+
+        </div>
+
+        <p className="text-xs text-gray-500 mt-2">
+          Nos ayuda a mantener la plataforma 🙌
+        </p>
 
       </div>
 
-      {/* ✍️ MONTO PERSONALIZADO */}
+      {/* ✍️ CUSTOM */}
       <div className="pt-2 border-t">
 
         <input

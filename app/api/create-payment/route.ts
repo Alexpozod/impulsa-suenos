@@ -9,17 +9,9 @@ const preferenceClient = new Preference(client)
 
 export async function POST(req: Request) {
   try {
-    const { amount, campaign_id, user_email } = await req.json()
+    const { amount, platform_tip = 0, campaign_id, user_email } = await req.json()
 
-    console.log("🔥 CREATE PAYMENT:", {
-      amount,
-      campaign_id,
-      user_email,
-    })
-
-    // 🛡️ VALIDACIÓN
     if (!amount || !campaign_id || !user_email) {
-      console.log("❌ Datos incompletos")
       return NextResponse.json(
         { error: "Faltan datos" },
         { status: 400 }
@@ -28,21 +20,24 @@ export async function POST(req: Request) {
 
     const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
 
+    const total = Number(amount) + Number(platform_tip)
+
     const response = await preferenceClient.create({
       body: {
         items: [
           {
-            id: "ticket",
-            title: "🎟️ Ticket ImpulsaSueños",
+            id: "donation",
+            title: "🎟️ Compra / Donación ImpulsaSueños",
             quantity: 1,
-            unit_price: Number(amount),
+            unit_price: total,
           },
         ],
 
-        // 🔥 CLAVE TOTAL
         metadata: {
-          campaign_id: campaign_id,
-          user_email: user_email,
+          campaign_id,
+          user_email,
+          amount,
+          platform_tip, // 🔥 CLAVE
         },
 
         external_reference: String(campaign_id),
@@ -50,16 +45,14 @@ export async function POST(req: Request) {
         notification_url: `${BASE_URL}/api/webhook`,
 
         back_urls: {
-  success: `${BASE_URL}/payment/success`,
-  failure: `${BASE_URL}/payment/failure`,
-  pending: `${BASE_URL}/payment/pending`,
-},
+          success: `${BASE_URL}/payment/success`,
+          failure: `${BASE_URL}/payment/failure`,
+          pending: `${BASE_URL}/payment/pending`,
+        },
 
         auto_return: "approved",
       },
     })
-
-    console.log("✅ PREFERENCE OK")
 
     return NextResponse.json({
       id: response.id,
