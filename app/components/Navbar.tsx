@@ -1,22 +1,23 @@
 'use client'
 
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { supabase } from '@/src/lib/supabase'
-import { useRouter } from 'next/navigation'
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { supabase } from "@/src/lib/supabase"
+import { useRouter } from "next/navigation"
 
 export default function Navbar() {
 
-  const router = useRouter()
   const [user, setUser] = useState<any>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser()
-      setUser(data.user)
-    }
-    getUser()
+    loadUser()
   }, [])
+
+  const loadUser = async () => {
+    const { data } = await supabase.auth.getUser()
+    setUser(data.user)
+  }
 
   const logout = async () => {
     await supabase.auth.signOut()
@@ -24,26 +25,28 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="w-full bg-white border-b sticky top-0 z-50 shadow-sm">
+    <nav className="w-full bg-white border-b sticky top-0 z-50">
 
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
         {/* LOGO */}
-        <Link href="/">
-          <span className="text-xl font-bold text-green-600 cursor-pointer">
-            ImpulsaSueños
-          </span>
+        <Link href="/" className="text-xl font-bold text-green-600">
+          ImpulsaSueños
         </Link>
 
         {/* LINKS */}
-        <div className="hidden md:flex gap-6 text-sm text-gray-700">
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+
+          <Link href="/" className="hover:text-green-600">
+            Inicio
+          </Link>
 
           <Link href="/campaigns" className="hover:text-green-600">
             Campañas
           </Link>
 
-          <Link href="/como-funciona" className="hover:text-green-600">
-            Cómo funciona
+          <Link href="/raffles" className="hover:text-green-600">
+            Sorteos
           </Link>
 
           <Link href="/faq" className="hover:text-green-600">
@@ -52,32 +55,41 @@ export default function Navbar() {
 
         </div>
 
-        {/* USER */}
+        {/* CTA / USER */}
         <div className="flex items-center gap-3">
 
-          {user ? (
+          {!user ? (
             <>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="text-sm font-semibold text-green-600"
+              <Link
+                href="/login"
+                className="text-sm text-gray-600 hover:text-green-600"
+              >
+                Iniciar sesión
+              </Link>
+
+              <Link
+                href="/register"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+              >
+                Crear campaña
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium hover:text-green-600"
               >
                 Dashboard
-              </button>
+              </Link>
 
               <button
                 onClick={logout}
-                className="text-sm text-gray-500 hover:text-red-500"
+                className="text-sm text-red-500"
               >
-                Salir
+                Cerrar sesión
               </button>
             </>
-          ) : (
-            <button
-              onClick={() => router.push('/login')}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700"
-            >
-              Ingresar
-            </button>
           )}
 
         </div>

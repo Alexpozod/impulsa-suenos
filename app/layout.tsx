@@ -2,9 +2,8 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
-// 🔥 IMPORTAR COMPONENTES
-import Navbar from "./components/Navbar"
-import Footer from "./components/Footer"
+import Navbar from "@/app/components/Navbar"
+import Footer from "@/app/components/Footer"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,20 +32,17 @@ export default function RootLayout({
           ${geistSans.variable} 
           ${geistMono.variable} 
           antialiased 
-          bg-gray-50 
+          bg-white 
           text-gray-900
         `}
       >
 
-        {/* 🔝 NAVBAR GLOBAL */}
         <Navbar />
 
-        {/* 📄 CONTENIDO */}
-        <div className="min-h-screen">
+        <main className="min-h-screen">
           {children}
-        </div>
+        </main>
 
-        {/* 🔻 FOOTER GLOBAL */}
         <Footer />
 
       </body>
