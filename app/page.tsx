@@ -1,192 +1,102 @@
-export const dynamic = "force-dynamic"
+'use client'
 
-import Notifications from "./components/Notifications"
-import LiveFeed from "./components/LiveFeed"
-import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
-import { Trophy, Users } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+export default function HomePage() {
 
-export default async function Home() {
+  const [campaigns, setCampaigns] = useState<any[]>([])
+  const router = useRouter()
 
-  const { data: campaigns } = await supabase
-    .from("campaigns")
-    .select("*")
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
+  useEffect(() => {
+    load()
+  }, [])
 
-  const { data: winners } = await supabase
-    .from("winners")
-    .select(`*, campaigns (title)`)
-    .order("created_at", { ascending: false })
-    .limit(3)
-
-  const { data: recentDonations } = await supabase
-    .from("donations")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(10)
+  const load = async () => {
+    const res = await fetch('/api/campaigns')
+    const data = await res.json()
+    setCampaigns(data || [])
+  }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-100 text-gray-900">
+    <main className="bg-white text-gray-900">
 
-      {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-8 py-5 bg-white/80 backdrop-blur border-b sticky top-0 z-50">
-        <h1 className="text-xl font-extrabold text-green-600">
-          ImpulsaSueños
+      {/* ================= HERO ================= */}
+      <section className="px-6 py-20 text-center bg-gradient-to-b from-green-50 to-white">
+
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
+          Gana premios reales <br />
+          <span className="text-green-600">
+            mientras ayudas a otros
+          </span>
         </h1>
 
-        <div className="flex gap-6 text-sm text-gray-700">
-          <Link href="/como-funciona">Cómo funciona</Link>
-          <Link href="/faq">FAQ</Link>
-          <Link href="/winners">Ganadores</Link>
-          <Link href="/my-tickets">Mis tickets</Link>
-          <Link href="/login" className="font-semibold text-green-600">
-            Ingresar
-          </Link>
-        </div>
-      </nav>
-
-      {/* HERO */}
-      <section className="text-center py-24 px-6 max-w-4xl mx-auto">
-
-        <h2 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-          Gana premios reales
-          <br />
-          <span className="text-green-600">mientras ayudas a otros</span>
-        </h2>
-
-        <p className="text-gray-600 text-lg mb-8">
-          Participa en campañas, compra tickets y forma parte de sorteos
-          100% verificables.
+        <p className="text-lg text-gray-600 max-w-xl mx-auto mb-8">
+          Compra tickets, participa en sorteos y apoya causas reales.
+          Una nueva forma de ayudar y ganar.
         </p>
 
-        <div className="flex justify-center gap-4 flex-wrap">
-          <Link href="#campaigns">
-            <button className="bg-green-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-green-700 transition shadow-lg hover:scale-105">
-              🎟️ Participar ahora
-            </button>
-          </Link>
+        <div className="flex gap-4 justify-center">
 
-          <Link href="/como-funciona">
-            <button className="border px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition">
-              Cómo funciona
-            </button>
-          </Link>
+          <button
+            onClick={() => router.push('/campaigns')}
+            className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition"
+          >
+            Ver campañas
+          </button>
+
+          <button
+            onClick={() => router.push('/login')}
+            className="border px-6 py-3 rounded-xl font-semibold hover:bg-gray-100"
+          >
+            Crear cuenta
+          </button>
+
         </div>
-
-        <p className="text-xs text-gray-500 mt-6">
-          🔒 Pagos seguros con MercadoPago
-        </p>
 
       </section>
 
-      {/* FEED EN VIVO */}
-      <div className="max-w-4xl mx-auto px-6 mb-14">
-        <LiveFeed donations={recentDonations || []} />
-      </div>
+      {/* ================= CAMPAÑAS ================= */}
+      <section className="px-6 py-16 max-w-6xl mx-auto">
 
-      {/* STATS */}
-      <section className="max-w-5xl mx-auto px-6 mb-20">
-        <div className="grid grid-cols-3 gap-6 text-center">
-
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <p className="text-3xl font-bold">
-              {campaigns?.length || 0}
-            </p>
-            <p className="text-gray-500 text-xs uppercase">
-              Campañas activas
-            </p>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <p className="text-3xl font-bold">
-              {winners?.length || 0}
-            </p>
-            <p className="text-gray-500 text-xs uppercase">
-              Ganadores
-            </p>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <p className="text-3xl font-bold text-green-600">✔</p>
-            <p className="text-gray-500 text-xs uppercase">
-              Pagos seguros
-            </p>
-          </div>
-
-        </div>
-      </section>
-
-      {/* CAMPAÑAS */}
-      <section id="campaigns" className="max-w-6xl mx-auto px-6 pb-20">
-
-        <h2 className="text-2xl font-bold mb-10 flex items-center gap-2">
-          <Users className="text-green-600" /> Campañas activas
+        <h2 className="text-2xl font-bold mb-8 text-center">
+          🔥 Campañas destacadas
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-6">
 
-          {campaigns?.map((c) => {
+          {campaigns.slice(0, 6).map((c) => {
 
-            const progress = Math.min(
-              ((c.current_amount || 0) / c.goal_amount) * 100,
-              100
-            )
+            const percent = c.goal_amount
+              ? Math.min((c.raised / c.goal_amount) * 100, 100)
+              : 0
 
             return (
               <div
                 key={c.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition"
+                onClick={() => router.push(`/campaigns/${c.id}`)}
+                className="bg-white p-5 rounded-2xl shadow-md cursor-pointer hover:scale-105 transition"
               >
 
-                <div className="relative">
-                  <img
-                    src={c.image_url || "https://via.placeholder.com/400"}
-                    className="w-full h-48 object-cover"
-                  />
+                <img
+                  src={c.image_url || "https://via.placeholder.com/400"}
+                  className="w-full h-40 object-cover rounded-xl mb-4"
+                />
 
-                  <div className="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
-                    ACTIVO
-                  </div>
+                <h3 className="font-bold mb-2">
+                  {c.title}
+                </h3>
+
+                <div className="h-2 bg-gray-200 rounded-full mb-2">
+                  <div
+                    className="h-2 bg-green-600 rounded-full"
+                    style={{ width: `${percent}%` }}
+                  />
                 </div>
 
-                <div className="p-5">
-
-                  <h3 className="font-bold text-lg mb-2 line-clamp-1">
-                    {c.title}
-                  </h3>
-
-                  <p className="text-xs text-red-500 font-semibold mb-3">
-                    🔥 Alta demanda
-                  </p>
-
-                  {/* PROGRESS */}
-                  <div className="w-full bg-gray-200 h-2 rounded-full mb-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full transition-all"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-
-                  <p className="text-xs text-gray-500 mb-4">
-                    {Math.round(progress)}% completado
-                  </p>
-
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {c.description}
-                  </p>
-
-                  <Link href={`/campaigns/${c.id}`}>
-                    <button className="w-full py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition">
-                      Participar ahora
-                    </button>
-                  </Link>
-
+                <div className="text-sm flex justify-between">
+                  <span>${Number(c.raised).toLocaleString()}</span>
+                  <span>${Number(c.goal_amount).toLocaleString()}</span>
                 </div>
 
               </div>
@@ -197,65 +107,96 @@ export default async function Home() {
 
       </section>
 
-      {/* GANADORES */}
-      <section className="bg-gray-100 py-20 px-6">
+      {/* ================= COMO FUNCIONA ================= */}
+      <section className="bg-gray-50 py-16 px-6 text-center">
 
-        <div className="max-w-5xl mx-auto">
+        <h2 className="text-2xl font-bold mb-10">
+          ¿Cómo funciona?
+        </h2>
 
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Trophy className="text-yellow-500" />
-              Últimos ganadores
-            </h2>
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
 
-            <Link href="/winners">
-              <span className="text-sm text-gray-500 hover:underline cursor-pointer">
-                Ver todos
-              </span>
-            </Link>
+          <div>
+            <div className="text-4xl mb-3">🎟️</div>
+            <h3 className="font-bold mb-2">Compra tickets</h3>
+            <p className="text-sm text-gray-600">
+              Elige una campaña y compra tickets fácilmente.
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div>
+            <div className="text-4xl mb-3">🎯</div>
+            <h3 className="font-bold mb-2">Participa</h3>
+            <p className="text-sm text-gray-600">
+              Entras automáticamente al sorteo.
+            </p>
+          </div>
 
-            {winners?.map((w) => (
-              <div
-                key={w.id}
-                className="bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-md transition"
-              >
-
-                <p className="text-sm text-gray-500 mb-2">
-                  {w.campaigns?.title || "Campaña"}
-                </p>
-
-                <p className="text-2xl font-bold text-yellow-500">
-                  🏆 Ticket #{w.ticket_number}
-                </p>
-
-                <p className="text-xs text-gray-400 mt-3">
-                  {new Date(w.created_at).toLocaleString()}
-                </p>
-
-              </div>
-            ))}
-
+          <div>
+            <div className="text-4xl mb-3">🏆</div>
+            <h3 className="font-bold mb-2">Gana</h3>
+            <p className="text-sm text-gray-600">
+              Si tu ticket sale, ganas premios reales.
+            </p>
           </div>
 
         </div>
 
       </section>
 
-      {/* FOOTER */}
-      <footer className="text-center text-xs text-gray-500 py-10 border-t bg-white">
-        <div className="flex justify-center gap-6 mb-4">
-          <Link href="/terminos">Términos</Link>
-          <Link href="/privacidad">Privacidad</Link>
+      {/* ================= BENEFICIOS ================= */}
+      <section className="py-16 px-6 text-center">
+
+        <h2 className="text-2xl font-bold mb-10">
+          ¿Por qué ImpulsaSueños?
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+
+          <div>
+            <h3 className="font-bold mb-2">💸 Ganas dinero</h3>
+            <p className="text-sm text-gray-600">
+              Participa en sorteos con premios reales.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-bold mb-2">❤️ Ayudas</h3>
+            <p className="text-sm text-gray-600">
+              Apoyas causas reales y personas.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-bold mb-2">🔒 Seguro</h3>
+            <p className="text-sm text-gray-600">
+              Pagos protegidos y sistema antifraude.
+            </p>
+          </div>
+
         </div>
 
-        © {new Date().getFullYear()} ImpulsaSueños
-      </footer>
+      </section>
 
-      {/* NOTIFICACIONES */}
-      <Notifications donations={recentDonations || []} />
+      {/* ================= CTA FINAL ================= */}
+      <section className="bg-green-600 text-white text-center py-16 px-6">
+
+        <h2 className="text-3xl font-bold mb-4">
+          Empieza ahora
+        </h2>
+
+        <p className="mb-6">
+          Únete y participa en las campañas activas
+        </p>
+
+        <button
+          onClick={() => router.push('/campaigns')}
+          className="bg-white text-green-600 px-6 py-3 rounded-xl font-bold hover:scale-105 transition"
+        >
+          Ver campañas
+        </button>
+
+      </section>
 
     </main>
   )
