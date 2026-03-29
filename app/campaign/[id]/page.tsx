@@ -59,9 +59,15 @@ export default async function CampaignPage({
     data.end_date && new Date(data.end_date) < new Date()
 
   const soldOut =
-    (ticketsSold || 0) >= data.total_tickets
+    data.total_tickets
+      ? (ticketsSold || 0) >= data.total_tickets
+      : false
 
   const isFinished = isExpired || soldOut || winner
+
+  const remainingTickets = data.total_tickets
+    ? data.total_tickets - (ticketsSold || 0)
+    : null
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 py-10 px-6">
@@ -80,14 +86,22 @@ export default async function CampaignPage({
             className="w-full h-96 object-cover rounded-2xl mb-6 shadow-md"
           />
 
-          {/* URGENCIA */}
+          {/* 🔥 URGENCIA REAL */}
           {!isFinished && (
             <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6 text-red-700 text-sm font-semibold">
-              ⚠️ Alta demanda — quedan pocos tickets disponibles
+
+              {remainingTickets !== null ? (
+                <>
+                  ⚠️ Quedan solo {remainingTickets} tickets disponibles
+                </>
+              ) : (
+                <>🔥 Alta demanda en esta campaña</>
+              )}
+
             </div>
           )}
 
-          {/* COUNTDOWN */}
+          {/* ⏳ COUNTDOWN */}
           {data.end_date && (
             <div className="mb-6">
               <Countdown endDate={data.end_date} />
@@ -98,7 +112,7 @@ export default async function CampaignPage({
             {data.description}
           </p>
 
-          {/* ACTIVIDAD */}
+          {/* 📊 ACTIVIDAD (PRUEBA SOCIAL) */}
           <div className="mt-12">
             <h3 className="text-lg font-semibold mb-4">
               Actividad reciente
@@ -110,7 +124,7 @@ export default async function CampaignPage({
                   key={d.id}
                   className="bg-white border rounded-xl p-3 mb-2 text-sm shadow-sm"
                 >
-                  🎟️ Compra de ${Number(d.amount).toLocaleString()}
+                  🎟️ {d.user_email?.slice(0, 4)}*** compró ${Number(d.amount).toLocaleString()}
                 </div>
               ))
             ) : (
@@ -122,10 +136,10 @@ export default async function CampaignPage({
 
         </div>
 
-        {/* DERECHA (DONDE SE CONVIERTE) */}
+        {/* DERECHA */}
         <div className="bg-white border rounded-2xl p-6 h-fit shadow-xl sticky top-24">
 
-          {/* MONTO */}
+          {/* 💰 MONTO */}
           <div className="mb-6 text-center">
 
             <div className="text-4xl font-extrabold text-green-600">
@@ -138,7 +152,7 @@ export default async function CampaignPage({
 
           </div>
 
-          {/* PROGRESS */}
+          {/* 📊 PROGRESS */}
           <div className="w-full bg-gray-200 h-3 rounded-full mb-4 overflow-hidden">
             <div
               className="bg-green-600 h-3 rounded-full transition-all"
@@ -146,11 +160,26 @@ export default async function CampaignPage({
             />
           </div>
 
-          <div className="text-sm text-gray-600 mb-6 text-center">
-            🎟️ {ticketsSold || 0} / {data.total_tickets} tickets vendidos
+          {/* 🔥 URGENCIA EXTRA */}
+          <div className="text-center text-sm text-gray-600 mb-4">
+
+            {data.end_date && (
+              <p>⏳ Tiempo limitado para participar</p>
+            )}
+
+            {progress > 70 && (
+              <p className="text-red-500 font-semibold">
+                🔥 Más del {Math.round(progress)}% completado
+              </p>
+            )}
+
           </div>
 
-          {/* GANADOR */}
+          <div className="text-sm text-gray-600 mb-6 text-center">
+            🎟️ {ticketsSold || 0} / {data.total_tickets || '∞'} tickets vendidos
+          </div>
+
+          {/* 🏆 GANADOR */}
           {winner && (
             <div className="bg-green-100 border border-green-300 p-4 rounded-xl mb-6 text-center">
               <p className="text-sm text-gray-600 mb-1">
@@ -165,7 +194,7 @@ export default async function CampaignPage({
             </div>
           )}
 
-          {/* CTA */}
+          {/* 🎯 CTA */}
           {isFinished ? (
             <div className="bg-gray-200 text-gray-700 p-4 rounded-xl text-center font-semibold">
               Sorteo finalizado
@@ -175,6 +204,10 @@ export default async function CampaignPage({
 
               <DonateButton campaignId={data.id} />
 
+              <p className="text-xs text-center text-red-500 font-semibold">
+                ⚠️ Personas están comprando ahora mismo
+              </p>
+
               <p className="text-xs text-center text-gray-500">
                 🔒 Compra segura con MercadoPago
               </p>
@@ -182,7 +215,7 @@ export default async function CampaignPage({
             </div>
           )}
 
-          {/* CONFIANZA */}
+          {/* 🔐 CONFIANZA */}
           <div className="mt-6 border-t pt-4 space-y-2 text-sm text-gray-600">
 
             <p>🔒 Pagos protegidos</p>
