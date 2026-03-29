@@ -2,20 +2,37 @@
 
 import { useState } from 'react'
 import { supabase } from '@/src/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function CreateCampaign() {
+
+  const router = useRouter()
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [goal, setGoal] = useState('')
+  const [tickets, setTickets] = useState('')
   const [image, setImage] = useState<File | null>(null)
+
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
 
   const createCampaign = async () => {
 
+    setLoading(true)
+    setMessage('')
+
     const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user?.email) {
+      setMessage('Debes iniciar sesión')
+      setLoading(false)
+      return
+    }
 
     let imageUrl = null
 
+    // 📸 SUBIR IMAGEN
     if (image) {
 
       const fileName = Date.now() + "-" + image.name
@@ -25,81 +42,101 @@ export default function CreateCampaign() {
         .upload(fileName, image)
 
       if (!uploadError) {
-
         const { data } = supabase.storage
           .from('campaign-images')
           .getPublicUrl(fileName)
 
         imageUrl = data.publicUrl
       }
-
     }
 
-    const { error } = await supabase
-      .from('campaigns')
-      .insert([
-        {
-          title,
-          description,
-          goal_amount: goal,
-          user_id: user?.id,
-          image_url: imageUrl
-        }
-      ])
+    // 🚀 LLAMAR API REAL
+    const res = await fetch('/api/campaigns/create', {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        description,
+        goal_amount: Number(goal),
+        total_tickets: Number(tickets),
+        user_email: user.email,
+        image_url: imageUrl
+      })
+    })
 
-    if (error) {
-      alert(error.message)
+    const data = await res.json()
+
+    if (!res.ok) {
+      setMessage(data.error || 'Error creando campaña')
     } else {
-      alert('Campaña creada')
+      setMessage('✅ Campaña creada')
+
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1000)
     }
 
+    setLoading(false)
   }
 
   return (
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
 
-    <div style={{ padding: 40 }}>
+      <div className="w-full max-w-lg bg-white p-8 rounded-2xl shadow-md">
 
-      <h1>Crear campaña</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          Crear campaña
+        </h1>
 
-      <input
-        placeholder="Título"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+        <input
+          placeholder="Título"
+          className="w-full border p-3 rounded-lg mb-4"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-      <br /><br />
+        <textarea
+          placeholder="Descripción"
+          className="w-full border p-3 rounded-lg mb-4"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-      <textarea
-        placeholder="Descripción"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+        <input
+          placeholder="Meta en dinero ($)"
+          className="w-full border p-3 rounded-lg mb-4"
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+        />
 
-      <br /><br />
+        <input
+          placeholder="Cantidad total de tickets"
+          className="w-full border p-3 rounded-lg mb-4"
+          value={tickets}
+          onChange={(e) => setTickets(e.target.value)}
+        />
 
-      <input
-        placeholder="Meta de dinero"
-        value={goal}
-        onChange={(e) => setGoal(e.target.value)}
-      />
+        <input
+          type="file"
+          className="mb-4"
+          onChange={(e) => setImage(e.target.files?.[0] || null)}
+        />
 
-      <br /><br />
+        <button
+          onClick={createCampaign}
+          disabled={loading}
+          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold"
+        >
+          {loading ? 'Creando...' : 'Crear campaña'}
+        </button>
 
-      <input
-        type="file"
-        onChange={(e) => {
-          const file = e.target.files?.[0] || null
-          setImage(file)
-        }}
-      />
+        {message && (
+          <p className="text-center text-sm mt-4 text-gray-600">
+            {message}
+          </p>
+        )}
 
-      <br /><br />
+      </div>
 
-      <button onClick={createCampaign}>
-        Crear campaña
-      </button>
-
-    </div>
-
+    </main>
   )
 }
