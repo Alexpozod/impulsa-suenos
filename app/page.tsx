@@ -1,142 +1,72 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from "next/link"
 
 export default function HomePage() {
-
-  const [campaigns, setCampaigns] = useState<any[]>([])
-  const router = useRouter()
-
-  useEffect(() => {
-    load()
-  }, [])
-
-  const load = async () => {
-    const res = await fetch('/api/campaigns')
-    const data = await res.json()
-    setCampaigns(data || [])
-  }
-
   return (
-    <main className="bg-white text-gray-900">
+    <main className="bg-white">
 
-      {/* ================= HERO ================= */}
-      <section className="px-6 py-20 text-center bg-gradient-to-b from-green-50 to-white">
+      {/* HERO */}
+      <section className="bg-gradient-to-br from-green-600 to-green-700 text-white py-20 px-6 text-center">
 
         <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
-          Gana premios reales <br />
-          <span className="text-green-600">
-            mientras ayudas a otros
-          </span>
+          Gana premios reales mientras ayudas a otros
         </h1>
 
-        <p className="text-lg text-gray-600 max-w-xl mx-auto mb-8">
-          Compra tickets, participa en sorteos y apoya causas reales.
-          Una nueva forma de ayudar y ganar.
+        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+          Participa en sorteos, apoya causas reales y transforma vidas con cada aporte.
         </p>
 
-        <div className="flex gap-4 justify-center">
+        <div className="flex justify-center gap-4 flex-wrap">
 
-          <button
-            onClick={() => router.push('/campaigns')}
-            className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition"
+          <Link
+            href="/campaigns"
+            className="bg-white text-green-600 px-6 py-3 rounded-xl font-semibold"
           >
             Ver campañas
-          </button>
+          </Link>
 
-          <button
-            onClick={() => router.push('/login')}
-            className="border px-6 py-3 rounded-xl font-semibold hover:bg-gray-100"
+          <Link
+            href="/register"
+            className="bg-black bg-opacity-20 px-6 py-3 rounded-xl font-semibold"
           >
-            Crear cuenta
-          </button>
+            Crear campaña
+          </Link>
 
         </div>
 
       </section>
 
-      {/* ================= CAMPAÑAS ================= */}
-      <section className="px-6 py-16 max-w-6xl mx-auto">
+      {/* BENEFICIOS */}
+      <section className="py-16 px-6 bg-gray-50">
 
-        <h2 className="text-2xl font-bold mb-8 text-center">
-          🔥 Campañas destacadas
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-6">
-
-          {campaigns.slice(0, 6).map((c) => {
-
-            const percent = c.goal_amount
-              ? Math.min((c.raised / c.goal_amount) * 100, 100)
-              : 0
-
-            return (
-              <div
-                key={c.id}
-                onClick={() => router.push(`/campaigns/${c.id}`)}
-                className="bg-white p-5 rounded-2xl shadow-md cursor-pointer hover:scale-105 transition"
-              >
-
-                <img
-                  src={c.image_url || "https://via.placeholder.com/400"}
-                  className="w-full h-40 object-cover rounded-xl mb-4"
-                />
-
-                <h3 className="font-bold mb-2">
-                  {c.title}
-                </h3>
-
-                <div className="h-2 bg-gray-200 rounded-full mb-2">
-                  <div
-                    className="h-2 bg-green-600 rounded-full"
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
-
-                <div className="text-sm flex justify-between">
-                  <span>${Number(c.raised).toLocaleString()}</span>
-                  <span>${Number(c.goal_amount).toLocaleString()}</span>
-                </div>
-
-              </div>
-            )
-          })}
-
-        </div>
-
-      </section>
-
-      {/* ================= COMO FUNCIONA ================= */}
-      <section className="bg-gray-50 py-16 px-6 text-center">
-
-        <h2 className="text-2xl font-bold mb-10">
-          ¿Cómo funciona?
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-center">
 
           <div>
             <div className="text-4xl mb-3">🎟️</div>
-            <h3 className="font-bold mb-2">Compra tickets</h3>
-            <p className="text-sm text-gray-600">
-              Elige una campaña y compra tickets fácilmente.
+            <h3 className="font-bold mb-2">
+              Compra tickets
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Participa en sorteos reales con total transparencia.
             </p>
           </div>
 
           <div>
-            <div className="text-4xl mb-3">🎯</div>
-            <h3 className="font-bold mb-2">Participa</h3>
-            <p className="text-sm text-gray-600">
-              Entras automáticamente al sorteo.
+            <div className="text-4xl mb-3">💖</div>
+            <h3 className="font-bold mb-2">
+              Apoya causas
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Cada compra ayuda a personas reales a cumplir sus metas.
             </p>
           </div>
 
           <div>
-            <div className="text-4xl mb-3">🏆</div>
-            <h3 className="font-bold mb-2">Gana</h3>
-            <p className="text-sm text-gray-600">
-              Si tu ticket sale, ganas premios reales.
+            <div className="text-4xl mb-3">🔒</div>
+            <h3 className="font-bold mb-2">
+              Pagos seguros
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Procesado con MercadoPago y sistemas antifraude.
             </p>
           </div>
 
@@ -144,57 +74,87 @@ export default function HomePage() {
 
       </section>
 
-      {/* ================= BENEFICIOS ================= */}
-      <section className="py-16 px-6 text-center">
+      {/* CÓMO FUNCIONA */}
+      <section className="py-16 px-6">
 
-        <h2 className="text-2xl font-bold mb-10">
-          ¿Por qué ImpulsaSueños?
-        </h2>
+        <div className="max-w-5xl mx-auto text-center">
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold mb-10">
+            ¿Cómo funciona?
+          </h2>
 
-          <div>
-            <h3 className="font-bold mb-2">💸 Ganas dinero</h3>
-            <p className="text-sm text-gray-600">
-              Participa en sorteos con premios reales.
-            </p>
-          </div>
+          <div className="grid md:grid-cols-3 gap-8 text-sm">
 
-          <div>
-            <h3 className="font-bold mb-2">❤️ Ayudas</h3>
-            <p className="text-sm text-gray-600">
-              Apoyas causas reales y personas.
-            </p>
-          </div>
+            <div>
+              <div className="text-3xl mb-3">1️⃣</div>
+              <p>Elige una campaña o sorteo</p>
+            </div>
 
-          <div>
-            <h3 className="font-bold mb-2">🔒 Seguro</h3>
-            <p className="text-sm text-gray-600">
-              Pagos protegidos y sistema antifraude.
-            </p>
+            <div>
+              <div className="text-3xl mb-3">2️⃣</div>
+              <p>Compra tus tickets o dona</p>
+            </div>
+
+            <div>
+              <div className="text-3xl mb-3">3️⃣</div>
+              <p>Participa y gana mientras ayudas</p>
+            </div>
+
           </div>
 
         </div>
 
       </section>
 
-      {/* ================= CTA FINAL ================= */}
-      <section className="bg-green-600 text-white text-center py-16 px-6">
+      {/* CONFIANZA */}
+      <section className="bg-gray-100 py-16 px-6">
 
-        <h2 className="text-3xl font-bold mb-4">
-          Empieza ahora
+        <div className="max-w-5xl mx-auto text-center">
+
+          <h2 className="text-2xl font-bold mb-6">
+            Plataforma confiable y transparente
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-6 text-sm text-gray-600">
+
+            <p>🔒 Pagos protegidos</p>
+            <p>🎟️ Tickets verificables</p>
+            <p>📊 Resultados públicos</p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="py-20 px-6 text-center">
+
+        <h2 className="text-3xl font-bold mb-6">
+          Empieza ahora mismo
         </h2>
 
-        <p className="mb-6">
-          Únete y participa en las campañas activas
+        <p className="text-gray-600 mb-8">
+          Crea tu campaña o participa en sorteos hoy.
         </p>
 
-        <button
-          onClick={() => router.push('/campaigns')}
-          className="bg-white text-green-600 px-6 py-3 rounded-xl font-bold hover:scale-105 transition"
-        >
-          Ver campañas
-        </button>
+        <div className="flex justify-center gap-4 flex-wrap">
+
+          <Link
+            href="/campaigns"
+            className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
+          >
+            Ver campañas
+          </Link>
+
+          <Link
+            href="/register"
+            className="border border-green-600 text-green-600 px-6 py-3 rounded-xl font-semibold"
+          >
+            Crear campaña
+          </Link>
+
+        </div>
 
       </section>
 
