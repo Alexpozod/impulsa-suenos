@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = "force-dynamic"
+
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -14,7 +16,7 @@ export default function Login() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // 🔐 Detectar sesión activa + REDIRECCIÓN INTELIGENTE
+  // 🔐 Detectar sesión activa
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getUser()
@@ -109,7 +111,6 @@ export default function Login() {
           Accede o crea tu cuenta
         </p>
 
-        {/* EMAIL */}
         <input
           type="email"
           placeholder="Correo electrónico"
@@ -118,7 +119,6 @@ export default function Login() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        {/* PASSWORD */}
         <input
           type="password"
           placeholder="Contraseña"
@@ -127,7 +127,6 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {/* RECUPERAR */}
         <div className="text-right mb-4">
           <span
             onClick={() => router.push('/recover')}
@@ -137,7 +136,6 @@ export default function Login() {
           </span>
         </div>
 
-        {/* BOTONES */}
         <div className="flex flex-col gap-3">
 
           <button
@@ -158,14 +156,12 @@ export default function Login() {
 
         </div>
 
-        {/* DIVISOR */}
         <div className="my-6 flex items-center gap-2 text-gray-400 text-sm">
           <div className="flex-1 h-px bg-gray-200" />
           o continuar con
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        {/* GOOGLE */}
         <button
           onClick={signInWithGoogle}
           className="w-full border py-3 rounded-lg"
@@ -173,7 +169,6 @@ export default function Login() {
           🔐 Google
         </button>
 
-        {/* MENSAJE */}
         {message && (
           <p className="text-sm mt-4 text-center text-gray-600">
             {message}
