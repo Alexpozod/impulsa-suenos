@@ -23,8 +23,19 @@ export async function POST(req: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookies: cookies() // 🔥 FIX
-      }
+  cookies: {
+    get(name: string) {
+      return cookies().get(name)?.value
+    },
+    set(name: string, value: string, options: any) {
+      // opcional (no necesario aquí)
+    },
+    remove(name: string, options: any) {
+      // opcional
+    },
+  },
+}
+
     )
 
     const {
