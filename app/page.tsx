@@ -1,6 +1,23 @@
+'use client'
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/src/lib/supabase"
 
 export default function HomePage() {
+
+  const router = useRouter()
+
+  const handleCreateCampaign = async () => {
+    const { data } = await supabase.auth.getSession()
+
+    if (!data.session) {
+      router.push("/login")
+    } else {
+      router.push("/create")
+    }
+  }
+
   return (
     <main className="bg-white">
 
@@ -24,12 +41,12 @@ export default function HomePage() {
             Ver campañas
           </Link>
 
-          <Link
-            href="/register"
+          <button
+            onClick={handleCreateCampaign}
             className="bg-black bg-opacity-20 px-6 py-3 rounded-xl font-semibold"
           >
             Crear campaña
-          </Link>
+          </button>
 
         </div>
 
@@ -147,12 +164,12 @@ export default function HomePage() {
             Ver campañas
           </Link>
 
-          <Link
-            href="/register"
+          <button
+            onClick={handleCreateCampaign}
             className="border border-green-600 text-green-600 px-6 py-3 rounded-xl font-semibold"
           >
             Crear campaña
-          </Link>
+          </button>
 
         </div>
 
