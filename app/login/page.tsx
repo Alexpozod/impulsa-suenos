@@ -1,20 +1,25 @@
 'use client'
 
-export const dynamic = "force-dynamic"
-
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export default function Login() {
 
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [redirect, setRedirect] = useState<string | null>(null)
+
+  // 🔐 Obtener redirect SOLO EN CLIENTE (SAFE)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const redirectParam = params.get("redirect")
+    setRedirect(redirectParam)
+  }, [])
 
   // 🔐 Detectar sesión activa
   useEffect(() => {
@@ -22,8 +27,6 @@ export default function Login() {
       const { data } = await supabase.auth.getUser()
 
       if (data.user) {
-        const redirect = searchParams.get("redirect")
-
         if (redirect) {
           router.push(redirect)
         } else {
@@ -33,7 +36,7 @@ export default function Login() {
     }
 
     checkUser()
-  }, [router, searchParams])
+  }, [router, redirect])
 
   // 🔑 LOGIN
   const signIn = async () => {
@@ -52,8 +55,6 @@ export default function Login() {
         setMessage('❌ ' + error.message)
       }
     } else {
-      const redirect = searchParams.get("redirect")
-
       if (redirect) {
         router.push(redirect)
       } else {
@@ -88,12 +89,12 @@ export default function Login() {
 
   // 🔐 GOOGLE LOGIN
   const signInWithGoogle = async () => {
-    const redirect = searchParams.get("redirect") || "/dashboard"
+    const finalRedirect = redirect || "/dashboard"
 
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}${redirect}`
+        redirectTo: `${location.origin}${finalRedirect}`
       }
     })
   }
