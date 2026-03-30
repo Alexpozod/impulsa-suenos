@@ -18,11 +18,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
     }
 
-    // 🔐 AUTH REAL (BACKEND)
+    // 🔐 AUTH REAL
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies }
+      {
+        cookies: cookies() // 🔥 FIX
+      }
     )
 
     const {
@@ -59,14 +61,14 @@ export async function POST(req: Request) {
       )
     }
 
-    // 💾 LOG DEVICE
+    // 💾 DEVICE LOG
     await supabaseAdmin.from("user_devices").insert({
       user_email: email,
       ip,
       user_agent: userAgent,
     })
 
-    // 🔒 LOCK (CRÍTICO)
+    // 🔒 LOCK
     await supabaseAdmin.rpc("advisory_lock", {
       lock_key: email,
     })
