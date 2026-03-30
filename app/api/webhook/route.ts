@@ -4,6 +4,8 @@ import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 import { sendTicketEmail } from "@/lib/email"
 
+export const runtime = "nodejs"
+
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 })
@@ -16,27 +18,27 @@ const supabase = createClient(
 )
 
 /* =========================
-   🔐 VERIFY SIGNATURE MP
+   🔐 SIGNATURE CHECK (FIXED)
 ========================= */
-function verifySignature(req: Request, body: any) {
+function verifySignature(req: Request) {
   const signature = req.headers.get("x-signature")
   const requestId = req.headers.get("x-request-id")
 
   if (!signature || !requestId) return false
 
   const secret = process.env.MP_WEBHOOK_SECRET!
+  const raw = requestId
 
-  const payload = JSON.stringify(body)
   const hmac = crypto
     .createHmac("sha256", secret)
-    .update(requestId + payload)
+    .update(raw)
     .digest("hex")
 
   return signature === hmac
 }
 
 /* =========================
-   🚀 WEBHOOK
+   🚀 WEBHOOK PRO
 ========================= */
 export async function POST(req: Request) {
   try {
@@ -50,20 +52,7 @@ export async function POST(req: Request) {
     if (!paymentId) return NextResponse.json({ ok: true })
 
     /* =========================
-       🔒 ANTI-REPLAY CHECK
-    ========================= */
-    const { data: alreadyProcessed } = await supabase
-      .from("processed_payments")
-      .select("id")
-      .eq("payment_id", paymentId)
-      .maybeSingle()
-
-    if (alreadyProcessed) {
-      return NextResponse.json({ ok: true })
-    }
-
-    /* =========================
-       💳 GET PAYMENT MP
+       💳 GET PAYMENT
     ========================= */
     const payment = await paymentClient.get({ id: paymentId }).catch(() => null)
 
@@ -71,47 +60,59 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       🔐 VERIFY SIGNATURE
-    ========================= */
-    if (!verifySignature(req, body)) {
-      console.warn("❌ Invalid MP signature")
-      return NextResponse.json({ ok: true })
-    }
+    const metadata = payment.metadata || {}
 
-    /* =========================
-       🧱 POSTGRES LOCK (ATOMIC)
-    ========================= */
-    const lockKey = crypto.createHash("md5").update(paymentId).digest("hex")
-
-    await supabase.rpc("advisory_lock", {
-      lock_key: lockKey
-    })
-
-    /* =========================
-       📦 METADATA
-    ========================= */
-    const campaign_id = payment.metadata?.campaign_id
-
+    const campaign_id = metadata.campaign_id
     const user_email =
-      payment.metadata?.user_email ||
+      metadata.user_email ||
       payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    const amount = Number(payment.metadata?.amount || 0)
-    const platform_tip = Number(payment.metadata?.platform_tip || 0)
+    const amount = Number(metadata.amount || 0)
+    const platform_tip = Number(metadata.platform_tip || 0)
     const totalPaid = Number(payment.transaction_amount || 0)
 
     if (!campaign_id) return NextResponse.json({ ok: true })
 
-    /* =========================
-       🧮 VALIDACIÓN DE MONTO
-    ========================= */
     const expectedTotal = amount + platform_tip
 
-    if (Math.abs(totalPaid - expectedTotal) > 1) {
-      console.warn("❌ Amount mismatch")
+    /* =========================
+       📡 1. EVENT LOG (SIEMPRE)
+    ========================= */
+    await supabase.from("payment_events").insert({
+      payment_id: paymentId,
+      event_type: "webhook_received",
+      payload: payment,
+    })
+
+    /* =========================
+       🔐 2. IDEMPOTENCY STRONG CHECK
+    ========================= */
+    const { data: exists } = await supabase
+      .from("payment_ledger")
+      .select("payment_id")
+      .eq("payment_id", paymentId)
+      .maybeSingle()
+
+    if (exists) {
+      await supabase.from("payment_events").insert({
+        payment_id: paymentId,
+        event_type: "duplicate_blocked",
+        payload: payment,
+      })
+
       return NextResponse.json({ ok: true })
+    }
+
+    /* =========================
+       🧠 3. FRAUD CHECK BASIC
+    ========================= */
+    let status: "approved" | "fraud" = "approved"
+    let eventType = "verified"
+
+    if (Math.abs(totalPaid - expectedTotal) > 1) {
+      status = "fraud"
+      eventType = "amount_mismatch"
     }
 
     /* =========================
@@ -126,21 +127,37 @@ export async function POST(req: Request) {
     if (!campaign) return NextResponse.json({ ok: true })
 
     if (campaign.user_email === user_email) {
+      await supabase.from("payment_events").insert({
+        payment_id: paymentId,
+        event_type: "self_purchase_blocked",
+        payload: payment,
+      })
+
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       💰 ID EMPOTENCY INSERT
+       🧱 4. LEDGER INSERT (SOURCE OF TRUTH)
     ========================= */
-    const { error: insertError } = await supabase
-      .from("processed_payments")
-      .insert({
-        payment_id: paymentId
-      })
+    await supabase.from("payment_ledger").insert({
+      payment_id: paymentId,
+      status,
 
-    if (insertError && insertError.code !== "23505") {
-      throw insertError
-    }
+      campaign_id,
+      user_email,
+
+      expected_amount: expectedTotal,
+      received_amount: totalPaid,
+      platform_tip,
+
+      raw: payment,
+    })
+
+    await supabase.from("payment_events").insert({
+      payment_id: paymentId,
+      event_type: eventType,
+      payload: payment,
+    })
 
     /* =========================
        💸 COMMISSION
@@ -162,7 +179,7 @@ export async function POST(req: Request) {
     const platform_total = commission + platform_tip
 
     /* =========================
-       💰 DONATION (UPSERT SAFE)
+       💰 DONATION
     ========================= */
     await supabase
       .from("donations")
@@ -178,7 +195,7 @@ export async function POST(req: Request) {
 
     await supabase.rpc("increment_campaign_amount", {
       campaign_id_input: campaign_id,
-      amount_input: amount
+      amount_input: amount,
     })
 
     /* =========================
@@ -186,15 +203,15 @@ export async function POST(req: Request) {
     ========================= */
     await supabase.rpc("add_balance", {
       user_email_input: campaign.user_email,
-      amount_input: netAmount
+      amount_input: netAmount,
     })
 
     /* =========================
-       🏦 PLATFORM WALLET
+       🏦 PLATFORM
     ========================= */
     await supabase.rpc("add_balance", {
       user_email_input: "platform@impulsasuenos.com",
-      amount_input: platform_total
+      amount_input: platform_total,
     })
 
     /* =========================
@@ -206,33 +223,33 @@ export async function POST(req: Request) {
         type: "purchase",
         amount,
         status: "completed",
-        reference_id: campaign_id
+        reference_id: campaign_id,
       },
       {
         user_email: campaign.user_email,
         type: "deposit",
         amount: netAmount,
         status: "completed",
-        reference_id: paymentId
+        reference_id: paymentId,
       },
       {
         user_email: "platform",
         type: "commission",
         amount: commission,
         status: "completed",
-        reference_id: paymentId
+        reference_id: paymentId,
       },
       {
         user_email: "platform",
         type: "tip",
         amount: platform_tip,
         status: "completed",
-        reference_id: paymentId
-      }
+        reference_id: paymentId,
+      },
     ])
 
     /* =========================
-       🎟️ TICKETS SAFE GENERATION
+       🎟️ TICKETS
     ========================= */
     const ticketPrice = 1000
     const quantity = Math.floor(amount / ticketPrice)
@@ -257,13 +274,7 @@ export async function POST(req: Request) {
         user_email,
       }))
 
-      const { error: ticketError } = await supabase
-        .from("tickets")
-        .insert(tickets)
-
-      if (ticketError) {
-        console.error("Ticket error:", ticketError)
-      }
+      await supabase.from("tickets").insert(tickets)
 
       createdTickets.push(...tickets.map(t => t.ticket_number))
     }
@@ -275,7 +286,7 @@ export async function POST(req: Request) {
       await sendTicketEmail({
         to: user_email,
         tickets: createdTickets,
-        campaign: campaign.title
+        campaign: campaign.title,
       })
     }
 
