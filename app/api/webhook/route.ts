@@ -16,7 +16,7 @@ const supabase = createClient(
 )
 
 /* =========================
-   📊 AUDIT LOGGER (STRIPE STYLE)
+   📊 AUDIT LOGGER
 ========================= */
 async function logEvent(
   paymentId: string,
@@ -37,7 +37,7 @@ async function logEvent(
 }
 
 /* =========================
-   🔐 VERIFY SIGNATURE MP (FIXED)
+   🔐 VERIFY SIGNATURE
 ========================= */
 function verifySignature(req: Request) {
   const signature = req.headers.get("x-signature")
@@ -83,21 +83,18 @@ export async function POST(req: Request) {
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
 
-    if (!paymentId) {
-      return NextResponse.json({ ok: true })
-    }
+    if (!paymentId) return NextResponse.json({ ok: true })
 
     /* =========================
-       🔐 SIGNATURE FIRST
+       🔐 SIGNATURE
     ========================= */
     if (!verifySignature(req)) {
-      console.warn("❌ Invalid MP signature")
-      await logEvent(paymentId, "webhook_signature", "invalid")
+      await logEvent(paymentId, "signature_invalid", "error")
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       🚫 IDEMPOTENCY CHECK
+       🚫 IDEMPOTENCIA
     ========================= */
     const { data: existing } = await supabase
       .from("processed_payments")
@@ -106,7 +103,7 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (existing) {
-      await logEvent(paymentId, "webhook_duplicate", "ignored")
+      await logEvent(paymentId, "duplicate_webhook", "ignored")
       return NextResponse.json({ ok: true })
     }
 
@@ -124,10 +121,8 @@ export async function POST(req: Request) {
     ========================= */
     const payment = await paymentClient.get({ id: paymentId })
 
-    await logEvent(paymentId, "payment_fetched", "ok")
-
     if (!payment || payment.status !== "approved") {
-      await logEvent(paymentId, "payment_status", "not_approved")
+      await logEvent(paymentId, "payment_not_approved", "ignored")
       return NextResponse.json({ ok: true })
     }
 
@@ -150,7 +145,7 @@ export async function POST(req: Request) {
     const expectedTotal = amount + platform_tip
 
     if (!campaign_id) {
-      await logEvent(paymentId, "missing_campaign", "ignored")
+      await logEvent(paymentId, "missing_campaign", "error")
       return NextResponse.json({ ok: true })
     }
 
@@ -163,7 +158,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🚫 AUTO-COMPRA CHECK
+       🚫 AUTO COMPRA
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
@@ -174,12 +169,12 @@ export async function POST(req: Request) {
     if (!campaign) return NextResponse.json({ ok: true })
 
     if (campaign.user_email === user_email) {
-      await logEvent(paymentId, "self_payment", "ignored")
+      await logEvent(paymentId, "self_payment", "blocked")
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       💰 IDEMPOTENCY INSERT
+       💾 REGISTRAR IDEMPOTENCIA
     ========================= */
     const { error: insertError } = await supabase
       .from("processed_payments")
@@ -189,142 +184,41 @@ export async function POST(req: Request) {
       throw insertError
     }
 
-    await logEvent(paymentId, "idempotency_registered", "ok")
-
     /* =========================
-       💸 COMMISSION
+       🔥 RPC ATÓMICA (CORE)
     ========================= */
-    let commissionRate = 0.1
-
-    const { data: setting } = await supabase
-      .from("settings")
-      .select("value")
-      .eq("key", "commission_rate")
-      .maybeSingle()
-
-    if (setting?.value) {
-      commissionRate = Number(setting.value)
-    }
-
-    const commission = amount * commissionRate
-    const netAmount = amount - commission
-    const platform_total = commission + platform_tip
-
-    /* =========================
-       💰 DONATION
-    ========================= */
-    await supabase.from("donations").upsert(
-      {
-        campaign_id,
-        payment_id: paymentId,
-        amount,
-        user_email,
-      },
-      { onConflict: "payment_id" }
-    )
-
-    await logEvent(paymentId, "donation_created", "ok")
-
-    await supabase.rpc("increment_campaign_amount", {
-      campaign_id_input: campaign_id,
-      amount_input: amount,
+    await supabase.rpc("process_payment_full", {
+      p_payment_id: paymentId,
+      p_campaign_id: campaign_id,
+      p_user_email: user_email,
+      p_amount: amount,
+      p_platform_tip: platform_tip,
     })
 
-    await supabase.rpc("add_balance", {
-      user_email_input: campaign.user_email,
-      amount_input: netAmount,
-    })
-
-    await supabase.rpc("add_balance", {
-      user_email_input: "platform@impulsasuenos.com",
-      amount_input: platform_total,
-    })
-
-    await logEvent(paymentId, "wallet_updated", "ok")
+    await logEvent(paymentId, "rpc_processed", "success")
 
     /* =========================
-       🧾 TRANSACTIONS
+       📧 EMAIL (POST-RPC)
     ========================= */
-    await supabase.from("transactions").insert([
-      {
-        user_email,
-        type: "purchase",
-        amount,
-        status: "completed",
-        reference_id: campaign_id,
-      },
-      {
-        user_email: campaign.user_email,
-        type: "deposit",
-        amount: netAmount,
-        status: "completed",
-        reference_id: paymentId,
-      },
-      {
-        user_email: "platform",
-        type: "commission",
-        amount: commission,
-        status: "completed",
-        reference_id: paymentId,
-      },
-      {
-        user_email: "platform",
-        type: "tip",
-        amount: platform_tip,
-        status: "completed",
-        reference_id: paymentId,
-      },
-    ])
+    const { data: tickets } = await supabase
+      .from("tickets")
+      .select("ticket_number")
+      .eq("payment_id", paymentId)
 
-    /* =========================
-       🎟️ TICKETS
-    ========================= */
-    const ticketPrice = 1000
-    const quantity = Math.floor(amount / ticketPrice)
-
-    const createdTickets: number[] = []
-
-    if (quantity > 0) {
-      const { data: lastTicket } = await supabase
-        .from("tickets")
-        .select("ticket_number")
-        .eq("campaign_id", campaign_id)
-        .order("ticket_number", { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      let start = lastTicket?.ticket_number || 0
-
-      const tickets = Array.from({ length: quantity }).map((_, i) => ({
-        campaign_id,
-        payment_id: paymentId,
-        ticket_number: start + i + 1,
-        user_email,
-      }))
-
-      await supabase.from("tickets").insert(tickets)
-
-      createdTickets.push(...tickets.map(t => t.ticket_number))
-
-      await logEvent(paymentId, "ticket_generated", "ok", {
-        quantity: createdTickets.length,
-      })
-    }
-
-    /* =========================
-       📧 EMAIL
-    ========================= */
-    if (createdTickets.length > 0) {
+    if (tickets && tickets.length > 0) {
       await sendTicketEmail({
         to: user_email,
-        tickets: createdTickets,
+        tickets: tickets.map(t => t.ticket_number),
         campaign: campaign.title,
       })
     }
 
+    await logEvent(paymentId, "email_sent", "ok")
+
     await logEvent(paymentId, "webhook_completed", "success")
 
     return NextResponse.json({ ok: true })
+
   } catch (error) {
     console.error("❌ WEBHOOK ERROR:", error)
 
