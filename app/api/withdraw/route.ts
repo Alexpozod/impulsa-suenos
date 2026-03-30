@@ -18,24 +18,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
     }
 
-    // 🔐 AUTH REAL
+    // 🔥 FIX REAL
+    const cookieStore = await cookies()
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-  cookies: {
-    get(name: string) {
-      return cookies().get(name)?.value
-    },
-    set(name: string, value: string, options: any) {
-      // opcional (no necesario aquí)
-    },
-    remove(name: string, options: any) {
-      // opcional
-    },
-  },
-}
-
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set() {},
+          remove() {},
+        },
+      }
     )
 
     const {
@@ -79,7 +76,7 @@ export async function POST(req: Request) {
       user_agent: userAgent,
     })
 
-    // 🔒 LOCK
+    // 🔒 LOCK GLOBAL
     await supabaseAdmin.rpc("advisory_lock", {
       lock_key: email,
     })
