@@ -4,8 +4,6 @@ import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 import { sendTicketEmail } from "@/lib/email"
 
-export const runtime = "nodejs"
-
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 })
@@ -18,7 +16,7 @@ const supabase = createClient(
 )
 
 /* =========================
-   🔐 SIGNATURE CHECK (FIXED)
+   🔐 MP SIGNATURE (REAL FORMAT)
 ========================= */
 function verifySignature(req: Request) {
   const signature = req.headers.get("x-signature")
@@ -27,92 +25,107 @@ function verifySignature(req: Request) {
   if (!signature || !requestId) return false
 
   const secret = process.env.MP_WEBHOOK_SECRET!
-  const raw = requestId
+  const parts = signature.split(",")
 
-  const hmac = crypto
+  let ts = ""
+  let v1 = ""
+
+  for (const part of parts) {
+    const [k, v] = part.split("=")
+    if (k === "ts") ts = v
+    if (k === "v1") v1 = v
+  }
+
+  const url = new URL(req.url)
+  const dataId = url.searchParams.get("data.id")
+
+  if (!ts || !v1 || !dataId) return false
+
+  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
+
+  const hash = crypto
     .createHmac("sha256", secret)
-    .update(raw)
+    .update(manifest)
     .digest("hex")
 
-  return signature === hmac
+  return hash === v1
 }
 
 /* =========================
-   🚀 WEBHOOK PRO
+   🚀 WEBHOOK
 ========================= */
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => null)
+    const url = new URL(req.url)
 
     const paymentId =
-      body?.data?.id ||
-      new URL(req.url).searchParams.get("data.id") ||
-      new URL(req.url).searchParams.get("id")
+      url.searchParams.get("data.id") ||
+      url.searchParams.get("id")
 
-    if (!paymentId) return NextResponse.json({ ok: true })
+    if (!paymentId) {
+      return NextResponse.json({ ok: true })
+    }
+
+    /* =========================
+       🔐 VERIFY FIRST (CRÍTICO)
+    ========================= */
+    if (!verifySignature(req)) {
+      console.warn("❌ Invalid MP signature")
+      return NextResponse.json({ ok: true })
+    }
+
+    /* =========================
+       🚫 IDEMPOTENCY FIRST (CRÍTICO)
+    ========================= */
+    const { data: existing } = await supabase
+      .from("processed_payments")
+      .select("payment_id")
+      .eq("payment_id", paymentId)
+      .maybeSingle()
+
+    if (existing) {
+      return NextResponse.json({ ok: true })
+    }
+
+    /* =========================
+       🔒 LOCK (ANTI RACE CONDITION)
+    ========================= */
+    const lockKey = crypto.createHash("md5").update(paymentId).digest("hex")
+
+    await supabase.rpc("advisory_lock", {
+      lock_key: lockKey,
+    })
 
     /* =========================
        💳 GET PAYMENT
     ========================= */
-    const payment = await paymentClient.get({ id: paymentId }).catch(() => null)
+    const payment = await paymentClient.get({ id: paymentId })
 
     if (!payment || payment.status !== "approved") {
       return NextResponse.json({ ok: true })
     }
 
-    const metadata = payment.metadata || {}
+    /* =========================
+       📦 METADATA
+    ========================= */
+    const campaign_id = payment.metadata?.campaign_id
 
-    const campaign_id = metadata.campaign_id
     const user_email =
-      metadata.user_email ||
+      payment.metadata?.user_email ||
       payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    const amount = Number(metadata.amount || 0)
-    const platform_tip = Number(metadata.platform_tip || 0)
+    const amount = Number(payment.metadata?.amount || 0)
+    const platform_tip = Number(payment.metadata?.platform_tip || 0)
+
     const totalPaid = Number(payment.transaction_amount || 0)
+    const expectedTotal = amount + platform_tip
 
     if (!campaign_id) return NextResponse.json({ ok: true })
 
-    const expectedTotal = amount + platform_tip
-
-    /* =========================
-       📡 1. EVENT LOG (SIEMPRE)
-    ========================= */
-    await supabase.from("payment_events").insert({
-      payment_id: paymentId,
-      event_type: "webhook_received",
-      payload: payment,
-    })
-
-    /* =========================
-       🔐 2. IDEMPOTENCY STRONG CHECK
-    ========================= */
-    const { data: exists } = await supabase
-      .from("payment_ledger")
-      .select("payment_id")
-      .eq("payment_id", paymentId)
-      .maybeSingle()
-
-    if (exists) {
-      await supabase.from("payment_events").insert({
-        payment_id: paymentId,
-        event_type: "duplicate_blocked",
-        payload: payment,
-      })
-
-      return NextResponse.json({ ok: true })
-    }
-
-    /* =========================
-       🧠 3. FRAUD CHECK BASIC
-    ========================= */
-    let status: "approved" | "fraud" = "approved"
-    let eventType = "verified"
-
     if (Math.abs(totalPaid - expectedTotal) > 1) {
-      status = "fraud"
-      eventType = "amount_mismatch"
+      console.warn("❌ Amount mismatch")
+      return NextResponse.json({ ok: true })
     }
 
     /* =========================
@@ -127,37 +140,19 @@ export async function POST(req: Request) {
     if (!campaign) return NextResponse.json({ ok: true })
 
     if (campaign.user_email === user_email) {
-      await supabase.from("payment_events").insert({
-        payment_id: paymentId,
-        event_type: "self_purchase_blocked",
-        payload: payment,
-      })
-
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       🧱 4. LEDGER INSERT (SOURCE OF TRUTH)
+       💰 IDEMPOTENCY INSERT (INMEDIATO)
     ========================= */
-    await supabase.from("payment_ledger").insert({
-      payment_id: paymentId,
-      status,
+    const { error: insertError } = await supabase
+      .from("processed_payments")
+      .insert({ payment_id: paymentId })
 
-      campaign_id,
-      user_email,
-
-      expected_amount: expectedTotal,
-      received_amount: totalPaid,
-      platform_tip,
-
-      raw: payment,
-    })
-
-    await supabase.from("payment_events").insert({
-      payment_id: paymentId,
-      event_type: eventType,
-      payload: payment,
-    })
+    if (insertError && insertError.code !== "23505") {
+      throw insertError
+    }
 
     /* =========================
        💸 COMMISSION
@@ -179,36 +174,28 @@ export async function POST(req: Request) {
     const platform_total = commission + platform_tip
 
     /* =========================
-       💰 DONATION
+       💰 DONATION UPSERT (SAFE)
     ========================= */
-    await supabase
-      .from("donations")
-      .upsert(
-        {
-          campaign_id,
-          payment_id: paymentId,
-          amount,
-          user_email,
-        },
-        { onConflict: "payment_id" }
-      )
+    await supabase.from("donations").upsert(
+      {
+        campaign_id,
+        payment_id: paymentId,
+        amount,
+        user_email,
+      },
+      { onConflict: "payment_id" }
+    )
 
     await supabase.rpc("increment_campaign_amount", {
       campaign_id_input: campaign_id,
       amount_input: amount,
     })
 
-    /* =========================
-       👤 WALLET OWNER
-    ========================= */
     await supabase.rpc("add_balance", {
       user_email_input: campaign.user_email,
       amount_input: netAmount,
     })
 
-    /* =========================
-       🏦 PLATFORM
-    ========================= */
     await supabase.rpc("add_balance", {
       user_email_input: "platform@impulsasuenos.com",
       amount_input: platform_total,
@@ -291,7 +278,6 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ ok: true })
-
   } catch (error) {
     console.error("❌ WEBHOOK ERROR:", error)
     return NextResponse.json({ error: "error" }, { status: 500 })
