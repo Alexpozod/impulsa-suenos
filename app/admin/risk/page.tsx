@@ -24,10 +24,20 @@ type FraudLog = {
   created_at: string
 }
 
+// 🆕 Stripe-like payment events
+type PaymentEvent = {
+  id: string
+  payment_id: string
+  event_type: string
+  status: string
+  created_at: string
+}
+
 export default function RiskAdminPage() {
   const [riskUsers, setRiskUsers] = useState<RiskUser[]>([])
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
   const [logs, setLogs] = useState<FraudLog[]>([])
+  const [payments, setPayments] = useState<PaymentEvent[]>([])
   const [loading, setLoading] = useState(true)
 
   async function loadData() {
@@ -39,6 +49,7 @@ export default function RiskAdminPage() {
     setRiskUsers(data.risk_users || [])
     setWithdrawals(data.pending_withdrawals || [])
     setLogs(data.fraud_logs || [])
+    setPayments(data.payment_events || []) // 🆕
 
     setLoading(false)
   }
@@ -61,8 +72,17 @@ export default function RiskAdminPage() {
     return <div className="p-6">Cargando panel antifraude...</div>
   }
 
+  // 🧠 Group payments like Stripe
+  const grouped = payments.reduce((acc: any, event) => {
+    if (!acc[event.payment_id]) acc[event.payment_id] = []
+    acc[event.payment_id].push(event)
+    return acc
+  }, {})
+
+  const paymentGroups = Object.entries(grouped)
+
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6 space-y-10">
 
       <h1 className="text-2xl font-bold">🚨 Panel Antifraude</h1>
 
@@ -125,6 +145,54 @@ export default function RiskAdminPage() {
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* 💳 STRIPE-LIKE PAYMENTS DASHBOARD */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">
+          💳 Payment Intelligence (Stripe-like)
+        </h2>
+
+        <div className="space-y-3">
+          {paymentGroups.map(([paymentId, events]: any) => {
+            const last = events[events.length - 1]
+
+            return (
+              <div
+                key={paymentId}
+                className="border rounded p-4 bg-white"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="font-mono text-sm">
+                    {paymentId}
+                  </div>
+
+                  <div className="text-xs px-2 py-1 rounded bg-gray-100">
+                    {last?.status}
+                  </div>
+                </div>
+
+                <div className="text-xs text-gray-500 mt-1">
+                  {events.length} events
+                </div>
+
+                <div className="mt-2 space-y-1">
+                  {events.slice(-3).map((e: any) => (
+                    <div key={e.id} className="text-xs">
+                      <span className="font-semibold">
+                        {e.event_type}
+                      </span>
+                      {" → "}
+                      <span className="text-gray-500">
+                        {e.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
     </div>
