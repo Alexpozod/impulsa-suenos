@@ -23,44 +23,51 @@ export async function POST(req: Request) {
 
     console.log("📩 CREATE CAMPAIGN:", body)
 
-    // 🧼 NORMALIZAR DATOS
+    // NORMALIZAR
     title = title?.trim()
     description = description?.trim()
     user_email = user_email?.trim().toLowerCase()
     goal_amount = Number(goal_amount)
     total_tickets = Number(total_tickets)
 
-    // 🚨 VALIDACIÓN FUERTE
+    // VALIDACIÓN
     if (
       !title ||
       !description ||
-      !goal_amount ||
-      !total_tickets ||
-      !user_email
+      !user_email ||
+      isNaN(goal_amount) ||
+      isNaN(total_tickets) ||
+      goal_amount <= 0 ||
+      total_tickets <= 0
     ) {
       return NextResponse.json(
-        { error: "Faltan campos obligatorios" },
+        { error: "Datos inválidos" },
         { status: 400 }
       )
     }
 
-    // 🔒 VALIDAR KYC
+    // KYC
     const { data: kyc, error: kycError } = await supabase
       .from("kyc")
       .select("status")
       .eq("user_email", user_email)
       .maybeSingle()
 
-    if (kycError || !kyc || kyc.status !== "approved") {
-      console.log("⛔ KYC BLOQUEADO:", kyc)
-
+    if (kycError) {
       return NextResponse.json(
-        { error: "Debes tener KYC aprobado para crear campañas" },
+        { error: "Error validando KYC" },
+        { status: 500 }
+      )
+    }
+
+    if (!kyc || kyc.status !== "approved") {
+      return NextResponse.json(
+        { error: "KYC no aprobado" },
         { status: 403 }
       )
     }
 
-    // 🎯 CREAR CAMPAÑA
+    // INSERT
     const { data: campaign, error } = await supabase
       .from("campaigns")
       .insert({
@@ -68,23 +75,20 @@ export async function POST(req: Request) {
         description,
         goal_amount,
         total_tickets,
-        user_email, // 🔥 CRÍTICO PARA WALLET
+        user_email,
         image_url: image_url || null,
-        status: "active"
+        status: "active",
+        created_at: new Date().toISOString()
       })
       .select()
       .single()
 
     if (error) {
-      console.error("❌ ERROR INSERT:", error)
-
       return NextResponse.json(
         { error: error.message },
         { status: 500 }
       )
     }
-
-    console.log("✅ CAMPAIGN CREATED:", campaign)
 
     return NextResponse.json({
       ok: true,

@@ -2,25 +2,36 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function Login() {
 
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // 🔐 Detectar sesión activa
+  // 🔐 Detectar sesión activa + REDIRECCIÓN INTELIGENTE
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getUser()
-      if (data.user) router.push('/dashboard')
+
+      if (data.user) {
+        const redirect = searchParams.get("redirect")
+
+        if (redirect) {
+          router.push(redirect)
+        } else {
+          router.push('/dashboard')
+        }
+      }
     }
+
     checkUser()
-  }, [])
+  }, [router, searchParams])
 
   // 🔑 LOGIN
   const signIn = async () => {
@@ -39,7 +50,13 @@ export default function Login() {
         setMessage('❌ ' + error.message)
       }
     } else {
-      router.push('/dashboard')
+      const redirect = searchParams.get("redirect")
+
+      if (redirect) {
+        router.push(redirect)
+      } else {
+        router.push('/dashboard')
+      }
     }
 
     setLoading(false)
@@ -69,10 +86,12 @@ export default function Login() {
 
   // 🔐 GOOGLE LOGIN
   const signInWithGoogle = async () => {
+    const redirect = searchParams.get("redirect") || "/dashboard"
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/dashboard`
+        redirectTo: `${location.origin}${redirect}`
       }
     })
   }
@@ -94,7 +113,7 @@ export default function Login() {
         <input
           type="email"
           placeholder="Correo electrónico"
-          className="w-full border p-3 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full border p-3 rounded-lg mb-4"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -103,7 +122,7 @@ export default function Login() {
         <input
           type="password"
           placeholder="Contraseña"
-          className="w-full border p-3 rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full border p-3 rounded-lg mb-2"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -124,7 +143,7 @@ export default function Login() {
           <button
             onClick={signIn}
             disabled={loading}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold"
           >
             {loading ? 'Ingresando...' : 'Iniciar sesión'}
           </button>
@@ -132,7 +151,7 @@ export default function Login() {
           <button
             onClick={signUp}
             disabled={loading}
-            className="w-full border border-green-600 text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition"
+            className="w-full border border-green-600 text-green-600 py-3 rounded-lg font-semibold"
           >
             Crear cuenta
           </button>
@@ -149,7 +168,7 @@ export default function Login() {
         {/* GOOGLE */}
         <button
           onClick={signInWithGoogle}
-          className="w-full border py-3 rounded-lg hover:bg-gray-50 transition"
+          className="w-full border py-3 rounded-lg"
         >
           🔐 Google
         </button>

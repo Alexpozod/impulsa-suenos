@@ -32,9 +32,8 @@ export default function CreateCampaign() {
 
     let imageUrl = null
 
-    // 📸 SUBIR IMAGEN
+    // SUBIR IMAGEN
     if (image) {
-
       const fileName = Date.now() + "-" + image.name
 
       const { error: uploadError } = await supabase.storage
@@ -50,9 +49,10 @@ export default function CreateCampaign() {
       }
     }
 
-    // 🚀 LLAMAR API REAL
-    const res = await fetch('/api/campaigns/create', {
+    // 🔥 FIX IMPORTANTE AQUÍ
+    const res = await fetch('/api/campaign/create', {
       method: 'POST',
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title,
         description,
