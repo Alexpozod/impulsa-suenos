@@ -9,7 +9,9 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    // 🔥 usuarios con riesgo
+    /* =========================
+       🔥 RISK USERS
+    ========================= */
     const { data: riskUsers, error: riskError } = await supabase
       .from("user_risk")
       .select("*")
@@ -22,7 +24,9 @@ export async function GET() {
       )
     }
 
-    // 🔥 retiros sospechosos
+    /* =========================
+       🔥 WITHDRAWALS
+    ========================= */
     const { data: withdrawals, error: wError } = await supabase
       .from("withdrawals")
       .select("*")
@@ -36,17 +40,36 @@ export async function GET() {
       )
     }
 
-    // 🔥 logs fraude (si existen)
+    /* =========================
+       🔥 FRAUD LOGS
+    ========================= */
     const { data: logs } = await supabase
       .from("fraud_logs")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(50)
 
+    /* =========================
+       💳 PAYMENT EVENTS (CLAVE)
+    ========================= */
+    const { data: paymentEvents, error: paymentError } = await supabase
+      .from("payment_events")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(500) // ⚠️ controlamos carga
+
+    if (paymentError) {
+      return NextResponse.json(
+        { error: "Error cargando payment events" },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json({
       risk_users: riskUsers,
       pending_withdrawals: withdrawals,
-      fraud_logs: logs || []
+      fraud_logs: logs || [],
+      payment_events: paymentEvents || [] // 🔥 NUEVO
     })
 
   } catch (error) {
