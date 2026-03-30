@@ -17,57 +17,96 @@ export async function POST(req: Request) {
       description,
       goal_amount,
       total_tickets,
-      user_email,
-      image_url
+      image_url,
+      user_email // ⚠️ temporal (validado abajo)
     } = body
 
     console.log("📩 CREATE CAMPAIGN:", body)
 
-    // NORMALIZAR
+    // =========================
+    // 🧼 NORMALIZAR
+    // =========================
     title = title?.trim()
     description = description?.trim()
     user_email = user_email?.trim().toLowerCase()
     goal_amount = Number(goal_amount)
     total_tickets = Number(total_tickets)
 
-    // VALIDACIÓN
+    // =========================
+    // 🚨 VALIDACIÓN
+    // =========================
     if (
       !title ||
       !description ||
-      !user_email ||
-      isNaN(goal_amount) ||
-      isNaN(total_tickets) ||
-      goal_amount <= 0 ||
-      total_tickets <= 0
+      !goal_amount ||
+      !total_tickets ||
+      !user_email
     ) {
       return NextResponse.json(
-        { error: "Datos inválidos" },
+        { error: "Faltan campos obligatorios" },
         { status: 400 }
       )
     }
 
-    // KYC
-    const { data: kyc, error: kycError } = await supabase
+    if (goal_amount <= 0 || total_tickets <= 0) {
+      return NextResponse.json(
+        { error: "Valores inválidos" },
+        { status: 400 }
+      )
+    }
+
+    // =========================
+    // 🔐 VALIDAR USUARIO REAL
+    // =========================
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("email", user_email)
+      .maybeSingle()
+
+    if (!profile) {
+      return NextResponse.json(
+        { error: "Usuario no válido" },
+        { status: 401 }
+      )
+    }
+
+    // =========================
+    // 🔒 VALIDAR KYC
+    // =========================
+    const { data: kyc } = await supabase
       .from("kyc")
       .select("status")
       .eq("user_email", user_email)
       .maybeSingle()
 
-    if (kycError) {
-      return NextResponse.json(
-        { error: "Error validando KYC" },
-        { status: 500 }
-      )
-    }
-
     if (!kyc || kyc.status !== "approved") {
       return NextResponse.json(
-        { error: "KYC no aprobado" },
+        { error: "Debes tener KYC aprobado para crear campañas" },
         { status: 403 }
       )
     }
 
-    // INSERT
+    // =========================
+    // 🚫 EVITAR DUPLICADOS RÁPIDOS
+    // =========================
+    const { data: existing } = await supabase
+      .from("campaigns")
+      .select("id")
+      .eq("title", title)
+      .eq("user_email", user_email)
+      .maybeSingle()
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "Ya tienes una campaña con ese título" },
+        { status: 400 }
+      )
+    }
+
+    // =========================
+    // 🎯 CREAR CAMPAÑA
+    // =========================
     const { data: campaign, error } = await supabase
       .from("campaigns")
       .insert({
@@ -84,11 +123,15 @@ export async function POST(req: Request) {
       .single()
 
     if (error) {
+      console.error("❌ ERROR INSERT:", error)
+
       return NextResponse.json(
-        { error: error.message },
+        { error: "Error creando campaña" },
         { status: 500 }
       )
     }
+
+    console.log("✅ CAMPAIGN CREATED:", campaign)
 
     return NextResponse.json({
       ok: true,

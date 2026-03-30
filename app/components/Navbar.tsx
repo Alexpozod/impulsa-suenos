@@ -11,17 +11,28 @@ export default function Navbar() {
   const router = useRouter()
 
   useEffect(() => {
-    loadUser()
+    loadSession()
   }, [])
 
-  const loadUser = async () => {
-    const { data } = await supabase.auth.getUser()
-    setUser(data.user)
+  const loadSession = async () => {
+    const { data } = await supabase.auth.getSession()
+    setUser(data.session?.user || null)
   }
 
   const logout = async () => {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  // 🔥 CONTROL REAL DE ACCESO
+  const handleCreateCampaign = async () => {
+    const { data } = await supabase.auth.getSession()
+
+    if (!data.session) {
+      router.push("/login")
+    } else {
+      router.push("/create")
+    }
   }
 
   return (
@@ -45,10 +56,6 @@ export default function Navbar() {
             Campañas
           </Link>
 
-          <Link href="/raffles" className="hover:text-green-600">
-            Sorteos
-          </Link>
-
           <Link href="/faq" className="hover:text-green-600">
             FAQ
           </Link>
@@ -67,15 +74,22 @@ export default function Navbar() {
                 Iniciar sesión
               </Link>
 
-              <Link
-                href="/register"
+              <button
+                onClick={handleCreateCampaign}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
               >
                 Crear campaña
-              </Link>
+              </button>
             </>
           ) : (
             <>
+              <button
+                onClick={handleCreateCampaign}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+              >
+                Crear campaña
+              </button>
+
               <Link
                 href="/dashboard"
                 className="text-sm font-medium hover:text-green-600"

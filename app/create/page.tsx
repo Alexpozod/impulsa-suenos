@@ -22,13 +22,14 @@ export default function CreateCampaign() {
     setLoading(true)
     setMessage('')
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: sessionData } = await supabase.auth.getSession()
+const user = sessionData?.session?.user
 
-    if (!user?.email) {
-      setMessage('Debes iniciar sesión')
-      setLoading(false)
-      return
-    }
+if (!user?.email) {
+  setMessage('Debes iniciar sesión')
+  setLoading(false)
+  return
+}
 
     let imageUrl = null
 
