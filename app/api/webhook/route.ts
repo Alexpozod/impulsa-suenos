@@ -16,7 +16,28 @@ const supabase = createClient(
 )
 
 /* =========================
-   🔐 MP SIGNATURE (REAL FORMAT)
+   📊 AUDIT LOGGER (STRIPE STYLE)
+========================= */
+async function logEvent(
+  paymentId: string,
+  event_type: string,
+  status: string,
+  payload?: any
+) {
+  try {
+    await supabase.from("payment_events").insert({
+      payment_id: paymentId,
+      event_type,
+      status,
+      payload: payload || null,
+    })
+  } catch (e) {
+    console.warn("audit log failed", e)
+  }
+}
+
+/* =========================
+   🔐 VERIFY SIGNATURE MP (FIXED)
 ========================= */
 function verifySignature(req: Request) {
   const signature = req.headers.get("x-signature")
@@ -67,15 +88,16 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔐 VERIFY FIRST (CRÍTICO)
+       🔐 SIGNATURE FIRST
     ========================= */
     if (!verifySignature(req)) {
       console.warn("❌ Invalid MP signature")
+      await logEvent(paymentId, "webhook_signature", "invalid")
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       🚫 IDEMPOTENCY FIRST (CRÍTICO)
+       🚫 IDEMPOTENCY CHECK
     ========================= */
     const { data: existing } = await supabase
       .from("processed_payments")
@@ -84,11 +106,12 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (existing) {
+      await logEvent(paymentId, "webhook_duplicate", "ignored")
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       🔒 LOCK (ANTI RACE CONDITION)
+       🔒 LOCK
     ========================= */
     const lockKey = crypto.createHash("md5").update(paymentId).digest("hex")
 
@@ -101,9 +124,14 @@ export async function POST(req: Request) {
     ========================= */
     const payment = await paymentClient.get({ id: paymentId })
 
+    await logEvent(paymentId, "payment_fetched", "ok")
+
     if (!payment || payment.status !== "approved") {
+      await logEvent(paymentId, "payment_status", "not_approved")
       return NextResponse.json({ ok: true })
     }
+
+    await logEvent(paymentId, "payment_approved", "ok")
 
     /* =========================
        📦 METADATA
@@ -121,10 +149,16 @@ export async function POST(req: Request) {
     const totalPaid = Number(payment.transaction_amount || 0)
     const expectedTotal = amount + platform_tip
 
-    if (!campaign_id) return NextResponse.json({ ok: true })
+    if (!campaign_id) {
+      await logEvent(paymentId, "missing_campaign", "ignored")
+      return NextResponse.json({ ok: true })
+    }
 
     if (Math.abs(totalPaid - expectedTotal) > 1) {
-      console.warn("❌ Amount mismatch")
+      await logEvent(paymentId, "amount_mismatch", "error", {
+        expectedTotal,
+        totalPaid,
+      })
       return NextResponse.json({ ok: true })
     }
 
@@ -140,11 +174,12 @@ export async function POST(req: Request) {
     if (!campaign) return NextResponse.json({ ok: true })
 
     if (campaign.user_email === user_email) {
+      await logEvent(paymentId, "self_payment", "ignored")
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       💰 IDEMPOTENCY INSERT (INMEDIATO)
+       💰 IDEMPOTENCY INSERT
     ========================= */
     const { error: insertError } = await supabase
       .from("processed_payments")
@@ -153,6 +188,8 @@ export async function POST(req: Request) {
     if (insertError && insertError.code !== "23505") {
       throw insertError
     }
+
+    await logEvent(paymentId, "idempotency_registered", "ok")
 
     /* =========================
        💸 COMMISSION
@@ -174,7 +211,7 @@ export async function POST(req: Request) {
     const platform_total = commission + platform_tip
 
     /* =========================
-       💰 DONATION UPSERT (SAFE)
+       💰 DONATION
     ========================= */
     await supabase.from("donations").upsert(
       {
@@ -185,6 +222,8 @@ export async function POST(req: Request) {
       },
       { onConflict: "payment_id" }
     )
+
+    await logEvent(paymentId, "donation_created", "ok")
 
     await supabase.rpc("increment_campaign_amount", {
       campaign_id_input: campaign_id,
@@ -200,6 +239,8 @@ export async function POST(req: Request) {
       user_email_input: "platform@impulsasuenos.com",
       amount_input: platform_total,
     })
+
+    await logEvent(paymentId, "wallet_updated", "ok")
 
     /* =========================
        🧾 TRANSACTIONS
@@ -264,6 +305,10 @@ export async function POST(req: Request) {
       await supabase.from("tickets").insert(tickets)
 
       createdTickets.push(...tickets.map(t => t.ticket_number))
+
+      await logEvent(paymentId, "ticket_generated", "ok", {
+        quantity: createdTickets.length,
+      })
     }
 
     /* =========================
@@ -277,9 +322,16 @@ export async function POST(req: Request) {
       })
     }
 
+    await logEvent(paymentId, "webhook_completed", "success")
+
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("❌ WEBHOOK ERROR:", error)
+
+    await logEvent("unknown", "webhook_error", "error", {
+      message: String(error),
+    })
+
     return NextResponse.json({ error: "error" }, { status: 500 })
   }
 }
