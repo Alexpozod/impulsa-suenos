@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Preference } from "mercadopago"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -9,9 +11,23 @@ const preferenceClient = new Preference(client)
 
 export async function POST(req: Request) {
   try {
-    const { amount, platform_tip = 0, campaign_id, user_email } = await req.json()
+    const supabase = createRouteHandlerClient({ cookies })
 
-    if (!amount || !campaign_id || !user_email) {
+    // 🔐 Obtener usuario real desde sesión
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "No autenticado" },
+        { status: 401 }
+      )
+    }
+
+    const { amount, platform_tip = 0, campaign_id } = await req.json()
+
+    if (!amount || !campaign_id) {
       return NextResponse.json(
         { error: "Faltan datos" },
         { status: 400 }
@@ -35,9 +51,9 @@ export async function POST(req: Request) {
 
         metadata: {
           campaign_id,
-          user_email,
+          user_email: user.email, // 🔥 AHORA SEGURO
           amount,
-          platform_tip, // 🔥 CLAVE
+          platform_tip,
         },
 
         external_reference: String(campaign_id),
