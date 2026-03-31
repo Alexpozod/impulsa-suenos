@@ -17,30 +17,29 @@ export async function POST(req: Request) {
       )
     }
 
-    // 📌 Obtener campaña
-    const { data: campaign, error: campaignError } = await supabase
+    const { data: campaign, error } = await supabase
       .from("campaigns")
       .select("*")
       .eq("id", campaign_id)
       .single()
 
-    if (campaignError || !campaign) {
+    if (error || !campaign) {
       return NextResponse.json(
         { error: "Campaña no encontrada" },
         { status: 404 }
       )
     }
 
-    // 💰 total recaudado
-    const { data: donations } = await supabase
-      .from("donations")
+    const { data: ledger } = await supabase
+      .from("financial_ledger")
       .select("amount")
       .eq("campaign_id", campaign_id)
+      .eq("type", "payment")
+      .eq("status", "confirmed")
 
     const totalRaised =
-      donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+      ledger?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
-    // 🎟️ tickets vendidos
     const { count: ticketsSold } = await supabase
       .from("tickets")
       .select("*", { count: "exact", head: true })
@@ -61,7 +60,7 @@ export async function POST(req: Request) {
     })
 
   } catch (error) {
-    console.error("❌ Error campaign-stats:", error)
+    console.error(error)
 
     return NextResponse.json(
       { error: "Error servidor" },

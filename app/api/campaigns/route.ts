@@ -9,7 +9,6 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    // 🔥 CAMPAÑAS ACTIVAS
     const { data: campaigns, error } = await supabase
       .from("campaigns")
       .select("*")
@@ -23,22 +22,33 @@ export async function GET() {
       )
     }
 
-    // 🔥 DONACIONES (para progreso)
-    const { data: donations } = await supabase
-      .from("donations")
-      .select("amount, campaign_id")
+    const enriched = await Promise.all(
+      (campaigns || []).map(async (c) => {
 
-    const enriched = campaigns.map((c: any) => {
+        const { data: ledger } = await supabase
+          .from("financial_ledger")
+          .select("amount")
+          .eq("campaign_id", c.id)
+          .eq("type", "payment")
+          .eq("status", "confirmed")
 
-      const total = donations
-        ?.filter((d: any) => d.campaign_id === c.id)
-        .reduce((acc: number, d: any) => acc + Number(d.amount), 0) || 0
+        const total = ledger?.reduce(
+          (acc, d) => acc + Number(d.amount),
+          0
+        ) || 0
 
-      return {
-        ...c,
-        raised: total
-      }
-    })
+        const { count: ticketsSold } = await supabase
+          .from("tickets")
+          .select("*", { count: "exact", head: true })
+          .eq("campaign_id", c.id)
+
+        return {
+          ...c,
+          raised: total,
+          ticketsSold: ticketsSold || 0
+        }
+      })
+    )
 
     return NextResponse.json(enriched)
 

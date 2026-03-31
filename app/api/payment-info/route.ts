@@ -15,26 +15,24 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "No payment_id" }, { status: 400 })
   }
 
-  // 🎟️ tickets
   const { data: tickets } = await supabase
     .from("tickets")
     .select("*")
     .eq("payment_id", payment_id)
 
-  // 💰 donation
-  const { data: donation } = await supabase
-    .from("donations")
+  const { data: ledger } = await supabase
+    .from("financial_ledger")
     .select("*")
     .eq("payment_id", payment_id)
     .maybeSingle()
 
   let campaign = null
 
-  if (donation?.campaign_id) {
+  if (ledger?.campaign_id) {
     const { data } = await supabase
       .from("campaigns")
       .select("title")
-      .eq("id", donation.campaign_id)
+      .eq("id", ledger.campaign_id)
       .maybeSingle()
 
     campaign = data
@@ -42,7 +40,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     tickets,
-    amount: donation?.amount || 0,
+    amount: ledger?.amount || 0,
     campaign
   })
 }

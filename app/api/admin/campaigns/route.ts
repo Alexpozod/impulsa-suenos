@@ -21,13 +21,15 @@ export async function GET() {
           .select("*", { count: "exact", head: true })
           .eq("campaign_id", c.id)
 
-        const { data: donations } = await supabase
-          .from("donations")
+        const { data: ledger } = await supabase
+          .from("financial_ledger")
           .select("amount")
           .eq("campaign_id", c.id)
+          .eq("type", "payment")
+          .eq("status", "confirmed")
 
         const totalRaised =
-          donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+          ledger?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
         return {
           ...c,
