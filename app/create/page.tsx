@@ -22,18 +22,19 @@ export default function CreateCampaign() {
     setLoading(true)
     setMessage('')
 
+    // 🔐 SESIÓN REAL (FIX IMPORTANTE)
     const { data: sessionData } = await supabase.auth.getSession()
-const user = sessionData?.session?.user
+    const user = sessionData?.session?.user
 
-if (!user?.email) {
-  setMessage('Debes iniciar sesión')
-  setLoading(false)
-  return
-}
+    if (!user?.email) {
+      setMessage('Debes iniciar sesión')
+      setLoading(false)
+      return
+    }
 
     let imageUrl = null
 
-    // SUBIR IMAGEN
+    // 📸 SUBIR IMAGEN
     if (image) {
       const fileName = Date.now() + "-" + image.name
 
@@ -50,7 +51,7 @@ if (!user?.email) {
       }
     }
 
-    // 🔥 FIX IMPORTANTE AQUÍ
+    // 🚀 API
     const res = await fetch('/api/campaign/create', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },

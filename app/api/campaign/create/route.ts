@@ -18,23 +18,19 @@ export async function POST(req: Request) {
       goal_amount,
       total_tickets,
       image_url,
-      user_email // ⚠️ temporal (validado abajo)
+      user_email
     } = body
 
     console.log("📩 CREATE CAMPAIGN:", body)
 
-    // =========================
     // 🧼 NORMALIZAR
-    // =========================
     title = title?.trim()
     description = description?.trim()
     user_email = user_email?.trim().toLowerCase()
     goal_amount = Number(goal_amount)
     total_tickets = Number(total_tickets)
 
-    // =========================
     // 🚨 VALIDACIÓN
-    // =========================
     if (
       !title ||
       !description ||
@@ -55,9 +51,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
     // 🔐 VALIDAR USUARIO REAL
-    // =========================
     const { data: profile } = await supabase
       .from("profiles")
       .select("email")
@@ -71,9 +65,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
     // 🔒 VALIDAR KYC
-    // =========================
     const { data: kyc } = await supabase
       .from("kyc")
       .select("status")
@@ -87,9 +79,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
-    // 🚫 EVITAR DUPLICADOS RÁPIDOS
-    // =========================
+    // 🚫 EVITAR DUPLICADOS
     const { data: existing } = await supabase
       .from("campaigns")
       .select("id")
@@ -104,9 +94,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
-    // 🎯 CREAR CAMPAÑA
-    // =========================
+    // 🎯 CREAR
     const { data: campaign, error } = await supabase
       .from("campaigns")
       .insert({
