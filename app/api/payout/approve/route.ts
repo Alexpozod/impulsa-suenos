@@ -65,35 +65,36 @@ export async function POST(req: Request) {
     /* =========================
        📊 CAMPAIGN DATA
     ========================= */
-    const { data: campaign } = await supabase
+    const { data: campaign, error: campaignError } = await supabase
       .from("campaigns")
       .select("*")
       .eq("id", payout.campaign_id)
       .single()
 
+    if (campaignError || !campaign) {
+      return NextResponse.json(
+        { error: "campaign no encontrada" },
+        { status: 404 }
+      )
+    }
+
     /* =========================
-       🛡 RISK ENGINE
+       🛡 FRAUD CHECK (ANTES DEL PAGO)
     ========================= */
-    if (campaign) {
-      const risk = evaluateCampaignRisk(campaign)
+    const fraudCheck = await evaluateFraudAlert({
+      campaign,
+      payout,
+      actor_id: user.id
+    })
 
-      if (!risk.safe) {
-        // 🔔 ALERTA DE FRAUDE
-        await evaluateFraudAlert({
-          type: "campaign_risk_blocked",
-          campaign_id: campaign.id,
-          payout_id,
-          flags: risk.flags
-        })
-
-        return NextResponse.json(
-          {
-            error: "campaign_flagged",
-            risk
-          },
-          { status: 403 }
-        )
-      }
+    if (fraudCheck.block) {
+      return NextResponse.json(
+        {
+          error: "fraud_detected",
+          fraud: fraudCheck
+        },
+        { status: 403 }
+      )
     }
 
     /* =========================
@@ -133,12 +134,11 @@ export async function POST(req: Request) {
         .update({ status: "pending" })
         .eq("id", payout_id)
 
-      // 🔔 ALERTA CRÍTICA
-      await evaluateFraudAlert({
-        type: "ledger_failure",
+      await emitEvent("payout.ledger_failed", {
         payout_id,
         campaign_id: payout.campaign_id,
-        amount: payout.amount
+        amount: payout.amount,
+        actor_id: user.id
       })
 
       return NextResponse.json(
@@ -158,13 +158,12 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🧠 FRAUD ALERT (POST SUCCESS)
+       🧠 FRAUD TRACKING (POST SUCCESS)
     ========================= */
     await evaluateFraudAlert({
-      type: "payout_processed",
-      payout_id,
-      campaign_id: payout.campaign_id,
-      amount: payout.amount
+      campaign,
+      payout,
+      actor_id: user.id
     })
 
     return NextResponse.json({
