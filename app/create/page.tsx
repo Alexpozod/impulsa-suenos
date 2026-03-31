@@ -22,11 +22,13 @@ export default function CreateCampaign() {
     setLoading(true)
     setMessage('')
 
-    // 🔐 SESIÓN REAL (FIX IMPORTANTE)
+    // 🔐 SESIÓN REAL
     const { data: sessionData } = await supabase.auth.getSession()
-    const user = sessionData?.session?.user
+    const session = sessionData?.session
+    const user = session?.user
+    const token = session?.access_token
 
-    if (!user?.email) {
+    if (!user?.email || !token) {
       setMessage('Debes iniciar sesión')
       setLoading(false)
       return
@@ -51,16 +53,18 @@ export default function CreateCampaign() {
       }
     }
 
-    // 🚀 API
+    // 🚀 API (SIN user_email + CON TOKEN)
     const res = await fetch('/api/campaign/create', {
       method: 'POST',
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` // 🔥 CLAVE PRO
+      },
       body: JSON.stringify({
         title,
         description,
         goal_amount: Number(goal),
         total_tickets: Number(tickets),
-        user_email: user.email,
         image_url: imageUrl
       })
     })
