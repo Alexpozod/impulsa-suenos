@@ -18,8 +18,11 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔒 VALIDACIÓN CRÍTICA
-    const wallet = await calculateCampaignBalance(campaign_id)
+    // 🔒 FIX CRÍTICO
+    const wallet = await calculateCampaignBalance(
+      supabase,
+      campaign_id
+    )
 
     if (Number(amount) > wallet.balance) {
       return NextResponse.json(
