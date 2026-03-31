@@ -105,7 +105,7 @@ export async function POST(req: Request) {
       payout,
       risk: {
         ...risk,
-        score: risk.flags.length * 30
+        score: (risk.flags?.length || 0) * 30
       }
     })
 
@@ -135,7 +135,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📒 LEDGER
+       📒 LEDGER (CON ORG ID)
     ========================= */
     const { error: ledgerError } = await supabase
       .from("financial_ledger")
@@ -143,7 +143,8 @@ export async function POST(req: Request) {
         campaign_id: payout.campaign_id,
         amount: payout.amount,
         type: "withdraw",
-        status: "confirmed"
+        status: "confirmed",
+        organization_id: campaign.organization_id
       })
 
     if (ledgerError) {
@@ -165,7 +166,8 @@ export async function POST(req: Request) {
       id: payout_id,
       campaign_id: payout.campaign_id,
       amount: payout.amount,
-      actor_id: user.id
+      actor_id: user.id,
+      organization_id: campaign.organization_id
     })
 
     /* =========================
