@@ -9,31 +9,29 @@ export const revalidate = 0
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // 🔥 correcto para evitar RLS issues
 )
 
 export default async function CampaignPage({
   params,
 }: {
-  params: { id: string } // ✅ FIX CLAVE
+  params: { id: string }
 }) {
-  const { id } = params // ✅ SIN await
+  const { id } = params
 
   // =========================
-  // 🔍 CAMPAÑA
+  // 🔍 CAMPAÑA (FIX ROBUSTO)
   // =========================
-  const result = await supabase
-  .from("campaigns")
-  .select("*")
-  .eq("id", id)
+  const { data: campaign, error } = await supabase
+    .from("campaigns")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle()
 
-console.log("DEBUG CAMPAIGN:", result)
+  console.log("DEBUG CAMPAIGN:", { campaign, error })
 
-const data = result.data?.[0]
-const error = result.error
-
-  if (error || !data) {
-    return notFound() // 🔥 MEJOR QUE DIV
+  if (error || !campaign) {
+    return notFound()
   }
 
   // =========================
@@ -58,12 +56,12 @@ const error = result.error
     donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
   const progress = Math.min(
-    (totalDonated / data.goal_amount) * 100,
+    (totalDonated / campaign.goal_amount) * 100,
     100
   )
 
   // =========================
-  // 🏆 GANADOR
+  // 🏆 WINNER
   // =========================
   const { data: winner } = await supabase
     .from("winners")
@@ -75,17 +73,17 @@ const error = result.error
   // 🔥 ESTADOS
   // =========================
   const isExpired =
-    data.end_date && new Date(data.end_date) < new Date()
+    campaign.end_date && new Date(campaign.end_date) < new Date()
 
   const soldOut =
-    data.total_tickets
-      ? (ticketsSold || 0) >= data.total_tickets
+    campaign.total_tickets
+      ? (ticketsSold || 0) >= campaign.total_tickets
       : false
 
-  const isFinished = isExpired || soldOut || winner
+  const isFinished = isExpired || soldOut || !!winner
 
-  const remainingTickets = data.total_tickets
-    ? data.total_tickets - (ticketsSold || 0)
+  const remainingTickets = campaign.total_tickets
+    ? campaign.total_tickets - (ticketsSold || 0)
     : null
 
   return (
@@ -96,33 +94,33 @@ const error = result.error
         {/* IZQUIERDA */}
         <div className="md:col-span-2">
 
-          <h1 className="text-4xl font-extrabold mb-4 leading-tight">
-            {data.title}
+          <h1 className="text-4xl font-extrabold mb-4">
+            {campaign.title}
           </h1>
 
           <img
-            src={data.image_url || "https://via.placeholder.com/800"}
+            src={campaign.image_url || "https://via.placeholder.com/800"}
             className="w-full h-96 object-cover rounded-2xl mb-6 shadow-md"
           />
 
           {!isFinished && (
             <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6 text-red-700 text-sm font-semibold">
               {remainingTickets !== null ? (
-                <>⚠️ Quedan solo {remainingTickets} tickets disponibles</>
+                <>⚠️ Quedan solo {remainingTickets} tickets</>
               ) : (
                 <>🔥 Alta demanda en esta campaña</>
               )}
             </div>
           )}
 
-          {data.end_date && (
+          {campaign.end_date && (
             <div className="mb-6">
-              <Countdown endDate={data.end_date} />
+              <Countdown endDate={campaign.end_date} />
             </div>
           )}
 
-          <p className="text-gray-700 leading-relaxed text-lg">
-            {data.description}
+          <p className="text-gray-700 text-lg">
+            {campaign.description}
           </p>
 
           {/* ACTIVIDAD */}
@@ -131,19 +129,18 @@ const error = result.error
               Actividad reciente
             </h3>
 
-            {donations && donations.length > 0 ? (
+            {donations?.length ? (
               donations.map((d) => (
                 <div
                   key={d.id}
                   className="bg-white border rounded-xl p-3 mb-2 text-sm shadow-sm"
                 >
-                  🎟️ {d.user_email?.slice(0, 4)}*** compró ${Number(d.amount).toLocaleString()}
+                  🎟️ {d.user_email?.slice(0, 4)}*** compró $
+                  {Number(d.amount).toLocaleString()}
                 </div>
               ))
             ) : (
-              <p className="text-gray-400">
-                Aún no hay compras
-              </p>
+              <p className="text-gray-400">Aún no hay compras</p>
             )}
           </div>
 
@@ -152,75 +149,44 @@ const error = result.error
         {/* DERECHA */}
         <div className="bg-white border rounded-2xl p-6 h-fit shadow-xl sticky top-24">
 
-          <div className="mb-6 text-center">
+          <div className="text-center mb-6">
             <div className="text-4xl font-extrabold text-green-600">
               ${totalDonated.toLocaleString()}
             </div>
-
             <div className="text-gray-500 text-sm">
-              recaudados de ${data.goal_amount.toLocaleString()}
+              de ${campaign.goal_amount.toLocaleString()}
             </div>
           </div>
 
-          <div className="w-full bg-gray-200 h-3 rounded-full mb-4 overflow-hidden">
+          <div className="w-full bg-gray-200 h-3 rounded-full mb-4">
             <div
-              className="bg-green-600 h-3 rounded-full transition-all"
+              className="bg-green-600 h-3 rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
 
           <div className="text-center text-sm text-gray-600 mb-4">
-            {data.end_date && <p>⏳ Tiempo limitado</p>}
-
-            {progress > 70 && (
-              <p className="text-red-500 font-semibold">
-                🔥 Más del {Math.round(progress)}%
-              </p>
-            )}
-          </div>
-
-          <div className="text-sm text-gray-600 mb-6 text-center">
-            🎟️ {ticketsSold || 0} / {data.total_tickets || '∞'} tickets vendidos
+            🎟️ {ticketsSold || 0} / {campaign.total_tickets || "∞"}
           </div>
 
           {winner && (
-            <div className="bg-green-100 border border-green-300 p-4 rounded-xl mb-6 text-center">
-              <p className="text-sm text-gray-600 mb-1">
-                🏆 Ganador confirmado
-              </p>
-
-              <p className="text-xl font-bold text-green-700">
-                Ticket #{winner.ticket_number}
-              </p>
-
-              <LiveWinner campaignId={data.id} />
+            <div className="bg-green-100 border p-4 rounded-xl mb-6 text-center">
+              🏆 Ganador: #{winner.ticket_number}
+              <LiveWinner campaignId={campaign.id} />
             </div>
           )}
 
           {isFinished ? (
-            <div className="bg-gray-200 text-gray-700 p-4 rounded-xl text-center font-semibold">
+            <div className="bg-gray-200 p-4 rounded-xl text-center">
               Sorteo finalizado
             </div>
           ) : (
-            <div className="space-y-3">
-
-              <DonateButton campaignId={data.id} />
-
-              <p className="text-xs text-center text-red-500 font-semibold">
-                ⚠️ Personas comprando ahora
-              </p>
-
-              <p className="text-xs text-center text-gray-500">
-                🔒 Pago seguro
-              </p>
-
-            </div>
+            <DonateButton campaignId={campaign.id} />
           )}
 
         </div>
 
       </div>
-
     </div>
   )
 }
