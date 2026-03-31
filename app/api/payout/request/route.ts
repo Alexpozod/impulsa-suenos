@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { calculateCampaignBalance } from "@/lib/calculateCampaignBalance"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,7 +18,17 @@ export async function POST(req: Request) {
       )
     }
 
-    const { data: payout, error } = await supabase
+    // 🔒 VALIDACIÓN CRÍTICA
+    const wallet = await calculateCampaignBalance(campaign_id)
+
+    if (Number(amount) > wallet.balance) {
+      return NextResponse.json(
+        { error: "saldo insuficiente" },
+        { status: 400 }
+      )
+    }
+
+    const { data, error } = await supabase
       .from("payouts")
       .insert({
         campaign_id,
@@ -29,7 +40,7 @@ export async function POST(req: Request) {
 
     if (error) throw error
 
-    return NextResponse.json(payout)
+    return NextResponse.json(data)
 
   } catch (error) {
     return NextResponse.json(

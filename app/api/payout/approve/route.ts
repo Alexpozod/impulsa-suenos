@@ -10,19 +10,35 @@ export async function POST(req: Request) {
   try {
     const { payout_id } = await req.json()
 
-    const { data, error } = await supabase
+    // 1. obtener payout
+    const { data: payout } = await supabase
+      .from("payouts")
+      .select("*")
+      .eq("id", payout_id)
+      .single()
+
+    if (!payout) {
+      return NextResponse.json({ error: "no payout" }, { status: 404 })
+    }
+
+    // 2. marcar como pagado
+    await supabase
       .from("payouts")
       .update({
         status: "paid",
         processed_at: new Date().toISOString()
       })
       .eq("id", payout_id)
-      .select()
-      .single()
 
-    if (error) throw error
+    // 3. registrar en ledger (SALIDA REAL)
+    await supabase.from("financial_ledger").insert({
+      campaign_id: payout.campaign_id,
+      amount: payout.amount,
+      type: "withdraw",
+      status: "confirmed"
+    })
 
-    return NextResponse.json(data)
+    return NextResponse.json({ ok: true })
 
   } catch (error) {
     return NextResponse.json(

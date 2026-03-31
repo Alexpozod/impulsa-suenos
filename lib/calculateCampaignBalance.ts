@@ -18,7 +18,11 @@ export async function calculateCampaignBalance(campaign_id: string) {
     .reduce((a, b) => a + Number(b.amount), 0) || 0
 
   const totalOut = ledger
-    ?.filter(l => l.type === "refund" || l.type === "fee")
+    ?.filter(l =>
+      l.type === "refund" ||
+      l.type === "fee" ||
+      l.type === "withdraw"
+    )
     .reduce((a, b) => a + Number(b.amount), 0) || 0
 
   return {
