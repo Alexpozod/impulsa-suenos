@@ -1,3 +1,6 @@
+import { emitEvent } from "@/lib/events/eventBus"
+import { evaluateCampaignRisk } from "@/lib/risk/riskEngine"
+import { canAccess } from "@/lib/auth/rbac"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -8,7 +11,8 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { payout_id } = await req.json()
+    const body = await req.json()
+    const { payout_id, user } = body
 
     if (!payout_id) {
       return NextResponse.json(
@@ -17,7 +21,15 @@ export async function POST(req: Request) {
       )
     }
 
-    // 1. obtener payout
+    // 🔐 1. RBAC CHECK (FASE 5 - SECURITY LAYER)
+    if (!user || !canAccess(user.role, "payout.approve")) {
+      return NextResponse.json(
+        { error: "unauthorized" },
+        { status: 403 }
+      )
+    }
+
+    // 2. obtener payout
     const { data: payout, error: payoutError } = await supabase
       .from("payouts")
       .select("*")
@@ -31,7 +43,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 2. evitar doble pago
+    // 3. evitar doble pago
     if (payout.status === "paid") {
       return NextResponse.json(
         { error: "payout ya procesado" },
@@ -39,7 +51,29 @@ export async function POST(req: Request) {
       )
     }
 
-    // 3. actualizar payout a pagado
+    // 4. obtener campaign para risk engine
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("*")
+      .eq("id", payout.campaign_id)
+      .single()
+
+    if (campaign) {
+      // 🛡 5. RISK ENGINE CHECK
+      const risk = evaluateCampaignRisk(campaign)
+
+      if (!risk.safe) {
+        return NextResponse.json(
+          {
+            error: "campaign_flagged",
+            risk
+          },
+          { status: 403 }
+        )
+      }
+    }
+
+    // 6. actualizar payout a pagado
     const { error: updateError } = await supabase
       .from("payouts")
       .update({
@@ -55,7 +89,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 4. registrar en ledger (SALIDA REAL)
+    // 7. registrar en ledger (SALIDA REAL)
     const { error: ledgerError } = await supabase
       .from("financial_ledger")
       .insert({
@@ -66,7 +100,7 @@ export async function POST(req: Request) {
       })
 
     if (ledgerError) {
-      // 🔴 compensación básica (rollback lógico)
+      // 🔴 rollback lógico
       await supabase
         .from("payouts")
         .update({ status: "pending" })
@@ -77,6 +111,14 @@ export async function POST(req: Request) {
         { status: 500 }
       )
     }
+
+    // 🔔 8. EVENT SYSTEM (AUDIT TRAIL ENTERPRISE)
+    await emitEvent("payout.approved", {
+      id: payout_id,
+      campaign_id: payout.campaign_id,
+      amount: payout.amount,
+      actor_id: user.id
+    })
 
     return NextResponse.json({
       ok: true,
