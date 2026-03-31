@@ -13,7 +13,7 @@ export default function FinancialDashboard() {
         const json = await res.json()
 
         setData(json || [])
-      } catch (e) {
+      } catch (err) {
         setData([])
       } finally {
         setLoading(false)
@@ -42,80 +42,55 @@ export default function FinancialDashboard() {
 
         <div className="p-4 border rounded-xl">
           <p>Raised</p>
-          <h2 className="text-xl font-bold">${totalRaised}</h2>
+          <h2 className="text-xl font-bold">
+            ${totalRaised}
+          </h2>
         </div>
 
         <div className="p-4 border rounded-xl">
           <p>Spent</p>
-          <h2 className="text-xl font-bold">${totalSpent}</h2>
+          <h2 className="text-xl font-bold">
+            ${totalSpent}
+          </h2>
         </div>
 
         <div className="p-4 border rounded-xl">
           <p>Balance</p>
-          <h2 className="text-xl font-bold">${totalBalance}</h2>
+          <h2 className="text-xl font-bold">
+            ${totalBalance}
+          </h2>
         </div>
 
       </div>
 
-    </div>
-  )
-}
-"use client"
+      <div className="border rounded-xl p-4">
+        <h2 className="font-bold mb-4">
+          Campaigns
+        </h2>
 
-import { useEffect, useState } from "react"
+        <table className="w-full text-sm">
+          <thead>
+            <tr>
+              <th className="text-left">Campaign</th>
+              <th>Raised</th>
+              <th>Spent</th>
+              <th>Balance</th>
+              <th>Tickets</th>
+            </tr>
+          </thead>
 
-export default function FinancialDashboard() {
-  const [data, setData] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch("/api/campaigns/enriched")
-        const json = await res.json()
-
-        setData(json || [])
-      } catch (e) {
-        setData([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    load()
-  }, [])
-
-  const totalRaised = data.reduce((a, c) => a + (c.raised || 0), 0)
-  const totalSpent = data.reduce((a, c) => a + (c.spent || 0), 0)
-  const totalBalance = data.reduce((a, c) => a + (c.balance || 0), 0)
-
-  if (loading) {
-    return <div className="p-6">Cargando...</div>
-  }
-
-  return (
-    <div className="p-6 space-y-6">
-
-      <h1 className="text-2xl font-bold">
-        Financial Dashboard
-      </h1>
-
-      <div className="grid grid-cols-3 gap-4">
-
-        <div className="p-4 border rounded-xl">
-          <p>Raised</p>
-          <h2 className="text-xl font-bold">${totalRaised}</h2>
-        </div>
-
-        <div className="p-4 border rounded-xl">
-          <p>Spent</p>
-          <h2 className="text-xl font-bold">${totalSpent}</h2>
-        </div>
-
-        <div className="p-4 border rounded-xl">
-          <p>Balance</p>
-          <h2 className="text-xl font-bold">${totalBalance}</h2>
-        </div>
+          <tbody>
+            {data.map((c: any) => (
+              <tr key={c.id} className="border-t">
+                <td>{c.title}</td>
+                <td>${c.raised}</td>
+                <td>${c.spent}</td>
+                <td>${c.balance}</td>
+                <td>{c.ticketsSold}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
       </div>
 
