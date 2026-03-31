@@ -2,6 +2,9 @@ import LiveWinner from "@/app/components/LiveWinner"
 import Countdown from "@/app/components/Countdown"
 import DonateButton from "@/app/components/DonateButton"
 import { createClient } from "@supabase/supabase-js"
+import { notFound } from "next/navigation"
+
+export const dynamic = "force-dynamic"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,24 +14,26 @@ const supabase = createClient(
 export default async function CampaignPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: { id: string } // ✅ FIX CLAVE
 }) {
-  const { id } = await params
+  const { id } = params // ✅ SIN await
 
+  // =========================
+  // 🔍 CAMPAÑA
+  // =========================
   const { data, error } = await supabase
     .from("campaigns")
     .select("*")
     .eq("id", id)
-    .single()
+    .maybeSingle()
 
   if (error || !data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Campaña no encontrada
-      </div>
-    )
+    return notFound() // 🔥 MEJOR QUE DIV
   }
 
+  // =========================
+  // 💰 DONACIONES
+  // =========================
   const { data: donations } = await supabase
     .from("donations")
     .select("*")
@@ -36,6 +41,9 @@ export default async function CampaignPage({
     .order("created_at", { ascending: false })
     .limit(5)
 
+  // =========================
+  // 🎟️ TICKETS
+  // =========================
   const { count: ticketsSold } = await supabase
     .from("tickets")
     .select("*", { count: "exact", head: true })
@@ -49,12 +57,18 @@ export default async function CampaignPage({
     100
   )
 
+  // =========================
+  // 🏆 GANADOR
+  // =========================
   const { data: winner } = await supabase
     .from("winners")
     .select("*")
     .eq("campaign_id", id)
     .maybeSingle()
 
+  // =========================
+  // 🔥 ESTADOS
+  // =========================
   const isExpired =
     data.end_date && new Date(data.end_date) < new Date()
 
@@ -86,22 +100,16 @@ export default async function CampaignPage({
             className="w-full h-96 object-cover rounded-2xl mb-6 shadow-md"
           />
 
-          {/* 🔥 URGENCIA REAL */}
           {!isFinished && (
             <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6 text-red-700 text-sm font-semibold">
-
               {remainingTickets !== null ? (
-                <>
-                  ⚠️ Quedan solo {remainingTickets} tickets disponibles
-                </>
+                <>⚠️ Quedan solo {remainingTickets} tickets disponibles</>
               ) : (
                 <>🔥 Alta demanda en esta campaña</>
               )}
-
             </div>
           )}
 
-          {/* ⏳ COUNTDOWN */}
           {data.end_date && (
             <div className="mb-6">
               <Countdown endDate={data.end_date} />
@@ -112,7 +120,7 @@ export default async function CampaignPage({
             {data.description}
           </p>
 
-          {/* 📊 ACTIVIDAD (PRUEBA SOCIAL) */}
+          {/* ACTIVIDAD */}
           <div className="mt-12">
             <h3 className="text-lg font-semibold mb-4">
               Actividad reciente
@@ -139,9 +147,7 @@ export default async function CampaignPage({
         {/* DERECHA */}
         <div className="bg-white border rounded-2xl p-6 h-fit shadow-xl sticky top-24">
 
-          {/* 💰 MONTO */}
           <div className="mb-6 text-center">
-
             <div className="text-4xl font-extrabold text-green-600">
               ${totalDonated.toLocaleString()}
             </div>
@@ -149,10 +155,8 @@ export default async function CampaignPage({
             <div className="text-gray-500 text-sm">
               recaudados de ${data.goal_amount.toLocaleString()}
             </div>
-
           </div>
 
-          {/* 📊 PROGRESS */}
           <div className="w-full bg-gray-200 h-3 rounded-full mb-4 overflow-hidden">
             <div
               className="bg-green-600 h-3 rounded-full transition-all"
@@ -160,26 +164,20 @@ export default async function CampaignPage({
             />
           </div>
 
-          {/* 🔥 URGENCIA EXTRA */}
           <div className="text-center text-sm text-gray-600 mb-4">
-
-            {data.end_date && (
-              <p>⏳ Tiempo limitado para participar</p>
-            )}
+            {data.end_date && <p>⏳ Tiempo limitado</p>}
 
             {progress > 70 && (
               <p className="text-red-500 font-semibold">
-                🔥 Más del {Math.round(progress)}% completado
+                🔥 Más del {Math.round(progress)}%
               </p>
             )}
-
           </div>
 
           <div className="text-sm text-gray-600 mb-6 text-center">
             🎟️ {ticketsSold || 0} / {data.total_tickets || '∞'} tickets vendidos
           </div>
 
-          {/* 🏆 GANADOR */}
           {winner && (
             <div className="bg-green-100 border border-green-300 p-4 rounded-xl mb-6 text-center">
               <p className="text-sm text-gray-600 mb-1">
@@ -194,7 +192,6 @@ export default async function CampaignPage({
             </div>
           )}
 
-          {/* 🎯 CTA */}
           {isFinished ? (
             <div className="bg-gray-200 text-gray-700 p-4 rounded-xl text-center font-semibold">
               Sorteo finalizado
@@ -205,25 +202,15 @@ export default async function CampaignPage({
               <DonateButton campaignId={data.id} />
 
               <p className="text-xs text-center text-red-500 font-semibold">
-                ⚠️ Personas están comprando ahora mismo
+                ⚠️ Personas comprando ahora
               </p>
 
               <p className="text-xs text-center text-gray-500">
-                🔒 Compra segura con MercadoPago
+                🔒 Pago seguro
               </p>
 
             </div>
           )}
-
-          {/* 🔐 CONFIANZA */}
-          <div className="mt-6 border-t pt-4 space-y-2 text-sm text-gray-600">
-
-            <p>🔒 Pagos protegidos</p>
-            <p>🎟️ Tickets automáticos</p>
-            <p>🎥 Sorteo en vivo</p>
-            <p>🧾 Resultado verificable</p>
-
-          </div>
 
         </div>
 
