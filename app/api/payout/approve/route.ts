@@ -1,8 +1,10 @@
+import { NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
+
 import { emitEvent } from "@/lib/events/eventBus"
 import { evaluateCampaignRisk } from "@/lib/risk/riskEngine"
 import { canAccess } from "@/lib/auth/rbac"
-import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
+import { evaluateFraudAlert } from "@/lib/alerts/alertEngine"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,6 +16,9 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { payout_id, user } = body
 
+    /* =========================
+       ❗ VALIDACIÓN INPUT
+    ========================= */
     if (!payout_id) {
       return NextResponse.json(
         { error: "payout_id requerido" },
@@ -21,7 +26,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔐 1. RBAC CHECK (FASE 5 - SECURITY LAYER)
+    /* =========================
+       🔐 RBAC (FASE 5)
+    ========================= */
     if (!user || !canAccess(user.role, "payout.approve")) {
       return NextResponse.json(
         { error: "unauthorized" },
@@ -29,7 +36,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // 2. obtener payout
+    /* =========================
+       📦 OBTENER PAYOUT
+    ========================= */
     const { data: payout, error: payoutError } = await supabase
       .from("payouts")
       .select("*")
@@ -43,7 +52,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // 3. evitar doble pago
+    /* =========================
+       🚫 DOBLE PROCESO
+    ========================= */
     if (payout.status === "paid") {
       return NextResponse.json(
         { error: "payout ya procesado" },
@@ -51,18 +62,30 @@ export async function POST(req: Request) {
       )
     }
 
-    // 4. obtener campaign para risk engine
+    /* =========================
+       📊 CAMPAIGN DATA
+    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("*")
       .eq("id", payout.campaign_id)
       .single()
 
+    /* =========================
+       🛡 RISK ENGINE
+    ========================= */
     if (campaign) {
-      // 🛡 5. RISK ENGINE CHECK
       const risk = evaluateCampaignRisk(campaign)
 
       if (!risk.safe) {
+        // 🔔 ALERTA DE FRAUDE
+        await evaluateFraudAlert({
+          type: "campaign_risk_blocked",
+          campaign_id: campaign.id,
+          payout_id,
+          flags: risk.flags
+        })
+
         return NextResponse.json(
           {
             error: "campaign_flagged",
@@ -73,7 +96,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // 6. actualizar payout a pagado
+    /* =========================
+       💰 ACTUALIZAR PAYOUT
+    ========================= */
     const { error: updateError } = await supabase
       .from("payouts")
       .update({
@@ -89,7 +114,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // 7. registrar en ledger (SALIDA REAL)
+    /* =========================
+       📒 LEDGER (SALIDA REAL)
+    ========================= */
     const { error: ledgerError } = await supabase
       .from("financial_ledger")
       .insert({
@@ -100,11 +127,19 @@ export async function POST(req: Request) {
       })
 
     if (ledgerError) {
-      // 🔴 rollback lógico
+      // 🔴 ROLLBACK LÓGICO
       await supabase
         .from("payouts")
         .update({ status: "pending" })
         .eq("id", payout_id)
+
+      // 🔔 ALERTA CRÍTICA
+      await evaluateFraudAlert({
+        type: "ledger_failure",
+        payout_id,
+        campaign_id: payout.campaign_id,
+        amount: payout.amount
+      })
 
       return NextResponse.json(
         { error: "error registrando ledger" },
@@ -112,12 +147,24 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔔 8. EVENT SYSTEM (AUDIT TRAIL ENTERPRISE)
+    /* =========================
+       🔔 EVENT SYSTEM (AUDIT)
+    ========================= */
     await emitEvent("payout.approved", {
       id: payout_id,
       campaign_id: payout.campaign_id,
       amount: payout.amount,
       actor_id: user.id
+    })
+
+    /* =========================
+       🧠 FRAUD ALERT (POST SUCCESS)
+    ========================= */
+    await evaluateFraudAlert({
+      type: "payout_processed",
+      payout_id,
+      campaign_id: payout.campaign_id,
+      amount: payout.amount
     })
 
     return NextResponse.json({
@@ -127,6 +174,8 @@ export async function POST(req: Request) {
     })
 
   } catch (error) {
+    console.error("❌ APPROVE PAYOUT ERROR:", error)
+
     return NextResponse.json(
       { error: "error approve payout" },
       { status: 500 }

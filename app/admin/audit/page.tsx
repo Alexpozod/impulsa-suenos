@@ -1,6 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 type AuditLog = {
   id: string
@@ -16,31 +22,49 @@ export default function AuditDashboard() {
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [filter, setFilter] = useState("all")
 
-  async function fetchLogs() {
+  // 🔥 initial load
+  async function loadInitial() {
     const res = await fetch("/api/audit-log/list")
     const data = await res.json()
     setLogs(data.logs || [])
   }
 
   useEffect(() => {
-    fetchLogs()
+    loadInitial()
 
-    // 🔴 LIVE MODE (polling simple estable en Vercel)
-    const interval = setInterval(() => {
-      fetchLogs()
-    }, 3000)
+    // ⚡ REALTIME SUBSCRIPTION
+    const channel = supabase
+      .channel("audit-live")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "audit_logs"
+        },
+        (payload) => {
+          const newLog = payload.new as AuditLog
 
-    return () => clearInterval(interval)
+          setLogs((prev) => [newLog, ...prev])
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
-  const filteredLogs =
+  const filtered =
     filter === "all"
       ? logs
       : logs.filter((l) => l.action === filter)
 
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-xl font-bold">Audit Dashboard (Live)</h1>
+      <h1 className="text-xl font-bold">
+        Audit Dashboard (LIVE REALTIME)
+      </h1>
 
       {/* FILTERS */}
       <div className="flex gap-2 flex-wrap">
@@ -57,9 +81,9 @@ export default function AuditDashboard() {
         )}
       </div>
 
-      {/* LOG STREAM */}
-      <div className="space-y-2 mt-4">
-        {filteredLogs.map((log) => (
+      {/* STREAM */}
+      <div className="space-y-2">
+        {filtered.map((log) => (
           <div
             key={log.id}
             className="border p-3 rounded bg-white shadow-sm"
@@ -67,12 +91,12 @@ export default function AuditDashboard() {
             <div className="flex justify-between">
               <span className="font-semibold">{log.action}</span>
               <span className="text-xs text-gray-500">
-                {new Date(log.created_at).toLocaleString()}
+                {new Date(log.created_at).toLocaleTimeString()}
               </span>
             </div>
 
             <div className="text-sm text-gray-600">
-              entity: {log.entity} | id: {log.entity_id}
+              {log.entity} → {log.entity_id}
             </div>
 
             <pre className="text-xs bg-gray-100 p-2 mt-2 rounded overflow-auto">
