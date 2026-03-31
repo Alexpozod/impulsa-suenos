@@ -9,7 +9,6 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-
     const { data: campaigns, error } = await supabase
       .from("campaigns")
       .select("*")
@@ -25,8 +24,7 @@ export async function GET() {
 
     const enriched = await Promise.all(
       (campaigns || []).map(async (c) => {
-
-        const wallet = await calculateCampaignBalance(c.id)
+        const wallet = await calculateCampaignBalance(supabase, c.id)
 
         const { count: ticketsSold } = await supabase
           .from("tickets")
@@ -36,7 +34,7 @@ export async function GET() {
         return {
           ...c,
           raised: wallet.totalIn,
-          withdrawn: wallet.totalOut,
+          spent: wallet.totalOut,
           balance: wallet.balance,
           ticketsSold: ticketsSold || 0
         }
@@ -44,7 +42,6 @@ export async function GET() {
     )
 
     return NextResponse.json(enriched)
-
   } catch (error) {
     return NextResponse.json(
       { error: "Error servidor" },
