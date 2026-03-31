@@ -10,39 +10,60 @@ type AlertContext = {
 export async function evaluateFraudAlert(ctx: AlertContext) {
   const risk = evaluateCampaignRisk(ctx.campaign)
 
-  // 🔴 THRESHOLD CRÍTICO
-  if (risk.score >= 80 || !risk.safe) {
+  // 🔢 SCORE DERIVADO (compatibilidad)
+  const score = risk.flags.length * 30 // simple pero efectivo
+
+  /* =========================
+     🔴 CRÍTICO
+  ========================= */
+  if (score >= 80 || !risk.safe) {
     await emitEvent("alert.fraud_detected", {
       campaign_id: ctx.campaign.id,
       payout_id: ctx.payout?.id,
-      risk,
+      flags: risk.flags,
+      score,
       severity: "critical"
     })
 
     return {
       block: true,
       reason: "high_risk_detected",
-      risk
+      risk: {
+        ...risk,
+        score
+      }
     }
   }
 
-  // 🟡 WARNING LEVEL
-  if (risk.score >= 50) {
+  /* =========================
+     🟡 WARNING
+  ========================= */
+  if (score >= 50) {
     await emitEvent("alert.risk_warning", {
       campaign_id: ctx.campaign.id,
-      risk,
+      flags: risk.flags,
+      score,
       severity: "warning"
     })
 
     return {
       block: false,
       warning: true,
-      risk
+      risk: {
+        ...risk,
+        score
+      }
     }
   }
 
+  /* =========================
+     🟢 OK
+  ========================= */
   return {
     block: false,
-    risk
+    risk: {
+      ...risk,
+      score
+    }
   }
 }
