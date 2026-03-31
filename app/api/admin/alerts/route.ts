@@ -6,22 +6,42 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const { data, error } = await supabase
-      .from("audit_logs")
+    const { searchParams } = new URL(req.url)
+
+    const severity = searchParams.get("severity")
+    const status = searchParams.get("status")
+
+    let query = supabase
+      .from("fraud_alerts")
       .select("*")
-      .like("action", "alert.%")
       .order("created_at", { ascending: false })
-      .limit(50)
+      .limit(100)
+
+    if (severity) {
+      query = query.eq("severity", severity)
+    }
+
+    if (status) {
+      query = query.eq("status", status)
+    }
+
+    const { data, error } = await query
 
     if (error) {
-      return NextResponse.json([], { status: 500 })
+      return NextResponse.json(
+        { error: "error fetching alerts" },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json(data)
 
-  } catch (e) {
-    return NextResponse.json([], { status: 500 })
+  } catch (error) {
+    return NextResponse.json(
+      { error: "server error" },
+      { status: 500 }
+    )
   }
 }
