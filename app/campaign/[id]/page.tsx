@@ -21,11 +21,15 @@ export default async function CampaignPage({
   // =========================
   // 🔍 CAMPAÑA
   // =========================
-  const { data, error } = await supabase
-    .from("campaigns")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle()
+  const result = await supabase
+  .from("campaigns")
+  .select("*")
+  .eq("id", id)
+
+console.log("DEBUG CAMPAIGN:", result)
+
+const data = result.data?.[0]
+const error = result.error
 
   if (error || !data) {
     return notFound() // 🔥 MEJOR QUE DIV
