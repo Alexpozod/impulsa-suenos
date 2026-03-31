@@ -9,7 +9,7 @@ export const revalidate = 0
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
 export default async function CampaignPage({
@@ -20,7 +20,7 @@ export default async function CampaignPage({
   const { id } = params
 
   // =========================
-  // 🔍 CAMPAÑA (FIX ROBUSTO)
+  // 🔍 CAMPAÑA
   // =========================
   const { data: campaign, error } = await supabase
     .from("campaigns")
@@ -28,19 +28,19 @@ export default async function CampaignPage({
     .eq("id", id)
     .maybeSingle()
 
-  console.log("DEBUG CAMPAIGN:", { campaign, error })
-
   if (error || !campaign) {
     return notFound()
   }
 
   // =========================
-  // 💰 DONACIONES
+  // 💰 LEDGER (REEMPLAZA DONATIONS)
   // =========================
-  const { data: donations } = await supabase
-    .from("donations")
+  const { data: ledger } = await supabase
+    .from("financial_ledger")
     .select("*")
     .eq("campaign_id", id)
+    .eq("type", "payment")
+    .eq("status", "confirmed")
     .order("created_at", { ascending: false })
     .limit(5)
 
@@ -53,7 +53,7 @@ export default async function CampaignPage({
     .eq("campaign_id", id)
 
   const totalDonated =
-    donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+    ledger?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
 
   const progress = Math.min(
     (totalDonated / campaign.goal_amount) * 100,
@@ -129,14 +129,14 @@ export default async function CampaignPage({
               Actividad reciente
             </h3>
 
-            {donations?.length ? (
-              donations.map((d) => (
+            {ledger?.length ? (
+              ledger.map((d) => (
                 <div
                   key={d.id}
                   className="bg-white border rounded-xl p-3 mb-2 text-sm shadow-sm"
                 >
-                  🎟️ {d.user_email?.slice(0, 4)}*** compró $
-                  {Number(d.amount).toLocaleString()}
+                  🎟️ {d.metadata?.user_email?.slice(0, 4) || "anon"}***
+                  compró ${Number(d.amount).toLocaleString()}
                 </div>
               ))
             ) : (

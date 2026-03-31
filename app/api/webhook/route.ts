@@ -73,6 +73,35 @@ function verifySignature(req: Request) {
 }
 
 /* =========================
+   🔥 LEDGER INSERT (FASE 1)
+========================= */
+async function insertLedger({
+  user_id,
+  campaign_id,
+  amount,
+  paymentId,
+  type = "payment",
+  metadata = {},
+}: any) {
+  try {
+    await supabase.from("financial_ledger").insert({
+      user_id,
+      campaign_id,
+      type,
+      amount,
+      currency: "USD",
+      status: "confirmed",
+      provider: "mercadopago",
+      external_reference: paymentId,
+      payment_id: paymentId,
+      metadata,
+    })
+  } catch (e) {
+    console.warn("ledger insert failed", e)
+  }
+}
+
+/* =========================
    🚀 WEBHOOK
 ========================= */
 export async function POST(req: Request) {
@@ -85,17 +114,11 @@ export async function POST(req: Request) {
 
     if (!paymentId) return NextResponse.json({ ok: true })
 
-    /* =========================
-       🔐 SIGNATURE
-    ========================= */
     if (!verifySignature(req)) {
       await logEvent(paymentId, "signature_invalid", "error")
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       🚫 IDEMPOTENCIA
-    ========================= */
     const { data: existing } = await supabase
       .from("processed_payments")
       .select("payment_id")
@@ -107,18 +130,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       🔒 LOCK
-    ========================= */
     const lockKey = crypto.createHash("md5").update(paymentId).digest("hex")
 
     await supabase.rpc("advisory_lock", {
       lock_key: lockKey,
     })
 
-    /* =========================
-       💳 GET PAYMENT
-    ========================= */
     const payment = await paymentClient.get({ id: paymentId })
 
     if (!payment || payment.status !== "approved") {
@@ -128,9 +145,6 @@ export async function POST(req: Request) {
 
     await logEvent(paymentId, "payment_approved", "ok")
 
-    /* =========================
-       📦 METADATA
-    ========================= */
     const campaign_id = payment.metadata?.campaign_id
 
     const user_email =
@@ -157,12 +171,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       🚫 AUTO COMPRA
-    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
-      .select("user_email, title")
+      .select("user_email, title, user_id")
       .eq("id", campaign_id)
       .maybeSingle()
 
@@ -173,9 +184,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       💾 REGISTRAR IDEMPOTENCIA
-    ========================= */
     const { error: insertError } = await supabase
       .from("processed_payments")
       .insert({ payment_id: paymentId })
@@ -184,9 +192,6 @@ export async function POST(req: Request) {
       throw insertError
     }
 
-    /* =========================
-       🔥 RPC ATÓMICA (CORE)
-    ========================= */
     await supabase.rpc("process_payment_full", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -197,9 +202,20 @@ export async function POST(req: Request) {
 
     await logEvent(paymentId, "rpc_processed", "success")
 
-    /* =========================
-       📧 EMAIL (POST-RPC)
-    ========================= */
+    await insertLedger({
+      user_id: campaign.user_id,
+      campaign_id,
+      amount: totalPaid,
+      paymentId,
+      type: "payment",
+      metadata: {
+        campaign_id,
+        user_email,
+        expectedTotal,
+        totalPaid,
+      },
+    })
+
     const { data: tickets } = await supabase
       .from("tickets")
       .select("ticket_number")
@@ -214,7 +230,6 @@ export async function POST(req: Request) {
     }
 
     await logEvent(paymentId, "email_sent", "ok")
-
     await logEvent(paymentId, "webhook_completed", "success")
 
     return NextResponse.json({ ok: true })
