@@ -25,10 +25,9 @@ export default function CreateCampaign() {
     // 🔐 SESIÓN REAL
     const { data: sessionData } = await supabase.auth.getSession()
     const session = sessionData?.session
-    const user = session?.user
     const token = session?.access_token
 
-    if (!user?.email || !token) {
+    if (!token) {
       setMessage('Debes iniciar sesión')
       setLoading(false)
       return
@@ -53,12 +52,12 @@ export default function CreateCampaign() {
       }
     }
 
-    // 🚀 API (SIN user_email + CON TOKEN)
+    // 🚀 API SEGURA
     const res = await fetch('/api/campaign/create', {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` // 🔥 CLAVE PRO
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify({
         title,

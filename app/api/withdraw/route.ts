@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
 import { securityGuard } from "@/lib/security/guard"
 import { rateLimit } from "@/lib/security/rateLimit"
 
-const supabaseAdmin = createClient(
+const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
@@ -14,36 +12,11 @@ export async function POST(req: Request) {
   try {
     const { amount, otp } = await req.json()
 
-    if (!amount || amount <= 0 || !otp) {
+    const email = req.headers.get("x-user-email")
+
+    if (!email || !amount || amount <= 0 || !otp) {
       return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
     }
-
-    // 🔥 FIX REAL
-    const cookieStore = await cookies()
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set() {},
-          remove() {},
-        },
-      }
-    )
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 })
-    }
-
-    const email = user.email!
 
     const ip =
       req.headers.get("x-forwarded-for") ||
@@ -69,20 +42,20 @@ export async function POST(req: Request) {
       )
     }
 
-    // 💾 DEVICE LOG
-    await supabaseAdmin.from("user_devices").insert({
+    // 💾 LOG DISPOSITIVO
+    await supabase.from("user_devices").insert({
       user_email: email,
       ip,
       user_agent: userAgent,
     })
 
-    // 🔒 LOCK GLOBAL
-    await supabaseAdmin.rpc("advisory_lock", {
+    // 🔒 LOCK
+    await supabase.rpc("advisory_lock", {
       lock_key: email,
     })
 
-    // 🔥 RETIRO
-    const { data, error } = await supabaseAdmin.rpc("request_withdraw", {
+    // 💸 RETIRO
+    const { data, error } = await supabase.rpc("request_withdraw", {
       p_user_email: email,
       p_amount: amount,
       p_otp_code: otp,
@@ -101,8 +74,13 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ ok: true })
+
   } catch (error) {
     console.error("❌ ERROR:", error)
-    return NextResponse.json({ error: "Error servidor" }, { status: 500 })
+
+    return NextResponse.json(
+      { error: "Error servidor" },
+      { status: 500 }
+    )
   }
 }
