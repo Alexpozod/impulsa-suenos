@@ -14,50 +14,53 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
-    const { payout_id, user } = body
+    const { payout_id } = await req.json()
 
-    /* =========================
-       ❗ VALIDACIÓN INPUT
-    ========================= */
     if (!payout_id) {
-      return NextResponse.json(
-        { error: "payout_id requerido" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "payout_id requerido" }, { status: 400 })
     }
 
     /* =========================
-       🔐 RBAC
+       🔐 AUTH REAL
     ========================= */
-    if (!user || !canAccess(user.role, "payout.approve")) {
-      return NextResponse.json(
-        { error: "unauthorized" },
-        { status: 403 }
-      )
+    const authHeader = req.headers.get("authorization")
+
+    if (!authHeader) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
     }
 
+    const token = authHeader.replace("Bearer ", "")
+
+    const { data: { user } } = await supabase.auth.getUser(token)
+
+    if (!user) {
+      return NextResponse.json({ error: "invalid session" }, { status: 401 })
+    }
+
+    const userRole = user.user_metadata?.role || "user"
+
+    if (!canAccess(userRole, "payout.approve")) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 })
+    }
+
+    const orgId = user.user_metadata?.organization_id
+
     /* =========================
-       📦 OBTENER PAYOUT
+       📦 PAYOUT
     ========================= */
-    const { data: payout, error: payoutError } = await supabase
+    const { data: payout } = await supabase
       .from("payouts")
       .select("*")
       .eq("id", payout_id)
+      .eq("organization_id", orgId)
       .single()
 
-    if (payoutError || !payout) {
-      return NextResponse.json(
-        { error: "payout no encontrado" },
-        { status: 404 }
-      )
+    if (!payout) {
+      return NextResponse.json({ error: "not found" }, { status: 404 })
     }
 
     if (payout.status === "paid") {
-      return NextResponse.json(
-        { error: "payout ya procesado" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "already processed" }, { status: 400 })
     }
 
     /* =========================
@@ -67,23 +70,15 @@ export async function POST(req: Request) {
       .from("campaigns")
       .select("*")
       .eq("id", payout.campaign_id)
+      .eq("organization_id", orgId)
       .single()
 
     if (!campaign) {
-      return NextResponse.json(
-        { error: "campaign not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "campaign not found" }, { status: 404 })
     }
 
-    /* =========================
-       🧠 RISK ENGINE
-    ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
-    /* =========================
-       🚨 FRAUD ALERT (PRE)
-    ========================= */
     const fraud = await evaluateFraudAlert({
       campaign,
       payout,
@@ -91,15 +86,9 @@ export async function POST(req: Request) {
     })
 
     if (fraud.block) {
-      return NextResponse.json(
-        { error: "fraud_detected", fraud },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "fraud_detected" }, { status: 403 })
     }
 
-    /* =========================
-       🔒 ENFORCEMENT AUTOMÁTICO
-    ========================= */
     const enforcement = await enforceRiskActions({
       campaign,
       payout,
@@ -110,16 +99,13 @@ export async function POST(req: Request) {
     })
 
     if (enforcement.blocked) {
-      return NextResponse.json(
-        { error: "campaign_blocked", enforcement },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "campaign_blocked" }, { status: 403 })
     }
 
     /* =========================
-       💰 ACTUALIZAR PAYOUT
+       💰 UPDATE
     ========================= */
-    const { error: updateError } = await supabase
+    await supabase
       .from("payouts")
       .update({
         status: "paid",
@@ -127,70 +113,28 @@ export async function POST(req: Request) {
       })
       .eq("id", payout_id)
 
-    if (updateError) {
-      return NextResponse.json(
-        { error: "error actualizando payout" },
-        { status: 500 }
-      )
-    }
-
     /* =========================
-       📒 LEDGER (CON ORG ID)
+       📒 LEDGER
     ========================= */
-    const { error: ledgerError } = await supabase
-      .from("financial_ledger")
-      .insert({
-        campaign_id: payout.campaign_id,
-        amount: payout.amount,
-        type: "withdraw",
-        status: "confirmed",
-        organization_id: campaign.organization_id
-      })
+    await supabase.from("financial_ledger").insert({
+      campaign_id: payout.campaign_id,
+      amount: payout.amount,
+      type: "withdraw",
+      status: "confirmed",
+      organization_id: orgId
+    })
 
-    if (ledgerError) {
-      await supabase
-        .from("payouts")
-        .update({ status: "pending" })
-        .eq("id", payout_id)
-
-      return NextResponse.json(
-        { error: "ledger_error" },
-        { status: 500 }
-      )
-    }
-
-    /* =========================
-       🔔 EVENTO FINAL
-    ========================= */
     await emitEvent("payout.approved", {
       id: payout_id,
       campaign_id: payout.campaign_id,
       amount: payout.amount,
       actor_id: user.id,
-      organization_id: campaign.organization_id
+      organization_id: orgId
     })
 
-    /* =========================
-       🧠 FRAUD POST
-    ========================= */
-    await evaluateFraudAlert({
-      campaign,
-      payout,
-      actor_id: user.id
-    })
+    return NextResponse.json({ ok: true })
 
-    return NextResponse.json({
-      ok: true,
-      payout_id,
-      status: "paid"
-    })
-
-  } catch (error) {
-    console.error("❌ APPROVE ERROR:", error)
-
-    return NextResponse.json(
-      { error: "error approve payout" },
-      { status: 500 }
-    )
+  } catch {
+    return NextResponse.json({ error: "error approve payout" }, { status: 500 })
   }
 }

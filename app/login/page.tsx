@@ -12,33 +12,26 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+
   const [redirect, setRedirect] = useState<string | null>(null)
 
-  // 🔐 Obtener redirect SOLO EN CLIENTE (SAFE)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const redirectParam = params.get("redirect")
-    setRedirect(redirectParam)
+    setRedirect(params.get("redirect"))
   }, [])
 
-  // 🔐 Detectar sesión activa
   useEffect(() => {
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getUser()
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession()
 
-      if (data.user) {
-        if (redirect) {
-          router.push(redirect)
-        } else {
-          router.push('/dashboard')
-        }
+      if (data.session) {
+        router.push(redirect || "/dashboard")
       }
     }
 
-    checkUser()
-  }, [router, redirect])
+    checkSession()
+  }, [redirect, router])
 
-  // 🔑 LOGIN
   const signIn = async () => {
     setLoading(true)
     setMessage('')
@@ -49,23 +42,14 @@ export default function Login() {
     })
 
     if (error) {
-      if (error.message.includes('Email not confirmed')) {
-        setMessage('⚠️ Debes confirmar tu correo')
-      } else {
-        setMessage('❌ ' + error.message)
-      }
+      setMessage("❌ " + error.message)
     } else {
-      if (redirect) {
-        router.push(redirect)
-      } else {
-        router.push('/dashboard')
-      }
+      router.push(redirect || "/dashboard")
     }
 
     setLoading(false)
   }
 
-  // 📝 REGISTRO
   const signUp = async () => {
     setLoading(true)
     setMessage('')
@@ -81,41 +65,34 @@ export default function Login() {
     if (error) {
       setMessage(error.message)
     } else {
-      setMessage('📩 Revisa tu correo para confirmar')
+      setMessage("📩 Revisa tu correo")
     }
 
     setLoading(false)
   }
 
-  // 🔐 GOOGLE LOGIN
   const signInWithGoogle = async () => {
-    const finalRedirect = redirect || "/dashboard"
-
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}${finalRedirect}`
+        redirectTo: `${location.origin}/dashboard`
       }
     })
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <main className="min-h-screen flex items-center justify-center bg-gray-50">
 
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border">
+      <div className="bg-white p-8 rounded-xl shadow w-full max-w-md">
 
-        <h1 className="text-2xl font-bold text-center text-green-600 mb-2">
-          ImpulsaSueños
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          Login
         </h1>
-
-        <p className="text-center text-gray-500 mb-6 text-sm">
-          Accede o crea tu cuenta
-        </p>
 
         <input
           type="email"
-          placeholder="Correo electrónico"
-          className="w-full border p-3 rounded-lg mb-4"
+          placeholder="Correo"
+          className="w-full border p-3 mb-3 rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -123,61 +100,40 @@ export default function Login() {
         <input
           type="password"
           placeholder="Contraseña"
-          className="w-full border p-3 rounded-lg mb-2"
+          className="w-full border p-3 mb-4 rounded"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <div className="text-right mb-4">
-          <span
-            onClick={() => router.push('/recover')}
-            className="text-sm text-green-600 cursor-pointer hover:underline"
-          >
-            ¿Olvidaste tu contraseña?
-          </span>
-        </div>
+        <button
+          onClick={signIn}
+          className="w-full bg-black text-white py-3 rounded mb-3"
+          disabled={loading}
+        >
+          {loading ? "Ingresando..." : "Entrar"}
+        </button>
 
-        <div className="flex flex-col gap-3">
-
-          <button
-            onClick={signIn}
-            disabled={loading}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold"
-          >
-            {loading ? 'Ingresando...' : 'Iniciar sesión'}
-          </button>
-
-          <button
-            onClick={signUp}
-            disabled={loading}
-            className="w-full border border-green-600 text-green-600 py-3 rounded-lg font-semibold"
-          >
-            Crear cuenta
-          </button>
-
-        </div>
-
-        <div className="my-6 flex items-center gap-2 text-gray-400 text-sm">
-          <div className="flex-1 h-px bg-gray-200" />
-          o continuar con
-          <div className="flex-1 h-px bg-gray-200" />
-        </div>
+        <button
+          onClick={signUp}
+          className="w-full border py-3 rounded mb-3"
+        >
+          Crear cuenta
+        </button>
 
         <button
           onClick={signInWithGoogle}
-          className="w-full border py-3 rounded-lg"
+          className="w-full border py-3 rounded"
         >
-          🔐 Google
+          Google
         </button>
 
         {message && (
-          <p className="text-sm mt-4 text-center text-gray-600">
+          <p className="mt-4 text-center text-sm text-red-500">
             {message}
           </p>
         )}
 
       </div>
-
     </main>
   )
 }
