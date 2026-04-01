@@ -8,32 +8,102 @@ const supabase = createClient(
 
 export async function GET() {
   try {
+    // =========================
+    // 📊 DATA SISTEMA
+    // =========================
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
 
-    const { data: payments } = await supabase
+    const { data: processed } = await supabase
       .from("processed_payments")
       .select("*")
 
-    const ledgerIds = new Set(
-      ledger?.map(l => l.payment_id).filter(Boolean)
-    )
+    const issues: any[] = []
 
-    const missingInLedger = payments?.filter(
-      p => !ledgerIds.has(p.payment_id)
-    )
+    const ledgerMap = new Map()
+    const processedSet = new Set()
+
+    // =========================
+    // INDEXAR
+    // =========================
+    for (const l of ledger || []) {
+      if (l.payment_id) {
+        ledgerMap.set(l.payment_id, l)
+      }
+    }
+
+    for (const p of processed || []) {
+      processedSet.add(p.payment_id)
+    }
+
+    // =========================
+    // 1. FALTA EN LEDGER
+    // =========================
+    for (const p of processed || []) {
+      if (!ledgerMap.has(p.payment_id)) {
+        issues.push({
+          payment_id: p.payment_id,
+          issue_type: "missing_in_ledger"
+        })
+      }
+    }
+
+    // =========================
+    // 2. FALTA EN PASARELA
+    // =========================
+    for (const l of ledger || []) {
+      if (l.payment_id && !processedSet.has(l.payment_id)) {
+        issues.push({
+          payment_id: l.payment_id,
+          campaign_id: l.campaign_id,
+          ledger_amount: l.amount,
+          issue_type: "missing_in_gateway"
+        })
+      }
+    }
+
+    // =========================
+    // 3. DUPLICADOS
+    // =========================
+    const seen = new Set()
+
+    for (const l of ledger || []) {
+      if (!l.payment_id) continue
+
+      if (seen.has(l.payment_id)) {
+        issues.push({
+          payment_id: l.payment_id,
+          issue_type: "duplicate"
+        })
+      } else {
+        seen.add(l.payment_id)
+      }
+    }
+
+    // =========================
+    // 💾 GUARDAR LOGS
+    // =========================
+    if (issues.length > 0) {
+      await supabase.from("reconciliation_logs").insert(
+        issues.map(i => ({
+          ...i,
+          status: "open"
+        }))
+      )
+    }
 
     return NextResponse.json({
       ok: true,
-      total_ledger: ledger?.length || 0,
-      total_payments: payments?.length || 0,
-      missing_in_ledger: missingInLedger || []
+      issues_found: issues.length,
+      issues
     })
 
   } catch (error) {
+    console.error("❌ RECONCILIATION ERROR:", error)
+
     return NextResponse.json(
-      { error: "reconcile error" },
+      { error: "reconciliation error" },
       { status: 500 }
     )
   }
