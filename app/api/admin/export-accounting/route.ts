@@ -9,11 +9,18 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("financial_ledger")
       .select("*")
 
-    const formatted = data?.map(row => ({
+    if (error) {
+      return NextResponse.json(
+        { error: "error fetching ledger" },
+        { status: 500 }
+      )
+    }
+
+    const formatted = (data || []).map(row => ({
       Fecha: row.created_at,
       Tipo: row.type,
       Monto_Bruto: row.amount,
