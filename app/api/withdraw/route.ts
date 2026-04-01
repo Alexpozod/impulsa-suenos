@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
 import { securityGuard } from "@/lib/security/guard"
 import { rateLimit } from "@/lib/security/rateLimit"
 
@@ -15,71 +13,60 @@ export async function POST(req: Request) {
     const { amount, otp } = await req.json()
 
     if (!amount || amount <= 0 || !otp) {
-      return NextResponse.json(
-        { error: "Datos inválidos" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Datos inválidos" }, { status: 400 })
     }
 
-    // =========================
-    // 🔐 SESIÓN REAL DESDE COOKIES
-    // =========================
-    const cookieStore = await cookies()
+    /* =========================
+       🔐 AUTH
+    ========================= */
+    const authHeader = req.headers.get("authorization")
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set() {},
-          remove() {}
-        }
-      }
-    )
+    if (!authHeader) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
 
-    const {
-      data: { user }
-    } = await supabase.auth.getUser()
+    const token = authHeader.replace("Bearer ", "")
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "No autenticado" },
-        { status: 401 }
-      )
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
+
+    if (!user || error) {
+      return NextResponse.json({ error: "invalid session" }, { status: 401 })
     }
 
     const email = user.email!
+    const userId = user.id
+    const orgId = user.user_metadata?.organization_id
 
-    // =========================
-    // 🌐 CONTEXTO
-    // =========================
-    const ip =
-      req.headers.get("x-forwarded-for") ||
-      req.headers.get("x-real-ip") ||
-      "unknown"
+    if (!orgId) {
+      return NextResponse.json({ error: "no organization" }, { status: 403 })
+    }
 
-    const userAgent = req.headers.get("user-agent") || "unknown"
+    /* =========================
+       🚫 BLOQUEO POR CAMPAÑA
+    ========================= */
+    const { data: blockedCampaign } = await supabaseAdmin
+      .from("campaigns")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("status", "blocked")
+      .maybeSingle()
 
-    // =========================
-    // 🚫 RATE LIMIT
-    // =========================
-    const limit = await rateLimit(email, "withdraw")
-
-    if (limit.blocked) {
+    if (blockedCampaign) {
       return NextResponse.json(
-        { error: limit.reason },
-        { status: 429 }
+        { error: "Cuenta bloqueada por seguridad" },
+        { status: 403 }
       )
     }
 
-    // =========================
-    // 🚨 ANTIFRAUDE
-    // =========================
-    const fraud = await securityGuard(email)
+    /* =========================
+       RATE LIMIT + FRAUDE
+    ========================= */
+    const limit = await rateLimit(email, "withdraw")
+    if (limit.blocked) {
+      return NextResponse.json({ error: limit.reason }, { status: 429 })
+    }
 
+    const fraud = await securityGuard(email)
     if (fraud.isDanger) {
       return NextResponse.json(
         { error: "Cuenta bloqueada por actividad sospechosa" },
@@ -87,55 +74,40 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
-    // 💾 DEVICE LOG
-    // =========================
+    /* =========================
+       DEVICE LOG
+    ========================= */
     await supabaseAdmin.from("user_devices").insert({
-      user_email: email,
-      ip,
-      user_agent: userAgent
+      user_id: userId,
+      organization_id: orgId,
+      ip: req.headers.get("x-forwarded-for") || "unknown",
+      user_agent: req.headers.get("user-agent") || "unknown"
     })
 
-    // =========================
-    // 🔒 LOCK GLOBAL (ANTI DOBLE RETIRO)
-    // =========================
+    /* =========================
+       LOCK + RPC
+    ========================= */
     await supabaseAdmin.rpc("advisory_lock", {
-      lock_key: email
+      lock_key: userId
     })
 
-    // =========================
-    // 💸 RPC RETIRO
-    // =========================
-    const { data, error } = await supabaseAdmin.rpc("request_withdraw", {
-      p_user_email: email,
+    const { data, error: rpcError } = await supabaseAdmin.rpc("request_withdraw", {
+      p_user_id: userId,
       p_amount: amount,
       p_otp_code: otp
     })
 
-    if (error) {
-      console.error("❌ RPC ERROR:", error)
-
-      return NextResponse.json(
-        { error: "Error procesando retiro" },
-        { status: 500 }
-      )
+    if (rpcError) {
+      return NextResponse.json({ error: "Error retiro" }, { status: 500 })
     }
 
     if (data?.error) {
-      return NextResponse.json(
-        { error: data.error },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: data.error }, { status: 400 })
     }
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-    console.error("❌ ERROR:", error)
-
-    return NextResponse.json(
-      { error: "Error servidor" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Error servidor" }, { status: 500 })
   }
 }

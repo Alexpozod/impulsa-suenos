@@ -17,7 +17,6 @@ type EnforceContext = {
 }
 
 export async function enforceRiskActions(ctx: EnforceContext) {
-
   const { campaign, payout, risk } = ctx
 
   /* =========================
@@ -25,24 +24,27 @@ export async function enforceRiskActions(ctx: EnforceContext) {
   ========================= */
   if (risk.score >= 80 || !risk.safe) {
 
-    // 🚫 1. BLOQUEAR CAMPAÑA
+    // 🚫 BLOQUEAR CAMPAÑA
     await supabase
       .from("campaigns")
-      .update({ status: "suspicious" })
+      .update({
+        status: "blocked",
+        blocked_reason: "fraud_detected"
+      })
       .eq("id", campaign.id)
 
-    // 🚫 2. CONGELAR PAYOUTS
+    // 🚫 BLOQUEAR PAYOUTS PENDIENTES
     await supabase
       .from("payouts")
       .update({ status: "blocked" })
       .eq("campaign_id", campaign.id)
       .eq("status", "pending")
 
-    // 🔔 EVENTO CRÍTICO
+    // 🔔 EVENTO
     await emitEvent("system.campaign_blocked", {
       campaign_id: campaign.id,
-      risk,
-      reason: "fraud_detection"
+      payout_id: payout?.id || null,
+      risk
     })
 
     return {
@@ -52,10 +54,9 @@ export async function enforceRiskActions(ctx: EnforceContext) {
   }
 
   /* =========================
-     🟡 WARNING (SOLO TRACK)
+     🟡 WARNING
   ========================= */
   if (risk.score >= 50) {
-
     await emitEvent("system.campaign_warning", {
       campaign_id: campaign.id,
       risk

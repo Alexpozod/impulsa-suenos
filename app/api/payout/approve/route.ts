@@ -77,6 +77,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign not found" }, { status: 404 })
     }
 
+    /* =========================
+       🧠 RISK
+    ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
     const fraud = await evaluateFraudAlert({
@@ -134,7 +137,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true })
 
-  } catch {
+  } catch (error) {
+    console.error("❌ APPROVE ERROR:", error)
     return NextResponse.json({ error: "error approve payout" }, { status: 500 })
   }
 }

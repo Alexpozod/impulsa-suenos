@@ -6,133 +6,78 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// 📥 OBTENER RETIROS + RIESGO
-export async function GET() {
+export async function GET(req: Request) {
   try {
+
+    /* =========================
+       🔐 AUTH ADMIN
+    ========================= */
+    const authHeader = req.headers.get("authorization")
+
+    if (!authHeader) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.replace("Bearer ", "")
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser(token)
+
+    if (!user) {
+      return NextResponse.json({ error: "invalid session" }, { status: 401 })
+    }
+
+    const role = user.user_metadata?.role || "user"
+
+    if (role !== "admin") {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 })
+    }
+
+    const orgId = user.user_metadata?.organization_id
+
+    if (!orgId) {
+      return NextResponse.json({ error: "no organization" }, { status: 403 })
+    }
+
+    /* =========================
+       📊 QUERY WITHDRAWALS
+    ========================= */
     const { data, error } = await supabase
-      .from("withdrawals")
+      .from("payouts")
       .select(`
-        *,
-        user_risk (
-          score,
-          status
-        )
+        id,
+        amount,
+        status,
+        created_at,
+        processed_at,
+        campaign_id
       `)
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("❌ ERROR GET WITHDRAWALS:", error)
-
-      return NextResponse.json(
-        { error: "Error cargando retiros" },
-        { status: 500 }
-      )
+      console.error("❌ FETCH WITHDRAWALS ERROR:", error)
+      return NextResponse.json({ error: "error fetching withdrawals" }, { status: 500 })
     }
 
-    return NextResponse.json(data)
+    /* =========================
+       📊 ENRICH DATA
+    ========================= */
+    const enriched = (data || []).map(w => ({
+      ...w,
+      isPending: w.status === "pending",
+      isPaid: w.status === "paid",
+      isBlocked: w.status === "blocked"
+    }))
 
-  } catch (err) {
-    console.error("❌ ERROR GENERAL GET:", err)
-
-    return NextResponse.json(
-      { error: "Error servidor" },
-      { status: 500 }
-    )
-  }
-}
-
-// ✅ APROBAR / ❌ RECHAZAR (SEGURO + RPC)
-export async function POST(req: Request) {
-  try {
-    const { withdrawalId, action, adminEmail, reason } = await req.json()
-
-    if (!withdrawalId || !action || !adminEmail) {
-      return NextResponse.json(
-        { error: "Faltan datos" },
-        { status: 400 }
-      )
-    }
-
-    if (action !== "approve" && action !== "reject") {
-      return NextResponse.json(
-        { error: "Acción inválida" },
-        { status: 400 }
-      )
-    }
-
-    // 🔐 Validar admin
-    const { data: admin, error: adminError } = await supabase
-      .from("profiles")
-      .select("id, role")
-      .eq("email", adminEmail)
-      .single()
-
-    if (adminError || !admin) {
-      return NextResponse.json(
-        { error: "Admin no encontrado" },
-        { status: 404 }
-      )
-    }
-
-    if (admin.role !== "admin") {
-      return NextResponse.json(
-        { error: "No autorizado" },
-        { status: 403 }
-      )
-    }
-
-    // 🔍 Validar retiro
-    const { data: withdrawal } = await supabase
-      .from("withdrawals")
-      .select("id, status")
-      .eq("id", withdrawalId)
-      .single()
-
-    if (!withdrawal) {
-      return NextResponse.json(
-        { error: "Retiro no encontrado" },
-        { status: 404 }
-      )
-    }
-
-    if (withdrawal.status !== "pending") {
-      return NextResponse.json(
-        { error: "Retiro ya procesado" },
-        { status: 400 }
-      )
-    }
-
-    // 🔥 RPC (LÓGICA SEGURA)
-    const { data, error } = await supabase.rpc("process_withdraw", {
-      p_withdrawal_id: withdrawalId,
-      p_action: action,
-      p_admin_id: admin.id,
-      p_reason: reason || null
-    })
-
-    if (error) {
-      console.error("❌ RPC ERROR:", error)
-
-      return NextResponse.json(
-        { error: "Error procesando retiro" },
-        { status: 500 }
-      )
-    }
-
-    if (data?.error) {
-      return NextResponse.json(
-        { error: data.error },
-        { status: 400 }
-      )
-    }
-
-    return NextResponse.json({ ok: true })
+    return NextResponse.json(enriched)
 
   } catch (error) {
-    console.error("❌ ERROR ADMIN:", error)
+    console.error("❌ WITHDRAWALS API ERROR:", error)
 
     return NextResponse.json(
-      { error: "Error servidor" },
+      { error: "server error" },
       { status: 500 }
     )
   }
