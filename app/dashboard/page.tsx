@@ -1,120 +1,111 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/src/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from "react";
+import { supabase } from "@/src/lib/supabase"; // 👈 mantenemos este
+import { useRouter } from "next/navigation";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
-} from 'recharts'
+  ResponsiveContainer,
+} from "recharts";
 
 export default function Dashboard() {
+  const router = useRouter();
 
-  const router = useRouter()
-
-  const [user, setUser] = useState<any>(null)
-  const [wallet, setWallet] = useState<any>(null)
-  const [transactions, setTransactions] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null);
+  const [wallet, setWallet] = useState<any>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    load()
-  }, [])
+    load();
+  }, []);
 
   const load = async () => {
-
-    const { data } = await supabase.auth.getSession()
+    const { data } = await supabase.auth.getSession();
 
     if (!data.session) {
-      router.push('/login')
-      return
+      router.push("/login");
+      return;
     }
 
-    const user = data.session.user
-    setUser(user)
+    const user = data.session.user;
+    setUser(user);
 
-    const userId = user.id
+    const userId = user.id;
 
-    // 🔥 USAR USER_ID (NO EMAIL)
     const [walletRes, txRes] = await Promise.all([
-
+      supabase.from("wallets").select("*").eq("user_id", userId).maybeSingle(),
       supabase
-        .from('wallets')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle(),
+        .from("transactions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: true }),
+    ]);
 
-      supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: true })
-
-    ])
-
-    setWallet(walletRes.data)
-    setTransactions(txRes.data || [])
-
-    setLoading(false)
-  }
+    setWallet(walletRes.data);
+    setTransactions(txRes.data || []);
+    setLoading(false);
+  };
 
   const logout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   const requestWithdraw = async () => {
+    const amount = prompt("Monto a retirar");
+    if (!amount) return;
 
-    const amount = prompt("Monto a retirar")
+    const session = await supabase.auth.getSession();
 
-    if (!amount) return
-
-    const session = await supabase.auth.getSession()
-
-    const res = await fetch('/api/withdraw', {
-      method: 'POST',
+    const res = await fetch("/api/withdraw", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.data.session?.access_token}`
+        Authorization: `Bearer ${session.data.session?.access_token}`,
       },
       body: JSON.stringify({
-        amount: Number(amount)
-      })
-    })
+        amount: Number(amount),
+      }),
+    });
 
-    const data = await res.json()
+    const data = await res.json();
 
     if (data.error) {
-      alert(data.error)
+      alert(data.error);
     } else {
-      alert("Retiro solicitado")
-      load()
+      alert("Retiro solicitado");
+      load();
     }
-  }
+  };
 
-  if (loading) {
-    return <div className="p-10">Cargando...</div>
-  }
+  if (loading) return <div className="p-10">Cargando...</div>;
 
-  let balance = 0
+  let balance = 0;
 
   const chartData = transactions.map((t, i) => {
-
-    if (t.type === 'deposit') balance += Number(t.amount)
-    if (t.type === 'withdraw') balance -= Number(t.amount)
+    if (t.type === "deposit") balance += Number(t.amount);
+    if (t.type === "withdraw") balance -= Number(t.amount);
 
     return {
       name: `#${i}`,
-      balance
-    }
-  })
+      balance,
+    };
+  });
 
   return (
     <main className="p-10">
+      {/* 🔥 ALERTA KYC */}
+      <div className="bg-yellow-100 p-4 rounded-xl mb-4">
+        ⚠️ Debes completar tu verificación para crear campañas <br />
+        <a href="/account" className="text-blue-600 underline">
+          Ir a mi cuenta
+        </a>
+      </div>
 
       <div className="flex justify-between mb-6">
         <div>
@@ -122,9 +113,7 @@ export default function Dashboard() {
           <p className="text-sm text-gray-500">{user.email}</p>
         </div>
 
-        <button onClick={logout}>
-          Logout
-        </button>
+        <button onClick={logout}>Logout</button>
       </div>
 
       <div className="mb-6">
@@ -151,7 +140,6 @@ export default function Dashboard() {
           </LineChart>
         </ResponsiveContainer>
       </div>
-
     </main>
-  )
+  );
 }
