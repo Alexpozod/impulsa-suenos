@@ -9,22 +9,29 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-
     const { data, error } = await supabase
       .from("financial_ledger")
       .select("*")
       .order("created_at", { ascending: false })
 
-    if (error) {
-      throw error
-    }
+    if (error) throw error
 
-    // 🔥 FIX CRÍTICO
     const safeData = data || []
 
-    const parser = new Parser()
+    /* 🧾 FORMATO CONTABLE */
+    const formatted = safeData.map((l: any) => ({
+      fecha: l.accounting_date || l.created_at,
+      tipo: l.flow_type,
+      campaña: l.campaign_id,
+      usuario: l.user_email,
+      debe: l.amount > 0 ? Number(l.amount) : 0,
+      haber: l.amount < 0 ? Math.abs(Number(l.amount)) : 0,
+      descripcion: l.flow_type,
+      proveedor: l.provider || "",
+    }))
 
-    const csv = parser.parse(safeData)
+    const parser = new Parser()
+    const csv = parser.parse(formatted)
 
     return new NextResponse(csv, {
       headers: {

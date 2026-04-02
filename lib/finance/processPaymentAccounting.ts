@@ -14,20 +14,33 @@ export async function processPaymentAccounting({
   provider = "mercadopago",
 }: any) {
 
-  const gross = Number(amount) + Number(platform_tip)
+  /* =========================
+     🛑 IDEMPOTENCIA TOTAL
+  ========================= */
+  const { data: exists } = await supabase
+    .from("financial_ledger")
+    .select("id")
+    .eq("payment_id", paymentId)
+    .maybeSingle()
 
-  // comisión MercadoPago (ej: 2.96%)
-  const providerFee = gross * 0.0296
-
-  // comisión plataforma (fija)
-  const platformFee = 300
-
-  const net = gross - providerFee - platformFee
+  if (exists) {
+    return { alreadyProcessed: true }
+  }
 
   /* =========================
-     🧾 INSERT CONTABLE
+     💰 CÁLCULOS
   ========================= */
+  const gross = Number(amount) + Number(platform_tip)
 
+  const providerFee = gross * 0.0296
+  const platformFee = 300
+  const net = gross - providerFee - platformFee
+
+  const now = new Date().toISOString()
+
+  /* =========================
+     🧾 ASIENTOS CONTABLES
+  ========================= */
   await supabase.from("financial_ledger").insert([
     {
       campaign_id,
@@ -38,6 +51,7 @@ export async function processPaymentAccounting({
       gross_amount: gross,
       provider,
       payment_id: paymentId,
+      accounting_date: now,
     },
     {
       campaign_id,
@@ -47,6 +61,7 @@ export async function processPaymentAccounting({
       amount: -providerFee,
       provider_fee: providerFee,
       payment_id: paymentId,
+      accounting_date: now,
     },
     {
       campaign_id,
@@ -56,6 +71,7 @@ export async function processPaymentAccounting({
       amount: -platformFee,
       platform_fee: platformFee,
       payment_id: paymentId,
+      accounting_date: now,
     },
     {
       campaign_id,
@@ -65,6 +81,7 @@ export async function processPaymentAccounting({
       amount: net,
       net_amount: net,
       payment_id: paymentId,
+      accounting_date: now,
     }
   ])
 
@@ -72,6 +89,6 @@ export async function processPaymentAccounting({
     gross,
     providerFee,
     platformFee,
-    net
+    net,
   }
 }
