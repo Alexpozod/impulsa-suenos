@@ -2,11 +2,21 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
 
 export default function AdminPage() {
 
   const [campaigns, setCampaigns] = useState<any[]>([])
   const [metrics, setMetrics] = useState<any>(null)
+  const [chartData, setChartData] = useState<any[]>([])
+  const [alerts, setAlerts] = useState<any[]>([])
 
   useEffect(() => {
     loadData()
@@ -19,7 +29,7 @@ export default function AdminPage() {
 
       setCampaigns(data)
 
-      // 💰 total recaudado
+      // 💰 total ingresos
       const totalRevenue = data.reduce(
         (sum: number, c: any) => sum + Number(c.total_raised || 0),
         0
@@ -42,39 +52,60 @@ export default function AdminPage() {
         topCampaigns,
       })
 
+      /* =========================
+         📊 FAKE CHART (luego real)
+      ========================= */
+      const chart = data.slice(0, 7).map((c, i) => ({
+        name: `Día ${i + 1}`,
+        ingresos: Number(c.total_raised || 0),
+      }))
+
+      setChartData(chart)
+
+      /* =========================
+         🚨 ALERTAS ANTIFRAUDE
+      ========================= */
+      const risky = data.filter((c: any) => c.total_raised > 5000000)
+
+      setAlerts(
+        risky.map((c: any) => ({
+          type: "high_amount",
+          message: `Campaña sospechosa: ${c.title}`,
+        }))
+      )
+
     } catch (err) {
       console.error(err)
     }
   }
 
   if (!metrics) {
-    return <div className="p-10 text-white">Cargando métricas...</div>
+    return <div className="p-10 text-white">Cargando...</div>
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-10">
 
-      {/* HEADER */}
       <h1 className="text-3xl font-bold mb-6">
-        📊 Dashboard Admin
+        📊 Dashboard Inteligente
       </h1>
 
       {/* NAV */}
       <div className="grid md:grid-cols-4 gap-4 mb-10">
 
-        <Link href="/admin/kyc" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-green-500">
+        <Link href="/admin/kyc" className="bg-slate-900 p-4 rounded-xl border border-slate-800">
           🪪 KYC
         </Link>
 
-        <Link href="/admin/payouts" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-yellow-500">
+        <Link href="/admin/payouts" className="bg-slate-900 p-4 rounded-xl border border-slate-800">
           💸 Retiros
         </Link>
 
-        <Link href="/admin/campaigns" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-blue-500">
+        <Link href="/admin/campaigns" className="bg-slate-900 p-4 rounded-xl border border-slate-800">
           🚀 Campañas
         </Link>
 
-        <Link href="/admin/users" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-purple-500">
+        <Link href="/admin/users" className="bg-slate-900 p-4 rounded-xl border border-slate-800">
           👤 Usuarios
         </Link>
 
@@ -83,29 +114,29 @@ export default function AdminPage() {
       {/* MÉTRICAS */}
       <div className="grid md:grid-cols-4 gap-6 mb-10">
 
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-          <p className="text-sm text-slate-400">💰 Ingresos totales</p>
+        <div className="bg-slate-900 p-6 rounded-xl">
+          <p className="text-sm text-slate-400">Ingresos</p>
           <p className="text-2xl font-bold text-green-400">
             ${metrics.totalRevenue.toLocaleString()}
           </p>
         </div>
 
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-          <p className="text-sm text-slate-400">🚀 Campañas activas</p>
+        <div className="bg-slate-900 p-6 rounded-xl">
+          <p className="text-sm text-slate-400">Campañas activas</p>
           <p className="text-2xl font-bold">
             {metrics.activeCampaigns}
           </p>
         </div>
 
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-          <p className="text-sm text-slate-400">📊 Total campañas</p>
+        <div className="bg-slate-900 p-6 rounded-xl">
+          <p className="text-sm text-slate-400">Total campañas</p>
           <p className="text-2xl font-bold">
             {metrics.totalCampaigns}
           </p>
         </div>
 
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-          <p className="text-sm text-slate-400">🔥 Promedio por campaña</p>
+        <div className="bg-slate-900 p-6 rounded-xl">
+          <p className="text-sm text-slate-400">Promedio</p>
           <p className="text-2xl font-bold">
             ${(metrics.totalRevenue / (metrics.totalCampaigns || 1)).toFixed(0)}
           </p>
@@ -113,66 +144,68 @@ export default function AdminPage() {
 
       </div>
 
-      {/* TOP CAMPAÑAS */}
-      <div className="mb-10">
+      {/* 📊 GRÁFICO */}
+      <div className="bg-slate-900 p-6 rounded-xl mb-10">
 
-        <h2 className="text-xl font-bold mb-4">
-          🔥 Top campañas
+        <h2 className="text-lg font-bold mb-4">
+          📈 Ingresos últimos días
         </h2>
 
-        <div className="space-y-3">
-
-          {metrics.topCampaigns.map((c: any) => (
-            <div key={c.id} className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between">
-
-              <div>
-                <p className="font-bold">{c.title}</p>
-                <p className="text-sm text-slate-400">
-                  ${Number(c.total_raised || 0).toLocaleString()}
-                </p>
-              </div>
-
-              <Link href={`/admin/campaign/${c.id}`}>
-                <button className="bg-blue-600 px-3 py-1 rounded">
-                  Ver
-                </button>
-              </Link>
-
-            </div>
-          ))}
-
-        </div>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <XAxis dataKey="name" stroke="#ccc" />
+            <YAxis stroke="#ccc" />
+            <Tooltip />
+            <Line type="monotone" dataKey="ingresos" stroke="#22c55e" />
+          </LineChart>
+        </ResponsiveContainer>
 
       </div>
 
-      {/* LISTADO SIMPLE */}
-      <div>
+      {/* 🚨 ALERTAS */}
+      <div className="mb-10">
 
-        <h2 className="text-xl font-bold mb-4">
-          📋 Últimas campañas
+        <h2 className="text-lg font-bold mb-4">
+          🚨 Alertas antifraude
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        {alerts.length === 0 && (
+          <p className="text-slate-400">Sin alertas</p>
+        )}
 
-          {campaigns.slice(0, 6).map((c) => (
-            <div key={c.id} className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        {alerts.map((a, i) => (
+          <div key={i} className="bg-red-900/30 border border-red-500 p-4 rounded-lg mb-2">
+            {a.message}
+          </div>
+        ))}
 
+      </div>
+
+      {/* 🔥 TOP */}
+      <div>
+
+        <h2 className="text-lg font-bold mb-4">
+          🔥 Top campañas
+        </h2>
+
+        {metrics.topCampaigns.map((c: any) => (
+          <div key={c.id} className="bg-slate-900 p-4 rounded-xl mb-2 flex justify-between">
+
+            <div>
               <p className="font-bold">{c.title}</p>
-
               <p className="text-sm text-slate-400">
                 ${Number(c.total_raised || 0).toLocaleString()}
               </p>
-
-              <Link href={`/admin/campaign/${c.id}`}>
-                <button className="mt-2 bg-blue-600 px-3 py-1 rounded">
-                  Ver detalle
-                </button>
-              </Link>
-
             </div>
-          ))}
 
-        </div>
+            <Link href={`/admin/campaign/${c.id}`}>
+              <button className="bg-blue-600 px-3 py-1 rounded">
+                Ver
+              </button>
+            </Link>
+
+          </div>
+        ))}
 
       </div>
 
