@@ -13,7 +13,6 @@ export default function AdminKYC() {
 
   const ADMIN_EMAIL = 'contacto@impulsasuenos.com'
 
-  // 🔒 PROTEGER RUTA
   useEffect(() => {
     const checkAdmin = async () => {
       const { data } = await supabase.auth.getUser()
@@ -29,23 +28,17 @@ export default function AdminKYC() {
     checkAdmin()
   }, [])
 
-  // 📥 CARGAR KYC
   const loadKYC = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('kyc')
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (!error) {
-      setKycList(data || [])
-    }
-
+    setKycList(data || [])
     setLoading(false)
   }
 
-  // 🔄 ACTUALIZAR ESTADO (VÍA API SEGURA)
   const updateStatus = async (user_email: string, status: string) => {
-
     await fetch('/api/admin/kyc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,85 +53,84 @@ export default function AdminKYC() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Cargando panel...</p>
-      </div>
-    )
+    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
   }
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10">
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
 
         <h1 className="text-2xl font-bold mb-6">
           🛡️ Panel Admin KYC
         </h1>
 
-        {kycList.length === 0 && (
-          <p className="text-gray-500">
-            No hay solicitudes aún
-          </p>
-        )}
-
         <div className="space-y-6">
 
           {kycList.map((k) => (
-            <div
-              key={k.id}
-              className="bg-white border rounded-xl p-6 shadow-sm"
-            >
+            <div key={k.id} className="bg-white border rounded-xl p-6 shadow-sm">
 
-              <p className="font-bold text-lg">
-                {k.full_name}
-              </p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-bold text-lg">{k.full_name}</p>
+                  <p className="text-sm text-gray-500">{k.user_email}</p>
+                  <p className="text-sm text-gray-500">RUT: {k.rut}</p>
+                </div>
 
-              <p className="text-sm text-gray-500">
-                {k.user_email}
-              </p>
-
-              <p className="text-sm text-gray-500">
-                RUT: {k.rut}
-              </p>
-
-              <a
-                href={k.document_url}
-                target="_blank"
-                className="text-blue-600 text-sm underline mt-2 inline-block"
-              >
-                📄 Ver documento
-              </a>
-
-              <p className="mt-3 text-sm">
-                Estado:{" "}
-                <strong
-                  className={
-                    k.status === 'approved'
-                      ? 'text-green-600'
-                      : k.status === 'pending'
-                      ? 'text-yellow-600'
-                      : 'text-red-500'
-                  }
-                >
+                <span className={`text-sm px-3 py-1 rounded-full
+                  ${k.status === 'approved' && 'bg-green-100 text-green-700'}
+                  ${k.status === 'pending' && 'bg-yellow-100 text-yellow-700'}
+                  ${k.status === 'rejected' && 'bg-red-100 text-red-700'}
+                `}>
                   {k.status}
-                </strong>
-              </p>
+                </span>
+              </div>
 
-              <div className="flex gap-3 mt-4">
+              {/* DOCUMENTOS */}
+              <div className="flex gap-4 mt-4 flex-wrap">
+
+                {k.document_url && (
+                  <a href={k.document_url} target="_blank" className="text-blue-600 underline">
+                    📄 Frente
+                  </a>
+                )}
+
+                {k.document_back_url && (
+                  <a href={k.document_back_url} target="_blank" className="text-blue-600 underline">
+                    📄 Reverso
+                  </a>
+                )}
+
+                {k.selfie_url && (
+                  <a href={k.selfie_url} target="_blank" className="text-blue-600 underline">
+                    🤳 Selfie
+                  </a>
+                )}
+
+              </div>
+
+              {/* ACCIONES */}
+              <div className="flex gap-3 mt-5">
 
                 <button
                   onClick={() => updateStatus(k.user_email, 'approved')}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg"
                 >
                   Aprobar
                 </button>
 
                 <button
                   onClick={() => updateStatus(k.user_email, 'rejected')}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg"
                 >
                   Rechazar
+                </button>
+
+                <button
+                  onClick={() => updateStatus(k.user_email, 'pending')}
+                  className="bg-gray-700 text-white px-4 py-2 rounded-lg"
+                >
+                  Solicitar info
                 </button>
 
               </div>

@@ -4,15 +4,38 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 
 export default function AdminPage() {
+
   const [campaigns, setCampaigns] = useState<any[]>([])
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [result, setResult] = useState<any>(null)
+  const [stats, setStats] = useState<any>(null)
 
   useEffect(() => {
-    fetch("/api/admin/campaigns")
-      .then((res) => res.json())
-      .then((data) => setCampaigns(data))
+    loadData()
   }, [])
+
+  const loadData = async () => {
+    try {
+      const res = await fetch("/api/admin/campaigns")
+      const data = await res.json()
+      setCampaigns(data)
+
+      // 📊 stats básicos
+      const totalCampaigns = data.length
+      const totalRaised = data.reduce(
+        (sum: number, c: any) => sum + Number(c.total_raised || 0),
+        0
+      )
+
+      setStats({
+        totalCampaigns,
+        totalRaised,
+      })
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const drawWinner = async (campaign_id: string) => {
     setLoadingId(campaign_id)
@@ -33,6 +56,7 @@ export default function AdminPage() {
         campaign_id,
         data,
       })
+
     } catch (error) {
       console.error(error)
     }
@@ -43,9 +67,57 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white p-10">
 
-      <h1 className="text-3xl font-bold mb-10">
-        Panel de Sorteos (ADMIN)
+      {/* HEADER */}
+      <h1 className="text-3xl font-bold mb-6">
+        ⚙️ Panel Admin
       </h1>
+
+      {/* NAV ADMIN */}
+      <div className="grid md:grid-cols-4 gap-4 mb-10">
+
+        <Link href="/admin/kyc" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-green-500 transition">
+          🪪 KYC
+        </Link>
+
+        <Link href="/admin/payouts" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-yellow-500 transition">
+          💸 Retiros
+        </Link>
+
+        <Link href="/admin/campaigns" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-blue-500 transition">
+          🚀 Campañas
+        </Link>
+
+        <Link href="/admin/users" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-purple-500 transition">
+          👤 Usuarios
+        </Link>
+
+      </div>
+
+      {/* STATS */}
+      {stats && (
+        <div className="grid md:grid-cols-2 gap-6 mb-10">
+
+          <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
+            <p className="text-sm text-slate-400">Campañas totales</p>
+            <p className="text-2xl font-bold">
+              {stats.totalCampaigns}
+            </p>
+          </div>
+
+          <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
+            <p className="text-sm text-slate-400">Total recaudado</p>
+            <p className="text-2xl font-bold text-green-400">
+              ${stats.totalRaised.toLocaleString()}
+            </p>
+          </div>
+
+        </div>
+      )}
+
+      {/* SORTEOS (TU SISTEMA ORIGINAL) */}
+      <h2 className="text-xl font-bold mb-6">
+        🎯 Panel de Sorteos
+      </h2>
 
       <div className="grid md:grid-cols-2 gap-6">
 
@@ -64,7 +136,7 @@ export default function AdminPage() {
             </p>
 
             <p className="text-sm text-slate-400 mb-4">
-              💰 Total: ${c.total_raised}
+              💰 Total: ${Number(c.total_raised || 0).toLocaleString()}
             </p>
 
             {/* BOTONES */}
@@ -81,7 +153,7 @@ export default function AdminPage() {
                   : "🎯 Sortear"}
               </button>
 
-              {/* VER DETALLE */}
+              {/* DETALLE */}
               <Link href={`/admin/campaign/${c.id}`} className="w-full">
                 <button className="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-semibold transition">
                   Ver detalle
