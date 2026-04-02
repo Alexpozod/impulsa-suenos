@@ -11,9 +11,22 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
+/* =========================
+   🧠 TYPES (PRO)
+========================= */
+type Campaign = {
+  id: string
+  title: string
+  total_raised?: number
+  status?: string
+}
+
+/* =========================
+   🚀 COMPONENT
+========================= */
 export default function AdminPage() {
 
-  const [campaigns, setCampaigns] = useState<any[]>([])
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [metrics, setMetrics] = useState<any>(null)
   const [chartData, setChartData] = useState<any[]>([])
   const [alerts, setAlerts] = useState<any[]>([])
@@ -22,25 +35,28 @@ export default function AdminPage() {
     loadData()
   }, [])
 
+  /* =========================
+     📊 LOAD DATA
+  ========================= */
   const loadData = async () => {
     try {
       const res = await fetch("/api/admin/campaigns")
-      const data = await res.json()
+      const data: Campaign[] = await res.json()
 
       setCampaigns(data)
 
-      // 💰 total ingresos
+      /* =========================
+         💰 MÉTRICAS
+      ========================= */
       const totalRevenue = data.reduce(
-        (sum: number, c: any) => sum + Number(c.total_raised || 0),
+        (sum, c) => sum + Number(c.total_raised || 0),
         0
       )
 
-      // 📊 campañas activas
       const activeCampaigns = data.filter(
-        (c: any) => !c.status || c.status === "active"
+        (c) => !c.status || c.status === "active"
       ).length
 
-      // 🔥 top campañas
       const topCampaigns = [...data]
         .sort((a, b) => (b.total_raised || 0) - (a.total_raised || 0))
         .slice(0, 5)
@@ -53,9 +69,9 @@ export default function AdminPage() {
       })
 
       /* =========================
-         📊 FAKE CHART (luego real)
+         📈 CHART (SIN ERROR TS)
       ========================= */
-      const chart = data.slice(0, 7).map((c, i) => ({
+      const chart = data.slice(0, 7).map((c: Campaign, i: number) => ({
         name: `Día ${i + 1}`,
         ingresos: Number(c.total_raised || 0),
       }))
@@ -65,27 +81,34 @@ export default function AdminPage() {
       /* =========================
          🚨 ALERTAS ANTIFRAUDE
       ========================= */
-      const risky = data.filter((c: any) => c.total_raised > 5000000)
+      const risky = data.filter(
+        (c) => Number(c.total_raised || 0) > 5000000
+      )
 
       setAlerts(
-        risky.map((c: any) => ({
+        risky.map((c) => ({
           type: "high_amount",
-          message: `Campaña sospechosa: ${c.title}`,
+          message: `⚠️ Campaña sospechosa: ${c.title}`,
         }))
       )
 
     } catch (err) {
-      console.error(err)
+      console.error("Admin load error:", err)
     }
   }
 
   if (!metrics) {
-    return <div className="p-10 text-white">Cargando...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white bg-slate-950">
+        Cargando dashboard...
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-10">
 
+      {/* HEADER */}
       <h1 className="text-3xl font-bold mb-6">
         📊 Dashboard Inteligente
       </h1>
@@ -93,19 +116,19 @@ export default function AdminPage() {
       {/* NAV */}
       <div className="grid md:grid-cols-4 gap-4 mb-10">
 
-        <Link href="/admin/kyc" className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <Link href="/admin/kyc" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-green-500">
           🪪 KYC
         </Link>
 
-        <Link href="/admin/payouts" className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <Link href="/admin/payouts" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-yellow-500">
           💸 Retiros
         </Link>
 
-        <Link href="/admin/campaigns" className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <Link href="/admin/campaigns" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-blue-500">
           🚀 Campañas
         </Link>
 
-        <Link href="/admin/users" className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <Link href="/admin/users" className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-purple-500">
           👤 Usuarios
         </Link>
 
@@ -115,28 +138,28 @@ export default function AdminPage() {
       <div className="grid md:grid-cols-4 gap-6 mb-10">
 
         <div className="bg-slate-900 p-6 rounded-xl">
-          <p className="text-sm text-slate-400">Ingresos</p>
+          <p className="text-sm text-slate-400">💰 Ingresos totales</p>
           <p className="text-2xl font-bold text-green-400">
             ${metrics.totalRevenue.toLocaleString()}
           </p>
         </div>
 
         <div className="bg-slate-900 p-6 rounded-xl">
-          <p className="text-sm text-slate-400">Campañas activas</p>
+          <p className="text-sm text-slate-400">🚀 Campañas activas</p>
           <p className="text-2xl font-bold">
             {metrics.activeCampaigns}
           </p>
         </div>
 
         <div className="bg-slate-900 p-6 rounded-xl">
-          <p className="text-sm text-slate-400">Total campañas</p>
+          <p className="text-sm text-slate-400">📊 Total campañas</p>
           <p className="text-2xl font-bold">
             {metrics.totalCampaigns}
           </p>
         </div>
 
         <div className="bg-slate-900 p-6 rounded-xl">
-          <p className="text-sm text-slate-400">Promedio</p>
+          <p className="text-sm text-slate-400">🔥 Promedio</p>
           <p className="text-2xl font-bold">
             ${(metrics.totalRevenue / (metrics.totalCampaigns || 1)).toFixed(0)}
           </p>
@@ -144,7 +167,7 @@ export default function AdminPage() {
 
       </div>
 
-      {/* 📊 GRÁFICO */}
+      {/* 📈 GRÁFICO */}
       <div className="bg-slate-900 p-6 rounded-xl mb-10">
 
         <h2 className="text-lg font-bold mb-4">
@@ -181,14 +204,14 @@ export default function AdminPage() {
 
       </div>
 
-      {/* 🔥 TOP */}
+      {/* 🔥 TOP CAMPAÑAS */}
       <div>
 
         <h2 className="text-lg font-bold mb-4">
           🔥 Top campañas
         </h2>
 
-        {metrics.topCampaigns.map((c: any) => (
+        {metrics.topCampaigns.map((c: Campaign) => (
           <div key={c.id} className="bg-slate-900 p-4 rounded-xl mb-2 flex justify-between">
 
             <div>
