@@ -12,13 +12,21 @@ import {
 } from "recharts"
 
 /* =========================
-   🧠 TYPES (PRO)
+   🧠 TYPES
 ========================= */
 type Campaign = {
   id: string
   title: string
-  total_raised?: number
-  status?: string
+  total?: number
+}
+
+type ChartItem = {
+  name: string
+  ingresos: number
+}
+
+type Alert = {
+  message: string
 }
 
 /* =========================
@@ -26,74 +34,53 @@ type Campaign = {
 ========================= */
 export default function AdminPage() {
 
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [metrics, setMetrics] = useState<any>(null)
-  const [chartData, setChartData] = useState<any[]>([])
-  const [alerts, setAlerts] = useState<any[]>([])
+  const [chartData, setChartData] = useState<ChartItem[]>([])
+  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [topCampaigns, setTopCampaigns] = useState<Campaign[]>([])
 
   useEffect(() => {
     loadData()
   }, [])
 
   /* =========================
-     📊 LOAD DATA
+     📊 LOAD REAL DATA
   ========================= */
   const loadData = async () => {
     try {
-      const res = await fetch("/api/admin/campaigns")
-      const data: Campaign[] = await res.json()
 
-      setCampaigns(data)
+      const res = await fetch("/api/admin/metrics")
+      const data = await res.json()
 
       /* =========================
          💰 MÉTRICAS
       ========================= */
-      const totalRevenue = data.reduce(
-        (sum, c) => sum + Number(c.total_raised || 0),
-        0
-      )
-
-      const activeCampaigns = data.filter(
-        (c) => !c.status || c.status === "active"
-      ).length
-
-      const topCampaigns = [...data]
-        .sort((a, b) => (b.total_raised || 0) - (a.total_raised || 0))
-        .slice(0, 5)
-
       setMetrics({
-        totalRevenue,
-        activeCampaigns,
-        totalCampaigns: data.length,
-        topCampaigns,
+        totalRevenue: data.totalRevenue,
       })
 
       /* =========================
-         📈 CHART (SIN ERROR TS)
+         📈 CHART REAL
       ========================= */
-      const chart = data.slice(0, 7).map((c: Campaign, i: number) => ({
-        name: `Día ${i + 1}`,
-        ingresos: Number(c.total_raised || 0),
+      const formattedChart = data.chart.map((d: any) => ({
+        name: d.date,
+        ingresos: Number(d.ingresos),
       }))
 
-      setChartData(chart)
+      setChartData(formattedChart)
 
       /* =========================
-         🚨 ALERTAS ANTIFRAUDE
+         🚨 ALERTAS
       ========================= */
-      const risky = data.filter(
-        (c) => Number(c.total_raised || 0) > 5000000
-      )
+      setAlerts(data.alerts || [])
 
-      setAlerts(
-        risky.map((c) => ({
-          type: "high_amount",
-          message: `⚠️ Campaña sospechosa: ${c.title}`,
-        }))
-      )
+      /* =========================
+         🔥 TOP CAMPAÑAS
+      ========================= */
+      setTopCampaigns(data.topCampaigns || [])
 
     } catch (err) {
-      console.error("Admin load error:", err)
+      console.error("Dashboard error:", err)
     }
   }
 
@@ -110,7 +97,7 @@ export default function AdminPage() {
 
       {/* HEADER */}
       <h1 className="text-3xl font-bold mb-6">
-        📊 Dashboard Inteligente
+        📊 Dashboard Financiero
       </h1>
 
       {/* NAV */}
@@ -134,44 +121,23 @@ export default function AdminPage() {
 
       </div>
 
-      {/* MÉTRICAS */}
-      <div className="grid md:grid-cols-4 gap-6 mb-10">
+      {/* MÉTRICA PRINCIPAL */}
+      <div className="mb-10">
 
-        <div className="bg-slate-900 p-6 rounded-xl">
+        <div className="bg-slate-900 p-6 rounded-xl w-fit">
           <p className="text-sm text-slate-400">💰 Ingresos totales</p>
-          <p className="text-2xl font-bold text-green-400">
+          <p className="text-3xl font-bold text-green-400">
             ${metrics.totalRevenue.toLocaleString()}
-          </p>
-        </div>
-
-        <div className="bg-slate-900 p-6 rounded-xl">
-          <p className="text-sm text-slate-400">🚀 Campañas activas</p>
-          <p className="text-2xl font-bold">
-            {metrics.activeCampaigns}
-          </p>
-        </div>
-
-        <div className="bg-slate-900 p-6 rounded-xl">
-          <p className="text-sm text-slate-400">📊 Total campañas</p>
-          <p className="text-2xl font-bold">
-            {metrics.totalCampaigns}
-          </p>
-        </div>
-
-        <div className="bg-slate-900 p-6 rounded-xl">
-          <p className="text-sm text-slate-400">🔥 Promedio</p>
-          <p className="text-2xl font-bold">
-            ${(metrics.totalRevenue / (metrics.totalCampaigns || 1)).toFixed(0)}
           </p>
         </div>
 
       </div>
 
-      {/* 📈 GRÁFICO */}
+      {/* 📈 GRÁFICO REAL */}
       <div className="bg-slate-900 p-6 rounded-xl mb-10">
 
         <h2 className="text-lg font-bold mb-4">
-          📈 Ingresos últimos días
+          📈 Ingresos por día (real)
         </h2>
 
         <ResponsiveContainer width="100%" height={300}>
@@ -208,16 +174,16 @@ export default function AdminPage() {
       <div>
 
         <h2 className="text-lg font-bold mb-4">
-          🔥 Top campañas
+          🔥 Top campañas (real)
         </h2>
 
-        {metrics.topCampaigns.map((c: Campaign) => (
+        {topCampaigns.map((c) => (
           <div key={c.id} className="bg-slate-900 p-4 rounded-xl mb-2 flex justify-between">
 
             <div>
               <p className="font-bold">{c.title}</p>
               <p className="text-sm text-slate-400">
-                ${Number(c.total_raised || 0).toLocaleString()}
+                ${Number(c.total || 0).toLocaleString()}
               </p>
             </div>
 
