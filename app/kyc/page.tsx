@@ -11,11 +11,18 @@ export default function KYCPage() {
   const [user, setUser] = useState<any>(null)
   const [fullName, setFullName] = useState('')
   const [rut, setRut] = useState('')
-  const [file, setFile] = useState<File | null>(null)
+  const [documentType, setDocumentType] = useState('')
+
+  const [fileFront, setFileFront] = useState<File | null>(null)
+  const [fileBack, setFileBack] = useState<File | null>(null)
+  const [selfie, setSelfie] = useState<File | null>(null)
+
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
-  // 🔐 Obtener usuario
+  /* =========================
+     🔐 GET USER
+  ========================= */
   useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser()
@@ -30,10 +37,36 @@ export default function KYCPage() {
     getUser()
   }, [router])
 
+  /* =========================
+     📤 UPLOAD FILE
+  ========================= */
+  const uploadFile = async (file: File, name: string) => {
+    const filePath = `${user.id}/${Date.now()}-${name}`
+
+    const { error } = await supabase
+      .storage
+      .from('kyc-documents')
+      .upload(filePath, file)
+
+    if (error) {
+      throw new Error('Error subiendo archivo')
+    }
+
+    const { data } = supabase
+      .storage
+      .from('kyc-documents')
+      .getPublicUrl(filePath)
+
+    return data.publicUrl
+  }
+
+  /* =========================
+     🚀 SUBMIT
+  ========================= */
   const handleSubmit = async () => {
 
-    if (!fullName || !rut || !file) {
-      setMessage('⚠️ Completa todos los campos')
+    if (!fullName || !rut || !fileFront) {
+      setMessage('⚠️ Completa los campos obligatorios')
       return
     }
 
@@ -45,53 +78,55 @@ export default function KYCPage() {
     setLoading(true)
     setMessage('')
 
-    // 📂 Ruta organizada por usuario
-    const filePath = `${user.id}/${Date.now()}-${file.name}`
+    try {
 
-    // 📤 Subir archivo
-    const { error: uploadError } = await supabase
-      .storage
-      .from('kyc-documents')
-      .upload(filePath, file)
+      let frontUrl = ''
+      let backUrl = ''
+      let selfieUrl = ''
 
-    if (uploadError) {
-      setMessage('❌ Error subiendo documento')
-      setLoading(false)
-      return
+      // subir archivos
+      if (fileFront) {
+        frontUrl = await uploadFile(fileFront, 'front')
+      }
+
+      if (fileBack) {
+        backUrl = await uploadFile(fileBack, 'back')
+      }
+
+      if (selfie) {
+        selfieUrl = await uploadFile(selfie, 'selfie')
+      }
+
+      const { error } = await supabase
+        .from('kyc')
+        .upsert({
+          id: user.id,
+          user_email: user.email,
+          full_name: fullName,
+          rut: rut,
+          document_type: documentType,
+          document_url: frontUrl,
+          document_back_url: backUrl,
+          selfie_url: selfieUrl,
+          status: 'pending'
+        })
+
+      if (error) {
+        console.error(error)
+        setMessage('❌ Error guardando datos')
+        setLoading(false)
+        return
+      }
+
+      setMessage('✅ Verificación enviada. En revisión.')
+
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1500)
+
+    } catch (err) {
+      setMessage('❌ Error en subida de archivos')
     }
-
-    // 🔗 Obtener URL correcta
-    const { data: publicUrlData } = supabase
-      .storage
-      .from('kyc-documents')
-      .getPublicUrl(filePath)
-
-    const documentUrl = publicUrlData.publicUrl
-
-    // 🔥 UPSERT (evita duplicados)
-    const { error } = await supabase
-      .from('kyc')
-      .upsert({
-        id: user.id, // 🔑 CLAVE
-        user_email: user.email,
-        full_name: fullName,
-        rut: rut,
-        document_url: documentUrl,
-        status: 'pending'
-      })
-
-    if (error) {
-      console.error(error)
-      setMessage('❌ Error guardando datos')
-      setLoading(false)
-      return
-    }
-
-    setMessage('✅ Verificación enviada. En revisión.')
-
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 1500)
 
     setLoading(false)
   }
@@ -111,22 +146,50 @@ export default function KYCPage() {
 
         <input
           placeholder="Nombre completo"
-          className="w-full border p-3 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full border p-3 rounded-lg mb-3"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
         />
 
         <input
-          placeholder="RUT"
-          className="w-full border p-3 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+          placeholder="RUT / DNI / Pasaporte"
+          className="w-full border p-3 rounded-lg mb-3"
           value={rut}
           onChange={(e) => setRut(e.target.value)}
         />
 
+        <select
+          className="w-full border p-3 rounded-lg mb-3"
+          value={documentType}
+          onChange={(e) => setDocumentType(e.target.value)}
+        >
+          <option value="">Tipo de documento</option>
+          <option value="dni">DNI</option>
+          <option value="passport">Pasaporte</option>
+        </select>
+
+        {/* FRONT */}
+        <label className="text-sm mb-1">Documento (frente)</label>
+        <input
+          type="file"
+          className="w-full mb-3 border p-2 rounded-lg"
+          onChange={(e) => setFileFront(e.target.files?.[0] || null)}
+        />
+
+        {/* BACK */}
+        <label className="text-sm mb-1">Documento (reverso)</label>
+        <input
+          type="file"
+          className="w-full mb-3 border p-2 rounded-lg"
+          onChange={(e) => setFileBack(e.target.files?.[0] || null)}
+        />
+
+        {/* SELFIE */}
+        <label className="text-sm mb-1">Selfie con documento</label>
         <input
           type="file"
           className="w-full mb-4 border p-2 rounded-lg"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          onChange={(e) => setSelfie(e.target.files?.[0] || null)}
         />
 
         <button
