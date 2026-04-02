@@ -42,6 +42,38 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       🔐 KYC VALIDATION (NUEVO)
+    ========================= */
+    const { data: kyc } = await supabaseAdmin
+      .from("kyc")
+      .select("status")
+      .eq("user_email", email)
+      .maybeSingle()
+
+    if (!kyc || kyc.status !== "approved") {
+      return NextResponse.json(
+        { error: "Debes completar KYC antes de retirar" },
+        { status: 403 }
+      )
+    }
+
+    /* =========================
+       🏦 BANK VALIDATION (NUEVO)
+    ========================= */
+    const { data: bank } = await supabaseAdmin
+      .from("bank_accounts")
+      .select("id")
+      .eq("user_email", email)
+      .maybeSingle()
+
+    if (!bank) {
+      return NextResponse.json(
+        { error: "Debes agregar una cuenta bancaria" },
+        { status: 403 }
+      )
+    }
+
+    /* =========================
        🚫 BLOQUEO POR CAMPAÑA
     ========================= */
     const { data: blockedCampaign } = await supabaseAdmin
