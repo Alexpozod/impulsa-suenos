@@ -1,9 +1,19 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function CampaignPage({ params }: any) {
   const [campaign, setCampaign] = useState<any>(null)
+
+  // 👤 USER
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [guestEmail, setGuestEmail] = useState("")
 
   // 💰 DONACIÓN
   const [selectedAmount, setSelectedAmount] = useState(5000)
@@ -11,17 +21,28 @@ export default function CampaignPage({ params }: any) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const fetchCampaign = async () => {
+    const init = async () => {
       try {
+        // 🔥 Obtener campaña
         const res = await fetch(`/api/campaign/${params.id}`)
         const data = await res.json()
         setCampaign(data)
+
+        // 🔐 Obtener usuario
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
+        if (user?.email) {
+          setUserEmail(user.email)
+        }
+
       } catch (error) {
-        console.error("Error loading campaign:", error)
+        console.error("Error loading:", error)
       }
     }
 
-    fetchCampaign()
+    init()
   }, [params.id])
 
   if (!campaign) {
@@ -37,6 +58,13 @@ export default function CampaignPage({ params }: any) {
     const finalAmount = customAmount
       ? Number(customAmount)
       : selectedAmount
+
+    const emailToUse = userEmail || guestEmail
+
+    if (!emailToUse) {
+      alert("Ingresa tu email")
+      return
+    }
 
     if (!finalAmount || finalAmount < 100) {
       alert("Monto mínimo: 100")
@@ -54,7 +82,7 @@ export default function CampaignPage({ params }: any) {
         body: JSON.stringify({
           amount: finalAmount,
           campaign_id: campaign.id,
-          user_email: "guest@test.com", // siguiente paso: auth real
+          user_email: emailToUse,
         }),
       })
 
@@ -82,36 +110,31 @@ export default function CampaignPage({ params }: any) {
         {/* IZQUIERDA */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* IMAGEN */}
           <img
             src={campaign.image_url}
             alt="campaign"
             className="w-full rounded-xl object-cover"
           />
 
-          {/* TÍTULO */}
           <h1 className="text-3xl font-bold">
             {campaign.title}
           </h1>
 
-          {/* AUTOR */}
           <p className="text-gray-500">
             Por {campaign.user_email}
           </p>
 
-          {/* BADGE */}
           <div className="inline-block bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
             Donación protegida
           </div>
 
-          {/* HISTORIA */}
           <div className="text-gray-700 leading-relaxed whitespace-pre-line">
             {campaign.description}
           </div>
 
         </div>
 
-        {/* DERECHA (DONACIÓN 🔥) */}
+        {/* DERECHA */}
         <div className="sticky top-20 h-fit">
 
           <div className="bg-white border rounded-xl p-5 shadow-sm space-y-5">
@@ -126,7 +149,6 @@ export default function CampaignPage({ params }: any) {
                 de ${campaign.goal_amount}
               </div>
 
-              {/* PROGRESS */}
               <div className="w-full bg-gray-200 h-2 rounded mt-2">
                 <div
                   className="bg-green-500 h-2 rounded"
@@ -139,7 +161,7 @@ export default function CampaignPage({ params }: any) {
               </p>
             </div>
 
-            {/* MONTOS RÁPIDOS */}
+            {/* MONTOS */}
             <div className="grid grid-cols-3 gap-2">
               {[1000, 5000, 10000].map((amount) => (
                 <button
@@ -160,7 +182,7 @@ export default function CampaignPage({ params }: any) {
               ))}
             </div>
 
-            {/* INPUT PERSONALIZADO */}
+            {/* INPUT MONTO */}
             <input
               type="number"
               placeholder="Otro monto"
@@ -172,7 +194,18 @@ export default function CampaignPage({ params }: any) {
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
 
-            {/* BOTÓN DONAR */}
+            {/* EMAIL (SOLO SI NO ESTÁ LOGUEADO) */}
+            {!userEmail && (
+              <input
+                type="email"
+                placeholder="Tu email"
+                value={guestEmail}
+                onChange={(e) => setGuestEmail(e.target.value)}
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            )}
+
+            {/* BOTÓN */}
             <button
               onClick={handleDonate}
               disabled={loading}
@@ -186,29 +219,12 @@ export default function CampaignPage({ params }: any) {
               🔒 Pago seguro con MercadoPago
             </p>
 
-            {/* URGENCIA */}
-            <p className="text-sm text-red-500 text-center">
-              ⏳ Apoya antes de que termine la campaña
-            </p>
-
-            {/* DONACIONES RECIENTES (placeholder) */}
-            <div>
-              <p className="font-semibold text-sm mb-2">
-                Donaciones recientes
+            {/* USER INFO */}
+            {userEmail && (
+              <p className="text-xs text-green-600 text-center">
+                Donando como {userEmail}
               </p>
-
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex justify-between">
-                  <span>Juan</span>
-                  <span>$5.000</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span>Anónimo</span>
-                  <span>$10.000</span>
-                </div>
-              </div>
-            </div>
+            )}
 
           </div>
 
