@@ -20,15 +20,19 @@ export default function CampaignPage({ params }: any) {
   const [customAmount, setCustomAmount] = useState("")
   const [loading, setLoading] = useState(false)
 
+  // 🔥 DONACIONES EN VIVO
+  const [donations, setDonations] = useState<any[]>([])
+  const [lastDonation, setLastDonation] = useState<any>(null)
+
   useEffect(() => {
     const init = async () => {
       try {
-        // 🔥 Obtener campaña
+        // campaña
         const res = await fetch(`/api/campaign/${params.id}`)
         const data = await res.json()
         setCampaign(data)
 
-        // 🔐 Obtener usuario
+        // usuario
         const {
           data: { user },
         } = await supabase.auth.getUser()
@@ -38,12 +42,42 @@ export default function CampaignPage({ params }: any) {
         }
 
       } catch (error) {
-        console.error("Error loading:", error)
+        console.error(error)
       }
     }
 
     init()
   }, [params.id])
+
+  // 🔄 DONACIONES EN VIVO
+  useEffect(() => {
+    const fetchDonations = async () => {
+      try {
+        const res = await fetch(
+          `/api/donations-live?campaign_id=${params.id}`
+        )
+        const data = await res.json()
+
+        if (data.length > 0) {
+          if (
+            donations.length > 0 &&
+            data[0].created_at !== donations[0].created_at
+          ) {
+            setLastDonation(data[0])
+          }
+
+          setDonations(data)
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    fetchDonations()
+    const interval = setInterval(fetchDonations, 5000)
+
+    return () => clearInterval(interval)
+  }, [params.id, donations])
 
   if (!campaign) {
     return <div className="p-6">Cargando campaña...</div>
@@ -139,7 +173,7 @@ export default function CampaignPage({ params }: any) {
 
           <div className="bg-white border rounded-xl p-5 shadow-sm space-y-5">
 
-            {/* MONTO */}
+            {/* PROGRESO */}
             <div>
               <div className="text-2xl font-bold">
                 ${campaign.current_amount}
@@ -194,7 +228,7 @@ export default function CampaignPage({ params }: any) {
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
 
-            {/* EMAIL (SOLO SI NO ESTÁ LOGUEADO) */}
+            {/* EMAIL */}
             {!userEmail && (
               <input
                 type="email"
@@ -214,17 +248,58 @@ export default function CampaignPage({ params }: any) {
               {loading ? "Redirigiendo..." : "Donar ahora"}
             </button>
 
-            {/* CONFIANZA */}
             <p className="text-xs text-gray-500 text-center">
               🔒 Pago seguro con MercadoPago
             </p>
 
-            {/* USER INFO */}
             {userEmail && (
               <p className="text-xs text-green-600 text-center">
                 Donando como {userEmail}
               </p>
             )}
+
+            {/* 🔥 DONACIONES EN VIVO */}
+            <div className="space-y-3">
+
+              <p className="font-semibold text-sm">
+                🔥 Donaciones en vivo
+              </p>
+
+              {lastDonation && (
+                <div className="bg-green-100 border border-green-300 p-3 rounded-lg text-sm animate-bounce">
+                  💰 {lastDonation.metadata?.user_email || "Anónimo"} donó{" "}
+                  <strong>${lastDonation.amount}</strong>
+                </div>
+              )}
+
+              <div className="space-y-2 max-h-60 overflow-auto">
+
+                {donations.length === 0 && (
+                  <p className="text-gray-500 text-xs">
+                    Aún no hay donaciones
+                  </p>
+                )}
+
+                {donations.map((d, i) => {
+                  const email = d.metadata?.user_email || "Anónimo"
+
+                  return (
+                    <div
+                      key={i}
+                      className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg"
+                    >
+                      <span className="text-gray-700 truncate">
+                        {email}
+                      </span>
+
+                      <span className="font-semibold text-green-600">
+                        ${d.amount}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
 
           </div>
 
