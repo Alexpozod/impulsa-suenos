@@ -3,6 +3,7 @@ import crypto from "crypto"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 import { sendTicketEmail } from "@/lib/email"
+import { evaluateFraud } from "@/lib/fraud/engine"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -18,12 +19,7 @@ const supabase = createClient(
 /* =========================
    📊 AUDIT LOGGER
 ========================= */
-async function logEvent(
-  paymentId: string,
-  event_type: string,
-  status: string,
-  payload?: any
-) {
+async function logEvent(paymentId: string, event_type: string, status: string, payload?: any) {
   try {
     await supabase.from("payment_events").insert({
       payment_id: paymentId,
@@ -73,35 +69,6 @@ function verifySignature(req: Request) {
 }
 
 /* =========================
-   🔥 LEDGER INSERT
-========================= */
-async function insertLedger({
-  user_id,
-  campaign_id,
-  amount,
-  paymentId,
-  type = "payment",
-  metadata = {},
-}: any) {
-  try {
-    await supabase.from("financial_ledger").insert({
-      user_id,
-      campaign_id,
-      type,
-      amount,
-      currency: "USD",
-      status: "confirmed",
-      provider: "mercadopago",
-      external_reference: paymentId,
-      payment_id: paymentId,
-      metadata,
-    })
-  } catch (e) {
-    console.warn("ledger insert failed", e)
-  }
-}
-
-/* =========================
    🚀 WEBHOOK
 ========================= */
 export async function POST(req: Request) {
@@ -114,13 +81,11 @@ export async function POST(req: Request) {
 
     if (!paymentId) return NextResponse.json({ ok: true })
 
-    // 🔐 Firma
     if (!verifySignature(req)) {
       await logEvent(paymentId, "signature_invalid", "error")
       return NextResponse.json({ ok: true })
     }
 
-    // 🛑 IDEMPOTENCIA NIVEL 1 (tabla)
     const { data: existing } = await supabase
       .from("processed_payments")
       .select("payment_id")
@@ -132,26 +97,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 🔒 LOCK (concurrencia)
     const lockKey = crypto.createHash("md5").update(paymentId).digest("hex")
 
     await supabase.rpc("advisory_lock", {
       lock_key: lockKey,
     })
 
-    // 🛑 IDEMPOTENCIA NIVEL 2 (doble check después del lock)
-    const { data: existingAfterLock } = await supabase
-      .from("processed_payments")
-      .select("payment_id")
-      .eq("payment_id", paymentId)
-      .maybeSingle()
-
-    if (existingAfterLock) {
-      await logEvent(paymentId, "duplicate_after_lock", "ignored")
-      return NextResponse.json({ ok: true })
-    }
-
-    // 💳 Obtener pago
     const payment = await paymentClient.get({ id: paymentId })
 
     if (!payment || payment.status !== "approved") {
@@ -159,10 +110,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    await logEvent(paymentId, "payment_approved", "ok")
-
     const campaign_id = payment.metadata?.campaign_id
-
     const user_email =
       payment.metadata?.user_email ||
       payment.payer?.email ||
@@ -174,16 +122,10 @@ export async function POST(req: Request) {
     const totalPaid = Number(payment.transaction_amount || 0)
     const expectedTotal = amount + platform_tip
 
-    if (!campaign_id) {
-      await logEvent(paymentId, "missing_campaign", "error")
-      return NextResponse.json({ ok: true })
-    }
+    if (!campaign_id) return NextResponse.json({ ok: true })
 
     if (Math.abs(totalPaid - expectedTotal) > 1) {
-      await logEvent(paymentId, "amount_mismatch", "error", {
-        expectedTotal,
-        totalPaid,
-      })
+      await logEvent(paymentId, "amount_mismatch", "error")
       return NextResponse.json({ ok: true })
     }
 
@@ -195,22 +137,15 @@ export async function POST(req: Request) {
 
     if (!campaign) return NextResponse.json({ ok: true })
 
-    // 🚫 evitar auto pago
     if (campaign.user_email === user_email) {
       await logEvent(paymentId, "self_payment", "blocked")
       return NextResponse.json({ ok: true })
     }
 
-    // 📝 marcar procesado (clave única recomendada)
-    const { error: insertError } = await supabase
-      .from("processed_payments")
-      .insert({ payment_id: paymentId })
+    await supabase.from("processed_payments").insert({
+      payment_id: paymentId,
+    })
 
-    if (insertError && insertError.code !== "23505") {
-      throw insertError
-    }
-
-    // ⚙️ PROCESO PRINCIPAL
     await supabase.rpc("process_payment_full", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -219,24 +154,11 @@ export async function POST(req: Request) {
       p_platform_tip: platform_tip,
     })
 
-    await logEvent(paymentId, "rpc_processed", "success")
+    /* =========================
+       🚨 ANTIFRAUDE (NUEVO)
+    ========================= */
+    await evaluateFraud(user_email)
 
-    // 📊 Ledger backup (no rompe tu flujo actual)
-    await insertLedger({
-      user_id: campaign.user_id,
-      campaign_id,
-      amount: totalPaid,
-      paymentId,
-      type: "payment",
-      metadata: {
-        campaign_id,
-        user_email,
-        expectedTotal,
-        totalPaid,
-      },
-    })
-
-    // 🎟️ tickets
     const { data: tickets } = await supabase
       .from("tickets")
       .select("ticket_number")
@@ -250,18 +172,12 @@ export async function POST(req: Request) {
       })
     }
 
-    await logEvent(paymentId, "email_sent", "ok")
     await logEvent(paymentId, "webhook_completed", "success")
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-    console.error("❌ WEBHOOK ERROR:", error)
-
-    await logEvent("unknown", "webhook_error", "error", {
-      message: String(error),
-    })
-
+    console.error(error)
     return NextResponse.json({ error: "error" }, { status: 500 })
   }
 }
