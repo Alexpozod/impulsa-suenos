@@ -1,188 +1,216 @@
-import LiveWinner from "@/app/components/LiveWinner"
-import Countdown from "@/app/components/Countdown"
-import DonateButton from "@/app/components/DonateButton"
-import { createClient } from "@supabase/supabase-js"
-import { notFound } from "next/navigation"
+"use client"
 
-export const dynamic = "force-dynamic"
-export const revalidate = 0
+import { useEffect, useState } from "react"
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+export default function CampaignPage({ params }: any) {
+  const [campaign, setCampaign] = useState<any>(null)
 
-export default async function CampaignPage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const { id } = params
+  // 💰 DONACIÓN
+  const [selectedAmount, setSelectedAmount] = useState(5000)
+  const [customAmount, setCustomAmount] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  // =========================
-  // 🔍 CAMPAÑA
-  // =========================
-  const { data: campaign, error } = await supabase
-    .from("campaigns")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle()
+  useEffect(() => {
+    const fetchCampaign = async () => {
+      try {
+        const res = await fetch(`/api/campaign/${params.id}`)
+        const data = await res.json()
+        setCampaign(data)
+      } catch (error) {
+        console.error("Error loading campaign:", error)
+      }
+    }
 
-  if (error || !campaign) {
-    return notFound()
+    fetchCampaign()
+  }, [params.id])
+
+  if (!campaign) {
+    return <div className="p-6">Cargando campaña...</div>
   }
 
-  // =========================
-  // 💰 LEDGER (REEMPLAZA DONATIONS)
-  // =========================
-  const { data: ledger } = await supabase
-    .from("financial_ledger")
-    .select("*")
-    .eq("campaign_id", id)
-    .eq("type", "payment")
-    .eq("status", "confirmed")
-    .order("created_at", { ascending: false })
-    .limit(5)
+  const progress =
+    campaign.goal_amount > 0
+      ? (campaign.current_amount / campaign.goal_amount) * 100
+      : 0
 
-  // =========================
-  // 🎟️ TICKETS
-  // =========================
-  const { count: ticketsSold } = await supabase
-    .from("tickets")
-    .select("*", { count: "exact", head: true })
-    .eq("campaign_id", id)
+  const handleDonate = async () => {
+    const finalAmount = customAmount
+      ? Number(customAmount)
+      : selectedAmount
 
-  const totalDonated =
-    ledger?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+    if (!finalAmount || finalAmount < 100) {
+      alert("Monto mínimo: 100")
+      return
+    }
 
-  const progress = Math.min(
-    (totalDonated / campaign.goal_amount) * 100,
-    100
-  )
+    try {
+      setLoading(true)
 
-  // =========================
-  // 🏆 WINNER
-  // =========================
-  const { data: winner } = await supabase
-    .from("winners")
-    .select("*")
-    .eq("campaign_id", id)
-    .maybeSingle()
+      const res = await fetch("/api/create-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: finalAmount,
+          campaign_id: campaign.id,
+          user_email: "guest@test.com", // siguiente paso: auth real
+        }),
+      })
 
-  // =========================
-  // 🔥 ESTADOS
-  // =========================
-  const isExpired =
-    campaign.end_date && new Date(campaign.end_date) < new Date()
+      const data = await res.json()
 
-  const soldOut =
-    campaign.total_tickets
-      ? (ticketsSold || 0) >= campaign.total_tickets
-      : false
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert("Error iniciando pago")
+      }
 
-  const isFinished = isExpired || soldOut || !!winner
-
-  const remainingTickets = campaign.total_tickets
-    ? campaign.total_tickets - (ticketsSold || 0)
-    : null
+    } catch (error) {
+      console.error(error)
+      alert("Error en el pago")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 py-10 px-6">
+    <div className="max-w-6xl mx-auto px-4 py-6">
 
-      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* IZQUIERDA */}
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
 
-          <h1 className="text-4xl font-extrabold mb-4">
+          {/* IMAGEN */}
+          <img
+            src={campaign.image_url}
+            alt="campaign"
+            className="w-full rounded-xl object-cover"
+          />
+
+          {/* TÍTULO */}
+          <h1 className="text-3xl font-bold">
             {campaign.title}
           </h1>
 
-          <img
-            src={campaign.image_url || "https://via.placeholder.com/800"}
-            className="w-full h-96 object-cover rounded-2xl mb-6 shadow-md"
-          />
-
-          {!isFinished && (
-            <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6 text-red-700 text-sm font-semibold">
-              {remainingTickets !== null ? (
-                <>⚠️ Quedan solo {remainingTickets} tickets</>
-              ) : (
-                <>🔥 Alta demanda en esta campaña</>
-              )}
-            </div>
-          )}
-
-          {campaign.end_date && (
-            <div className="mb-6">
-              <Countdown endDate={campaign.end_date} />
-            </div>
-          )}
-
-          <p className="text-gray-700 text-lg">
-            {campaign.description}
+          {/* AUTOR */}
+          <p className="text-gray-500">
+            Por {campaign.user_email}
           </p>
 
-          {/* ACTIVIDAD */}
-          <div className="mt-12">
-            <h3 className="text-lg font-semibold mb-4">
-              Actividad reciente
-            </h3>
+          {/* BADGE */}
+          <div className="inline-block bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
+            Donación protegida
+          </div>
 
-            {ledger?.length ? (
-              ledger.map((d) => (
-                <div
-                  key={d.id}
-                  className="bg-white border rounded-xl p-3 mb-2 text-sm shadow-sm"
-                >
-                  🎟️ {d.metadata?.user_email?.slice(0, 4) || "anon"}***
-                  compró ${Number(d.amount).toLocaleString()}
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400">Aún no hay compras</p>
-            )}
+          {/* HISTORIA */}
+          <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+            {campaign.description}
           </div>
 
         </div>
 
-        {/* DERECHA */}
-        <div className="bg-white border rounded-2xl p-6 h-fit shadow-xl sticky top-24">
+        {/* DERECHA (DONACIÓN 🔥) */}
+        <div className="sticky top-20 h-fit">
 
-          <div className="text-center mb-6">
-            <div className="text-4xl font-extrabold text-green-600">
-              ${totalDonated.toLocaleString()}
-            </div>
-            <div className="text-gray-500 text-sm">
-              de ${campaign.goal_amount.toLocaleString()}
-            </div>
-          </div>
+          <div className="bg-white border rounded-xl p-5 shadow-sm space-y-5">
 
-          <div className="w-full bg-gray-200 h-3 rounded-full mb-4">
-            <div
-              className="bg-green-600 h-3 rounded-full"
-              style={{ width: `${progress}%` }}
+            {/* MONTO */}
+            <div>
+              <div className="text-2xl font-bold">
+                ${campaign.current_amount}
+              </div>
+
+              <div className="text-sm text-gray-500">
+                de ${campaign.goal_amount}
+              </div>
+
+              {/* PROGRESS */}
+              <div className="w-full bg-gray-200 h-2 rounded mt-2">
+                <div
+                  className="bg-green-500 h-2 rounded"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              <p className="text-sm text-gray-500 mt-2">
+                {Math.floor(progress)}% completado
+              </p>
+            </div>
+
+            {/* MONTOS RÁPIDOS */}
+            <div className="grid grid-cols-3 gap-2">
+              {[1000, 5000, 10000].map((amount) => (
+                <button
+                  key={amount}
+                  onClick={() => {
+                    setSelectedAmount(amount)
+                    setCustomAmount("")
+                  }}
+                  className={`py-2 rounded-lg border text-sm font-medium transition
+                  ${
+                    selectedAmount === amount && !customAmount
+                      ? "bg-green-500 text-white border-green-500"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  ${amount}
+                </button>
+              ))}
+            </div>
+
+            {/* INPUT PERSONALIZADO */}
+            <input
+              type="number"
+              placeholder="Otro monto"
+              value={customAmount}
+              onChange={(e) => {
+                setCustomAmount(e.target.value)
+                setSelectedAmount(0)
+              }}
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
-          </div>
 
-          <div className="text-center text-sm text-gray-600 mb-4">
-            🎟️ {ticketsSold || 0} / {campaign.total_tickets || "∞"}
-          </div>
+            {/* BOTÓN DONAR */}
+            <button
+              onClick={handleDonate}
+              disabled={loading}
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold text-lg transition"
+            >
+              {loading ? "Redirigiendo..." : "Donar ahora"}
+            </button>
 
-          {winner && (
-            <div className="bg-green-100 border p-4 rounded-xl mb-6 text-center">
-              🏆 Ganador: #{winner.ticket_number}
-              <LiveWinner campaignId={campaign.id} />
+            {/* CONFIANZA */}
+            <p className="text-xs text-gray-500 text-center">
+              🔒 Pago seguro con MercadoPago
+            </p>
+
+            {/* URGENCIA */}
+            <p className="text-sm text-red-500 text-center">
+              ⏳ Apoya antes de que termine la campaña
+            </p>
+
+            {/* DONACIONES RECIENTES (placeholder) */}
+            <div>
+              <p className="font-semibold text-sm mb-2">
+                Donaciones recientes
+              </p>
+
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex justify-between">
+                  <span>Juan</span>
+                  <span>$5.000</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>Anónimo</span>
+                  <span>$10.000</span>
+                </div>
+              </div>
             </div>
-          )}
 
-          {isFinished ? (
-            <div className="bg-gray-200 p-4 rounded-xl text-center">
-              Sorteo finalizado
-            </div>
-          ) : (
-            <DonateButton campaignId={campaign.id} />
-          )}
+          </div>
 
         </div>
 
