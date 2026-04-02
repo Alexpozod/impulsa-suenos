@@ -73,7 +73,7 @@ function verifySignature(req: Request) {
 }
 
 /* =========================
-   🔥 LEDGER INSERT (FASE 1)
+   🔥 LEDGER INSERT
 ========================= */
 async function insertLedger({
   user_id,
@@ -114,11 +114,13 @@ export async function POST(req: Request) {
 
     if (!paymentId) return NextResponse.json({ ok: true })
 
+    // 🔐 Firma
     if (!verifySignature(req)) {
       await logEvent(paymentId, "signature_invalid", "error")
       return NextResponse.json({ ok: true })
     }
 
+    // 🛑 IDEMPOTENCIA NIVEL 1 (tabla)
     const { data: existing } = await supabase
       .from("processed_payments")
       .select("payment_id")
@@ -130,12 +132,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
+    // 🔒 LOCK (concurrencia)
     const lockKey = crypto.createHash("md5").update(paymentId).digest("hex")
 
     await supabase.rpc("advisory_lock", {
       lock_key: lockKey,
     })
 
+    // 🛑 IDEMPOTENCIA NIVEL 2 (doble check después del lock)
+    const { data: existingAfterLock } = await supabase
+      .from("processed_payments")
+      .select("payment_id")
+      .eq("payment_id", paymentId)
+      .maybeSingle()
+
+    if (existingAfterLock) {
+      await logEvent(paymentId, "duplicate_after_lock", "ignored")
+      return NextResponse.json({ ok: true })
+    }
+
+    // 💳 Obtener pago
     const payment = await paymentClient.get({ id: paymentId })
 
     if (!payment || payment.status !== "approved") {
@@ -179,11 +195,13 @@ export async function POST(req: Request) {
 
     if (!campaign) return NextResponse.json({ ok: true })
 
+    // 🚫 evitar auto pago
     if (campaign.user_email === user_email) {
       await logEvent(paymentId, "self_payment", "blocked")
       return NextResponse.json({ ok: true })
     }
 
+    // 📝 marcar procesado (clave única recomendada)
     const { error: insertError } = await supabase
       .from("processed_payments")
       .insert({ payment_id: paymentId })
@@ -192,6 +210,7 @@ export async function POST(req: Request) {
       throw insertError
     }
 
+    // ⚙️ PROCESO PRINCIPAL
     await supabase.rpc("process_payment_full", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -202,6 +221,7 @@ export async function POST(req: Request) {
 
     await logEvent(paymentId, "rpc_processed", "success")
 
+    // 📊 Ledger backup (no rompe tu flujo actual)
     await insertLedger({
       user_id: campaign.user_id,
       campaign_id,
@@ -216,6 +236,7 @@ export async function POST(req: Request) {
       },
     })
 
+    // 🎟️ tickets
     const { data: tickets } = await supabase
       .from("tickets")
       .select("ticket_number")
