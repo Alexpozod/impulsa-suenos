@@ -6,22 +6,33 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+const ADMIN_EMAIL = "contacto@impulsasuenos.com"
+
+export async function GET(req: Request) {
   try {
+    const authHeader = req.headers.get("authorization")
+
+    if (!authHeader) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.replace("Bearer ", "")
+
+    const { data: { user } } = await supabase.auth.getUser(token)
+
+    if (!user || user.email !== ADMIN_EMAIL) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 })
+    }
 
     // =========================
-    // 🏦 PAYOUTS BASE
+    // 🏦 PAYOUTS
     // =========================
-    const { data: payouts, error } = await supabase
+    const { data: payouts } = await supabase
       .from("payouts")
       .select("*")
       .order("created_at", { ascending: false })
 
-    if (error) {
-      return NextResponse.json({ error: "error fetching payouts" }, { status: 500 })
-    }
-
-    if (!payouts || payouts.length === 0) {
+    if (!payouts) {
       return NextResponse.json([])
     }
 
@@ -31,14 +42,12 @@ export async function GET() {
     const enriched = await Promise.all(
       payouts.map(async (p) => {
 
-        // 📌 CAMPAÑA
         const { data: campaign } = await supabase
           .from("campaigns")
           .select("title, user_email")
           .eq("id", p.campaign_id)
           .maybeSingle()
 
-        // 💰 LEDGER
         const { data: ledger } = await supabase
           .from("financial_ledger")
           .select("amount, type")
@@ -54,8 +63,8 @@ export async function GET() {
 
         return {
           ...p,
-          campaign_title: campaign?.title || null,
-          owner: campaign?.user_email || null,
+          campaign_title: campaign?.title,
+          owner: campaign?.user_email,
           balance
         }
       })
@@ -64,9 +73,6 @@ export async function GET() {
     return NextResponse.json(enriched)
 
   } catch (error) {
-    return NextResponse.json(
-      { error: "internal error" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "error" }, { status: 500 })
   }
 }
