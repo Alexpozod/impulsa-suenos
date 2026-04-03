@@ -91,17 +91,25 @@ export async function processPaymentAccounting({
   ========================= */
   const { data: campaign } = await supabase
     .from("campaigns")
-    .select("code_prefix, ticket_price, mode")
+    .select(`
+      code_prefix,
+      ticket_price,
+      mode,
+      has_raffle,
+      raffle_min_amount,
+      raffle_unit_amount
+    `)
     .eq("id", campaign_id)
     .single()
 
   const prefix = campaign?.code_prefix || "CMP"
 
   /* =========================
-     🎯 CALCULAR CANTIDAD
+     🎯 CALCULAR TICKETS (PRO)
   ========================= */
-  let ticketQuantity = 1
+  let ticketQuantity = 0
 
+  // 🎟️ SORTEO PURO
   if (campaign?.mode === "tickets") {
     const price = Number(campaign.ticket_price || 1)
 
@@ -110,17 +118,46 @@ export async function processPaymentAccounting({
     }
   }
 
-  if (ticketQuantity < 1) ticketQuantity = 1
+  // ❤️ DONACIÓN + INCENTIVO
+  else if (campaign?.mode === "goal" && campaign?.has_raffle) {
+
+    const min = Number(campaign.raffle_min_amount || 0)
+    const unit = Number(campaign.raffle_unit_amount || 0)
+
+    // no cumple mínimo
+    if (amount < min) {
+      ticketQuantity = 0
+    } else {
+      // proporcional
+      if (unit > 0) {
+        ticketQuantity = Math.floor(amount / unit)
+      } else {
+        ticketQuantity = 1
+      }
+    }
+  }
+
+  // ❤️ DONACIÓN PURA → NO tickets
+  else {
+    ticketQuantity = 0
+  }
+
+  // seguridad
+  if (ticketQuantity < 0) ticketQuantity = 0
 
   /* =========================
      🔢 CORRELATIVO
   ========================= */
-  const { count } = await supabase
-    .from("tickets")
-    .select("*", { count: "exact", head: true })
-    .eq("campaign_id", campaign_id)
+  let startNumber = 1
 
-  const startNumber = (count || 0) + 1
+  if (ticketQuantity > 0) {
+    const { count } = await supabase
+      .from("tickets")
+      .select("*", { count: "exact", head: true })
+      .eq("campaign_id", campaign_id)
+
+    startNumber = (count || 0) + 1
+  }
 
   /* =========================
      🎟️ GENERAR TICKETS
