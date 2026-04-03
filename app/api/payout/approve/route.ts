@@ -6,6 +6,9 @@ import { evaluateCampaignRisk } from "@/lib/risk/riskEngine"
 import { canAccess } from "@/lib/auth/rbac"
 import { evaluateFraudAlert } from "@/lib/alerts/alertEngine"
 import { enforceRiskActions } from "@/lib/security/enforceRisk"
+import { reconcileCampaign } from "@/lib/finance/reconcilePayments"
+import { logInfo, logError } from "@/lib/logger-api"
+import { logToDB, logErrorToDB } from "@/lib/logToDB"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,8 +23,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "payout_id requerido" }, { status: 400 })
     }
 
+    logInfo("Payout approve iniciado", { payout_id })
+
     /* =========================
-       🔐 AUTH REAL
+       🔐 AUTH
     ========================= */
     const authHeader = req.headers.get("authorization")
 
@@ -64,6 +69,34 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       💣 CONCILIACIÓN CRÍTICA
+    ========================= */
+    const reconciliation = await reconcileCampaign(payout.campaign_id)
+
+    if (!reconciliation.ok) {
+      await logErrorToDB("reconciliation_failed", { payout_id })
+      return NextResponse.json({ error: "reconciliation_failed" }, { status: 500 })
+    }
+
+    if (payout.amount > reconciliation.balance) {
+      await logErrorToDB("insufficient_real_balance", {
+        payout_id,
+        requested: payout.amount,
+        balance: reconciliation.balance
+      })
+
+      return NextResponse.json(
+        { error: "insufficient_real_balance" },
+        { status: 400 }
+      )
+    }
+
+    await logToDB("info", "payout_reconciliation_ok", {
+      payout_id,
+      balance: reconciliation.balance
+    })
+
+    /* =========================
        📊 CAMPAÑA
     ========================= */
     const { data: campaign } = await supabase
@@ -89,6 +122,7 @@ export async function POST(req: Request) {
     })
 
     if (fraud.block) {
+      await logErrorToDB("fraud_detected", { payout_id })
       return NextResponse.json({ error: "fraud_detected" }, { status: 403 })
     }
 
@@ -102,6 +136,7 @@ export async function POST(req: Request) {
     })
 
     if (enforcement.blocked) {
+      await logErrorToDB("campaign_blocked", { payout_id })
       return NextResponse.json({ error: "campaign_blocked" }, { status: 403 })
     }
 
@@ -135,10 +170,23 @@ export async function POST(req: Request) {
       organization_id: orgId
     })
 
+    logInfo("Payout aprobado", { payout_id, amount: payout.amount })
+
+    await logToDB("info", "payout_approved", {
+      payout_id,
+      campaign_id: payout.campaign_id,
+      amount: payout.amount
+    })
+
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-    console.error("❌ APPROVE ERROR:", error)
-    return NextResponse.json({ error: "error approve payout" }, { status: 500 })
+    logError("approve payout error", error)
+    await logErrorToDB("approve_payout_error", error)
+
+    return NextResponse.json(
+      { error: "error approve payout" },
+      { status: 500 }
+    )
   }
 }

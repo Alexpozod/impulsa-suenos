@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { logInfo, logError } from "@/lib/logger-api"
+import { logToDB, logErrorToDB } from "@/lib/logToDB"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,9 +10,8 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    // =========================
-    // 📊 DATA SISTEMA
-    // =========================
+    logInfo("Reconciliation started")
+
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
@@ -82,7 +83,7 @@ export async function GET() {
     }
 
     // =========================
-    // 💾 GUARDAR LOGS
+    // 💾 LOG DB
     // =========================
     if (issues.length > 0) {
       await supabase.from("reconciliation_logs").insert(
@@ -91,7 +92,17 @@ export async function GET() {
           status: "open"
         }))
       )
+
+      await logToDB("error", "reconciliation_issues_found", {
+        count: issues.length
+      })
+    } else {
+      await logToDB("info", "reconciliation_clean", {})
     }
+
+    logInfo("Reconciliation completed", {
+      issues: issues.length
+    })
 
     return NextResponse.json({
       ok: true,
@@ -100,7 +111,8 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error("❌ RECONCILIATION ERROR:", error)
+    logError("reconciliation error", error)
+    await logErrorToDB("reconciliation_error", error)
 
     return NextResponse.json(
       { error: "reconciliation error" },
