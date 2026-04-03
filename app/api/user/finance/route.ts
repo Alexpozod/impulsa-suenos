@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export async function GET(req: Request) {
@@ -22,11 +22,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "invalid user" }, { status: 401 })
     }
 
-    // 📊 campañas del usuario
+    const user_email = user.email.toLowerCase()
+
+    // =========================
+    // 📊 CAMPAÑAS DEL USUARIO
+    // =========================
     const { data: campaigns } = await supabase
       .from("campaigns")
       .select("id")
-      .eq("user_email", user.email)
+      .eq("user_email", user_email)
 
     const campaignIds = campaigns?.map(c => c.id) || []
 
@@ -40,14 +44,18 @@ export async function GET(req: Request) {
       })
     }
 
-    // 💰 ledger
+    // =========================
+    // 💰 LEDGER
+    // =========================
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
       .in("campaign_id", campaignIds)
       .order("created_at", { ascending: false })
 
-    // 🏦 payouts
+    // =========================
+    // 🏦 PAYOUTS
+    // =========================
     const { data: payouts } = await supabase
       .from("payouts")
       .select("*")
