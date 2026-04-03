@@ -9,6 +9,7 @@ import { enforceRiskActions } from "@/lib/security/enforceRisk"
 import { reconcileCampaign } from "@/lib/finance/reconcilePayments"
 import { logInfo, logError } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
+import { sendAlert } from "@/lib/alerts/sendAlert"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,11 +24,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "payout_id requerido" }, { status: 400 })
     }
 
-    logInfo("Payout approve iniciado", { payout_id })
-
-    /* =========================
-       🔐 AUTH
-    ========================= */
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
@@ -50,9 +46,6 @@ export async function POST(req: Request) {
 
     const orgId = user.user_metadata?.organization_id
 
-    /* =========================
-       📦 PAYOUT
-    ========================= */
     const { data: payout } = await supabase
       .from("payouts")
       .select("*")
@@ -68,30 +61,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "already processed" }, { status: 400 })
     }
 
-    /* =========================
-       💣 CONCILIACIÓN SEGURA
-    ========================= */
+    // 💣 CONCILIACIÓN
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
     if (!reconciliation.ok || typeof reconciliation.balance !== "number") {
-      await logErrorToDB("reconciliation_failed", {
-        payout_id,
-        reconciliation
+      await sendAlert({
+        title: "Error conciliación",
+        message: "Falló conciliación en payout",
+        data: { payout_id }
       })
 
-      return NextResponse.json(
-        { error: "reconciliation_failed" },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: "reconciliation_failed" }, { status: 500 })
     }
 
     const realBalance = reconciliation.balance
 
     if (payout.amount > realBalance) {
-      await logErrorToDB("insufficient_real_balance", {
-        payout_id,
-        requested: payout.amount,
-        balance: realBalance
+      await sendAlert({
+        title: "Payout bloqueado",
+        message: "Saldo insuficiente",
+        data: {
+          payout_id,
+          requested: payout.amount,
+          balance: realBalance
+        }
       })
 
       return NextResponse.json(
@@ -100,14 +93,6 @@ export async function POST(req: Request) {
       )
     }
 
-    await logToDB("info", "payout_reconciliation_ok", {
-      payout_id,
-      balance: realBalance
-    })
-
-    /* =========================
-       📊 CAMPAÑA
-    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("*")
@@ -119,9 +104,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign not found" }, { status: 404 })
     }
 
-    /* =========================
-       🧠 RISK
-    ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
     const fraud = await evaluateFraudAlert({
@@ -131,7 +113,12 @@ export async function POST(req: Request) {
     })
 
     if (fraud.block) {
-      await logErrorToDB("fraud_detected", { payout_id })
+      await sendAlert({
+        title: "Fraude detectado",
+        message: "Payout bloqueado",
+        data: { payout_id }
+      })
+
       return NextResponse.json({ error: "fraud_detected" }, { status: 403 })
     }
 
@@ -145,13 +132,9 @@ export async function POST(req: Request) {
     })
 
     if (enforcement.blocked) {
-      await logErrorToDB("campaign_blocked", { payout_id })
       return NextResponse.json({ error: "campaign_blocked" }, { status: 403 })
     }
 
-    /* =========================
-       💰 UPDATE
-    ========================= */
     await supabase
       .from("payouts")
       .update({
@@ -160,9 +143,6 @@ export async function POST(req: Request) {
       })
       .eq("id", payout_id)
 
-    /* =========================
-       📒 LEDGER
-    ========================= */
     await supabase.from("financial_ledger").insert({
       campaign_id: payout.campaign_id,
       amount: payout.amount,
@@ -179,23 +159,23 @@ export async function POST(req: Request) {
       organization_id: orgId
     })
 
-    logInfo("Payout aprobado", { payout_id, amount: payout.amount })
-
     await logToDB("info", "payout_approved", {
       payout_id,
-      campaign_id: payout.campaign_id,
-      amount: payout.amount
+      campaign_id: payout.campaign_id
     })
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-    logError("approve payout error", error)
+    logError("APPROVE ERROR", error)
     await logErrorToDB("approve_payout_error", error)
 
-    return NextResponse.json(
-      { error: "error approve payout" },
-      { status: 500 }
-    )
+    await sendAlert({
+      title: "Error payout",
+      message: "Fallo aprobación",
+      data: { error }
+    })
+
+    return NextResponse.json({ error: "error approve payout" }, { status: 500 })
   }
 }

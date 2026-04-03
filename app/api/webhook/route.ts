@@ -4,6 +4,10 @@ import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 import { sendTicketEmail } from "@/lib/email"
 import { evaluateFraud } from "@/lib/fraud/engine"
+import { processPaymentAccounting } from "@/lib/finance/processPaymentAccounting"
+import { logInfo, logError } from "@/lib/logger-api"
+import { logToDB, logErrorToDB } from "@/lib/logToDB"
+import { sendAlert } from "@/lib/alerts/sendAlert"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -79,10 +83,19 @@ export async function POST(req: Request) {
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
 
+    logInfo("Webhook recibido", { paymentId })
+
     if (!paymentId) return NextResponse.json({ ok: true })
 
     if (!verifySignature(req)) {
       await logEvent(paymentId, "signature_invalid", "error")
+
+      await sendAlert({
+        title: "Firma inválida webhook",
+        message: "Intento de webhook inválido",
+        data: { paymentId }
+      })
+
       return NextResponse.json({ ok: true })
     }
 
@@ -97,12 +110,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    const lockKey = crypto.createHash("md5").update(paymentId).digest("hex")
-
-    await supabase.rpc("advisory_lock", {
-      lock_key: lockKey,
-    })
-
     const payment = await paymentClient.get({ id: paymentId })
 
     if (!payment || payment.status !== "approved") {
@@ -111,6 +118,7 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
+
     const user_email =
       payment.metadata?.user_email ||
       payment.payer?.email ||
@@ -126,6 +134,13 @@ export async function POST(req: Request) {
 
     if (Math.abs(totalPaid - expectedTotal) > 1) {
       await logEvent(paymentId, "amount_mismatch", "error")
+
+      await sendAlert({
+        title: "Monto inconsistente",
+        message: "Diferencia en pago detectada",
+        data: { paymentId, totalPaid, expectedTotal }
+      })
+
       return NextResponse.json({ ok: true })
     }
 
@@ -146,17 +161,14 @@ export async function POST(req: Request) {
       payment_id: paymentId,
     })
 
-    await supabase.rpc("process_payment_full", {
-      p_payment_id: paymentId,
-      p_campaign_id: campaign_id,
-      p_user_email: user_email,
-      p_amount: amount,
-      p_platform_tip: platform_tip,
+    await processPaymentAccounting({
+      paymentId,
+      campaign_id,
+      user_email,
+      amount,
+      platform_tip,
     })
 
-    /* =========================
-       🚨 ANTIFRAUDE (NUEVO)
-    ========================= */
     await evaluateFraud(user_email)
 
     const { data: tickets } = await supabase
@@ -177,7 +189,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-    console.error(error)
+    logError("Webhook error", error)
+    await logErrorToDB("webhook_error", error)
+
+    await sendAlert({
+      title: "Error webhook",
+      message: "Webhook falló",
+      data: { error }
+    })
+
     return NextResponse.json({ error: "error" }, { status: 500 })
   }
 }

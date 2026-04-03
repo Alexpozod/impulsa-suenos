@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { logInfo, logError } from "@/lib/logger-api"
-import { logToDB, logErrorToDB } from "@/lib/logToDB"
+import { sendAlert } from "@/lib/alerts/sendAlert"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,8 +9,6 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    logInfo("Reconciliation started")
-
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
@@ -25,22 +22,14 @@ export async function GET() {
     const ledgerMap = new Map()
     const processedSet = new Set()
 
-    // =========================
-    // INDEXAR
-    // =========================
     for (const l of ledger || []) {
-      if (l.payment_id) {
-        ledgerMap.set(l.payment_id, l)
-      }
+      if (l.payment_id) ledgerMap.set(l.payment_id, l)
     }
 
     for (const p of processed || []) {
       processedSet.add(p.payment_id)
     }
 
-    // =========================
-    // 1. FALTA EN LEDGER
-    // =========================
     for (const p of processed || []) {
       if (!ledgerMap.has(p.payment_id)) {
         issues.push({
@@ -50,59 +39,23 @@ export async function GET() {
       }
     }
 
-    // =========================
-    // 2. FALTA EN PASARELA
-    // =========================
     for (const l of ledger || []) {
       if (l.payment_id && !processedSet.has(l.payment_id)) {
         issues.push({
           payment_id: l.payment_id,
           campaign_id: l.campaign_id,
-          ledger_amount: l.amount,
           issue_type: "missing_in_gateway"
         })
       }
     }
 
-    // =========================
-    // 3. DUPLICADOS
-    // =========================
-    const seen = new Set()
-
-    for (const l of ledger || []) {
-      if (!l.payment_id) continue
-
-      if (seen.has(l.payment_id)) {
-        issues.push({
-          payment_id: l.payment_id,
-          issue_type: "duplicate"
-        })
-      } else {
-        seen.add(l.payment_id)
-      }
-    }
-
-    // =========================
-    // 💾 LOG DB
-    // =========================
     if (issues.length > 0) {
-      await supabase.from("reconciliation_logs").insert(
-        issues.map(i => ({
-          ...i,
-          status: "open"
-        }))
-      )
-
-      await logToDB("error", "reconciliation_issues_found", {
-        count: issues.length
+      await sendAlert({
+        title: "Problemas de conciliación",
+        message: "Se detectaron inconsistencias",
+        data: issues
       })
-    } else {
-      await logToDB("info", "reconciliation_clean", {})
     }
-
-    logInfo("Reconciliation completed", {
-      issues: issues.length
-    })
 
     return NextResponse.json({
       ok: true,
@@ -111,8 +64,11 @@ export async function GET() {
     })
 
   } catch (error) {
-    logError("reconciliation error", error)
-    await logErrorToDB("reconciliation_error", error)
+    await sendAlert({
+      title: "Error conciliación",
+      message: "Fallo sistema",
+      data: { error }
+    })
 
     return NextResponse.json(
       { error: "reconciliation error" },
