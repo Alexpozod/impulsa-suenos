@@ -16,7 +16,7 @@ export async function processPaymentAccounting({
 }: any) {
 
   /* =========================
-     🛑 IDEMPOTENCIA TOTAL
+     🛑 IDEMPOTENCIA
   ========================= */
   const { data: exists } = await supabase
     .from("financial_ledger")
@@ -40,7 +40,7 @@ export async function processPaymentAccounting({
   const now = new Date().toISOString()
 
   /* =========================
-     🧾 LEDGER (FUENTE DE VERDAD)
+     🧾 LEDGER
   ========================= */
   await supabase.from("financial_ledger").insert([
     {
@@ -87,19 +87,34 @@ export async function processPaymentAccounting({
   ])
 
   /* =========================
-     🎟️ GENERACIÓN DE TICKETS
+     🎟️ OBTENER CAMPAÑA
   ========================= */
-
-  // 📌 obtener prefix
   const { data: campaign } = await supabase
     .from("campaigns")
-    .select("code_prefix")
+    .select("code_prefix, ticket_price, mode")
     .eq("id", campaign_id)
     .single()
 
   const prefix = campaign?.code_prefix || "CMP"
 
-  // 📊 contar tickets actuales
+  /* =========================
+     🎯 CALCULAR CANTIDAD
+  ========================= */
+  let ticketQuantity = 1
+
+  if (campaign?.mode === "tickets") {
+    const price = Number(campaign.ticket_price || 1)
+
+    if (price > 0) {
+      ticketQuantity = Math.floor(Number(amount) / price)
+    }
+  }
+
+  if (ticketQuantity < 1) ticketQuantity = 1
+
+  /* =========================
+     🔢 CORRELATIVO
+  ========================= */
   const { count } = await supabase
     .from("tickets")
     .select("*", { count: "exact", head: true })
@@ -107,9 +122,9 @@ export async function processPaymentAccounting({
 
   const startNumber = (count || 0) + 1
 
-  // 🎯 cantidad de tickets (preparado para futuro)
-  const ticketQuantity = 1
-
+  /* =========================
+     🎟️ GENERAR TICKETS
+  ========================= */
   const ticketsToInsert = []
 
   for (let i = 0; i < ticketQuantity; i++) {
@@ -136,9 +151,8 @@ export async function processPaymentAccounting({
   ========================= */
   return {
     gross,
-    providerFee,
-    platformFee,
     net,
+    tickets_generated: ticketsToInsert.length,
     tickets: ticketsToInsert.map(t => t.ticket_number)
   }
 }
