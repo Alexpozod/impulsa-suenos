@@ -4,6 +4,7 @@ import { calculateCampaignBalance } from "@/lib/calculateCampaignBalance"
 import { logError, logInfo } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
+import crypto from "crypto"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,9 +22,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
-    // 🔐 AUTH
-    // =========================
+    /* =========================
+       🔐 AUTH
+    ========================= */
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
@@ -46,9 +47,21 @@ export async function POST(req: Request) {
       amount
     })
 
-    // =========================
-    // 🔒 VALIDAR CAMPAÑA
-    // =========================
+    /* =========================
+       🔒 LOCK (ANTI DUPLICADOS)
+    ========================= */
+    const lockKey = crypto
+      .createHash("md5")
+      .update(campaign_id)
+      .digest("hex")
+
+    await supabase.rpc("advisory_lock", {
+      lock_key: lockKey,
+    })
+
+    /* =========================
+       🔒 VALIDAR CAMPAÑA
+    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("id, user_email")
@@ -69,9 +82,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
-    // 🚫 BLOQUEO DUPLICADO
-    // =========================
+    /* =========================
+       🚫 BLOQUEO DUPLICADO
+    ========================= */
     const { data: existing } = await supabase
       .from("payouts")
       .select("id")
@@ -86,9 +99,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
-    // 💰 BALANCE REAL
-    // =========================
+    /* =========================
+       💰 BALANCE REAL
+    ========================= */
     const wallet = await calculateCampaignBalance(
       supabase,
       campaign_id
@@ -114,9 +127,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // =========================
-    // 🏦 CREAR PAYOUT
-    // =========================
+    /* =========================
+       🏦 CREAR PAYOUT
+    ========================= */
     const { data, error } = await supabase
       .from("payouts")
       .insert({
