@@ -69,20 +69,29 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💣 CONCILIACIÓN CRÍTICA
+       💣 CONCILIACIÓN SEGURA
     ========================= */
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
-    if (!reconciliation.ok) {
-      await logErrorToDB("reconciliation_failed", { payout_id })
-      return NextResponse.json({ error: "reconciliation_failed" }, { status: 500 })
+    if (!reconciliation.ok || typeof reconciliation.balance !== "number") {
+      await logErrorToDB("reconciliation_failed", {
+        payout_id,
+        reconciliation
+      })
+
+      return NextResponse.json(
+        { error: "reconciliation_failed" },
+        { status: 500 }
+      )
     }
 
-    if (payout.amount > reconciliation.balance) {
+    const realBalance = reconciliation.balance
+
+    if (payout.amount > realBalance) {
       await logErrorToDB("insufficient_real_balance", {
         payout_id,
         requested: payout.amount,
-        balance: reconciliation.balance
+        balance: realBalance
       })
 
       return NextResponse.json(
@@ -93,7 +102,7 @@ export async function POST(req: Request) {
 
     await logToDB("info", "payout_reconciliation_ok", {
       payout_id,
-      balance: reconciliation.balance
+      balance: realBalance
     })
 
     /* =========================
