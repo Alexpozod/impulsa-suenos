@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { logInfo, logError } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
+import { generatePrefix } from "@/lib/tickets/generatePrefix"
 
 export const dynamic = "force-dynamic"
 
@@ -48,6 +49,9 @@ export async function POST(req: Request) {
 
     const user_email = userData.user.email.toLowerCase()
 
+    // =========================
+    // 🧼 NORMALIZACIÓN
+    // =========================
     title = title?.trim()
     description = description?.trim()
     goal_amount = Number(goal_amount)
@@ -59,6 +63,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Faltan campos" }, { status: 400 })
     }
 
+    // =========================
+    // 🔒 KYC
+    // =========================
     const { data: kyc } = await supabaseAdmin
       .from("kyc")
       .select("status")
@@ -71,6 +78,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "KYC requerido" }, { status: 403 })
     }
 
+    // =========================
+    // 🎟️ GENERAR PREFIX
+    // =========================
+    const code_prefix = generatePrefix(title)
+
+    // =========================
+    // 🚀 CREAR CAMPAÑA
+    // =========================
     const { data: campaign, error } = await supabaseAdmin
       .from("campaigns")
       .insert({
@@ -81,7 +96,8 @@ export async function POST(req: Request) {
         user_email,
         image_url: image_url || null,
         status: "active",
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        code_prefix // 🔥 NUEVO CAMPO
       })
       .select()
       .single()
@@ -92,10 +108,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Error creando campaña" }, { status: 500 })
     }
 
-    logInfo("Campaña creada", { campaign_id: campaign.id, user_email })
+    // =========================
+    // 📊 LOGS
+    // =========================
+    logInfo("Campaña creada", {
+      campaign_id: campaign.id,
+      user_email,
+      code_prefix
+    })
+
     await logToDB("info", "Campaña creada", {
       campaign_id: campaign.id,
-      user_email
+      user_email,
+      code_prefix
     })
 
     return NextResponse.json({ ok: true, campaign })

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js"
+import { generateTicketCode } from "@/lib/tickets/generateTicketCode"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,7 +40,7 @@ export async function processPaymentAccounting({
   const now = new Date().toISOString()
 
   /* =========================
-     🧾 ASIENTOS CONTABLES
+     🧾 LEDGER (FUENTE DE VERDAD)
   ========================= */
   await supabase.from("financial_ledger").insert([
     {
@@ -85,10 +86,59 @@ export async function processPaymentAccounting({
     }
   ])
 
+  /* =========================
+     🎟️ GENERACIÓN DE TICKETS
+  ========================= */
+
+  // 📌 obtener prefix
+  const { data: campaign } = await supabase
+    .from("campaigns")
+    .select("code_prefix")
+    .eq("id", campaign_id)
+    .single()
+
+  const prefix = campaign?.code_prefix || "CMP"
+
+  // 📊 contar tickets actuales
+  const { count } = await supabase
+    .from("tickets")
+    .select("*", { count: "exact", head: true })
+    .eq("campaign_id", campaign_id)
+
+  const startNumber = (count || 0) + 1
+
+  // 🎯 cantidad de tickets (preparado para futuro)
+  const ticketQuantity = 1
+
+  const ticketsToInsert = []
+
+  for (let i = 0; i < ticketQuantity; i++) {
+    const ticketNumber = generateTicketCode(
+      prefix,
+      startNumber + i
+    )
+
+    ticketsToInsert.push({
+      campaign_id,
+      payment_id: paymentId,
+      user_email,
+      ticket_number: ticketNumber,
+      created_at: now
+    })
+  }
+
+  if (ticketsToInsert.length > 0) {
+    await supabase.from("tickets").insert(ticketsToInsert)
+  }
+
+  /* =========================
+     📦 RETURN
+  ========================= */
   return {
     gross,
     providerFee,
     platformFee,
     net,
+    tickets: ticketsToInsert.map(t => t.ticket_number)
   }
 }
