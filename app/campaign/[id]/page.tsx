@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@supabase/supabase-js"
+import { getSignedUrl } from "@/lib/storage/getSignedUrl"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,6 +11,7 @@ const supabase = createClient(
 
 export default function CampaignPage({ params }: any) {
   const [campaign, setCampaign] = useState<any>(null)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
 
   // 👤 USER
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -31,6 +33,12 @@ export default function CampaignPage({ params }: any) {
         const res = await fetch(`/api/campaign/${params.id}`)
         const data = await res.json()
         setCampaign(data)
+
+        // 🔐 signed URL imagen
+        if (data?.image_url) {
+          const signed = await getSignedUrl("campaign-images", data.image_url)
+          setImageUrl(signed)
+        }
 
         // usuario
         const {
@@ -144,11 +152,18 @@ export default function CampaignPage({ params }: any) {
         {/* IZQUIERDA */}
         <div className="lg:col-span-2 space-y-6">
 
-          <img
-            src={campaign.image_url}
-            alt="campaign"
-            className="w-full rounded-xl object-cover"
-          />
+          {/* 🔐 IMAGEN SEGURA */}
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="campaign"
+              className="w-full rounded-xl object-cover"
+            />
+          ) : (
+            <div className="w-full h-64 bg-gray-200 rounded-xl flex items-center justify-center">
+              Cargando imagen...
+            </div>
+          )}
 
           <h1 className="text-3xl font-bold">
             {campaign.title}
@@ -225,7 +240,7 @@ export default function CampaignPage({ params }: any) {
                 setCustomAmount(e.target.value)
                 setSelectedAmount(0)
               }}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full border rounded-lg px-3 py-2 text-sm"
             />
 
             {/* EMAIL */}
@@ -235,7 +250,7 @@ export default function CampaignPage({ params }: any) {
                 placeholder="Tu email"
                 value={guestEmail}
                 onChange={(e) => setGuestEmail(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full border rounded-lg px-3 py-2 text-sm"
               />
             )}
 
@@ -243,63 +258,10 @@ export default function CampaignPage({ params }: any) {
             <button
               onClick={handleDonate}
               disabled={loading}
-              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold text-lg transition"
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold text-lg"
             >
               {loading ? "Redirigiendo..." : "Donar ahora"}
             </button>
-
-            <p className="text-xs text-gray-500 text-center">
-              🔒 Pago seguro con MercadoPago
-            </p>
-
-            {userEmail && (
-              <p className="text-xs text-green-600 text-center">
-                Donando como {userEmail}
-              </p>
-            )}
-
-            {/* 🔥 DONACIONES EN VIVO */}
-            <div className="space-y-3">
-
-              <p className="font-semibold text-sm">
-                🔥 Donaciones en vivo
-              </p>
-
-              {lastDonation && (
-                <div className="bg-green-100 border border-green-300 p-3 rounded-lg text-sm animate-bounce">
-                  💰 {lastDonation.metadata?.user_email || "Anónimo"} donó{" "}
-                  <strong>${lastDonation.amount}</strong>
-                </div>
-              )}
-
-              <div className="space-y-2 max-h-60 overflow-auto">
-
-                {donations.length === 0 && (
-                  <p className="text-gray-500 text-xs">
-                    Aún no hay donaciones
-                  </p>
-                )}
-
-                {donations.map((d, i) => {
-                  const email = d.metadata?.user_email || "Anónimo"
-
-                  return (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg"
-                    >
-                      <span className="text-gray-700 truncate">
-                        {email}
-                      </span>
-
-                      <span className="font-semibold text-green-600">
-                        ${d.amount}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
 
           </div>
 

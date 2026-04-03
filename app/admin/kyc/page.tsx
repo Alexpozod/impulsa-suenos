@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { getSignedUrl } from '@/lib/storage/getSignedUrl'
 
 export default function AdminKYC() {
 
@@ -34,7 +35,29 @@ export default function AdminKYC() {
       .select('*')
       .order('created_at', { ascending: false })
 
-    setKycList(data || [])
+    if (!data) {
+      setKycList([])
+      setLoading(false)
+      return
+    }
+
+    // 🔐 Generar URLs seguras
+    const withSignedUrls = await Promise.all(
+      data.map(async (k) => ({
+        ...k,
+        document_url: k.document_url
+          ? await getSignedUrl('kyc-documents', k.document_url)
+          : null,
+        document_back_url: k.document_back_url
+          ? await getSignedUrl('kyc-documents', k.document_back_url)
+          : null,
+        selfie_url: k.selfie_url
+          ? await getSignedUrl('kyc-documents', k.selfie_url)
+          : null,
+      }))
+    )
+
+    setKycList(withSignedUrls)
     setLoading(false)
   }
 

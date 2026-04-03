@@ -38,26 +38,31 @@ export default function KYCPage() {
   }, [router])
 
   /* =========================
-     📤 UPLOAD FILE
+     📤 UPLOAD FILE (SEGURO)
   ========================= */
   const uploadFile = async (file: File, name: string) => {
+    if (!user) throw new Error('Usuario no autenticado')
+
     const filePath = `${user.id}/${Date.now()}-${name}`
 
-    const { error } = await supabase
-      .storage
-      .from('kyc-documents')
-      .upload(filePath, file)
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("bucket", "kyc-documents")
+    formData.append("path", filePath)
 
-    if (error) {
-      throw new Error('Error subiendo archivo')
+    const res = await fetch("/api/storage/upload", {
+      method: "POST",
+      body: formData,
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      throw new Error(data.error || "Error subiendo archivo")
     }
 
-    const { data } = supabase
-      .storage
-      .from('kyc-documents')
-      .getPublicUrl(filePath)
-
-    return data.publicUrl
+    // 🔐 guardamos SOLO el path (NO URL pública)
+    return filePath
   }
 
   /* =========================
@@ -80,21 +85,21 @@ export default function KYCPage() {
 
     try {
 
-      let frontUrl = ''
-      let backUrl = ''
-      let selfieUrl = ''
+      let frontPath = ''
+      let backPath = ''
+      let selfiePath = ''
 
       // subir archivos
       if (fileFront) {
-        frontUrl = await uploadFile(fileFront, 'front')
+        frontPath = await uploadFile(fileFront, 'front')
       }
 
       if (fileBack) {
-        backUrl = await uploadFile(fileBack, 'back')
+        backPath = await uploadFile(fileBack, 'back')
       }
 
       if (selfie) {
-        selfieUrl = await uploadFile(selfie, 'selfie')
+        selfiePath = await uploadFile(selfie, 'selfie')
       }
 
       const { error } = await supabase
@@ -105,9 +110,9 @@ export default function KYCPage() {
           full_name: fullName,
           rut: rut,
           document_type: documentType,
-          document_url: frontUrl,
-          document_back_url: backUrl,
-          selfie_url: selfieUrl,
+          document_url: frontPath,
+          document_back_url: backPath,
+          selfie_url: selfiePath,
           status: 'pending'
         })
 
@@ -125,6 +130,7 @@ export default function KYCPage() {
       }, 1500)
 
     } catch (err) {
+      console.error(err)
       setMessage('❌ Error en subida de archivos')
     }
 
