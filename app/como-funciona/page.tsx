@@ -11,23 +11,29 @@ export default function ComoFunciona() {
         <div className="space-y-8">
 
           <div>
-            <h2 className="font-bold text-lg">1. Compra tickets</h2>
+            <h2 className="font-bold text-lg">
+              1. Apoya o crea una campaña
+            </h2>
             <p className="text-gray-600">
-              Selecciona una campaña y compra tus tickets fácilmente.
+              Puedes donar a una causa o crear tu propia campaña.
             </p>
           </div>
 
           <div>
-            <h2 className="font-bold text-lg">2. Participa automáticamente</h2>
+            <h2 className="font-bold text-lg">
+              2. Participa en sorteos (opcional)
+            </h2>
             <p className="text-gray-600">
-              Cada ticket te da una oportunidad de ganar.
+              Algunas campañas incluyen sorteos como incentivo.
             </p>
           </div>
 
           <div>
-            <h2 className="font-bold text-lg">3. Sorteo transparente</h2>
+            <h2 className="font-bold text-lg">
+              3. Transparencia total
+            </h2>
             <p className="text-gray-600">
-              Los ganadores se seleccionan de forma pública y verificable.
+              Todas las transacciones son registradas y auditables.
             </p>
           </div>
 

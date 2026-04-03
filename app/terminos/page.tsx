@@ -7,70 +7,71 @@ export default function TermsPage() {
       </h1>
 
       <p className="mb-4">
-        Bienvenido a ImpulsaSueños. Al acceder y utilizar esta plataforma,
-        aceptas cumplir con los siguientes términos y condiciones.
+        ImpulsaSueños es una plataforma tecnológica que permite a usuarios
+        crear campañas de recaudación de fondos y participar en sorteos.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">1. Uso de la plataforma</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-2">
+        1. Rol de la plataforma
+      </h2>
       <p>
-        ImpulsaSueños permite a los usuarios crear campañas de recaudación
-        de fondos y participar en sorteos mediante la compra de tickets.
+        ImpulsaSueños actúa únicamente como intermediario tecnológico y no
+        es responsable del uso de los fondos ni de la entrega de premios.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">2. Responsabilidad del usuario</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-2">
+        2. Responsabilidad del creador
+      </h2>
       <p>
-        El creador de una campaña es responsable de la veracidad de la
-        información publicada. ImpulsaSueños no garantiza el éxito de
-        ninguna campaña.
+        El creador de la campaña es el único responsable de la veracidad
+        de la información, uso de fondos y cumplimiento de promesas.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">3. Pagos y comisiones</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-2">
+        3. Pagos
+      </h2>
       <p>
-        Todas las transacciones se procesan mediante proveedores externos
-        como MercadoPago. La plataforma cobra una comisión por uso que se
-        descuenta automáticamente del monto recaudado.
+        Los pagos son procesados por terceros como MercadoPago.
+        ImpulsaSueños no almacena información bancaria.
       </p>
 
-      <p className="mt-2">
-        El monto final recibido por el creador de la campaña puede ser menor
-        al total recaudado debido a comisiones operativas y de procesamiento.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-2">4. Donaciones a la plataforma</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-2">
+        4. Comisiones
+      </h2>
       <p>
-        Los usuarios pueden realizar contribuciones voluntarias adicionales
-        para apoyar el mantenimiento de la plataforma.
+        Se aplican comisiones por uso de la plataforma y procesamiento
+        de pagos, las cuales se descuentan automáticamente.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">5. Tickets y sorteos</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-2">
+        5. Sorteos
+      </h2>
       <p>
-        La compra de tickets otorga participación en sorteos definidos por
-        cada campaña. Los resultados son públicos y verificables.
+        Los sorteos son responsabilidad exclusiva del creador de la campaña.
+        ImpulsaSueños no garantiza la entrega de premios.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">6. Reembolsos</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-2">
+        6. Reembolsos
+      </h2>
       <p>
-        En caso de cancelación de una campaña, los usuarios podrán recibir
-        un reembolso parcial, el cual puede excluir costos operativos y de
-        procesamiento.
+        Las contribuciones no son reembolsables, salvo casos excepcionales
+        como fraude comprobado.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">7. Suspensión de cuentas</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-2">
+        7. Suspensión de cuentas
+      </h2>
       <p>
-        ImpulsaSueños se reserva el derecho de suspender cuentas que
-        incumplan las políticas o presenten actividad fraudulenta.
+        Nos reservamos el derecho de suspender cuentas ante actividades
+        fraudulentas o incumplimientos.
       </p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-2">8. Limitación de responsabilidad</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-2">
+        8. Modificaciones
+      </h2>
       <p>
-        La plataforma actúa como intermediario tecnológico y no es
-        responsable por el uso final de los fondos recaudados.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-2">9. Modificaciones</h2>
-      <p>
-        Nos reservamos el derecho de modificar estos términos en cualquier
-        momento.
+        Estos términos pueden ser modificados en cualquier momento.
       </p>
 
     </main>

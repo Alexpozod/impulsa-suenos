@@ -25,11 +25,12 @@ export default function HomePage() {
       <section className="bg-gradient-to-br from-green-600 to-green-700 text-white py-20 px-6 text-center">
 
         <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
-          Gana premios reales mientras ayudas a otros
+          Apoya causas reales o gana premios mientras ayudas 🚀
         </h1>
 
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-          Participa en sorteos, apoya causas reales y transforma vidas con cada aporte.
+          Dona libremente o participa en sorteos transparentes.
+          Todo con trazabilidad financiera real.
         </p>
 
         <div className="flex justify-center gap-4 flex-wrap">
@@ -52,38 +53,49 @@ export default function HomePage() {
 
       </section>
 
+      {/* DIFERENCIAL */}
+      <section className="py-12 px-6 bg-green-50 text-center">
+
+        <p className="max-w-3xl mx-auto text-sm text-green-800">
+          💡 ImpulsaSueños no solo conecta personas:
+          registra cada movimiento financiero, aplica controles antifraude
+          y permite trazabilidad completa de los fondos.
+        </p>
+
+      </section>
+
       {/* BENEFICIOS */}
       <section className="py-16 px-6 bg-gray-50">
 
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-center">
 
           <div>
-            <div className="text-4xl mb-3">🎟️</div>
+            <div className="text-4xl mb-3">💖</div>
             <h3 className="font-bold mb-2">
-              Compra tickets
+              Dona libremente
             </h3>
             <p className="text-gray-600 text-sm">
-              Participa en sorteos reales con total transparencia.
+              Aporta cualquier monto y apoya causas reales.
             </p>
           </div>
 
           <div>
-            <div className="text-4xl mb-3">💖</div>
+            <div className="text-4xl mb-3">🎟️</div>
             <h3 className="font-bold mb-2">
-              Apoya causas
+              Participa en sorteos
             </h3>
             <p className="text-gray-600 text-sm">
-              Cada compra ayuda a personas reales a cumplir sus metas.
+              Algunas campañas incluyen premios como incentivo.
             </p>
           </div>
 
           <div>
             <div className="text-4xl mb-3">🔒</div>
             <h3 className="font-bold mb-2">
-              Pagos seguros
+              Seguridad real
             </h3>
             <p className="text-gray-600 text-sm">
-              Procesado con MercadoPago y sistemas antifraude.
+              Pagos con MercadoPago + sistema antifraude + auditoría.
             </p>
           </div>
 
@@ -104,20 +116,27 @@ export default function HomePage() {
 
             <div>
               <div className="text-3xl mb-3">1️⃣</div>
-              <p>Elige una campaña o sorteo</p>
+              <p>Explora campañas o crea la tuya</p>
             </div>
 
             <div>
               <div className="text-3xl mb-3">2️⃣</div>
-              <p>Compra tus tickets o dona</p>
+              <p>Dona o participa en sorteos</p>
             </div>
 
             <div>
               <div className="text-3xl mb-3">3️⃣</div>
-              <p>Participa y gana mientras ayudas</p>
+              <p>Sigue resultados y transparencia</p>
             </div>
 
           </div>
+
+          <Link
+            href="/como-funciona"
+            className="inline-block mt-6 text-green-600 underline text-sm"
+          >
+            Ver detalle completo
+          </Link>
 
         </div>
 
@@ -135,8 +154,8 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-6 text-sm text-gray-600">
 
             <p>🔒 Pagos protegidos</p>
-            <p>🎟️ Tickets verificables</p>
-            <p>📊 Resultados públicos</p>
+            <p>📊 Ledger financiero auditable</p>
+            <p>🚨 Sistema antifraude activo</p>
 
           </div>
 
@@ -152,7 +171,7 @@ export default function HomePage() {
         </h2>
 
         <p className="text-gray-600 mb-8">
-          Crea tu campaña o participa en sorteos hoy.
+          Crea tu campaña o apoya una causa hoy.
         </p>
 
         <div className="flex justify-center gap-4 flex-wrap">
@@ -174,6 +193,21 @@ export default function HomePage() {
         </div>
 
       </section>
+
+      {/* FOOTER LEGAL */}
+      <footer className="text-center text-sm text-gray-500 py-10 border-t">
+
+        <div className="flex justify-center gap-4 flex-wrap mb-3">
+          <Link href="/terminos">Términos</Link>
+          <Link href="/privacidad">Privacidad</Link>
+          <Link href="/cookies">Cookies</Link>
+          <Link href="/reembolsos">Reembolsos</Link>
+          <Link href="/faq">FAQ</Link>
+        </div>
+
+        <p>© {new Date().getFullYear()} ImpulsaSueños</p>
+
+      </footer>
 
     </main>
   )
