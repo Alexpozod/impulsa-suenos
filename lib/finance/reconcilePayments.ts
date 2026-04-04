@@ -1,3 +1,5 @@
+// lib/finance/reconcilePayments.ts
+
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -7,40 +9,44 @@ const supabase = createClient(
 
 export async function reconcileCampaign(campaign_id: string) {
   try {
-
-    // 💰 TOTAL EN LEDGER (DEPÓSITOS)
-    const { data: deposits } = await supabase
+    const { data, error } = await supabase
       .from("financial_ledger")
-      .select("amount")
+      .select("amount, flow_type")
       .eq("campaign_id", campaign_id)
-      .eq("type", "deposit")
 
-    const totalDeposits =
-      deposits?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
+    if (error || !data) {
+      return {
+        ok: false,
+        balance: 0,
+      }
+    }
 
-    // 💸 TOTAL RETIROS
-    const { data: withdrawals } = await supabase
-      .from("financial_ledger")
-      .select("amount")
-      .eq("campaign_id", campaign_id)
-      .eq("type", "withdraw")
+    let totalIn = 0
+    let totalOut = 0
 
-    const totalWithdrawals =
-      withdrawals?.reduce((acc, w) => acc + Number(w.amount), 0) || 0
+    for (const row of data) {
+      const amount = Number(row.amount || 0)
 
-    const balance = totalDeposits - totalWithdrawals
+      if (row.flow_type === "in") {
+        totalIn += amount
+      } else if (row.flow_type === "out") {
+        totalOut += Math.abs(amount)
+      }
+    }
+
+    const balance = totalIn - totalOut
 
     return {
       ok: true,
-      totalDeposits,
-      totalWithdrawals,
+      totalIn,
+      totalOut,
       balance,
     }
 
   } catch (error) {
     return {
       ok: false,
-      error,
+      balance: 0,
     }
   }
 }
