@@ -1,3 +1,5 @@
+// app/api/payout/approve/route.ts
+
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -24,6 +26,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "payout_id requerido" }, { status: 400 })
     }
 
+    /* =========================
+       🔐 AUTH
+    ========================= */
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
@@ -46,6 +51,9 @@ export async function POST(req: Request) {
 
     const orgId = user.user_metadata?.organization_id
 
+    /* =========================
+       📦 OBTENER PAYOUT
+    ========================= */
     const { data: payout } = await supabase
       .from("payouts")
       .select("*")
@@ -61,7 +69,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "already processed" }, { status: 400 })
     }
 
-    // 💣 CONCILIACIÓN
+    /* =========================
+       💣 CONCILIACIÓN REAL (LEDGER)
+    ========================= */
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
     if (!reconciliation.ok || typeof reconciliation.balance !== "number") {
@@ -93,6 +103,9 @@ export async function POST(req: Request) {
       )
     }
 
+    /* =========================
+       📊 CAMPAÑA
+    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("*")
@@ -104,6 +117,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign not found" }, { status: 404 })
     }
 
+    /* =========================
+       🚨 RIESGO + FRAUDE
+    ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
     const fraud = await evaluateFraudAlert({
@@ -135,6 +151,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign_blocked" }, { status: 403 })
     }
 
+    /* =========================
+       💰 ACTUALIZAR PAYOUT
+    ========================= */
     await supabase
       .from("payouts")
       .update({
@@ -143,14 +162,26 @@ export async function POST(req: Request) {
       })
       .eq("id", payout_id)
 
+    /* =========================
+       🔥 LEDGER (FUENTE DE VERDAD)
+    ========================= */
     await supabase.from("financial_ledger").insert({
       campaign_id: payout.campaign_id,
-      amount: payout.amount,
+      user_email: campaign.user_email,
+      amount: -Math.abs(payout.amount),
       type: "withdraw",
-      status: "confirmed",
+      flow_type: "out",
+      provider_fee: 0,
+      platform_fee: 0,
+      net_amount: -Math.abs(payout.amount),
+      payment_id: `payout_${payout.id}`,
+      created_at: new Date().toISOString(),
       organization_id: orgId
     })
 
+    /* =========================
+       📡 EVENTO + LOGS
+    ========================= */
     await emitEvent("payout.approved", {
       id: payout_id,
       campaign_id: payout.campaign_id,
@@ -160,6 +191,11 @@ export async function POST(req: Request) {
     })
 
     await logToDB("info", "payout_approved", {
+      payout_id,
+      campaign_id: payout.campaign_id
+    })
+
+    logInfo("Payout aprobado correctamente", {
       payout_id,
       campaign_id: payout.campaign_id
     })
@@ -176,6 +212,9 @@ export async function POST(req: Request) {
       data: { error }
     })
 
-    return NextResponse.json({ error: "error approve payout" }, { status: 500 })
+    return NextResponse.json(
+      { error: "error approve payout" },
+      { status: 500 }
+    )
   }
 }
