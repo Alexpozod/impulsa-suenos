@@ -1,145 +1,126 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/src/lib/supabase"; // 👈 mantenemos este
-import { useRouter } from "next/navigation";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { useEffect, useState } from 'react'
+import { supabase } from '@/src/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
-  const router = useRouter();
 
-  const [user, setUser] = useState<any>(null);
-  const [wallet, setWallet] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter()
+
+  const [data, setData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    load();
-  }, []);
+    load()
+  }, [])
 
   const load = async () => {
-    const { data } = await supabase.auth.getSession();
 
-    if (!data.session) {
-      router.push("/login");
-      return;
+    const { data: session } = await supabase.auth.getSession()
+
+    if (!session.session) {
+      router.push('/login')
+      return
     }
 
-    const user = data.session.user;
-    setUser(user);
+    const token = session.session.access_token
 
-    const userId = user.id;
+    const res = await fetch('/api/user/finance', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
 
-    const [walletRes, txRes] = await Promise.all([
-      supabase.from("wallets").select("*").eq("user_id", userId).maybeSingle(),
-      supabase
-        .from("transactions")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: true }),
-    ]);
+    const json = await res.json()
 
-    setWallet(walletRes.data);
-    setTransactions(txRes.data || []);
-    setLoading(false);
-  };
+    setData(json)
+    setLoading(false)
+  }
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
+  const requestWithdraw = async (campaign_id: string) => {
 
-  const requestWithdraw = async () => {
-    const amount = prompt("Monto a retirar");
-    if (!amount) return;
+    const amount = prompt("Monto a retirar")
 
-    const session = await supabase.auth.getSession();
+    if (!amount) return
 
-    const res = await fetch("/api/withdraw", {
-      method: "POST",
+    const session = await supabase.auth.getSession()
+
+    const res = await fetch('/api/payout/request', {
+      method: 'POST',
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session.data.session?.access_token}`,
+        "Authorization": `Bearer ${session.data.session?.access_token}`
       },
       body: JSON.stringify({
-        amount: Number(amount),
-      }),
-    });
+        campaign_id,
+        amount: Number(amount)
+      })
+    })
 
-    const data = await res.json();
+    const result = await res.json()
 
-    if (data.error) {
-      alert(data.error);
-    } else {
-      alert("Retiro solicitado");
-      load();
-    }
-  };
+    alert(result.message || result.error)
+    load()
+  }
 
-  if (loading) return <div className="p-10">Cargando...</div>;
-
-  let balance = 0;
-
-  const chartData = transactions.map((t, i) => {
-    if (t.type === "deposit") balance += Number(t.amount);
-    if (t.type === "withdraw") balance -= Number(t.amount);
-
-    return {
-      name: `#${i}`,
-      balance,
-    };
-  });
+  if (loading) return <div className="p-10">Cargando...</div>
 
   return (
-    <main className="p-10">
-      {/* 🔥 ALERTA KYC */}
-      <div className="bg-yellow-100 p-4 rounded-xl mb-4">
-        ⚠️ Debes completar tu verificación para crear campañas <br />
-        <a href="/account" className="text-blue-600 underline">
-          Ir a mi cuenta
-        </a>
+    <main className="p-10 max-w-6xl mx-auto">
+
+      <h1 className="text-2xl font-bold mb-6">
+        💰 Panel financiero
+      </h1>
+
+      {/* TOTALES */}
+      <div className="grid md:grid-cols-4 gap-4 mb-8">
+
+        <Card title="Disponible" value={`$${data.totals.balance}`} />
+        <Card title="Recaudado" value={`$${data.totals.raised}`} />
+        <Card title="Comisiones" value={`$${data.totals.fees}`} />
+        <Card title="Pendiente" value={`$${data.totals.pending}`} />
+
       </div>
 
-      <div className="flex justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold">Dashboard</h1>
-          <p className="text-sm text-gray-500">{user.email}</p>
-        </div>
+      {/* CAMPAÑAS */}
+      <div className="space-y-4">
 
-        <button onClick={logout}>Logout</button>
+        {data.campaigns.map((c: any) => (
+          <div key={c.id} className="border p-4 rounded-xl">
+
+            <h2 className="font-bold">{c.title}</h2>
+
+            <div className="grid md:grid-cols-5 gap-4 text-sm mt-3">
+
+              <div>Recaudado: ${c.raised}</div>
+              <div>Disponible: ${c.available}</div>
+              <div>Retirado: ${c.withdrawn}</div>
+              <div>Pendiente: ${c.pending}</div>
+
+            </div>
+
+            <button
+              onClick={() => requestWithdraw(c.id)}
+              className="mt-3 bg-black text-white px-4 py-2 rounded"
+            >
+              Solicitar retiro
+            </button>
+
+          </div>
+        ))}
+
       </div>
 
-      <div className="mb-6">
-        <p>Saldo:</p>
-        <p className="text-2xl font-bold">
-          ${wallet?.balance || 0}
-        </p>
-
-        <button
-          onClick={requestWithdraw}
-          className="mt-2 bg-black text-white px-4 py-2 rounded"
-        >
-          Retirar
-        </button>
-      </div>
-
-      <div className="bg-white p-4 rounded shadow">
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={chartData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Line dataKey="balance" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
     </main>
-  );
+  )
+}
+
+function Card({ title, value }: any) {
+  return (
+    <div className="bg-white p-4 rounded-xl border shadow">
+      <p className="text-sm text-gray-500">{title}</p>
+      <p className="font-bold text-lg">{value}</p>
+    </div>
+  )
 }
