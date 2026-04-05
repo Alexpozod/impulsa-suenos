@@ -20,18 +20,45 @@ export default function Login() {
     setRedirect(params.get("redirect"))
   }, [])
 
+  /* 🔥 REDIRECCIÓN CENTRAL INTELIGENTE */
+  const handlePostLoginRedirect = () => {
+
+    const intent = localStorage.getItem('donation_intent')
+
+    if (intent) {
+      try {
+        const parsed = JSON.parse(intent)
+        localStorage.removeItem('donation_intent')
+
+        window.location.href = `/campaign/${parsed.campaign_id}`
+        return
+      } catch (e) {
+        console.error("Error parsing donation intent", e)
+        localStorage.removeItem('donation_intent')
+      }
+    }
+
+    if (redirect) {
+      window.location.href = redirect
+    } else {
+      window.location.href = "/dashboard"
+    }
+  }
+
+  /* 🔍 SI YA ESTÁ LOGUEADO */
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession()
 
       if (data.session) {
-        router.push(redirect || "/dashboard")
+        handlePostLoginRedirect()
       }
     }
 
     checkSession()
-  }, [redirect, router])
+  }, [redirect])
 
+  /* 🔐 LOGIN */
   const signIn = async () => {
     setLoading(true)
     setMessage('')
@@ -44,12 +71,13 @@ export default function Login() {
     if (error) {
       setMessage("❌ " + error.message)
     } else {
-      router.push(redirect || "/dashboard")
+      handlePostLoginRedirect()
     }
 
     setLoading(false)
   }
 
+  /* 🆕 REGISTRO */
   const signUp = async () => {
     setLoading(true)
     setMessage('')
@@ -65,28 +93,29 @@ export default function Login() {
     if (error) {
       setMessage(error.message)
     } else {
-      setMessage("📩 Revisa tu correo")
+      setMessage("📩 Revisa tu correo para confirmar tu cuenta")
     }
 
     setLoading(false)
   }
 
+  /* 🔐 GOOGLE LOGIN */
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/dashboard`
+        redirectTo: `${location.origin}/login`
       }
     })
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
 
       <div className="bg-white p-8 rounded-xl shadow w-full max-w-md">
 
         <h1 className="text-2xl font-bold mb-6 text-center">
-          Login
+          Iniciar sesión
         </h1>
 
         <input
@@ -107,7 +136,7 @@ export default function Login() {
 
         <button
           onClick={signIn}
-          className="w-full bg-black text-white py-3 rounded mb-3"
+          className="w-full bg-green-600 text-white py-3 rounded mb-3 font-semibold"
           disabled={loading}
         >
           {loading ? "Ingresando..." : "Entrar"}
@@ -116,6 +145,7 @@ export default function Login() {
         <button
           onClick={signUp}
           className="w-full border py-3 rounded mb-3"
+          disabled={loading}
         >
           Crear cuenta
         </button>
@@ -124,7 +154,7 @@ export default function Login() {
           onClick={signInWithGoogle}
           className="w-full border py-3 rounded"
         >
-          Google
+          Continuar con Google
         </button>
 
         {message && (

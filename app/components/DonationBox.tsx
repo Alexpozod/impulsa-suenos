@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function DonationBox({
   campaign_id
@@ -13,6 +14,7 @@ export default function DonationBox({
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
+  const router = useRouter()
   const presets = [2000, 5000, 10000, 20000]
 
   useEffect(() => {
@@ -21,19 +23,22 @@ export default function DonationBox({
 
   const loadUser = async () => {
     const { data } = await supabase.auth.getSession()
-    const email = data.session?.user?.email || null
-    setUserEmail(email)
+    setUserEmail(data.session?.user?.email || null)
   }
 
   const donate = async () => {
 
-    if (!amount || amount < 100) {
-      alert("El monto mínimo es 100")
-      return
-    }
+    if (!amount || amount < 100) return
 
+    // 🔴 NO LOGUEADO → REDIRECT LIMPIO
     if (!userEmail) {
-      alert("Debes iniciar sesión para continuar")
+
+      localStorage.setItem('donation_intent', JSON.stringify({
+        campaign_id,
+        amount
+      }))
+
+      router.push(`/login?redirect=/campaign/${campaign_id}`)
       return
     }
 
@@ -42,9 +47,7 @@ export default function DonationBox({
 
       const res = await fetch('/api/create-payment', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount,
           campaign_id,
@@ -58,7 +61,7 @@ export default function DonationBox({
         window.location.href = data.init_point
       } else {
         console.error(data)
-        alert("Error iniciando el pago")
+        alert("Error iniciando pago")
       }
 
     } catch (error) {
@@ -76,13 +79,12 @@ export default function DonationBox({
         💖 Apoya esta causa
       </h3>
 
-      {/* PRESETS */}
       <div className="grid grid-cols-4 gap-2">
         {presets.map(p => (
           <button
             key={p}
             onClick={() => setAmount(p)}
-            className={`py-2 rounded-lg border text-sm transition ${
+            className={`py-2 rounded-lg border text-sm ${
               amount === p
                 ? 'bg-green-600 text-white border-green-600'
                 : 'hover:bg-gray-100'
@@ -93,28 +95,24 @@ export default function DonationBox({
         ))}
       </div>
 
-      {/* INPUT */}
       <input
         type="number"
         value={amount}
         onChange={(e) => setAmount(Number(e.target.value))}
         className="w-full border p-2 rounded-lg"
-        placeholder="Ingresa monto"
       />
 
-      {/* CTA */}
       <button
         onClick={donate}
         disabled={loading}
-        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700 transition"
+        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700"
       >
         {loading ? "Procesando..." : "Donar ahora"}
       </button>
 
-      {/* TRUST */}
       <div className="text-xs text-gray-500 text-center space-y-1">
-        <p>🔒 Pago seguro con MercadoPago</p>
-        <p>📊 Registro transparente</p>
+        <p>🔒 Pago seguro</p>
+        <p>📊 Transparencia total</p>
       </div>
 
     </div>
