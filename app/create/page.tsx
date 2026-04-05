@@ -63,27 +63,31 @@ export default function CreateCampaign() {
 
       let imageUrl = null
 
-      // 📸 SUBIDA IMAGEN
-      if (image) {
-        const fileName = Date.now() + "-" + image.name
+      // 📸 SUBIDA IMAGEN (NO BLOQUEANTE)
+if (image) {
+  try {
+    const fileName = Date.now() + "-" + image.name
 
-        const { error: uploadError } = await supabase.storage
-          .from('campaign-images')
-          .upload(fileName, image)
+    const { error: uploadError } = await supabase.storage
+      .from('campaign-images')
+      .upload(fileName, image)
 
-        if (uploadError) {
-          console.error(uploadError)
-          setMessage('Error subiendo imagen')
-          setLoading(false)
-          return
-        }
+    if (uploadError) {
+      console.error("UPLOAD ERROR:", uploadError)
+      // ⚠️ NO BLOQUEAR
+    } else {
+      const { data } = supabase.storage
+        .from('campaign-images')
+        .getPublicUrl(fileName)
 
-        const { data } = supabase.storage
-          .from('campaign-images')
-          .getPublicUrl(fileName)
+      imageUrl = data.publicUrl
+    }
 
-        imageUrl = data.publicUrl
-      }
+  } catch (err) {
+    console.error("STORAGE CRASH:", err)
+    // ⚠️ NO BLOQUEAR
+  }
+}
 
       // 🔍 DEBUG LOG
       console.log("📤 Enviando campaña:", {
