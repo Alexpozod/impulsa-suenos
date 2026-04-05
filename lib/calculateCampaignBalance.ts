@@ -1,5 +1,3 @@
-// lib/calculateCampaignBalance.ts
-
 export async function calculateCampaignBalance(
   supabase: any,
   campaign_id: string

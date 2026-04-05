@@ -1,3 +1,5 @@
+// ⚠️ ADMIN ONLY - NO EXPONER EN PRODUCCIÓN
+
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 

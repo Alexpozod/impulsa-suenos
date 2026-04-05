@@ -19,13 +19,18 @@ export async function GET(req: Request) {
       )
     }
 
-    // ✅ FIX PRINCIPAL AQUÍ
     const wallet = await calculateCampaignBalance(
       supabase,
       campaign_id
     )
 
-    return NextResponse.json(wallet)
+    return NextResponse.json({
+      ok: true,
+      balance: wallet.balance,
+      totalIn: wallet.totalIn,
+      totalOut: wallet.totalOut
+    })
+
   } catch (error) {
     return NextResponse.json(
       { error: "Error servidor" },

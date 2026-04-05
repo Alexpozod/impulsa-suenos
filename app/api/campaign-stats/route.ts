@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { calculateCampaignBalance } from "@/lib/calculateCampaignBalance"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
       )
     }
 
+    // 📌 CAMPAÑA
     const { data: campaign, error } = await supabase
       .from("campaigns")
       .select("*")
@@ -30,16 +32,15 @@ export async function POST(req: Request) {
       )
     }
 
-    const { data: ledger } = await supabase
-      .from("financial_ledger")
-      .select("amount")
-      .eq("campaign_id", campaign_id)
-      .eq("type", "payment")
-      .eq("status", "confirmed")
+    // 💰 BALANCE REAL (ÚNICA FUENTE)
+    const wallet = await calculateCampaignBalance(
+      supabase,
+      campaign_id
+    )
 
-    const totalRaised =
-      ledger?.reduce((sum, d) => sum + Number(d.amount), 0) || 0
+    const totalRaised = wallet.totalIn
 
+    // 🎟️ TICKETS
     const { count: ticketsSold } = await supabase
       .from("tickets")
       .select("*", { count: "exact", head: true })
