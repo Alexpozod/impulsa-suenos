@@ -25,12 +25,11 @@ export default function HomePage() {
       <section className="bg-gradient-to-br from-green-600 to-green-700 text-white py-20 px-6 text-center">
 
         <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
-          Apoya causas reales o gana premios mientras ayudas 🚀
+          Apoya causas reales o participa en sorteos con premios verificables 🚀
         </h1>
 
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-          Dona libremente o participa en sorteos transparentes.
-          Todo con trazabilidad financiera real.
+          Cada aporte queda registrado y es 100% transparente.
         </p>
 
         <div className="flex justify-center gap-4 flex-wrap">
@@ -57,110 +56,122 @@ export default function HomePage() {
       <section className="py-12 px-6 bg-green-50 text-center">
 
         <p className="max-w-3xl mx-auto text-sm text-green-800">
-          💡 ImpulsaSueños no solo conecta personas:
-          registra cada movimiento financiero, aplica controles antifraude
-          y permite trazabilidad completa de los fondos.
+          💡 ImpulsaSueños registra cada movimiento financiero, aplica controles antifraude
+          y garantiza trazabilidad completa de los fondos.
         </p>
 
       </section>
 
-      {/* BENEFICIOS */}
-      <section className="py-16 px-6 bg-gray-50">
+      {/* 🔥 CÓMO FUNCIONA (MEJORADO) */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-6 text-center">
 
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-center">
-
-          <div>
-            <div className="text-4xl mb-3">💖</div>
-            <h3 className="font-bold mb-2">
-              Dona libremente
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Aporta cualquier monto y apoya causas reales.
-            </p>
-          </div>
-
-          <div>
-            <div className="text-4xl mb-3">🎟️</div>
-            <h3 className="font-bold mb-2">
-              Participa en sorteos
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Algunas campañas incluyen premios como incentivo.
-            </p>
-          </div>
-
-          <div>
-            <div className="text-4xl mb-3">🔒</div>
-            <h3 className="font-bold mb-2">
-              Seguridad real
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Pagos con MercadoPago + sistema antifraude + auditoría.
-            </p>
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* CÓMO FUNCIONA */}
-      <section className="py-16 px-6">
-
-        <div className="max-w-5xl mx-auto text-center">
-
-          <h2 className="text-3xl font-bold mb-10">
+          <h2 className="text-2xl font-bold mb-10">
             ¿Cómo funciona?
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8 text-sm">
+          <div className="grid md:grid-cols-3 gap-10 text-left">
 
             <div>
-              <div className="text-3xl mb-3">1️⃣</div>
-              <p>Explora campañas o crea la tuya</p>
+              <div className="text-3xl mb-3">📝</div>
+              <h3 className="font-semibold text-lg mb-2">
+                Crea tu campaña
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Explica tu causa, define tu meta y publícala en minutos.
+              </p>
             </div>
 
             <div>
-              <div className="text-3xl mb-3">2️⃣</div>
-              <p>Dona o participa en sorteos</p>
+              <div className="text-3xl mb-3">📢</div>
+              <h3 className="font-semibold text-lg mb-2">
+                Comparte y recibe apoyo
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Recibe donaciones reales y visibilidad para tu causa.
+              </p>
             </div>
 
             <div>
-              <div className="text-3xl mb-3">3️⃣</div>
-              <p>Sigue resultados y transparencia</p>
+              <div className="text-3xl mb-3">🎁</div>
+              <h3 className="font-semibold text-lg mb-2">
+                Participa en sorteos
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Algunas campañas incluyen premios como incentivo transparente.
+              </p>
             </div>
 
           </div>
 
+        </div>
+      </section>
+
+      {/* 🔥 CONFIANZA PRO */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+
+          <h2 className="text-2xl font-bold mb-10">
+            Transparencia y seguridad real
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-10">
+
+            <div>
+              <div className="text-3xl mb-3">🔒</div>
+              <h3 className="font-semibold mb-2">
+                Pagos seguros
+              </h3>
+              <p className="text-sm text-gray-600">
+                Procesamos pagos con MercadoPago y sistemas certificados.
+              </p>
+            </div>
+
+            <div>
+              <div className="text-3xl mb-3">📊</div>
+              <h3 className="font-semibold mb-2">
+                Trazabilidad completa
+              </h3>
+              <p className="text-sm text-gray-600">
+                Cada movimiento queda registrado en nuestro sistema financiero.
+              </p>
+            </div>
+
+            <div>
+              <div className="text-3xl mb-3">🚨</div>
+              <h3 className="font-semibold mb-2">
+                Sistema antifraude
+              </h3>
+              <p className="text-sm text-gray-600">
+                Detectamos comportamientos sospechosos y protegemos tu dinero.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* 🔥 CAMPAÑAS (PLACEHOLDER PRO) */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+
+          <h2 className="text-2xl font-bold mb-6">
+            Campañas destacadas
+          </h2>
+
+          <p className="text-gray-500 mb-10">
+            Próximamente podrás explorar campañas reales y apoyar causas importantes.
+          </p>
+
           <Link
-            href="/como-funciona"
-            className="inline-block mt-6 text-green-600 underline text-sm"
+            href="/campaigns"
+            className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-semibold"
           >
-            Ver detalle completo
+            Ver campañas
           </Link>
 
         </div>
-
-      </section>
-
-      {/* CONFIANZA */}
-      <section className="bg-gray-100 py-16 px-6">
-
-        <div className="max-w-5xl mx-auto text-center">
-
-          <h2 className="text-2xl font-bold mb-6">
-            Plataforma confiable y transparente
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-6 text-sm text-gray-600">
-
-            <p>🔒 Pagos protegidos</p>
-            <p>📊 Ledger financiero auditable</p>
-            <p>🚨 Sistema antifraude activo</p>
-
-          </div>
-
-        </div>
-
       </section>
 
       {/* CTA FINAL */}
@@ -194,7 +205,7 @@ export default function HomePage() {
 
       </section>
 
-      {/* FOOTER LEGAL */}
+      {/* FOOTER */}
       <footer className="text-center text-sm text-gray-500 py-10 border-t">
 
         <div className="flex justify-center gap-4 flex-wrap mb-3">
