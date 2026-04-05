@@ -25,14 +25,13 @@ export async function POST(req: Request) {
       description,
       goal_amount,
       total_tickets,
-      image_url
+      image_url,
+      category
     } = body
 
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
-      logError("No auth header")
-      await logErrorToDB("No auth header", {})
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
@@ -42,30 +41,22 @@ export async function POST(req: Request) {
       await supabaseAuth.auth.getUser(token)
 
     if (userError || !userData?.user?.email) {
-      logError("Usuario no válido", userError)
-      await logErrorToDB("Usuario no válido", userError)
       return NextResponse.json({ error: "Usuario no válido" }, { status: 401 })
     }
 
     const user_email = userData.user.email.toLowerCase()
 
-    // =========================
-    // 🧼 NORMALIZACIÓN
-    // =========================
+    // NORMALIZACIÓN
     title = title?.trim()
     description = description?.trim()
     goal_amount = Number(goal_amount)
-    total_tickets = Number(total_tickets)
+    total_tickets = Number(total_tickets) || 1
 
-    if (!title || !description || !goal_amount || !total_tickets) {
-      logError("Campos inválidos", body)
-      await logErrorToDB("Campos inválidos", body)
+    if (!title || !description || !goal_amount) {
       return NextResponse.json({ error: "Faltan campos" }, { status: 400 })
     }
 
-    // =========================
-    // 🔒 KYC
-    // =========================
+    // KYC
     const { data: kyc } = await supabaseAdmin
       .from("kyc")
       .select("status")
@@ -73,19 +64,11 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!kyc || kyc.status !== "approved") {
-      logError("KYC no aprobado", { user_email })
-      await logErrorToDB("KYC no aprobado", { user_email })
       return NextResponse.json({ error: "KYC requerido" }, { status: 403 })
     }
 
-    // =========================
-    // 🎟️ GENERAR PREFIX
-    // =========================
     const code_prefix = generatePrefix(title)
 
-    // =========================
-    // 🚀 CREAR CAMPAÑA
-    // =========================
     const { data: campaign, error } = await supabaseAdmin
       .from("campaigns")
       .insert({
@@ -95,22 +78,19 @@ export async function POST(req: Request) {
         total_tickets,
         user_email,
         image_url: image_url || null,
+        category: category || "general",
         status: "active",
         created_at: new Date().toISOString(),
-        code_prefix // 🔥 NUEVO CAMPO
+        code_prefix
       })
       .select()
       .single()
 
     if (error) {
-      logError("Error creando campaña", error)
-      await logErrorToDB("Error creando campaña", error)
+      console.error(error)
       return NextResponse.json({ error: "Error creando campaña" }, { status: 500 })
     }
 
-    // =========================
-    // 📊 LOGS
-    // =========================
     logInfo("Campaña creada", {
       campaign_id: campaign.id,
       user_email,
@@ -126,9 +106,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, campaign })
 
   } catch (err) {
-    logError("Error servidor", err)
-    await logErrorToDB("Error servidor", err)
-
+    console.error(err)
     return NextResponse.json(
       { error: "Error servidor" },
       { status: 500 }

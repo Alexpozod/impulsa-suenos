@@ -32,7 +32,6 @@ export default function CreateCampaign() {
 
     try {
 
-      // 🔐 SESIÓN
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
 
@@ -42,7 +41,7 @@ export default function CreateCampaign() {
         return
       }
 
-      // ✅ VALIDACIONES
+      // VALIDACIONES
       if (!title || !description) {
         setMessage('Completa título y descripción')
         setLoading(false)
@@ -55,51 +54,36 @@ export default function CreateCampaign() {
         return
       }
 
-      if (tickets && Number(tickets) < 0) {
-        setMessage('Tickets inválidos')
+      if (!tickets || Number(tickets) <= 0) {
+        setMessage('Debes ingresar al menos 1 ticket')
         setLoading(false)
         return
       }
 
       let imageUrl = null
 
-      // 📸 SUBIDA IMAGEN (NO BLOQUEANTE)
-if (image) {
-  try {
-    const fileName = Date.now() + "-" + image.name
+      // SUBIDA IMAGEN (NO BLOQUEA)
+      if (image) {
+        try {
+          const fileName = Date.now() + "-" + image.name
 
-    const { error: uploadError } = await supabase.storage
-      .from('campaign-images')
-      .upload(fileName, image)
+          const upload = await supabase.storage
+            .from('campaign-images')
+            .upload(fileName, image)
 
-    if (uploadError) {
-      console.error("UPLOAD ERROR:", uploadError)
-      // ⚠️ NO BLOQUEAR
-    } else {
-      const { data } = supabase.storage
-        .from('campaign-images')
-        .getPublicUrl(fileName)
+          if (!upload.error) {
+            const publicUrl = supabase.storage
+              .from('campaign-images')
+              .getPublicUrl(fileName)
 
-      imageUrl = data.publicUrl
-    }
+            imageUrl = publicUrl?.data?.publicUrl || null
+          }
 
-  } catch (err) {
-    console.error("STORAGE CRASH:", err)
-    // ⚠️ NO BLOQUEAR
-  }
-}
+        } catch (err) {
+          console.error("Storage error:", err)
+        }
+      }
 
-      // 🔍 DEBUG LOG
-      console.log("📤 Enviando campaña:", {
-        title,
-        description,
-        goal,
-        tickets,
-        category,
-        imageUrl
-      })
-
-      // 🚀 API
       const res = await fetch('/api/campaign/create', {
         method: 'POST',
         headers: {
@@ -110,15 +94,13 @@ if (image) {
           title,
           description,
           goal_amount: Number(goal),
-          total_tickets: tickets ? Number(tickets) : 0,
+          total_tickets: Number(tickets),
           image_url: imageUrl,
           category
         })
       })
 
       const data = await res.json()
-
-      console.log("📥 RESPUESTA API:", data)
 
       if (!res.ok) {
         setMessage(data.error || 'Error creando campaña')
@@ -130,7 +112,7 @@ if (image) {
 
       setTimeout(() => {
         router.push('/dashboard')
-      }, 1200)
+      }, 1000)
 
     } catch (error) {
       console.error(error)
@@ -149,7 +131,6 @@ if (image) {
           Crear campaña
         </h1>
 
-        {/* TÍTULO */}
         <input
           placeholder="Título"
           className="w-full border p-3 rounded-lg mb-4"
@@ -157,7 +138,6 @@ if (image) {
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        {/* DESCRIPCIÓN */}
         <textarea
           placeholder="Descripción"
           className="w-full border p-3 rounded-lg mb-4"
@@ -165,7 +145,6 @@ if (image) {
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        {/* CATEGORÍA */}
         <select
           className="w-full border p-3 rounded-lg mb-4"
           value={category}
@@ -178,53 +157,42 @@ if (image) {
           <option value="animales">Animales</option>
         </select>
 
-        {/* META */}
         <input
-          placeholder="Meta en dinero ($)"
           type="number"
+          placeholder="Meta en dinero ($)"
           className="w-full border p-3 rounded-lg mb-4"
           value={goal}
           onChange={(e) => setGoal(e.target.value)}
         />
 
-        {/* TICKETS */}
         <input
-          placeholder="Cantidad total de tickets (opcional)"
           type="number"
+          placeholder="Cantidad total de tickets"
           className="w-full border p-3 rounded-lg mb-4"
           value={tickets}
           onChange={(e) => setTickets(e.target.value)}
         />
 
-        {/* IMAGEN */}
-        <div className="mb-4">
-          <label className="block text-sm mb-2 font-medium">
-            Imagen campaña
-          </label>
+        <input
+          type="file"
+          onChange={(e) => handleImage(e.target.files?.[0] || null)}
+        />
 
-          <input
-            type="file"
-            onChange={(e) => handleImage(e.target.files?.[0] || null)}
+        {preview && (
+          <img
+            src={preview}
+            className="mt-3 rounded-lg h-40 object-cover w-full"
           />
+        )}
 
-          {preview && (
-            <img
-              src={preview}
-              className="mt-3 rounded-lg h-40 object-cover w-full"
-            />
-          )}
-        </div>
-
-        {/* BOTÓN */}
         <button
           onClick={createCampaign}
           disabled={loading}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700"
+          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold mt-4"
         >
           {loading ? 'Creando...' : 'Crear campaña'}
         </button>
 
-        {/* MENSAJE */}
         {message && (
           <p className="text-center text-sm mt-4 text-gray-600">
             {message}
