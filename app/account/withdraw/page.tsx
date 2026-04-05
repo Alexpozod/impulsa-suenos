@@ -12,6 +12,8 @@ export default function WithdrawPage() {
   const [campaigns, setCampaigns] = useState<any[]>([])
   const [selectedCampaign, setSelectedCampaign] = useState<string>("")
 
+  const [balances, setBalances] = useState<any>({})
+
   const [amount, setAmount] = useState("")
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
@@ -35,7 +37,7 @@ export default function WithdrawPage() {
 
       const email = data.user.email
 
-      // CAMPAÑAS DEL USUARIO
+      // 📌 CAMPAÑAS
       const { data: campaignsData } = await supabase
         .from("campaigns")
         .select("id, title")
@@ -47,7 +49,28 @@ export default function WithdrawPage() {
         setSelectedCampaign(campaignsData[0].id)
       }
 
-      // HISTORIAL (API EXISTENTE)
+      // 💰 BALANCES (API REAL)
+      const balancesMap: any = {}
+
+      for (const c of campaignsData || []) {
+
+        try {
+          const res = await fetch(
+            `/api/campaign-wallet?campaign_id=${c.id}`
+          )
+
+          const data = await res.json()
+
+          balancesMap[c.id] = data.balance || 0
+
+        } catch {
+          balancesMap[c.id] = 0
+        }
+      }
+
+      setBalances(balancesMap)
+
+      // 📊 HISTORIAL
       const res = await fetch("/api/payout/list")
       const all = await res.json()
 
@@ -94,9 +117,10 @@ export default function WithdrawPage() {
         return
       }
 
-      setMessage("✅ Retiro solicitado")
+      setMessage("✅ Retiro solicitado correctamente")
       setAmount("")
 
+      // 🔄 refrescar
       location.reload()
 
     } catch (err) {
@@ -105,6 +129,13 @@ export default function WithdrawPage() {
 
     setLoading(false)
   }
+
+  /* =========================
+     VALIDACIONES
+  ========================= */
+  const currentBalance = balances[selectedCampaign] || 0
+  const insufficient = Number(amount) > currentBalance
+  const disabled = loading || insufficient || currentBalance <= 0
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -130,23 +161,42 @@ export default function WithdrawPage() {
           >
             {campaigns.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.title}
+                {c.title} — Disponible: $
+                {Number(balances[c.id] || 0).toLocaleString()}
               </option>
             ))}
           </select>
 
+          {/* MONTO */}
           <input
             type="number"
-            placeholder="Monto"
+            placeholder="Monto a retirar"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full border p-3 rounded-lg mb-4"
+            className="w-full border p-3 rounded-lg mb-2"
           />
+
+          {/* INFO BALANCE */}
+          {selectedCampaign && (
+            <p className="text-sm text-gray-500 mb-2">
+              Disponible: $
+              {Number(currentBalance).toLocaleString()}
+            </p>
+          )}
+
+          {/* ERROR */}
+          {insufficient && (
+            <p className="text-sm text-red-500 mb-2">
+              ⚠️ El monto supera el saldo disponible
+            </p>
+          )}
 
           <button
             onClick={handleWithdraw}
-            disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-lg"
+            disabled={disabled}
+            className={`w-full py-3 rounded-lg text-white ${
+              disabled ? "bg-gray-400" : "bg-black"
+            }`}
           >
             {loading ? "Procesando..." : "Solicitar retiro"}
           </button>
@@ -163,7 +213,7 @@ export default function WithdrawPage() {
         <div className="bg-white p-6 rounded-2xl border">
 
           <h2 className="font-semibold mb-4">
-            Historial
+            Historial de retiros
           </h2>
 
           {history.length === 0 && (
@@ -183,12 +233,23 @@ export default function WithdrawPage() {
                   <p className="font-semibold">
                     ${Number(p.amount).toLocaleString()}
                   </p>
+
                   <p className="text-xs text-gray-500">
                     {p.campaign_title}
                   </p>
+
+                  <p className="text-xs text-gray-400">
+                    {new Date(p.created_at).toLocaleString()}
+                  </p>
                 </div>
 
-                <span className="text-xs px-2 py-1 rounded bg-gray-100">
+                <span className={`text-xs px-2 py-1 rounded ${
+                  p.status === 'approved'
+                    ? 'bg-green-100 text-green-700'
+                    : p.status === 'pending'
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-gray-100 text-gray-700'
+                }`}>
                   {p.status}
                 </span>
 
