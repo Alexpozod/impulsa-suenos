@@ -1,58 +1,61 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { useRouter } from "next/navigation"
+import { supabase } from "@/src/lib/supabase"
 
 export default function BankPage() {
+
+  const router = useRouter()
+
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
   const [form, setForm] = useState({
+    holder_name: "",
     bank_name: "",
     account_number: "",
     account_type: "",
-    holder_name: "",
-    country: "",
+    country: "Chile",
+    rut: "",
     swift: "",
     iban: "",
   })
 
   const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
 
   /* =========================
-     🔐 GET USER + DATA
+     🔐 LOAD USER + DATA
   ========================= */
   useEffect(() => {
     const loadData = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
 
-      if (!user) {
-        setLoading(false)
+      const { data } = await supabase.auth.getUser()
+
+      if (!data.user) {
+        router.push("/login")
         return
       }
 
-      const email = user.email!
+      const email = data.user.email!
 
-      const { data } = await supabase
+      const { data: bank } = await supabase
         .from("bank_accounts")
         .select("*")
         .eq("user_email", email)
         .maybeSingle()
 
-      if (data) {
+      if (bank) {
         setForm({
-          bank_name: data.bank_name || "",
-          account_number: data.account_number || "",
-          account_type: data.account_type || "",
-          holder_name: data.holder_name || "",
-          country: data.country || "",
-          swift: data.swift || "",
-          iban: data.iban || "",
+          holder_name: bank.holder_name || "",
+          bank_name: bank.bank_name || "",
+          account_number: bank.account_number || "",
+          account_type: bank.account_type || "",
+          country: bank.country || "Chile",
+          rut: bank.rut || "",
+          swift: bank.swift || "",
+          iban: bank.iban || "",
         })
       }
 
@@ -60,7 +63,7 @@ export default function BankPage() {
     }
 
     loadData()
-  }, [])
+  }, [router])
 
   /* =========================
      ✏️ HANDLE CHANGE
@@ -73,57 +76,110 @@ export default function BankPage() {
   }
 
   /* =========================
+     🎯 VALIDACIÓN
+  ========================= */
+  const validate = () => {
+    if (!form.holder_name) return "Nombre requerido"
+    if (!form.bank_name) return "Banco requerido"
+    if (!form.account_number) return "Número de cuenta requerido"
+    if (!form.account_type) return "Tipo de cuenta requerido"
+    if (!form.rut) return "RUT requerido"
+    return null
+  }
+
+  /* =========================
      💾 SAVE DATA
   ========================= */
   const handleSave = async () => {
-    setSaving(true)
+
+    setError("")
     setMessage("")
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const validationError = validate()
 
-    if (!user) {
-      setMessage("No autenticado")
-      setSaving(false)
+    if (validationError) {
+      setError(validationError)
       return
     }
 
-    const email = user.email!
+    setSaving(true)
 
-    // check existing
-    const { data: existing } = await supabase
-      .from("bank_accounts")
-      .select("id")
-      .eq("user_email", email)
-      .maybeSingle()
+    try {
 
-    if (existing) {
-      await supabase
-        .from("bank_accounts")
-        .update({
-          ...form,
-        })
-        .eq("user_email", email)
-    } else {
-      await supabase.from("bank_accounts").insert({
+      const { data } = await supabase.auth.getUser()
+
+      if (!data.user) {
+        setError("No autenticado")
+        setSaving(false)
+        return
+      }
+
+      const email = data.user.email!
+
+      const payload = {
         user_email: email,
-        ...form,
-      })
+        holder_name: form.holder_name.trim(),
+        bank_name: form.bank_name.trim(),
+        account_number: form.account_number.trim(),
+        account_type: form.account_type,
+        country: form.country,
+        rut: form.rut.trim(),
+        swift: form.swift || null,
+        iban: form.iban || null,
+      }
+
+      const { data: existing } = await supabase
+        .from("bank_accounts")
+        .select("id")
+        .eq("user_email", email)
+        .maybeSingle()
+
+      let errorDb = null
+
+      if (existing) {
+        const { error } = await supabase
+          .from("bank_accounts")
+          .update(payload)
+          .eq("user_email", email)
+
+        errorDb = error
+      } else {
+        const { error } = await supabase
+          .from("bank_accounts")
+          .insert(payload)
+
+        errorDb = error
+      }
+
+      if (errorDb) throw errorDb
+
+      setMessage("✅ Cuenta bancaria guardada correctamente")
+
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || "Error guardando datos")
     }
 
-    setMessage("✅ Datos guardados correctamente")
     setSaving(false)
   }
 
+  /* =========================
+     ⏳ LOADING
+  ========================= */
   if (loading) {
     return <div className="p-6">Cargando...</div>
   }
 
+  /* =========================
+     UI
+  ========================= */
   return (
     <div className="min-h-screen bg-gray-50">
+
       <div className="max-w-3xl mx-auto p-6">
 
         <h1 className="text-2xl font-bold mb-6">
-          🏦 Datos Bancarios
+          🏦 Cuenta bancaria
         </h1>
 
         <div className="bg-white p-6 rounded-2xl shadow-sm border flex flex-col gap-4">
@@ -137,6 +193,14 @@ export default function BankPage() {
           />
 
           <input
+            name="rut"
+            placeholder="RUT"
+            value={form.rut}
+            onChange={handleChange}
+            className="border p-3 rounded-xl"
+          />
+
+          <input
             name="bank_name"
             placeholder="Banco"
             value={form.bank_name}
@@ -144,18 +208,21 @@ export default function BankPage() {
             className="border p-3 rounded-xl"
           />
 
+          <select
+            name="account_type"
+            value={form.account_type}
+            onChange={handleChange}
+            className="border p-3 rounded-xl"
+          >
+            <option value="">Tipo de cuenta</option>
+            <option value="corriente">Cuenta corriente</option>
+            <option value="vista">Cuenta vista</option>
+          </select>
+
           <input
             name="account_number"
             placeholder="Número de cuenta"
             value={form.account_number}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          />
-
-          <input
-            name="account_type"
-            placeholder="Tipo de cuenta (corriente, ahorro)"
-            value={form.account_type}
             onChange={handleChange}
             className="border p-3 rounded-xl"
           />
@@ -187,10 +254,14 @@ export default function BankPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-black text-white p-3 rounded-xl hover:opacity-90"
+            className="bg-green-600 text-white p-3 rounded-xl hover:bg-green-700"
           >
-            {saving ? "Guardando..." : "Guardar datos"}
+            {saving ? "Guardando..." : "Guardar cuenta"}
           </button>
+
+          {error && (
+            <p className="text-red-500 text-sm">{error}</p>
+          )}
 
           {message && (
             <p className="text-green-600 text-sm">{message}</p>
@@ -199,6 +270,7 @@ export default function BankPage() {
         </div>
 
       </div>
+
     </div>
   )
 }
