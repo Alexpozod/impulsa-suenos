@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
 
 export default function CreateCampaign() {
 
   const router = useRouter()
+
+  const [loadingPage, setLoadingPage] = useState(true)
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -18,6 +20,51 @@ export default function CreateCampaign() {
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+
+  /* =========================
+     🔐 VALIDACIÓN GLOBAL
+  ========================= */
+  useEffect(() => {
+    const checkAccess = async () => {
+
+      const { data } = await supabase.auth.getUser()
+
+      if (!data.user) {
+        router.push('/login')
+        return
+      }
+
+      const email = data.user.email!
+
+      // 🔒 KYC
+      const { data: kyc } = await supabase
+        .from("kyc")
+        .select("status")
+        .eq("user_email", email)
+        .maybeSingle()
+
+      if (!kyc || kyc.status !== "approved") {
+        router.push('/kyc')
+        return
+      }
+
+      // 🏦 BANK
+      const { data: bank } = await supabase
+        .from("bank_accounts")
+        .select("id")
+        .eq("user_email", email)
+        .maybeSingle()
+
+      if (!bank) {
+        router.push('/account/bank')
+        return
+      }
+
+      setLoadingPage(false)
+    }
+
+    checkAccess()
+  }, [router])
 
   const handleImage = (file: File | null) => {
     if (!file) return
@@ -41,7 +88,6 @@ export default function CreateCampaign() {
         return
       }
 
-      // VALIDACIONES
       if (!title || !description) {
         setMessage('Completa título y descripción')
         setLoading(false)
@@ -62,7 +108,6 @@ export default function CreateCampaign() {
 
       let imageUrl = null
 
-      // SUBIDA IMAGEN (NO BLOQUEA)
       if (image) {
         try {
           const fileName = Date.now() + "-" + image.name
@@ -120,6 +165,10 @@ export default function CreateCampaign() {
     }
 
     setLoading(false)
+  }
+
+  if (loadingPage) {
+    return <div className="p-10">Cargando...</div>
   }
 
   return (

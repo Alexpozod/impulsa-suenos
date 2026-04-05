@@ -2,20 +2,14 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/src/lib/supabase"
 
 export default function HomePage() {
 
   const router = useRouter()
 
-  const handleCreateCampaign = async () => {
-    const { data } = await supabase.auth.getSession()
-
-    if (!data.session) {
-      router.push("/login")
-    } else {
-      router.push("/create")
-    }
+  // 🔥 SIMPLIFICADO → el control real está en /create
+  const handleCreateCampaign = () => {
+    router.push("/create")
   }
 
   return (
@@ -62,7 +56,7 @@ export default function HomePage() {
 
       </section>
 
-      {/* 🔥 CÓMO FUNCIONA (MEJORADO) */}
+      {/* CÓMO FUNCIONA */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6 text-center">
 
@@ -107,7 +101,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 🔥 CONFIANZA PRO */}
+      {/* CONFIANZA */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6 text-center">
 
@@ -152,7 +146,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 🔥 CAMPAÑAS (PLACEHOLDER PRO) */}
+      {/* CAMPAÑAS */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6 text-center">
 
