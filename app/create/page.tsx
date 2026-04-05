@@ -12,72 +12,125 @@ export default function CreateCampaign() {
   const [description, setDescription] = useState('')
   const [goal, setGoal] = useState('')
   const [tickets, setTickets] = useState('')
+  const [category, setCategory] = useState('general')
   const [image, setImage] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+
+  const handleImage = (file: File | null) => {
+    if (!file) return
+    setImage(file)
+    setPreview(URL.createObjectURL(file))
+  }
 
   const createCampaign = async () => {
 
     setLoading(true)
     setMessage('')
 
-    // 🔐 SESIÓN REAL
-    const { data: sessionData } = await supabase.auth.getSession()
-    const session = sessionData?.session
-    const token = session?.access_token
+    try {
 
-    if (!token) {
-      setMessage('Debes iniciar sesión')
-      setLoading(false)
-      return
-    }
+      // 🔐 SESIÓN
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData?.session?.access_token
 
-    let imageUrl = null
+      if (!token) {
+        setMessage('Debes iniciar sesión')
+        setLoading(false)
+        return
+      }
 
-    // 📸 SUBIR IMAGEN
-    if (image) {
-      const fileName = Date.now() + "-" + image.name
+      // ✅ VALIDACIONES
+      if (!title || !description) {
+        setMessage('Completa título y descripción')
+        setLoading(false)
+        return
+      }
 
-      const { error: uploadError } = await supabase.storage
-        .from('campaign-images')
-        .upload(fileName, image)
+      if (!goal || Number(goal) <= 0) {
+        setMessage('Meta inválida')
+        setLoading(false)
+        return
+      }
 
-      if (!uploadError) {
+      if (tickets && Number(tickets) < 0) {
+        setMessage('Tickets inválidos')
+        setLoading(false)
+        return
+      }
+
+      let imageUrl = null
+
+      // 📸 SUBIDA IMAGEN
+      if (image) {
+        const fileName = Date.now() + "-" + image.name
+
+        const { error: uploadError } = await supabase.storage
+          .from('campaign-images')
+          .upload(fileName, image)
+
+        if (uploadError) {
+          console.error(uploadError)
+          setMessage('Error subiendo imagen')
+          setLoading(false)
+          return
+        }
+
         const { data } = supabase.storage
           .from('campaign-images')
           .getPublicUrl(fileName)
 
         imageUrl = data.publicUrl
       }
-    }
 
-    // 🚀 API SEGURA
-    const res = await fetch('/api/campaign/create', {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({
+      // 🔍 DEBUG LOG
+      console.log("📤 Enviando campaña:", {
         title,
         description,
-        goal_amount: Number(goal),
-        total_tickets: Number(tickets),
-        image_url: imageUrl
+        goal,
+        tickets,
+        category,
+        imageUrl
       })
-    })
 
-    const data = await res.json()
+      // 🚀 API
+      const res = await fetch('/api/campaign/create', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          goal_amount: Number(goal),
+          total_tickets: tickets ? Number(tickets) : 0,
+          image_url: imageUrl,
+          category
+        })
+      })
 
-    if (!res.ok) {
-      setMessage(data.error || 'Error creando campaña')
-    } else {
-      setMessage('✅ Campaña creada')
+      const data = await res.json()
+
+      console.log("📥 RESPUESTA API:", data)
+
+      if (!res.ok) {
+        setMessage(data.error || 'Error creando campaña')
+        setLoading(false)
+        return
+      }
+
+      setMessage('✅ Campaña creada correctamente')
 
       setTimeout(() => {
         router.push('/dashboard')
-      }, 1000)
+      }, 1200)
+
+    } catch (error) {
+      console.error(error)
+      setMessage('Error inesperado')
     }
 
     setLoading(false)
@@ -92,6 +145,7 @@ export default function CreateCampaign() {
           Crear campaña
         </h1>
 
+        {/* TÍTULO */}
         <input
           placeholder="Título"
           className="w-full border p-3 rounded-lg mb-4"
@@ -99,6 +153,7 @@ export default function CreateCampaign() {
           onChange={(e) => setTitle(e.target.value)}
         />
 
+        {/* DESCRIPCIÓN */}
         <textarea
           placeholder="Descripción"
           className="w-full border p-3 rounded-lg mb-4"
@@ -106,34 +161,66 @@ export default function CreateCampaign() {
           onChange={(e) => setDescription(e.target.value)}
         />
 
+        {/* CATEGORÍA */}
+        <select
+          className="w-full border p-3 rounded-lg mb-4"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="general">General</option>
+          <option value="salud">Salud</option>
+          <option value="educacion">Educación</option>
+          <option value="emergencia">Emergencia</option>
+          <option value="animales">Animales</option>
+        </select>
+
+        {/* META */}
         <input
           placeholder="Meta en dinero ($)"
+          type="number"
           className="w-full border p-3 rounded-lg mb-4"
           value={goal}
           onChange={(e) => setGoal(e.target.value)}
         />
 
+        {/* TICKETS */}
         <input
-          placeholder="Cantidad total de tickets"
+          placeholder="Cantidad total de tickets (opcional)"
+          type="number"
           className="w-full border p-3 rounded-lg mb-4"
           value={tickets}
           onChange={(e) => setTickets(e.target.value)}
         />
 
-        <input
-          type="file"
-          className="mb-4"
-          onChange={(e) => setImage(e.target.files?.[0] || null)}
-        />
+        {/* IMAGEN */}
+        <div className="mb-4">
+          <label className="block text-sm mb-2 font-medium">
+            Imagen campaña
+          </label>
 
+          <input
+            type="file"
+            onChange={(e) => handleImage(e.target.files?.[0] || null)}
+          />
+
+          {preview && (
+            <img
+              src={preview}
+              className="mt-3 rounded-lg h-40 object-cover w-full"
+            />
+          )}
+        </div>
+
+        {/* BOTÓN */}
         <button
           onClick={createCampaign}
           disabled={loading}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold"
+          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700"
         >
           {loading ? 'Creando...' : 'Crear campaña'}
         </button>
 
+        {/* MENSAJE */}
         {message && (
           <p className="text-center text-sm mt-4 text-gray-600">
             {message}
