@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import DonationBox from '@/components/DonationBox'
+import DonationBox from '@/src/components/DonationBox'
 
 export default function CampaignDetail() {
 
