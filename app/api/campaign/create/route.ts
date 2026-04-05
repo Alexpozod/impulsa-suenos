@@ -51,12 +51,13 @@ export async function POST(req: Request) {
     description = description?.trim()
     goal_amount = Number(goal_amount)
     total_tickets = Number(total_tickets) || 1
+    category = category || "general"
 
     if (!title || !description || !goal_amount) {
       return NextResponse.json({ error: "Faltan campos" }, { status: 400 })
     }
 
-    // KYC
+    // 🔒 KYC OBLIGATORIO
     const { data: kyc } = await supabaseAdmin
       .from("kyc")
       .select("status")
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!kyc || kyc.status !== "approved") {
-      return NextResponse.json({ error: "KYC requerido" }, { status: 403 })
+      return NextResponse.json({ error: "Debes completar KYC" }, { status: 403 })
     }
 
     const code_prefix = generatePrefix(title)
@@ -78,7 +79,7 @@ export async function POST(req: Request) {
         total_tickets,
         user_email,
         image_url: image_url || null,
-        category: category || "general",
+        category,
         status: "active",
         created_at: new Date().toISOString(),
         code_prefix
@@ -87,28 +88,23 @@ export async function POST(req: Request) {
       .single()
 
     if (error) {
-      console.error(error)
-      return NextResponse.json({ error: "Error creando campaña" }, { status: 500 })
+      console.error("DB ERROR:", error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    logInfo("Campaña creada", {
+    await logToDB("info", "campaign_created", {
       campaign_id: campaign.id,
       user_email,
-      code_prefix
-    })
-
-    await logToDB("info", "Campaña creada", {
-      campaign_id: campaign.id,
-      user_email,
-      code_prefix
+      category
     })
 
     return NextResponse.json({ ok: true, campaign })
 
-  } catch (err) {
-    console.error(err)
+  } catch (err: any) {
+    console.error("SERVER ERROR:", err)
+
     return NextResponse.json(
-      { error: "Error servidor" },
+      { error: err.message || "Error servidor" },
       { status: 500 }
     )
   }
