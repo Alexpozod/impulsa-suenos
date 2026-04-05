@@ -56,6 +56,14 @@ export default function Navbar() {
             Campañas
           </Link>
 
+          <Link href="/sorteos" className="hover:text-green-600">
+            Sorteos
+          </Link>
+
+          <Link href="/como-funciona" className="hover:text-green-600">
+            Cómo funciona
+          </Link>
+
           <Link href="/faq" className="hover:text-green-600">
             FAQ
           </Link>
