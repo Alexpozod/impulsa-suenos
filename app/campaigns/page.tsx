@@ -7,6 +7,7 @@ export default function CampaignsPage() {
 
   const [campaigns, setCampaigns] = useState<any[]>([])
   const [filter, setFilter] = useState<'all' | 'tickets' | 'goal'>('all')
+  const [loading, setLoading] = useState(true)
 
   const router = useRouter()
 
@@ -15,9 +16,15 @@ export default function CampaignsPage() {
   }, [])
 
   const load = async () => {
-    const res = await fetch('/api/campaigns')
-    const data = await res.json()
-    setCampaigns(data || [])
+    try {
+      const res = await fetch('/api/campaigns')
+      const data = await res.json()
+      setCampaigns(data || [])
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const filtered = campaigns.filter((c) => {
@@ -45,24 +52,67 @@ export default function CampaignsPage() {
           {/* FILTROS */}
           <div className="flex gap-2 bg-white border rounded-xl p-1 shadow-sm">
 
-            <button onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg text-sm ${filter === 'all' ? 'bg-green-600 text-white' : 'text-gray-600'}`}>
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-lg text-sm transition ${
+                filter === 'all'
+                  ? 'bg-green-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
               Todas
             </button>
 
-            <button onClick={() => setFilter('goal')}
-              className={`px-4 py-2 rounded-lg text-sm ${filter === 'goal' ? 'bg-green-600 text-white' : 'text-gray-600'}`}>
+            <button
+              onClick={() => setFilter('goal')}
+              className={`px-4 py-2 rounded-lg text-sm transition ${
+                filter === 'goal'
+                  ? 'bg-green-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
               Donaciones
             </button>
 
-            <button onClick={() => setFilter('tickets')}
-              className={`px-4 py-2 rounded-lg text-sm ${filter === 'tickets' ? 'bg-green-600 text-white' : 'text-gray-600'}`}>
+            <button
+              onClick={() => setFilter('tickets')}
+              className={`px-4 py-2 rounded-lg text-sm transition ${
+                filter === 'tickets'
+                  ? 'bg-green-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
               Sorteos
             </button>
 
           </div>
 
         </div>
+
+        {/* LOADING */}
+        {loading && (
+          <div className="text-center py-20 text-gray-500">
+            Cargando campañas...
+          </div>
+        )}
+
+        {/* EMPTY STATE */}
+        {!loading && filtered.length === 0 && (
+          <div className="text-center py-20">
+
+            <p className="text-gray-500 mb-4">
+              Aún no hay campañas disponibles
+            </p>
+
+            <button
+              onClick={() => router.push('/create')}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg text-sm font-semibold"
+            >
+              Crear primera campaña
+            </button>
+
+          </div>
+        )}
 
         {/* GRID */}
         <div className="grid md:grid-cols-3 gap-8">
@@ -80,19 +130,29 @@ export default function CampaignsPage() {
                 className="group bg-white rounded-2xl border overflow-hidden cursor-pointer hover:shadow-xl transition hover:-translate-y-1"
               >
 
-                <img
-                  src={c.image_url || "https://via.placeholder.com/400"}
-                  className="w-full h-48 object-cover"
-                />
+                {/* IMAGE */}
+                <div className="relative">
+                  <img
+                    src={c.image_url || "https://via.placeholder.com/400"}
+                    className="w-full h-48 object-cover"
+                  />
+
+                  {/* BADGE SORTEO */}
+                  {c.mode === 'tickets' && (
+                    <div className="absolute top-3 left-3 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                      🎁 Sorteo
+                    </div>
+                  )}
+                </div>
 
                 <div className="p-5">
 
                   <h2 className="font-bold mb-1 line-clamp-1">
-                    {c.title}
+                    {c.title || "Campaña"}
                   </h2>
 
                   <p className="text-sm text-gray-500 mb-3 line-clamp-2">
-                    {c.description}
+                    {c.description || "Sin descripción"}
                   </p>
 
                   {/* PROGRESS */}
@@ -110,12 +170,18 @@ export default function CampaignsPage() {
                       ${Number(c.current_amount || 0).toLocaleString()}
                     </span>
                     <span className="text-gray-400">
-                      ${Number(c.goal_amount).toLocaleString()}
+                      ${Number(c.goal_amount || 0).toLocaleString()}
                     </span>
                   </div>
 
                   {/* CTA */}
-                  <button className="w-full py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push(`/campaign/${c.id}`)
+                    }}
+                    className="w-full py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+                  >
                     Ver campaña
                   </button>
 
