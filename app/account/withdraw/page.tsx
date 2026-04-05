@@ -21,7 +21,7 @@ export default function WithdrawPage() {
   const [history, setHistory] = useState<any[]>([])
 
   /* =========================
-     LOAD USER + CAMPAIGNS
+     LOAD USER + DATA
   ========================= */
   useEffect(() => {
     const load = async () => {
@@ -49,11 +49,10 @@ export default function WithdrawPage() {
         setSelectedCampaign(campaignsData[0].id)
       }
 
-      // 💰 BALANCES (API REAL)
+      // 💰 BALANCES (DISPONIBLE + PENDING)
       const balancesMap: any = {}
 
       for (const c of campaignsData || []) {
-
         try {
           const res = await fetch(
             `/api/campaign-wallet?campaign_id=${c.id}`
@@ -61,10 +60,16 @@ export default function WithdrawPage() {
 
           const data = await res.json()
 
-          balancesMap[c.id] = data.balance || 0
+          balancesMap[c.id] = {
+            available: data.balance || 0,
+            pending: data.pending || 0
+          }
 
         } catch {
-          balancesMap[c.id] = 0
+          balancesMap[c.id] = {
+            available: 0,
+            pending: 0
+          }
         }
       }
 
@@ -120,7 +125,6 @@ export default function WithdrawPage() {
       setMessage("✅ Retiro solicitado correctamente")
       setAmount("")
 
-      // 🔄 refrescar
       location.reload()
 
     } catch (err) {
@@ -133,7 +137,9 @@ export default function WithdrawPage() {
   /* =========================
      VALIDACIONES
   ========================= */
-  const currentBalance = balances[selectedCampaign] || 0
+  const currentBalance = balances[selectedCampaign]?.available || 0
+  const pendingBalance = balances[selectedCampaign]?.pending || 0
+
   const insufficient = Number(amount) > currentBalance
   const disabled = loading || insufficient || currentBalance <= 0
 
@@ -162,7 +168,7 @@ export default function WithdrawPage() {
             {campaigns.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.title} — Disponible: $
-                {Number(balances[c.id] || 0).toLocaleString()}
+                {Number(balances[c.id]?.available || 0).toLocaleString()}
               </option>
             ))}
           </select>
@@ -176,12 +182,21 @@ export default function WithdrawPage() {
             className="w-full border p-3 rounded-lg mb-2"
           />
 
-          {/* INFO BALANCE */}
+          {/* BALANCE */}
           {selectedCampaign && (
-            <p className="text-sm text-gray-500 mb-2">
-              Disponible: $
-              {Number(currentBalance).toLocaleString()}
-            </p>
+            <>
+              <p className="text-sm text-gray-500">
+                Disponible: $
+                {Number(currentBalance).toLocaleString()}
+              </p>
+
+              {pendingBalance > 0 && (
+                <p className="text-xs text-yellow-600 mb-2">
+                  🔒 Retenido: $
+                  {Number(pendingBalance).toLocaleString()}
+                </p>
+              )}
+            </>
           )}
 
           {/* ERROR */}

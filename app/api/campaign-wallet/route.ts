@@ -25,11 +25,11 @@ export async function GET(req: Request) {
     )
 
     return NextResponse.json({
-      ok: true,
-      balance: wallet.balance,
-      totalIn: wallet.totalIn,
-      totalOut: wallet.totalOut
-    })
+  balance: wallet.available,
+  pending: wallet.pending,
+  totalIn: wallet.totalIn,
+  totalOut: wallet.totalOut
+})
 
   } catch (error) {
     return NextResponse.json(
