@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🔒 LOCK (ANTI DUPLICADOS)
+       🔒 LOCK
     ========================= */
     const lockKey = crypto
       .createHash("md5")
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🔒 VALIDAR CAMPAÑA
+       VALIDAR CAMPAÑA
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🚫 BLOQUEO DUPLICADO
+       BLOQUEO DUPLICADO
     ========================= */
     const { data: existing } = await supabase
       .from("payouts")
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
       campaign_id
     )
 
-    if (!wallet || typeof wallet.balance !== "number") {
+    if (!wallet || typeof wallet.available !== "number") {
       await sendAlert({
         title: "Error cálculo balance",
         message: "No se pudo calcular balance en payout",
@@ -120,7 +120,7 @@ export async function POST(req: Request) {
       )
     }
 
-    if (Number(amount) > wallet.balance) {
+    if (Number(amount) > wallet.available) {
       return NextResponse.json(
         { error: "saldo insuficiente" },
         { status: 400 }
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🏦 CREAR PAYOUT
+       CREAR PAYOUT
     ========================= */
     const { data, error } = await supabase
       .from("payouts")
@@ -162,6 +162,7 @@ export async function POST(req: Request) {
     })
 
   } catch (error) {
+
     logError("PAYOUT REQUEST ERROR", error)
     await logErrorToDB("payout_request_error", error)
 

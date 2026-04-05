@@ -35,13 +35,15 @@ export async function GET() {
           ...c,
           raised: wallet.totalIn,
           spent: wallet.totalOut,
-          balance: wallet.balance,
+          balance: wallet.available,   // ✅ FIX
+          pending: wallet.pending,     // ✅ NUEVO
           ticketsSold: ticketsSold || 0
         }
       })
     )
 
     return NextResponse.json(enriched)
+
   } catch (error) {
     return NextResponse.json(
       { error: "Error servidor" },
