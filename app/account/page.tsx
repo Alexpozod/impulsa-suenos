@@ -29,7 +29,7 @@ export default function AccountPage() {
 
       setUser(data.user)
 
-      const email = data.user.email
+      const email = data.user.email!.toLowerCase()
 
       // KYC
       const { data: kyc } = await supabase
@@ -40,14 +40,14 @@ export default function AccountPage() {
 
       setKycStatus(kyc?.status || null)
 
-      // BANK
-      const { data: bank } = await supabase
+      // BANK (FIX PRO)
+      const { data: bankAccounts } = await supabase
         .from("bank_accounts")
         .select("id")
         .eq("user_email", email)
-        .maybeSingle()
+        .limit(1)
 
-      setBankLoaded(!!bank)
+      setBankLoaded((bankAccounts?.length || 0) > 0)
 
       setLoading(false)
     }

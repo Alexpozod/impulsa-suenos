@@ -30,9 +30,6 @@ export default function BankPage() {
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
 
-  /* =========================
-     🔐 LOAD USER + DATA
-  ========================= */
   useEffect(() => {
     loadData()
   }, [])
@@ -46,7 +43,7 @@ export default function BankPage() {
       return
     }
 
-    const email = data.user.email!
+    const email = data.user.email!.toLowerCase()
 
     const { data: banks } = await supabase
       .from("bank_accounts")
@@ -58,9 +55,6 @@ export default function BankPage() {
     setLoading(false)
   }
 
-  /* =========================
-     ✏️ HANDLE CHANGE
-  ========================= */
   const handleChange = (e: any) => {
     setForm({
       ...form,
@@ -68,9 +62,6 @@ export default function BankPage() {
     })
   }
 
-  /* =========================
-     🎯 VALIDACIÓN
-  ========================= */
   const validate = () => {
     if (!form.holder_name) return "Nombre requerido"
     if (!form.bank_name) return "Banco requerido"
@@ -80,9 +71,6 @@ export default function BankPage() {
     return null
   }
 
-  /* =========================
-     💾 SAVE / UPDATE
-  ========================= */
   const handleSave = async () => {
 
     setError("")
@@ -99,11 +87,10 @@ export default function BankPage() {
     try {
 
       const { data } = await supabase.auth.getUser()
-      const email = data.user?.email
+      const email = data.user?.email?.toLowerCase()
 
       if (!email) throw new Error("No autenticado")
 
-      // 🔥 LÍMITE 2 CUENTAS
       if (!editingId && accounts.length >= 2) {
         setError("Máximo 2 cuentas bancarias")
         setSaving(false)
@@ -141,7 +128,7 @@ export default function BankPage() {
 
       if (errorDb) throw errorDb
 
-      setMessage("✅ Cuenta guardada correctamente")
+      setMessage("✅ Cuenta bancaria guardada correctamente")
       setForm(emptyForm)
       setEditingId(null)
 
@@ -149,15 +136,12 @@ export default function BankPage() {
 
     } catch (err: any) {
       console.error(err)
-      setError(err.message || "Error guardando")
+      setError(err.message || "Error guardando datos")
     }
 
     setSaving(false)
   }
 
-  /* =========================
-     ✏️ EDITAR
-  ========================= */
   const handleEdit = (acc: any) => {
     setEditingId(acc.id)
     setForm({
@@ -167,9 +151,6 @@ export default function BankPage() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  /* =========================
-     🗑️ ELIMINAR
-  ========================= */
   const handleDelete = async (id: string) => {
 
     if (!confirm("¿Eliminar cuenta bancaria?")) return
@@ -193,7 +174,6 @@ export default function BankPage() {
           🏦 Cuentas bancarias
         </h1>
 
-        {/* LISTADO */}
         <div className="space-y-4">
 
           {accounts.map((acc) => (
@@ -207,17 +187,11 @@ export default function BankPage() {
               </div>
 
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(acc)}
-                  className="px-3 py-1 bg-blue-600 text-white rounded"
-                >
+                <button onClick={() => handleEdit(acc)} className="px-3 py-1 bg-blue-600 text-white rounded">
                   Editar
                 </button>
 
-                <button
-                  onClick={() => handleDelete(acc.id)}
-                  className="px-3 py-1 bg-red-600 text-white rounded"
-                >
+                <button onClick={() => handleDelete(acc.id)} className="px-3 py-1 bg-red-600 text-white rounded">
                   Eliminar
                 </button>
               </div>
@@ -227,7 +201,6 @@ export default function BankPage() {
 
         </div>
 
-        {/* FORM */}
         <div className="bg-white p-6 rounded-xl border space-y-3">
 
           <h2 className="font-semibold">
@@ -248,16 +221,10 @@ export default function BankPage() {
 
           <input name="country" placeholder="País" value={form.country} onChange={handleChange} className="border p-2 w-full rounded" />
 
-          {/* 🌍 INTERNACIONAL */}
           <input name="swift" placeholder="SWIFT (internacional)" value={form.swift} onChange={handleChange} className="border p-2 w-full rounded" />
-
           <input name="iban" placeholder="IBAN (internacional)" value={form.iban} onChange={handleChange} className="border p-2 w-full rounded" />
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
+          <button onClick={handleSave} disabled={saving} className="bg-green-600 text-white px-4 py-2 rounded">
             {saving ? "Guardando..." : editingId ? "Actualizar" : "Guardar"}
           </button>
 
