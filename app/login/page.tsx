@@ -9,7 +9,6 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
-
   const [redirect, setRedirect] = useState<string | null>(null)
 
   useEffect(() => {
@@ -18,15 +17,27 @@ export default function Login() {
   }, [])
 
   /* =========================
-     🎯 REDIRECCIÓN INTELIGENTE PRO
+     🎯 REDIRECCIÓN PRO REAL
   ========================= */
   const handlePostLoginRedirect = async () => {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    const role = user?.user_metadata?.role
+    if (!user) {
+      window.location.href = "/login"
+      return
+    }
 
-    /* 🔥 donation intent (prioridad máxima) */
+    /* 🔥 CONSULTA REAL A DB (NO JWT) */
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle()
+
+    const role = profile?.role
+
+    /* 🎯 donation intent */
     const intent = localStorage.getItem('donation_intent')
 
     if (intent) {
@@ -36,8 +47,7 @@ export default function Login() {
 
         window.location.href = `/campaign/${parsed.campaign_id}`
         return
-      } catch (e) {
-        console.error("Error parsing donation intent", e)
+      } catch {
         localStorage.removeItem('donation_intent')
       }
     }
@@ -48,17 +58,17 @@ export default function Login() {
       return
     }
 
-    /* 🔁 REDIRECT PARAM */
+    /* 🔁 redirect param */
     if (redirect) {
       window.location.href = redirect
       return
     }
 
-    /* 👤 USER NORMAL */
+    /* 👤 USER */
     window.location.href = "/dashboard"
   }
 
-  /* 🔍 SI YA ESTÁ LOGUEADO */
+  /* 🔍 SESSION CHECK */
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession()
@@ -90,7 +100,7 @@ export default function Login() {
     setLoading(false)
   }
 
-  /* 🆕 REGISTRO */
+  /* 🆕 REGISTER */
   const signUp = async () => {
     setLoading(true)
     setMessage('')
@@ -106,13 +116,13 @@ export default function Login() {
     if (error) {
       setMessage(error.message)
     } else {
-      setMessage("📩 Revisa tu correo para confirmar tu cuenta")
+      setMessage("📩 Revisa tu correo")
     }
 
     setLoading(false)
   }
 
-  /* 🔐 GOOGLE LOGIN */
+  /* 🔐 GOOGLE */
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
