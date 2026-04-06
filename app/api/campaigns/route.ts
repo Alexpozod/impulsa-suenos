@@ -7,17 +7,47 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+/* =========================
+   ✅ GET PUBLIC (FRONT)
+========================= */
+export async function GET() {
+  try {
+
+    const { data: campaigns, error } = await supabase
+      .from("campaigns")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error(error)
+      return NextResponse.json([], { status: 200 })
+    }
+
+    return NextResponse.json(campaigns || [])
+
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json([], { status: 200 })
+  }
+}
+
+/* =========================
+   🔐 POST (ORG FILTERED - ADMIN / PRIVATE)
+========================= */
 export async function POST(req: Request) {
   try {
     const { user } = await req.json()
 
     const orgId = getOrgId(user)
 
+    if (!orgId) {
+      return NextResponse.json([], { status: 200 })
+    }
+
     const { data: campaigns, error } = await supabase
       .from("campaigns")
       .select("*")
       .eq("organization_id", orgId)
-      .eq("status", "active")
       .order("created_at", { ascending: false })
 
     if (error) {
@@ -57,6 +87,7 @@ export async function POST(req: Request) {
     return NextResponse.json(enriched)
 
   } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { error: "Error servidor" },
       { status: 500 }
