@@ -23,7 +23,6 @@ export async function GET() {
       return NextResponse.json([], { status: 200 })
     }
 
-    /* 🔥 CALCULAR DINERO REAL (CLAVE) */
     const enriched = await Promise.all(
       (campaigns || []).map(async (c) => {
 
@@ -37,15 +36,31 @@ export async function GET() {
         const current_amount =
           ledger?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
 
+        // 🔥 SCORE INTELIGENTE (ranking)
+        const progress = c.goal_amount > 0
+          ? current_amount / Number(c.goal_amount)
+          : 0
+
+        const recencyBoost =
+          (Date.now() - new Date(c.created_at).getTime()) < 1000 * 60 * 60 * 24 * 3
+            ? 1.2
+            : 1
+
+        const score = (current_amount * 0.7 + progress * 1000 * 0.3) * recencyBoost
+
         return {
           ...c,
           current_amount,
-          goal_amount: Number(c.goal_amount || 0)
+          goal_amount: Number(c.goal_amount || 0),
+          score
         }
       })
     )
 
-    return NextResponse.json(enriched)
+    // 🔥 ORDEN FINAL POR SCORE
+    const sorted = enriched.sort((a, b) => b.score - a.score)
+
+    return NextResponse.json(sorted)
 
   } catch (error) {
     console.error("GET campaigns fatal:", error)
@@ -77,34 +92,7 @@ export async function POST(req: Request) {
       return NextResponse.json([], { status: 200 })
     }
 
-    const enriched = await Promise.all(
-      (campaigns || []).map(async (c) => {
-
-        const { data: ledger } = await supabase
-          .from("financial_ledger")
-          .select("amount")
-          .eq("campaign_id", c.id)
-          .eq("organization_id", orgId)
-          .eq("flow_type", "in")
-          .eq("status", "confirmed")
-
-        const total =
-          ledger?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
-
-        const { count: ticketsSold } = await supabase
-          .from("tickets")
-          .select("*", { count: "exact", head: true })
-          .eq("campaign_id", c.id)
-
-        return {
-          ...c,
-          current_amount: total,
-          ticketsSold: ticketsSold || 0
-        }
-      })
-    )
-
-    return NextResponse.json(enriched)
+    return NextResponse.json(campaigns || [])
 
   } catch (error) {
     console.error("POST campaigns fatal:", error)
