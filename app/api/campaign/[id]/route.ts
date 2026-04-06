@@ -6,10 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET(
-  req: Request,
-  context: any
-) {
+export async function GET(req: Request, context: any) {
   try {
 
     const id = context?.params?.id
@@ -27,7 +24,12 @@ export async function GET(
       .eq("id", id)
       .maybeSingle()
 
-    if (error || !campaign) {
+    if (error) {
+      console.error("Campaign fetch error:", error)
+      return NextResponse.json(null, { status: 200 })
+    }
+
+    if (!campaign) {
       return NextResponse.json(null, { status: 200 })
     }
 
@@ -42,15 +44,16 @@ export async function GET(
       .eq("status", "confirmed")
 
     const current_amount =
-      ledger?.reduce((acc: number, d: any) => acc + Number(d.amount), 0) || 0
+      ledger?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
 
     return NextResponse.json({
       ...campaign,
-      current_amount
+      current_amount,
+      goal_amount: Number(campaign.goal_amount || 0)
     })
 
   } catch (err) {
-    console.error("CAMPAIGN DETAIL ERROR", err)
+    console.error("CAMPAIGN DETAIL ERROR:", err)
     return NextResponse.json(null, { status: 200 })
   }
 }

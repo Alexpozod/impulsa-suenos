@@ -19,25 +19,47 @@ export async function GET() {
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error(error)
+      console.error("GET campaigns error:", error)
       return NextResponse.json([], { status: 200 })
     }
 
-    return NextResponse.json(campaigns || [])
+    /* 🔥 CALCULAR DINERO REAL (CLAVE) */
+    const enriched = await Promise.all(
+      (campaigns || []).map(async (c) => {
+
+        const { data: ledger } = await supabase
+          .from("financial_ledger")
+          .select("amount")
+          .eq("campaign_id", c.id)
+          .eq("flow_type", "in")
+          .eq("status", "confirmed")
+
+        const current_amount =
+          ledger?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
+
+        return {
+          ...c,
+          current_amount,
+          goal_amount: Number(c.goal_amount || 0)
+        }
+      })
+    )
+
+    return NextResponse.json(enriched)
 
   } catch (error) {
-    console.error(error)
+    console.error("GET campaigns fatal:", error)
     return NextResponse.json([], { status: 200 })
   }
 }
 
 /* =========================
-   🔐 POST (ORG FILTERED - ADMIN / PRIVATE)
+   🔐 POST (ORG FILTERED - ADMIN)
 ========================= */
 export async function POST(req: Request) {
   try {
-    const { user } = await req.json()
 
+    const { user } = await req.json()
     const orgId = getOrgId(user)
 
     if (!orgId) {
@@ -51,10 +73,8 @@ export async function POST(req: Request) {
       .order("created_at", { ascending: false })
 
     if (error) {
-      return NextResponse.json(
-        { error: "Error cargando campañas" },
-        { status: 500 }
-      )
+      console.error("POST campaigns error:", error)
+      return NextResponse.json([], { status: 200 })
     }
 
     const enriched = await Promise.all(
@@ -65,7 +85,7 @@ export async function POST(req: Request) {
           .select("amount")
           .eq("campaign_id", c.id)
           .eq("organization_id", orgId)
-          .eq("type", "payment")
+          .eq("flow_type", "in")
           .eq("status", "confirmed")
 
         const total =
@@ -78,7 +98,7 @@ export async function POST(req: Request) {
 
         return {
           ...c,
-          raised: total,
+          current_amount: total,
           ticketsSold: ticketsSold || 0
         }
       })
@@ -87,10 +107,7 @@ export async function POST(req: Request) {
     return NextResponse.json(enriched)
 
   } catch (error) {
-    console.error(error)
-    return NextResponse.json(
-      { error: "Error servidor" },
-      { status: 500 }
-    )
+    console.error("POST campaigns fatal:", error)
+    return NextResponse.json([], { status: 200 })
   }
 }
