@@ -1,7 +1,10 @@
-"use client"
+'use client'
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/src/lib/supabase"
+
 import {
   LineChart,
   Line,
@@ -12,7 +15,7 @@ import {
 } from "recharts"
 
 /* =========================
-   🧠 TYPES
+   TYPES
 ========================= */
 type Campaign = {
   id: string
@@ -29,10 +32,12 @@ type Alert = {
   message: string
 }
 
-/* =========================
-   🚀 COMPONENT
-========================= */
 export default function AdminPage() {
+
+  const router = useRouter()
+
+  const [loading, setLoading] = useState(true)
+  const [authorized, setAuthorized] = useState(false)
 
   const [metrics, setMetrics] = useState<any>(null)
   const [chartData, setChartData] = useState<ChartItem[]>([])
@@ -40,54 +45,75 @@ export default function AdminPage() {
   const [topCampaigns, setTopCampaigns] = useState<Campaign[]>([])
 
   useEffect(() => {
-    loadData()
+    checkAccess()
   }, [])
 
   /* =========================
-     📊 LOAD REAL DATA
+     🔐 AUTH + ROLE CHECK
+  ========================= */
+  const checkAccess = async () => {
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    const role = user.user_metadata?.role
+
+    if (role !== 'admin') {
+      router.push('/dashboard')
+      return
+    }
+
+    setAuthorized(true)
+    loadData()
+  }
+
+  /* =========================
+     📊 LOAD DATA
   ========================= */
   const loadData = async () => {
     try {
 
-      const res = await fetch("/api/admin/metrics")
+      const session = await supabase.auth.getSession()
+
+      const res = await fetch("/api/admin/metrics", {
+        headers: {
+          Authorization: `Bearer ${session.data.session?.access_token}`
+        }
+      })
+
       const data = await res.json()
 
-      /* =========================
-         💰 MÉTRICAS
-      ========================= */
       setMetrics({
         totalRevenue: data.totalRevenue,
       })
 
-      /* =========================
-         📈 CHART REAL
-      ========================= */
       const formattedChart = data.chart.map((d: any) => ({
         name: d.date,
         ingresos: Number(d.ingresos),
       }))
 
       setChartData(formattedChart)
-
-      /* =========================
-         🚨 ALERTAS
-      ========================= */
       setAlerts(data.alerts || [])
-
-      /* =========================
-         🔥 TOP CAMPAÑAS
-      ========================= */
       setTopCampaigns(data.topCampaigns || [])
 
     } catch (err) {
-      console.error("Dashboard error:", err)
+      console.error("ADMIN ERROR:", err)
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (!metrics) {
+  /* =========================
+     LOADING / BLOCK
+  ========================= */
+  if (loading || !authorized) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-slate-950">
-        Cargando dashboard...
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
+        Verificando acceso...
       </div>
     )
   }
@@ -95,7 +121,6 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white p-10">
 
-      {/* HEADER */}
       <h1 className="text-3xl font-bold mb-6">
         📊 Dashboard Financiero
       </h1>
@@ -121,7 +146,7 @@ export default function AdminPage() {
 
       </div>
 
-      {/* MÉTRICA PRINCIPAL */}
+      {/* MÉTRICAS */}
       <div className="mb-10">
 
         <div className="bg-slate-900 p-6 rounded-xl w-fit">
@@ -133,11 +158,11 @@ export default function AdminPage() {
 
       </div>
 
-      {/* 📈 GRÁFICO REAL */}
+      {/* CHART */}
       <div className="bg-slate-900 p-6 rounded-xl mb-10">
 
         <h2 className="text-lg font-bold mb-4">
-          📈 Ingresos por día (real)
+          📈 Ingresos por día
         </h2>
 
         <ResponsiveContainer width="100%" height={300}>
@@ -151,7 +176,7 @@ export default function AdminPage() {
 
       </div>
 
-      {/* 🚨 ALERTAS */}
+      {/* ALERTAS */}
       <div className="mb-10">
 
         <h2 className="text-lg font-bold mb-4">
@@ -170,11 +195,11 @@ export default function AdminPage() {
 
       </div>
 
-      {/* 🔥 TOP CAMPAÑAS */}
+      {/* TOP CAMPAÑAS */}
       <div>
 
         <h2 className="text-lg font-bold mb-4">
-          🔥 Top campañas (real)
+          🔥 Top campañas
         </h2>
 
         {topCampaigns.map((c) => (
