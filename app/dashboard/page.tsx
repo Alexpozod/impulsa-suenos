@@ -4,11 +4,21 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
 
+type FinanceData = {
+  totals: {
+    balance: number
+    raised: number
+    fees: number
+    pending: number
+  }
+  campaigns: any[]
+}
+
 export default function Dashboard() {
 
   const router = useRouter()
 
-  const [data, setData] = useState<any>(null)
+  const [data, setData] = useState<FinanceData | null>(null)
   const [loading, setLoading] = useState(true)
   const [isReady, setIsReady] = useState(false)
 
@@ -26,11 +36,11 @@ export default function Dashboard() {
     }
 
     const user = session.session.user
-    const email = user.email!.toLowerCase()
+    const email = user.email?.toLowerCase() || ""
     const token = session.session.access_token
 
     /* =========================
-       🔐 VALIDACIÓN REAL
+       🔐 VALIDACIÓN
     ========================= */
 
     const { data: kyc } = await supabase
@@ -46,12 +56,12 @@ export default function Dashboard() {
       .limit(1)
 
     const kycOk = kyc?.status === "approved"
-    const bankOk = banks && banks.length > 0
+    const bankOk = (banks?.length || 0) > 0
 
     setIsReady(kycOk && bankOk)
 
     /* =========================
-       💰 DATA FINANCIERA
+       💰 FINANCE
     ========================= */
 
     try {
@@ -65,7 +75,7 @@ export default function Dashboard() {
 
       setData(json)
     } catch (err) {
-      console.error("Finance error:", err)
+      console.error(err)
       setData(null)
     }
 
@@ -106,24 +116,22 @@ export default function Dashboard() {
         💰 Panel financiero
       </h1>
 
-      {/* 🔥 MENSAJE CONDICIONAL */}
       {!isReady && (
         <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
           ⚠️ Para retirar dinero debes completar tu verificación (KYC) y agregar una cuenta bancaria.
         </div>
       )}
 
-      {/* 🔥 SAFE DATA */}
+      {/* 🔥 SAFE */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
 
-        <Card title="Disponible" value={`$${data?.totals?.balance || 0}`} />
-        <Card title="Recaudado" value={`$${data?.totals?.raised || 0}`} />
-        <Card title="Comisiones" value={`$${data?.totals?.fees || 0}`} />
-        <Card title="Pendiente" value={`$${data?.totals?.pending || 0}`} />
+        <Card title="Disponible" value={`$${data?.totals?.balance ?? 0}`} />
+        <Card title="Recaudado" value={`$${data?.totals?.raised ?? 0}`} />
+        <Card title="Comisiones" value={`$${data?.totals?.fees ?? 0}`} />
+        <Card title="Pendiente" value={`$${data?.totals?.pending ?? 0}`} />
 
       </div>
 
-      {/* ACCIONES */}
       <div className="grid md:grid-cols-3 gap-4 mb-10">
 
         <button onClick={() => router.push('/account')} className="p-4 border rounded-xl hover:bg-gray-50 text-left">
@@ -140,10 +148,9 @@ export default function Dashboard() {
 
       </div>
 
-      {/* CAMPAÑAS */}
       <div className="space-y-4">
 
-        {(data?.campaigns || []).map((c: any) => (
+        {(data?.campaigns ?? []).map((c: any) => (
           <div key={c.id} className="border p-4 rounded-xl">
 
             <h2 className="font-bold">{c.title}</h2>
@@ -173,7 +180,7 @@ export default function Dashboard() {
   )
 }
 
-function Card({ title, value }: any) {
+function Card({ title, value }: { title: string; value: string }) {
   return (
     <div className="bg-white p-4 rounded-xl border shadow">
       <p className="text-sm text-gray-500">{title}</p>
