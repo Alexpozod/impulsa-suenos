@@ -6,10 +6,13 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET(req: Request, context: any) {
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
   try {
 
-    const id = context?.params?.id
+    const id = params.id
 
     if (!id) {
       return NextResponse.json(null, { status: 400 })
@@ -22,14 +25,10 @@ export async function GET(req: Request, context: any) {
       .from("campaigns")
       .select("*")
       .eq("id", id)
-      .maybeSingle()
+      .single() // 🔥 IMPORTANTE
 
     if (error) {
       console.error("Campaign fetch error:", error)
-      return NextResponse.json(null, { status: 200 })
-    }
-
-    if (!campaign) {
       return NextResponse.json(null, { status: 200 })
     }
 
