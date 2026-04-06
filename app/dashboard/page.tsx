@@ -11,6 +11,8 @@ export default function Dashboard() {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
+  const [isReady, setIsReady] = useState(false)
+
   useEffect(() => {
     load()
   }, [])
@@ -24,7 +26,36 @@ export default function Dashboard() {
       return
     }
 
+    const user = session.session.user
+    const email = user.email!.toLowerCase()
     const token = session.session.access_token
+
+    /* =========================
+       🔥 VALIDACIÓN REAL (FIX)
+    ========================= */
+
+    // KYC
+    const { data: kyc } = await supabase
+      .from("kyc")
+      .select("status")
+      .eq("user_email", email)
+      .maybeSingle()
+
+    // BANK (IMPORTANTE: array)
+    const { data: banks } = await supabase
+      .from("bank_accounts")
+      .select("id")
+      .eq("user_email", email)
+      .limit(1)
+
+    const kycOk = kyc?.status === "approved"
+    const bankOk = banks && banks.length > 0
+
+    setIsReady(kycOk && bankOk)
+
+    /* =========================
+       💰 DATA FINANCIERA
+    ========================= */
 
     const res = await fetch('/api/user/finance', {
       headers: {
@@ -73,10 +104,12 @@ export default function Dashboard() {
         💰 Panel financiero
       </h1>
 
-      {/* 🔥 MENSAJE CLAVE */}
-      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
-        ⚠️ Para retirar dinero debes completar tu verificación (KYC) y agregar una cuenta bancaria.
-      </div>
+      {/* 🔥 MENSAJE CONDICIONAL (FIX REAL) */}
+      {!isReady && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+          ⚠️ Para retirar dinero debes completar tu verificación (KYC) y agregar una cuenta bancaria.
+        </div>
+      )}
 
       {/* TOTALES */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
@@ -88,7 +121,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* 🔥 ACCIONES RÁPIDAS */}
+      {/* ACCIONES */}
       <div className="grid md:grid-cols-3 gap-4 mb-10">
 
         <button onClick={() => router.push('/account')} className="p-4 border rounded-xl hover:bg-gray-50 text-left">
