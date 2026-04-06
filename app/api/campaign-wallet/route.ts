@@ -19,17 +19,35 @@ export async function GET(req: Request) {
       )
     }
 
+    /* =========================
+       🔓 LIBERACIÓN AUTOMÁTICA (SAFE)
+       ========================= */
+    const cutoff = new Date(
+      Date.now() - 24 * 60 * 60 * 1000
+    ).toISOString()
+
+    await supabase
+      .from("financial_ledger")
+      .update({ status: "confirmed" })
+      .eq("flow_type", "in")
+      .eq("status", "pending")
+      .eq("campaign_id", campaign_id)
+      .lte("created_at", cutoff)
+
+    /* =========================
+       💰 CALCULAR BALANCE REAL
+       ========================= */
     const wallet = await calculateCampaignBalance(
       supabase,
       campaign_id
     )
 
     return NextResponse.json({
-  balance: wallet.available,
-  pending: wallet.pending,
-  totalIn: wallet.totalIn,
-  totalOut: wallet.totalOut
-})
+      balance: wallet.available,
+      pending: wallet.pending,
+      totalIn: wallet.totalIn,
+      totalOut: wallet.totalOut
+    })
 
   } catch (error) {
     return NextResponse.json(
