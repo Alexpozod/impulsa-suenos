@@ -2,11 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
-import { useRouter } from 'next/navigation'
 
 export default function Login() {
-
-  const router = useRouter()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -20,9 +17,16 @@ export default function Login() {
     setRedirect(params.get("redirect"))
   }, [])
 
-  /* 🔥 REDIRECCIÓN CENTRAL INTELIGENTE */
-  const handlePostLoginRedirect = () => {
+  /* =========================
+     🎯 REDIRECCIÓN INTELIGENTE PRO
+  ========================= */
+  const handlePostLoginRedirect = async () => {
 
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const role = user?.user_metadata?.role
+
+    /* 🔥 donation intent (prioridad máxima) */
     const intent = localStorage.getItem('donation_intent')
 
     if (intent) {
@@ -38,11 +42,20 @@ export default function Login() {
       }
     }
 
+    /* 🔐 ADMIN */
+    if (role === 'admin') {
+      window.location.href = "/admin"
+      return
+    }
+
+    /* 🔁 REDIRECT PARAM */
     if (redirect) {
       window.location.href = redirect
-    } else {
-      window.location.href = "/dashboard"
+      return
     }
+
+    /* 👤 USER NORMAL */
+    window.location.href = "/dashboard"
   }
 
   /* 🔍 SI YA ESTÁ LOGUEADO */
@@ -71,7 +84,7 @@ export default function Login() {
     if (error) {
       setMessage("❌ " + error.message)
     } else {
-      handlePostLoginRedirect()
+      await handlePostLoginRedirect()
     }
 
     setLoading(false)
