@@ -9,31 +9,27 @@ const supabase = createClient(
 export async function GET(req: Request) {
   try {
 
-    // 🔥 OBTENER ID DESDE LA URL (100% confiable)
     const url = new URL(req.url)
     const parts = url.pathname.split("/")
-    const id = parts[parts.length - 1]
+
+    const rawId = parts[parts.length - 1]
+    const id = rawId?.trim()
 
     if (!id) {
       return NextResponse.json(null, { status: 400 })
     }
 
-    /* =========================
-       📊 CAMPAÑA
-    ========================= */
     const { data: campaign, error } = await supabase
       .from("campaigns")
       .select("*")
-      .eq("id", id)
-      .single()
+      .ilike("id", id)
 
-    if (error || !campaign) {
+    if (error || !campaign || campaign.length === 0) {
       return NextResponse.json(null, { status: 200 })
     }
 
-    /* =========================
-       💰 DINERO REAL
-    ========================= */
+    const campaignData = campaign[0]
+
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("amount")
@@ -45,9 +41,9 @@ export async function GET(req: Request) {
       ledger?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
 
     return NextResponse.json({
-      ...campaign,
+      ...campaignData,
       current_amount,
-      goal_amount: Number(campaign.goal_amount || 0)
+      goal_amount: Number(campaignData.goal_amount || 0)
     })
 
   } catch (err) {
