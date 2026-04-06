@@ -39,10 +39,7 @@ export default function Dashboard() {
     const email = user.email?.toLowerCase() || ""
     const token = session.session.access_token
 
-    /* =========================
-       🔐 VALIDACIÓN
-    ========================= */
-
+    // 🔐 VALIDACIÓN REAL
     const { data: kyc } = await supabase
       .from("kyc")
       .select("status")
@@ -60,10 +57,7 @@ export default function Dashboard() {
 
     setIsReady(kycOk && bankOk)
 
-    /* =========================
-       💰 FINANCE
-    ========================= */
-
+    // 💰 FINANCE
     try {
       const res = await fetch('/api/user/finance', {
         headers: {
@@ -72,8 +66,8 @@ export default function Dashboard() {
       })
 
       const json = await res.json()
-
       setData(json)
+
     } catch (err) {
       console.error(err)
       setData(null)
@@ -116,36 +110,22 @@ export default function Dashboard() {
         💰 Panel financiero
       </h1>
 
-      {!isReady && (
+      {/* ✅ MENSAJE CORREGIDO */}
+      {!isReady ? (
         <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
           ⚠️ Para retirar dinero debes completar tu verificación (KYC) y agregar una cuenta bancaria.
         </div>
+      ) : (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-sm">
+          ✅ Cuenta verificada y lista para retiros
+        </div>
       )}
 
-      {/* 🔥 SAFE */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
-
         <Card title="Disponible" value={`$${data?.totals?.balance ?? 0}`} />
         <Card title="Recaudado" value={`$${data?.totals?.raised ?? 0}`} />
         <Card title="Comisiones" value={`$${data?.totals?.fees ?? 0}`} />
         <Card title="Pendiente" value={`$${data?.totals?.pending ?? 0}`} />
-
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-4 mb-10">
-
-        <button onClick={() => router.push('/account')} className="p-4 border rounded-xl hover:bg-gray-50 text-left">
-          👤 Configurar cuenta
-        </button>
-
-        <button onClick={() => router.push('/kyc')} className="p-4 border rounded-xl hover:bg-gray-50 text-left">
-          🪪 Verificación KYC
-        </button>
-
-        <button onClick={() => router.push('/account/bank')} className="p-4 border rounded-xl hover:bg-gray-50 text-left">
-          🏦 Cuenta bancaria
-        </button>
-
       </div>
 
       <div className="space-y-4">
@@ -156,20 +136,30 @@ export default function Dashboard() {
             <h2 className="font-bold">{c.title}</h2>
 
             <div className="grid md:grid-cols-5 gap-4 text-sm mt-3">
-
               <div>Recaudado: ${c.raised}</div>
               <div>Disponible: ${c.available}</div>
               <div>Retirado: ${c.withdrawn}</div>
               <div>Pendiente: ${c.pending}</div>
-
             </div>
 
-            <button
-              onClick={() => requestWithdraw(c.id)}
-              className="mt-3 bg-black text-white px-4 py-2 rounded"
-            >
-              Solicitar retiro
-            </button>
+            <div className="flex gap-2 mt-3">
+
+              <button
+                onClick={() => requestWithdraw(c.id)}
+                className="bg-black text-white px-4 py-2 rounded"
+              >
+                Retirar
+              </button>
+
+              {/* 🔥 BOTÓN EDITAR */}
+              <button
+                onClick={() => router.push(`/dashboard/edit/${c.id}`)}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Editar
+              </button>
+
+            </div>
 
           </div>
         ))}

@@ -2,12 +2,20 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export default function HomePage() {
 
   const router = useRouter()
 
-  // 🔥 SIMPLIFICADO → el control real está en /create
+  const [campaigns, setCampaigns] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch("/api/campaigns")
+      .then(res => res.json())
+      .then(setCampaigns)
+  }, [])
+
   const handleCreateCampaign = () => {
     router.push("/create")
   }
@@ -101,69 +109,38 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CONFIANZA */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-
-          <h2 className="text-2xl font-bold mb-10">
-            Transparencia y seguridad real
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-10">
-
-            <div>
-              <div className="text-3xl mb-3">🔒</div>
-              <h3 className="font-semibold mb-2">
-                Pagos seguros
-              </h3>
-              <p className="text-sm text-gray-600">
-                Procesamos pagos con MercadoPago y sistemas certificados.
-              </p>
-            </div>
-
-            <div>
-              <div className="text-3xl mb-3">📊</div>
-              <h3 className="font-semibold mb-2">
-                Trazabilidad completa
-              </h3>
-              <p className="text-sm text-gray-600">
-                Cada movimiento queda registrado en nuestro sistema financiero.
-              </p>
-            </div>
-
-            <div>
-              <div className="text-3xl mb-3">🚨</div>
-              <h3 className="font-semibold mb-2">
-                Sistema antifraude
-              </h3>
-              <p className="text-sm text-gray-600">
-                Detectamos comportamientos sospechosos y protegemos tu dinero.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* CAMPAÑAS */}
+      {/* CAMPAÑAS REALES */}
       <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-6 text-center">
+        <div className="max-w-6xl mx-auto px-6">
 
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-2xl font-bold mb-10 text-center">
             Campañas destacadas
           </h2>
 
-          <p className="text-gray-500 mb-10">
-            Próximamente podrás explorar campañas reales y apoyar causas importantes.
-          </p>
+          <div className="grid md:grid-cols-3 gap-6">
 
-          <Link
-            href="/campaigns"
-            className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-semibold"
-          >
-            Ver campañas
-          </Link>
+            {campaigns.slice(0, 6).map((c) => (
+              <div
+                key={c.id}
+                onClick={() => router.push(`/campaign/${c.id}`)}
+                className="bg-white border rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition"
+              >
+                <img
+                  src={c.image_url || "https://via.placeholder.com/400"}
+                  className="h-40 w-full object-cover"
+                />
+
+                <div className="p-4">
+                  <h3 className="font-bold mb-1">{c.title}</h3>
+
+                  <p className="text-sm text-gray-500">
+                    ${Number(c.current_amount || 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+          </div>
 
         </div>
       </section>
