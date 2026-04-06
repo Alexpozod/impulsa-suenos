@@ -21,9 +21,6 @@ export default function CreateCampaign() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
-  /* =========================
-     🔐 VALIDACIÓN GLOBAL
-  ========================= */
   useEffect(() => {
     const checkAccess = async () => {
 
@@ -34,7 +31,7 @@ export default function CreateCampaign() {
         return
       }
 
-      const email = data.user.email!
+      const email = data.user.email!.toLowerCase()
 
       // 🔒 KYC
       const { data: kyc } = await supabase
@@ -48,14 +45,14 @@ export default function CreateCampaign() {
         return
       }
 
-      // 🏦 BANK
-      const { data: bank } = await supabase
+      // 🔥 FIX REAL BANK CHECK
+      const { data: banks } = await supabase
         .from("bank_accounts")
         .select("id")
         .eq("user_email", email)
-        .maybeSingle()
+        .limit(1)
 
-      if (!bank) {
+      if (!banks || banks.length === 0) {
         router.push('/account/bank')
         return
       }
@@ -88,44 +85,21 @@ export default function CreateCampaign() {
         return
       }
 
-      if (!title || !description) {
-        setMessage('Completa título y descripción')
-        setLoading(false)
-        return
-      }
-
-      if (!goal || Number(goal) <= 0) {
-        setMessage('Meta inválida')
-        setLoading(false)
-        return
-      }
-
-      if (!tickets || Number(tickets) <= 0) {
-        setMessage('Debes ingresar al menos 1 ticket')
-        setLoading(false)
-        return
-      }
-
       let imageUrl = null
 
       if (image) {
-        try {
-          const fileName = Date.now() + "-" + image.name
+        const fileName = Date.now() + "-" + image.name
 
-          const upload = await supabase.storage
+        const upload = await supabase.storage
+          .from('campaign-images')
+          .upload(fileName, image)
+
+        if (!upload.error) {
+          const publicUrl = supabase.storage
             .from('campaign-images')
-            .upload(fileName, image)
+            .getPublicUrl(fileName)
 
-          if (!upload.error) {
-            const publicUrl = supabase.storage
-              .from('campaign-images')
-              .getPublicUrl(fileName)
-
-            imageUrl = publicUrl?.data?.publicUrl || null
-          }
-
-        } catch (err) {
-          console.error("Storage error:", err)
+          imageUrl = publicUrl?.data?.publicUrl || null
         }
       }
 
@@ -228,10 +202,7 @@ export default function CreateCampaign() {
         />
 
         {preview && (
-          <img
-            src={preview}
-            className="mt-3 rounded-lg h-40 object-cover w-full"
-          />
+          <img src={preview} className="mt-3 rounded-lg h-40 object-cover w-full" />
         )}
 
         <button

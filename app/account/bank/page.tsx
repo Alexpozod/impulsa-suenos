@@ -142,12 +142,21 @@ export default function BankPage() {
     setSaving(false)
   }
 
+  /* 🔥 FIX EDITAR REAL */
   const handleEdit = (acc: any) => {
     setEditingId(acc.id)
+
     setForm({
-      ...emptyForm,
-      ...acc
+      holder_name: acc.holder_name || "",
+      bank_name: acc.bank_name || "",
+      account_number: acc.account_number || "",
+      account_type: acc.account_type || "",
+      country: acc.country || "Chile",
+      rut: acc.rut || "",
+      swift: acc.swift || "",
+      iban: acc.iban || "",
     })
+
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -174,6 +183,13 @@ export default function BankPage() {
           🏦 Cuentas bancarias
         </h1>
 
+        {/* 🔥 ALERTA LIMITE */}
+        {accounts.length >= 2 && !editingId && (
+          <p className="text-red-500 text-sm">
+            Ya tienes el máximo de 2 cuentas bancarias
+          </p>
+        )}
+
         <div className="space-y-4">
 
           {accounts.map((acc) => (
@@ -187,11 +203,17 @@ export default function BankPage() {
               </div>
 
               <div className="flex gap-2">
-                <button onClick={() => handleEdit(acc)} className="px-3 py-1 bg-blue-600 text-white rounded">
+                <button
+                  onClick={() => handleEdit(acc)}
+                  className="px-3 py-1 bg-blue-600 text-white rounded"
+                >
                   Editar
                 </button>
 
-                <button onClick={() => handleDelete(acc.id)} className="px-3 py-1 bg-red-600 text-white rounded">
+                <button
+                  onClick={() => handleDelete(acc.id)}
+                  className="px-3 py-1 bg-red-600 text-white rounded"
+                >
                   Eliminar
                 </button>
               </div>
@@ -201,37 +223,44 @@ export default function BankPage() {
 
         </div>
 
-        <div className="bg-white p-6 rounded-xl border space-y-3">
+        {/* 🔥 FORM CONTROLADO */}
+        {(accounts.length < 2 || editingId) && (
+          <div className="bg-white p-6 rounded-xl border space-y-3">
 
-          <h2 className="font-semibold">
-            {editingId ? "Editar cuenta" : "Nueva cuenta"}
-          </h2>
+            <h2 className="font-semibold">
+              {editingId ? "Editar cuenta" : "Nueva cuenta"}
+            </h2>
 
-          <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="border p-2 w-full rounded" />
-          <input name="rut" placeholder="RUT / ID" value={form.rut} onChange={handleChange} className="border p-2 w-full rounded" />
-          <input name="bank_name" placeholder="Banco" value={form.bank_name} onChange={handleChange} className="border p-2 w-full rounded" />
+            <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="border p-2 w-full rounded" />
+            <input name="rut" placeholder="RUT / ID" value={form.rut} onChange={handleChange} className="border p-2 w-full rounded" />
+            <input name="bank_name" placeholder="Banco" value={form.bank_name} onChange={handleChange} className="border p-2 w-full rounded" />
 
-          <select name="account_type" value={form.account_type} onChange={handleChange} className="border p-2 w-full rounded">
-            <option value="">Tipo de cuenta</option>
-            <option value="corriente">Cuenta corriente</option>
-            <option value="vista">Cuenta vista</option>
-          </select>
+            <select name="account_type" value={form.account_type} onChange={handleChange} className="border p-2 w-full rounded">
+              <option value="">Tipo de cuenta</option>
+              <option value="corriente">Cuenta corriente</option>
+              <option value="vista">Cuenta vista</option>
+            </select>
 
-          <input name="account_number" placeholder="Número de cuenta" value={form.account_number} onChange={handleChange} className="border p-2 w-full rounded" />
+            <input name="account_number" placeholder="Número de cuenta" value={form.account_number} onChange={handleChange} className="border p-2 w-full rounded" />
 
-          <input name="country" placeholder="País" value={form.country} onChange={handleChange} className="border p-2 w-full rounded" />
+            <input name="country" placeholder="País" value={form.country} onChange={handleChange} className="border p-2 w-full rounded" />
 
-          <input name="swift" placeholder="SWIFT (internacional)" value={form.swift} onChange={handleChange} className="border p-2 w-full rounded" />
-          <input name="iban" placeholder="IBAN (internacional)" value={form.iban} onChange={handleChange} className="border p-2 w-full rounded" />
+            <input name="swift" placeholder="SWIFT (internacional)" value={form.swift} onChange={handleChange} className="border p-2 w-full rounded" />
+            <input name="iban" placeholder="IBAN (internacional)" value={form.iban} onChange={handleChange} className="border p-2 w-full rounded" />
 
-          <button onClick={handleSave} disabled={saving} className="bg-green-600 text-white px-4 py-2 rounded">
-            {saving ? "Guardando..." : editingId ? "Actualizar" : "Guardar"}
-          </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-green-600 text-white px-4 py-2 rounded"
+            >
+              {saving ? "Guardando..." : editingId ? "Actualizar" : "Guardar"}
+            </button>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          {message && <p className="text-green-600 text-sm">{message}</p>}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {message && <p className="text-green-600 text-sm">{message}</p>}
 
-        </div>
+          </div>
+        )}
 
       </div>
 
