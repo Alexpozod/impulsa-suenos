@@ -141,7 +141,7 @@ export default function BankPage() {
 
       if (errorDb) throw errorDb
 
-      setMessage("✅ Cuenta guardada")
+      setMessage("✅ Cuenta guardada correctamente")
       setForm(emptyForm)
       setEditingId(null)
 
@@ -160,7 +160,10 @@ export default function BankPage() {
   ========================= */
   const handleEdit = (acc: any) => {
     setEditingId(acc.id)
-    setForm(acc)
+    setForm({
+      ...emptyForm,
+      ...acc
+    })
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -200,6 +203,7 @@ export default function BankPage() {
                 <p className="font-bold">{acc.bank_name}</p>
                 <p className="text-sm text-gray-500">{acc.account_number}</p>
                 <p className="text-sm text-gray-400">{acc.account_type}</p>
+                <p className="text-xs text-gray-400">{acc.country}</p>
               </div>
 
               <div className="flex gap-2">
@@ -231,16 +235,23 @@ export default function BankPage() {
           </h2>
 
           <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="border p-2 w-full rounded" />
-          <input name="rut" placeholder="RUT" value={form.rut} onChange={handleChange} className="border p-2 w-full rounded" />
+          <input name="rut" placeholder="RUT / ID" value={form.rut} onChange={handleChange} className="border p-2 w-full rounded" />
           <input name="bank_name" placeholder="Banco" value={form.bank_name} onChange={handleChange} className="border p-2 w-full rounded" />
 
           <select name="account_type" value={form.account_type} onChange={handleChange} className="border p-2 w-full rounded">
-            <option value="">Tipo</option>
-            <option value="corriente">Corriente</option>
-            <option value="vista">Vista</option>
+            <option value="">Tipo de cuenta</option>
+            <option value="corriente">Cuenta corriente</option>
+            <option value="vista">Cuenta vista</option>
           </select>
 
-          <input name="account_number" placeholder="Cuenta" value={form.account_number} onChange={handleChange} className="border p-2 w-full rounded" />
+          <input name="account_number" placeholder="Número de cuenta" value={form.account_number} onChange={handleChange} className="border p-2 w-full rounded" />
+
+          <input name="country" placeholder="País" value={form.country} onChange={handleChange} className="border p-2 w-full rounded" />
+
+          {/* 🌍 INTERNACIONAL */}
+          <input name="swift" placeholder="SWIFT (internacional)" value={form.swift} onChange={handleChange} className="border p-2 w-full rounded" />
+
+          <input name="iban" placeholder="IBAN (internacional)" value={form.iban} onChange={handleChange} className="border p-2 w-full rounded" />
 
           <button
             onClick={handleSave}

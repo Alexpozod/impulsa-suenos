@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🔒 LOCK (ANTI RACE CONDITION)
+       🔒 LOCK
     ========================= */
     const lockKey = crypto
       .createHash("md5")
@@ -79,6 +79,38 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "no autorizado para esta campaña" },
         { status: 403 }
+      )
+    }
+
+    /* =========================
+       🪪 VALIDAR KYC (CRÍTICO)
+    ========================= */
+    const { data: kyc } = await supabase
+      .from("kyc")
+      .select("status")
+      .eq("user_email", user_email)
+      .maybeSingle()
+
+    if (!kyc || kyc.status !== "approved") {
+      return NextResponse.json(
+        { error: "Debes tener tu identidad verificada (KYC aprobado) para retirar fondos" },
+        { status: 403 }
+      )
+    }
+
+    /* =========================
+       🏦 VALIDAR CUENTA BANCARIA (CRÍTICO)
+    ========================= */
+    const { data: bankAccounts } = await supabase
+      .from("bank_accounts")
+      .select("id")
+      .eq("user_email", user_email)
+      .limit(1)
+
+    if (!bankAccounts || bankAccounts.length === 0) {
+      return NextResponse.json(
+        { error: "Debes agregar una cuenta bancaria antes de solicitar un retiro" },
+        { status: 400 }
       )
     }
 
@@ -144,7 +176,7 @@ export async function POST(req: Request) {
     if (error) throw error
 
     /* =========================
-       🔥 RESERVA FINANCIERA (CLAVE)
+       🔥 RESERVA FINANCIERA
     ========================= */
     await supabase.from("financial_ledger").insert({
       campaign_id,
