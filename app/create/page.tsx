@@ -15,8 +15,9 @@ export default function CreateCampaign() {
   const [goal, setGoal] = useState('')
   const [tickets, setTickets] = useState('')
   const [category, setCategory] = useState('general')
-  const [image, setImage] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
+
+  const [images, setImages] = useState<File[]>([])
+  const [preview, setPreview] = useState<string[]>([])
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -33,7 +34,6 @@ export default function CreateCampaign() {
 
       const email = data.user.email!.toLowerCase()
 
-      // 🔒 KYC
       const { data: kyc } = await supabase
         .from("kyc")
         .select("status")
@@ -45,7 +45,6 @@ export default function CreateCampaign() {
         return
       }
 
-      // 🔥 FIX REAL BANK CHECK
       const { data: banks } = await supabase
         .from("bank_accounts")
         .select("id")
@@ -63,10 +62,12 @@ export default function CreateCampaign() {
     checkAccess()
   }, [router])
 
-  const handleImage = (file: File | null) => {
-    if (!file) return
-    setImage(file)
-    setPreview(URL.createObjectURL(file))
+  const handleImages = (files: FileList | null) => {
+    if (!files) return
+
+    const arr = Array.from(files)
+    setImages(arr)
+    setPreview(arr.map(f => URL.createObjectURL(f)))
   }
 
   const createCampaign = async () => {
@@ -81,25 +82,26 @@ export default function CreateCampaign() {
 
       if (!token) {
         setMessage('Debes iniciar sesión')
-        setLoading(false)
         return
       }
 
-      let imageUrl = null
+      let imageUrls: string[] = []
 
-      if (image) {
-        const fileName = Date.now() + "-" + image.name
+      for (const img of images) {
+        const fileName = Date.now() + "-" + img.name
 
         const upload = await supabase.storage
           .from('campaign-images')
-          .upload(fileName, image)
+          .upload(fileName, img)
 
         if (!upload.error) {
           const publicUrl = supabase.storage
             .from('campaign-images')
             .getPublicUrl(fileName)
 
-          imageUrl = publicUrl?.data?.publicUrl || null
+          if (publicUrl.data.publicUrl) {
+            imageUrls.push(publicUrl.data.publicUrl)
+          }
         }
       }
 
@@ -114,7 +116,8 @@ export default function CreateCampaign() {
           description,
           goal_amount: Number(goal),
           total_tickets: Number(tickets),
-          image_url: imageUrl,
+          image_url: imageUrls[0] || null,
+          images: imageUrls,
           category
         })
       })
@@ -123,7 +126,6 @@ export default function CreateCampaign() {
 
       if (!res.ok) {
         setMessage(data.error || 'Error creando campaña')
-        setLoading(false)
         return
       }
 
@@ -154,25 +156,14 @@ export default function CreateCampaign() {
           Crear campaña
         </h1>
 
-        <input
-          placeholder="Título"
-          className="w-full border p-3 rounded-lg mb-4"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <input placeholder="Título" className="w-full border p-3 rounded-lg mb-4"
+          value={title} onChange={(e) => setTitle(e.target.value)} />
 
-        <textarea
-          placeholder="Descripción"
-          className="w-full border p-3 rounded-lg mb-4"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+        <textarea placeholder="Descripción" className="w-full border p-3 rounded-lg mb-4"
+          value={description} onChange={(e) => setDescription(e.target.value)} />
 
-        <select
-          className="w-full border p-3 rounded-lg mb-4"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
+        <select className="w-full border p-3 rounded-lg mb-4"
+          value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="general">General</option>
           <option value="salud">Salud</option>
           <option value="educacion">Educación</option>
@@ -180,47 +171,28 @@ export default function CreateCampaign() {
           <option value="animales">Animales</option>
         </select>
 
-        <input
-          type="number"
-          placeholder="Meta en dinero ($)"
-          className="w-full border p-3 rounded-lg mb-4"
-          value={goal}
-          onChange={(e) => setGoal(e.target.value)}
-        />
+        <input type="number" placeholder="Meta ($)" className="w-full border p-3 rounded-lg mb-4"
+          value={goal} onChange={(e) => setGoal(e.target.value)} />
 
-        <input
-          type="number"
-          placeholder="Cantidad total de tickets"
-          className="w-full border p-3 rounded-lg mb-4"
-          value={tickets}
-          onChange={(e) => setTickets(e.target.value)}
-        />
+        <input type="number" placeholder="Tickets" className="w-full border p-3 rounded-lg mb-4"
+          value={tickets} onChange={(e) => setTickets(e.target.value)} />
 
-        <input
-          type="file"
-          onChange={(e) => handleImage(e.target.files?.[0] || null)}
-        />
+        <input type="file" multiple onChange={(e) => handleImages(e.target.files)} />
 
-        {preview && (
-          <img src={preview} className="mt-3 rounded-lg h-40 object-cover w-full" />
-        )}
+        <div className="flex gap-2 mt-3 overflow-x-auto">
+          {preview.map((p, i) => (
+            <img key={i} src={p} className="h-20 w-20 object-cover rounded" />
+          ))}
+        </div>
 
-        <button
-          onClick={createCampaign}
-          disabled={loading}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold mt-4"
-        >
+        <button onClick={createCampaign} disabled={loading}
+          className="w-full bg-green-600 text-white py-3 rounded-lg mt-4">
           {loading ? 'Creando...' : 'Crear campaña'}
         </button>
 
-        {message && (
-          <p className="text-center text-sm mt-4 text-gray-600">
-            {message}
-          </p>
-        )}
+        {message && <p className="text-center text-sm mt-4">{message}</p>}
 
       </div>
-
     </main>
   )
 }
