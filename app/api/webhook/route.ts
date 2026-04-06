@@ -3,7 +3,6 @@ import crypto from "crypto"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 
-import { processPaymentAccounting } from "@/lib/finance/processPaymentAccounting"
 import { evaluateFraud } from "@/lib/fraud/engine"
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
@@ -19,9 +18,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-/* =========================
-   🔐 VERIFY SIGNATURE
-========================= */
 function verifySignature(req: Request) {
   const signature = req.headers.get("x-signature")
   const requestId = req.headers.get("x-request-id")
@@ -55,9 +51,6 @@ function verifySignature(req: Request) {
   return hash === v1
 }
 
-/* =========================
-   🚀 WEBHOOK PRO
-========================= */
 export async function POST(req: Request) {
   try {
     const url = new URL(req.url)
@@ -68,55 +61,25 @@ export async function POST(req: Request) {
 
     if (!paymentId) return NextResponse.json({ ok: true })
 
-    /* 🔐 firma */
     if (!verifySignature(req)) {
       await logErrorToDB("invalid_signature", { paymentId })
       return NextResponse.json({ ok: true })
     }
 
-    /* 🛑 idempotencia */
-    const { data: existing } = await supabase
-      .from("processed_payments")
-      .select("payment_id")
-      .eq("payment_id", paymentId)
-      .maybeSingle()
-
-    if (existing) {
-      await logToDB("info", "duplicate_webhook", { paymentId })
-      return NextResponse.json({ ok: true })
-    }
-
-    /* 🔒 lock */
-    const lockKey = crypto.createHash("md5").update(paymentId).digest("hex")
-
-    await supabase.rpc("advisory_lock", { lock_key: lockKey })
-
-    /* 🔁 doble check */
-    const { data: existsAfterLock } = await supabase
-      .from("processed_payments")
-      .select("payment_id")
-      .eq("payment_id", paymentId)
-      .maybeSingle()
-
-    if (existsAfterLock) return NextResponse.json({ ok: true })
-
-    /* 💳 obtener pago */
     let payment
 
     try {
       payment = await paymentClient.get({ id: paymentId })
-    } catch (error) {
+    } catch {
       await sendAlert({
-        title: "Webhook MP error",
+        title: "MP error",
         message: "No se pudo obtener pago",
         data: { paymentId }
       })
-
       return NextResponse.json({ ok: true })
     }
 
     if (!payment || payment.status !== "approved") {
-      await logToDB("info", "payment_not_approved", { paymentId })
       return NextResponse.json({ ok: true })
     }
 
@@ -130,75 +93,60 @@ export async function POST(req: Request) {
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
     const totalPaid = Number(payment.transaction_amount || 0)
 
-    /* 🔥 VALIDACIÓN FINANCIERA */
     const expected = amount + platform_tip
 
     if (Math.abs(totalPaid - expected) > 1) {
       await sendAlert({
         title: "Monto inconsistente",
         message: "Posible manipulación",
-        data: {
-          paymentId,
-          totalPaid,
-          expected
-        }
+        data: { paymentId }
       })
-
       return NextResponse.json({ ok: true })
     }
 
     if (!campaign_id) return NextResponse.json({ ok: true })
 
-    /* 📝 marcar procesado */
-    await supabase.from("processed_payments").insert({
-      payment_id: paymentId,
+    /* 🔥 RPC FINANCIERA */
+    const { data, error } = await supabase.rpc("process_payment_atomic", {
+      p_payment_id: paymentId,
+      p_campaign_id: campaign_id,
+      p_user_email: user_email,
+      p_amount: amount,
+      p_platform_tip: platform_tip,
+      p_provider: "mercadopago"
     })
 
-    /* 💰 CONTABILIDAD */
-    try {
-      await processPaymentAccounting({
-        paymentId,
-        campaign_id,
-        user_email,
-        amount,
-        platform_tip,
-      })
-    } catch (error) {
-      await logErrorToDB("ledger_error", { paymentId, error })
+    if (error) {
+      await logErrorToDB("rpc_error", error)
 
       await sendAlert({
-        title: "ERROR CONTABLE CRÍTICO",
-        message: "Fallo en ledger",
+        title: "ERROR FINANCIERO CRÍTICO",
+        message: "RPC falló",
         data: { paymentId }
       })
     }
 
-    /* 🚨 ANTIFRAUDE */
+    /* antifraude */
     try {
       await evaluateFraud(user_email)
     } catch (error) {
       await logErrorToDB("fraud_error", { user_email })
-
-      await sendAlert({
-        title: "Fraud engine error",
-        message: "Falló antifraude",
-        data: { user_email }
-      })
     }
 
     await logToDB("info", "webhook_success", {
       paymentId,
-      campaign_id
+      campaign_id,
+      result: data
     })
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-    await logErrorToDB("webhook_fatal_error", error)
+    await logErrorToDB("webhook_fatal", error)
 
     await sendAlert({
-      title: "Webhook crítico",
-      message: "Fallo total webhook",
+      title: "Webhook fatal",
+      message: "Error total",
       data: { error }
     })
 

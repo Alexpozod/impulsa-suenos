@@ -1,5 +1,3 @@
-// app/api/payout/approve/route.ts
-
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -70,7 +68,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💣 CONCILIACIÓN REAL (LEDGER)
+       💣 CONCILIACIÓN
     ========================= */
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
@@ -84,19 +82,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "reconciliation_failed" }, { status: 500 })
     }
 
-    const realBalance = reconciliation.balance
-
-    if (payout.amount > realBalance) {
-      await sendAlert({
-        title: "Payout bloqueado",
-        message: "Saldo insuficiente",
-        data: {
-          payout_id,
-          requested: payout.amount,
-          balance: realBalance
-        }
-      })
-
+    if (payout.amount > reconciliation.balance) {
       return NextResponse.json(
         { error: "insufficient_real_balance" },
         { status: 400 }
@@ -129,12 +115,6 @@ export async function POST(req: Request) {
     })
 
     if (fraud.block) {
-      await sendAlert({
-        title: "Fraude detectado",
-        message: "Payout bloqueado",
-        data: { payout_id }
-      })
-
       return NextResponse.json({ error: "fraud_detected" }, { status: 403 })
     }
 
@@ -152,7 +132,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 ACTUALIZAR PAYOUT
+       💰 CONFIRMAR PAYOUT
     ========================= */
     await supabase
       .from("payouts")
@@ -163,17 +143,20 @@ export async function POST(req: Request) {
       .eq("id", payout_id)
 
     /* =========================
-       🔥 LEDGER (FUENTE DE VERDAD)
+       🔥 REEMPLAZAR RESERVA
+       (CLAVE FINTECH)
     ========================= */
+    await supabase
+      .from("financial_ledger")
+      .delete()
+      .eq("payment_id", `pending_${payout.id}`)
+
     await supabase.from("financial_ledger").insert({
       campaign_id: payout.campaign_id,
       user_email: campaign.user_email,
       amount: -Math.abs(payout.amount),
       type: "withdraw",
       flow_type: "out",
-      provider_fee: 0,
-      platform_fee: 0,
-      net_amount: -Math.abs(payout.amount),
       payment_id: `payout_${payout.id}`,
       created_at: new Date().toISOString(),
       organization_id: orgId

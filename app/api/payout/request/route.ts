@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🔒 LOCK
+       🔒 LOCK (ANTI RACE CONDITION)
     ========================= */
     const lockKey = crypto
       .createHash("md5")
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       CREAR PAYOUT
+       🧾 CREAR PAYOUT
     ========================= */
     const { data, error } = await supabase
       .from("payouts")
@@ -142,6 +142,19 @@ export async function POST(req: Request) {
       .single()
 
     if (error) throw error
+
+    /* =========================
+       🔥 RESERVA FINANCIERA (CLAVE)
+    ========================= */
+    await supabase.from("financial_ledger").insert({
+      campaign_id,
+      user_email,
+      amount: -Math.abs(amount),
+      type: "withdraw_pending",
+      flow_type: "out",
+      payment_id: `pending_${data.id}`,
+      created_at: new Date().toISOString()
+    })
 
     await logToDB("info", "payout_requested", {
       campaign_id,

@@ -4,55 +4,48 @@ export async function calculateCampaignBalance(
 ) {
   const { data, error } = await supabase
     .from("financial_ledger")
-    .select("amount, flow_type, status")
+    .select("amount, flow_type, type")
     .eq("campaign_id", campaign_id)
 
   if (error || !data) {
     return {
       available: 0,
-      pending: 0,
       totalIn: 0,
       totalOut: 0,
+      pending: 0
     }
   }
 
   let available = 0
-  let pending = 0
   let totalIn = 0
   let totalOut = 0
+  let pending = 0
 
   for (const row of data) {
-
     const amount = Number(row.amount || 0)
 
-    // 💰 ENTRADAS
+    // 💰 TODO LO QUE ENTRA
     if (row.flow_type === "in") {
-
       totalIn += amount
-
-      if (row.status === "confirmed") {
-        available += amount
-      }
-
-      if (row.status === "pending") {
-        pending += amount
-      }
+      available += amount
     }
 
-    // 💸 SALIDAS
-    if (row.flow_type === "out") {
-
+    // 💸 SOLO RETIROS CUENTAN COMO SALIDA REAL
+    if (row.flow_type === "out" && row.type === "withdraw") {
       totalOut += Math.abs(amount)
-
-      // siempre descuentan del disponible
       available -= Math.abs(amount)
+    }
+
+    // 🟡 OPCIONAL (SI QUIERES FUTURO HOLD)
+    if (row.flow_type === "out" && row.type === "withdraw_pending") {
+      pending += Math.abs(amount)
     }
   }
 
   return {
     available,
-    pending,
     totalIn,
     totalOut,
+    pending
   }
 }
