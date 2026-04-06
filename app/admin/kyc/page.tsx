@@ -11,25 +11,44 @@ export default function AdminKYC() {
 
   const [kycList, setKycList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [authorized, setAuthorized] = useState(false)
 
-  const ADMIN_EMAIL = 'contacto@impulsasuenos.com'
-
+  /* =========================
+     🔐 AUTH + ROLE CHECK
+  ========================= */
   useEffect(() => {
-    const checkAdmin = async () => {
-      const { data } = await supabase.auth.getUser()
+    const checkAccess = async () => {
 
-      if (!data.user || data.user.email !== ADMIN_EMAIL) {
-        router.push('/')
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push('/login')
         return
       }
 
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (profile?.role !== 'admin') {
+        router.push('/dashboard')
+        return
+      }
+
+      setAuthorized(true)
       loadKYC()
     }
 
-    checkAdmin()
+    checkAccess()
   }, [])
 
+  /* =========================
+     📊 LOAD KYC
+  ========================= */
   const loadKYC = async () => {
+
     const { data } = await supabase
       .from('kyc')
       .select('*')
@@ -41,7 +60,6 @@ export default function AdminKYC() {
       return
     }
 
-    // 🔐 Generar URLs seguras
     const withSignedUrls = await Promise.all(
       data.map(async (k) => ({
         ...k,
@@ -61,22 +79,37 @@ export default function AdminKYC() {
     setLoading(false)
   }
 
+  /* =========================
+     🔁 UPDATE STATUS
+  ========================= */
   const updateStatus = async (user_email: string, status: string) => {
+
+    const { data: session } = await supabase.auth.getSession()
+
     await fetch('/api/admin/kyc', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.session?.access_token}`
+      },
       body: JSON.stringify({
         user_email,
-        status,
-        admin_email: ADMIN_EMAIL
+        status
       })
     })
 
     loadKYC()
   }
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
+  /* =========================
+     LOADING / BLOCK
+  ========================= */
+  if (loading || !authorized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Verificando acceso...
+      </div>
+    )
   }
 
   return (
