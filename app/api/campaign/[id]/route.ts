@@ -8,11 +8,11 @@ const supabase = createClient(
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
 
-    const { id } = params
+    const id = context?.params?.id
 
     if (!id) {
       return NextResponse.json(null, { status: 400 })
@@ -42,7 +42,7 @@ export async function GET(
       .eq("status", "confirmed")
 
     const current_amount =
-      ledger?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
+      ledger?.reduce((acc: number, d: any) => acc + Number(d.amount), 0) || 0
 
     return NextResponse.json({
       ...campaign,
@@ -50,7 +50,7 @@ export async function GET(
     })
 
   } catch (err) {
-    console.error(err)
+    console.error("CAMPAIGN DETAIL ERROR", err)
     return NextResponse.json(null, { status: 200 })
   }
 }
