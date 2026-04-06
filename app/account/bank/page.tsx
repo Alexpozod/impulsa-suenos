@@ -11,7 +11,10 @@ export default function BankPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  const [form, setForm] = useState({
+  const [accounts, setAccounts] = useState<any[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
+
+  const emptyForm = {
     holder_name: "",
     bank_name: "",
     account_number: "",
@@ -20,7 +23,9 @@ export default function BankPage() {
     rut: "",
     swift: "",
     iban: "",
-  })
+  }
+
+  const [form, setForm] = useState(emptyForm)
 
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
@@ -29,41 +34,29 @@ export default function BankPage() {
      🔐 LOAD USER + DATA
   ========================= */
   useEffect(() => {
-    const loadData = async () => {
+    loadData()
+  }, [])
 
-      const { data } = await supabase.auth.getUser()
+  const loadData = async () => {
 
-      if (!data.user) {
-        router.push("/login")
-        return
-      }
+    const { data } = await supabase.auth.getUser()
 
-      const email = data.user.email!
-
-      const { data: bank } = await supabase
-        .from("bank_accounts")
-        .select("*")
-        .eq("user_email", email)
-        .maybeSingle()
-
-      if (bank) {
-        setForm({
-          holder_name: bank.holder_name || "",
-          bank_name: bank.bank_name || "",
-          account_number: bank.account_number || "",
-          account_type: bank.account_type || "",
-          country: bank.country || "Chile",
-          rut: bank.rut || "",
-          swift: bank.swift || "",
-          iban: bank.iban || "",
-        })
-      }
-
-      setLoading(false)
+    if (!data.user) {
+      router.push("/login")
+      return
     }
 
-    loadData()
-  }, [router])
+    const email = data.user.email!
+
+    const { data: banks } = await supabase
+      .from("bank_accounts")
+      .select("*")
+      .eq("user_email", email)
+      .order("created_at", { ascending: false })
+
+    setAccounts(banks || [])
+    setLoading(false)
+  }
 
   /* =========================
      ✏️ HANDLE CHANGE
@@ -88,7 +81,7 @@ export default function BankPage() {
   }
 
   /* =========================
-     💾 SAVE DATA
+     💾 SAVE / UPDATE
   ========================= */
   const handleSave = async () => {
 
@@ -96,7 +89,6 @@ export default function BankPage() {
     setMessage("")
 
     const validationError = validate()
-
     if (validationError) {
       setError(validationError)
       return
@@ -107,14 +99,16 @@ export default function BankPage() {
     try {
 
       const { data } = await supabase.auth.getUser()
+      const email = data.user?.email
 
-      if (!data.user) {
-        setError("No autenticado")
+      if (!email) throw new Error("No autenticado")
+
+      // 🔥 LÍMITE 2 CUENTAS
+      if (!editingId && accounts.length >= 2) {
+        setError("Máximo 2 cuentas bancarias")
         setSaving(false)
         return
       }
-
-      const email = data.user.email!
 
       const payload = {
         user_email: email,
@@ -128,19 +122,13 @@ export default function BankPage() {
         iban: form.iban || null,
       }
 
-      const { data: existing } = await supabase
-        .from("bank_accounts")
-        .select("id")
-        .eq("user_email", email)
-        .maybeSingle()
-
       let errorDb = null
 
-      if (existing) {
+      if (editingId) {
         const { error } = await supabase
           .from("bank_accounts")
           .update(payload)
-          .eq("user_email", email)
+          .eq("id", editingId)
 
         errorDb = error
       } else {
@@ -153,119 +141,117 @@ export default function BankPage() {
 
       if (errorDb) throw errorDb
 
-      setMessage("✅ Cuenta bancaria guardada correctamente")
+      setMessage("✅ Cuenta guardada")
+      setForm(emptyForm)
+      setEditingId(null)
+
+      await loadData()
 
     } catch (err: any) {
       console.error(err)
-      setError(err.message || "Error guardando datos")
+      setError(err.message || "Error guardando")
     }
 
     setSaving(false)
   }
 
   /* =========================
-     ⏳ LOADING
+     ✏️ EDITAR
   ========================= */
-  if (loading) {
-    return <div className="p-6">Cargando...</div>
+  const handleEdit = (acc: any) => {
+    setEditingId(acc.id)
+    setForm(acc)
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   /* =========================
-     UI
+     🗑️ ELIMINAR
   ========================= */
+  const handleDelete = async (id: string) => {
+
+    if (!confirm("¿Eliminar cuenta bancaria?")) return
+
+    await supabase
+      .from("bank_accounts")
+      .delete()
+      .eq("id", id)
+
+    await loadData()
+  }
+
+  if (loading) return <div className="p-6">Cargando...</div>
+
   return (
     <div className="min-h-screen bg-gray-50">
 
-      <div className="max-w-3xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-6 space-y-8">
 
-        <h1 className="text-2xl font-bold mb-6">
-          🏦 Cuenta bancaria
+        <h1 className="text-2xl font-bold">
+          🏦 Cuentas bancarias
         </h1>
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border flex flex-col gap-4">
+        {/* LISTADO */}
+        <div className="space-y-4">
 
-          <input
-            name="holder_name"
-            placeholder="Nombre del titular"
-            value={form.holder_name}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          />
+          {accounts.map((acc) => (
+            <div key={acc.id} className="bg-white p-4 rounded-xl border flex justify-between">
 
-          <input
-            name="rut"
-            placeholder="RUT"
-            value={form.rut}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          />
+              <div>
+                <p className="font-bold">{acc.bank_name}</p>
+                <p className="text-sm text-gray-500">{acc.account_number}</p>
+                <p className="text-sm text-gray-400">{acc.account_type}</p>
+              </div>
 
-          <input
-            name="bank_name"
-            placeholder="Banco"
-            value={form.bank_name}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(acc)}
+                  className="px-3 py-1 bg-blue-600 text-white rounded"
+                >
+                  Editar
+                </button>
 
-          <select
-            name="account_type"
-            value={form.account_type}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          >
-            <option value="">Tipo de cuenta</option>
-            <option value="corriente">Cuenta corriente</option>
-            <option value="vista">Cuenta vista</option>
+                <button
+                  onClick={() => handleDelete(acc.id)}
+                  className="px-3 py-1 bg-red-600 text-white rounded"
+                >
+                  Eliminar
+                </button>
+              </div>
+
+            </div>
+          ))}
+
+        </div>
+
+        {/* FORM */}
+        <div className="bg-white p-6 rounded-xl border space-y-3">
+
+          <h2 className="font-semibold">
+            {editingId ? "Editar cuenta" : "Nueva cuenta"}
+          </h2>
+
+          <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="border p-2 w-full rounded" />
+          <input name="rut" placeholder="RUT" value={form.rut} onChange={handleChange} className="border p-2 w-full rounded" />
+          <input name="bank_name" placeholder="Banco" value={form.bank_name} onChange={handleChange} className="border p-2 w-full rounded" />
+
+          <select name="account_type" value={form.account_type} onChange={handleChange} className="border p-2 w-full rounded">
+            <option value="">Tipo</option>
+            <option value="corriente">Corriente</option>
+            <option value="vista">Vista</option>
           </select>
 
-          <input
-            name="account_number"
-            placeholder="Número de cuenta"
-            value={form.account_number}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          />
-
-          <input
-            name="country"
-            placeholder="País"
-            value={form.country}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          />
-
-          <input
-            name="swift"
-            placeholder="SWIFT (opcional)"
-            value={form.swift}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          />
-
-          <input
-            name="iban"
-            placeholder="IBAN (opcional)"
-            value={form.iban}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
-          />
+          <input name="account_number" placeholder="Cuenta" value={form.account_number} onChange={handleChange} className="border p-2 w-full rounded" />
 
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-green-600 text-white p-3 rounded-xl hover:bg-green-700"
+            className="bg-green-600 text-white px-4 py-2 rounded"
           >
-            {saving ? "Guardando..." : "Guardar cuenta"}
+            {saving ? "Guardando..." : editingId ? "Actualizar" : "Guardar"}
           </button>
 
-          {error && (
-            <p className="text-red-500 text-sm">{error}</p>
-          )}
-
-          {message && (
-            <p className="text-green-600 text-sm">{message}</p>
-          )}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {message && <p className="text-green-600 text-sm">{message}</p>}
 
         </div>
 
