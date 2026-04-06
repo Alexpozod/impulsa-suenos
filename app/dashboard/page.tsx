@@ -10,7 +10,6 @@ export default function Dashboard() {
 
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
@@ -31,17 +30,15 @@ export default function Dashboard() {
     const token = session.session.access_token
 
     /* =========================
-       🔥 VALIDACIÓN REAL (FIX)
+       🔐 VALIDACIÓN REAL
     ========================= */
 
-    // KYC
     const { data: kyc } = await supabase
       .from("kyc")
       .select("status")
       .eq("user_email", email)
       .maybeSingle()
 
-    // BANK (IMPORTANTE: array)
     const { data: banks } = await supabase
       .from("bank_accounts")
       .select("id")
@@ -57,22 +54,27 @@ export default function Dashboard() {
        💰 DATA FINANCIERA
     ========================= */
 
-    const res = await fetch('/api/user/finance', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
+    try {
+      const res = await fetch('/api/user/finance', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-    const json = await res.json()
+      const json = await res.json()
 
-    setData(json)
+      setData(json)
+    } catch (err) {
+      console.error("Finance error:", err)
+      setData(null)
+    }
+
     setLoading(false)
   }
 
   const requestWithdraw = async (campaign_id: string) => {
 
     const amount = prompt("Monto a retirar")
-
     if (!amount) return
 
     const session = await supabase.auth.getSession()
@@ -104,20 +106,20 @@ export default function Dashboard() {
         💰 Panel financiero
       </h1>
 
-      {/* 🔥 MENSAJE CONDICIONAL (FIX REAL) */}
+      {/* 🔥 MENSAJE CONDICIONAL */}
       {!isReady && (
         <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
           ⚠️ Para retirar dinero debes completar tu verificación (KYC) y agregar una cuenta bancaria.
         </div>
       )}
 
-      {/* TOTALES */}
+      {/* 🔥 SAFE DATA */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
 
-        <Card title="Disponible" value={`$${data.totals.balance}`} />
-        <Card title="Recaudado" value={`$${data.totals.raised}`} />
-        <Card title="Comisiones" value={`$${data.totals.fees}`} />
-        <Card title="Pendiente" value={`$${data.totals.pending}`} />
+        <Card title="Disponible" value={`$${data?.totals?.balance || 0}`} />
+        <Card title="Recaudado" value={`$${data?.totals?.raised || 0}`} />
+        <Card title="Comisiones" value={`$${data?.totals?.fees || 0}`} />
+        <Card title="Pendiente" value={`$${data?.totals?.pending || 0}`} />
 
       </div>
 
@@ -141,7 +143,7 @@ export default function Dashboard() {
       {/* CAMPAÑAS */}
       <div className="space-y-4">
 
-        {data.campaigns.map((c: any) => (
+        {(data?.campaigns || []).map((c: any) => (
           <div key={c.id} className="border p-4 rounded-xl">
 
             <h2 className="font-bold">{c.title}</h2>
