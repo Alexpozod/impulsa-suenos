@@ -18,21 +18,37 @@ export default function CampaignDetail() {
   }, [id])
 
   const load = async () => {
-    const res = await fetch(`/api/campaign/${id}`)
-    const data = await res.json()
-    setCampaign(data)
-    setLoading(false)
+    try {
+      const res = await fetch(`/api/campaign/${id}`)
+      const data = await res.json()
+      setCampaign(data)
+    } catch (err) {
+      console.error(err)
+      setCampaign(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const safeImage = (url: string) => {
+    if (!url) return "https://via.placeholder.com/800"
+    return url.replace(/\s/g, "%20")
   }
 
   if (loading) return <div className="p-10 text-center">Cargando...</div>
   if (!campaign) return <div className="p-10 text-center">Campaña no encontrada</div>
 
-  const images = campaign.images?.length
+  const images = (campaign.images?.length
     ? campaign.images
     : [campaign.image_url]
+  ).filter(Boolean)
 
   const current = Number(campaign.current_amount || 0)
   const goal = Number(campaign.goal_amount || 0)
+
+  const progress = goal > 0
+    ? Math.min((current / goal) * 100, 100)
+    : 0
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10">
@@ -41,14 +57,23 @@ export default function CampaignDetail() {
 
         <div className="md:col-span-2">
 
-          <img src={images[active]} className="w-full h-80 object-cover rounded-2xl mb-4" />
+          <img
+            src={safeImage(images[active])}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800"
+            }}
+            className="w-full h-80 object-cover rounded-2xl mb-4"
+          />
 
           <div className="flex gap-2 mb-6 overflow-x-auto">
             {images.map((img: string, i: number) => (
               <img
                 key={i}
-                src={img}
+                src={safeImage(img)}
                 onClick={() => setActive(i)}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/200"
+                }}
                 className={`h-20 w-20 object-cover rounded cursor-pointer ${
                   i === active ? "border-2 border-green-600" : ""
                 }`}
@@ -56,14 +81,38 @@ export default function CampaignDetail() {
             ))}
           </div>
 
-          <h1 className="text-3xl font-bold mb-3">{campaign.title}</h1>
+          <h1 className="text-3xl font-bold mb-3">
+            {campaign.title}
+          </h1>
 
-          <p className="text-gray-600 mb-6">{campaign.description}</p>
+          <p className="text-gray-600 mb-6 whitespace-pre-line">
+            {campaign.description}
+          </p>
+
+          <div className="mb-6">
+            <div className="h-3 bg-gray-200 rounded-full">
+              <div
+                className="h-3 bg-green-600 rounded-full"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            <div className="flex justify-between text-sm mt-2">
+              <span className="font-bold text-green-600">
+                ${current.toLocaleString()}
+              </span>
+              <span className="text-gray-500">
+                de ${goal.toLocaleString()}
+              </span>
+            </div>
+          </div>
 
         </div>
 
         <div className="sticky top-6 h-fit">
-          <DonationBox campaign_id={campaign.id} />
+          <div className="bg-white p-6 rounded-2xl shadow border">
+            <DonationBox campaign_id={campaign.id} />
+          </div>
         </div>
 
       </div>

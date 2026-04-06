@@ -64,7 +64,6 @@ export default function CreateCampaign() {
 
   const handleImages = (files: FileList | null) => {
     if (!files) return
-
     const arr = Array.from(files)
     setImages(arr)
     setPreview(arr.map(f => URL.createObjectURL(f)))
@@ -88,7 +87,9 @@ export default function CreateCampaign() {
       let imageUrls: string[] = []
 
       for (const img of images) {
-        const fileName = Date.now() + "-" + img.name
+
+        const cleanName = img.name.replace(/\s/g, "_")
+        const fileName = `${Date.now()}-${cleanName}`
 
         const upload = await supabase.storage
           .from('campaign-images')
@@ -156,10 +157,10 @@ export default function CreateCampaign() {
           Crear campaña
         </h1>
 
-        <input placeholder="Título" className="w-full border p-3 rounded-lg mb-4"
+        <input className="w-full border p-3 rounded-lg mb-4" placeholder="Título"
           value={title} onChange={(e) => setTitle(e.target.value)} />
 
-        <textarea placeholder="Descripción" className="w-full border p-3 rounded-lg mb-4"
+        <textarea className="w-full border p-3 rounded-lg mb-4" placeholder="Descripción"
           value={description} onChange={(e) => setDescription(e.target.value)} />
 
         <select className="w-full border p-3 rounded-lg mb-4"
@@ -185,7 +186,7 @@ export default function CreateCampaign() {
           ))}
         </div>
 
-        <button onClick={createCampaign} disabled={loading}
+        <button onClick={createCampaign}
           className="w-full bg-green-600 text-white py-3 rounded-lg mt-4">
           {loading ? 'Creando...' : 'Crear campaña'}
         </button>
