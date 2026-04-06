@@ -69,9 +69,14 @@ export default function Dashboard() {
   return (
     <main className="p-10 max-w-6xl mx-auto">
 
-      <h1 className="text-2xl font-bold mb-6">
+      <h1 className="text-2xl font-bold mb-2">
         💰 Panel financiero
       </h1>
+
+      {/* 🔥 MENSAJE CLAVE */}
+      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+        ⚠️ Para retirar dinero debes completar tu verificación (KYC) y agregar una cuenta bancaria.
+      </div>
 
       {/* TOTALES */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
@@ -80,6 +85,23 @@ export default function Dashboard() {
         <Card title="Recaudado" value={`$${data.totals.raised}`} />
         <Card title="Comisiones" value={`$${data.totals.fees}`} />
         <Card title="Pendiente" value={`$${data.totals.pending}`} />
+
+      </div>
+
+      {/* 🔥 ACCIONES RÁPIDAS */}
+      <div className="grid md:grid-cols-3 gap-4 mb-10">
+
+        <button onClick={() => router.push('/account')} className="p-4 border rounded-xl hover:bg-gray-50 text-left">
+          👤 Configurar cuenta
+        </button>
+
+        <button onClick={() => router.push('/kyc')} className="p-4 border rounded-xl hover:bg-gray-50 text-left">
+          🪪 Verificación KYC
+        </button>
+
+        <button onClick={() => router.push('/account/bank')} className="p-4 border rounded-xl hover:bg-gray-50 text-left">
+          🏦 Cuenta bancaria
+        </button>
 
       </div>
 

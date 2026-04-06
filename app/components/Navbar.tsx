@@ -24,7 +24,6 @@ export default function Navbar() {
     router.push('/')
   }
 
-  // 🔥 CONTROL REAL DE ACCESO
   const handleCreateCampaign = async () => {
     const { data } = await supabase.auth.getSession()
 
@@ -48,37 +47,20 @@ export default function Navbar() {
         {/* LINKS */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
 
-          <Link href="/" className="hover:text-green-600">
-            Inicio
-          </Link>
-
-          <Link href="/campaigns" className="hover:text-green-600">
-            Campañas
-          </Link>
-
-          <Link href="/sorteos" className="hover:text-green-600">
-            Sorteos
-          </Link>
-
-          <Link href="/como-funciona" className="hover:text-green-600">
-            Cómo funciona
-          </Link>
-
-          <Link href="/faq" className="hover:text-green-600">
-            FAQ
-          </Link>
+          <Link href="/" className="hover:text-green-600">Inicio</Link>
+          <Link href="/campaigns" className="hover:text-green-600">Campañas</Link>
+          <Link href="/sorteos" className="hover:text-green-600">Sorteos</Link>
+          <Link href="/como-funciona" className="hover:text-green-600">Cómo funciona</Link>
+          <Link href="/faq" className="hover:text-green-600">FAQ</Link>
 
         </div>
 
-        {/* CTA / USER */}
+        {/* USER */}
         <div className="flex items-center gap-3">
 
           {!user ? (
             <>
-              <Link
-                href="/login"
-                className="text-sm text-gray-600 hover:text-green-600"
-              >
+              <Link href="/login" className="text-sm text-gray-600 hover:text-green-600">
                 Iniciar sesión
               </Link>
 
@@ -98,11 +80,13 @@ export default function Navbar() {
                 Crear campaña
               </button>
 
-              <Link
-                href="/dashboard"
-                className="text-sm font-medium hover:text-green-600"
-              >
+              <Link href="/dashboard" className="text-sm font-medium hover:text-green-600">
                 Dashboard
+              </Link>
+
+              {/* 🔥 NUEVO */}
+              <Link href="/account" className="text-sm font-medium hover:text-green-600">
+                Mi cuenta
               </Link>
 
               <button

@@ -33,7 +33,7 @@ export default function FinancePage() {
 
     const { data: { session } } = await supabase.auth.getSession()
 
-    const res = await fetch("/api/payouts/payout/request", {
+    const res = await fetch("/api/payout/request", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
