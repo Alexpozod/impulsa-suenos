@@ -10,12 +10,10 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    // ⏱️ 24 HORAS HOLD
     const cutoff = new Date(
       Date.now() - 24 * 60 * 60 * 1000
     ).toISOString()
 
-    // 🔍 buscar fondos retenidos
     const { data: pending, error } = await supabase
       .from("financial_ledger")
       .select("id, campaign_id, amount")
@@ -23,9 +21,7 @@ export async function GET() {
       .eq("status", "pending")
       .lte("created_at", cutoff)
 
-    if (error) {
-      throw error
-    }
+    if (error) throw error
 
     if (!pending || pending.length === 0) {
       return NextResponse.json({
@@ -36,24 +32,12 @@ export async function GET() {
 
     const ids = pending.map(p => p.id)
 
-    // 🔓 liberar fondos
     const { error: updateError } = await supabase
       .from("financial_ledger")
       .update({ status: "confirmed" })
       .in("id", ids)
 
-    if (updateError) {
-      throw updateError
-    }
-
-    // 📊 LOG OPCIONAL
-    await supabase.from("audit_logs").insert({
-      event: "funds_released",
-      metadata: {
-        count: ids.length,
-        timestamp: new Date().toISOString()
-      }
-    })
+    if (updateError) throw updateError
 
     return NextResponse.json({
       ok: true,
