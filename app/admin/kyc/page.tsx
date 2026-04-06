@@ -12,6 +12,7 @@ export default function AdminKYC() {
   const [kycList, setKycList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [authorized, setAuthorized] = useState(false)
+  const [processing, setProcessing] = useState<string | null>(null)
 
   /* =========================
      🔐 AUTH + ROLE CHECK
@@ -49,6 +50,8 @@ export default function AdminKYC() {
   ========================= */
   const loadKYC = async () => {
 
+    setLoading(true)
+
     const { data } = await supabase
       .from('kyc')
       .select('*')
@@ -80,25 +83,50 @@ export default function AdminKYC() {
   }
 
   /* =========================
-     🔁 UPDATE STATUS
+     🔁 UPDATE STATUS (FIX PRO)
   ========================= */
   const updateStatus = async (user_email: string, status: string) => {
+    try {
 
-    const { data: session } = await supabase.auth.getSession()
+      setProcessing(user_email)
 
-    await fetch('/api/admin/kyc', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.session?.access_token}`
-      },
-      body: JSON.stringify({
-        user_email,
-        status
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (!session?.access_token) {
+        alert("❌ Sesión inválida")
+        return
+      }
+
+      const res = await fetch('/api/admin/kyc', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          user_email,
+          status
+        })
       })
-    })
 
-    loadKYC()
+      const json = await res.json()
+
+      if (!res.ok) {
+        console.error(json)
+        alert(`❌ ${json.error || 'Error actualizando KYC'}`)
+        return
+      }
+
+      alert(`✅ ${json.message || 'KYC actualizado'}`)
+
+      await loadKYC()
+
+    } catch (err) {
+      console.error("UPDATE ERROR:", err)
+      alert("❌ Error inesperado")
+    } finally {
+      setProcessing(null)
+    }
   }
 
   /* =========================
@@ -169,22 +197,25 @@ export default function AdminKYC() {
               <div className="flex gap-3 mt-5">
 
                 <button
+                  disabled={processing === k.user_email}
                   onClick={() => updateStatus(k.user_email, 'approved')}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                 >
                   Aprobar
                 </button>
 
                 <button
+                  disabled={processing === k.user_email}
                   onClick={() => updateStatus(k.user_email, 'rejected')}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg"
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                 >
                   Rechazar
                 </button>
 
                 <button
+                  disabled={processing === k.user_email}
                   onClick={() => updateStatus(k.user_email, 'pending')}
-                  className="bg-gray-700 text-white px-4 py-2 rounded-lg"
+                  className="bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                 >
                   Solicitar info
                 </button>
