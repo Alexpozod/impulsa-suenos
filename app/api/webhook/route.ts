@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import crypto from "crypto"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 
@@ -18,39 +17,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-function verifySignature(req: Request) {
-  const signature = req.headers.get("x-signature")
-  const requestId = req.headers.get("x-request-id")
-
-  if (!signature || !requestId) return false
-
-  const secret = process.env.MP_WEBHOOK_SECRET!
-  const parts = signature.split(",")
-
-  let ts = ""
-  let v1 = ""
-
-  for (const part of parts) {
-    const [k, v] = part.split("=")
-    if (k === "ts") ts = v
-    if (k === "v1") v1 = v
-  }
-
-  const url = new URL(req.url)
-  const dataId = url.searchParams.get("data.id")
-
-  if (!ts || !v1 || !dataId) return false
-
-  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
-
-  const hash = crypto
-    .createHmac("sha256", secret)
-    .update(manifest)
-    .digest("hex")
-
-  return hash === v1
-}
-
 export async function POST(req: Request) {
   try {
     const url = new URL(req.url)
@@ -60,11 +26,6 @@ export async function POST(req: Request) {
       url.searchParams.get("id")
 
     if (!paymentId) return NextResponse.json({ ok: true })
-
-    if (!verifySignature(req)) {
-      await logErrorToDB("invalid_signature", { paymentId })
-      return NextResponse.json({ ok: true })
-    }
 
     let payment
 
@@ -93,20 +54,12 @@ export async function POST(req: Request) {
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
     const totalPaid = Number(payment.transaction_amount || 0)
 
-    const expected = amount + platform_tip
-
-    if (Math.abs(totalPaid - expected) > 1) {
-      await sendAlert({
-        title: "Monto inconsistente",
-        message: "Posible manipulación",
-        data: { paymentId }
-      })
+    if (!campaign_id) {
+      await logErrorToDB("missing_campaign_id", { paymentId })
       return NextResponse.json({ ok: true })
     }
 
-    if (!campaign_id) return NextResponse.json({ ok: true })
-
-    /* 🔥 RPC FINANCIERA */
+    /* 🔥 INSERT FINANCIERO */
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -120,7 +73,7 @@ export async function POST(req: Request) {
       await logErrorToDB("rpc_error", error)
 
       await sendAlert({
-        title: "ERROR FINANCIERO CRÍTICO",
+        title: "ERROR FINANCIERO",
         message: "RPC falló",
         data: { paymentId }
       })
@@ -129,7 +82,7 @@ export async function POST(req: Request) {
     /* antifraude */
     try {
       await evaluateFraud(user_email)
-    } catch (error) {
+    } catch {
       await logErrorToDB("fraud_error", { user_email })
     }
 
@@ -142,6 +95,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
 
   } catch (error) {
+
     await logErrorToDB("webhook_fatal", error)
 
     await sendAlert({
