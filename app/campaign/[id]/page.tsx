@@ -21,6 +21,9 @@ export default function CampaignDetail() {
     try {
       const res = await fetch(`/api/campaign/${id}`)
       const data = await res.json()
+
+      console.log("🔥 CAMPAIGN DATA:", data) // DEBUG CLAVE
+
       setCampaign(data)
     } catch (err) {
       console.error(err)
@@ -30,9 +33,25 @@ export default function CampaignDetail() {
     }
   }
 
-  const safeImage = (url: string) => {
+  // 🔥 NORMALIZADOR DE URL (CLAVE REAL)
+  const buildImageUrl = (url: string) => {
     if (!url) return "https://via.placeholder.com/800"
-    return url.replace(/\s/g, "%20")
+
+    let clean = url.trim().replace(/\s/g, "%20")
+
+    // 👉 CASO 1: ya es URL completa
+    if (clean.startsWith("http")) {
+      return clean
+    }
+
+    // 👉 CASO 2: viene como path de Supabase (SIN dominio)
+    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+    if (SUPABASE_URL) {
+      return `${SUPABASE_URL}/storage/v1/object/public/${clean}`
+    }
+
+    return clean
   }
 
   if (loading) return <div className="p-10 text-center">Cargando...</div>
@@ -42,6 +61,8 @@ export default function CampaignDetail() {
     ? campaign.images
     : [campaign.image_url]
   ).filter(Boolean)
+
+  console.log("🖼️ IMAGES:", images) // DEBUG
 
   const current = Number(campaign.current_amount || 0)
   const goal = Number(campaign.goal_amount || 0)
@@ -58,9 +79,10 @@ export default function CampaignDetail() {
         <div className="md:col-span-2">
 
           <img
-            src={safeImage(images[active])}
+            src={buildImageUrl(images[active])}
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800"
+              console.error("❌ ERROR IMAGEN PRINCIPAL:", images[active])
+              ;(e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800"
             }}
             className="w-full h-80 object-cover rounded-2xl mb-4"
           />
@@ -69,10 +91,11 @@ export default function CampaignDetail() {
             {images.map((img: string, i: number) => (
               <img
                 key={i}
-                src={safeImage(img)}
+                src={buildImageUrl(img)}
                 onClick={() => setActive(i)}
                 onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/200"
+                  console.error("❌ ERROR THUMB:", img)
+                  ;(e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/200"
                 }}
                 className={`h-20 w-20 object-cover rounded cursor-pointer ${
                   i === active ? "border-2 border-green-600" : ""
