@@ -4,9 +4,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-// 🔥 NUEVO
-import LiveFeed from '@/app/components/LiveFeed'
-import Notifications from '@/app/components/Notifications'
+// 🔥 IMPORTS CORREGIDOS (CLAVE)
+import LiveFeed from './components/LiveFeed'
+import Notifications from './components/Notifications'
 
 export default function HomePage() {
 
@@ -57,7 +57,8 @@ export default function HomePage() {
     return score
   }
 
-  const sorted = [...campaigns].sort((a, b) => getScore(b) - getScore(a))
+  // 🔥 FIX SEGURO
+  const sorted = [...(campaigns || [])].sort((a, b) => getScore(b) - getScore(a))
 
   const featured = sorted.slice(0, 1)
   const trending = sorted.slice(1, 7)
@@ -120,7 +121,7 @@ export default function HomePage() {
 
       </section>
 
-      {/* 🔥 LIVE FEED (NUEVO) */}
+      {/* 🔥 LIVE FEED */}
       <section className="max-w-7xl mx-auto px-6 py-6">
         <LiveFeed />
       </section>
@@ -172,27 +173,9 @@ export default function HomePage() {
                   {c.description}
                 </p>
 
-                <div className="mb-6">
-                  <div className="h-2 bg-gray-200 rounded-full">
-                    <div
-                      className="h-2 bg-green-600 rounded-full"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-
-                  <div className="flex justify-between text-sm mt-2">
-                    <span className="text-green-600 font-bold">
-                      ${current.toLocaleString()}
-                    </span>
-                    <span className="text-gray-500">
-                      de ${goal.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
                 <button
                   onClick={() => router.push(`/campaign/${c.id}`)}
-                  className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+                  className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
                 >
                   Ver campaña
                 </button>
@@ -207,106 +190,19 @@ export default function HomePage() {
 
       {/* TRENDING */}
       <section className="py-20 px-6">
-
-        <div className="max-w-7xl mx-auto">
-
-          <h2 className="text-3xl font-bold mb-10 text-center">
-            🔥 Campañas en tendencia
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-
-            {trending.map(c => {
-
-              const image = c.images?.[0] || c.image_url
-              const current = Number(c.current_amount || 0)
-              const goal = Number(c.goal_amount || 0)
-
-              const progress = goal > 0
-                ? Math.min((current / goal) * 100, 100)
-                : 0
-
-              const badges = getBadges(c)
-
-              return (
-                <div
-                  key={c.id}
-                  onClick={() => router.push(`/campaign/${c.id}`)}
-                  className="border rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition group"
-                >
-
-                  <div className="relative">
-
-                    <img
-                      src={buildImageUrl(image)}
-                      className="h-52 w-full object-cover group-hover:scale-105 transition"
-                    />
-
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-                      {badges.slice(0, 2).map((b, i) => (
-                        <span key={i} className="bg-white/90 text-[10px] px-2 py-1 rounded-full">
-                          {b}
-                        </span>
-                      ))}
-                    </div>
-
-                  </div>
-
-                  <div className="p-5">
-
-                    <h3 className="font-semibold mb-2 line-clamp-2">
-                      {c.title}
-                    </h3>
-
-                    <div className="h-2 bg-gray-200 rounded-full mb-2">
-                      <div
-                        className="h-2 bg-green-600 rounded-full"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-
-                    <div className="flex justify-between text-sm">
-                      <span className="text-green-600 font-bold">
-                        ${current.toLocaleString()}
-                      </span>
-                      <span className="text-gray-500">
-                        de ${goal.toLocaleString()}
-                      </span>
-                    </div>
-
-                  </div>
-
-                </div>
-              )
-            })}
-
-          </div>
-
+        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+          {trending.map(c => (
+            <div key={c.id} onClick={() => router.push(`/campaign/${c.id}`)} className="border rounded-2xl overflow-hidden cursor-pointer">
+              <img src={buildImageUrl(c.images?.[0] || c.image_url)} className="h-52 w-full object-cover" />
+              <div className="p-4">
+                <h3 className="font-semibold">{c.title}</h3>
+              </div>
+            </div>
+          ))}
         </div>
-
       </section>
 
-      {/* CTA FINAL */}
-      <section className="py-24 text-center bg-gray-50">
-
-        <h2 className="text-3xl font-bold mb-6">
-          Empieza tu campaña hoy
-        </h2>
-
-        <p className="text-gray-600 mb-8">
-          Miles de personas están listas para ayudarte
-        </p>
-
-        <button
-          onClick={handleCreateCampaign}
-          className="bg-green-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-700 transition"
-        >
-          Crear campaña
-        </button>
-
-      </section>
-
-      {/* 🔔 NOTIFICATIONS (NUEVO) */}
+      {/* 🔔 NOTIFICATIONS */}
       <Notifications />
 
     </main>
