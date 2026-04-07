@@ -9,9 +9,6 @@ import { sendAlert } from "@/lib/alerts/sendAlert"
 
 export const runtime = "nodejs"
 
-/* =========================
-   ✅ VALIDACIÓN
-========================= */
 const paymentSchema = z.object({
   amount: z.number().positive().min(100),
   platform_tip: z.number().min(0).optional(),
@@ -45,13 +42,14 @@ export async function POST(req: Request) {
       provider = "mercadopago"
     } = parsed.data
 
+    // ✅ FIX CRÍTICO BASE URL
     const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  (req.headers.get("origin") as string)
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (req.headers.get("origin") as string)
 
-if (!baseUrl) {
-  throw new Error("BASE URL missing")
-}
+    if (!baseUrl) {
+      throw new Error("BASE URL missing")
+    }
 
     const total = Number(amount) + Number(platform_tip)
 
@@ -62,9 +60,6 @@ if (!baseUrl) {
       provider
     })
 
-    /* =========================
-       💳 CREATE PAYMENT (PROVIDER)
-    ========================= */
     const result = await createPayment({
       amount,
       platform_tip,

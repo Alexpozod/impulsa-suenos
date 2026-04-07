@@ -30,9 +30,7 @@ export default function DonationBox({
 
     if (!amount || amount < 100) return
 
-    // 🔴 NO LOGUEADO → REDIRECT LIMPIO
     if (!userEmail) {
-
       localStorage.setItem('donation_intent', JSON.stringify({
         campaign_id,
         amount
@@ -55,17 +53,36 @@ export default function DonationBox({
         })
       })
 
-      const data = await res.json()
+      // 🔥 FIX CRÍTICO
+      const text = await res.text()
 
-      if (data?.init_point) {
-        window.location.href = data.init_point
+      let data: any = {}
+
+      try {
+        data = JSON.parse(text)
+      } catch (e) {
+        console.error("❌ RESPONSE NO ES JSON:", text)
+        alert("Error del servidor (respuesta inválida)")
+        return
+      }
+
+      if (!res.ok) {
+        console.error("❌ ERROR API:", data)
+        alert(data?.error || "Error en el pago")
+        return
+      }
+
+      const url = data?.init_point || data?.url
+
+      if (url) {
+        window.location.href = url
       } else {
-        console.error(data)
-        alert("Error iniciando pago")
+        console.error("❌ SIN URL:", data)
+        alert("No se pudo iniciar el pago")
       }
 
     } catch (error) {
-      console.error(error)
+      console.error("❌ ERROR FETCH:", error)
       alert("Error inesperado")
     } finally {
       setLoading(false)
