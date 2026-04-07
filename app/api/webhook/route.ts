@@ -21,12 +21,32 @@ export async function POST(req: Request) {
   try {
     const url = new URL(req.url)
 
-    const paymentId =
+    // 🔥 1. QUERY PARAMS
+    let paymentId =
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
 
-    if (!paymentId) return NextResponse.json({ ok: true })
+    // 🔥 2. BODY (CLAVE REAL)
+    if (!paymentId) {
+      try {
+        const body = await req.json()
 
+        paymentId =
+          body?.data?.id ||
+          body?.id ||
+          null
+
+      } catch {
+        // body vacío o no JSON
+      }
+    }
+
+    if (!paymentId) {
+      await logErrorToDB("missing_payment_id", { url: req.url })
+      return NextResponse.json({ ok: true })
+    }
+
+    // 🔥 Obtener pago desde MP
     let payment
 
     try {
@@ -45,6 +65,7 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
+
     const user_email =
       payment.metadata?.user_email ||
       payment.payer?.email ||
@@ -52,14 +73,13 @@ export async function POST(req: Request) {
 
     const amount = Number(payment.metadata?.amount || 0)
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
-    const totalPaid = Number(payment.transaction_amount || 0)
 
     if (!campaign_id) {
       await logErrorToDB("missing_campaign_id", { paymentId })
       return NextResponse.json({ ok: true })
     }
 
-    /* 🔥 INSERT FINANCIERO */
+    // 🔥 INSERT FINANCIERO
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -79,7 +99,7 @@ export async function POST(req: Request) {
       })
     }
 
-    /* antifraude */
+    // antifraude
     try {
       await evaluateFraud(user_email)
     } catch {
