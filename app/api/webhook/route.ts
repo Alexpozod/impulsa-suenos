@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js"
 import { evaluateFraud } from "@/lib/fraud/engine"
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
-import { sendTicketEmail } from "@/lib/email" // ✅ EMAIL
+import { sendTicketEmail } from "@/lib/email"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -18,7 +18,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// 🎯 generar código tipo campaña
 function generateTicketCode(campaignName: string) {
   const prefix = campaignName
     ?.replace(/[^a-zA-Z]/g, "")
@@ -62,7 +61,6 @@ export async function POST(req: Request) {
     }
 
     if (!payment || payment.status !== "approved") {
-      console.log("⚠️ PAGO NO APROBADO")
       return NextResponse.json({ ok: true })
     }
 
@@ -76,15 +74,10 @@ export async function POST(req: Request) {
     const amount = Number(payment.metadata?.amount || 0)
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
 
-    console.log("💰 AMOUNT:", amount)
-
-    if (!campaign_id) {
-      console.log("❌ NO CAMPAIGN ID")
-      return NextResponse.json({ ok: true })
-    }
+    if (!campaign_id) return NextResponse.json({ ok: true })
 
     // 💰 REGISTRO FINANCIERO
-    const { error } = await supabase.rpc("process_payment_atomic", {
+    await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
@@ -93,13 +86,7 @@ export async function POST(req: Request) {
       p_provider: "mercadopago"
     })
 
-    if (error) {
-      console.log("❌ RPC ERROR:", error)
-    } else {
-      console.log("✅ PAYMENT REGISTERED")
-    }
-
-    // 🔥 OBTENER NOMBRE CAMPAÑA
+    // 🔥 obtener campaña
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("title")
@@ -108,44 +95,51 @@ export async function POST(req: Request) {
 
     const campaignName = campaign?.title || "ticket"
 
-    // 🎟️ GENERAR 1 TICKET
+    // 🚫 FIX REAL: INSERT CON PROTECCIÓN
     const ticketCode = generateTicketCode(campaignName)
 
-    const { error: ticketError } = await supabase
+    const { data: inserted, error: ticketError } = await supabase
       .from("tickets")
-      .insert([{
-        campaign_id,
-        payment_id: paymentId,
-        user_email,
-        ticket_number: ticketCode
-      }])
+      .upsert(
+        [{
+          campaign_id,
+          payment_id: paymentId,
+          user_email,
+          ticket_number: ticketCode
+        }],
+        {
+          onConflict: "payment_id" // 🔥 CLAVE
+        }
+      )
+      .select()
+      .single()
 
     if (ticketError) {
       console.log("❌ ERROR TICKET:", ticketError)
-    } else {
-      console.log("🎟️ TICKET CREADO:", ticketCode)
+      return NextResponse.json({ ok: true })
     }
 
-    // 📧 EMAIL (AQUÍ ESTABA EL FALLO ORIGINAL)
-    try {
-      await sendTicketEmail({
-        to: user_email,
-        ticket: ticketCode,
-        campaign: campaignName,
-        amount
-      })
+    console.log("🎟️ TICKET FINAL:", inserted.ticket_number)
 
-      console.log("📧 EMAIL ENVIADO")
-    } catch (err) {
-      console.log("❌ ERROR EMAIL:", err)
+    // 📧 SOLO ENVÍA EMAIL SI ES NUEVO
+    if (inserted) {
+      try {
+        await sendTicketEmail({
+          to: user_email,
+          ticket: inserted.ticket_number,
+          campaign: campaignName,
+          amount
+        })
+
+        console.log("📧 EMAIL ENVIADO")
+      } catch (err) {
+        console.log("❌ ERROR EMAIL:", err)
+      }
     }
 
-    // 🔐 ANTIFRAUDE
     try {
       await evaluateFraud(user_email)
-    } catch {
-      console.log("⚠️ FRAUD ERROR")
-    }
+    } catch {}
 
     await logToDB("info", "webhook_success", {
       paymentId,
@@ -156,7 +150,7 @@ export async function POST(req: Request) {
 
   } catch (error) {
 
-    console.log("🔥 WEBHOOK FATAL ERROR:", error)
+    console.log("🔥 WEBHOOK ERROR:", error)
 
     await logErrorToDB("webhook_fatal", error)
 
