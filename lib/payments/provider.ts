@@ -37,7 +37,6 @@ export async function createPayment({
         platform_tip,
         campaign_id,
         user_email,
-        baseUrl
       })
 
     default:
@@ -55,18 +54,27 @@ async function createMercadoPagoPayment({
   platform_tip,
   campaign_id,
   user_email,
-  baseUrl
 }: any) {
 
   if (!mpPreference) {
     return {
-      error: "MercadoPago no configurado (falta access token)"
+      error: "MercadoPago no configurado"
     }
   }
 
   try {
 
     const total = Number(amount) + Number(platform_tip)
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+
+    if (!baseUrl) {
+      return {
+        error: "BASE URL no definida"
+      }
+    }
+
+    console.log("WEBHOOK URL:", `${baseUrl}/api/webhook`)
 
     const preference = await mpPreference.create({
       body: {
@@ -88,6 +96,7 @@ async function createMercadoPagoPayment({
 
         external_reference: campaign_id,
 
+        // 🔥 FIX CRÍTICO
         notification_url: `${baseUrl}/api/webhook`,
 
         back_urls: {
@@ -109,7 +118,7 @@ async function createMercadoPagoPayment({
     console.error("❌ MERCADOPAGO ERROR:", error)
 
     return {
-      error: "Error creando preferencia de pago"
+      error: "Error creando pago"
     }
   }
 }
