@@ -20,13 +20,77 @@ export default function HomePage() {
     router.push("/create")
   }
 
+  // 🔥 NORMALIZAR IMAGEN
   const buildImageUrl = (url: string) => {
     if (!url) return "https://via.placeholder.com/400"
     return url.replace(/\s/g, "%20")
   }
 
-  const featured = campaigns.slice(0, 1)
-  const trending = campaigns.slice(1, 7)
+  // 🔥 SCORE INTELIGENTE (CORE DEL NEGOCIO)
+  const getScore = (c: any) => {
+    const current = Number(c.current_amount || 0)
+    const goal = Number(c.goal_amount || 1)
+
+    const progress = current / goal
+
+    let score = 0
+
+    // 💰 dinero (peso fuerte)
+    score += progress * 50
+
+    // 📈 volumen
+    score += Math.log10(current + 1) * 20
+
+    // ⏳ urgencia
+    if (c.end_date) {
+      const daysLeft = (new Date(c.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      if (daysLeft > 0) {
+        score += (1 / daysLeft) * 30
+      }
+    }
+
+    // 🔥 actividad reciente
+    if (c.last_donation_at) {
+      const hours = (Date.now() - new Date(c.last_donation_at).getTime()) / (1000 * 60 * 60)
+      if (hours < 24) {
+        score += 40
+      }
+    }
+
+    return score
+  }
+
+  // 🔥 ORDENAMIENTO INTELIGENTE
+  const sorted = [...campaigns].sort((a, b) => getScore(b) - getScore(a))
+
+  const featured = sorted.slice(0, 1)
+  const trending = sorted.slice(1, 7)
+
+  // 🔥 BADGES DINÁMICOS
+  const getBadges = (c: any) => {
+    const badges: string[] = []
+
+    const current = Number(c.current_amount || 0)
+    const goal = Number(c.goal_amount || 1)
+    const progress = current / goal
+
+    if (progress >= 0.8) badges.push("💰 Casi completada")
+    if (progress >= 1) badges.push("🎉 Completada")
+
+    if (c.end_date) {
+      const daysLeft = (new Date(c.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      if (daysLeft < 3) badges.push("⏳ Últimos días")
+    }
+
+    if (c.last_donation_at) {
+      const hours = (Date.now() - new Date(c.last_donation_at).getTime()) / (1000 * 60 * 60)
+      if (hours < 6) badges.push("🔥 Activa")
+    }
+
+    if (current > 100000) badges.push("🚀 Popular")
+
+    return badges
+  }
 
   return (
     <main className="bg-white">
@@ -55,7 +119,6 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* PRUEBA SOCIAL */}
         <p className="mt-6 text-sm opacity-80">
           🔥 Personas están donando en este momento
         </p>
@@ -73,15 +136,28 @@ export default function HomePage() {
           ? Math.min((current / goal) * 100, 100)
           : 0
 
+        const badges = getBadges(c)
+
         return (
           <section key={c.id} className="py-20 px-6 bg-green-50">
 
             <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center">
 
-              <img
-                src={buildImageUrl(image)}
-                className="rounded-2xl w-full h-[380px] object-cover shadow"
-              />
+              <div className="relative">
+                <img
+                  src={buildImageUrl(image)}
+                  className="rounded-2xl w-full h-[380px] object-cover shadow"
+                />
+
+                {/* BADGES */}
+                <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                  {badges.map((b, i) => (
+                    <span key={i} className="bg-white/90 text-xs px-3 py-1 rounded-full shadow">
+                      {b}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
               <div>
 
@@ -97,7 +173,6 @@ export default function HomePage() {
                   {c.description}
                 </p>
 
-                {/* PROGRESO */}
                 <div className="mb-6">
                   <div className="h-2 bg-gray-200 rounded-full">
                     <div
@@ -152,6 +227,8 @@ export default function HomePage() {
                 ? Math.min((current / goal) * 100, 100)
                 : 0
 
+              const badges = getBadges(c)
+
               return (
                 <div
                   key={c.id}
@@ -159,11 +236,22 @@ export default function HomePage() {
                   className="border rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition group"
                 >
 
-                  <div className="overflow-hidden">
+                  <div className="relative">
+
                     <img
                       src={buildImageUrl(image)}
                       className="h-52 w-full object-cover group-hover:scale-105 transition"
                     />
+
+                    {/* BADGES */}
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-1">
+                      {badges.slice(0, 2).map((b, i) => (
+                        <span key={i} className="bg-white/90 text-[10px] px-2 py-1 rounded-full">
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+
                   </div>
 
                   <div className="p-5">
