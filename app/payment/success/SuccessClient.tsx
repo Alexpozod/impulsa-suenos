@@ -32,15 +32,41 @@ export default function SuccessClient() {
 
   }, [searchParams])
 
+  // 🔥 FIX REAL: retry hasta que webhook termine
   const loadData = async (payment_id: string) => {
 
-    const res = await fetch(`/api/payment-info?payment_id=${payment_id}`)
-    const data = await res.json()
+    let attempts = 0
+    let success = false
 
-    if (data) {
-      setTickets(data.tickets || [])
-      setAmount(data.amount || 0)
-      setCampaign(data.campaign || null)
+    while (attempts < 6 && !success) {
+
+      try {
+        const res = await fetch(`/api/payment-info?payment_id=${payment_id}`)
+        const data = await res.json()
+
+        if (data?.tickets?.length > 0) {
+
+          setTickets(data.tickets || [])
+          setAmount(data.amount || 0)
+          setCampaign(data.campaign || null)
+
+          success = true
+
+        } else {
+          // ⏳ esperar webhook
+          await new Promise(r => setTimeout(r, 1500))
+          attempts++
+        }
+
+      } catch (err) {
+        console.log("❌ ERROR FETCH PAYMENT INFO:", err)
+        await new Promise(r => setTimeout(r, 1500))
+        attempts++
+      }
+    }
+
+    if (!success) {
+      console.log("⚠️ tickets aún no disponibles")
     }
   }
 
@@ -75,7 +101,7 @@ export default function SuccessClient() {
         {tickets.length > 0 && (
           <div className="mb-6">
             <p className="text-gray-500 text-sm mb-2">
-              🎟️ Tus tickets
+              🎟️ Tu ticket
             </p>
 
             <div className="flex flex-wrap gap-2 justify-center">
@@ -84,7 +110,7 @@ export default function SuccessClient() {
                   key={t.id}
                   className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold"
                 >
-                  #{t.ticket_number}
+                  {t.ticket_number}
                 </span>
               ))}
             </div>
