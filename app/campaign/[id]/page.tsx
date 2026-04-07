@@ -21,9 +21,6 @@ export default function CampaignDetail() {
     try {
       const res = await fetch(`/api/campaign/${id}`)
       const data = await res.json()
-
-      console.log("🔥 CAMPAIGN DATA:", data) // DEBUG CLAVE
-
       setCampaign(data)
     } catch (err) {
       console.error(err)
@@ -33,20 +30,14 @@ export default function CampaignDetail() {
     }
   }
 
-  // 🔥 NORMALIZADOR DE URL (CLAVE REAL)
   const buildImageUrl = (url: string) => {
     if (!url) return "https://via.placeholder.com/800"
 
     let clean = url.trim().replace(/\s/g, "%20")
 
-    // 👉 CASO 1: ya es URL completa
-    if (clean.startsWith("http")) {
-      return clean
-    }
+    if (clean.startsWith("http")) return clean
 
-    // 👉 CASO 2: viene como path de Supabase (SIN dominio)
     const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-
     if (SUPABASE_URL) {
       return `${SUPABASE_URL}/storage/v1/object/public/${clean}`
     }
@@ -62,8 +53,6 @@ export default function CampaignDetail() {
     : [campaign.image_url]
   ).filter(Boolean)
 
-  console.log("🖼️ IMAGES:", images) // DEBUG
-
   const current = Number(campaign.current_amount || 0)
   const goal = Number(campaign.goal_amount || 0)
 
@@ -72,56 +61,74 @@ export default function CampaignDetail() {
     : 0
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
+    <main className="bg-white min-h-screen">
 
-      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
+      <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-5 gap-10">
 
-        <div className="md:col-span-2">
+        {/* IZQUIERDA */}
+        <div className="md:col-span-3">
 
-          <img
-            src={buildImageUrl(images[active])}
-            onError={(e) => {
-              console.error("❌ ERROR IMAGEN PRINCIPAL:", images[active])
-              ;(e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800"
-            }}
-            className="w-full h-80 object-cover rounded-2xl mb-4"
-          />
+          {/* GALERÍA PRINCIPAL */}
+          <div className="relative">
 
-          <div className="flex gap-2 mb-6 overflow-x-auto">
+            <img
+              src={buildImageUrl(images[active])}
+              onError={(e) => {
+                ;(e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800"
+              }}
+              className="w-full h-[420px] object-cover rounded-2xl"
+            />
+
+            {campaign.video_url && (
+              <button
+                onClick={() => window.open(campaign.video_url, "_blank")}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <div className="bg-black/60 text-white text-3xl px-5 py-3 rounded-full">
+                  ▶
+                </div>
+              </button>
+            )}
+
+          </div>
+
+          {/* THUMBNAILS */}
+          <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
             {images.map((img: string, i: number) => (
               <img
                 key={i}
                 src={buildImageUrl(img)}
                 onClick={() => setActive(i)}
-                onError={(e) => {
-                  console.error("❌ ERROR THUMB:", img)
-                  ;(e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/200"
-                }}
-                className={`h-20 w-20 object-cover rounded cursor-pointer ${
-                  i === active ? "border-2 border-green-600" : ""
+                className={`h-24 w-24 object-cover rounded-lg cursor-pointer transition ${
+                  i === active
+                    ? "border-2 border-green-600 scale-105"
+                    : "opacity-70 hover:opacity-100"
                 }`}
               />
             ))}
           </div>
 
-          <h1 className="text-3xl font-bold mb-3">
+          {/* TITULO */}
+          <h1 className="text-3xl md:text-4xl font-bold mt-6 leading-tight">
             {campaign.title}
           </h1>
 
-          <p className="text-gray-600 mb-6 whitespace-pre-line">
-            {campaign.description}
+          {/* URGENCIA */}
+          <p className="text-red-500 font-semibold mt-2">
+            ⚠️ Necesitamos tu ayuda ahora
           </p>
 
-          <div className="mb-6">
-            <div className="h-3 bg-gray-200 rounded-full">
+          {/* PROGRESO */}
+          <div className="mt-6">
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-3 bg-green-600 rounded-full"
+                className="h-3 bg-green-600 transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
 
-            <div className="flex justify-between text-sm mt-2">
-              <span className="font-bold text-green-600">
+            <div className="flex justify-between mt-2 text-sm">
+              <span className="font-bold text-green-600 text-lg">
                 ${current.toLocaleString()}
               </span>
               <span className="text-gray-500">
@@ -130,15 +137,48 @@ export default function CampaignDetail() {
             </div>
           </div>
 
-        </div>
-
-        <div className="sticky top-6 h-fit">
-          <div className="bg-white p-6 rounded-2xl shadow border">
-            <DonationBox campaign_id={campaign.id} />
+          {/* DESCRIPCIÓN */}
+          <div className="mt-8">
+            <h2 className="font-semibold text-lg mb-2">Historia</h2>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+              {campaign.description}
+            </p>
           </div>
+
         </div>
 
-      </div>
+        {/* DERECHA */}
+        <div className="md:col-span-2">
+
+          <div className="sticky top-6">
+
+            <div className="bg-white border rounded-2xl p-6 shadow-lg">
+
+              {/* PRUEBA SOCIAL */}
+              <div className="mb-4">
+                <p className="text-sm text-gray-500">
+                  🔥 Varias personas están donando ahora
+                </p>
+                <p className="text-xs text-gray-400">
+                  Última donación hace instantes
+                </p>
+              </div>
+
+              <DonationBox campaign_id={campaign.id} />
+
+              {/* CONFIANZA */}
+              <div className="mt-6 text-xs text-gray-400 text-center space-y-1">
+                <p>🔒 Pago 100% seguro</p>
+                <p>📊 Transparencia total</p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
 
     </main>
   )
