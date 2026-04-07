@@ -3,9 +3,15 @@ import { MercadoPagoConfig, Preference } from "mercadopago"
 /* =========================
    🔌 MERCADOPAGO CONFIG
 ========================= */
-const mpClient = process.env.MERCADOPAGO_ACCESS_TOKEN
+const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN
+
+if (!accessToken) {
+  console.error("❌ MERCADOPAGO_ACCESS_TOKEN NO DEFINIDO")
+}
+
+const mpClient = accessToken
   ? new MercadoPagoConfig({
-      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+      accessToken,
     })
   : null
 
@@ -34,23 +40,10 @@ export async function createPayment({
         baseUrl
       })
 
-    case "stripe":
-      return {
-        error: "Stripe no implementado aún"
-      }
-
-    case "paypal":
-      return {
-        error: "PayPal no implementado aún"
-      }
-
-    case "crypto":
-      return {
-        error: "Crypto no implementado aún"
-      }
-
     default:
-      throw new Error("Provider no válido")
+      return {
+        error: "Provider no válido"
+      }
   }
 }
 
@@ -66,45 +59,57 @@ async function createMercadoPagoPayment({
 }: any) {
 
   if (!mpPreference) {
-    throw new Error("MercadoPago no configurado")
+    return {
+      error: "MercadoPago no configurado (falta access token)"
+    }
   }
 
-  const total = Number(amount) + Number(platform_tip)
+  try {
 
-  const preference = await mpPreference.create({
-    body: {
-      items: [
-        {
-          id: "donation",
-          title: "🎟️ Donación / Campaña",
-          quantity: 1,
-          unit_price: total,
+    const total = Number(amount) + Number(platform_tip)
+
+    const preference = await mpPreference.create({
+      body: {
+        items: [
+          {
+            id: "donation",
+            title: "🎟️ Donación / Campaña",
+            quantity: 1,
+            unit_price: total,
+          },
+        ],
+
+        metadata: {
+          campaign_id,
+          user_email,
+          amount: Number(amount),
+          platform_tip: Number(platform_tip),
         },
-      ],
 
-      metadata: {
-        campaign_id,
-        user_email,
-        amount: Number(amount),
-        platform_tip: Number(platform_tip),
+        external_reference: campaign_id,
+
+        notification_url: `${baseUrl}/api/webhook`,
+
+        back_urls: {
+          success: `${baseUrl}/payment/success`,
+          failure: `${baseUrl}/payment/failure`,
+          pending: `${baseUrl}/payment/pending`,
+        },
+
+        auto_return: "approved",
       },
+    })
 
-      external_reference: campaign_id,
+    return {
+      id: preference.id,
+      url: preference.init_point
+    }
 
-      notification_url: `${baseUrl}/api/webhook`,
+  } catch (error) {
+    console.error("❌ MERCADOPAGO ERROR:", error)
 
-      back_urls: {
-        success: `${baseUrl}/payment/success`,
-        failure: `${baseUrl}/payment/failure`,
-        pending: `${baseUrl}/payment/pending`,
-      },
-
-      auto_return: "approved",
-    },
-  })
-
-  return {
-    id: preference.id,
-    url: preference.init_point
+    return {
+      error: "Error creando preferencia de pago"
+    }
   }
 }
