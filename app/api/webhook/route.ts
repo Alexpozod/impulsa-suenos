@@ -19,7 +19,6 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
 
-  // 🔥 LOG CRÍTICO (ESTO ES LO QUE NECESITAMOS VER)
   console.log("🔥 WEBHOOK HIT")
 
   try {
@@ -29,7 +28,7 @@ export async function POST(req: Request) {
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
 
-    // 🔥 leer body también
+    // 🔥 Leer body (MercadoPago a veces manda aquí)
     if (!paymentId) {
       try {
         const body = await req.json()
@@ -76,6 +75,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
+    // 💰 REGISTRO FINANCIERO (NO TOCAR)
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -91,6 +91,40 @@ export async function POST(req: Request) {
       console.log("✅ PAYMENT REGISTERED")
     }
 
+    // 🎟️ GENERACIÓN DE TICKETS (FIX REAL)
+    try {
+
+      const ticketPrice = 1000 // 🔥 AJUSTABLE
+      const ticketCount = Math.floor(amount / ticketPrice)
+
+      if (ticketCount > 0) {
+
+        const ticketsToInsert = Array.from({ length: ticketCount }).map(() => ({
+          campaign_id,
+          payment_id: paymentId,
+          user_email,
+          ticket_number: Math.floor(Math.random() * 1000000000)
+        }))
+
+        const { error: ticketError } = await supabase
+          .from("tickets")
+          .insert(ticketsToInsert)
+
+        if (ticketError) {
+          console.log("❌ ERROR CREANDO TICKETS:", ticketError)
+        } else {
+          console.log("🎟️ TICKETS CREADOS:", ticketCount)
+        }
+
+      } else {
+        console.log("⚠️ NO SE GENERARON TICKETS")
+      }
+
+    } catch (err) {
+      console.log("❌ ERROR TICKETS:", err)
+    }
+
+    // 🔐 ANTIFRAUDE
     try {
       await evaluateFraud(user_email)
     } catch {
