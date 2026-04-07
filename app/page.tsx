@@ -4,8 +4,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-// ✅ SOLO ESTO (SEGURO)
 import LiveFeed from "./components/LiveFeed"
+import Notifications from "./components/Notifications"
 
 export default function HomePage() {
 
@@ -119,7 +119,7 @@ export default function HomePage() {
 
       </section>
 
-      {/* ✅ LIVE FEED (SEGURO) */}
+      {/* LIVE FEED */}
       <section className="max-w-7xl mx-auto px-6 py-6">
         <LiveFeed />
       </section>
@@ -219,6 +219,9 @@ export default function HomePage() {
         </button>
 
       </section>
+
+      {/* NOTIFICATIONS */}
+      <Notifications />
 
     </main>
   )

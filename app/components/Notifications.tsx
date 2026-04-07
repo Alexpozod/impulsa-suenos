@@ -2,12 +2,6 @@
 
 import { useEffect, useState } from "react"
 
-type Donation = {
-  id: string
-  amount: number
-  created_at: string
-}
-
 function timeAgo(date: string) {
   const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
 
@@ -20,14 +14,26 @@ function timeAgo(date: string) {
 
 export default function Notifications() {
 
-  const [donations, setDonations] = useState<Donation[]>([])
-  const [visible, setVisible] = useState<Donation | null>(null)
+  const [donations, setDonations] = useState<any[]>([])
+  const [visible, setVisible] = useState<any>(null)
 
   useEffect(() => {
+
+    const load = async () => {
+      try {
+        const res = await fetch("/api/donations-live")
+        const data = await res.json()
+        setDonations(data || [])
+      } catch (err) {
+        console.error("Notifications error:", err)
+      }
+    }
+
     load()
 
-    const refresh = setInterval(load, 15000)
+    const refresh = setInterval(load, 20000)
     return () => clearInterval(refresh)
+
   }, [])
 
   useEffect(() => {
@@ -43,30 +49,16 @@ export default function Notifications() {
     return () => clearInterval(interval)
   }, [donations])
 
-  const load = async () => {
-    try {
-      const res = await fetch('/api/donations-live')
-      const data = await res.json()
-      setDonations(data || [])
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   if (!visible) return null
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 animate-fade-in">
+    <div className="fixed bottom-6 left-6 z-50">
 
-      <div className="bg-slate-900 border border-slate-700 shadow-xl rounded-xl px-4 py-3 text-sm text-white flex items-center gap-2">
+      <div className="bg-black text-white px-4 py-3 rounded-xl shadow-lg text-sm">
 
-        <span className="text-green-400">●</span>
+        🔥 Alguien donó <b>${Number(visible.amount).toLocaleString()}</b><br />
 
-        <span>
-          Alguien donó <b>${Number(visible.amount).toLocaleString()}</b>
-        </span>
-
-        <span className="text-slate-400 text-xs">
+        <span className="text-xs opacity-70">
           {timeAgo(visible.created_at)}
         </span>
 
