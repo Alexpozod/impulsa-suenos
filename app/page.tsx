@@ -4,6 +4,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
+// ✅ SOLO ESTO (SEGURO)
+import LiveFeed from "./components/LiveFeed"
+
 export default function HomePage() {
 
   const router = useRouter()
@@ -116,11 +119,15 @@ export default function HomePage() {
 
       </section>
 
+      {/* ✅ LIVE FEED (SEGURO) */}
+      <section className="max-w-7xl mx-auto px-6 py-6">
+        <LiveFeed />
+      </section>
+
       {/* FEATURED */}
       {featured.map(c => {
 
         const image = c.images?.[0] || c.image_url
-
         const badges = getBadges(c)
 
         return (
