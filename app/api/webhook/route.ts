@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
 
+    // 🔥 fallback body
     if (!paymentId) {
       try {
         const body = await req.json()
@@ -33,7 +34,12 @@ export async function POST(req: Request) {
       } catch {}
     }
 
-    if (!paymentId) return NextResponse.json({ ok: true })
+    if (!paymentId) {
+      console.log("❌ NO PAYMENT ID")
+      return NextResponse.json({ ok: true })
+    }
+
+    console.log("💳 PAYMENT ID:", paymentId)
 
     let payment
 
@@ -45,6 +51,7 @@ export async function POST(req: Request) {
     }
 
     if (!payment || payment.status !== "approved") {
+      console.log("⚠️ PAGO NO APROBADO")
       return NextResponse.json({ ok: true })
     }
 
@@ -58,10 +65,13 @@ export async function POST(req: Request) {
     const amount = Number(payment.metadata?.amount || 0)
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
 
-    if (!campaign_id) return NextResponse.json({ ok: true })
+    if (!campaign_id) {
+      console.log("❌ NO CAMPAIGN ID")
+      return NextResponse.json({ ok: true })
+    }
 
-    // 🔥 SOLO ESTO
-    const { error } = await supabase.rpc("process_payment_atomic", {
+    // 🔥 LLAMADA A RPC (CONTROL TOTAL)
+    const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
@@ -72,9 +82,16 @@ export async function POST(req: Request) {
 
     if (error) {
       console.log("❌ RPC ERROR:", error)
-    } else {
-      console.log("✅ PAYMENT REGISTERED")
+      return NextResponse.json({ ok: true })
     }
+
+    // 🛑 CLAVE: EVITA DUPLICADOS
+    if (data?.status === "already_processed") {
+      console.log("⚠️ YA PROCESADO (IGNORADO)")
+      return NextResponse.json({ ok: true })
+    }
+
+    console.log("✅ PAYMENT REGISTERED OK")
 
     await logToDB("info", "webhook_success", {
       paymentId,
@@ -85,7 +102,7 @@ export async function POST(req: Request) {
 
   } catch (error) {
 
-    console.log("🔥 WEBHOOK ERROR:", error)
+    console.log("🔥 WEBHOOK FATAL ERROR:", error)
 
     await logErrorToDB("webhook_fatal", error)
 
