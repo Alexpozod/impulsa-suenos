@@ -51,6 +51,19 @@ export async function POST(req: Request) {
 
     console.log("💳 PAYMENT ID:", paymentId)
 
+    // 🔒 CHECK SI YA EXISTE (CLAVE REAL)
+    const { data: existingPayment } = await supabase
+      .from("financial_ledger")
+      .select("id")
+      .eq("payment_id", paymentId)
+      .eq("type", "payment")
+      .maybeSingle()
+
+    if (existingPayment) {
+      console.log("⚠️ PAYMENT YA PROCESADO → SALIENDO")
+      return NextResponse.json({ ok: true })
+    }
+
     let payment
 
     try {
@@ -61,6 +74,7 @@ export async function POST(req: Request) {
     }
 
     if (!payment || payment.status !== "approved") {
+      console.log("⚠️ PAGO NO APROBADO")
       return NextResponse.json({ ok: true })
     }
 
@@ -76,8 +90,8 @@ export async function POST(req: Request) {
 
     if (!campaign_id) return NextResponse.json({ ok: true })
 
-    // 💰 REGISTRO FINANCIERO
-    await supabase.rpc("process_payment_atomic", {
+    // 💰 REGISTRO FINANCIERO (AHORA NO FALLA)
+    const { error: rpcError } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
@@ -85,6 +99,13 @@ export async function POST(req: Request) {
       p_platform_tip: platform_tip,
       p_provider: "mercadopago"
     })
+
+    if (rpcError) {
+      console.log("❌ RPC ERROR:", rpcError)
+      return NextResponse.json({ ok: true })
+    }
+
+    console.log("✅ PAYMENT REGISTRADO")
 
     // 🔥 obtener campaña
     const { data: campaign } = await supabase
@@ -95,43 +116,32 @@ export async function POST(req: Request) {
 
     const campaignName = campaign?.title || "ticket"
 
-    // 🚫 FIX REAL: INSERT CON PROTECCIÓN
+    // 🎟️ ticket
     const ticketCode = generateTicketCode(campaignName)
 
-    const { data: inserted, error: ticketError } = await supabase
+    const { error: ticketError } = await supabase
       .from("tickets")
-      .upsert(
-        [{
-          campaign_id,
-          payment_id: paymentId,
-          user_email,
-          ticket_number: ticketCode
-        }],
-        {
-          onConflict: "payment_id" // 🔥 CLAVE
-        }
-      )
-      .select()
-      .single()
+      .insert([{
+        campaign_id,
+        payment_id: paymentId,
+        user_email,
+        ticket_number: ticketCode
+      }])
 
     if (ticketError) {
       console.log("❌ ERROR TICKET:", ticketError)
-      return NextResponse.json({ ok: true })
-    }
+    } else {
+      console.log("🎟️ TICKET:", ticketCode)
 
-    console.log("🎟️ TICKET FINAL:", inserted.ticket_number)
-
-    // 📧 SOLO ENVÍA EMAIL SI ES NUEVO
-    if (inserted) {
+      // 📧 SOLO SI SE CREÓ
       try {
         await sendTicketEmail({
           to: user_email,
-          ticket: inserted.ticket_number,
+          ticket: ticketCode,
           campaign: campaignName,
           amount
         })
-
-        console.log("📧 EMAIL ENVIADO")
+        console.log("📧 EMAIL OK")
       } catch (err) {
         console.log("❌ ERROR EMAIL:", err)
       }
