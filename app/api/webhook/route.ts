@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js"
 import { evaluateFraud } from "@/lib/fraud/engine"
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
+import { sendTicketEmail } from "@/lib/email" // ✅ EMAIL
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -49,15 +50,19 @@ export async function POST(req: Request) {
 
     if (!paymentId) return NextResponse.json({ ok: true })
 
+    console.log("💳 PAYMENT ID:", paymentId)
+
     let payment
 
     try {
       payment = await paymentClient.get({ id: paymentId })
     } catch {
+      console.log("❌ ERROR OBTENIENDO PAGO")
       return NextResponse.json({ ok: true })
     }
 
     if (!payment || payment.status !== "approved") {
+      console.log("⚠️ PAGO NO APROBADO")
       return NextResponse.json({ ok: true })
     }
 
@@ -71,7 +76,12 @@ export async function POST(req: Request) {
     const amount = Number(payment.metadata?.amount || 0)
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
 
-    if (!campaign_id) return NextResponse.json({ ok: true })
+    console.log("💰 AMOUNT:", amount)
+
+    if (!campaign_id) {
+      console.log("❌ NO CAMPAIGN ID")
+      return NextResponse.json({ ok: true })
+    }
 
     // 💰 REGISTRO FINANCIERO
     const { error } = await supabase.rpc("process_payment_atomic", {
@@ -85,6 +95,8 @@ export async function POST(req: Request) {
 
     if (error) {
       console.log("❌ RPC ERROR:", error)
+    } else {
+      console.log("✅ PAYMENT REGISTERED")
     }
 
     // 🔥 OBTENER NOMBRE CAMPAÑA
@@ -96,7 +108,7 @@ export async function POST(req: Request) {
 
     const campaignName = campaign?.title || "ticket"
 
-    // 🎟️ SOLO 1 TICKET
+    // 🎟️ GENERAR 1 TICKET
     const ticketCode = generateTicketCode(campaignName)
 
     const { error: ticketError } = await supabase
@@ -111,12 +123,29 @@ export async function POST(req: Request) {
     if (ticketError) {
       console.log("❌ ERROR TICKET:", ticketError)
     } else {
-      console.log("🎟️ TICKET:", ticketCode)
+      console.log("🎟️ TICKET CREADO:", ticketCode)
     }
 
+    // 📧 EMAIL (AQUÍ ESTABA EL FALLO ORIGINAL)
+    try {
+      await sendTicketEmail({
+        to: user_email,
+        ticket: ticketCode,
+        campaign: campaignName,
+        amount
+      })
+
+      console.log("📧 EMAIL ENVIADO")
+    } catch (err) {
+      console.log("❌ ERROR EMAIL:", err)
+    }
+
+    // 🔐 ANTIFRAUDE
     try {
       await evaluateFraud(user_email)
-    } catch {}
+    } catch {
+      console.log("⚠️ FRAUD ERROR")
+    }
 
     await logToDB("info", "webhook_success", {
       paymentId,
@@ -126,6 +155,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
 
   } catch (error) {
+
+    console.log("🔥 WEBHOOK FATAL ERROR:", error)
 
     await logErrorToDB("webhook_fatal", error)
 
