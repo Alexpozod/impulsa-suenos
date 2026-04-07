@@ -4,6 +4,10 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
+// 🔥 NUEVO
+import LiveFeed from '@/app/components/LiveFeed'
+import Notifications from '@/app/components/Notifications'
+
 export default function HomePage() {
 
   const router = useRouter()
@@ -20,13 +24,11 @@ export default function HomePage() {
     router.push("/create")
   }
 
-  // 🔥 NORMALIZAR IMAGEN
   const buildImageUrl = (url: string) => {
     if (!url) return "https://via.placeholder.com/400"
     return url.replace(/\s/g, "%20")
   }
 
-  // 🔥 SCORE INTELIGENTE (CORE DEL NEGOCIO)
   const getScore = (c: any) => {
     const current = Number(c.current_amount || 0)
     const goal = Number(c.goal_amount || 1)
@@ -35,13 +37,9 @@ export default function HomePage() {
 
     let score = 0
 
-    // 💰 dinero (peso fuerte)
     score += progress * 50
-
-    // 📈 volumen
     score += Math.log10(current + 1) * 20
 
-    // ⏳ urgencia
     if (c.end_date) {
       const daysLeft = (new Date(c.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
       if (daysLeft > 0) {
@@ -49,7 +47,6 @@ export default function HomePage() {
       }
     }
 
-    // 🔥 actividad reciente
     if (c.last_donation_at) {
       const hours = (Date.now() - new Date(c.last_donation_at).getTime()) / (1000 * 60 * 60)
       if (hours < 24) {
@@ -60,13 +57,11 @@ export default function HomePage() {
     return score
   }
 
-  // 🔥 ORDENAMIENTO INTELIGENTE
   const sorted = [...campaigns].sort((a, b) => getScore(b) - getScore(a))
 
   const featured = sorted.slice(0, 1)
   const trending = sorted.slice(1, 7)
 
-  // 🔥 BADGES DINÁMICOS
   const getBadges = (c: any) => {
     const badges: string[] = []
 
@@ -125,6 +120,11 @@ export default function HomePage() {
 
       </section>
 
+      {/* 🔥 LIVE FEED (NUEVO) */}
+      <section className="max-w-7xl mx-auto px-6 py-6">
+        <LiveFeed />
+      </section>
+
       {/* FEATURED */}
       {featured.map(c => {
 
@@ -149,7 +149,6 @@ export default function HomePage() {
                   className="rounded-2xl w-full h-[380px] object-cover shadow"
                 />
 
-                {/* BADGES */}
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   {badges.map((b, i) => (
                     <span key={i} className="bg-white/90 text-xs px-3 py-1 rounded-full shadow">
@@ -243,7 +242,6 @@ export default function HomePage() {
                       className="h-52 w-full object-cover group-hover:scale-105 transition"
                     />
 
-                    {/* BADGES */}
                     <div className="absolute top-3 left-3 flex flex-wrap gap-1">
                       {badges.slice(0, 2).map((b, i) => (
                         <span key={i} className="bg-white/90 text-[10px] px-2 py-1 rounded-full">
@@ -307,6 +305,9 @@ export default function HomePage() {
         </button>
 
       </section>
+
+      {/* 🔔 NOTIFICATIONS (NUEVO) */}
+      <Notifications />
 
     </main>
   )

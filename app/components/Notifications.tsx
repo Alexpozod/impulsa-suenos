@@ -9,7 +9,7 @@ type Donation = {
 }
 
 function timeAgo(date: string) {
-  const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000)
+  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
 
   if (seconds < 60) return "hace unos segundos"
   if (seconds < 3600) return `hace ${Math.floor(seconds / 60)} min`
@@ -18,22 +18,40 @@ function timeAgo(date: string) {
   return `hace ${Math.floor(seconds / 86400)} días`
 }
 
-export default function Notifications({ donations }: { donations: Donation[] }) {
+export default function Notifications() {
 
+  const [donations, setDonations] = useState<Donation[]>([])
   const [visible, setVisible] = useState<Donation | null>(null)
 
   useEffect(() => {
-    if (!donations || donations.length === 0) return
+    load()
+
+    const refresh = setInterval(load, 15000)
+    return () => clearInterval(refresh)
+  }, [])
+
+  useEffect(() => {
+    if (!donations.length) return
 
     let index = 0
 
     const interval = setInterval(() => {
       setVisible(donations[index])
       index = (index + 1) % donations.length
-    }, 4000)
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [donations])
+
+  const load = async () => {
+    try {
+      const res = await fetch('/api/donations-live')
+      const data = await res.json()
+      setDonations(data || [])
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   if (!visible) return null
 
@@ -45,7 +63,7 @@ export default function Notifications({ donations }: { donations: Donation[] }) 
         <span className="text-green-400">●</span>
 
         <span>
-          Alguien compró <b>${visible.amount}</b> en tickets
+          Alguien donó <b>${Number(visible.amount).toLocaleString()}</b>
         </span>
 
         <span className="text-slate-400 text-xs">
