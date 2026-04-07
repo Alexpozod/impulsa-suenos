@@ -18,47 +18,42 @@ const supabase = createClient(
 )
 
 export async function POST(req: Request) {
+
+  // 🔥 LOG CRÍTICO (ESTO ES LO QUE NECESITAMOS VER)
+  console.log("🔥 WEBHOOK HIT")
+
   try {
     const url = new URL(req.url)
 
-    // 🔥 1. QUERY PARAMS
     let paymentId =
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
 
-    // 🔥 2. BODY (CLAVE REAL)
+    // 🔥 leer body también
     if (!paymentId) {
       try {
         const body = await req.json()
-
-        paymentId =
-          body?.data?.id ||
-          body?.id ||
-          null
-
-      } catch {
-        // body vacío o no JSON
-      }
+        paymentId = body?.data?.id || body?.id || null
+      } catch {}
     }
 
     if (!paymentId) {
-      await logErrorToDB("missing_payment_id", { url: req.url })
+      console.log("❌ NO PAYMENT ID")
       return NextResponse.json({ ok: true })
     }
 
-    // 🔥 Obtener pago desde MP
+    console.log("💳 PAYMENT ID:", paymentId)
+
     let payment
 
     try {
       payment = await paymentClient.get({ id: paymentId })
     } catch {
-      await sendAlert({
-        title: "MP error",
-        message: "No se pudo obtener pago",
-        data: { paymentId }
-      })
+      console.log("❌ ERROR OBTENIENDO PAGO")
       return NextResponse.json({ ok: true })
     }
+
+    console.log("📦 PAYMENT STATUS:", payment?.status)
 
     if (!payment || payment.status !== "approved") {
       return NextResponse.json({ ok: true })
@@ -74,12 +69,13 @@ export async function POST(req: Request) {
     const amount = Number(payment.metadata?.amount || 0)
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
 
+    console.log("💰 AMOUNT:", amount)
+
     if (!campaign_id) {
-      await logErrorToDB("missing_campaign_id", { paymentId })
+      console.log("❌ NO CAMPAIGN ID")
       return NextResponse.json({ ok: true })
     }
 
-    // 🔥 INSERT FINANCIERO
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -90,20 +86,15 @@ export async function POST(req: Request) {
     })
 
     if (error) {
-      await logErrorToDB("rpc_error", error)
-
-      await sendAlert({
-        title: "ERROR FINANCIERO",
-        message: "RPC falló",
-        data: { paymentId }
-      })
+      console.log("❌ RPC ERROR:", error)
+    } else {
+      console.log("✅ PAYMENT REGISTERED")
     }
 
-    // antifraude
     try {
       await evaluateFraud(user_email)
     } catch {
-      await logErrorToDB("fraud_error", { user_email })
+      console.log("⚠️ FRAUD ERROR")
     }
 
     await logToDB("info", "webhook_success", {
@@ -115,6 +106,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
 
   } catch (error) {
+
+    console.log("🔥 WEBHOOK FATAL ERROR:", error)
 
     await logErrorToDB("webhook_fatal", error)
 
