@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
-
 import { createPayment } from "@/lib/payments/provider"
-
-import { logInfo, logError } from "@/lib/logger-api"
-import { logToDB, logErrorToDB } from "@/lib/logToDB"
-import { sendAlert } from "@/lib/alerts/sendAlert"
 
 export const runtime = "nodejs"
 
+/* =========================
+   VALIDACIÓN
+========================= */
 const paymentSchema = z.object({
   amount: z.number().positive().min(100),
   platform_tip: z.number().min(0).optional(),
@@ -19,15 +17,12 @@ const paymentSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const rawBody = await req.json()
 
-    logInfo("Create payment request", rawBody)
+    const rawBody = await req.json()
 
     const parsed = paymentSchema.safeParse(rawBody)
 
     if (!parsed.success) {
-      await logErrorToDB("invalid_payment_input", parsed.error)
-
       return NextResponse.json(
         { error: "Invalid input", details: parsed.error.flatten() },
         { status: 400 }
@@ -42,23 +37,12 @@ export async function POST(req: Request) {
       provider = "mercadopago"
     } = parsed.data
 
-    // ✅ FIX CRÍTICO BASE URL
+    // 🔥 FIX CRÍTICO: fallback automático
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL ||
-      (req.headers.get("origin") as string)
-
-    if (!baseUrl) {
-      throw new Error("BASE URL missing")
-    }
-
-    const total = Number(amount) + Number(platform_tip)
-
-    await logToDB("info", "payment_intent_created", {
-      campaign_id,
-      user_email,
-      total,
-      provider
-    })
+      process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000"
 
     const result = await createPayment({
       amount,
@@ -69,25 +53,25 @@ export async function POST(req: Request) {
       baseUrl
     })
 
-    logInfo("Payment provider response", {
-      campaign_id,
-      provider
-    })
+    // 🔥 SIEMPRE devolver JSON válido
+    if (!result || typeof result !== "object") {
+      return NextResponse.json(
+        { error: "Invalid payment response" },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json(result)
 
-  } catch (error) {
-    logError("CREATE PAYMENT ERROR", error)
-    await logErrorToDB("create_payment_error", error)
+  } catch (error: any) {
 
-    await sendAlert({
-      title: "Error creando pago",
-      message: "Falló create payment",
-      data: { error }
-    })
+    console.error("🔥 CREATE PAYMENT ERROR:", error)
 
     return NextResponse.json(
-      { error: "Error creando pago" },
+      {
+        error: "Error creando pago",
+        message: error?.message || "unknown"
+      },
       { status: 500 }
     )
   }
