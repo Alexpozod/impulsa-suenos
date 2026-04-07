@@ -17,6 +17,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// 🎯 generar código tipo campaña
+function generateTicketCode(campaignName: string) {
+  const prefix = campaignName
+    ?.replace(/[^a-zA-Z]/g, "")
+    .toUpperCase()
+    .slice(0, 6) || "TICKET"
+
+  const random = Math.floor(100000 + Math.random() * 900000)
+
+  return `${prefix}-${random}`
+}
+
 export async function POST(req: Request) {
 
   console.log("🔥 WEBHOOK HIT")
@@ -28,7 +40,6 @@ export async function POST(req: Request) {
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
 
-    // 🔥 Leer body (MercadoPago a veces manda aquí)
     if (!paymentId) {
       try {
         const body = await req.json()
@@ -36,23 +47,15 @@ export async function POST(req: Request) {
       } catch {}
     }
 
-    if (!paymentId) {
-      console.log("❌ NO PAYMENT ID")
-      return NextResponse.json({ ok: true })
-    }
-
-    console.log("💳 PAYMENT ID:", paymentId)
+    if (!paymentId) return NextResponse.json({ ok: true })
 
     let payment
 
     try {
       payment = await paymentClient.get({ id: paymentId })
     } catch {
-      console.log("❌ ERROR OBTENIENDO PAGO")
       return NextResponse.json({ ok: true })
     }
-
-    console.log("📦 PAYMENT STATUS:", payment?.status)
 
     if (!payment || payment.status !== "approved") {
       return NextResponse.json({ ok: true })
@@ -68,15 +71,10 @@ export async function POST(req: Request) {
     const amount = Number(payment.metadata?.amount || 0)
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
 
-    console.log("💰 AMOUNT:", amount)
+    if (!campaign_id) return NextResponse.json({ ok: true })
 
-    if (!campaign_id) {
-      console.log("❌ NO CAMPAIGN ID")
-      return NextResponse.json({ ok: true })
-    }
-
-    // 💰 REGISTRO FINANCIERO (NO TOCAR)
-    const { data, error } = await supabase.rpc("process_payment_atomic", {
+    // 💰 REGISTRO FINANCIERO
+    const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
@@ -87,61 +85,47 @@ export async function POST(req: Request) {
 
     if (error) {
       console.log("❌ RPC ERROR:", error)
+    }
+
+    // 🔥 OBTENER NOMBRE CAMPAÑA
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("title")
+      .eq("id", campaign_id)
+      .maybeSingle()
+
+    const campaignName = campaign?.title || "ticket"
+
+    // 🎟️ SOLO 1 TICKET
+    const ticketCode = generateTicketCode(campaignName)
+
+    const { error: ticketError } = await supabase
+      .from("tickets")
+      .insert([{
+        campaign_id,
+        payment_id: paymentId,
+        user_email,
+        ticket_number: ticketCode
+      }])
+
+    if (ticketError) {
+      console.log("❌ ERROR TICKET:", ticketError)
     } else {
-      console.log("✅ PAYMENT REGISTERED")
+      console.log("🎟️ TICKET:", ticketCode)
     }
 
-    // 🎟️ GENERACIÓN DE TICKETS (FIX REAL)
-    try {
-
-      const ticketPrice = 1000 // 🔥 AJUSTABLE
-      const ticketCount = Math.floor(amount / ticketPrice)
-
-      if (ticketCount > 0) {
-
-        const ticketsToInsert = Array.from({ length: ticketCount }).map(() => ({
-          campaign_id,
-          payment_id: paymentId,
-          user_email,
-          ticket_number: Math.floor(Math.random() * 1000000000)
-        }))
-
-        const { error: ticketError } = await supabase
-          .from("tickets")
-          .insert(ticketsToInsert)
-
-        if (ticketError) {
-          console.log("❌ ERROR CREANDO TICKETS:", ticketError)
-        } else {
-          console.log("🎟️ TICKETS CREADOS:", ticketCount)
-        }
-
-      } else {
-        console.log("⚠️ NO SE GENERARON TICKETS")
-      }
-
-    } catch (err) {
-      console.log("❌ ERROR TICKETS:", err)
-    }
-
-    // 🔐 ANTIFRAUDE
     try {
       await evaluateFraud(user_email)
-    } catch {
-      console.log("⚠️ FRAUD ERROR")
-    }
+    } catch {}
 
     await logToDB("info", "webhook_success", {
       paymentId,
-      campaign_id,
-      result: data
+      campaign_id
     })
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-
-    console.log("🔥 WEBHOOK FATAL ERROR:", error)
 
     await logErrorToDB("webhook_fatal", error)
 
