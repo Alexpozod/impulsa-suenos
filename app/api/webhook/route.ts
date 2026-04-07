@@ -92,14 +92,21 @@ export async function POST(req: Request) {
     const ticketCode = generateTicketCode(campaign?.title || "ticket")
 
     // 🎟️ ticket
-    await supabase.from("tickets").insert([{
-      campaign_id,
-      payment_id: paymentId,
-      user_email,
-      ticket_number: ticketCode
-    }])
+    const { error: ticketError } = await supabase
+  .from("tickets")
+  .insert([{
+    campaign_id,
+    payment_id: paymentId,
+    user_email,
+    ticket_number: ticketCode
+  }])
 
-    console.log("🎟️ TICKET:", ticketCode)
+if (ticketError) {
+  console.log("⚠️ TICKET DUPLICADO BLOQUEADO")
+
+  // 👇 IMPORTANTE: salir sin repetir nada
+  return NextResponse.json({ ok: true })
+}
 
     // 📧 email
     await sendTicketEmail({
