@@ -9,9 +9,9 @@ export default function SuccessClient() {
   const router = useRouter()
 
   const [status, setStatus] = useState('Procesando...')
-  const [tickets, setTickets] = useState<any[]>([])
   const [amount, setAmount] = useState(0)
   const [campaign, setCampaign] = useState<any>(null)
+  const [loadingData, setLoadingData] = useState(true)
 
   useEffect(() => {
 
@@ -27,46 +27,38 @@ export default function SuccessClient() {
     }
 
     if (payment_id) {
-      loadData(payment_id)
+      fetchWithRetry(payment_id)
     }
 
   }, [searchParams])
 
-  // 🔥 FIX REAL: retry hasta que webhook termine
-  const loadData = async (payment_id: string) => {
+  // 🔥 CLAVE: REINTENTAR HASTA QUE EXISTA EL PAGO
+  const fetchWithRetry = async (payment_id: string, attempts = 0) => {
 
-    let attempts = 0
-    let success = false
+    try {
 
-    while (attempts < 6 && !success) {
+      const res = await fetch(`/api/payment-info?payment_id=${payment_id}`)
+      const data = await res.json()
 
-      try {
-        const res = await fetch(`/api/payment-info?payment_id=${payment_id}`)
-        const data = await res.json()
-
-        if (data?.tickets?.length > 0) {
-
-          setTickets(data.tickets || [])
-          setAmount(data.amount || 0)
-          setCampaign(data.campaign || null)
-
-          success = true
-
-        } else {
-          // ⏳ esperar webhook
-          await new Promise(r => setTimeout(r, 1500))
-          attempts++
-        }
-
-      } catch (err) {
-        console.log("❌ ERROR FETCH PAYMENT INFO:", err)
-        await new Promise(r => setTimeout(r, 1500))
-        attempts++
+      if (data?.amount > 0) {
+        setAmount(data.amount)
+        setCampaign(data.campaign)
+        setLoadingData(false)
+        return
       }
-    }
 
-    if (!success) {
-      console.log("⚠️ tickets aún no disponibles")
+      // 🔥 SI AÚN NO ESTÁ → REINTENTA
+      if (attempts < 10) {
+        setTimeout(() => {
+          fetchWithRetry(payment_id, attempts + 1)
+        }, 1500)
+      } else {
+        setLoadingData(false)
+      }
+
+    } catch (err) {
+      console.error("Error loading payment:", err)
+      setLoadingData(false)
     }
   }
 
@@ -81,39 +73,28 @@ export default function SuccessClient() {
 
         <p className="text-lg mb-4">{status}</p>
 
-        {/* MONTO */}
-        <div className="mb-4">
-          <p className="text-gray-500 text-sm">Monto pagado</p>
-          <p className="text-xl font-bold text-green-600">
-            ${amount.toLocaleString()}
+        {/* 🔥 LOADING */}
+        {loadingData && (
+          <p className="text-gray-500 mb-4">
+            Procesando confirmación de pago...
           </p>
-        </div>
+        )}
 
-        {/* CAMPAÑA */}
-        {campaign && (
+        {/* 💰 MONTO */}
+        {!loadingData && (
           <div className="mb-4">
-            <p className="text-gray-500 text-sm">Campaña</p>
-            <p className="font-semibold">{campaign.title}</p>
+            <p className="text-gray-500 text-sm">Monto pagado</p>
+            <p className="text-xl font-bold text-green-600">
+              ${amount.toLocaleString()}
+            </p>
           </div>
         )}
 
-        {/* TICKETS */}
-        {tickets.length > 0 && (
-          <div className="mb-6">
-            <p className="text-gray-500 text-sm mb-2">
-              🎟️ Tu ticket
-            </p>
-
-            <div className="flex flex-wrap gap-2 justify-center">
-              {tickets.map((t) => (
-                <span
-                  key={t.id}
-                  className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold"
-                >
-                  {t.ticket_number}
-                </span>
-              ))}
-            </div>
+        {/* CAMPAÑA */}
+        {!loadingData && campaign && (
+          <div className="mb-4">
+            <p className="text-gray-500 text-sm">Campaña</p>
+            <p className="font-semibold">{campaign.title}</p>
           </div>
         )}
 
@@ -124,7 +105,7 @@ export default function SuccessClient() {
             onClick={() => router.push('/campaigns')}
             className="bg-green-600 text-white py-3 rounded-lg font-semibold"
           >
-            🎟️ Seguir participando
+            Seguir donando
           </button>
 
           <button
