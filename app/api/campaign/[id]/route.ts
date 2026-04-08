@@ -17,27 +17,18 @@ export async function GET(req: Request) {
       return NextResponse.json(null, { status: 400 })
     }
 
-    /* =========================
-       🔥 QUERY CORRECTA
-    ========================= */
+    // 📌 CAMPAÑA BASE
     const { data: campaign, error } = await supabase
       .from("campaigns")
       .select("*")
       .eq("id", id)
-      .maybeSingle() // 🔥 IMPORTANTE
+      .maybeSingle()
 
-    if (error) {
-      console.error("DB ERROR:", error)
+    if (error || !campaign) {
       return NextResponse.json(null, { status: 200 })
     }
 
-    if (!campaign) {
-      return NextResponse.json(null, { status: 200 })
-    }
-
-    /* =========================
-       💰 DINERO REAL
-    ========================= */
+    // 💰 DINERO REAL DESDE LEDGER
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("amount")
