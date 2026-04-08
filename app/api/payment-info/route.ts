@@ -15,20 +15,27 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "No payment_id" }, { status: 400 })
   }
 
-  // 🔥 1. BUSCAR EN LEDGER (SIN maybeSingle)
+  // 🔥 TRAER TODO EL LEDGER
   const { data: ledgerRows } = await supabase
     .from("financial_ledger")
     .select("*")
     .eq("payment_id", payment_id)
-    .order("created_at", { ascending: false })
 
-const ledger = ledgerRows?.find(l => l.type === "payment") || null
+  console.log("📊 LEDGER:", ledgerRows)
 
-  // 🔥 2. SI NO EXISTE, fallback por metadata (CRÍTICO)
-  let amount = ledger?.amount || 0
-  let campaign_id = ledger?.campaign_id || null
+  // 🔥 BUSCAR SOLO EL PAYMENT REAL
+  const paymentRow = ledgerRows?.find(l => l.type === "payment")
 
-  // 🔥 3. CAMPAÑA
+  if (!paymentRow) {
+    return NextResponse.json({
+      amount: 0,
+      campaign: null
+    })
+  }
+
+  const amount = Number(paymentRow.amount || 0)
+  const campaign_id = paymentRow.campaign_id
+
   let campaign = null
 
   if (campaign_id) {
@@ -41,14 +48,7 @@ const ledger = ledgerRows?.find(l => l.type === "payment") || null
     campaign = data
   }
 
-  // 🔥 4. TICKETS
-  const { data: tickets } = await supabase
-    .from("tickets")
-    .select("*")
-    .eq("payment_id", payment_id)
-
   return NextResponse.json({
-    tickets: tickets || [],
     amount,
     campaign
   })
