@@ -18,18 +18,18 @@ export async function POST(req: Request) {
   console.log("🔥 WEBHOOK HIT")
 
   try {
-    const url = new URL(req.url)
 
-    let paymentId =
-      url.searchParams.get("data.id") ||
-      url.searchParams.get("id")
+    const body = await req.json()
 
-    if (!paymentId) {
-      try {
-        const body = await req.json()
-        paymentId = body?.data?.id || body?.id || null
-      } catch {}
+    console.log("📩 BODY:", body)
+
+    // 🔥 SOLO PROCESAR EVENTOS DE PAGO
+    if (body.type !== "payment") {
+      console.log("⚠️ EVENTO IGNORADO:", body.type)
+      return NextResponse.json({ ok: true })
     }
+
+    const paymentId = body.data?.id
 
     if (!paymentId) {
       console.log("❌ NO PAYMENT ID")
@@ -38,40 +38,34 @@ export async function POST(req: Request) {
 
     console.log("💳 PAYMENT ID:", paymentId)
 
-    const payment = await paymentClient.get({ id: paymentId })
+    let payment
 
-    console.log("📦 PAYMENT:", JSON.stringify(payment, null, 2))
-
-    if (!payment || payment.status !== "approved") {
-      console.log("⚠️ NOT APPROVED")
+    try {
+      payment = await paymentClient.get({ id: paymentId })
+    } catch (err) {
+      console.log("❌ PAYMENT NOT FOUND → IGNORADO")
       return NextResponse.json({ ok: true })
     }
 
-    // 🔥 MONTO REAL
+    console.log("📦 PAYMENT:", payment.status)
+
+    if (payment.status !== "approved") {
+      console.log("⚠️ NO APROBADO")
+      return NextResponse.json({ ok: true })
+    }
+
     const amount = Number(payment.transaction_amount || 0)
 
-    // 🔥 EMAIL REAL
     const user_email =
       payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    // 🔥 CRÍTICO: BUSCAR CAMPAÑA DESDE BASE DE DATOS
-    const { data: lastCampaign } = await supabase
-      .from("campaigns")
-      .select("id")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    const campaign_id = payment.metadata?.campaign_id
 
-    if (!lastCampaign) {
-      console.log("❌ NO CAMPAIGN FOUND")
+    if (!campaign_id) {
+      console.log("❌ NO CAMPAIGN ID")
       return NextResponse.json({ ok: true })
     }
-
-    const campaign_id = lastCampaign.id
-
-    console.log("🎯 CAMPAIGN:", campaign_id)
-    console.log("💵 AMOUNT:", amount)
 
     if (!amount || amount <= 0) {
       console.log("❌ INVALID AMOUNT")
@@ -94,17 +88,17 @@ export async function POST(req: Request) {
     }
 
     if (data?.status === "already_processed") {
-      console.log("⚠️ DUPLICATE IGNORED")
+      console.log("⚠️ DUPLICADO IGNORADO")
       return NextResponse.json({ ok: true })
     }
 
-    console.log("✅ DONE")
+    console.log("✅ PAYMENT OK")
 
     return NextResponse.json({ ok: true })
 
   } catch (err) {
 
-    console.log("🔥 ERROR:", err)
+    console.log("🔥 ERROR GENERAL:", err)
 
     return NextResponse.json({ ok: true })
   }
