@@ -19,17 +19,26 @@ export async function POST(req: Request) {
 
   try {
 
-    const body = await req.json()
+    let paymentId = null
 
-    console.log("📩 BODY:", body)
+    // 🔥 leer body correctamente
+    try {
+      const body = await req.json()
+      console.log("📩 BODY:", body)
 
-    // 🔥 SOLO PROCESAR EVENTOS DE PAGO
-    if (body.type !== "payment") {
-      console.log("⚠️ EVENTO IGNORADO:", body.type)
-      return NextResponse.json({ ok: true })
+      paymentId = body?.data?.id || body?.id || null
+
+    } catch {
+      console.log("⚠️ NO BODY")
     }
 
-    const paymentId = body.data?.id
+    // 🔥 fallback URL (por si viene por query)
+    if (!paymentId) {
+      const url = new URL(req.url)
+      paymentId =
+        url.searchParams.get("data.id") ||
+        url.searchParams.get("id")
+    }
 
     if (!paymentId) {
       console.log("❌ NO PAYMENT ID")
@@ -43,32 +52,28 @@ export async function POST(req: Request) {
     try {
       payment = await paymentClient.get({ id: paymentId })
     } catch (err) {
-      console.log("❌ PAYMENT NOT FOUND → IGNORADO")
+      console.log("❌ PAYMENT NOT FOUND (IGNORADO)")
       return NextResponse.json({ ok: true })
     }
 
-    console.log("📦 PAYMENT:", payment.status)
-
-    if (payment.status !== "approved") {
+    if (!payment || payment.status !== "approved") {
       console.log("⚠️ NO APROBADO")
       return NextResponse.json({ ok: true })
     }
 
     const amount = Number(payment.transaction_amount || 0)
 
+    const campaign_id = payment.metadata?.campaign_id
+
     const user_email =
       payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    const campaign_id = payment.metadata?.campaign_id
+    console.log("💵 AMOUNT:", amount)
+    console.log("🎯 CAMPAIGN:", campaign_id)
 
-    if (!campaign_id) {
-      console.log("❌ NO CAMPAIGN ID")
-      return NextResponse.json({ ok: true })
-    }
-
-    if (!amount || amount <= 0) {
-      console.log("❌ INVALID AMOUNT")
+    if (!campaign_id || !amount) {
+      console.log("❌ DATOS INVALIDOS")
       return NextResponse.json({ ok: true })
     }
 
