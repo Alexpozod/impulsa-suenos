@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
+import { sendDonationEmail } from "@/lib/email"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -19,9 +20,9 @@ export async function POST(req: Request) {
 
   try {
 
-    let paymentId = null
+    let paymentId: string | null = null
 
-    // 🔥 leer body correctamente
+    // 🔍 leer body
     try {
       const body = await req.json()
       console.log("📩 BODY:", body)
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
       console.log("⚠️ NO BODY")
     }
 
-    // 🔥 fallback URL (por si viene por query)
+    // 🔍 fallback query params
     if (!paymentId) {
       const url = new URL(req.url)
       paymentId =
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
 
     if (!paymentId) {
       console.log("❌ NO PAYMENT ID")
-      return NextResponse.json({ ok: true })
+      return NextResponse.json({ ok: false })
     }
 
     console.log("💳 PAYMENT ID:", paymentId)
@@ -52,17 +53,30 @@ export async function POST(req: Request) {
     try {
       payment = await paymentClient.get({ id: paymentId })
     } catch (err) {
-      console.log("❌ PAYMENT NOT FOUND (IGNORADO)")
-      return NextResponse.json({ ok: true })
+      console.log("❌ PAYMENT NOT FOUND")
+      
+      await supabase.from("payment_logs").insert({
+        payment_id: paymentId,
+        status: "payment_not_found",
+        payload: err
+      })
+
+      return NextResponse.json({ ok: false })
     }
 
     if (!payment || payment.status !== "approved") {
-      console.log("⚠️ NO APROBADO")
+      console.log("⚠️ PAYMENT NO APROBADO")
+
+      await supabase.from("payment_logs").insert({
+        payment_id: paymentId,
+        status: payment?.status || "not_approved",
+        payload: payment
+      })
+
       return NextResponse.json({ ok: true })
     }
 
     const amount = Number(payment.transaction_amount || 0)
-
     const campaign_id = payment.metadata?.campaign_id
 
     const user_email =
@@ -74,10 +88,18 @@ export async function POST(req: Request) {
 
     if (!campaign_id || !amount) {
       console.log("❌ DATOS INVALIDOS")
-      return NextResponse.json({ ok: true })
+
+      await supabase.from("payment_logs").insert({
+        payment_id: paymentId,
+        campaign_id,
+        status: "invalid_data",
+        payload: payment
+      })
+
+      return NextResponse.json({ ok: false })
     }
 
-    // 🔥 RPC
+    // 🔥 RPC CORE
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -88,23 +110,72 @@ export async function POST(req: Request) {
     })
 
     if (error) {
-      console.log("❌ RPC ERROR:", error)
-      return NextResponse.json({ ok: true })
+      console.error("❌ RPC ERROR:", error)
+
+      await supabase.from("payment_logs").insert({
+        payment_id: paymentId,
+        campaign_id,
+        status: "rpc_error",
+        payload: error
+      })
+
+      return NextResponse.json({ ok: false })
     }
 
-    if (data?.status === "already_processed") {
+    // 🔁 duplicado (normal en MercadoPago)
+    if (data?.status === "already_processed" || data?.status === "already_processed_after_lock") {
       console.log("⚠️ DUPLICADO IGNORADO")
+
+      await supabase.from("payment_logs").insert({
+        payment_id: paymentId,
+        campaign_id,
+        status: "duplicate",
+        payload: payment
+      })
+
       return NextResponse.json({ ok: true })
     }
 
+    if (data?.status === "invalid_campaign") {
+      console.log("❌ CAMPAÑA INVALIDA")
+
+      await supabase.from("payment_logs").insert({
+        payment_id: paymentId,
+        campaign_id,
+        status: "invalid_campaign",
+        payload: payment
+      })
+
+      return NextResponse.json({ ok: false })
+    }
+
+    // ✅ SUCCESS REAL
     console.log("✅ PAYMENT OK")
+
+    await supabase.from("payment_logs").insert({
+      payment_id: paymentId,
+      campaign_id,
+      status: "success",
+      payload: payment
+    })
+
+    // 📧 EMAIL
+    try {
+      await sendDonationEmail({
+        to: user_email,
+        campaign: campaign_id,
+        amount
+      })
+    } catch (err) {
+      console.log("⚠️ ERROR EMAIL:", err)
+    }
 
     return NextResponse.json({ ok: true })
 
   } catch (err) {
 
-    console.log("🔥 ERROR GENERAL:", err)
+    console.error("🔥 ERROR GENERAL:", err)
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: false })
   }
 }
