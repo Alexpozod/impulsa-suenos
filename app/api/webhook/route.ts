@@ -2,8 +2,6 @@ import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 
-import { logToDB, logErrorToDB } from "@/lib/logToDB"
-
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 })
@@ -26,7 +24,6 @@ export async function POST(req: Request) {
       url.searchParams.get("data.id") ||
       url.searchParams.get("id")
 
-    // 🔥 fallback body
     if (!paymentId) {
       try {
         const body = await req.json()
@@ -41,60 +38,53 @@ export async function POST(req: Request) {
 
     console.log("💳 PAYMENT ID:", paymentId)
 
-    let payment
+    const payment = await paymentClient.get({ id: paymentId })
 
-    try {
-      payment = await paymentClient.get({ id: paymentId })
-    } catch {
-      console.log("❌ ERROR OBTENIENDO PAGO")
-      return NextResponse.json({ ok: true })
-    }
-
-    // 🔍 DEBUG COMPLETO (NO BORRAR)
-    console.log("💰 FULL PAYMENT:", JSON.stringify(payment, null, 2))
+    console.log("📦 PAYMENT:", JSON.stringify(payment, null, 2))
 
     if (!payment || payment.status !== "approved") {
-      console.log("⚠️ PAGO NO APROBADO")
+      console.log("⚠️ NOT APPROVED")
       return NextResponse.json({ ok: true })
     }
 
-    const campaign_id = payment.metadata?.campaign_id
+    // 🔥 MONTO REAL
+    const amount = Number(payment.transaction_amount || 0)
 
+    // 🔥 EMAIL REAL
     const user_email =
-      payment.metadata?.user_email ||
       payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    // 🔥 MONTO REAL (SOLUCIÓN DEFINITIVA)
-    const amount = Number(
-      payment.transaction_amount ||
-      payment.transaction_details?.total_paid_amount ||
-      payment.transaction_details?.net_received_amount ||
-      0
-    )
+    // 🔥 CRÍTICO: BUSCAR CAMPAÑA DESDE BASE DE DATOS
+    const { data: lastCampaign } = await supabase
+      .from("campaigns")
+      .select("id")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-    const platform_tip = Number(payment.metadata?.platform_tip || 0)
+    if (!lastCampaign) {
+      console.log("❌ NO CAMPAIGN FOUND")
+      return NextResponse.json({ ok: true })
+    }
 
-    console.log("💵 AMOUNT FINAL:", amount)
+    const campaign_id = lastCampaign.id
 
-    // 🛑 VALIDACIÓN CRÍTICA
+    console.log("🎯 CAMPAIGN:", campaign_id)
+    console.log("💵 AMOUNT:", amount)
+
     if (!amount || amount <= 0) {
-      console.log("❌ AMOUNT INVALIDO:", amount)
+      console.log("❌ INVALID AMOUNT")
       return NextResponse.json({ ok: true })
     }
 
-    if (!campaign_id) {
-      console.log("❌ NO CAMPAIGN ID")
-      return NextResponse.json({ ok: true })
-    }
-
-    // 🔥 LLAMADA A RPC
+    // 🔥 RPC
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
       p_amount: amount,
-      p_platform_tip: platform_tip,
+      p_platform_tip: 0,
       p_provider: "mercadopago"
     })
 
@@ -103,27 +93,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 🛑 EVITA DOBLE EJECUCIÓN
     if (data?.status === "already_processed") {
-      console.log("⚠️ YA PROCESADO (IGNORADO)")
+      console.log("⚠️ DUPLICATE IGNORED")
       return NextResponse.json({ ok: true })
     }
 
-    console.log("✅ PAYMENT REGISTERED OK")
-
-    await logToDB("info", "webhook_success", {
-      paymentId,
-      campaign_id,
-      amount
-    })
+    console.log("✅ DONE")
 
     return NextResponse.json({ ok: true })
 
-  } catch (error) {
+  } catch (err) {
 
-    console.log("🔥 WEBHOOK FATAL ERROR:", error)
-
-    await logErrorToDB("webhook_fatal", error)
+    console.log("🔥 ERROR:", err)
 
     return NextResponse.json({ ok: true })
   }
