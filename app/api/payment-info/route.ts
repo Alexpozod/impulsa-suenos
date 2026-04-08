@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     .eq("payment_id", payment_id)
     .order("created_at", { ascending: false })
 
-  const ledger = ledgerRows?.[0] || null
+const ledger = ledgerRows?.find(l => l.type === "payment") || null
 
   // 🔥 2. SI NO EXISTE, fallback por metadata (CRÍTICO)
   let amount = ledger?.amount || 0
