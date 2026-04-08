@@ -50,6 +50,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
+    // 🔍 DEBUG COMPLETO (NO BORRAR)
+    console.log("💰 FULL PAYMENT:", JSON.stringify(payment, null, 2))
+
     if (!payment || payment.status !== "approved") {
       console.log("⚠️ PAGO NO APROBADO")
       return NextResponse.json({ ok: true })
@@ -62,19 +65,30 @@ export async function POST(req: Request) {
       payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
+    // 🔥 MONTO REAL (SOLUCIÓN DEFINITIVA)
     const amount = Number(
-  payment.transaction_amount ||
-  payment.metadata?.amount ||
-  0
-)
+      payment.transaction_amount ||
+      payment.transaction_details?.total_paid_amount ||
+      payment.transaction_details?.net_received_amount ||
+      0
+    )
+
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
+
+    console.log("💵 AMOUNT FINAL:", amount)
+
+    // 🛑 VALIDACIÓN CRÍTICA
+    if (!amount || amount <= 0) {
+      console.log("❌ AMOUNT INVALIDO:", amount)
+      return NextResponse.json({ ok: true })
+    }
 
     if (!campaign_id) {
       console.log("❌ NO CAMPAIGN ID")
       return NextResponse.json({ ok: true })
     }
 
-    // 🔥 LLAMADA A RPC (CONTROL TOTAL)
+    // 🔥 LLAMADA A RPC
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -89,7 +103,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 🛑 CLAVE: EVITA DUPLICADOS
+    // 🛑 EVITA DOBLE EJECUCIÓN
     if (data?.status === "already_processed") {
       console.log("⚠️ YA PROCESADO (IGNORADO)")
       return NextResponse.json({ ok: true })
@@ -99,7 +113,8 @@ export async function POST(req: Request) {
 
     await logToDB("info", "webhook_success", {
       paymentId,
-      campaign_id
+      campaign_id,
+      amount
     })
 
     return NextResponse.json({ ok: true })
