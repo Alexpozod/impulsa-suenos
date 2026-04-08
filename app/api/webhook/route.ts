@@ -62,7 +62,11 @@ export async function POST(req: Request) {
       payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    const amount = Number(payment.metadata?.amount || 0)
+    const amount = Number(
+  payment.transaction_amount ||
+  payment.metadata?.amount ||
+  0
+)
     const platform_tip = Number(payment.metadata?.platform_tip || 0)
 
     if (!campaign_id) {
