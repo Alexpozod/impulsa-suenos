@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
+
 import { sendDonationEmail } from "@/lib/email"
 
 const client = new MercadoPagoConfig({
@@ -15,110 +16,92 @@ const supabase = createClient(
 )
 
 export async function POST(req: Request) {
+
   console.log("🔥 WEBHOOK HIT")
 
   try {
+    const url = new URL(req.url)
 
-    let paymentId: string | null = null
-
-    // 📩 BODY
-    try {
-      const body = await req.json()
-      console.log("📩 BODY:", body)
-      paymentId = body?.data?.id || body?.id || null
-    } catch {
-      console.log("⚠️ NO BODY")
-    }
-
-    // 🔍 FALLBACK
-    if (!paymentId) {
-      const url = new URL(req.url)
-      paymentId =
-        url.searchParams.get("data.id") ||
-        url.searchParams.get("id")
-    }
+    let paymentId =
+      url.searchParams.get("data.id") ||
+      url.searchParams.get("id")
 
     if (!paymentId) {
-      console.log("❌ NO PAYMENT ID")
-      return NextResponse.json({ ok: false })
+      try {
+        const body = await req.json()
+        paymentId = body?.data?.id || body?.id || null
+      } catch {}
     }
+
+    if (!paymentId) return NextResponse.json({ ok: true })
 
     console.log("💳 PAYMENT ID:", paymentId)
 
-    // 🔍 GET PAYMENT
-    let payment
-    try {
-      payment = await paymentClient.get({ id: paymentId })
-    } catch (err) {
+    // 🔒 evitar duplicados
+    const { data: existing } = await supabase
+      .from("financial_ledger")
+      .select("id")
+      .eq("payment_id", paymentId)
+      .eq("type", "payment")
+      .maybeSingle()
 
-      await supabase.from("payment_logs").insert({
-        payment_id: paymentId,
-        status: "payment_not_found",
-        payload: err
-      })
-
-      return NextResponse.json({ ok: false })
-    }
-
-    if (!payment || payment.status !== "approved") {
-
-      await supabase.from("payment_logs").insert({
-        payment_id: paymentId,
-        status: payment?.status || "not_approved",
-        payload: payment
-      })
-
+    if (existing) {
+      console.log("⚠️ YA PROCESADO")
       return NextResponse.json({ ok: true })
     }
 
-    // 💰 DATOS
-    const total = Number(payment.transaction_amount || 0)
-    const tip = Number(payment.metadata?.tip || 0)
-    const amount = total - tip
+    let payment
 
+    try {
+      payment = await paymentClient.get({ id: paymentId })
+    } catch {
+      console.log("❌ ERROR OBTENIENDO PAGO")
+      return NextResponse.json({ ok: true })
+    }
+
+    if (!payment || payment.status !== "approved") {
+      console.log("⚠️ PAGO NO APROBADO")
+      return NextResponse.json({ ok: true })
+    }
+
+    // 🔥 USAR METADATA (COMO ANTES)
     const campaign_id = payment.metadata?.campaign_id
 
     const user_email =
-      payment.payer?.email ||
       payment.metadata?.user_email ||
+      payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    const fee_mp =
-      payment.fee_details?.reduce(
-        (acc: number, f: any) => acc + Number(f.amount || 0),
-        0
-      ) || 0
+    const amount = Number(payment.metadata?.amount || 0)
+    const tip = Number(payment.metadata?.tip || 0)
 
-    const platform_fee = Math.round(300 * 1.19)
-
-    console.log("💰 total:", total)
-    console.log("🎁 tip:", tip)
-    console.log("❤️ donation:", amount)
-
-    if (!campaign_id || !amount) {
-      return NextResponse.json({ ok: false })
+    if (!campaign_id) {
+      console.log("❌ NO CAMPAIGN ID")
+      return NextResponse.json({ ok: true })
     }
 
-    // 🔥 PROCESO PRINCIPAL
-    const { data, error } = await supabase.rpc("process_payment_atomic", {
+    // 💰 PROCESAR PAGO
+    const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
       p_amount: amount,
-      p_fee_mp: fee_mp,
-      p_platform_fee: platform_fee,
+      p_fee_mp: 0,
+      p_platform_fee: Math.round(300 * 1.19),
       p_provider: "mercadopago"
     })
 
     if (error) {
       console.log("❌ RPC ERROR:", error)
-      return NextResponse.json({ ok: false })
+    } else {
+      console.log("✅ PAYMENT REGISTERED")
     }
 
-    // 🎁 TIP (aislado para no romper flujo)
+    // 🎁 TIP separado
     if (tip > 0) {
-      try {
-        await supabase.from("financial_ledger").insert({
+      await supabase
+        .from("financial_ledger")
+        .upsert({
           campaign_id,
           type: "tip",
           flow_type: "in",
@@ -127,51 +110,41 @@ export async function POST(req: Request) {
           provider: "mercadopago",
           payment_id: paymentId,
           user_email
+        }, {
+          onConflict: "payment_id,type"
         })
-      } catch (e) {
-        console.log("⚠️ ERROR TIP:", e)
-      }
     }
 
-    // 🔍 OBTENER NOMBRE CAMPAÑA (PRO)
-    let campaign_name = campaign_id
+    // 🔥 NOMBRE CAMPAÑA
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("title")
+      .eq("id", campaign_id)
+      .maybeSingle()
 
+    const campaignName = campaign?.title || "donación"
+
+    // 📧 EMAIL (MISMA LÓGICA QUE FUNCIONABA)
     try {
-      const { data: campaign } = await supabase
-        .from("campaigns")
-        .select("title")
-        .eq("id", campaign_id)
-        .maybeSingle()
-
-      if (campaign?.title) {
-        campaign_name = campaign.title
-      }
-    } catch (e) {
-      console.log("⚠️ ERROR FETCH CAMPAIGN:", e)
-    }
-
-    // 📧 EMAIL (CON LOG REAL)
-    try {
-      console.log("📧 intentando enviar email a:", user_email)
+      console.log("📧 ENVIANDO EMAIL A:", user_email)
 
       await sendDonationEmail({
-        to: user_email,
-        campaign: campaign_name,
+        to: process.env.ADMIN_EMAIL || user_email,
+        campaign: campaignName,
         amount
       })
 
       console.log("✅ EMAIL ENVIADO")
-
     } catch (err) {
-      console.log("❌ EMAIL ERROR:", err)
+      console.log("❌ ERROR EMAIL:", err)
     }
 
     return NextResponse.json({ ok: true })
 
-  } catch (err) {
+  } catch (error) {
 
-    console.error("🔥 ERROR GENERAL:", err)
+    console.log("🔥 WEBHOOK ERROR:", error)
 
-    return NextResponse.json({ ok: false })
+    return NextResponse.json({ ok: true })
   }
 }
