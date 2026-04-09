@@ -22,11 +22,10 @@ const mpPreference = mpClient ? new Preference(mpClient) : null
 ========================= */
 export async function createPayment({
   amount,
-  platform_tip,
+  tip = 0, // 🔥 CAMBIO
   campaign_id,
   user_email,
   provider,
-  baseUrl
 }: any) {
 
   switch (provider) {
@@ -34,7 +33,7 @@ export async function createPayment({
     case "mercadopago":
       return createMercadoPagoPayment({
         amount,
-        platform_tip,
+        tip,
         campaign_id,
         user_email,
       })
@@ -51,7 +50,7 @@ export async function createPayment({
 ========================= */
 async function createMercadoPagoPayment({
   amount,
-  platform_tip,
+  tip = 0,
   campaign_id,
   user_email,
 }: any) {
@@ -64,7 +63,15 @@ async function createMercadoPagoPayment({
 
   try {
 
-    const total = Number(amount) + Number(platform_tip)
+    // 🔥 FIX CRÍTICO
+    const safeAmount = Number(amount) || 0
+    const safeTip = Number(tip) || 0
+
+    const total = safeAmount + safeTip
+
+    if (total <= 0) {
+      return { error: "Monto inválido" }
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 
@@ -74,6 +81,7 @@ async function createMercadoPagoPayment({
       }
     }
 
+    console.log("💰 MP TOTAL:", total)
     console.log("WEBHOOK URL:", `${baseUrl}/api/webhook`)
 
     const preference = await mpPreference.create({
@@ -81,22 +89,21 @@ async function createMercadoPagoPayment({
         items: [
           {
             id: "donation",
-            title: "🎟️ Donación / Campaña",
+            title: "Donación ImpulsaSueños",
             quantity: 1,
-            unit_price: total,
+            unit_price: total, // ✅ ahora SIEMPRE number
           },
         ],
 
         metadata: {
           campaign_id,
           user_email,
-          amount: Number(amount),
-          platform_tip: Number(platform_tip),
+          amount: safeAmount,
+          tip: safeTip, // 🔥 IMPORTANTE (ANTES ERA platform_tip)
         },
 
         external_reference: campaign_id,
 
-        // 🔥 FIX CRÍTICO
         notification_url: `${baseUrl}/api/webhook`,
 
         back_urls: {
@@ -111,7 +118,7 @@ async function createMercadoPagoPayment({
 
     return {
       id: preference.id,
-      url: preference.init_point
+      init_point: preference.init_point // 🔥 importante
     }
 
   } catch (error) {
