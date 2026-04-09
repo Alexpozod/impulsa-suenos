@@ -17,7 +17,7 @@ export async function GET(req: Request) {
       return NextResponse.json(null, { status: 400 })
     }
 
-    // 📌 CAMPAÑA BASE
+    // 📌 CAMPAÑA
     const { data: campaign, error } = await supabase
       .from("campaigns")
       .select("*")
@@ -28,21 +28,32 @@ export async function GET(req: Request) {
       return NextResponse.json(null, { status: 200 })
     }
 
-    // 💰 DINERO REAL DESDE LEDGER
+    // 💰 DINERO REAL (solo DONACIONES)
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("amount")
       .eq("campaign_id", id)
-      .eq("flow_type", "in")
+      .eq("type", "payment")
       .eq("status", "confirmed")
 
     const current_amount =
       ledger?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
 
+    // 🆕 ÚLTIMAS DONACIONES
+    const { data: donations } = await supabase
+      .from("financial_ledger")
+      .select("amount, user_email, created_at")
+      .eq("campaign_id", id)
+      .eq("type", "payment")
+      .eq("status", "confirmed")
+      .order("created_at", { ascending: false })
+      .limit(10)
+
     return NextResponse.json({
       ...campaign,
       current_amount,
-      goal_amount: Number(campaign.goal_amount || 0)
+      goal_amount: Number(campaign.goal_amount || 0),
+      donations: donations || []
     })
 
   } catch (err) {

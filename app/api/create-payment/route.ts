@@ -9,7 +9,7 @@ export const runtime = "nodejs"
 ========================= */
 const paymentSchema = z.object({
   amount: z.number().positive().min(100),
-  platform_tip: z.number().min(0).optional(),
+  tip: z.number().min(0).optional(), // 🔥 CAMBIO
   campaign_id: z.string().min(1),
   user_email: z.string().email(),
   provider: z.enum(["mercadopago", "stripe", "paypal", "crypto"]).optional()
@@ -31,29 +31,31 @@ export async function POST(req: Request) {
 
     const {
       amount,
-      platform_tip = 0,
+      tip = 0,
       campaign_id,
       user_email,
       provider = "mercadopago"
     } = parsed.data
 
-    // 🔥 FIX CRÍTICO: fallback automático
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL ||
-      process.env.VERCEL_URL
+      (process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000"
+        : "http://localhost:3000")
 
     const result = await createPayment({
       amount,
-      platform_tip,
       campaign_id,
       user_email,
       provider,
-      baseUrl
+      baseUrl,
+      metadata: {
+        campaign_id,
+        user_email,
+        tip // 🔥 IMPORTANTE
+      }
     })
 
-    // 🔥 SIEMPRE devolver JSON válido
     if (!result || typeof result !== "object") {
       return NextResponse.json(
         { error: "Invalid payment response" },
