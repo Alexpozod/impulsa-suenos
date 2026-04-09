@@ -12,6 +12,7 @@ const supabase = createClient(
 
 export async function GET(req: Request) {
   try {
+
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
@@ -52,12 +53,13 @@ export async function GET(req: Request) {
     }
 
     /* =========================
-       💰 LEDGER
+       💰 LEDGER (NUEVO MODELO)
     ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
       .in("campaign_id", campaignIds)
+      .eq("status", "confirmed")
 
     /* =========================
        🏦 PAYOUTS
@@ -68,19 +70,19 @@ export async function GET(req: Request) {
       .in("campaign_id", campaignIds)
 
     /* =========================
-       📊 CALCULOS
+       📊 TOTALES
     ========================= */
+
     const totalRaised = ledger
       ?.filter(l => l.type === "payment")
       .reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
 
     const totalFees = ledger
-      ?.filter(l => l.type === "fee")
-      .reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
+      ?.filter(l => l.type === "fee_mp" || l.type === "fee_platform")
+      .reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0) || 0
 
-    const totalNet = ledger
-      ?.filter(l => l.type === "net")
-      .reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
+    const totalBalance = ledger
+      ?.reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
 
     const totalWithdrawn = ledger
       ?.filter(l => l.type === "withdraw")
@@ -89,6 +91,10 @@ export async function GET(req: Request) {
     const pendingAmount = payouts
       ?.filter(p => p.status === "pending")
       .reduce((sum, p) => sum + Number(p.amount || 0), 0) || 0
+
+    /* =========================
+       📊 POR CAMPAÑA
+    ========================= */
 
     const campaignsData = (campaigns || []).map(c => {
 
@@ -99,8 +105,11 @@ export async function GET(req: Request) {
         .filter(l => l.type === "payment")
         .reduce((sum, l) => sum + Number(l.amount || 0), 0)
 
-      const net = campaignLedger
-        .filter(l => l.type === "net")
+      const fees = campaignLedger
+        .filter(l => l.type === "fee_mp" || l.type === "fee_platform")
+        .reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0)
+
+      const balance = campaignLedger
         .reduce((sum, l) => sum + Number(l.amount || 0), 0)
 
       const withdrawn = campaignLedger
@@ -115,25 +124,26 @@ export async function GET(req: Request) {
         id: c.id,
         title: c.title,
         raised,
-        net,
+        fees,
         withdrawn,
         pending,
-        available: net - withdrawn - pending
+        available: balance - withdrawn - pending
       }
     })
 
     return NextResponse.json({
       campaigns: campaignsData,
       totals: {
-        balance: totalNet - totalWithdrawn - pendingAmount,
+        balance: totalBalance - totalWithdrawn - pendingAmount,
         raised: totalRaised,
-        fees: Math.abs(totalFees),
+        fees: totalFees,
         withdrawn: totalWithdrawn,
         pending: pendingAmount
       }
     })
 
   } catch (error) {
+
     await logErrorToDB("finance_error", error)
 
     await sendAlert({
