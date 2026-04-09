@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 🔥 USAR METADATA (COMO ANTES)
+    // 🔥 METADATA (FUENTE REAL)
     const campaign_id = payment.metadata?.campaign_id
 
     const user_email =
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
       console.log("✅ PAYMENT REGISTERED")
     }
 
-    // 🎁 TIP separado
+    // 🎁 TIP (SIN DUPLICADOS)
     if (tip > 0) {
       await supabase
         .from("financial_ledger")
@@ -124,17 +124,24 @@ export async function POST(req: Request) {
 
     const campaignName = campaign?.title || "donación"
 
-    // 📧 EMAIL (MISMA LÓGICA QUE FUNCIONABA)
+    // 🔥 EMAIL (PRODUCCIÓN + DEV)
     try {
-      console.log("📧 ENVIANDO EMAIL A:", user_email)
+      const isDev = process.env.NODE_ENV !== "production"
+
+      const emailTo = isDev
+        ? process.env.ADMIN_EMAIL
+        : user_email
+
+      console.log("📧 ENVIANDO EMAIL A:", emailTo)
 
       await sendDonationEmail({
-        to: process.env.ADMIN_EMAIL || user_email,
+        to: emailTo,
         campaign: campaignName,
         amount
       })
 
       console.log("✅ EMAIL ENVIADO")
+
     } catch (err) {
       console.log("❌ ERROR EMAIL:", err)
     }
