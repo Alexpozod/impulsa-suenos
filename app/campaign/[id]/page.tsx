@@ -71,29 +71,39 @@ export default function CampaignDetail() {
           {/* GALERÍA */}
           <div className="relative">
 
-            <img
-              src={buildImageUrl(images[active])}
-              onError={(e) => {
-                ;(e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800"
-              }}
-              className="w-full h-[420px] object-cover rounded-2xl"
-            />
+            {/* VIDEO PRIORIDAD */}
+            {campaign.video_url ? (
 
-            {campaign.video_url && (
-              <button
-                onClick={() => window.open(campaign.video_url, "_blank")}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <div className="bg-black/60 text-white text-3xl px-5 py-3 rounded-full">
-                  ▶
-                </div>
-              </button>
+              campaign.video_url.includes("youtube") ? (
+                <iframe
+                  src={campaign.video_url.replace("watch?v=", "embed/")}
+                  className="w-full h-[420px] rounded-2xl"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  src={campaign.video_url}
+                  controls
+                  className="w-full h-[420px] object-cover rounded-2xl"
+                />
+              )
+
+            ) : (
+
+              <img
+                src={buildImageUrl(images[active])}
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800"
+                }}
+                className="w-full h-[420px] object-cover rounded-2xl"
+              />
+
             )}
 
           </div>
 
           {/* THUMBNAILS */}
-          <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+          <div className="flex gap-3 mt-4 overflow-x-auto pb-2 snap-x">
             {images.map((img: string, i: number) => (
               <img
                 key={i}
@@ -157,7 +167,6 @@ export default function CampaignDetail() {
 
             <div className="bg-white border rounded-2xl p-6 shadow-lg">
 
-              {/* PRUEBA SOCIAL */}
               <div className="mb-4">
                 <p className="text-sm text-gray-500">
                   🔥 Varias personas están donando ahora
@@ -169,7 +178,6 @@ export default function CampaignDetail() {
 
               <DonationBox campaign_id={campaign.id} />
 
-              {/* CONFIANZA */}
               <div className="mt-6 text-xs text-gray-400 text-center space-y-1">
                 <p>🔒 Pago 100% seguro</p>
                 <p>📊 Transparencia total</p>
@@ -207,6 +215,10 @@ function DonationsList({ donations }: any) {
         🎉 Últimas donaciones
       </h3>
 
+      <p className="text-xs text-gray-500 mb-2">
+        * Las donaciones mostradas no incluyen el aporte opcional a la plataforma
+      </p>
+
       <div className="space-y-2">
         {donations.map((d: any, i: number) => {
 
@@ -220,9 +232,16 @@ function DonationsList({ donations }: any) {
               className="flex justify-between text-sm"
             >
               <span>{name}</span>
-              <span className="font-semibold">
-                ${Number(d.amount).toLocaleString()}
-              </span>
+
+              <div className="text-right">
+                <p className="font-semibold">
+                  ${Number(d.amount).toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-400">
+                  donación
+                </p>
+              </div>
+
             </div>
           )
         })}
