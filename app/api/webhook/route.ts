@@ -71,16 +71,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 💰 DATOS BASE
-    const amount = Number(payment.transaction_amount || 0)
+    // 💰 DATOS BASE (FIX APLICADO)
+    const total = Number(payment.transaction_amount || 0)
+    const tip = Number(payment.metadata?.tip || 0)
+    const amount = total - tip // 🔥 FIX REAL (SOLO DONACIÓN)
+
     const campaign_id = payment.metadata?.campaign_id
 
     const user_email =
       payment.payer?.email ||
       payment.metadata?.user_email ||
       `guest_${payment.id}@impulsasuenos.com`
-
-    const tip = Number(payment.metadata?.tip || 0)
 
     // 💸 comisión MercadoPago REAL
     const fee_mp =
@@ -92,10 +93,11 @@ export async function POST(req: Request) {
     // 💸 comisión TUYA (300 + IVA)
     const platform_fee = Math.round(300 * 1.19)
 
-    console.log("💵 amount:", amount)
+    console.log("💰 total:", total)
+    console.log("🎁 tip:", tip)
+    console.log("❤️ donation:", amount)
     console.log("💸 fee_mp:", fee_mp)
     console.log("🏢 platform_fee:", platform_fee)
-    console.log("🎁 tip:", tip)
 
     if (!campaign_id || !amount) {
 
@@ -109,12 +111,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false })
     }
 
-    // 🔥 RPC PRINCIPAL
+    // 🔥 RPC PRINCIPAL (AHORA CON DONACIÓN REAL)
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
-      p_amount: amount,
+      p_amount: amount, // ✅ YA CORREGIDO
       p_fee_mp: fee_mp,
       p_platform_fee: platform_fee,
       p_provider: "mercadopago"
@@ -187,7 +189,7 @@ export async function POST(req: Request) {
       await sendDonationEmail({
         to: user_email,
         campaign: campaign_id,
-        amount
+        amount // ✅ ahora es SOLO DONACIÓN
       })
     } catch (err) {
       console.log("⚠️ EMAIL ERROR:", err)
