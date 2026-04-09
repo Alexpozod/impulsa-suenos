@@ -11,36 +11,29 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
     const campaign_id = searchParams.get("campaign_id")
 
-    if (!campaign_id) {
-      return NextResponse.json(
-        { error: "Missing campaign_id" },
-        { status: 400 }
-      )
-    }
-
-    const { data, error } = await supabase
+    let query = supabase
       .from("financial_ledger")
-      .select("amount, created_at, metadata")
-      .eq("campaign_id", campaign_id)
+      .select("id, amount, created_at, campaign_id")
       .eq("type", "payment")
+      .eq("status", "confirmed")
       .order("created_at", { ascending: false })
       .limit(10)
 
-    if (error) {
-      console.error("Donations fetch error:", error)
-      return NextResponse.json(
-        { error: "Error fetching donations" },
-        { status: 500 }
-      )
+    if (campaign_id) {
+      query = query.eq("campaign_id", campaign_id)
     }
 
-    return NextResponse.json(data)
+    const { data, error } = await query
+
+    if (error) {
+      console.error("Donations fetch error:", error)
+      return NextResponse.json([], { status: 200 })
+    }
+
+    return NextResponse.json(data || [])
 
   } catch (error) {
     console.error("API error:", error)
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    )
+    return NextResponse.json([], { status: 200 })
   }
 }
