@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import DonationBox from '@/app/components/DonationBox'
+import DonationBox from '@/app/components/donationbox'
 
 export default function CampaignDetail() {
 
@@ -68,7 +68,7 @@ export default function CampaignDetail() {
         {/* IZQUIERDA */}
         <div className="md:col-span-3">
 
-          {/* GALERÍA PRINCIPAL */}
+          {/* GALERÍA */}
           <div className="relative">
 
             <img
@@ -145,6 +145,9 @@ export default function CampaignDetail() {
             </p>
           </div>
 
+          {/* 🎉 DONACIONES */}
+          <DonationsList donations={campaign.donations} />
+
         </div>
 
         {/* DERECHA */}
@@ -181,5 +184,50 @@ export default function CampaignDetail() {
       </section>
 
     </main>
+  )
+}
+
+/* =========================
+   🎉 DONACIONES
+========================= */
+function DonationsList({ donations }: any) {
+
+  if (!donations?.length) {
+    return (
+      <p className="text-sm text-gray-500 mt-6">
+        Aún no hay donaciones
+      </p>
+    )
+  }
+
+  return (
+    <div className="bg-white p-4 rounded-xl border shadow mt-8">
+
+      <h3 className="font-semibold mb-3">
+        🎉 Últimas donaciones
+      </h3>
+
+      <div className="space-y-2">
+        {donations.map((d: any, i: number) => {
+
+          const name = d.user_email
+            ? d.user_email.split("@")[0].slice(0, 4) + "****"
+            : "Anónimo"
+
+          return (
+            <div
+              key={i}
+              className="flex justify-between text-sm"
+            >
+              <span>{name}</span>
+              <span className="font-semibold">
+                ${Number(d.amount).toLocaleString()}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+
+    </div>
   )
 }

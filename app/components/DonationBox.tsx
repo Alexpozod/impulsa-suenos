@@ -11,6 +11,7 @@ export default function DonationBox({
 }) {
 
   const [amount, setAmount] = useState(5000)
+  const [tip, setTip] = useState(0)
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
@@ -26,6 +27,8 @@ export default function DonationBox({
     setUserEmail(data.session?.user?.email || null)
   }
 
+  const total = amount + tip
+
   const donate = async () => {
 
     if (!amount || amount < 100) return
@@ -33,7 +36,8 @@ export default function DonationBox({
     if (!userEmail) {
       localStorage.setItem('donation_intent', JSON.stringify({
         campaign_id,
-        amount
+        amount,
+        tip
       }))
 
       router.push(`/login?redirect=/campaign/${campaign_id}`)
@@ -48,12 +52,12 @@ export default function DonationBox({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount,
+          tip, // 🔥 IMPORTANTE
           campaign_id,
           user_email: userEmail
         })
       })
 
-      // 🔥 FIX CRÍTICO
       const text = await res.text()
 
       let data: any = {}
@@ -62,7 +66,7 @@ export default function DonationBox({
         data = JSON.parse(text)
       } catch (e) {
         console.error("❌ RESPONSE NO ES JSON:", text)
-        alert("Error del servidor (respuesta inválida)")
+        alert("Error del servidor")
         return
       }
 
@@ -90,12 +94,13 @@ export default function DonationBox({
   }
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow border space-y-4">
+    <div className="bg-white p-6 rounded-2xl shadow border space-y-5">
 
       <h3 className="font-bold text-lg">
         💖 Apoya esta causa
       </h3>
 
+      {/* 💰 PRESETS */}
       <div className="grid grid-cols-4 gap-2">
         {presets.map(p => (
           <button
@@ -112,6 +117,7 @@ export default function DonationBox({
         ))}
       </div>
 
+      {/* 💰 INPUT */}
       <input
         type="number"
         value={amount}
@@ -119,6 +125,40 @@ export default function DonationBox({
         className="w-full border p-2 rounded-lg"
       />
 
+      {/* 💚 TIP */}
+      <div className="bg-gray-50 p-3 rounded-xl">
+
+        <p className="text-sm font-semibold">
+          💚 Apoya ImpulsaSueños (opcional)
+        </p>
+
+        <div className="flex gap-2 mt-2">
+          {[0, 500, 1000, 2000].map((t) => (
+            <button
+              key={t}
+              onClick={() => setTip(t)}
+              className={`px-3 py-1 rounded border text-sm ${
+                tip === t
+                  ? "border-green-500 bg-green-50"
+                  : "border-gray-300"
+              }`}
+            >
+              {t === 0 ? "Sin tip" : `+$${t}`}
+            </button>
+          ))}
+        </div>
+
+      </div>
+
+      {/* 💵 TOTAL */}
+      <div className="text-center">
+        <p className="text-sm text-gray-500">Total</p>
+        <p className="text-2xl font-bold text-green-600">
+          ${total.toLocaleString()}
+        </p>
+      </div>
+
+      {/* 🚀 CTA */}
       <button
         onClick={donate}
         disabled={loading}
@@ -127,8 +167,9 @@ export default function DonationBox({
         {loading ? "Procesando..." : "Donar ahora"}
       </button>
 
+      {/* 🔒 TRUST */}
       <div className="text-xs text-gray-500 text-center space-y-1">
-        <p>🔒 Pago seguro</p>
+        <p>🔒 Pago seguro con MercadoPago</p>
         <p>📊 Transparencia total</p>
       </div>
 
