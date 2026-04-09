@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
     let paymentId: string | null = null
 
-    // 📩 Leer body
+    // 📩 BODY
     try {
       const body = await req.json()
       console.log("📩 BODY:", body)
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       console.log("⚠️ NO BODY")
     }
 
-    // 🔍 fallback query
+    // 🔍 FALLBACK
     if (!paymentId) {
       const url = new URL(req.url)
       paymentId =
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
     console.log("💳 PAYMENT ID:", paymentId)
 
-    // 🔍 Obtener pago desde MP
+    // 🔍 GET PAYMENT
     let payment
     try {
       payment = await paymentClient.get({ id: paymentId })
@@ -71,10 +71,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 💰 DATOS BASE (FIX APLICADO)
+    // 💰 DATOS
     const total = Number(payment.transaction_amount || 0)
     const tip = Number(payment.metadata?.tip || 0)
-    const amount = total - tip // 🔥 FIX REAL (SOLO DONACIÓN)
+    const amount = total - tip
 
     const campaign_id = payment.metadata?.campaign_id
 
@@ -83,116 +83,87 @@ export async function POST(req: Request) {
       payment.metadata?.user_email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    // 💸 comisión MercadoPago REAL
     const fee_mp =
       payment.fee_details?.reduce(
         (acc: number, f: any) => acc + Number(f.amount || 0),
         0
       ) || 0
 
-    // 💸 comisión TUYA (300 + IVA)
     const platform_fee = Math.round(300 * 1.19)
 
     console.log("💰 total:", total)
     console.log("🎁 tip:", tip)
     console.log("❤️ donation:", amount)
-    console.log("💸 fee_mp:", fee_mp)
-    console.log("🏢 platform_fee:", platform_fee)
 
     if (!campaign_id || !amount) {
-
-      await supabase.from("payment_logs").insert({
-        payment_id: paymentId,
-        campaign_id,
-        status: "invalid_data",
-        payload: payment
-      })
-
       return NextResponse.json({ ok: false })
     }
 
-    // 🔥 RPC PRINCIPAL (AHORA CON DONACIÓN REAL)
+    // 🔥 PROCESO PRINCIPAL
     const { data, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
-      p_amount: amount, // ✅ YA CORREGIDO
+      p_amount: amount,
       p_fee_mp: fee_mp,
       p_platform_fee: platform_fee,
       p_provider: "mercadopago"
     })
 
     if (error) {
-
-      await supabase.from("payment_logs").insert({
-        payment_id: paymentId,
-        campaign_id,
-        status: "rpc_error",
-        payload: error
-      })
-
+      console.log("❌ RPC ERROR:", error)
       return NextResponse.json({ ok: false })
     }
 
-    // 🔁 duplicados (normal)
-    if (
-      data?.status === "already_processed" ||
-      data?.status === "already_processed_after_lock"
-    ) {
-
-      await supabase.from("payment_logs").insert({
-        payment_id: paymentId,
-        campaign_id,
-        status: "duplicate",
-        payload: payment
-      })
-
-      return NextResponse.json({ ok: true })
-    }
-
-    if (data?.status === "invalid_campaign") {
-
-      await supabase.from("payment_logs").insert({
-        payment_id: paymentId,
-        campaign_id,
-        status: "invalid_campaign",
-        payload: payment
-      })
-
-      return NextResponse.json({ ok: false })
-    }
-
-    // 🎁 TIP (extra para plataforma)
+    // 🎁 TIP (aislado para no romper flujo)
     if (tip > 0) {
-      await supabase.from("financial_ledger").insert({
-        campaign_id,
-        type: "tip",
-        flow_type: "in",
-        amount: tip,
-        status: "confirmed",
-        provider: "mercadopago",
-        payment_id: paymentId,
-        user_email
-      })
+      try {
+        await supabase.from("financial_ledger").insert({
+          campaign_id,
+          type: "tip",
+          flow_type: "in",
+          amount: tip,
+          status: "confirmed",
+          provider: "mercadopago",
+          payment_id: paymentId,
+          user_email
+        })
+      } catch (e) {
+        console.log("⚠️ ERROR TIP:", e)
+      }
     }
 
-    // ✅ LOG FINAL
-    await supabase.from("payment_logs").insert({
-      payment_id: paymentId,
-      campaign_id,
-      status: "success",
-      payload: payment
-    })
+    // 🔍 OBTENER NOMBRE CAMPAÑA (PRO)
+    let campaign_name = campaign_id
 
-    // 📧 EMAIL
     try {
+      const { data: campaign } = await supabase
+        .from("campaigns")
+        .select("title")
+        .eq("id", campaign_id)
+        .maybeSingle()
+
+      if (campaign?.title) {
+        campaign_name = campaign.title
+      }
+    } catch (e) {
+      console.log("⚠️ ERROR FETCH CAMPAIGN:", e)
+    }
+
+    // 📧 EMAIL (CON LOG REAL)
+    try {
+      console.log("📧 intentando enviar email a:", user_email)
+
       await sendDonationEmail({
         to: user_email,
-        campaign: campaign_id,
-        amount // ✅ ahora es SOLO DONACIÓN
+        campaign: campaign_name,
+        amount
       })
+
+      console.log("✅ EMAIL ENVIADO")
+
     } catch (err) {
-      console.log("⚠️ EMAIL ERROR:", err)
+      console.log("❌ EMAIL ERROR:", err)
     }
 
     return NextResponse.json({ ok: true })

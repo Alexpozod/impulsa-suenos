@@ -28,7 +28,7 @@ export async function GET(req: Request) {
       return NextResponse.json(null, { status: 200 })
     }
 
-    // 💰 DINERO REAL (solo DONACIONES)
+    // 💰 DONACIONES REALES
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("amount")
@@ -39,7 +39,7 @@ export async function GET(req: Request) {
     const current_amount =
       ledger?.reduce((acc, d) => acc + Number(d.amount), 0) || 0
 
-    // 🆕 ÚLTIMAS DONACIONES
+    // 🆕 ÚLTIMAS DONACIONES (SOLO DONACIÓN)
     const { data: donations } = await supabase
       .from("financial_ledger")
       .select("amount, user_email, created_at")
@@ -49,11 +49,21 @@ export async function GET(req: Request) {
       .order("created_at", { ascending: false })
       .limit(10)
 
+    // 🔥 FIX PRO: NORMALIZACIÓN DE MEDIA
+    let images: string[] = []
+
+    if (Array.isArray(campaign.images) && campaign.images.length > 0) {
+      images = campaign.images
+    } else if (campaign.image_url) {
+      images = [campaign.image_url]
+    }
+
     return NextResponse.json({
       ...campaign,
       current_amount,
       goal_amount: Number(campaign.goal_amount || 0),
-      donations: donations || []
+      donations: donations || [],
+      images // ✅ SIEMPRE ARRAY CONSISTENTE
     })
 
   } catch (err) {
