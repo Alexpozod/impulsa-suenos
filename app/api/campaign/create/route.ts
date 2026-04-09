@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { logInfo, logError } from "@/lib/logger-api"
-import { logToDB, logErrorToDB } from "@/lib/logToDB"
-import { generatePrefix } from "@/lib/tickets/generatePrefix"
+import { logToDB } from "@/lib/logToDB"
 
 export const dynamic = "force-dynamic"
 
@@ -24,7 +22,6 @@ export async function POST(req: Request) {
       title,
       description,
       goal_amount,
-      total_tickets,
       image_url,
       category
     } = body
@@ -50,7 +47,6 @@ export async function POST(req: Request) {
     title = title?.trim()
     description = description?.trim()
     goal_amount = Number(goal_amount)
-    total_tickets = Number(total_tickets) || 1
     category = category || "general"
 
     if (!title || !description || !goal_amount) {
@@ -68,21 +64,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Debes completar KYC" }, { status: 403 })
     }
 
-    const code_prefix = generatePrefix(title)
-
+    // ✅ INSERT LIMPIO (SIN TICKETS)
     const { data: campaign, error } = await supabaseAdmin
       .from("campaigns")
       .insert({
         title,
         description,
         goal_amount,
-        total_tickets,
         user_email,
         image_url: image_url || null,
         category,
         status: "active",
-        created_at: new Date().toISOString(),
-        code_prefix
+        created_at: new Date().toISOString()
       })
       .select()
       .single()
