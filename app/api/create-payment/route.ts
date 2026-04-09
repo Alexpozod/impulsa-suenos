@@ -9,22 +9,22 @@ export const runtime = "nodejs"
 ========================= */
 const paymentSchema = z.object({
   amount: z.number().positive().min(100),
-  tip: z.number().min(0).optional(), // 🔥 CAMBIO
+  tip: z.number().min(0).optional(),
   campaign_id: z.string().min(1),
   user_email: z.string().email(),
-  provider: z.enum(["mercadopago", "stripe", "paypal", "crypto"]).optional()
+  provider: z.enum(["mercadopago"]).optional()
 })
 
 export async function POST(req: Request) {
   try {
 
-    const rawBody = await req.json()
+    const body = await req.json()
 
-    const parsed = paymentSchema.safeParse(rawBody)
+    const parsed = paymentSchema.safeParse(body)
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid input", details: parsed.error.flatten() },
+        { error: "Invalid input" },
         { status: 400 }
       )
     }
@@ -37,23 +37,13 @@ export async function POST(req: Request) {
       provider = "mercadopago"
     } = parsed.data
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      (process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000")
-
+    // 🔥 FIX CLAVE → PASAR TIP DIRECTO
     const result = await createPayment({
       amount,
+      tip, // ✅ AHORA SÍ LLEGA
       campaign_id,
       user_email,
-      provider,
-      baseUrl,
-      metadata: {
-        campaign_id,
-        user_email,
-        tip // 🔥 IMPORTANTE
-      }
+      provider
     })
 
     if (!result || typeof result !== "object") {
