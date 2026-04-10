@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { Parser } from "json2csv"
 
+export const runtime = "nodejs"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -9,6 +11,7 @@ const supabase = createClient(
 
 export async function GET() {
   try {
+
     const { data, error } = await supabase
       .from("financial_ledger")
       .select("*")
@@ -16,35 +19,45 @@ export async function GET() {
 
     if (error) throw error
 
-    const safeData = data || []
+    const rows = (data || []).map((l: any) => {
 
-    /* 🧾 FORMATO CONTABLE */
-    const formatted = safeData.map((l: any) => ({
-      fecha: l.accounting_date || l.created_at,
-      tipo: l.flow_type,
-      campaña: l.campaign_id,
-      usuario: l.user_email,
-      debe: l.amount > 0 ? Number(l.amount) : 0,
-      haber: l.amount < 0 ? Math.abs(Number(l.amount)) : 0,
-      descripcion: l.flow_type,
-      proveedor: l.provider || "",
-    }))
+      const amount = Number(l.amount || 0)
+
+      return {
+        Fecha: l.accounting_date || l.created_at,
+        Tipo: l.type,
+        Flow: l.flow_type,
+
+        Campaña: l.campaign_id,
+        Usuario: l.user_email,
+
+        Debe: amount > 0 ? amount : 0,
+        Haber: amount < 0 ? Math.abs(amount) : 0,
+
+        Moneda: l.currency || "CLP",
+        Proveedor: l.provider || "mercadopago",
+        PaymentID: l.payment_id,
+
+        Descripción: l.flow_type
+      }
+    })
 
     const parser = new Parser()
-    const csv = parser.parse(formatted)
+    const csv = parser.parse(rows)
 
     return new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv",
-        "Content-Disposition": "attachment; filename=contabilidad.csv",
-      },
+        "Content-Disposition": "attachment; filename=impulsasuenos_contabilidad.csv"
+      }
     })
 
   } catch (error) {
-    console.error("EXPORT ERROR:", error)
+
+    console.error("❌ EXPORT ERROR:", error)
 
     return NextResponse.json(
-      { error: "Error exportando datos" },
+      { error: "export error" },
       { status: 500 }
     )
   }

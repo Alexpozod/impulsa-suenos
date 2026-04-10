@@ -21,9 +21,20 @@ export default function FinancialDashboard() {
   return (
     <div className="p-6 bg-slate-950 text-white min-h-screen space-y-6">
 
-      <h1 className="text-2xl font-bold">
-        💳 Finanzas Plataforma
-      </h1>
+      <div className="flex justify-between items-center">
+
+        <h1 className="text-2xl font-bold">
+          💳 Finanzas Plataforma
+        </h1>
+
+        <a
+          href="/api/admin/export"
+          className="bg-blue-600 px-4 py-2 rounded"
+        >
+          📤 Exportar CSV
+        </a>
+
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
