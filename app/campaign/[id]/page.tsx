@@ -68,10 +68,8 @@ export default function CampaignDetail() {
         {/* IZQUIERDA */}
         <div className="md:col-span-3">
 
-          {/* GALERÍA */}
           <div className="relative">
 
-            {/* VIDEO PRIORIDAD */}
             {campaign.video_url ? (
 
               campaign.video_url.includes("youtube") ? (
@@ -92,9 +90,6 @@ export default function CampaignDetail() {
 
               <img
                 src={buildImageUrl(images[active])}
-                onError={(e) => {
-                  ;(e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800"
-                }}
                 className="w-full h-[420px] object-cover rounded-2xl"
               />
 
@@ -103,36 +98,34 @@ export default function CampaignDetail() {
           </div>
 
           {/* THUMBNAILS */}
-          <div className="flex gap-3 mt-4 overflow-x-auto pb-2 snap-x">
+          <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
             {images.map((img: string, i: number) => (
               <img
                 key={i}
                 src={buildImageUrl(img)}
                 onClick={() => setActive(i)}
-                className={`h-24 w-24 object-cover rounded-lg cursor-pointer transition ${
+                className={`h-24 w-24 object-cover rounded-lg cursor-pointer ${
                   i === active
-                    ? "border-2 border-green-600 scale-105"
-                    : "opacity-70 hover:opacity-100"
+                    ? "border-2 border-green-600"
+                    : "opacity-70"
                 }`}
               />
             ))}
           </div>
 
-          {/* TITULO */}
-          <h1 className="text-3xl md:text-4xl font-bold mt-6 leading-tight">
+          <h1 className="text-3xl font-bold mt-6">
             {campaign.title}
           </h1>
 
-          {/* URGENCIA */}
           <p className="text-red-500 font-semibold mt-2">
             ⚠️ Necesitamos tu ayuda ahora
           </p>
 
           {/* PROGRESO */}
           <div className="mt-6">
-            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-3 bg-gray-200 rounded-full">
               <div
-                className="h-3 bg-green-600 transition-all"
+                className="h-3 bg-green-600"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -150,12 +143,11 @@ export default function CampaignDetail() {
           {/* DESCRIPCIÓN */}
           <div className="mt-8">
             <h2 className="font-semibold text-lg mb-2">Historia</h2>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+            <p className="text-gray-700 whitespace-pre-line">
               {campaign.description}
             </p>
           </div>
 
-          {/* 🎉 DONACIONES */}
           <DonationsList donations={campaign.donations} />
 
         </div>
@@ -167,20 +159,12 @@ export default function CampaignDetail() {
 
             <div className="bg-white border rounded-2xl p-6 shadow-lg">
 
-              <div className="mb-4">
-                <p className="text-sm text-gray-500">
-                  🔥 Varias personas están donando ahora
-                </p>
-                <p className="text-xs text-gray-400">
-                  Última donación hace instantes
-                </p>
-              </div>
+              <LiveDonation campaign_id={campaign.id} />
 
               <DonationBox campaign_id={campaign.id} />
 
-              <div className="mt-6 text-xs text-gray-400 text-center space-y-1">
-                <p>🔒 Pago 100% seguro</p>
-                <p>📊 Transparencia total</p>
+              <div className="mt-6 text-xs text-gray-400 text-center">
+                🔒 Pago seguro
               </div>
 
             </div>
@@ -195,17 +179,44 @@ export default function CampaignDetail() {
   )
 }
 
-/* =========================
-   🎉 DONACIONES
-========================= */
+/* 🔥 LIVE DONATION */
+function LiveDonation({ campaign_id }: { campaign_id: string }) {
+
+  const [last, setLast] = useState<any>(null)
+
+  useEffect(() => {
+
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/donations-live?campaign_id=${campaign_id}`)
+        const data = await res.json()
+        setLast(data?.[0])
+      } catch {}
+    }
+
+    load()
+    const interval = setInterval(load, 5000)
+
+    return () => clearInterval(interval)
+
+  }, [campaign_id])
+
+  if (!last) return null
+
+  const seconds = Math.floor((Date.now() - new Date(last.created_at).getTime()) / 1000)
+
+  return (
+    <p className="text-sm text-gray-500 mb-3">
+      🔥 Última donación hace {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)} min`}
+    </p>
+  )
+}
+
+/* LISTA DONACIONES */
 function DonationsList({ donations }: any) {
 
   if (!donations?.length) {
-    return (
-      <p className="text-sm text-gray-500 mt-6">
-        Aún no hay donaciones
-      </p>
-    )
+    return <p className="text-sm text-gray-500 mt-6">Aún no hay donaciones</p>
   }
 
   return (
@@ -215,10 +226,6 @@ function DonationsList({ donations }: any) {
         🎉 Últimas donaciones
       </h3>
 
-      <p className="text-xs text-gray-500 mb-2">
-        * Las donaciones mostradas no incluyen el aporte opcional a la plataforma
-      </p>
-
       <div className="space-y-2">
         {donations.map((d: any, i: number) => {
 
@@ -227,21 +234,11 @@ function DonationsList({ donations }: any) {
             : "Anónimo"
 
           return (
-            <div
-              key={i}
-              className="flex justify-between text-sm"
-            >
+            <div key={i} className="flex justify-between text-sm">
               <span>{name}</span>
-
-              <div className="text-right">
-                <p className="font-semibold">
-                  ${Number(d.amount).toLocaleString()}
-                </p>
-                <p className="text-xs text-gray-400">
-                  donación
-                </p>
-              </div>
-
+              <span className="font-semibold">
+                ${Number(d.amount).toLocaleString()}
+              </span>
             </div>
           )
         })}

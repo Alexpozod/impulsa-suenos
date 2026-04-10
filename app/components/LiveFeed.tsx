@@ -31,7 +31,7 @@ export default function LiveFeed() {
 
     load()
 
-    const refresh = setInterval(load, 15000)
+    const refresh = setInterval(load, 10000) // 🔥 más dinámico
     return () => clearInterval(refresh)
 
   }, [])
@@ -41,7 +41,7 @@ export default function LiveFeed() {
 
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % donations.length)
-    }, 4000)
+    }, 3500) // 🔥 más fluido
 
     return () => clearInterval(interval)
   }, [donations])
@@ -50,9 +50,13 @@ export default function LiveFeed() {
 
   const current = donations[index]
 
+  const name = current.user_email
+    ? current.user_email.split("@")[0].slice(0, 4) + "****"
+    : "Alguien"
+
   return (
-    <div className="bg-slate-900 text-white text-sm rounded-xl px-4 py-3 text-center shadow">
-      🔴 En vivo: alguien donó ${Number(current.amount).toLocaleString()} {timeAgo(current.created_at)}
+    <div className="bg-slate-900 text-white text-sm rounded-xl px-4 py-3 text-center shadow animate-pulse">
+      🔴 En vivo: <b>{name}</b> donó ${Number(current.amount).toLocaleString()} {timeAgo(current.created_at)}
     </div>
   )
 }
