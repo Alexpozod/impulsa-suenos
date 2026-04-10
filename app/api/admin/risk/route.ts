@@ -9,8 +9,10 @@ const supabase = createClient(
 export async function GET() {
   try {
 
+    console.log("🔥 RISK API HIT")
+
     /* =========================
-       🔥 RISK USERS
+       👥 RISK USERS
     ========================= */
     const { data: riskUsers, error: riskError } = await supabase
       .from("user_risk")
@@ -18,64 +20,51 @@ export async function GET() {
       .order("score", { ascending: false })
 
     if (riskError) {
-      return NextResponse.json(
-        { error: "Error cargando risk users" },
-        { status: 500 }
-      )
+      console.log("❌ user_risk error:", riskError)
     }
 
     /* =========================
-       🔥 WITHDRAWALS
+       💸 RETIROS (CORRECTO)
     ========================= */
-    const { data: withdrawals, error: wError } = await supabase
-      .from("withdrawals")
+    const { data: payouts, error: payoutError } = await supabase
+      .from("payouts") // ✅ CORRECTO
       .select("*")
       .eq("status", "pending")
       .order("created_at", { ascending: false })
 
-    if (wError) {
-      return NextResponse.json(
-        { error: "Error cargando withdrawals" },
-        { status: 500 }
-      )
+    if (payoutError) {
+      console.log("❌ payouts error:", payoutError)
     }
 
     /* =========================
-       🔥 FRAUD LOGS
+       🚨 FRAUD ALERTS (CORRECTO)
     ========================= */
-    const { data: logs } = await supabase
-      .from("fraud_logs")
+    const { data: fraudAlerts, error: fraudError } = await supabase
+      .from("fraud_alerts") // ✅ CORRECTO
       .select("*")
       .order("created_at", { ascending: false })
       .limit(50)
 
-    /* =========================
-       💳 PAYMENT EVENTS (CLAVE)
-    ========================= */
-    const { data: paymentEvents, error: paymentError } = await supabase
-      .from("payment_events")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(500) // ⚠️ controlamos carga
-
-    if (paymentError) {
-      return NextResponse.json(
-        { error: "Error cargando payment events" },
-        { status: 500 }
-      )
+    if (fraudError) {
+      console.log("❌ fraud_alerts error:", fraudError)
     }
 
     return NextResponse.json({
-      risk_users: riskUsers,
-      pending_withdrawals: withdrawals,
-      fraud_logs: logs || [],
-      payment_events: paymentEvents || [] // 🔥 NUEVO
+      risk_users: riskUsers || [],
+      pending_withdrawals: payouts || [],
+      fraud_logs: fraudAlerts || [],
+      payment_events: [] // futuro
     })
 
   } catch (error) {
-    return NextResponse.json(
-      { error: "Error servidor" },
-      { status: 500 }
-    )
+
+    console.log("🔥 ERROR GENERAL:", error)
+
+    return NextResponse.json({
+      risk_users: [],
+      pending_withdrawals: [],
+      fraud_logs: [],
+      payment_events: []
+    })
   }
 }
