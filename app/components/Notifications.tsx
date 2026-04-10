@@ -16,7 +16,9 @@ export default function Notifications() {
 
   const [donations, setDonations] = useState<any[]>([])
   const [visible, setVisible] = useState<any>(null)
+  const [show, setShow] = useState(false)
 
+  // 🔄 cargar donaciones
   useEffect(() => {
 
     const load = async () => {
@@ -31,36 +33,55 @@ export default function Notifications() {
 
     load()
 
-    const refresh = setInterval(load, 20000)
+    const refresh = setInterval(load, 15000) // 🔥 más dinámico
     return () => clearInterval(refresh)
 
   }, [])
 
+  // 🔁 rotación + animación
   useEffect(() => {
     if (!donations.length) return
 
     let index = 0
 
     const interval = setInterval(() => {
-      setVisible(donations[index])
+
+      const donation = donations[index]
       index = (index + 1) % donations.length
-    }, 5000)
+
+      setVisible(donation)
+      setShow(true)
+
+      // ocultar suavemente
+      setTimeout(() => {
+        setShow(false)
+      }, 4000)
+
+    }, 7000) // 🔥 mejor timing
 
     return () => clearInterval(interval)
   }, [donations])
 
-  if (!visible) return null
+  if (!visible || !show) return null
+
+  // 🔐 anonimizar nombre (MEJORA CLAVE)
+  const name = visible.user_email
+    ? visible.user_email.split("@")[0].slice(0, 4) + "****"
+    : "Alguien"
 
   return (
-    <div className="fixed bottom-6 left-6 z-50">
+    <div className="fixed bottom-6 left-6 z-50 transition-all duration-300">
 
-      <div className="bg-black text-white px-4 py-3 rounded-xl shadow-lg text-sm">
+      <div className="bg-white border shadow-xl rounded-xl px-4 py-3 text-sm animate-fade-in">
 
-        🔥 Alguien donó <b>${Number(visible.amount).toLocaleString()}</b><br />
+        <p>
+          💖 <b>{name}</b> donó{" "}
+          <b>${Number(visible.amount).toLocaleString()}</b>
+        </p>
 
-        <span className="text-xs opacity-70">
+        <p className="text-xs text-gray-500">
           {timeAgo(visible.created_at)}
-        </span>
+        </p>
 
       </div>
 
