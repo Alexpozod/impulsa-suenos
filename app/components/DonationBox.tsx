@@ -52,7 +52,7 @@ export default function DonationBox({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount,
-          tip, // 🔥 IMPORTANTE
+          tip,
           campaign_id,
           user_email: userEmail
         })
@@ -99,6 +99,11 @@ export default function DonationBox({
       <h3 className="font-bold text-lg">
         💖 Apoya esta causa
       </h3>
+
+      {/* 🔥 URGENCIA */}
+      <p className="text-xs text-orange-600 text-center font-semibold">
+        ⚡ Cada aporte ayuda a lograr la meta más rápido
+      </p>
 
       {/* 💰 PRESETS */}
       <div className="grid grid-cols-4 gap-2">
@@ -158,13 +163,15 @@ export default function DonationBox({
         </p>
       </div>
 
-      {/* 🚀 CTA */}
+      {/* 🚀 CTA (MEJORADO) */}
       <button
         onClick={donate}
         disabled={loading}
-        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700"
+        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700 transition"
       >
-        {loading ? "Procesando..." : "Donar ahora"}
+        {loading
+          ? "Procesando..."
+          : "🚀 Donar y ser parte del cambio"}
       </button>
 
       {/* 🔒 TRUST */}
