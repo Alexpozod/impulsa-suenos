@@ -1,69 +1,84 @@
-html: `
-<div style="font-family: Arial, sans-serif; background:#f4f4f5; padding:20px">
+import { Resend } from 'resend'
 
-  <div style="max-width:600px;margin:auto;background:white;border-radius:14px;padding:30px">
+const resend = new Resend(process.env.RESEND_API_KEY)
 
-    <!-- HEADER -->
-    <h2 style="color:#16a34a;margin-bottom:5px;">
-      💚 Gracias por tu apoyo
-    </h2>
+export async function sendDonationEmail({
+  to,
+  campaign,
+  amount
+}: {
+  to: string
+  campaign: string
+  amount: number
+}) {
+  try {
 
-    <p style="font-size:15px;color:#555;">
-      Tu donación fue realizada con éxito 🙌
-    </p>
+    if (!process.env.RESEND_API_KEY) {
+      console.log("❌ RESEND_API_KEY NO DEFINIDA")
+      return
+    }
 
-    <!-- INFO -->
-    <div style="background:#f9fafb;padding:15px;border-radius:10px;margin:20px 0;">
-      <p><b>Campaña:</b></p>
-      <h3 style="margin:5px 0">${campaign}</h3>
-      <p><b>Monto donado:</b> $${amount.toLocaleString()}</p>
-    </div>
+    const response = await resend.emails.send({
+      from: 'ImpulsaSueños <contacto@impulsasuenos.com>',
+      to,
+      subject: `💚 Tu donación está haciendo la diferencia`,
+      html: `
+        <div style="font-family: Arial; padding:20px; max-width:600px; margin:auto; background:#f4f4f5">
 
-    <!-- IMPACTO -->
-    <p style="font-size:15px;color:#333;">
-      Tu aporte está ayudando directamente a cambiar una vida.
-    </p>
+          <div style="background:white; padding:25px; border-radius:12px">
 
-    <!-- 💣 BLOQUE EMOCIONAL -->
-    <div style="background:#ecfdf5;padding:18px;border-radius:10px;margin-top:20px">
+            <h2 style="color:#16a34a;">💚 Gracias por tu apoyo</h2>
 
-      <p style="margin:0;font-weight:bold;color:#065f46;">
-        🌍 No estás solo
-      </p>
+            <p>Tu donación fue realizada con éxito 🙌</p>
 
-      <p style="font-size:14px;color:#065f46;margin-top:6px;">
-        Muchas personas ya están apoyando esta causa junto contigo.
-      </p>
+            <div style="background:#f9fafb; padding:15px; border-radius:10px; margin-top:15px">
+              <p><b>Campaña:</b></p>
+              <h3 style="margin:5px 0">${campaign}</h3>
 
-    </div>
+              <p><b>Monto donado:</b> $${amount.toLocaleString()}</p>
+            </div>
 
-    <!-- 🚀 CTA -->
-    <div style="text-align:center;margin-top:25px">
+            <p style="margin-top:20px; font-size:14px; color:#444">
+              Tu aporte está ayudando directamente a cambiar una vida.
+            </p>
 
-      <p style="font-size:14px;color:#444;margin-bottom:10px;">
-        🚀 Ayuda a que esta campaña llegue más lejos
-      </p>
+            <!-- BLOQUE PRO -->
+            <div style="background:#ecfdf5; padding:15px; border-radius:10px; margin-top:20px">
+              <p style="margin:0; font-weight:bold; color:#065f46;">
+                🌍 No estás solo
+              </p>
+              <p style="font-size:13px; color:#065f46;">
+                Más personas están apoyando esta causa ahora mismo.
+              </p>
+            </div>
 
-      <a href="https://impulsasuenos.com/campaign"
-        style="display:inline-block;padding:12px 20px;background:#16a34a;color:white;text-decoration:none;border-radius:8px;font-weight:bold;">
-        Compartir campaña
-      </a>
+            <!-- CTA -->
+            <div style="text-align:center; margin-top:25px">
+              <a href="https://impulsasuenos.com/campaign"
+                style="background:#16a34a; color:white; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:bold;">
+                Compartir campaña
+              </a>
+            </div>
 
-    </div>
+            <p style="margin-top:25px; font-size:13px; color:#666; text-align:center">
+              Cada persona que comparte, multiplica el impacto 💚
+            </p>
 
-    <!-- REFUERZO -->
-    <p style="margin-top:25px;font-size:14px;color:#444;text-align:center;">
-      Cada persona que comparte, multiplica el impacto 💚
-    </p>
+            <hr style="margin:20px 0"/>
 
-    <hr style="margin:25px 0;border:none;border-top:1px solid #eee"/>
+            <p style="font-size:13px; color:#555">
+              Gracias por confiar en <b>ImpulsaSueños</b> 💚
+            </p>
 
-    <!-- BRAND -->
-    <p style="font-size:13px;color:#777;text-align:center;">
-      Gracias por confiar en <b>ImpulsaSueños</b>
-    </p>
+          </div>
 
-  </div>
+        </div>
+      `
+    })
 
-</div>
-`
+    console.log("📧 EMAIL ENVIADO:", response)
+
+  } catch (error) {
+    console.log("❌ ERROR EMAIL:", error)
+  }
+}
