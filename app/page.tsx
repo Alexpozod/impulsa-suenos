@@ -29,7 +29,7 @@ export default function HomePage() {
   }
 
   /* =========================
-     🧠 ALGORITMO (LO MANTENEMOS)
+     🧠 ALGORITMO RANKING
   ========================= */
   const getScore = (c: any) => {
     const current = Number(c.current_amount || 0)
@@ -89,45 +89,41 @@ export default function HomePage() {
     <main className="bg-white">
 
       {/* ================= HERO ================= */}
-      <section className="relative bg-gradient-to-br from-green-600 to-green-700 text-white py-28 px-6 text-center overflow-hidden">
+      <section className="bg-gradient-to-br from-green-600 to-green-700 text-white py-28 px-6 text-center">
 
-        <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl md:text-6xl font-extrabold mb-6">
+          Cambia una vida hoy
+        </h1>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-            Cambia una vida hoy
-          </h1>
+        <p className="text-lg opacity-90 mb-10">
+          Apoya causas reales, ayuda a personas y sé parte del cambio.
+        </p>
 
-          <p className="text-lg opacity-90 mb-10">
-            Apoya causas reales, ayuda a personas y sé parte del cambio.
-          </p>
+        <div className="flex justify-center gap-4 flex-wrap">
 
-          <div className="flex justify-center gap-4 flex-wrap">
+          <Link
+            href="/campaigns"
+            className="bg-white text-green-600 px-6 py-3 rounded-xl font-semibold hover:scale-105 transition"
+          >
+            Explorar campañas
+          </Link>
 
-            <Link
-              href="/campaigns"
-              className="bg-white text-green-600 px-6 py-3 rounded-xl font-semibold shadow hover:scale-105 transition"
-            >
-              Explorar campañas
-            </Link>
-
-            <button
-              onClick={handleCreateCampaign}
-              className="border border-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-green-600 transition"
-            >
-              Crear campaña
-            </button>
-
-          </div>
-
-          <p className="mt-6 text-sm opacity-80">
-            🔥 Personas están donando en este momento
-          </p>
+          <button
+            onClick={handleCreateCampaign}
+            className="border border-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-green-600 transition"
+          >
+            Crear campaña
+          </button>
 
         </div>
 
+        <p className="mt-6 text-sm opacity-80">
+          🔥 Personas están donando en este momento
+        </p>
+
       </section>
 
-      {/* ================= LIVE FEED ================= */}
+      {/* ================= LIVE ================= */}
       <section className="max-w-7xl mx-auto px-6 py-8">
         <LiveFeed />
       </section>
@@ -143,11 +139,11 @@ export default function HomePage() {
 
             <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
 
-              <div className="relative group">
+              <div className="relative">
 
                 <img
                   src={buildImageUrl(image)}
-                  className="rounded-2xl w-full h-[400px] object-cover shadow-lg group-hover:scale-[1.02] transition"
+                  className="rounded-2xl w-full h-[400px] object-cover shadow-lg"
                 />
 
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
@@ -166,7 +162,7 @@ export default function HomePage() {
                   🔥 Campaña destacada
                 </p>
 
-                <h2 className="text-3xl font-bold mb-4 leading-tight">
+                <h2 className="text-3xl font-bold mb-4">
                   {c.title}
                 </h2>
 
@@ -174,9 +170,15 @@ export default function HomePage() {
                   {c.description}
                 </p>
 
+                {/* 💣 PROGRESS */}
+                <ProgressBar
+                  current={c.current_amount}
+                  goal={c.goal_amount}
+                />
+
                 <button
                   onClick={() => router.push(`/campaign/${c.id}`)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold"
+                  className="mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold"
                 >
                   Ver campaña
                 </button>
@@ -202,23 +204,25 @@ export default function HomePage() {
             <div
               key={c.id}
               onClick={() => router.push(`/campaign/${c.id}`)}
-              className="border rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition group"
+              className="border rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition"
             >
 
               <img
                 src={buildImageUrl(c.images?.[0] || c.image_url)}
-                className="h-52 w-full object-cover group-hover:scale-105 transition"
+                className="h-52 w-full object-cover"
               />
 
               <div className="p-4">
 
-                <h3 className="font-semibold mb-2">
+                <h3 className="font-semibold mb-2 line-clamp-2">
                   {c.title}
                 </h3>
 
-                <p className="text-sm text-gray-500">
-                  ${Number(c.current_amount || 0).toLocaleString()}
-                </p>
+                {/* 💣 PROGRESS */}
+                <ProgressBar
+                  current={c.current_amount}
+                  goal={c.goal_amount}
+                />
 
               </div>
 
@@ -229,7 +233,7 @@ export default function HomePage() {
 
       </section>
 
-      {/* ================= CTA FINAL ================= */}
+      {/* ================= CTA ================= */}
       <section className="py-28 text-center bg-gray-50">
 
         <h2 className="text-3xl font-bold mb-6">
@@ -249,9 +253,38 @@ export default function HomePage() {
 
       </section>
 
-      {/* ================= NOTIFICATIONS ================= */}
       <Notifications />
 
     </main>
+  )
+}
+
+/* ================= COMPONENT ================= */
+
+function ProgressBar({ current, goal }: any) {
+
+  const safeGoal = goal || 1
+  const percent = Math.min((current / safeGoal) * 100, 100)
+
+  return (
+    <div className="w-full mt-4">
+
+      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className="h-2 bg-green-500 transition-all"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+
+      <div className="flex justify-between text-xs mt-2 text-gray-600">
+        <span>${Number(current || 0).toLocaleString()}</span>
+        <span>{percent.toFixed(0)}%</span>
+      </div>
+
+      <div className="text-xs text-gray-400">
+        Meta: ${Number(goal || 0).toLocaleString()}
+      </div>
+
+    </div>
   )
 }
