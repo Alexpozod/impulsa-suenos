@@ -3,97 +3,58 @@
 import { useEffect, useState } from "react"
 
 export default function FinancialDashboard() {
-  const [data, setData] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+
+  const [data, setData] = useState<any>(null)
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch("/api/campaigns/enriched")
-        const json = await res.json()
-
-        setData(json || [])
-      } catch (err) {
-        setData([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
     load()
   }, [])
 
-  const totalRaised = data.reduce((a, c) => a + (c.raised || 0), 0)
-  const totalSpent = data.reduce((a, c) => a + (c.spent || 0), 0)
-  const totalBalance = data.reduce((a, c) => a + (c.balance || 0), 0)
-
-  if (loading) {
-    return <div className="p-6">Cargando...</div>
+  const load = async () => {
+    const res = await fetch("/api/admin/finance")
+    const json = await res.json()
+    setData(json)
   }
 
+  if (!data) return <div className="p-6 text-white">Cargando...</div>
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 bg-slate-950 text-white min-h-screen space-y-6">
 
       <h1 className="text-2xl font-bold">
-        Financial Dashboard
+        💳 Finanzas Plataforma
       </h1>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-        <div className="p-4 border rounded-xl">
-          <p>Raised</p>
-          <h2 className="text-xl font-bold">
-            ${totalRaised}
-          </h2>
-        </div>
-
-        <div className="p-4 border rounded-xl">
-          <p>Spent</p>
-          <h2 className="text-xl font-bold">
-            ${totalSpent}
-          </h2>
-        </div>
-
-        <div className="p-4 border rounded-xl">
-          <p>Balance</p>
-          <h2 className="text-xl font-bold">
-            ${totalBalance}
-          </h2>
-        </div>
+        <Card title="Ingresos" value={data.totalIncome} />
+        <Card title="Retiros" value={data.totalWithdrawals} />
+        <Card title="Balance" value={data.balance} />
+        <Card title="Pagos" value={data.totalPayments} />
 
       </div>
 
-      <div className="border rounded-xl p-4">
-        <h2 className="font-bold mb-4">
-          Campaigns
-        </h2>
+      <div className="bg-slate-900 p-4 rounded-xl">
+        <h2 className="mb-3">🧾 Pagos recientes</h2>
 
-        <table className="w-full text-sm">
-          <thead>
-            <tr>
-              <th className="text-left">Campaign</th>
-              <th>Raised</th>
-              <th>Spent</th>
-              <th>Balance</th>
-              <th>Tickets</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {data.map((c: any) => (
-              <tr key={c.id} className="border-t">
-                <td>{c.title}</td>
-                <td>${c.raised}</td>
-                <td>${c.spent}</td>
-                <td>${c.balance}</td>
-                <td>{c.ticketsSold}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
+        {data.recentPayments.map((p: any) => (
+          <div key={p.id} className="border-b border-slate-800 py-2">
+            {p.user_email} → ${p.amount}
+          </div>
+        ))}
       </div>
 
+    </div>
+  )
+}
+
+function Card({ title, value }: any) {
+  return (
+    <div className="bg-slate-900 p-4 rounded-xl">
+      <p className="text-sm text-slate-400">{title}</p>
+      <p className="text-xl font-bold">
+        ${Number(value || 0).toLocaleString()}
+      </p>
     </div>
   )
 }
