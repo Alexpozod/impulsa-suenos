@@ -9,37 +9,26 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    /* =========================
-       💰 LEDGER (REAL)
-    ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
-      .eq("type", "payment")
-      .order("created_at", { ascending: true })
 
-    const { data: campaigns } = await supabase
-      .from("campaigns")
-      .select("*")
+    const payments = ledger?.filter(l => l.type === "payment") || []
+    const tips = ledger?.filter(l => l.type === "tip") || []
+    const feePlatform = ledger?.filter(l => l.type === "fee_platform") || []
 
-    /* =========================
-       📊 MÉTRICAS
-    ========================= */
-    const totalRevenue =
-      ledger?.reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
+    const totalRevenue = payments.reduce((sum, l) => sum + Number(l.amount || 0), 0)
+    const totalTips = tips.reduce((sum, l) => sum + Number(l.amount || 0), 0)
+    const totalPlatformFees = feePlatform.reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0)
 
-    /* =========================
-       📈 AGRUPAR POR DÍA
-    ========================= */
+    const platformRevenue = totalTips + totalPlatformFees
+
     const daily: Record<string, number> = {}
 
-    ledger?.forEach((l) => {
+    payments.forEach((l) => {
       const date = new Date(l.created_at).toISOString().slice(0, 10)
 
-      if (!daily[date]) {
-        daily[date] = 0
-      }
-
+      if (!daily[date]) daily[date] = 0
       daily[date] += Number(l.amount || 0)
     })
 
@@ -48,56 +37,15 @@ export async function GET() {
       ingresos: value,
     }))
 
-    /* =========================
-       🚨 ALERTAS REALES
-    ========================= */
-    const alerts: any[] = []
-
-    ledger?.forEach((l) => {
-      if (Number(l.amount) > 1000000) {
-        alerts.push({
-          type: "high_payment",
-          message: `Pago alto detectado: $${l.amount}`,
-        })
-      }
-    })
-
-    /* =========================
-       🔥 TOP CAMPAÑAS
-    ========================= */
-    const campaignMap: Record<string, number> = {}
-
-    ledger?.forEach((l) => {
-      if (!l.campaign_id) return
-
-      if (!campaignMap[l.campaign_id]) {
-        campaignMap[l.campaign_id] = 0
-      }
-
-      campaignMap[l.campaign_id] += Number(l.amount || 0)
-    })
-
-    const topCampaigns = Object.entries(campaignMap)
-      .map(([id, total]) => {
-        const campaign = campaigns?.find(c => c.id === id)
-        return {
-          id,
-          title: campaign?.title || "Sin nombre",
-          total,
-        }
-      })
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 5)
-
     return NextResponse.json({
       totalRevenue,
-      chart,
-      alerts,
-      topCampaigns,
+      totalTips,
+      totalPlatformFees,
+      platformRevenue,
+      chart
     })
 
   } catch (error) {
-    console.error(error)
     return NextResponse.json({ error: "error" }, { status: 500 })
   }
 }
