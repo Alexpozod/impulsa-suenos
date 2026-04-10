@@ -24,10 +24,13 @@ export default function HomePage() {
   }
 
   const buildImageUrl = (url: string) => {
-    if (!url) return "https://via.placeholder.com/400"
+    if (!url) return "https://images.unsplash.com/photo-1593113630400-ea4288922497"
     return url.replace(/\s/g, "%20")
   }
 
+  /* =========================
+     🧠 ALGORITMO (LO MANTENEMOS)
+  ========================= */
   const getScore = (c: any) => {
     const current = Number(c.current_amount || 0)
     const goal = Number(c.goal_amount || 1)
@@ -41,22 +44,18 @@ export default function HomePage() {
 
     if (c.end_date) {
       const daysLeft = (new Date(c.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      if (daysLeft > 0) {
-        score += (1 / daysLeft) * 30
-      }
+      if (daysLeft > 0) score += (1 / daysLeft) * 30
     }
 
     if (c.last_donation_at) {
       const hours = (Date.now() - new Date(c.last_donation_at).getTime()) / (1000 * 60 * 60)
-      if (hours < 24) {
-        score += 40
-      }
+      if (hours < 24) score += 40
     }
 
     return score
   }
 
-  const sorted = [...(campaigns || [])].sort((a, b) => getScore(b) - getScore(a))
+  const sorted = [...campaigns].sort((a, b) => getScore(b) - getScore(a))
 
   const featured = sorted.slice(0, 1)
   const trending = sorted.slice(1, 7)
@@ -68,8 +67,8 @@ export default function HomePage() {
     const goal = Number(c.goal_amount || 1)
     const progress = current / goal
 
-    if (progress >= 0.8) badges.push("💰 Casi completada")
     if (progress >= 1) badges.push("🎉 Completada")
+    else if (progress >= 0.8) badges.push("💰 Casi completada")
 
     if (c.end_date) {
       const daysLeft = (new Date(c.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -89,70 +88,81 @@ export default function HomePage() {
   return (
     <main className="bg-white">
 
-      {/* HERO */}
-      <section className="bg-gradient-to-br from-green-600 to-green-700 text-white py-24 px-6 text-center">
+      {/* ================= HERO ================= */}
+      <section className="relative bg-gradient-to-br from-green-600 to-green-700 text-white py-28 px-6 text-center overflow-hidden">
 
-        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-          Cambia una vida hoy
-        </h1>
+        <div className="max-w-4xl mx-auto">
 
-        <p className="max-w-2xl mx-auto text-lg opacity-90 mb-8">
-          Apoya causas reales, ayuda a personas y sé parte del cambio.
-        </p>
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+            Cambia una vida hoy
+          </h1>
 
-        <div className="flex justify-center gap-4">
-          <Link href="/campaigns" className="bg-white text-green-600 px-6 py-3 rounded-xl font-semibold">
-            Explorar campañas
-          </Link>
+          <p className="text-lg opacity-90 mb-10">
+            Apoya causas reales, ayuda a personas y sé parte del cambio.
+          </p>
 
-          <button
-            onClick={handleCreateCampaign}
-            className="border border-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-green-600 transition"
-          >
-            Crear campaña
-          </button>
+          <div className="flex justify-center gap-4 flex-wrap">
+
+            <Link
+              href="/campaigns"
+              className="bg-white text-green-600 px-6 py-3 rounded-xl font-semibold shadow hover:scale-105 transition"
+            >
+              Explorar campañas
+            </Link>
+
+            <button
+              onClick={handleCreateCampaign}
+              className="border border-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-green-600 transition"
+            >
+              Crear campaña
+            </button>
+
+          </div>
+
+          <p className="mt-6 text-sm opacity-80">
+            🔥 Personas están donando en este momento
+          </p>
+
         </div>
-
-        <p className="mt-6 text-sm opacity-80">
-          🔥 Personas están donando en este momento
-        </p>
 
       </section>
 
-      {/* LIVE FEED */}
-      <section className="max-w-7xl mx-auto px-6 py-6">
+      {/* ================= LIVE FEED ================= */}
+      <section className="max-w-7xl mx-auto px-6 py-8">
         <LiveFeed />
       </section>
 
-      {/* FEATURED */}
+      {/* ================= FEATURED ================= */}
       {featured.map(c => {
 
         const image = c.images?.[0] || c.image_url
         const badges = getBadges(c)
 
         return (
-          <section key={c.id} className="py-20 px-6 bg-green-50">
+          <section key={c.id} className="py-24 px-6 bg-green-50">
 
-            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
 
-              <div className="relative">
+              <div className="relative group">
+
                 <img
                   src={buildImageUrl(image)}
-                  className="rounded-2xl w-full h-[380px] object-cover shadow"
+                  className="rounded-2xl w-full h-[400px] object-cover shadow-lg group-hover:scale-[1.02] transition"
                 />
 
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   {badges.map((b, i) => (
-                    <span key={i} className="bg-white/90 text-xs px-3 py-1 rounded-full shadow">
+                    <span key={i} className="bg-white text-xs px-3 py-1 rounded-full shadow">
                       {b}
                     </span>
                   ))}
                 </div>
+
               </div>
 
               <div>
 
-                <p className="text-green-600 font-semibold mb-2">
+                <p className="text-green-600 font-semibold mb-3">
                   🔥 Campaña destacada
                 </p>
 
@@ -166,7 +176,7 @@ export default function HomePage() {
 
                 <button
                   onClick={() => router.push(`/campaign/${c.id}`)}
-                  className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold"
                 >
                   Ver campaña
                 </button>
@@ -179,48 +189,67 @@ export default function HomePage() {
         )
       })}
 
-      {/* TRENDING */}
-      <section className="py-20 px-6">
+      {/* ================= TRENDING ================= */}
+      <section className="py-24 px-6">
+
+        <h2 className="text-2xl font-bold mb-10 text-center">
+          🔥 Tendencias
+        </h2>
+
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+
           {trending.map(c => (
             <div
               key={c.id}
               onClick={() => router.push(`/campaign/${c.id}`)}
-              className="border rounded-2xl overflow-hidden cursor-pointer hover:shadow-lg"
+              className="border rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition group"
             >
+
               <img
                 src={buildImageUrl(c.images?.[0] || c.image_url)}
-                className="h-52 w-full object-cover"
+                className="h-52 w-full object-cover group-hover:scale-105 transition"
               />
+
               <div className="p-4">
-                <h3 className="font-semibold">{c.title}</h3>
+
+                <h3 className="font-semibold mb-2">
+                  {c.title}
+                </h3>
+
+                <p className="text-sm text-gray-500">
+                  ${Number(c.current_amount || 0).toLocaleString()}
+                </p>
+
               </div>
+
             </div>
           ))}
+
         </div>
+
       </section>
 
-      {/* CTA FINAL */}
-      <section className="py-24 text-center bg-gray-50">
+      {/* ================= CTA FINAL ================= */}
+      <section className="py-28 text-center bg-gray-50">
 
         <h2 className="text-3xl font-bold mb-6">
           Empieza tu campaña hoy
         </h2>
 
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-600 mb-10">
           Miles de personas están listas para ayudarte
         </p>
 
         <button
           onClick={handleCreateCampaign}
-          className="bg-green-600 text-white px-8 py-4 rounded-xl text-lg font-semibold"
+          className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl text-lg font-semibold"
         >
           Crear campaña
         </button>
 
       </section>
 
-      {/* NOTIFICATIONS */}
+      {/* ================= NOTIFICATIONS ================= */}
       <Notifications />
 
     </main>
