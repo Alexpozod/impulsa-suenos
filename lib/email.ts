@@ -1,58 +1,69 @@
-import { Resend } from 'resend'
+html: `
+<div style="font-family: Arial, sans-serif; background:#f4f4f5; padding:20px">
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+  <div style="max-width:600px;margin:auto;background:white;border-radius:14px;padding:30px">
 
-export async function sendDonationEmail({
-  to,
-  campaign,
-  amount
-}: {
-  to: string
-  campaign: string
-  amount: number
-}) {
-  try {
+    <!-- HEADER -->
+    <h2 style="color:#16a34a;margin-bottom:5px;">
+      💚 Gracias por tu apoyo
+    </h2>
 
-    if (!process.env.RESEND_API_KEY) {
-      console.log("❌ RESEND_API_KEY NO DEFINIDA")
-      return
-    }
+    <p style="font-size:15px;color:#555;">
+      Tu donación fue realizada con éxito 🙌
+    </p>
 
-    const response = await resend.emails.send({
-      from: 'ImpulsaSueños <contacto@impulsasuenos.com>', // ⚠️ dominio debe estar verificado en Resend
-      to,
-      subject: `💖 Gracias por tu donación`,
-      html: `
-        <div style="font-family: Arial; padding:20px; max-width:600px; margin:auto">
+    <!-- INFO -->
+    <div style="background:#f9fafb;padding:15px;border-radius:10px;margin:20px 0;">
+      <p><b>Campaña:</b></p>
+      <h3 style="margin:5px 0">${campaign}</h3>
+      <p><b>Monto donado:</b> $${amount.toLocaleString()}</p>
+    </div>
 
-          <h2 style="color:#16a34a;">💖 Gracias por tu apoyo</h2>
+    <!-- IMPACTO -->
+    <p style="font-size:15px;color:#333;">
+      Tu aporte está ayudando directamente a cambiar una vida.
+    </p>
 
-          <p>Tu donación fue realizada con éxito 🙌</p>
+    <!-- 💣 BLOQUE EMOCIONAL -->
+    <div style="background:#ecfdf5;padding:18px;border-radius:10px;margin-top:20px">
 
-          <div style="background:#f9fafb; padding:15px; border-radius:10px; margin-top:15px">
-            <p><b>Campaña:</b></p>
-            <h3 style="margin:5px 0">${campaign}</h3>
+      <p style="margin:0;font-weight:bold;color:#065f46;">
+        🌍 No estás solo
+      </p>
 
-            <p><b>Monto donado:</b> $${amount.toLocaleString()}</p>
-          </div>
+      <p style="font-size:14px;color:#065f46;margin-top:6px;">
+        Muchas personas ya están apoyando esta causa junto contigo.
+      </p>
 
-          <hr style="margin:20px 0"/>
+    </div>
 
-          <p style="font-size:14px; color:#555">
-            Tu aporte está ayudando directamente a cambiar una vida.
-          </p>
+    <!-- 🚀 CTA -->
+    <div style="text-align:center;margin-top:25px">
 
-          <p style="margin-top:20px">
-            Gracias por confiar en <b>ImpulsaSueños</b> 💚
-          </p>
+      <p style="font-size:14px;color:#444;margin-bottom:10px;">
+        🚀 Ayuda a que esta campaña llegue más lejos
+      </p>
 
-        </div>
-      `
-    })
+      <a href="https://impulsasuenos.com/campaign"
+        style="display:inline-block;padding:12px 20px;background:#16a34a;color:white;text-decoration:none;border-radius:8px;font-weight:bold;">
+        Compartir campaña
+      </a>
 
-    console.log("📧 EMAIL ENVIADO:", response)
+    </div>
 
-  } catch (error) {
-    console.log("❌ ERROR EMAIL:", error)
-  }
-}
+    <!-- REFUERZO -->
+    <p style="margin-top:25px;font-size:14px;color:#444;text-align:center;">
+      Cada persona que comparte, multiplica el impacto 💚
+    </p>
+
+    <hr style="margin:25px 0;border:none;border-top:1px solid #eee"/>
+
+    <!-- BRAND -->
+    <p style="font-size:13px;color:#777;text-align:center;">
+      Gracias por confiar en <b>ImpulsaSueños</b>
+    </p>
+
+  </div>
+
+</div>
+`
