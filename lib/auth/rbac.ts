@@ -1,12 +1,18 @@
-export type Role = "admin" | "system" | "user"
+export type Role = "admin" | "contador" | "system" | "user"
 
-export function canAccess(role: Role, action: string) {
-  const rules: Record<string, Role[]> = {
-    "payout.approve": ["admin"],
-    "campaign.block": ["admin"],
-    "audit.read": ["admin", "system"],
-    "ledger.read": ["admin", "system"],
+export function canAccess(role: Role, path: string) {
+
+  // ADMIN → TODO
+  if (role === "admin") return true
+
+  // CONTADOR → SOLO LECTURA
+  if (role === "contador") {
+    return (
+      path.startsWith("/contador") ||
+      path.startsWith("/api/admin/export") ||
+      path.startsWith("/api/admin/finance")
+    )
   }
 
-  return rules[action]?.includes(role) || false
+  return false
 }

@@ -5,11 +5,11 @@ export async function middleware(req: NextRequest) {
 
   const url = req.nextUrl.pathname
 
-  // 🔥 PROTEGER SOLO RUTAS CRÍTICAS
   const protectedRoutes = [
     "/api/withdraw",
     "/api/campaign/create",
     "/api/admin",
+    "/contador",
   ]
 
   const isProtected = protectedRoutes.some(route =>
@@ -22,7 +22,9 @@ export async function middleware(req: NextRequest) {
 
   try {
 
-    // 🔐 TOKEN JWT (SUPABASE)
+    /* =========================
+       🔐 TOKEN
+    ========================= */
     const token = req.headers.get("authorization")?.replace("Bearer ", "")
 
     if (!token) {
@@ -32,7 +34,9 @@ export async function middleware(req: NextRequest) {
       )
     }
 
-    // 🔥 VALIDAR TOKEN CON SUPABASE
+    /* =========================
+       👤 VALIDAR USUARIO
+    ========================= */
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/user`,
       {
@@ -52,7 +56,6 @@ export async function middleware(req: NextRequest) {
 
     const user = await res.json()
 
-    // 🚨 PROTECCIÓN EXTRA
     if (!user?.email) {
       return NextResponse.json(
         { error: "Usuario inválido" },
@@ -60,7 +63,9 @@ export async function middleware(req: NextRequest) {
       )
     }
 
-    // 🧠 ANTIFRAUDE BÁSICO (IP + UA)
+    /* =========================
+       🧠 ANTIFRAUDE
+    ========================= */
     const ip =
       req.headers.get("x-forwarded-for") ||
       req.headers.get("x-real-ip") ||
@@ -68,7 +73,6 @@ export async function middleware(req: NextRequest) {
 
     const userAgent = req.headers.get("user-agent") || "unknown"
 
-    // 🚫 BLOQUEO SIMPLE (puedes mejorar luego)
     if (userAgent.includes("bot") || userAgent.includes("curl")) {
       return NextResponse.json(
         { error: "Acceso bloqueado" },
@@ -76,7 +80,68 @@ export async function middleware(req: NextRequest) {
       )
     }
 
-    // 🔥 PASAR INFO AL BACKEND
+    /* =========================
+       👑 ADMIN CHECK
+    ========================= */
+    let isAdmin = false
+
+    if (url.startsWith("/api/admin") || url.startsWith("/admin")) {
+
+      const adminCheck = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/is_admin_email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            user_email: user.email
+          }),
+        }
+      )
+
+      isAdmin = await adminCheck.json()
+
+      if (!isAdmin) {
+        return NextResponse.json(
+          { error: "No autorizado (admin requerido)" },
+          { status: 403 }
+        )
+      }
+    }
+
+    /* =========================
+       👨‍💼 CONTADOR CHECK
+    ========================= */
+    if (url.startsWith("/contador")) {
+
+      // admin siempre puede entrar
+      if (!isAdmin) {
+
+        const profileRes = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?email=eq.${user.email}`,
+          {
+            headers: {
+              apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+
+        const profile = await profileRes.json()
+        const role = profile?.[0]?.role || "user"
+
+        if (role !== "contador") {
+          return NextResponse.redirect(new URL("/", req.url))
+        }
+      }
+    }
+
+    /* =========================
+       🔥 HEADERS INTERNOS
+    ========================= */
     const requestHeaders = new Headers(req.headers)
 
     requestHeaders.set("x-user-email", user.email)
@@ -90,6 +155,7 @@ export async function middleware(req: NextRequest) {
     })
 
   } catch (error) {
+
     console.error("❌ Middleware error:", error)
 
     return NextResponse.json(
@@ -100,12 +166,14 @@ export async function middleware(req: NextRequest) {
 }
 
 /* =========================
-   🎯 CONFIGURACIÓN
+   🎯 MATCHER
 ========================= */
 export const config = {
   matcher: [
     "/api/withdraw",
     "/api/campaign/create",
     "/api/admin/:path*",
+    "/admin/:path*",
+    "/contador/:path*",
   ],
 }
