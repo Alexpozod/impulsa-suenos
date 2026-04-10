@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import DonationBox from '@/app/components/DonationBox'
+import ViewersCounter from '@/app/components/ViewersCounter'
 
 export default function CampaignDetail() {
 
@@ -68,8 +69,8 @@ export default function CampaignDetail() {
         {/* IZQUIERDA */}
         <div className="md:col-span-3">
 
+          {/* MEDIA */}
           <div className="relative">
-
             {campaign.video_url ? (
 
               campaign.video_url.includes("youtube") ? (
@@ -94,7 +95,6 @@ export default function CampaignDetail() {
               />
 
             )}
-
           </div>
 
           {/* THUMBNAILS */}
@@ -113,10 +113,12 @@ export default function CampaignDetail() {
             ))}
           </div>
 
+          {/* TITULO */}
           <h1 className="text-3xl font-bold mt-6">
             {campaign.title}
           </h1>
 
+          {/* URGENCIA */}
           <p className="text-red-500 font-semibold mt-2">
             ⚠️ Necesitamos tu ayuda ahora
           </p>
@@ -157,13 +159,18 @@ export default function CampaignDetail() {
 
           <div className="sticky top-6">
 
-            <div className="bg-white border rounded-2xl p-6 shadow-lg">
+            <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
 
+              {/* 🔥 CONTADOR */}
+              <ViewersCounter />
+
+              {/* 🔥 ÚLTIMA DONACIÓN */}
               <LiveDonation campaign_id={campaign.id} />
 
+              {/* 💳 DONAR */}
               <DonationBox campaign_id={campaign.id} />
 
-              <div className="mt-6 text-xs text-gray-400 text-center">
+              <div className="mt-4 text-xs text-gray-400 text-center">
                 🔒 Pago seguro
               </div>
 
@@ -206,7 +213,7 @@ function LiveDonation({ campaign_id }: { campaign_id: string }) {
   const seconds = Math.floor((Date.now() - new Date(last.created_at).getTime()) / 1000)
 
   return (
-    <p className="text-sm text-gray-500 mb-3">
+    <p className="text-sm text-gray-500">
       🔥 Última donación hace {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)} min`}
     </p>
   )
