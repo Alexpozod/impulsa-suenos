@@ -7,27 +7,37 @@ export default function AdminLayout({ children }: any) {
 
   const path = usePathname()
 
-  const Item = ({ href, label }: any) => (
-    <Link
-      href={href}
-      className={`block px-4 py-2 rounded ${
-        path === href
-          ? "bg-blue-600 text-white"
-          : "text-slate-400 hover:bg-slate-800"
-      }`}
-    >
-      {label}
-    </Link>
-  )
+  const Item = ({ href, label, soon }: any) => {
+
+    const active = path === href
+
+    return (
+      <Link
+        href={soon ? "#" : href}
+        onClick={(e) => {
+          if (soon) {
+            e.preventDefault()
+            alert("🚧 Próximamente")
+          }
+        }}
+        className={`flex items-center justify-between px-4 py-2 rounded transition
+          ${active ? "bg-blue-600 text-white" : "text-slate-400 hover:bg-slate-800"}
+        `}
+      >
+        <span>{label}</span>
+        {soon && <span className="text-xs text-yellow-400">Soon</span>}
+      </Link>
+    )
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-950 text-white">
 
       {/* SIDEBAR */}
-      <aside className="w-64 bg-slate-900 p-4 space-y-6">
+      <aside className="w-72 bg-slate-900 p-5 space-y-6 border-r border-slate-800">
 
-        <h2 className="text-xl font-bold mb-4">
-          ⚙️ Admin
+        <h2 className="text-xl font-bold">
+          🚀 Impulsa Admin
         </h2>
 
         {/* DASHBOARD */}
@@ -57,20 +67,28 @@ export default function AdminLayout({ children }: any) {
           <Item href="/admin/risk" label="🚨 Riesgo" />
         </div>
 
-        {/* SISTEMA */}
+        {/* FUTURO */}
         <div>
-          <p className="text-xs text-slate-500 mb-2">Sistema</p>
+          <p className="text-xs text-slate-500 mb-2">Expansión</p>
+          <Item label="📲 Notificaciones" soon />
+          <Item label="🧾 Facturación" soon />
+          <Item label="🌎 Multi-moneda" soon />
+          <Item label="🤖 Automatización" soon />
+        </div>
+
+        {/* EXPORT */}
+        <div>
           <a
             href="/api/admin/export"
-            className="block px-4 py-2 text-slate-400 hover:bg-slate-800 rounded"
+            className="block bg-blue-600 text-center py-2 rounded mt-4"
           >
-            📤 Exportar
+            📤 Exportar datos
           </a>
         </div>
 
       </aside>
 
-      {/* CONTENT */}
+      {/* MAIN */}
       <main className="flex-1 p-6">
         {children}
       </main>
