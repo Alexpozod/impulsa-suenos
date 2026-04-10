@@ -156,12 +156,16 @@ export default function DonationBox({
       </div>
 
       {/* 💵 TOTAL */}
-      <div className="text-center">
-        <p className="text-sm text-gray-500">Total</p>
-        <p className="text-2xl font-bold text-green-600">
-          ${total.toLocaleString()}
-        </p>
-      </div>
+<div className="text-center">
+  <p className="text-sm text-gray-500">Total</p>
+  <p className="text-2xl font-bold text-green-600">
+    ${total.toLocaleString()}
+  </p>
+
+  <p className="text-xs text-gray-500 mt-1">
+    🙌 Tu aporte impacta directamente en esta causa
+  </p>
+</div>
 
       {/* 🚀 CTA (MEJORADO) */}
       <button

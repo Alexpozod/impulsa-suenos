@@ -61,6 +61,8 @@ export default function CampaignDetail() {
     ? Math.min((current / goal) * 100, 100)
     : 0
 
+  const remaining = Math.max(goal - current, 0)
+
   return (
     <main className="bg-white min-h-screen">
 
@@ -123,16 +125,17 @@ export default function CampaignDetail() {
             ⚠️ Necesitamos tu ayuda ahora
           </p>
 
-          {/* PROGRESO */}
-          <div className="mt-6">
-            <div className="h-3 bg-gray-200 rounded-full">
+          {/* 🚀 PROGRESO PRO */}
+          <div className="mt-6 space-y-3">
+
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-3 bg-green-600"
+                className="h-3 bg-green-600 transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
 
-            <div className="flex justify-between mt-2 text-sm">
+            <div className="flex justify-between text-sm">
               <span className="font-bold text-green-600 text-lg">
                 ${current.toLocaleString()}
               </span>
@@ -140,6 +143,31 @@ export default function CampaignDetail() {
                 de ${goal.toLocaleString()}
               </span>
             </div>
+
+            {remaining > 0 && (
+              <p className="text-sm text-center font-semibold text-orange-600">
+                💰 Faltan ${remaining.toLocaleString()} para lograr la meta
+              </p>
+            )}
+
+            {progress >= 80 && (
+              <p className="text-sm text-center text-red-600 font-bold">
+                🚨 Estamos muy cerca de lograrlo
+              </p>
+            )}
+
+            {progress >= 50 && progress < 80 && (
+              <p className="text-sm text-center text-yellow-600 font-semibold">
+                🔥 Cada aporte cuenta en este momento
+              </p>
+            )}
+
+            {progress < 50 && (
+              <p className="text-sm text-center text-blue-600">
+                💡 Tu ayuda puede marcar la diferencia
+              </p>
+            )}
+
           </div>
 
           {/* DESCRIPCIÓN */}
@@ -161,13 +189,10 @@ export default function CampaignDetail() {
 
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
 
-              {/* 🔥 CONTADOR */}
               <ViewersCounter />
 
-              {/* 🔥 ÚLTIMA DONACIÓN */}
               <LiveDonation campaign_id={campaign.id} />
 
-              {/* 💳 DONAR */}
               <DonationBox campaign_id={campaign.id} />
 
               <div className="mt-4 text-xs text-gray-400 text-center">
