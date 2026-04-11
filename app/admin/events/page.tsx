@@ -25,7 +25,7 @@ export default function AdminEventsPage() {
       const data = await res.json()
       setEvents(data || [])
     } catch (err) {
-      console.error("Error cargando eventos")
+      console.error("Error cargando eventos", err)
     } finally {
       setLoading(false)
     }
@@ -40,7 +40,7 @@ export default function AdminEventsPage() {
   }
 
   return (
-    <div className="p-6 bg-slate-950 text-white min-h-screen">
+    <main className="p-6 bg-slate-950 text-white min-h-screen">
 
       <h1 className="text-2xl font-bold mb-6">
         📡 Eventos del sistema
@@ -68,7 +68,8 @@ export default function AdminEventsPage() {
               key={e.id}
               className={`p-4 rounded-xl border ${color}`}
             >
-              <p className="text-xs opacity-70">
+
+              <p className="text-xs opacity-60">
                 {new Date(e.created_at).toLocaleString()}
               </p>
 
@@ -79,12 +80,13 @@ export default function AdminEventsPage() {
               <p className="text-sm opacity-90">
                 {e.message}
               </p>
+
             </div>
           )
         })}
 
       </div>
 
-    </div>
+    </main>
   )
 }
