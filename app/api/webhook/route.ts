@@ -3,6 +3,8 @@ import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 
 import { sendDonationEmail } from "@/lib/email"
+import { logSystemEvent } from "@/lib/system/logger"
+import { sendAlert } from "@/lib/alerts/sendAlert"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -22,7 +24,7 @@ export async function POST(req: Request) {
   try {
 
     /* =========================
-       🔒 VALIDACIÓN BÁSICA ORIGEN
+       🔐 VALIDACIÓN BÁSICA
     ========================= */
     const userAgent = req.headers.get("user-agent") || ""
 
@@ -49,7 +51,7 @@ export async function POST(req: Request) {
     console.log("💳 PAYMENT ID:", paymentId)
 
     /* =========================
-       🔒 IDEMPOTENCIA
+       🔒 IDEMPOTENCIA DB
     ========================= */
     const { data: existing } = await supabase
       .from("financial_ledger")
@@ -60,15 +62,33 @@ export async function POST(req: Request) {
 
     if (existing) {
       console.log("⚠️ YA PROCESADO")
+
+      await logSystemEvent({
+        type: "payment_duplicate",
+        severity: "warning",
+        message: "Pago duplicado evitado",
+        metadata: { paymentId }
+      })
+
       return NextResponse.json({ ok: true })
     }
 
+    /* =========================
+       💳 OBTENER PAGO
+    ========================= */
     let payment
 
     try {
       payment = await paymentClient.get({ id: paymentId })
-    } catch {
-      console.log("❌ ERROR OBTENIENDO PAGO")
+    } catch (err) {
+
+      await logSystemEvent({
+        type: "payment_fetch_error",
+        severity: "critical",
+        message: "Error obteniendo pago",
+        metadata: { paymentId }
+      })
+
       return NextResponse.json({ ok: true })
     }
 
@@ -91,7 +111,14 @@ export async function POST(req: Request) {
     const tip = Number(payment.metadata?.tip || 0)
 
     if (!campaign_id) {
-      console.log("❌ NO CAMPAIGN ID")
+
+      await logSystemEvent({
+        type: "payment_no_campaign",
+        severity: "critical",
+        message: "Pago sin campaign_id",
+        metadata: { paymentId }
+      })
+
       return NextResponse.json({ ok: true })
     }
 
@@ -110,8 +137,29 @@ export async function POST(req: Request) {
     })
 
     if (error) {
-      console.log("❌ RPC ERROR:", error)
+
+      await logSystemEvent({
+        type: "payment_error",
+        severity: "critical",
+        message: "Error procesando pago",
+        metadata: { paymentId, error }
+      })
+
+      await sendAlert({
+        title: "Error pago",
+        message: "Fallo en webhook",
+        data: { paymentId }
+      })
+
     } else {
+
+      await logSystemEvent({
+        type: "payment_success",
+        severity: "info",
+        message: "Pago procesado",
+        metadata: { paymentId, amount, campaign_id }
+      })
+
       console.log("✅ PAYMENT REGISTERED")
     }
 
@@ -126,8 +174,6 @@ export async function POST(req: Request) {
         ? process.env.ADMIN_EMAIL
         : user_email
 
-      console.log("📧 ENVIANDO EMAIL A:", emailTo)
-
       const { data: campaign } = await supabase
         .from("campaigns")
         .select("title")
@@ -140,17 +186,26 @@ export async function POST(req: Request) {
         amount
       })
 
-      console.log("✅ EMAIL ENVIADO")
-
     } catch (err) {
-      console.log("❌ ERROR EMAIL:", err)
+
+      await logSystemEvent({
+        type: "email_error",
+        severity: "warning",
+        message: "Error enviando email",
+        metadata: { paymentId }
+      })
     }
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
 
-    console.log("🔥 WEBHOOK ERROR:", error)
+    await logSystemEvent({
+      type: "webhook_crash",
+      severity: "critical",
+      message: "Error general webhook",
+      metadata: { error }
+    })
 
     return NextResponse.json({ ok: true })
   }

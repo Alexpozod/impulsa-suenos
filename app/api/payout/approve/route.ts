@@ -10,6 +10,7 @@ import { reconcileCampaign } from "@/lib/finance/reconcilePayments"
 import { logInfo, logError } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
+import { logSystemEvent } from "@/lib/system/logger"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,9 +25,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "payout_id requerido" }, { status: 400 })
     }
 
-    /* =========================
-       🔐 AUTH
-    ========================= */
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
@@ -49,9 +47,6 @@ export async function POST(req: Request) {
 
     const orgId = user.user_metadata?.organization_id
 
-    /* =========================
-       📦 OBTENER PAYOUT
-    ========================= */
     const { data: payout } = await supabase
       .from("payouts")
       .select("*")
@@ -67,12 +62,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "already processed" }, { status: 400 })
     }
 
-    /* =========================
-       💣 CONCILIACIÓN (REAL)
-    ========================= */
+    if (payout.amount <= 0) {
+      return NextResponse.json({ error: "invalid_amount" }, { status: 400 })
+    }
+
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
     if (!reconciliation.ok || typeof reconciliation.balance !== "number") {
+
       await sendAlert({
         title: "Error conciliación",
         message: "Falló conciliación en payout",
@@ -89,9 +86,14 @@ export async function POST(req: Request) {
       )
     }
 
-    /* =========================
-       📊 CAMPAÑA (BALANCE REAL)
-    ========================= */
+    if (payout.amount > reconciliation.balance * 0.8) {
+      await sendAlert({
+        title: "Payout alto",
+        message: "Retiro cercano al total",
+        data: { payout_id }
+      })
+    }
+
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("*")
@@ -103,16 +105,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign not found" }, { status: 404 })
     }
 
-    if ((campaign.balance || 0) < payout.amount) {
-      return NextResponse.json(
-        { error: "insufficient_persisted_balance" },
-        { status: 400 }
-      )
-    }
-
-    /* =========================
-       🚨 RIESGO + FRAUDE
-    ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
     const fraud = await evaluateFraudAlert({
@@ -138,9 +130,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign_blocked" }, { status: 403 })
     }
 
-    /* =========================
-       💰 CONFIRMAR PAYOUT
-    ========================= */
     await supabase
       .from("payouts")
       .update({
@@ -149,17 +138,11 @@ export async function POST(req: Request) {
       })
       .eq("id", payout_id)
 
-    /* =========================
-       🔥 LIMPIAR RESERVA
-    ========================= */
     await supabase
       .from("financial_ledger")
       .delete()
       .eq("payment_id", `pending_${payout.id}`)
 
-    /* =========================
-       💸 REGISTRAR RETIRO
-    ========================= */
     await supabase.from("financial_ledger").insert({
       campaign_id: payout.campaign_id,
       user_email: campaign.user_email,
@@ -171,9 +154,6 @@ export async function POST(req: Request) {
       organization_id: orgId
     })
 
-    /* =========================
-       💣 ACTUALIZAR BALANCE REAL
-    ========================= */
     await supabase
       .from("campaigns")
       .update({
@@ -182,9 +162,13 @@ export async function POST(req: Request) {
       })
       .eq("id", payout.campaign_id)
 
-    /* =========================
-       📡 EVENTOS + LOGS
-    ========================= */
+    await logSystemEvent({
+      type: "payout_success",
+      severity: "info",
+      message: "Payout aprobado",
+      metadata: { payout_id, amount: payout.amount }
+    })
+
     await emitEvent("payout.approved", {
       id: payout_id,
       campaign_id: payout.campaign_id,
@@ -195,8 +179,7 @@ export async function POST(req: Request) {
 
     await logToDB("info", "payout_approved", {
       payout_id,
-      campaign_id: payout.campaign_id,
-      amount: payout.amount
+      campaign_id: payout.campaign_id
     })
 
     logInfo("Payout aprobado correctamente", {
@@ -207,8 +190,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-    logError("APPROVE ERROR", error)
 
+    await logSystemEvent({
+      type: "payout_crash",
+      severity: "critical",
+      message: "Error aprobando payout",
+      metadata: { error }
+    })
+
+    logError("APPROVE ERROR", error)
     await logErrorToDB("approve_payout_error", error)
 
     await sendAlert({
