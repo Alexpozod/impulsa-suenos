@@ -15,32 +15,68 @@ export async function POST(req: Request) {
       id,
       title,
       description,
-      image_url
+      image_url,
+      images
     } = body
 
     if (!id) {
-      return NextResponse.json(
-        { error: "ID requerido" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "ID requerido" }, { status: 400 })
     }
 
-    const { error } = await supabase
+    /* =========================
+       📊 CAMPAÑA
+    ========================= */
+    const { data: campaign } = await supabase
       .from("campaigns")
-      .update({
-        title,
-        description,
-        image_url,
-        updated_at: new Date().toISOString()
-      })
+      .select("current_amount")
       .eq("id", id)
+      .single()
 
-    if (error) throw error
+    const hasMoney = Number(campaign?.current_amount || 0) > 0
 
-    return NextResponse.json({ ok: true })
+    /* =========================
+       🧠 NORMALIZAR
+    ========================= */
+    const finalImages = images?.length ? images : [image_url]
+    const cover = finalImages?.[0] || null
+
+    /* =========================
+       🔥 SI NO HAY DINERO → DIRECTO
+    ========================= */
+    if (!hasMoney) {
+
+      await supabase
+        .from("campaigns")
+        .update({
+          title,
+          description,
+          image_url: cover,
+          images: finalImages,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", id)
+
+      return NextResponse.json({ ok: true, mode: "direct" })
+    }
+
+    /* =========================
+       🚨 SI HAY DINERO → PENDIENTE
+    ========================= */
+    await supabase.from("campaign_updates").insert({
+      campaign_id: id,
+      title,
+      description,
+      image_url: cover,
+      images: finalImages,
+      status: "pending"
+    })
+
+    return NextResponse.json({
+      ok: true,
+      mode: "pending_approval"
+    })
 
   } catch (err: any) {
-    console.error(err)
     return NextResponse.json(
       { error: err.message },
       { status: 500 }
