@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
+import ImageUploader from '@/app/components/ImageUploader'
 
 export default function CreateCampaign() {
 
@@ -17,7 +18,6 @@ export default function CreateCampaign() {
   const [category, setCategory] = useState('general')
 
   const [images, setImages] = useState<File[]>([])
-  const [preview, setPreview] = useState<string[]>([])
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -61,31 +61,6 @@ export default function CreateCampaign() {
 
     checkAccess()
   }, [router])
-
-  /* =========================
-     📸 MANEJO IMÁGENES (PRO)
-  ========================= */
-  const handleImages = (files: FileList | null) => {
-    if (!files) return
-
-    const newFiles = Array.from(files)
-
-    // 🔒 límite
-    if (images.length + newFiles.length > 6) {
-      alert("Máximo 6 imágenes")
-      return
-    }
-
-    setImages(prev => [...prev, ...newFiles])
-
-    const newPreview = newFiles.map(file => URL.createObjectURL(file))
-    setPreview(prev => [...prev, ...newPreview])
-  }
-
-  const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index))
-    setPreview(prev => prev.filter((_, i) => i !== index))
-  }
 
   /* =========================
      🚀 CREAR CAMPAÑA
@@ -172,20 +147,31 @@ export default function CreateCampaign() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
 
-      <div className="w-full max-w-lg bg-white p-8 rounded-2xl shadow-md">
+      <div className="w-full max-w-lg bg-white p-8 rounded-2xl shadow-md space-y-4">
 
-        <h1 className="text-2xl font-bold mb-6 text-center">
+        <h1 className="text-2xl font-bold text-center">
           Crear campaña
         </h1>
 
-        <input className="w-full border p-3 rounded-lg mb-4" placeholder="Título"
-          value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input
+          className="w-full border p-3 rounded-lg"
+          placeholder="Título"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-        <textarea className="w-full border p-3 rounded-lg mb-4" placeholder="Descripción"
-          value={description} onChange={(e) => setDescription(e.target.value)} />
+        <textarea
+          className="w-full border p-3 rounded-lg"
+          placeholder="Descripción"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-        <select className="w-full border p-3 rounded-lg mb-4"
-          value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select
+          className="w-full border p-3 rounded-lg"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
           <option value="general">General</option>
           <option value="salud">Salud</option>
           <option value="educacion">Educación</option>
@@ -193,46 +179,35 @@ export default function CreateCampaign() {
           <option value="animales">Animales</option>
         </select>
 
-        <input type="number" placeholder="Meta ($)" className="w-full border p-3 rounded-lg mb-4"
-          value={goal} onChange={(e) => setGoal(e.target.value)} />
+        <input
+          type="number"
+          placeholder="Meta ($)"
+          className="w-full border p-3 rounded-lg"
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+        />
 
-        <input type="number" placeholder="Tickets" className="w-full border p-3 rounded-lg mb-4"
-          value={tickets} onChange={(e) => setTickets(e.target.value)} />
+        <input
+          type="number"
+          placeholder="Tickets"
+          className="w-full border p-3 rounded-lg"
+          value={tickets}
+          onChange={(e) => setTickets(e.target.value)}
+        />
 
-        {/* 📸 INPUT */}
-        <input type="file" multiple onChange={(e) => handleImages(e.target.files)} />
-
-        {/* 🖼️ PREVIEW PRO */}
-        <div className="flex gap-2 mt-3 flex-wrap">
-
-          {preview.map((p, i) => (
-            <div key={i} className="relative">
-
-              <img
-                src={p}
-                className="h-20 w-20 object-cover rounded"
-              />
-
-              <button
-                onClick={() => removeImage(i)}
-                className="absolute top-0 right-0 bg-black/70 text-white text-xs px-1 rounded"
-              >
-                ✕
-              </button>
-
-            </div>
-          ))}
-
-        </div>
+        {/* 🔥 UPLOADER PRO */}
+        <ImageUploader images={images} setImages={setImages} />
 
         <button
           onClick={createCampaign}
-          className="w-full bg-green-600 text-white py-3 rounded-lg mt-4"
+          className="w-full bg-green-600 text-white py-3 rounded-lg"
         >
           {loading ? 'Creando...' : 'Crear campaña'}
         </button>
 
-        {message && <p className="text-center text-sm mt-4">{message}</p>}
+        {message && (
+          <p className="text-center text-sm">{message}</p>
+        )}
 
       </div>
 
