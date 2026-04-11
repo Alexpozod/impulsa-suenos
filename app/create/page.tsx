@@ -62,13 +62,34 @@ export default function CreateCampaign() {
     checkAccess()
   }, [router])
 
+  /* =========================
+     📸 MANEJO IMÁGENES (PRO)
+  ========================= */
   const handleImages = (files: FileList | null) => {
     if (!files) return
-    const arr = Array.from(files)
-    setImages(arr)
-    setPreview(arr.map(f => URL.createObjectURL(f)))
+
+    const newFiles = Array.from(files)
+
+    // 🔒 límite
+    if (images.length + newFiles.length > 6) {
+      alert("Máximo 6 imágenes")
+      return
+    }
+
+    setImages(prev => [...prev, ...newFiles])
+
+    const newPreview = newFiles.map(file => URL.createObjectURL(file))
+    setPreview(prev => [...prev, ...newPreview])
   }
 
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index))
+    setPreview(prev => prev.filter((_, i) => i !== index))
+  }
+
+  /* =========================
+     🚀 CREAR CAMPAÑA
+  ========================= */
   const createCampaign = async () => {
 
     setLoading(true)
@@ -89,7 +110,7 @@ export default function CreateCampaign() {
       for (const img of images) {
 
         const cleanName = img.name.replace(/\s/g, "_")
-        const fileName = `${Date.now()}-${cleanName}`
+        const fileName = `campaigns/${Date.now()}-${cleanName}`
 
         const upload = await supabase.storage
           .from('campaign-images')
@@ -178,22 +199,43 @@ export default function CreateCampaign() {
         <input type="number" placeholder="Tickets" className="w-full border p-3 rounded-lg mb-4"
           value={tickets} onChange={(e) => setTickets(e.target.value)} />
 
+        {/* 📸 INPUT */}
         <input type="file" multiple onChange={(e) => handleImages(e.target.files)} />
 
-        <div className="flex gap-2 mt-3 overflow-x-auto">
+        {/* 🖼️ PREVIEW PRO */}
+        <div className="flex gap-2 mt-3 flex-wrap">
+
           {preview.map((p, i) => (
-            <img key={i} src={p} className="h-20 w-20 object-cover rounded" />
+            <div key={i} className="relative">
+
+              <img
+                src={p}
+                className="h-20 w-20 object-cover rounded"
+              />
+
+              <button
+                onClick={() => removeImage(i)}
+                className="absolute top-0 right-0 bg-black/70 text-white text-xs px-1 rounded"
+              >
+                ✕
+              </button>
+
+            </div>
           ))}
+
         </div>
 
-        <button onClick={createCampaign}
-          className="w-full bg-green-600 text-white py-3 rounded-lg mt-4">
+        <button
+          onClick={createCampaign}
+          className="w-full bg-green-600 text-white py-3 rounded-lg mt-4"
+        >
           {loading ? 'Creando...' : 'Crear campaña'}
         </button>
 
         {message && <p className="text-center text-sm mt-4">{message}</p>}
 
       </div>
+
     </main>
   )
 }
