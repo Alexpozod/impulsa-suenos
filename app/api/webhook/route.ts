@@ -24,15 +24,43 @@ export async function POST(req: Request) {
   try {
 
     /* =========================
-       🔐 VALIDACIÓN BÁSICA
+       🔐 SEGURIDAD (UA + IP)
     ========================= */
     const userAgent = req.headers.get("user-agent") || ""
 
-    if (!userAgent.toLowerCase().includes("mercadopago")) {
-      console.log("⛔ webhook bloqueado")
+    const ip =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      ""
+
+    const allowedIps = [
+      "127.0.0.1", // dev
+      "3.",        // ejemplo rango (puedes ajustar luego)
+      "34.",
+      "52."
+    ]
+
+    const isAllowedIP = allowedIps.some(a => ip.includes(a))
+
+    if (
+      !userAgent.toLowerCase().includes("mercadopago") &&
+      !isAllowedIP
+    ) {
+      console.log("⛔ webhook bloqueado", { ip, userAgent })
+
+      await logSystemEvent({
+        type: "webhook_blocked",
+        severity: "warning",
+        message: "Intento webhook no autorizado",
+        metadata: { ip, userAgent }
+      })
+
       return NextResponse.json({ ok: true })
     }
 
+    /* =========================
+       🧾 OBTENER PAYMENT ID
+    ========================= */
     const url = new URL(req.url)
 
     let paymentId =
@@ -51,7 +79,7 @@ export async function POST(req: Request) {
     console.log("💳 PAYMENT ID:", paymentId)
 
     /* =========================
-       🔒 IDEMPOTENCIA DB
+       🔒 IDEMPOTENCIA
     ========================= */
     const { data: existing } = await supabase
       .from("financial_ledger")
@@ -61,7 +89,6 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (existing) {
-      console.log("⚠️ YA PROCESADO")
 
       await logSystemEvent({
         type: "payment_duplicate",
@@ -74,7 +101,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💳 OBTENER PAGO
+       💳 OBTENER PAGO MP
     ========================= */
     let payment
 
@@ -93,7 +120,6 @@ export async function POST(req: Request) {
     }
 
     if (!payment || payment.status !== "approved") {
-      console.log("⚠️ PAGO NO APROBADO")
       return NextResponse.json({ ok: true })
     }
 
@@ -123,7 +149,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 PROCESAMIENTO ATÓMICO
+       💰 PROCESAMIENTO
     ========================= */
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
