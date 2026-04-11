@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation"
 export default function Navbar() {
 
   const [user, setUser] = useState<any>(null)
+  const [unread, setUnread] = useState(0)
+
   const router = useRouter()
 
   useEffect(() => {
@@ -15,15 +17,55 @@ export default function Navbar() {
   }, [])
 
   const loadSession = async () => {
+
     const { data } = await supabase.auth.getSession()
-    setUser(data.session?.user || null)
+    const currentUser = data.session?.user || null
+
+    setUser(currentUser)
+
+    if (currentUser) {
+      loadNotifications()
+    }
   }
 
+  /* =========================
+     🔔 NOTIFICACIONES
+  ========================= */
+  const loadNotifications = async () => {
+
+    const { data: sessionData } = await supabase.auth.getSession()
+    const token = sessionData?.session?.access_token
+
+    if (!token) return
+
+    try {
+      const res = await fetch('/api/notifications', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      const data = await res.json()
+
+      const count = (data || []).filter((n: any) => !n.read).length
+      setUnread(count)
+
+    } catch (err) {
+      console.error("Error notifications:", err)
+    }
+  }
+
+  /* =========================
+     🔐 LOGOUT
+  ========================= */
   const logout = async () => {
     await supabase.auth.signOut()
     router.push('/')
   }
 
+  /* =========================
+     🚀 CREAR CAMPAÑA
+  ========================= */
   const handleCreateCampaign = async () => {
     const { data } = await supabase.auth.getSession()
 
@@ -56,7 +98,7 @@ export default function Navbar() {
         </div>
 
         {/* USER */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
 
           {!user ? (
             <>
@@ -73,6 +115,20 @@ export default function Navbar() {
             </>
           ) : (
             <>
+              {/* 🔔 NOTIFICACIONES */}
+              <Link href="/dashboard/notifications" className="relative">
+
+                <span className="text-xl">🔔</span>
+
+                {unread > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                    {unread}
+                  </span>
+                )}
+
+              </Link>
+
+              {/* CTA */}
               <button
                 onClick={handleCreateCampaign}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
@@ -84,7 +140,6 @@ export default function Navbar() {
                 Dashboard
               </Link>
 
-              {/* 🔥 NUEVO */}
               <Link href="/account" className="text-sm font-medium hover:text-green-600">
                 Mi cuenta
               </Link>
