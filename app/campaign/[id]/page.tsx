@@ -50,7 +50,13 @@ export default function CampaignDetail() {
   if (!campaign) return <div className="p-10 text-center">Campaña no encontrada</div>
 
   /* =========================
-     🖼️ IMÁGENES (CLAVE)
+     🧠 DATA NUEVA
+  ========================= */
+  const trust = campaign?.trust_score || 0
+  const pending = campaign?.pending_update
+
+  /* =========================
+     🖼️ IMÁGENES
   ========================= */
   const images = (campaign.images?.length
     ? campaign.images
@@ -71,6 +77,15 @@ export default function CampaignDetail() {
 
   const remaining = Math.max(goal - current, 0)
 
+  /* =========================
+     🧠 BADGE
+  ========================= */
+  const getBadge = () => {
+    if (trust > 80) return "🟢 Alta confianza"
+    if (trust > 50) return "🟡 Confianza media"
+    return "🔴 Baja confianza"
+  }
+
   return (
     <main className="bg-white min-h-screen">
 
@@ -78,6 +93,13 @@ export default function CampaignDetail() {
 
         {/* IZQUIERDA */}
         <div className="md:col-span-3">
+
+          {/* 🚨 CAMBIOS PENDIENTES */}
+          {pending && (
+            <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 text-sm font-semibold">
+              ⚠️ Esta campaña tiene cambios en revisión por el equipo
+            </div>
+          )}
 
           {/* MEDIA */}
           <div className="relative">
@@ -99,9 +121,7 @@ export default function CampaignDetail() {
               )
 
             ) : (
-
               <CampaignCarousel images={images} />
-
             )}
 
           </div>
@@ -111,12 +131,25 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* URGENCIA */}
+          {/* ⭐ TRUST SCORE PRO */}
+          <div className="mt-3 flex items-center gap-3">
+
+            <div className="text-sm font-semibold">
+              ⭐ {trust}/100
+            </div>
+
+            <div className="text-xs px-2 py-1 rounded bg-gray-100">
+              {getBadge()}
+            </div>
+
+          </div>
+
+          {/* 🔥 URGENCIA */}
           <p className="text-red-500 font-semibold mt-2">
             ⚠️ Necesitamos tu ayuda ahora
           </p>
 
-          {/* PROGRESO */}
+          {/* 🚀 PROGRESO PRO */}
           <div className="mt-6 space-y-3">
 
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">

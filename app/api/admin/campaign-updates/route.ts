@@ -31,6 +31,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "not found" }, { status: 404 })
   }
 
+  /* =========================
+     📊 OBTENER CAMPAÑA
+  ========================= */
+  const { data: campaign } = await supabase
+    .from("campaigns")
+    .select("user_email")
+    .eq("id", update.campaign_id)
+    .single()
+
+  const user_email = campaign?.user_email
+
+  /* =========================
+     ✅ APROBAR
+  ========================= */
   if (action === "approve") {
 
     await supabase
@@ -43,11 +57,31 @@ export async function POST(req: Request) {
       })
       .eq("id", update.campaign_id)
 
+    if (user_email) {
+      await supabase.from("notifications").insert({
+        user_email,
+        type: "campaign_update_approved"
+      })
+    }
+  }
+
+  /* =========================
+     ❌ RECHAZAR
+  ========================= */
+  if (action === "reject") {
+    if (user_email) {
+      await supabase.from("notifications").insert({
+        user_email,
+        type: "campaign_update_rejected"
+      })
+    }
   }
 
   await supabase
     .from("campaign_updates")
-    .update({ status: action === "approve" ? "approved" : "rejected" })
+    .update({
+      status: action === "approve" ? "approved" : "rejected"
+    })
     .eq("id", id)
 
   return NextResponse.json({ ok: true })
