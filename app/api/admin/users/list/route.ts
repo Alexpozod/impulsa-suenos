@@ -6,21 +6,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function POST(req: Request) {
+export async function GET() {
   try {
-    const { user_id, role } = await req.json()
-
-    if (!user_id || !role) {
-      return NextResponse.json(
-        { error: "faltan datos" },
-        { status: 400 }
-      )
-    }
-
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
-      .update({ role })
-      .eq("id", user_id)
+      .select("*")
+      .order("created_at", { ascending: false })
 
     if (error) {
       return NextResponse.json(
@@ -29,7 +20,7 @@ export async function POST(req: Request) {
       )
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json(data || [])
 
   } catch (error) {
     return NextResponse.json(
