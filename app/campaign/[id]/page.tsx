@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import DonationBox from '@/app/components/DonationBox'
 import ViewersCounter from '@/app/components/ViewersCounter'
+import CampaignCarousel from '@/app/components/CampaignCarousel'
 
 export default function CampaignDetail() {
 
@@ -12,7 +13,6 @@ export default function CampaignDetail() {
 
   const [campaign, setCampaign] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [active, setActive] = useState(0)
 
   useEffect(() => {
     if (id) load()
@@ -52,7 +52,9 @@ export default function CampaignDetail() {
   const images = (campaign.images?.length
     ? campaign.images
     : [campaign.image_url]
-  ).filter(Boolean)
+  )
+    .filter(Boolean)
+    .map(buildImageUrl)
 
   const current = Number(campaign.current_amount || 0)
   const goal = Number(campaign.goal_amount || 0)
@@ -73,6 +75,7 @@ export default function CampaignDetail() {
 
           {/* MEDIA */}
           <div className="relative">
+
             {campaign.video_url ? (
 
               campaign.video_url.includes("youtube") ? (
@@ -91,28 +94,10 @@ export default function CampaignDetail() {
 
             ) : (
 
-              <img
-                src={buildImageUrl(images[active])}
-                className="w-full h-[420px] object-cover rounded-2xl"
-              />
+              <CampaignCarousel images={images} />
 
             )}
-          </div>
 
-          {/* THUMBNAILS */}
-          <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
-            {images.map((img: string, i: number) => (
-              <img
-                key={i}
-                src={buildImageUrl(img)}
-                onClick={() => setActive(i)}
-                className={`h-24 w-24 object-cover rounded-lg cursor-pointer ${
-                  i === active
-                    ? "border-2 border-green-600"
-                    : "opacity-70"
-                }`}
-              />
-            ))}
           </div>
 
           {/* TITULO */}
@@ -125,7 +110,7 @@ export default function CampaignDetail() {
             ⚠️ Necesitamos tu ayuda ahora
           </p>
 
-          {/* 🚀 PROGRESO PRO */}
+          {/* PROGRESO */}
           <div className="mt-6 space-y-3">
 
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -146,25 +131,7 @@ export default function CampaignDetail() {
 
             {remaining > 0 && (
               <p className="text-sm text-center font-semibold text-orange-600">
-                💰 Faltan ${remaining.toLocaleString()} para lograr la meta
-              </p>
-            )}
-
-            {progress >= 80 && (
-              <p className="text-sm text-center text-red-600 font-bold">
-                🚨 Estamos muy cerca de lograrlo
-              </p>
-            )}
-
-            {progress >= 50 && progress < 80 && (
-              <p className="text-sm text-center text-yellow-600 font-semibold">
-                🔥 Cada aporte cuenta en este momento
-              </p>
-            )}
-
-            {progress < 50 && (
-              <p className="text-sm text-center text-blue-600">
-                💡 Tu ayuda puede marcar la diferencia
+                💰 Faltan ${remaining.toLocaleString()}
               </p>
             )}
 
@@ -190,9 +157,7 @@ export default function CampaignDetail() {
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
 
               <ViewersCounter />
-
               <LiveDonation campaign_id={campaign.id} />
-
               <DonationBox campaign_id={campaign.id} />
 
               <div className="mt-4 text-xs text-gray-400 text-center">
