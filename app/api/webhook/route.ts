@@ -20,6 +20,17 @@ export async function POST(req: Request) {
   console.log("🔥 WEBHOOK HIT")
 
   try {
+
+    /* =========================
+       🔒 VALIDACIÓN BÁSICA ORIGEN
+    ========================= */
+    const userAgent = req.headers.get("user-agent") || ""
+
+    if (!userAgent.toLowerCase().includes("mercadopago")) {
+      console.log("⛔ webhook bloqueado")
+      return NextResponse.json({ ok: true })
+    }
+
     const url = new URL(req.url)
 
     let paymentId =
@@ -37,7 +48,9 @@ export async function POST(req: Request) {
 
     console.log("💳 PAYMENT ID:", paymentId)
 
-    // 🔒 evitar duplicados
+    /* =========================
+       🔒 IDEMPOTENCIA
+    ========================= */
     const { data: existing } = await supabase
       .from("financial_ledger")
       .select("id")
@@ -64,7 +77,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 🔥 METADATA (FUENTE REAL)
+    /* =========================
+       📦 METADATA
+    ========================= */
     const campaign_id = payment.metadata?.campaign_id
 
     const user_email =
@@ -80,7 +95,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 💰 PROCESAR PAGO
+    /* =========================
+       💰 PROCESAMIENTO ATÓMICO
+    ========================= */
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -88,7 +105,8 @@ export async function POST(req: Request) {
       p_amount: amount,
       p_fee_mp: 0,
       p_platform_fee: Math.round(300 * 1.19),
-      p_provider: "mercadopago"
+      p_provider: "mercadopago",
+      p_tip: tip
     })
 
     if (error) {
@@ -97,35 +115,11 @@ export async function POST(req: Request) {
       console.log("✅ PAYMENT REGISTERED")
     }
 
-    // 🎁 TIP (SIN DUPLICADOS)
-    if (tip > 0) {
-      await supabase
-        .from("financial_ledger")
-        .upsert({
-          campaign_id,
-          type: "tip",
-          flow_type: "in",
-          amount: tip,
-          status: "confirmed",
-          provider: "mercadopago",
-          payment_id: paymentId,
-          user_email
-        }, {
-          onConflict: "payment_id,type"
-        })
-    }
-
-    // 🔥 NOMBRE CAMPAÑA
-    const { data: campaign } = await supabase
-      .from("campaigns")
-      .select("title")
-      .eq("id", campaign_id)
-      .maybeSingle()
-
-    const campaignName = campaign?.title || "donación"
-
-    // 🔥 EMAIL (PRODUCCIÓN + DEV)
+    /* =========================
+       📧 EMAIL
+    ========================= */
     try {
+
       const isDev = process.env.NODE_ENV !== "production"
 
       const emailTo = isDev
@@ -134,9 +128,15 @@ export async function POST(req: Request) {
 
       console.log("📧 ENVIANDO EMAIL A:", emailTo)
 
+      const { data: campaign } = await supabase
+        .from("campaigns")
+        .select("title")
+        .eq("id", campaign_id)
+        .maybeSingle()
+
       await sendDonationEmail({
         to: emailTo,
-        campaign: campaignName,
+        campaign: campaign?.title || "donación",
         amount
       })
 
