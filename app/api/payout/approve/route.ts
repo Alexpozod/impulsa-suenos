@@ -105,7 +105,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign not found" }, { status: 404 })
     }
 
-    // 🔐 VALIDACIÓN CONSISTENCIA BALANCE (NUEVO - NO ROMPE NADA)
+    // 🔐 VALIDACIÓN CONSISTENCIA BALANCE
     const dbBalance = Number(campaign.balance || 0)
     const realBalance = Number(reconciliation.balance || 0)
     const diff = Math.abs(dbBalance - realBalance)
@@ -174,10 +174,16 @@ export async function POST(req: Request) {
       })
       .eq("id", payout_id)
 
-    // ❌ NO borrar historial financiero
+    // 🔐 NO eliminar historial, marcar como reemplazado
     await supabase
       .from("financial_ledger")
-      .delete()
+      .update({
+        status: "replaced_by_payout",
+        metadata: {
+          replaced_at: new Date().toISOString(),
+          payout_id: payout.id
+        }
+      })
       .eq("payment_id", `pending_${payout.id}`)
 
     await supabase.from("financial_ledger").insert({
