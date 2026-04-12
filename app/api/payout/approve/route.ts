@@ -105,6 +105,42 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign not found" }, { status: 404 })
     }
 
+    // 🔐 VALIDACIÓN CONSISTENCIA BALANCE (NUEVO - NO ROMPE NADA)
+    const dbBalance = Number(campaign.balance || 0)
+    const realBalance = Number(reconciliation.balance || 0)
+    const diff = Math.abs(dbBalance - realBalance)
+
+    if (diff > 1) {
+
+      await logSystemEvent({
+        type: "balance_mismatch",
+        severity: "critical",
+        message: "Descuadre entre ledger y campaign.balance",
+        metadata: {
+          campaign_id: payout.campaign_id,
+          dbBalance,
+          realBalance,
+          diff
+        }
+      })
+
+      await sendAlert({
+        title: "Descuadre financiero",
+        message: "Balance inconsistente detectado",
+        data: {
+          campaign_id: payout.campaign_id,
+          dbBalance,
+          realBalance,
+          diff
+        }
+      })
+
+      return NextResponse.json(
+        { error: "balance_mismatch" },
+        { status: 500 }
+      )
+    }
+
     const risk = evaluateCampaignRisk(campaign)
 
     const fraud = await evaluateFraudAlert({
@@ -138,6 +174,7 @@ export async function POST(req: Request) {
       })
       .eq("id", payout_id)
 
+    // ❌ NO borrar historial financiero
     await supabase
       .from("financial_ledger")
       .delete()
