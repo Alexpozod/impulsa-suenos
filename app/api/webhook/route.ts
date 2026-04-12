@@ -133,7 +133,10 @@ export async function POST(req: Request) {
       payment.payer?.email ||
       `guest_${payment.id}@impulsasuenos.com`
 
-    const amount = Number(payment.metadata?.amount || 0)
+    const amount =
+      Number(payment.transaction_amount) ||
+      Number(payment.metadata?.amount || 0)
+
     const tip = Number(payment.metadata?.tip || 0)
 
     if (!campaign_id) {
@@ -143,6 +146,25 @@ export async function POST(req: Request) {
         severity: "critical",
         message: "Pago sin campaign_id",
         metadata: { paymentId }
+      })
+
+      return NextResponse.json({ ok: true })
+    }
+
+    // 🔐 VALIDACIÓN NUEVA (NO ROMPE NADA)
+    const { data: campaignExists } = await supabase
+      .from("campaigns")
+      .select("id")
+      .eq("id", campaign_id)
+      .maybeSingle()
+
+    if (!campaignExists) {
+
+      await logSystemEvent({
+        type: "invalid_campaign_payment",
+        severity: "critical",
+        message: "Pago con campaign inválida",
+        metadata: { campaign_id, paymentId }
       })
 
       return NextResponse.json({ ok: true })
