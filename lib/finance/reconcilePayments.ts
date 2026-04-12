@@ -13,7 +13,7 @@ export async function reconcileCampaign(campaign_id: string) {
       .from("financial_ledger")
       .select("amount, flow_type")
       .eq("campaign_id", campaign_id)
-.eq("status", "confirmed")
+      .eq("status", "confirmed") // 🔐 SOLO DINERO REAL
 
     if (error || !data) {
       return {
