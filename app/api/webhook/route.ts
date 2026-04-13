@@ -34,8 +34,8 @@ export async function POST(req: Request) {
       ""
 
     const allowedIps = [
-      "127.0.0.1", // dev
-      "3.",        // ejemplo rango (puedes ajustar luego)
+      "127.0.0.1",
+      "3.",
       "34.",
       "52."
     ]
@@ -79,24 +79,16 @@ export async function POST(req: Request) {
     console.log("💳 PAYMENT ID:", paymentId)
 
     /* =========================
-       🔒 IDEMPOTENCIA
+       🔒 IDEMPOTENCIA MEJORADA
     ========================= */
     const { data: existing } = await supabase
       .from("financial_ledger")
-      .select("id")
+      .select("id, status")
       .eq("payment_id", paymentId)
       .eq("type", "payment")
       .maybeSingle()
 
-    if (existing) {
-
-      await logSystemEvent({
-        type: "payment_duplicate",
-        severity: "warning",
-        message: "Pago duplicado evitado",
-        metadata: { paymentId }
-      })
-
+    if (existing && existing.status === "confirmed") {
       return NextResponse.json({ ok: true })
     }
 
@@ -151,7 +143,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // 🔐 VALIDACIÓN NUEVA (NO ROMPE NADA)
+    /* =========================
+       🔐 VALIDAR CAMPAÑA
+    ========================= */
     const { data: campaignExists } = await supabase
       .from("campaigns")
       .select("id")
@@ -165,6 +159,24 @@ export async function POST(req: Request) {
         severity: "critical",
         message: "Pago con campaign inválida",
         metadata: { campaign_id, paymentId }
+      })
+
+      return NextResponse.json({ ok: true })
+    }
+
+    /* =========================
+       🔐 VALIDAR MONTO REAL (ANTI FRAUDE)
+    ========================= */
+    const expectedAmount =
+      Number(payment.metadata?.amount || 0)
+
+    if (expectedAmount && Math.abs(expectedAmount - amount) > 100) {
+
+      await logSystemEvent({
+        type: "payment_amount_mismatch",
+        severity: "critical",
+        message: "Monto inconsistente",
+        metadata: { paymentId, expectedAmount, amount }
       })
 
       return NextResponse.json({ ok: true })

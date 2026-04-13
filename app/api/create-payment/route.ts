@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { createPayment } from "@/lib/payments/provider"
+import { createClient } from "@supabase/supabase-js"
 
 export const runtime = "nodejs"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 /* =========================
    VALIDACIÓN
@@ -37,10 +43,28 @@ export async function POST(req: Request) {
       provider = "mercadopago"
     } = parsed.data
 
-    // 🔥 FIX CLAVE → PASAR TIP DIRECTO
+    /* =========================
+       🔐 VALIDAR CAMPAÑA
+    ========================= */
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("id, status")
+      .eq("id", campaign_id)
+      .maybeSingle()
+
+    if (!campaign || campaign.status !== "active") {
+      return NextResponse.json(
+        { error: "Campaña inválida" },
+        { status: 400 }
+      )
+    }
+
+    /* =========================
+       💳 CREAR PAGO
+    ========================= */
     const result = await createPayment({
       amount,
-      tip, // ✅ AHORA SÍ LLEGA
+      tip,
       campaign_id,
       user_email,
       provider
