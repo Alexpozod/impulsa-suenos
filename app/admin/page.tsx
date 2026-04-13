@@ -14,9 +14,6 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
-/* =========================
-   TYPES
-========================= */
 type Campaign = {
   id: string
   title: string
@@ -39,7 +36,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [authorized, setAuthorized] = useState(false)
 
-  const [metrics, setMetrics] = useState<any>(null)
+  const [metrics, setMetrics] = useState<any>({ totalRevenue: 0 })
   const [chartData, setChartData] = useState<ChartItem[]>([])
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [topCampaigns, setTopCampaigns] = useState<Campaign[]>([])
@@ -72,7 +69,7 @@ export default function AdminPage() {
   }
 
   /* =========================
-     📊 LOAD DATA
+     📊 LOAD DATA (FIX FINAL)
   ========================= */
   const loadData = async () => {
     try {
@@ -87,18 +84,30 @@ export default function AdminPage() {
 
       const data = await res.json()
 
+      /* ✅ METRICS */
       setMetrics({
-        totalRevenue: data.totalRevenue,
+        totalRevenue: data.totalIncome || 0,
       })
 
-      const formattedChart = data.chart.map((d: any) => ({
-        name: d.date,
-        ingresos: Number(d.ingresos),
-      }))
+      /* ✅ CHART DESDE daily */
+      const formattedChart = Object.entries(data.daily || {}).map(
+        ([date, val]: any) => ({
+          name: date,
+          ingresos: Number(val.total || 0),
+        })
+      )
 
       setChartData(formattedChart)
-      setAlerts(data.alerts || [])
-      setTopCampaigns(data.topCampaigns || [])
+
+      /* ✅ ALERTAS DESDE errors */
+      setAlerts(
+        (data.errors || []).map((e: any) => ({
+          message: e.message
+        }))
+      )
+
+      /* ✅ TOP CAMPAIGNS (DESACTIVADO POR AHORA) */
+      setTopCampaigns([])
 
     } catch (err) {
       console.error("ADMIN ERROR:", err)
@@ -152,7 +161,7 @@ export default function AdminPage() {
         <div className="bg-slate-900 p-6 rounded-xl w-fit">
           <p className="text-sm text-slate-400">💰 Ingresos totales</p>
           <p className="text-3xl font-bold text-green-400">
-            ${metrics.totalRevenue.toLocaleString()}
+            ${Number(metrics.totalRevenue || 0).toLocaleString()}
           </p>
         </div>
 
@@ -180,7 +189,7 @@ export default function AdminPage() {
       <div className="mb-10">
 
         <h2 className="text-lg font-bold mb-4">
-          🚨 Alertas antifraude
+          🚨 Alertas sistema
         </h2>
 
         {alerts.length === 0 && (
@@ -190,34 +199,6 @@ export default function AdminPage() {
         {alerts.map((a, i) => (
           <div key={i} className="bg-red-900/30 border border-red-500 p-4 rounded-lg mb-2">
             {a.message}
-          </div>
-        ))}
-
-      </div>
-
-      {/* TOP CAMPAÑAS */}
-      <div>
-
-        <h2 className="text-lg font-bold mb-4">
-          🔥 Top campañas
-        </h2>
-
-        {topCampaigns.map((c) => (
-          <div key={c.id} className="bg-slate-900 p-4 rounded-xl mb-2 flex justify-between">
-
-            <div>
-              <p className="font-bold">{c.title}</p>
-              <p className="text-sm text-slate-400">
-                ${Number(c.total || 0).toLocaleString()}
-              </p>
-            </div>
-
-            <Link href={`/admin/campaign/${c.id}`}>
-              <button className="bg-blue-600 px-3 py-1 rounded">
-                Ver
-              </button>
-            </Link>
-
           </div>
         ))}
 
