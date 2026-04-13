@@ -1,30 +1,10 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 
 export default function FinanceAdminPage() {
 
-  const [stats, setStats] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  const loadData = async () => {
-    try {
-
-      const res = await fetch("/api/admin/finance")
-      const data = await res.json()
-
-      setStats(data)
-
-    } catch (err) {
-      console.error(err)
-    }
-
-    setLoading(false)
-  }
+  const { data: stats, loading } = useFinancialDashboard()
 
   if (loading) {
     return <div className="p-10">Cargando panel financiero...</div>
@@ -36,29 +16,45 @@ export default function FinanceAdminPage() {
       <div className="max-w-7xl mx-auto space-y-8">
 
         <h1 className="text-3xl font-bold">
-          💰 Panel Financiero
+          💰 Panel Financiero PRO
         </h1>
 
         {/* =========================
             STATS
         ========================= */}
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
 
-          <Card title="Ingresos totales" value={`$${stats.totalIncome}`} />
-          <Card title="Retiros" value={`$${stats.totalWithdrawals}`} />
-          <Card title="Balance" value={`$${stats.balance}`} />
-          <Card title="Pagos" value={stats.totalPayments} />
+          <Card title="Ingresos CLP" value={`$${stats.totalIncome.toLocaleString()}`} />
+          <Card title="USD" value={`$${stats.totalUSD.toFixed(2)}`} />
+          <Card title="Retiros" value={`$${stats.totalWithdrawals.toLocaleString()}`} />
+          <Card title="Balance" value={`$${stats.balance.toLocaleString()}`} />
+          <Card title="Comisiones" value={`$${stats.totalFees.toLocaleString()}`} />
+          <Card title="Tips" value={`$${stats.totalTips.toLocaleString()}`} />
 
         </div>
 
         {/* =========================
-            PAGOS RECIENTES
+            PROVIDERS (NUEVO)
+        ========================= */}
+        <Section title="💳 Ingresos por proveedor">
+          {Object.entries(stats.providers || {}).map(([key, val]: any) => (
+            <Row key={key}>
+              <span>{key}</span>
+              <span>
+                ${val.total.toLocaleString()} / ${val.total_usd.toFixed(2)} USD ({val.count})
+              </span>
+            </Row>
+          ))}
+        </Section>
+
+        {/* =========================
+            PAGOS
         ========================= */}
         <Section title="Pagos recientes">
           {stats.recentPayments.map((p: any, i: number) => (
             <Row key={i}>
               <span>{p.user_email}</span>
-              <span>${p.amount}</span>
+              <span>${Number(p.amount).toLocaleString()}</span>
             </Row>
           ))}
         </Section>
@@ -68,7 +64,6 @@ export default function FinanceAdminPage() {
         ========================= */}
         <Section title="Errores recientes">
           {stats.errors.length === 0 && <p>No hay errores</p>}
-
           {stats.errors.map((e: any, i: number) => (
             <Row key={i}>
               <span>{e.message}</span>
@@ -83,7 +78,7 @@ export default function FinanceAdminPage() {
           {stats.payouts.map((p: any, i: number) => (
             <Row key={i}>
               <span>{p.campaign_id}</span>
-              <span>${p.amount}</span>
+              <span>${Number(p.amount).toLocaleString()}</span>
               <span>{p.status}</span>
             </Row>
           ))}
@@ -94,7 +89,6 @@ export default function FinanceAdminPage() {
         ========================= */}
         <Section title="Problemas de conciliación">
           {stats.issues.length === 0 && <p>Todo OK</p>}
-
           {stats.issues.map((i: any, idx: number) => (
             <Row key={idx}>
               <span>{i.payment_id}</span>
@@ -109,9 +103,7 @@ export default function FinanceAdminPage() {
   )
 }
 
-/* =========================
-   COMPONENTES
-========================= */
+/* COMPONENTES */
 
 function Card({ title, value }: any) {
   return (
