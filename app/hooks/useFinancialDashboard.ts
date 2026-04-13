@@ -1,24 +1,25 @@
-"use client"
-
 import { useEffect, useState } from "react"
 
 export function useFinancialDashboard() {
-  const [data, setData] = useState<any[]>([])
+
+  const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true)
-
-      const res = await fetch("/api/campaigns/enriched")
-      const json = await res.json()
-
-      setData(json)
-      setLoading(false)
-    }
-
     load()
   }, [])
+
+  const load = async () => {
+    try {
+      const res = await fetch("/api/admin/finance")
+      const json = await res.json()
+      setData(json)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return { data, loading }
 }
