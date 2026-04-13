@@ -11,6 +11,7 @@ import { logInfo, logError } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { logSystemEvent } from "@/lib/system/logger"
+import { sendNotification } from "@/lib/notifications/sendNotification"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,6 +20,7 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
+
     const { payout_id } = await req.json()
 
     if (!payout_id) {
@@ -70,31 +72,16 @@ export async function POST(req: Request) {
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
     if (!reconciliation.ok || typeof reconciliation.balance !== "number") {
-
-      await sendAlert({
-        title: "Error conciliación",
-        message: "Falló conciliación en payout",
-        data: { payout_id }
-      })
-
       return NextResponse.json({ error: "reconciliation_failed" }, { status: 500 })
     }
 
     if (payout.amount > reconciliation.balance) {
-      return NextResponse.json(
-        { error: "insufficient_real_balance" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "insufficient_balance" }, { status: 400 })
     }
 
-    if (payout.amount > reconciliation.balance * 0.8) {
-      await sendAlert({
-        title: "Payout alto",
-        message: "Retiro cercano al total",
-        data: { payout_id }
-      })
-    }
-
+    /* =========================
+       📊 CAMPAIGN
+    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("*")
@@ -107,45 +94,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔐 VALIDACIÓN BALANCE
-    ========================= */
-    const dbBalance = Number(campaign.balance || 0)
-    const realBalance = Number(reconciliation.balance || 0)
-    const diff = Math.abs(dbBalance - realBalance)
-
-    if (diff > 1) {
-
-      await logSystemEvent({
-        type: "balance_mismatch",
-        severity: "critical",
-        message: "Descuadre entre ledger y campaign.balance",
-        metadata: {
-          campaign_id: payout.campaign_id,
-          dbBalance,
-          realBalance,
-          diff
-        }
-      })
-
-      await sendAlert({
-        title: "Descuadre financiero",
-        message: "Balance inconsistente detectado",
-        data: {
-          campaign_id: payout.campaign_id,
-          dbBalance,
-          realBalance,
-          diff
-        }
-      })
-
-      return NextResponse.json(
-        { error: "balance_mismatch" },
-        { status: 500 }
-      )
-    }
-
-    /* =========================
-       🧠 RIESGO + FRAUDE
+       🧠 RIESGO
     ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
@@ -169,7 +118,7 @@ export async function POST(req: Request) {
     })
 
     if (enforcement.blocked) {
-      return NextResponse.json({ error: "campaign_blocked" }, { status: 403 })
+      return NextResponse.json({ error: "blocked" }, { status: 403 })
     }
 
     /* =========================
@@ -187,16 +136,15 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       👛 WALLET (FIX PRO)
+       👛 WALLET (FIX FINAL)
     ========================= */
     await supabase.rpc("update_wallet_after_payout", {
-  p_user_email: campaign.user_email,
-  p_amount: payout.amount
-})
-      .eq("user_email", campaign.user_email)
+      p_user_email: campaign.user_email,
+      p_amount: payout.amount
+    })
 
     /* =========================
-       📦 PAYOUT STATUS
+       📦 PAYOUT
     ========================= */
     await supabase
       .from("payouts")
@@ -207,7 +155,7 @@ export async function POST(req: Request) {
       .eq("id", payout_id)
 
     /* =========================
-       📊 CAMPAIGN
+       📊 CAMPAIGN UPDATE
     ========================= */
     await supabase
       .from("campaigns")
@@ -218,36 +166,21 @@ export async function POST(req: Request) {
       .eq("id", payout.campaign_id)
 
     /* =========================
-       📣 EVENTOS + LOGS
+       🔔 NOTIFICACIÓN
     ========================= */
-    await emitEvent("payout.approved", {
-      id: payout_id,
-      campaign_id: payout.campaign_id,
-      amount: payout.amount,
-      actor_id: user.id,
-      organization_id: orgId
+    await sendNotification({
+      user_email: campaign.user_email,
+      type: "payout_paid",
+      title: "Retiro aprobado",
+      message: `Tu retiro de $${payout.amount} fue aprobado`,
+      metadata: { payout_id }
     })
 
-    await logToDB("info", "payout_approved", {
-      payout_id,
-      campaign_id: payout.campaign_id
-    })
-
-    logInfo("Payout aprobado correctamente", {
-      payout_id,
-      campaign_id: payout.campaign_id
-    })
+    logInfo("Payout aprobado", { payout_id })
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-
-    await logSystemEvent({
-      type: "payout_crash",
-      severity: "critical",
-      message: "Error aprobando payout",
-      metadata: { error }
-    })
 
     logError("APPROVE ERROR", error)
     await logErrorToDB("approve_payout_error", error)
