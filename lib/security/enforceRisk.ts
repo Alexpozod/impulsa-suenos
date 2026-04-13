@@ -17,14 +17,14 @@ type EnforceContext = {
 }
 
 export async function enforceRiskActions(ctx: EnforceContext) {
+
   const { campaign, payout, risk } = ctx
 
   /* =========================
-     🔴 CRITICAL BLOCK
+     🔴 BLOQUEO TOTAL
   ========================= */
-  if (risk.score >= 80 || !risk.safe) {
+  if (risk.score >= 80) {
 
-    // 🚫 BLOQUEAR CAMPAÑA
     await supabase
       .from("campaigns")
       .update({
@@ -33,14 +33,12 @@ export async function enforceRiskActions(ctx: EnforceContext) {
       })
       .eq("id", campaign.id)
 
-    // 🚫 BLOQUEAR PAYOUTS PENDIENTES
     await supabase
       .from("payouts")
       .update({ status: "blocked" })
       .eq("campaign_id", campaign.id)
       .eq("status", "pending")
 
-    // 🔔 EVENTO
     await emitEvent("system.campaign_blocked", {
       campaign_id: campaign.id,
       payout_id: payout?.id || null,
@@ -57,6 +55,7 @@ export async function enforceRiskActions(ctx: EnforceContext) {
      🟡 WARNING
   ========================= */
   if (risk.score >= 50) {
+
     await emitEvent("system.campaign_warning", {
       campaign_id: campaign.id,
       risk
