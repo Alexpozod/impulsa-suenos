@@ -1,23 +1,15 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { sendNotification } from "@/lib/notifications/sendNotification"
 
-/* =========================
-   🔐 CLIENT (SERVICE ROLE)
-========================= */
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-/* =========================
-   🚀 UPDATE KYC (ADMIN)
-========================= */
 export async function POST(req: Request) {
   try {
 
-    /* =========================
-       🔐 AUTH HEADER
-    ========================= */
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
@@ -32,9 +24,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid session" }, { status: 401 })
     }
 
-    /* =========================
-       👑 VALIDAR ADMIN (DB REAL)
-    ========================= */
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -45,27 +34,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
     }
 
-    /* =========================
-       📦 BODY
-    ========================= */
     const { user_email, status } = await req.json()
 
     if (!user_email || !status) {
       return NextResponse.json({ error: "missing data" }, { status: 400 })
     }
 
-    /* =========================
-       🔒 VALIDAR STATUS
-    ========================= */
     const allowedStatus = ["pending", "approved", "rejected"]
 
     if (!allowedStatus.includes(status)) {
       return NextResponse.json({ error: "invalid status" }, { status: 400 })
     }
 
-    /* =========================
-       🛡️ UPDATE KYC
-    ========================= */
     const { error } = await supabase
       .from("kyc")
       .update({
@@ -75,20 +55,38 @@ export async function POST(req: Request) {
       .eq("user_email", user_email)
 
     if (error) {
-      console.error("KYC UPDATE ERROR:", error)
       return NextResponse.json({ error: "update failed" }, { status: 500 })
     }
 
     /* =========================
-       📊 RESPONSE
+       🔔 NOTIFICACIONES
     ========================= */
+    if (status === "approved") {
+      await sendNotification({
+        user_email,
+        type: "kyc_approved",
+        title: "Verificación aprobada",
+        message: "Tu identidad fue verificada correctamente",
+        sendEmail: true
+      })
+    }
+
+    if (status === "rejected") {
+      await sendNotification({
+        user_email,
+        type: "kyc_rejected",
+        title: "Verificación rechazada",
+        message: "Tu verificación fue rechazada, revisa los documentos enviados",
+        sendEmail: true
+      })
+    }
+
     return NextResponse.json({
       ok: true,
       message: `KYC actualizado a ${status}`
     })
 
   } catch (err) {
-    console.error("ADMIN KYC ERROR:", err)
 
     return NextResponse.json(
       { error: "server error" },
