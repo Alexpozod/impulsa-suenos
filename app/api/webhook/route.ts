@@ -33,13 +33,7 @@ export async function POST(req: Request) {
       req.headers.get("x-real-ip") ||
       ""
 
-    const allowedIps = [
-      "127.0.0.1",
-      "3.",
-      "34.",
-      "52."
-    ]
-
+    const allowedIps = ["127.0.0.1", "3.", "34.", "52."]
     const isAllowedIP = allowedIps.some(a => ip.includes(a))
 
     if (
@@ -79,7 +73,7 @@ export async function POST(req: Request) {
     console.log("💳 PAYMENT ID:", paymentId)
 
     /* =========================
-       🔒 IDEMPOTENCIA MEJORADA
+       🔒 IDEMPOTENCIA
     ========================= */
     const { data: existing } = await supabase
       .from("financial_ledger")
@@ -165,7 +159,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔐 VALIDAR MONTO REAL (ANTI FRAUDE)
+       🔐 VALIDAR MONTO
     ========================= */
     const expectedAmount =
       Number(payment.metadata?.amount || 0)
@@ -213,14 +207,35 @@ export async function POST(req: Request) {
 
     } else {
 
+      console.log("✅ PAYMENT REGISTERED")
+
+      /* =========================
+         💱 MULTICURRENCY (SEGURO)
+      ========================= */
+      let exchangeRate = 900
+
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/exchange-rate`)
+        const data = await res.json()
+        if (data?.rate) exchangeRate = data.rate
+      } catch {}
+
+      const amountUSD = amount / exchangeRate
+
+      await supabase
+        .from("financial_ledger")
+        .update({
+          amount_usd: amountUSD,
+          exchange_rate: exchangeRate
+        })
+        .eq("payment_id", paymentId)
+
       await logSystemEvent({
         type: "payment_success",
         severity: "info",
         message: "Pago procesado",
-        metadata: { paymentId, amount, campaign_id }
+        metadata: { paymentId, amount, campaign_id, amountUSD }
       })
-
-      console.log("✅ PAYMENT REGISTERED")
     }
 
     /* =========================
