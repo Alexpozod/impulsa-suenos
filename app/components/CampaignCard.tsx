@@ -4,12 +4,14 @@ import Link from "next/link"
 
 export default function CampaignCard({ campaign }: any) {
 
-  const progress = campaign.goal_amount
-    ? Math.min(
-        (campaign.current_amount / campaign.goal_amount) * 100,
-        100
-      )
+  const current = Number(campaign.current_amount || 0)
+  const goal = Number(campaign.goal_amount || 0)
+
+  const progress = goal > 0
+    ? Math.min((current / goal) * 100, 100)
     : 0
+
+  const remaining = Math.max(goal - current, 0)
 
   return (
     <Link
@@ -31,10 +33,12 @@ export default function CampaignCard({ campaign }: any) {
       {/* CONTENT */}
       <div className="p-4">
 
+        {/* TITLE */}
         <h3 className="font-semibold text-lg mb-2 line-clamp-2">
           {campaign.title || "Campaña"}
         </h3>
 
+        {/* DESCRIPTION */}
         <p className="text-sm text-gray-500 mb-4 line-clamp-2">
           {campaign.description || "Sin descripción"}
         </p>
@@ -42,29 +46,41 @@ export default function CampaignCard({ campaign }: any) {
         {/* PROGRESS BAR */}
         <div className="w-full bg-gray-200 h-2 rounded-full mb-2">
           <div
-            className="bg-green-600 h-2 rounded-full"
+            className="bg-green-600 h-2 rounded-full transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         {/* AMOUNTS */}
-        <div className="flex justify-between text-sm font-medium">
+        <div className="flex justify-between text-sm font-medium mb-2">
 
           <span className="text-green-600">
-            ${campaign.current_amount || 0}
+            ${current.toLocaleString()}
           </span>
 
           <span className="text-gray-500">
-            de ${campaign.goal_amount || 0}
+            de ${goal.toLocaleString()}
           </span>
 
         </div>
 
-        {/* EXTRA */}
-        {campaign.has_raffle && (
-          <div className="mt-3 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-            🎁 Incluye sorteo
-          </div>
+        {/* PROGRESS % */}
+        <div className="text-xs text-gray-400 text-right mb-2">
+          {progress.toFixed(0)}% completado
+        </div>
+
+        {/* REMAINING */}
+        {remaining > 0 && (
+          <p className="text-xs text-orange-600 font-semibold">
+            💰 Faltan ${remaining.toLocaleString()}
+          </p>
+        )}
+
+        {/* URGENCY */}
+        {progress >= 80 && (
+          <p className="text-xs text-red-600 font-bold mt-1">
+            🚨 ¡Estamos muy cerca!
+          </p>
         )}
 
       </div>
