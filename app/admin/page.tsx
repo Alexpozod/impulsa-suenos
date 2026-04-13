@@ -79,7 +79,7 @@ export default function AdminPage() {
 
       const session = await supabase.auth.getSession()
 
-      const res = await fetch("/api/admin/metrics", {
+      const res = await fetch("/api/admin/finance", {
         headers: {
           Authorization: `Bearer ${session.data.session?.access_token}`
         }
