@@ -5,17 +5,17 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function rateLimit(user_email: string, action: string) {
+export async function rateLimit(
+  user_email: string,
+  action: string,
+  ip?: string
+) {
   const now = new Date()
   const oneMinuteAgo = new Date(Date.now() - 60 * 1000)
 
-  // 🔥 registrar intento actual
-  await supabase.from("rate_limits").insert({
-    user_email,
-    action
-  })
-
-  // 🔥 contar intentos recientes
+  /* =========================
+     🔍 CONTAR ANTES (ANTI SPAM)
+  ========================= */
   const { data } = await supabase
     .from("rate_limits")
     .select("id")
@@ -25,20 +25,32 @@ export async function rateLimit(user_email: string, action: string) {
 
   const count = data?.length || 0
 
-  // 🚨 reglas
-  if (action === "withdraw" && count > 3) {
+  /* =========================
+     🚨 BLOQUEOS
+  ========================= */
+  if (action === "withdraw" && count >= 3) {
     return {
       blocked: true,
       reason: "Demasiados intentos de retiro"
     }
   }
 
-  if (action === "otp" && count > 5) {
+  if (action === "otp" && count >= 5) {
     return {
       blocked: true,
       reason: "Abuso de OTP detectado"
     }
   }
+
+  /* =========================
+     ✅ REGISTRAR SOLO SI PASA
+  ========================= */
+  await supabase.from("rate_limits").insert({
+    user_email,
+    action,
+    ip: ip || null,
+    created_at: now.toISOString()
+  })
 
   return {
     blocked: false

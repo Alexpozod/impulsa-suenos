@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { rateLimit } from "@/lib/security/rateLimit"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,21 +22,41 @@ export async function POST(req: Request) {
       )
     }
 
+    const user_email = email.toLowerCase()
+
+    /* =========================
+       🔐 RATE LIMIT OTP
+    ========================= */
+    const ip =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      ""
+
+    const rl = await rateLimit(user_email, "otp", ip)
+
+    if (rl.blocked) {
+      return NextResponse.json({ error: rl.reason }, { status: 429 })
+    }
+
     const code = generateCode()
 
     const expires = new Date()
     expires.setMinutes(expires.getMinutes() + 5)
 
-    // 🚫 INVALIDAR OTP ANTERIORES (CLAVE DE SEGURIDAD)
+    /* =========================
+       INVALIDAR OTP ANTERIORES
+    ========================= */
     await supabase
       .from("otp_codes")
       .update({ used: true })
-      .eq("user_email", email)
+      .eq("user_email", user_email)
       .eq("used", false)
 
-    // 💾 CREAR NUEVO OTP
+    /* =========================
+       CREAR NUEVO OTP
+    ========================= */
     const { error } = await supabase.from("otp_codes").insert({
-      user_email: email,
+      user_email,
       code,
       expires_at: expires,
       verified: false,
@@ -43,7 +64,7 @@ export async function POST(req: Request) {
     })
 
     if (error) {
-      console.error("❌ Error guardando OTP:", error)
+      console.error("❌ Error OTP:", error)
 
       return NextResponse.json(
         { error: "Error generando código" },
@@ -51,7 +72,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 📲 SIMULACIÓN (REEMPLAZAR POR EMAIL O SMS REAL)
     console.log("🔐 OTP:", code)
 
     return NextResponse.json({ ok: true })
