@@ -16,14 +16,9 @@ export async function GET() {
     const enriched = await Promise.all(
       (campaigns || []).map(async (c) => {
 
-        const { count: ticketsSold } = await supabase
-          .from("tickets")
-          .select("*", { count: "exact", head: true })
-          .eq("campaign_id", c.id)
-
         const { data: ledger } = await supabase
           .from("financial_ledger")
-          .select("amount")
+          .select("amount") 
           .eq("campaign_id", c.id)
           .eq("type", "payment")
           .eq("status", "confirmed")
@@ -33,7 +28,6 @@ export async function GET() {
 
         return {
           ...c,
-          tickets_sold: ticketsSold || 0,
           total_raised: totalRaised,
         }
       })
@@ -42,7 +36,6 @@ export async function GET() {
     return NextResponse.json(enriched)
 
   } catch (error) {
-    console.error(error)
     return NextResponse.json({ error: "Error" }, { status: 500 })
   }
 }
