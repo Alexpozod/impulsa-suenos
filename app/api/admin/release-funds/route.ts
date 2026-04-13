@@ -14,30 +14,34 @@ export async function GET() {
       Date.now() - 24 * 60 * 60 * 1000
     ).toISOString()
 
-    const { data: pending, error } = await supabase
+    const { data: pending } = await supabase
       .from("financial_ledger")
-      .select("id, campaign_id, amount")
+      .select("id, user_email, amount")
       .eq("flow_type", "in")
       .eq("status", "pending")
       .lte("created_at", cutoff)
 
-    if (error) throw error
-
     if (!pending || pending.length === 0) {
-      return NextResponse.json({
-        ok: true,
-        message: "No hay fondos para liberar"
+      return NextResponse.json({ ok: true })
+    }
+
+    for (const p of pending) {
+
+      /* =========================
+         💰 MOVER WALLET
+      ========================= */
+      await supabase.rpc("update_wallet_release_funds", {
+        p_user_email: p.user_email,
+        p_amount: p.amount
       })
     }
 
     const ids = pending.map(p => p.id)
 
-    const { error: updateError } = await supabase
+    await supabase
       .from("financial_ledger")
       .update({ status: "confirmed" })
       .in("id", ids)
-
-    if (updateError) throw updateError
 
     return NextResponse.json({
       ok: true,
