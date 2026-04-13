@@ -189,12 +189,10 @@ export async function POST(req: Request) {
     /* =========================
        👛 WALLET (FIX PRO)
     ========================= */
-    await supabase
-      .from("wallets")
-      .update({
-        balance: supabase.raw(`balance - ${payout.amount}`),
-        pending: supabase.raw(`pending - ${payout.amount}`)
-      })
+    await supabase.rpc("update_wallet_after_payout", {
+  p_user_email: campaign.user_email,
+  p_amount: payout.amount
+})
       .eq("user_email", campaign.user_email)
 
     /* =========================
