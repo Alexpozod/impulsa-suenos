@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import { supabase } from "@/src/lib/supabase"
 
 type Wallet = {
   user_email: string
@@ -20,17 +21,17 @@ export default function WalletAdminPage() {
   const load = async () => {
     try {
 
-      // ⚠️ TEMP: usamos endpoint existente
-      const res = await fetch('/api/admin/users')
-      const users = await res.json()
+      const { data, error } = await supabase
+        .from("wallets")
+        .select("user_email, available_balance, pending_balance")
+        .order("available_balance", { ascending: false })
 
-      const formatted = (users || []).map((u: any) => ({
-        user_email: u.email,
-        available_balance: u.wallet?.available_balance || 0,
-        pending_balance: u.wallet?.pending_balance || 0
-      }))
+      if (error) {
+        console.error("Wallet error:", error)
+        return
+      }
 
-      setWallets(formatted)
+      setWallets(data || [])
 
     } catch (err) {
       console.error("Wallet load error:", err)
@@ -62,15 +63,19 @@ export default function WalletAdminPage() {
           👛 Wallets
         </h1>
 
-        {/* RESUMEN */}
+        {/* =========================
+            RESUMEN GLOBAL
+        ========================= */}
         <div className="grid md:grid-cols-2 gap-4">
 
-          <Card title="Disponible" value={totalAvailable} />
-          <Card title="Pendiente" value={totalPending} />
+          <Card title="Total disponible" value={totalAvailable} />
+          <Card title="Total pendiente" value={totalPending} />
 
         </div>
 
-        {/* LISTADO */}
+        {/* =========================
+            LISTADO
+        ========================= */}
         <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
 
           <h2 className="font-semibold mb-4">
@@ -79,22 +84,24 @@ export default function WalletAdminPage() {
 
           {wallets.length === 0 && (
             <p className="text-sm text-slate-400">
-              No hay wallets
+              No hay wallets registradas
             </p>
           )}
 
           {wallets.map((w, i) => (
             <div
               key={i}
-              className="flex justify-between border-b border-slate-800 py-2 text-sm"
+              className="flex justify-between items-center border-b border-slate-800 py-2 text-sm"
             >
-              <span>{w.user_email}</span>
+              <span className="w-1/3 truncate">
+                {w.user_email}
+              </span>
 
-              <span className="text-green-400">
+              <span className="text-green-400 w-1/3 text-center">
                 ${Number(w.available_balance).toLocaleString()}
               </span>
 
-              <span className="text-yellow-400">
+              <span className="text-yellow-400 w-1/3 text-right">
                 ${Number(w.pending_balance).toLocaleString()}
               </span>
             </div>
@@ -108,7 +115,9 @@ export default function WalletAdminPage() {
   )
 }
 
-/* COMPONENTE */
+/* =========================
+   COMPONENTE
+========================= */
 
 function Card({ title, value }: any) {
   return (
