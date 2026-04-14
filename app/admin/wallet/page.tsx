@@ -5,8 +5,7 @@ import { supabase } from "@/src/lib/supabase"
 
 type Wallet = {
   user_email: string
-  available_balance: number
-  pending_balance: number
+  balance: number
 }
 
 export default function WalletAdminPage() {
@@ -23,8 +22,8 @@ export default function WalletAdminPage() {
 
       const { data, error } = await supabase
         .from("wallets")
-        .select("user_email, available_balance, pending_balance")
-        .order("available_balance", { ascending: false })
+        .select("user_email, balance")
+        .order("balance", { ascending: false })
 
       if (error) {
         console.error("Wallet error:", error)
@@ -40,13 +39,8 @@ export default function WalletAdminPage() {
     }
   }
 
-  const totalAvailable = wallets.reduce(
-    (acc, w) => acc + Number(w.available_balance || 0),
-    0
-  )
-
-  const totalPending = wallets.reduce(
-    (acc, w) => acc + Number(w.pending_balance || 0),
+  const totalBalance = wallets.reduce(
+    (acc, w) => acc + Number(w.balance || 0),
     0
   )
 
@@ -63,19 +57,14 @@ export default function WalletAdminPage() {
           👛 Wallets
         </h1>
 
-        {/* =========================
-            RESUMEN GLOBAL
-        ========================= */}
-        <div className="grid md:grid-cols-2 gap-4">
+        {/* RESUMEN */}
+        <div className="grid md:grid-cols-1 gap-4">
 
-          <Card title="Total disponible" value={totalAvailable} />
-          <Card title="Total pendiente" value={totalPending} />
+          <Card title="Balance total plataforma" value={totalBalance} />
 
         </div>
 
-        {/* =========================
-            LISTADO
-        ========================= */}
+        {/* LISTADO */}
         <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
 
           <h2 className="font-semibold mb-4">
@@ -91,18 +80,12 @@ export default function WalletAdminPage() {
           {wallets.map((w, i) => (
             <div
               key={i}
-              className="flex justify-between items-center border-b border-slate-800 py-2 text-sm"
+              className="flex justify-between border-b border-slate-800 py-2 text-sm"
             >
-              <span className="w-1/3 truncate">
-                {w.user_email}
-              </span>
+              <span>{w.user_email}</span>
 
-              <span className="text-green-400 w-1/3 text-center">
-                ${Number(w.available_balance).toLocaleString()}
-              </span>
-
-              <span className="text-yellow-400 w-1/3 text-right">
-                ${Number(w.pending_balance).toLocaleString()}
+              <span className="text-green-400">
+                ${Number(w.balance).toLocaleString()}
               </span>
             </div>
           ))}
@@ -114,10 +97,6 @@ export default function WalletAdminPage() {
     </main>
   )
 }
-
-/* =========================
-   COMPONENTE
-========================= */
 
 function Card({ title, value }: any) {
   return (
