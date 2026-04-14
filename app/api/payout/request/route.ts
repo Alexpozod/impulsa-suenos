@@ -4,6 +4,8 @@ import { calculateCampaignBalance } from "@/lib/calculateCampaignBalance"
 import { logError, logInfo } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
+import { rateLimit } from "@/lib/security/rateLimit"
+import { sendNotification } from "@/lib/notifications/sendNotification"
 import crypto from "crypto"
 
 const supabase = createClient(
@@ -16,23 +18,21 @@ export async function POST(req: Request) {
     const { campaign_id, amount } = await req.json()
 
     if (!campaign_id || !amount) {
-      return NextResponse.json(
-        { error: "datos incompletos" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "datos incompletos" }, { status: 400 })
     }
 
-    /* =========================
-       🔐 AUTH
-    ========================= */
-    const authHeader = req.headers.get("authorization")
+    const numericAmount = Number(amount)
 
+    if (numericAmount <= 0) {
+      return NextResponse.json({ error: "invalid_amount" }, { status: 400 })
+    }
+
+    const authHeader = req.headers.get("authorization")
     if (!authHeader) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 })
     }
 
     const token = authHeader.replace("Bearer ", "")
-
     const { data: { user } } = await supabase.auth.getUser(token)
 
     if (!user?.email) {
@@ -41,27 +41,22 @@ export async function POST(req: Request) {
 
     const user_email = user.email.toLowerCase()
 
-    logInfo("Payout request iniciado", {
-      user_email,
-      campaign_id,
-      amount
-    })
+    const ip =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      ""
 
-    /* =========================
-       🔒 LOCK
-    ========================= */
-    const lockKey = crypto
-      .createHash("md5")
-      .update(campaign_id)
-      .digest("hex")
+    const rl = await rateLimit(user_email, "withdraw", ip)
 
-    await supabase.rpc("advisory_lock", {
-      lock_key: lockKey,
-    })
+    if (rl.blocked) {
+      return NextResponse.json({ error: rl.reason }, { status: 429 })
+    }
 
-    /* =========================
-       VALIDAR CAMPAÑA
-    ========================= */
+    logInfo("Payout request iniciado", { user_email, campaign_id, amount })
+
+    const lockKey = crypto.createHash("md5").update(campaign_id).digest("hex")
+    await supabase.rpc("advisory_lock", { lock_key: lockKey })
+
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("id, user_email")
@@ -69,22 +64,13 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!campaign) {
-      return NextResponse.json(
-        { error: "campaña no encontrada" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "campaña no encontrada" }, { status: 404 })
     }
 
     if (campaign.user_email !== user_email) {
-      return NextResponse.json(
-        { error: "no autorizado para esta campaña" },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "no autorizado" }, { status: 403 })
     }
 
-    /* =========================
-       🪪 VALIDAR KYC (CRÍTICO)
-    ========================= */
     const { data: kyc } = await supabase
       .from("kyc")
       .select("status")
@@ -92,31 +78,19 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!kyc || kyc.status !== "approved") {
-      return NextResponse.json(
-        { error: "Debes tener tu identidad verificada (KYC aprobado) para retirar fondos" },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "KYC requerido" }, { status: 403 })
     }
 
-    /* =========================
-       🏦 VALIDAR CUENTA BANCARIA (CRÍTICO)
-    ========================= */
-    const { data: bankAccounts } = await supabase
+    const { data: bank } = await supabase
       .from("bank_accounts")
       .select("id")
       .eq("user_email", user_email)
       .limit(1)
 
-    if (!bankAccounts || bankAccounts.length === 0) {
-      return NextResponse.json(
-        { error: "Debes agregar una cuenta bancaria antes de solicitar un retiro" },
-        { status: 400 }
-      )
+    if (!bank || bank.length === 0) {
+      return NextResponse.json({ error: "Agrega cuenta bancaria" }, { status: 400 })
     }
 
-    /* =========================
-       BLOQUEO DUPLICADO
-    ========================= */
     const { data: existing } = await supabase
       .from("payouts")
       .select("id")
@@ -131,42 +105,47 @@ export async function POST(req: Request) {
       )
     }
 
-    /* =========================
-       💰 BALANCE REAL
-    ========================= */
-    const wallet = await calculateCampaignBalance(
-      supabase,
-      campaign_id
-    )
+    const walletCalc = await calculateCampaignBalance(supabase, campaign_id)
 
-    if (!wallet || typeof wallet.available !== "number") {
-      await sendAlert({
-        title: "Error cálculo balance",
-        message: "No se pudo calcular balance en payout",
-        data: { campaign_id }
-      })
-
-      return NextResponse.json(
-        { error: "error calculando balance" },
-        { status: 500 }
-      )
+    if (!walletCalc || typeof walletCalc.available !== "number") {
+      return NextResponse.json({ error: "error balance" }, { status: 500 })
     }
 
-    if (Number(amount) > wallet.available) {
-      return NextResponse.json(
-        { error: "saldo insuficiente" },
-        { status: 400 }
-      )
+    if (numericAmount > walletCalc.available) {
+      return NextResponse.json({ error: "saldo insuficiente" }, { status: 400 })
     }
 
-    /* =========================
-       🧾 CREAR PAYOUT
-    ========================= */
+    const { data: wallet } = await supabase
+      .from("wallets")
+      .select("*")
+      .eq("user_email", user_email)
+      .maybeSingle()
+
+    if (wallet) {
+      if (numericAmount > Number(wallet.available_balance)) {
+        return NextResponse.json(
+          { error: "wallet_insufficient_balance" },
+          { status: 400 }
+        )
+      }
+
+      const { error: walletError } = await supabase
+        .from("wallets")
+        .update({
+          available_balance: Number(wallet.available_balance) - numericAmount,
+          pending_balance: Number(wallet.pending_balance || 0) + numericAmount
+        })
+        .eq("user_email", user_email)
+
+      if (walletError) throw walletError
+    }
+
     const { data, error } = await supabase
       .from("payouts")
       .insert({
         campaign_id,
-        amount,
+        user_email,
+        amount: numericAmount,
         status: "pending",
         created_at: new Date().toISOString()
       })
@@ -175,13 +154,10 @@ export async function POST(req: Request) {
 
     if (error) throw error
 
-    /* =========================
-       🔥 RESERVA FINANCIERA
-    ========================= */
     await supabase.from("financial_ledger").insert({
       campaign_id,
       user_email,
-      amount: -Math.abs(amount),
+      amount: -Math.abs(numericAmount),
       type: "withdraw_pending",
       flow_type: "out",
       payment_id: `pending_${data.id}`,
@@ -194,26 +170,27 @@ export async function POST(req: Request) {
       user_email
     })
 
-    logInfo("Payout creado", {
-      payout_id: data.id,
-      campaign_id,
-      amount
+    await sendNotification({
+      user_email,
+      type: "payout_requested",
+      title: "Retiro en revisión",
+      message: `Tu solicitud de retiro por $${numericAmount} fue enviada`,
+      metadata: { campaign_id, amount },
+      sendEmail: true
     })
 
     return NextResponse.json({
       ok: true,
-      message: "Tu retiro está en revisión y puede tardar entre 2 a 5 días hábiles.",
       payout: data
     })
 
   } catch (error) {
-
     logError("PAYOUT REQUEST ERROR", error)
     await logErrorToDB("payout_request_error", error)
 
     await sendAlert({
-      title: "Error solicitud payout",
-      message: "Fallo al solicitar retiro",
+      title: "Error payout",
+      message: "Fallo solicitud",
       data: { error }
     })
 

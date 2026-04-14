@@ -20,9 +20,6 @@ export default function WithdrawPage() {
 
   const [history, setHistory] = useState<any[]>([])
 
-  /* =========================
-     LOAD USER + DATA
-  ========================= */
   useEffect(() => {
     const load = async () => {
 
@@ -37,7 +34,6 @@ export default function WithdrawPage() {
 
       const email = data.user.email
 
-      // 📌 CAMPAÑAS
       const { data: campaignsData } = await supabase
         .from("campaigns")
         .select("id, title")
@@ -49,15 +45,11 @@ export default function WithdrawPage() {
         setSelectedCampaign(campaignsData[0].id)
       }
 
-      // 💰 BALANCES (DISPONIBLE + PENDING)
       const balancesMap: any = {}
 
       for (const c of campaignsData || []) {
         try {
-          const res = await fetch(
-            `/api/campaign-wallet?campaign_id=${c.id}`
-          )
-
+          const res = await fetch(`/api/campaign-wallet?campaign_id=${c.id}`)
           const data = await res.json()
 
           balancesMap[c.id] = {
@@ -66,32 +58,27 @@ export default function WithdrawPage() {
           }
 
         } catch {
-          balancesMap[c.id] = {
-            available: 0,
-            pending: 0
-          }
+          balancesMap[c.id] = { available: 0, pending: 0 }
         }
       }
 
       setBalances(balancesMap)
 
-      // 📊 HISTORIAL
-      const res = await fetch("/api/payout/list")
+      const { data: session } = await supabase.auth.getSession()
+
+      const res = await fetch("/api/payout/list", {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`
+        }
+      })
+
       const all = await res.json()
-
-      const userPayouts = all.filter(
-        (p: any) => p.owner === email
-      )
-
-      setHistory(userPayouts)
+      setHistory(all || [])
     }
 
     load()
   }, [router])
 
-  /* =========================
-     REQUEST WITHDRAW
-  ========================= */
   const handleWithdraw = async () => {
 
     setLoading(true)
@@ -124,19 +111,15 @@ export default function WithdrawPage() {
 
       setMessage("✅ Retiro solicitado correctamente")
       setAmount("")
-
       location.reload()
 
-    } catch (err) {
+    } catch {
       setMessage("Error inesperado")
     }
 
     setLoading(false)
   }
 
-  /* =========================
-     VALIDACIONES
-  ========================= */
   const currentBalance = balances[selectedCampaign]?.available || 0
   const pendingBalance = balances[selectedCampaign]?.pending || 0
 
@@ -152,14 +135,12 @@ export default function WithdrawPage() {
           💸 Retiros
         </h1>
 
-        {/* FORM */}
         <div className="bg-white p-6 rounded-2xl border mb-6">
 
           <h2 className="font-semibold mb-4">
             Solicitar retiro
           </h2>
 
-          {/* SELECT CAMPAÑA */}
           <select
             value={selectedCampaign}
             onChange={(e) => setSelectedCampaign(e.target.value)}
@@ -173,7 +154,6 @@ export default function WithdrawPage() {
             ))}
           </select>
 
-          {/* MONTO */}
           <input
             type="number"
             placeholder="Monto a retirar"
@@ -182,24 +162,16 @@ export default function WithdrawPage() {
             className="w-full border p-3 rounded-lg mb-2"
           />
 
-          {/* BALANCE */}
-          {selectedCampaign && (
-            <>
-              <p className="text-sm text-gray-500">
-                Disponible: $
-                {Number(currentBalance).toLocaleString()}
-              </p>
+          <p className="text-sm text-gray-500">
+            Disponible: ${Number(currentBalance).toLocaleString()}
+          </p>
 
-              {pendingBalance > 0 && (
-                <p className="text-xs text-yellow-600 mb-2">
-                  🔒 Retenido: $
-                  {Number(pendingBalance).toLocaleString()}
-                </p>
-              )}
-            </>
+          {pendingBalance > 0 && (
+            <p className="text-xs text-yellow-600 mb-2">
+              🔒 Retenido: ${Number(pendingBalance).toLocaleString()}
+            </p>
           )}
 
-          {/* ERROR */}
           {insufficient && (
             <p className="text-sm text-red-500 mb-2">
               ⚠️ El monto supera el saldo disponible
@@ -224,7 +196,6 @@ export default function WithdrawPage() {
 
         </div>
 
-        {/* HISTORIAL */}
         <div className="bg-white p-6 rounded-2xl border">
 
           <h2 className="font-semibold mb-4">
@@ -259,7 +230,7 @@ export default function WithdrawPage() {
                 </div>
 
                 <span className={`text-xs px-2 py-1 rounded ${
-                  p.status === 'approved'
+                  p.status === 'paid'
                     ? 'bg-green-100 text-green-700'
                     : p.status === 'pending'
                     ? 'bg-yellow-100 text-yellow-700'
