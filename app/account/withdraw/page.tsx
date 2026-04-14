@@ -64,11 +64,13 @@ export default function WithdrawPage() {
 
       setBalances(balancesMap)
 
-      const { data: session } = await supabase.auth.getSession()
+      // 🔥 FIX CORRECTO AQUÍ
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData?.session?.access_token
 
       const res = await fetch("/api/payout/list", {
         headers: {
-          Authorization: `Bearer ${session?.access_token}`
+          Authorization: `Bearer ${token}`
         }
       })
 
