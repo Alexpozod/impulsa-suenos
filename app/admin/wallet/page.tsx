@@ -5,9 +5,7 @@ import { supabase } from "@/src/lib/supabase"
 
 type Wallet = {
   user_email: string
-  available: number
-  pending: number
-  total: number
+  balance: number
 }
 
 export default function WalletAdminPage() {
@@ -24,7 +22,7 @@ export default function WalletAdminPage() {
 
       const { data: ledger, error } = await supabase
         .from("financial_ledger")
-        .select("user_email, amount, flow_type, status")
+        .select("user_email, amount, status")
 
       if (error) {
         console.error("Ledger error:", error)
@@ -36,43 +34,22 @@ export default function WalletAdminPage() {
       ledger?.forEach((l: any) => {
 
         if (!l.user_email) return
+        if (l.status !== "confirmed") return
 
         if (!map[l.user_email]) {
           map[l.user_email] = {
             user_email: l.user_email,
-            available: 0,
-            pending: 0,
-            total: 0
+            balance: 0
           }
         }
 
-        const amount = Number(l.amount || 0)
-
-        // 🔒 SOLO CONFIRMED → DISPONIBLE
-        if (l.status === "confirmed") {
-          if (l.flow_type === "in") {
-            map[l.user_email].available += amount
-          }
-          if (l.flow_type === "out") {
-            map[l.user_email].available -= Math.abs(amount)
-          }
-        }
-
-        // ⏳ PENDING → NO DISPONIBLE
-        if (l.status === "pending") {
-          if (l.flow_type === "in") {
-            map[l.user_email].pending += amount
-          }
-        }
-
-        // 🧮 TOTAL
-        map[l.user_email].total =
-          map[l.user_email].available + map[l.user_email].pending
+        // 🔥 CLAVE: amount ya viene con signo correcto
+        map[l.user_email].balance += Number(l.amount || 0)
 
       })
 
       const result = Object.values(map).sort(
-        (a, b) => b.total - a.total
+        (a, b) => b.balance - a.balance
       )
 
       setWallets(result)
@@ -84,18 +61,8 @@ export default function WalletAdminPage() {
     }
   }
 
-  const totalAvailable = wallets.reduce(
-    (acc, w) => acc + w.available,
-    0
-  )
-
-  const totalPending = wallets.reduce(
-    (acc, w) => acc + w.pending,
-    0
-  )
-
-  const totalPlatform = wallets.reduce(
-    (acc, w) => acc + w.total,
+  const totalBalance = wallets.reduce(
+    (acc, w) => acc + Number(w.balance || 0),
     0
   )
 
@@ -113,14 +80,10 @@ export default function WalletAdminPage() {
         </h1>
 
         {/* =========================
-            RESUMEN GLOBAL
+            RESUMEN
         ========================= */}
-        <div className="grid md:grid-cols-3 gap-4">
-
-          <Card title="Disponible" value={totalAvailable} color="green" />
-          <Card title="Pendiente" value={totalPending} color="yellow" />
-          <Card title="Total plataforma" value={totalPlatform} color="blue" />
-
+        <div className="grid md:grid-cols-1 gap-4">
+          <Card title="Balance total plataforma" value={totalBalance} />
         </div>
 
         {/* =========================
@@ -128,36 +91,26 @@ export default function WalletAdminPage() {
         ========================= */}
         <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
 
-          <div className="grid grid-cols-4 text-sm font-semibold mb-3 text-slate-400">
+          <div className="flex justify-between text-sm text-slate-400 mb-3">
             <span>Email</span>
-            <span className="text-center">Disponible</span>
-            <span className="text-center">Pendiente</span>
-            <span className="text-right">Total</span>
+            <span>Balance</span>
           </div>
 
           {wallets.length === 0 && (
             <p className="text-sm text-slate-400">
-              No hay movimientos financieros aún
+              No hay movimientos financieros
             </p>
           )}
 
           {wallets.map((w, i) => (
             <div
               key={i}
-              className="grid grid-cols-4 border-b border-slate-800 py-2 text-sm"
+              className="flex justify-between border-b border-slate-800 py-2 text-sm"
             >
               <span className="truncate">{w.user_email}</span>
 
-              <span className="text-green-400 text-center">
-                ${w.available.toLocaleString()}
-              </span>
-
-              <span className="text-yellow-400 text-center">
-                ${w.pending.toLocaleString()}
-              </span>
-
-              <span className="text-blue-400 text-right">
-                ${w.total.toLocaleString()}
+              <span className="text-green-400">
+                ${Number(w.balance).toLocaleString()}
               </span>
             </div>
           ))}
@@ -174,18 +127,11 @@ export default function WalletAdminPage() {
    COMPONENTE
 ========================= */
 
-function Card({ title, value, color }: any) {
-
-  const colors: any = {
-    green: "text-green-400",
-    yellow: "text-yellow-400",
-    blue: "text-blue-400"
-  }
-
+function Card({ title, value }: any) {
   return (
     <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
       <p className="text-sm text-slate-400">{title}</p>
-      <p className={`text-xl font-bold ${colors[color]}`}>
+      <p className="text-xl font-bold text-blue-400">
         ${Number(value || 0).toLocaleString()}
       </p>
     </div>
