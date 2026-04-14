@@ -43,7 +43,7 @@ export default function AdminLayout({ children }: any) {
         {/* DASHBOARD */}
         <div>
           <p className="text-xs text-slate-500 mb-2">Dashboard</p>
-          <Item href="/admin/dashboard" label="📊 Overview" />
+          <Item href="/admin" label="📊 Overview" />
         </div>
 
         {/* OPERACIONES */}
