@@ -43,13 +43,9 @@ export default function AdminLayout({ children }: any) {
         <div>
           <p className="text-xs text-slate-500 mb-2">Finanzas</p>
 
-          {/* 🔥 RUTA CORRECTA */}
           <Item href="/admin/finance" label="💰 Panel Financiero" />
-
           <Item href="/admin/wallet" label="👛 Wallets" />
-
           <Item href="/admin/payouts" label="🏦 Retiros" />
-
           <Item href="/admin/ledger" label="📒 Ledger" />
         </div>
 
@@ -74,6 +70,9 @@ export default function AdminLayout({ children }: any) {
           <Item href="/admin/events" label="📡 Eventos" />
           <Item href="/admin/audit" label="🧾 Auditoría" />
           <Item href="/admin/settings" label="⚙️ Configuración" />
+
+          {/* 🧠 NUEVO (NO ROMPE NADA) */}
+          <Item href="/admin/reconcile" label="🧠 Conciliación" />
         </div>
 
         {/* EXPORT */}

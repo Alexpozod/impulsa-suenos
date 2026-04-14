@@ -11,6 +11,7 @@ const supabase = createClient(
 
 export async function GET() {
   try {
+
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
@@ -23,6 +24,10 @@ export async function GET() {
       .from("payouts")
       .select("*")
 
+    const { data: wallets } = await supabase
+      .from("wallets")
+      .select("*")
+
     const issues: any[] = []
 
     const ledgerMap = new Map()
@@ -30,7 +35,7 @@ export async function GET() {
     const payoutLedgerSet = new Set()
 
     /* =========================
-       MAPS
+       MAPS EXISTENTES
     ========================= */
 
     for (const l of ledger || []) {
@@ -87,14 +92,55 @@ export async function GET() {
     }
 
     /* =========================
-       ALERTAS
+       🟣 NUEVO: BALANCE REAL (CRÍTICO)
+    ========================= */
+
+    const balanceMap: Record<string, number> = {}
+
+    for (const l of ledger || []) {
+
+      if (!l.user_email) continue
+
+      if (!balanceMap[l.user_email]) {
+        balanceMap[l.user_email] = 0
+      }
+
+      const amount = Number(l.amount || 0)
+
+      if (l.flow_type === "in") {
+        balanceMap[l.user_email] += amount
+      } else {
+        balanceMap[l.user_email] -= Math.abs(amount)
+      }
+    }
+
+    for (const w of wallets || []) {
+
+      const ledgerBalance = balanceMap[w.user_email] || 0
+      const walletBalance = Number(w.balance || 0)
+
+      const diff = ledgerBalance - walletBalance
+
+      if (Math.abs(diff) > 1) {
+        issues.push({
+          user_email: w.user_email,
+          issue_type: "wallet_mismatch",
+          ledger_balance: ledgerBalance,
+          wallet_balance: walletBalance,
+          diff
+        })
+      }
+    }
+
+    /* =========================
+       🚨 ALERTAS
     ========================= */
 
     if (issues.length > 0) {
       await sendAlert({
         title: "Problemas de conciliación",
         message: "Se detectaron inconsistencias críticas",
-        data: issues
+        data: issues.slice(0, 10)
       })
     }
 
@@ -105,6 +151,7 @@ export async function GET() {
     })
 
   } catch (error) {
+
     await sendAlert({
       title: "Error conciliación",
       message: "Fallo sistema",
