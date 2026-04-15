@@ -3,49 +3,27 @@ import { z } from "zod"
 import { createPayment } from "@/lib/payments/provider"
 import { createClient } from "@supabase/supabase-js"
 
-export const runtime = "nodejs"
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-/* =========================
-   VALIDACIÓN
-========================= */
-const paymentSchema = z.object({
-  amount: z.number().positive().min(100),
-  tip: z.number().min(0).optional(),
-  campaign_id: z.string().min(1),
+const schema = z.object({
+  amount: z.number().positive(),
+  tip: z.number().optional(),
+  campaign_id: z.string(),
   user_email: z.string().email(),
-  provider: z.enum(["mercadopago"]).optional()
+  message: z.string().max(300).optional()
 })
 
 export async function POST(req: Request) {
   try {
 
     const body = await req.json()
+    const parsed = schema.parse(body)
 
-    const parsed = paymentSchema.safeParse(body)
+    const { amount, tip = 0, campaign_id, user_email, message = "" } = parsed
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid input" },
-        { status: 400 }
-      )
-    }
-
-    const {
-      amount,
-      tip = 0,
-      campaign_id,
-      user_email,
-      provider = "mercadopago"
-    } = parsed.data
-
-    /* =========================
-       🔐 VALIDAR CAMPAÑA
-    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("id, status")
@@ -53,42 +31,20 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!campaign || campaign.status !== "active") {
-      return NextResponse.json(
-        { error: "Campaña inválida" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Campaña inválida" }, { status: 400 })
     }
 
-    /* =========================
-       💳 CREAR PAGO
-    ========================= */
     const result = await createPayment({
       amount,
       tip,
       campaign_id,
       user_email,
-      provider
+      message
     })
-
-    if (!result || typeof result !== "object") {
-      return NextResponse.json(
-        { error: "Invalid payment response" },
-        { status: 500 }
-      )
-    }
 
     return NextResponse.json(result)
 
   } catch (error: any) {
-
-    console.error("🔥 CREATE PAYMENT ERROR:", error)
-
-    return NextResponse.json(
-      {
-        error: "Error creando pago",
-        message: error?.message || "unknown"
-      },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
