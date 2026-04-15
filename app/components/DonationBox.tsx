@@ -36,7 +36,7 @@ export default function DonationBox({
 
   const donate = async () => {
 
-    console.log("CLICK DONAR") // 🔥 DEBUG CLAVE
+    console.log("CLICK DONAR")
 
     if (!amount || amount < 100) {
       alert("Monto mínimo $100")
@@ -44,8 +44,6 @@ export default function DonationBox({
     }
 
     if (!userEmail) {
-
-      console.log("Usuario no logueado")
 
       localStorage.setItem('donation_intent', JSON.stringify({
         campaign_id,
@@ -62,8 +60,6 @@ export default function DonationBox({
 
       setLoading(true)
 
-      console.log("Enviando request a create-payment")
-
       const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: {
@@ -74,7 +70,8 @@ export default function DonationBox({
           tip,
           campaign_id,
           user_email: userEmail,
-          message
+          message,
+          provider: "mercadopago" // 🔥 FIX CRÍTICO
         })
       })
 
@@ -86,32 +83,28 @@ export default function DonationBox({
 
       try {
         data = JSON.parse(text)
-      } catch (err) {
-        console.error("❌ RESPONSE NO ES JSON:", text)
+      } catch {
         alert("Error del servidor")
         return
       }
 
       if (!res.ok) {
-        console.error("❌ ERROR API:", data)
         alert(data?.error || "Error en el pago")
         return
       }
 
       const url = data?.init_point || data?.url
 
-      console.log("URL PAGO:", url)
-
       if (url) {
         window.location.href = url
       } else {
-        console.error("❌ NO URL:", data)
+        console.error("NO URL:", data)
         alert("No se pudo iniciar el pago")
       }
 
     } catch (error) {
 
-      console.error("❌ ERROR FETCH:", error)
+      console.error("ERROR FETCH:", error)
       alert("Error inesperado")
 
     } finally {
@@ -130,13 +123,12 @@ export default function DonationBox({
         ⚡ Cada aporte ayuda a lograr la meta más rápido
       </p>
 
-      {/* 💰 PRESETS */}
       <div className="grid grid-cols-4 gap-2">
         {presets.map(p => (
           <button
             key={p}
-            onClick={() => setAmount(p)}
             type="button"
+            onClick={() => setAmount(p)}
             className={`py-2 rounded-lg border text-sm ${
               amount === p
                 ? 'bg-green-600 text-white border-green-600'
@@ -148,7 +140,6 @@ export default function DonationBox({
         ))}
       </div>
 
-      {/* 💰 INPUT */}
       <input
         type="number"
         value={amount}
@@ -156,7 +147,6 @@ export default function DonationBox({
         className="w-full border p-2 rounded-lg"
       />
 
-      {/* 💬 MENSAJE */}
       <textarea
         placeholder="Deja un mensaje de apoyo (opcional)"
         value={message}
@@ -164,7 +154,6 @@ export default function DonationBox({
         className="w-full border p-3 rounded-lg text-sm"
       />
 
-      {/* 💚 TIP */}
       <div className="bg-gray-50 p-3 rounded-xl">
 
         <p className="text-sm font-semibold">
@@ -190,7 +179,6 @@ export default function DonationBox({
 
       </div>
 
-      {/* 💵 TOTAL */}
       <div className="text-center">
         <p className="text-sm text-gray-500">Total</p>
         <p className="text-2xl font-bold text-green-600">
@@ -198,7 +186,6 @@ export default function DonationBox({
         </p>
       </div>
 
-      {/* 🚀 BOTÓN */}
       <button
         onClick={donate}
         disabled={loading}
