@@ -4,11 +4,15 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
 
-export default function DonationBox({ campaign_id }: { campaign_id: string }) {
+export default function DonationBox({
+  campaign_id
+}: {
+  campaign_id: string
+}) {
 
   const [amount, setAmount] = useState(5000)
   const [tip, setTip] = useState(0)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
@@ -20,33 +24,51 @@ export default function DonationBox({ campaign_id }: { campaign_id: string }) {
   }, [])
 
   const loadUser = async () => {
-    const { data } = await supabase.auth.getSession()
-    setUserEmail(data.session?.user?.email || null)
+    try {
+      const { data } = await supabase.auth.getSession()
+      setUserEmail(data.session?.user?.email || null)
+    } catch (err) {
+      console.error("Error loading user:", err)
+    }
   }
 
   const total = amount + tip
 
   const donate = async () => {
 
-    if (!amount || amount < 100) return
+    console.log("CLICK DONAR") // 🔥 DEBUG CLAVE
+
+    if (!amount || amount < 100) {
+      alert("Monto mínimo $100")
+      return
+    }
 
     if (!userEmail) {
+
+      console.log("Usuario no logueado")
+
       localStorage.setItem('donation_intent', JSON.stringify({
         campaign_id,
         amount,
         tip,
         message
       }))
+
       router.push(`/login?redirect=/campaign/${campaign_id}`)
       return
     }
 
     try {
+
       setLoading(true)
+
+      console.log("Enviando request a create-payment")
 
       const res = await fetch('/api/create-payment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           amount,
           tip,
@@ -56,19 +78,42 @@ export default function DonationBox({ campaign_id }: { campaign_id: string }) {
         })
       })
 
-      const data = await res.json()
+      const text = await res.text()
+
+      console.log("RESPONSE RAW:", text)
+
+      let data: any = {}
+
+      try {
+        data = JSON.parse(text)
+      } catch (err) {
+        console.error("❌ RESPONSE NO ES JSON:", text)
+        alert("Error del servidor")
+        return
+      }
 
       if (!res.ok) {
+        console.error("❌ ERROR API:", data)
         alert(data?.error || "Error en el pago")
         return
       }
 
-      if (data?.init_point) {
-        window.location.href = data.init_point
+      const url = data?.init_point || data?.url
+
+      console.log("URL PAGO:", url)
+
+      if (url) {
+        window.location.href = url
+      } else {
+        console.error("❌ NO URL:", data)
+        alert("No se pudo iniciar el pago")
       }
 
-    } catch {
+    } catch (error) {
+
+      console.error("❌ ERROR FETCH:", error)
       alert("Error inesperado")
+
     } finally {
       setLoading(false)
     }
@@ -77,13 +122,21 @@ export default function DonationBox({ campaign_id }: { campaign_id: string }) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow border space-y-5">
 
-      <h3 className="font-bold text-lg">💖 Apoya esta causa</h3>
+      <h3 className="font-bold text-lg">
+        💖 Apoya esta causa
+      </h3>
 
+      <p className="text-xs text-orange-600 text-center font-semibold">
+        ⚡ Cada aporte ayuda a lograr la meta más rápido
+      </p>
+
+      {/* 💰 PRESETS */}
       <div className="grid grid-cols-4 gap-2">
         {presets.map(p => (
           <button
             key={p}
             onClick={() => setAmount(p)}
+            type="button"
             className={`py-2 rounded-lg border text-sm ${
               amount === p
                 ? 'bg-green-600 text-white border-green-600'
@@ -95,6 +148,7 @@ export default function DonationBox({ campaign_id }: { campaign_id: string }) {
         ))}
       </div>
 
+      {/* 💰 INPUT */}
       <input
         type="number"
         value={amount}
@@ -104,20 +158,24 @@ export default function DonationBox({ campaign_id }: { campaign_id: string }) {
 
       {/* 💬 MENSAJE */}
       <textarea
-        placeholder="Escribe un mensaje de apoyo (opcional)"
+        placeholder="Deja un mensaje de apoyo (opcional)"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        className="w-full border p-2 rounded-lg text-sm"
-        rows={3}
+        className="w-full border p-3 rounded-lg text-sm"
       />
 
+      {/* 💚 TIP */}
       <div className="bg-gray-50 p-3 rounded-xl">
-        <p className="text-sm font-semibold">💚 Apoya ImpulsaSueños</p>
+
+        <p className="text-sm font-semibold">
+          💚 Apoya ImpulsaSueños (opcional)
+        </p>
 
         <div className="flex gap-2 mt-2">
           {[0, 500, 1000, 2000].map((t) => (
             <button
               key={t}
+              type="button"
               onClick={() => setTip(t)}
               className={`px-3 py-1 rounded border text-sm ${
                 tip === t
@@ -129,8 +187,10 @@ export default function DonationBox({ campaign_id }: { campaign_id: string }) {
             </button>
           ))}
         </div>
+
       </div>
 
+      {/* 💵 TOTAL */}
       <div className="text-center">
         <p className="text-sm text-gray-500">Total</p>
         <p className="text-2xl font-bold text-green-600">
@@ -138,10 +198,12 @@ export default function DonationBox({ campaign_id }: { campaign_id: string }) {
         </p>
       </div>
 
+      {/* 🚀 BOTÓN */}
       <button
         onClick={donate}
         disabled={loading}
-        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold"
+        type="button"
+        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition"
       >
         {loading ? "Procesando..." : "🚀 Donar"}
       </button>
