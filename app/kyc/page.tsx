@@ -71,7 +71,7 @@ export default function KYCPage() {
     formData.append("bucket", "kyc-documents")
     formData.append("path", filePath)
 
-    const res = await fetch("/api/storage/upload", {
+    const res = await fetch("/api/upload", {
       method: "POST",
       body: formData,
     })
