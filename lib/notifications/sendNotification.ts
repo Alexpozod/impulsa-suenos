@@ -41,17 +41,46 @@ export async function sendNotification({
     })
 
     /* =========================
-       📧 EMAIL OPCIONAL
+       📧 EMAIL SEGÚN TIPO
     ========================= */
     if (sendEmail) {
 
       try {
 
-        await sendDonationEmail({
-          to: user_email,
-          campaign: title,
-          amount: metadata?.amount || 0
-        })
+        // 💖 DONACIÓN (NO TOCAR)
+        if (type === "donation") {
+          await sendDonationEmail({
+            to: user_email,
+            campaign: title,
+            amount: metadata?.amount || 0
+          })
+        }
+
+        // ✅ KYC APROBADO
+        else if (type === "kyc_approved") {
+          await sendSimpleEmail({
+            to: user_email,
+            subject: "✅ Verificación aprobada",
+            html: `
+              <h2>Tu identidad fue verificada</h2>
+              <p>Ya puedes crear campañas y retirar fondos.</p>
+              <br/>
+              <p>Gracias por confiar en ImpulsaSueños 💚</p>
+            `
+          })
+        }
+
+        // ❌ KYC RECHAZADO
+        else if (type === "kyc_rejected") {
+          await sendSimpleEmail({
+            to: user_email,
+            subject: "❌ Verificación rechazada",
+            html: `
+              <h2>Tu verificación fue rechazada</h2>
+              <p>Revisa los documentos enviados y vuelve a intentarlo.</p>
+            `
+          })
+        }
 
       } catch (err) {
 
@@ -75,5 +104,35 @@ export async function sendNotification({
       metadata: { error }
     })
 
+  }
+}
+
+/* =========================
+   📧 EMAIL SIMPLE (NUEVO)
+========================= */
+async function sendSimpleEmail({
+  to,
+  subject,
+  html
+}: {
+  to: string
+  subject: string
+  html: string
+}) {
+
+  // ⚠️ reutiliza tu sistema actual de envío
+  // si ya tienes sendEmail general, usa ese
+
+  const res = await fetch("/api/send-email", {
+    method: "POST",
+    body: JSON.stringify({
+      to,
+      subject,
+      html
+    })
+  })
+
+  if (!res.ok) {
+    throw new Error("email failed")
   }
 }
