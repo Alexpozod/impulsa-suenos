@@ -23,6 +23,7 @@ export async function POST(req: Request) {
       description,
       goal_amount,
       image_url,
+      images,
       category
     } = body
 
@@ -64,7 +65,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Debes completar KYC" }, { status: 403 })
     }
 
-    // ✅ INSERT LIMPIO (SIN TICKETS)
+    // 🧠 NORMALIZAR IMÁGENES
+    const safeImages = Array.isArray(images) ? images : []
+
+    // ✅ INSERT CORRECTO (CON IMÁGENES)
     const { data: campaign, error } = await supabaseAdmin
       .from("campaigns")
       .insert({
@@ -72,9 +76,11 @@ export async function POST(req: Request) {
         description,
         goal_amount,
         user_email,
-        image_url: image_url || null,
+        image_url: image_url || safeImages[0] || null,
+        images: safeImages,
         category,
         status: "active",
+        type: "crowdfunding", // 🔥 elimina raffle
         created_at: new Date().toISOString()
       })
       .select()
@@ -88,7 +94,8 @@ export async function POST(req: Request) {
     await logToDB("info", "campaign_created", {
       campaign_id: campaign.id,
       user_email,
-      category
+      category,
+      images_count: safeImages.length
     })
 
     return NextResponse.json({ ok: true, campaign })
