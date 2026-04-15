@@ -62,13 +62,28 @@ export async function POST(req: Request) {
     const amount = Number(payment.transaction_amount || 0)
     const tip = Number(payment.metadata?.tip || 0)
 
-    // 🔥 NUEVO: mensaje del usuario
+    // 🔥 MENSAJE DEL USUARIO
     const message = payment.metadata?.message || ""
 
     if (!campaign_id || !user_email) {
       return NextResponse.json({ ok: true })
     }
 
+    /* =========================
+       💾 GUARDAR EN payment_logs (🔥 NUEVO)
+    ========================= */
+    await supabase.from("payment_logs").insert({
+      payment_id: paymentId,
+      campaign_id,
+      status: "approved",
+      message,
+      payload: payment,
+      created_at: new Date().toISOString()
+    })
+
+    /* =========================
+       💰 LEDGER (NO TOCADO)
+    ========================= */
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -77,8 +92,8 @@ export async function POST(req: Request) {
       p_fee_mp: 0,
       p_platform_fee: Math.round(300 * 1.19),
       p_provider: "mercadopago",
-      p_tip: tip,
-      p_message: message // 🔥 IMPORTANTE
+      p_tip: tip
+      // ⚠️ NO agregamos p_message porque tu RPC real no lo usa
     })
 
     if (!error) {
@@ -99,7 +114,7 @@ export async function POST(req: Request) {
         type: "donation_received",
         title: "Donación confirmada",
         message: `Tu donación de $${amount} fue procesada correctamente`,
-        metadata: { campaign_id, amount, message }, // 🔥 incluir message
+        metadata: { campaign_id, amount, message },
         sendEmail: true
       })
     }
