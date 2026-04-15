@@ -10,14 +10,25 @@ export async function POST(req: Request) {
   try {
 
     const formData = await req.formData()
+
     const file = formData.get("file") as File
+    const bucket = formData.get("bucket") as string
+    const path = formData.get("path") as string
 
     if (!file) {
       return NextResponse.json({ error: "file requerido" }, { status: 400 })
     }
 
+    if (!bucket) {
+      return NextResponse.json({ error: "bucket requerido" }, { status: 400 })
+    }
+
+    if (!path) {
+      return NextResponse.json({ error: "path requerido" }, { status: 400 })
+    }
+
     /* =========================
-       🧠 VALIDACIONES
+       VALIDACIONES
     ========================= */
     if (!file.type.startsWith("image/")) {
       return NextResponse.json({ error: "solo imágenes" }, { status: 400 })
@@ -28,24 +39,33 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📦 SUBIR A STORAGE
+       CONVERTIR FILE → BUFFER
     ========================= */
-    const fileName = `${Date.now()}-${file.name.replace(/\s/g, "_")}`
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
 
+    /* =========================
+       SUBIR A STORAGE (DINÁMICO)
+    ========================= */
     const { error } = await supabase.storage
-      .from("campaign-images")
-      .upload(fileName, file)
+      .from(bucket)
+      .upload(path, buffer, {
+        contentType: file.type,
+        upsert: true
+      })
 
     if (error) {
+      console.error("UPLOAD ERROR:", error)
       return NextResponse.json({ error: "upload error" }, { status: 500 })
     }
 
     const { data } = supabase.storage
-      .from("campaign-images")
-      .getPublicUrl(fileName)
+      .from(bucket)
+      .getPublicUrl(path)
 
     return NextResponse.json({
-      url: data.publicUrl
+      url: data.publicUrl,
+      path
     })
 
   } catch (error) {
