@@ -59,14 +59,15 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔔 NOTIFICACIONES
+       🔔 NOTIFICACIONES USUARIO
     ========================= */
     if (status === "approved") {
       await sendNotification({
         user_email,
         type: "kyc_approved",
-        title: "Verificación aprobada",
-        message: "Tu identidad fue verificada correctamente",
+        title: "KYC aprobado",
+        message: "Tu identidad fue verificada. Ya puedes crear campañas y retirar fondos.",
+        metadata: { status },
         sendEmail: true
       })
     }
@@ -75,9 +76,24 @@ export async function POST(req: Request) {
       await sendNotification({
         user_email,
         type: "kyc_rejected",
-        title: "Verificación rechazada",
-        message: "Tu verificación fue rechazada, revisa los documentos enviados",
+        title: "KYC rechazado",
+        message: "Tu verificación fue rechazada. Revisa los documentos y vuelve a intentarlo.",
+        metadata: { status },
         sendEmail: true
+      })
+    }
+
+    /* =========================
+       👑 NOTIFICACIÓN ADMIN (OPCIONAL)
+    ========================= */
+    if (status === "pending") {
+      await sendNotification({
+        user_email: "admin@impulsasuenos.com",
+        type: "kyc_submitted",
+        title: "Nuevo KYC pendiente",
+        message: `El usuario ${user_email} envió verificación`,
+        metadata: { user_email },
+        sendEmail: false
       })
     }
 
@@ -87,6 +103,8 @@ export async function POST(req: Request) {
     })
 
   } catch (err) {
+
+    console.error("KYC ADMIN ERROR:", err)
 
     return NextResponse.json(
       { error: "server error" },
