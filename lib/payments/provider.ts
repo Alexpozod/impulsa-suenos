@@ -1,8 +1,5 @@
 import { MercadoPagoConfig, Preference } from "mercadopago"
 
-/* =========================
-   🔌 MERCADOPAGO CONFIG
-========================= */
 const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN
 
 if (!accessToken) {
@@ -10,22 +7,18 @@ if (!accessToken) {
 }
 
 const mpClient = accessToken
-  ? new MercadoPagoConfig({
-      accessToken,
-    })
+  ? new MercadoPagoConfig({ accessToken })
   : null
 
 const mpPreference = mpClient ? new Preference(mpClient) : null
 
-/* =========================
-   🎯 MAIN ENTRY
-========================= */
 export async function createPayment({
   amount,
-  tip = 0, // 🔥 CAMBIO
+  tip = 0,
   campaign_id,
   user_email,
   provider,
+  message // 🔥 NUEVO
 }: any) {
 
   switch (provider) {
@@ -36,6 +29,7 @@ export async function createPayment({
         tip,
         campaign_id,
         user_email,
+        message // 🔥 PASAMOS
       })
 
     default:
@@ -45,28 +39,22 @@ export async function createPayment({
   }
 }
 
-/* =========================
-   💳 MERCADOPAGO
-========================= */
 async function createMercadoPagoPayment({
   amount,
   tip = 0,
   campaign_id,
   user_email,
+  message // 🔥 NUEVO
 }: any) {
 
   if (!mpPreference) {
-    return {
-      error: "MercadoPago no configurado"
-    }
+    return { error: "MercadoPago no configurado" }
   }
 
   try {
 
-    // 🔥 FIX CRÍTICO
     const safeAmount = Number(amount) || 0
     const safeTip = Number(tip) || 0
-
     const total = safeAmount + safeTip
 
     if (total <= 0) {
@@ -76,13 +64,8 @@ async function createMercadoPagoPayment({
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 
     if (!baseUrl) {
-      return {
-        error: "BASE URL no definida"
-      }
+      return { error: "BASE URL no definida" }
     }
-
-    console.log("💰 MP TOTAL:", total)
-    console.log("WEBHOOK URL:", `${baseUrl}/api/webhook`)
 
     const preference = await mpPreference.create({
       body: {
@@ -91,7 +74,7 @@ async function createMercadoPagoPayment({
             id: "donation",
             title: "Donación ImpulsaSueños",
             quantity: 1,
-            unit_price: total, // ✅ ahora SIEMPRE number
+            unit_price: total,
           },
         ],
 
@@ -99,7 +82,8 @@ async function createMercadoPagoPayment({
           campaign_id,
           user_email,
           amount: safeAmount,
-          tip: safeTip, // 🔥 IMPORTANTE (ANTES ERA platform_tip)
+          tip: safeTip,
+          message // 🔥 CLAVE FINAL
         },
 
         external_reference: campaign_id,
@@ -118,10 +102,11 @@ async function createMercadoPagoPayment({
 
     return {
       id: preference.id,
-      init_point: preference.init_point // 🔥 importante
+      init_point: preference.init_point
     }
 
   } catch (error) {
+
     console.error("❌ MERCADOPAGO ERROR:", error)
 
     return {
