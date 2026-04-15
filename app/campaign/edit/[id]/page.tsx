@@ -15,50 +15,70 @@ export default function EditCampaign() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    load()
-  }, [])
+    if (id) load()
+  }, [id])
 
   const load = async () => {
-    const res = await fetch(`/api/campaign/${id}`)
-    const data = await res.json()
-    setCampaign(data)
+    try {
+      const res = await fetch(`/api/campaign/${id}`)
+      const data = await res.json()
+      setCampaign(data)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const save = async () => {
 
     setLoading(true)
 
-    let imageUrls: string[] = campaign.images || []
+    try {
 
-    for (const img of images) {
-      const fileName = `campaigns/${Date.now()}-${img.name}`
+      // 🧠 mantener imágenes existentes sin duplicar
+      let imageUrls: string[] = Array.isArray(campaign.images)
+        ? [...campaign.images]
+        : campaign.image_url
+          ? [campaign.image_url]
+          : []
 
-      const upload = await supabase.storage
-        .from('campaign-images')
-        .upload(fileName, img)
+      for (const img of images) {
 
-      if (!upload.error) {
-        const url = supabase.storage
+        const cleanName = img.name.replace(/\s/g, "_")
+        const fileName = `campaigns/${Date.now()}-${cleanName}`
+
+        const upload = await supabase.storage
           .from('campaign-images')
-          .getPublicUrl(fileName)
+          .upload(fileName, img)
 
-        if (url.data.publicUrl) {
-          imageUrls.push(url.data.publicUrl)
+        if (!upload.error) {
+
+          const { data } = supabase.storage
+            .from('campaign-images')
+            .getPublicUrl(fileName)
+
+          if (data.publicUrl && !imageUrls.includes(data.publicUrl)) {
+            imageUrls.push(data.publicUrl)
+          }
         }
       }
+
+      await fetch(`/api/campaign/update`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          images: imageUrls,
+          image_url: imageUrls[0] || null
+        })
+      })
+
+      router.push(`/campaign/${id}`)
+
+    } catch (error) {
+      console.error(error)
     }
 
-    await fetch(`/api/campaign/update`, {
-      method: 'POST',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id,
-        images: imageUrls,
-        image_url: imageUrls[0]
-      })
-    })
-
-    router.push(`/campaign/${id}`)
+    setLoading(false)
   }
 
   if (!campaign) return <div className="p-10">Cargando...</div>

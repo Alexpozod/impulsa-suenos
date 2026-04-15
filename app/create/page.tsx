@@ -14,7 +14,6 @@ export default function CreateCampaign() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [goal, setGoal] = useState('')
-  const [tickets, setTickets] = useState('')
   const [category, setCategory] = useState('general')
 
   const [images, setImages] = useState<File[]>([])
@@ -62,9 +61,6 @@ export default function CreateCampaign() {
     checkAccess()
   }, [router])
 
-  /* =========================
-     🚀 CREAR CAMPAÑA
-  ========================= */
   const createCampaign = async () => {
 
     setLoading(true)
@@ -112,7 +108,6 @@ export default function CreateCampaign() {
           title,
           description,
           goal_amount: Number(goal),
-          total_tickets: Number(tickets),
           image_url: imageUrls[0] || null,
           images: imageUrls,
           category
@@ -187,15 +182,6 @@ export default function CreateCampaign() {
           onChange={(e) => setGoal(e.target.value)}
         />
 
-        <input
-          type="number"
-          placeholder="Tickets"
-          className="w-full border p-3 rounded-lg"
-          value={tickets}
-          onChange={(e) => setTickets(e.target.value)}
-        />
-
-        {/* 🔥 UPLOADER PRO */}
         <ImageUploader images={images} setImages={setImages} />
 
         <button
