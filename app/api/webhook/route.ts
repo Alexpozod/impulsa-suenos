@@ -18,7 +18,6 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-
     const url = new URL(req.url)
 
     let paymentId =
@@ -35,15 +34,26 @@ export async function POST(req: Request) {
     if (!paymentId) return NextResponse.json({ ok: true })
 
     /* =========================
-       🔒 ID EMPOTENTE
+       🧾 LOG INICIAL
+    ========================= */
+    await supabase.from("webhook_logs").insert({
+      payment_id: paymentId,
+      payload: { received: true },
+      status: "received"
+    })
+
+    /* =========================
+       🔒 IDEMPOTENCIA CORRECTA
     ========================= */
     const { data: exists } = await supabase
-      .from("financial_ledger")
-      .select("id")
+      .from("payments")
+      .select("id, status")
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-    if (exists) return NextResponse.json({ ok: true })
+    if (exists && exists.status === "approved") {
+      return NextResponse.json({ ok: true })
+    }
 
     /* =========================
        💳 GET PAYMENT
@@ -52,7 +62,8 @@ export async function POST(req: Request) {
 
     try {
       payment = await paymentClient.get({ id: paymentId })
-    } catch {
+    } catch (error) {
+      console.error("MP FETCH ERROR:", error)
       return NextResponse.json({ ok: true })
     }
 
@@ -73,13 +84,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       🧠 METADATA NORMALIZADA
-    ========================= */
     const metadata = {
       message,
       tip,
       gross
+    }
+
+    /* =========================
+       📝 REGISTRO PREVIO (SI NO EXISTE)
+    ========================= */
+    if (!exists) {
+      await supabase.from("payments").insert({
+        payment_id: paymentId,
+        campaign_id,
+        user_email,
+        amount: gross,
+        tip,
+        status: "processing",
+        metadata
+      })
     }
 
     /* =========================
@@ -96,11 +119,37 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error("RPC ERROR:", error)
+
+      await supabase
+        .from("payments")
+        .update({ status: "failed" })
+        .eq("payment_id", paymentId)
+
+      await sendAlert({
+        title: "Error en RPC",
+        message: "Fallo process_payment_atomic",
+        data: { paymentId, error }
+      })
+
+      await supabase.from("webhook_logs").insert({
+        payment_id: paymentId,
+        payload: { error },
+        status: "failed"
+      })
+
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       🔔 NOTIFICACIÓN (UNA SOLA VEZ)
+       ✅ ACTUALIZAR ESTADO FINAL
+    ========================= */
+    await supabase
+      .from("payments")
+      .update({ status: "approved" })
+      .eq("payment_id", paymentId)
+
+    /* =========================
+       🔔 NOTIFICACIÓN
     ========================= */
     await sendNotification({
       user_email,
@@ -111,10 +160,18 @@ export async function POST(req: Request) {
       sendEmail: true
     })
 
+    /* =========================
+       🧾 LOG FINAL
+    ========================= */
+    await supabase.from("webhook_logs").insert({
+      payment_id: paymentId,
+      payload: { success: true },
+      status: "approved"
+    })
+
     return NextResponse.json({ ok: true })
 
   } catch (error) {
-
     console.error("WEBHOOK ERROR:", error)
 
     await sendAlert({
