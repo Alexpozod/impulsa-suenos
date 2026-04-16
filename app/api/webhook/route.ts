@@ -68,26 +68,16 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
-
     const user_email =
       payment.metadata?.user_email ||
-      payment.payer?.email ||
-      `donador_${paymentId}@anon.com`
+      payment.payer?.email
 
     const grossRaw = Number(payment.transaction_amount || 0)
     const tipRaw = Number(payment.metadata?.tip || 0)
 
     const gross = Math.max(grossRaw, 0)
     const tip = Math.min(Math.max(tipRaw, 0), gross)
-
-    /* =========================
-       💸 COMISIONES
-    ========================= */
-    const mpFee = Math.round(gross * 0.0349)
-    const platformFee = Math.round(300 * 1.19)
-    const totalFees = mpFee + platformFee
-
-    const net = gross - totalFees
+    const net = gross - tip
 
     const message = payment.metadata?.message || ""
 
@@ -95,8 +85,6 @@ export async function POST(req: Request) {
       paymentId,
       gross,
       tip,
-      mpFee,
-      platformFee,
       net
     })
 
@@ -107,12 +95,7 @@ export async function POST(req: Request) {
     const metadata = {
       message,
       tip,
-      gross,
-      mp_fee: mpFee,
-      platform_fee: platformFee,
-      total_fees: totalFees,
-      net,
-      amount: net
+      gross
     }
 
     /* =========================
@@ -167,46 +150,6 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💸 REGISTRAR COMISIONES (FIX FINAL)
-    ========================= */
-    const { data: feeExists } = await supabase
-      .from("financial_ledger")
-      .select("id")
-      .eq("payment_id", paymentId)
-      .in("type", ["fee_mp", "fee_platform"])
-      .limit(1)
-
-    if (!feeExists || feeExists.length === 0) {
-
-      const { error: feeError } = await supabase
-        .from("financial_ledger")
-        .insert([
-          {
-            campaign_id,
-            user_email: "platform",
-            amount: -mpFee,
-            type: "fee_mp",
-            status: "confirmed",
-            flow_type: "out",
-            payment_id: paymentId
-          },
-          {
-            campaign_id,
-            user_email: "platform",
-            amount: -platformFee,
-            type: "fee_platform",
-            status: "confirmed",
-            flow_type: "out",
-            payment_id: paymentId
-          }
-        ])
-
-      if (feeError) {
-        console.error("❌ ERROR INSERT FEES:", feeError)
-      }
-    }
-
-    /* =========================
        ✅ ACTUALIZAR ESTADO
     ========================= */
     await supabase
@@ -215,13 +158,13 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
 
     /* =========================
-       🔔 NOTIFICACIÓN ATÓMICA
+       🔔 NOTIFICACIÓN ATÓMICA (FIX FINAL)
     ========================= */
     const { data: updated } = await supabase
       .from("payments")
       .update({ notified: true })
       .eq("payment_id", paymentId)
-      .eq("notified", false)
+      .eq("notified", false) // 🔒 CLAVE ANTI DUPLICADOS
       .select()
       .maybeSingle()
 
