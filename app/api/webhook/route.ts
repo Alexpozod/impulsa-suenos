@@ -35,13 +35,12 @@ export async function POST(req: Request) {
     if (!paymentId) return NextResponse.json({ ok: true })
 
     /* =========================
-       🔒 IDPOTENCIA REAL
+       🔒 EVITAR DUPLICADOS
     ========================= */
     const { data: existing } = await supabase
       .from("financial_ledger")
       .select("id")
       .eq("payment_id", paymentId)
-      .eq("type", "payment")
       .maybeSingle()
 
     if (existing) {
@@ -49,9 +48,15 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 PAYMENT
+       💳 PAYMENT
     ========================= */
-    const payment = await paymentClient.get({ id: paymentId })
+    let payment
+
+    try {
+      payment = await paymentClient.get({ id: paymentId })
+    } catch {
+      return NextResponse.json({ ok: true })
+    }
 
     if (!payment || payment.status !== "approved") {
       return NextResponse.json({ ok: true })
@@ -73,21 +78,29 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💾 LOG (SIN DUPLICADOS)
+       🧠 METADATA NORMALIZADA
     ========================= */
-    await supabase
-      .from("payment_logs")
-      .upsert({
-        payment_id: paymentId,
-        campaign_id,
-        status: "approved",
-        message,
-        payload: payment,
-        created_at: new Date().toISOString()
-      }, { onConflict: "payment_id" })
+    const cleanMetadata = {
+      message: message || "",
+      tip,
+      gross,
+      donation: donationAmount
+    }
 
     /* =========================
-       💰 DONACIÓN (CON MESSAGE)
+       💾 LOG
+    ========================= */
+    await supabase.from("payment_logs").insert({
+      payment_id: paymentId,
+      campaign_id,
+      status: "approved",
+      message,
+      payload: payment,
+      created_at: new Date().toISOString()
+    })
+
+    /* =========================
+       💰 DONACIÓN
     ========================= */
     await supabase.from("financial_ledger").insert({
       campaign_id,
@@ -99,11 +112,7 @@ export async function POST(req: Request) {
       flow_type: "in",
       payment_id: paymentId,
       provider: "mercadopago",
-      metadata: {
-        message,
-        original_amount: gross,
-        tip
-      },
+      metadata: cleanMetadata,
       created_at: new Date().toISOString()
     })
 
@@ -121,52 +130,13 @@ export async function POST(req: Request) {
         flow_type: "in",
         payment_id: paymentId,
         provider: "mercadopago",
+        metadata: { type: "tip" },
         created_at: new Date().toISOString()
       })
     }
 
     /* =========================
-       💸 FEE MP
-    ========================= */
-    const mpFee = payment.transaction_details?.net_received_amount
-      ? gross - payment.transaction_details.net_received_amount
-      : 0
-
-    if (mpFee > 0) {
-      await supabase.from("financial_ledger").insert({
-        campaign_id,
-        user_email: "system",
-        amount: -Math.abs(mpFee),
-        currency: "CLP",
-        type: "fee_mp",
-        status: "confirmed",
-        flow_type: "out",
-        payment_id: paymentId,
-        provider: "mercadopago",
-        created_at: new Date().toISOString()
-      })
-    }
-
-    /* =========================
-       💸 FEE PLATAFORMA
-    ========================= */
-    const platformFee = Math.round(300 * 1.19)
-
-    await supabase.from("financial_ledger").insert({
-      campaign_id,
-      user_email: "platform",
-      amount: -platformFee,
-      currency: "CLP",
-      type: "fee_platform",
-      status: "confirmed",
-      flow_type: "out",
-      payment_id: paymentId,
-      provider: "system",
-      created_at: new Date().toISOString()
-    })
-
-    /* =========================
-       📈 CAMPAIGN
+       📈 CAMPAÑA
     ========================= */
     await supabase.rpc("increment_campaign_amount", {
       campaign_id_input: campaign_id,
@@ -174,7 +144,7 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       💰 WALLET (SUMATORIA)
+       💰 WALLET
     ========================= */
     await supabase.rpc("update_wallet_after_payment", {
       p_user_email: user_email,
@@ -189,11 +159,7 @@ export async function POST(req: Request) {
       type: "donation",
       title: "Donación recibida",
       message: `Recibiste $${donationAmount}`,
-      metadata: {
-        campaign_id,
-        amount: donationAmount,
-        message
-      },
+      metadata: cleanMetadata,
       sendEmail: true
     })
 
