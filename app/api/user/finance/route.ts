@@ -127,7 +127,7 @@ export async function GET(req: Request) {
         fees,
         withdrawn,
         pending,
-        available: balance - pending // ✅ FIX CLAVE (sin duplicar)
+        available: balance // ✅ FIX CLAVE (sin duplicar)
       }
     })
 
