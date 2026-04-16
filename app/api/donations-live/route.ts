@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
+export const runtime = "nodejs"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -8,12 +10,21 @@ const supabase = createClient(
 
 export async function GET(req: Request) {
   try {
+
     const { searchParams } = new URL(req.url)
     const campaign_id = searchParams.get("campaign_id")
 
     let query = supabase
       .from("financial_ledger")
-      .select("id, amount, created_at, campaign_id")
+      .select(`
+        id,
+        amount,
+        created_at,
+        campaign_id,
+        user_email,
+        metadata,
+        payment_id
+      `)
       .eq("type", "payment")
       .eq("status", "confirmed")
       .order("created_at", { ascending: false })
