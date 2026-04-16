@@ -34,6 +34,19 @@ export async function POST(req: Request) {
 
     if (!paymentId) return NextResponse.json({ ok: true })
 
+    // 🔥 IDPOTENCIA REAL (EVITA DOBLE PROCESO)
+    const { data: existing } = await supabase
+      .from("financial_ledger")
+      .select("id")
+      .eq("payment_id", paymentId)
+      .eq("type", "payment")
+      .maybeSingle()
+
+    if (existing) {
+      console.log("⚠️ PAYMENT YA PROCESADO:", paymentId)
+      return NextResponse.json({ ok: true })
+    }
+
     const payment = await paymentClient.get({ id: paymentId })
 
     if (!payment || payment.status !== "approved") {
@@ -57,16 +70,18 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💾 LOG
+       💾 LOG (SIN DUPLICAR)
     ========================= */
-    await supabase.from("payment_logs").insert({
-      payment_id: paymentId,
-      campaign_id,
-      status: "approved",
-      message,
-      payload: payment,
-      created_at: new Date().toISOString()
-    })
+    await supabase
+      .from("payment_logs")
+      .upsert({
+        payment_id: paymentId,
+        campaign_id,
+        status: "approved",
+        message,
+        payload: payment,
+        created_at: new Date().toISOString()
+      }, { onConflict: "payment_id" })
 
     /* =========================
        💰 DONACIÓN
@@ -104,6 +119,46 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       💸 FEE MERCADOPAGO
+    ========================= */
+    const mpFee = payment.transaction_details?.net_received_amount
+      ? gross - payment.transaction_details.net_received_amount
+      : 0
+
+    if (mpFee > 0) {
+      await supabase.from("financial_ledger").insert({
+        campaign_id,
+        user_email: "system",
+        amount: -Math.abs(mpFee),
+        currency: "CLP",
+        type: "fee_mp",
+        status: "confirmed",
+        flow_type: "out",
+        payment_id: paymentId,
+        provider: "mercadopago",
+        created_at: new Date().toISOString()
+      })
+    }
+
+    /* =========================
+       💸 FEE PLATAFORMA
+    ========================= */
+    const platformFee = Math.round(300 * 1.19)
+
+    await supabase.from("financial_ledger").insert({
+      campaign_id,
+      user_email: "platform",
+      amount: -platformFee,
+      currency: "CLP",
+      type: "fee_platform",
+      status: "confirmed",
+      flow_type: "out",
+      payment_id: paymentId,
+      provider: "system",
+      created_at: new Date().toISOString()
+    })
+
+    /* =========================
        📈 CAMPAIGN
     ========================= */
     await supabase.rpc("increment_campaign_amount", {
@@ -112,7 +167,7 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       💰 WALLET
+       💰 WALLET (SUMA, NO REEMPLAZA)
     ========================= */
     await supabase
       .from("wallets")
@@ -127,7 +182,7 @@ export async function POST(req: Request) {
     ========================= */
     await sendNotification({
       user_email,
-      type: "donation", // 🔥 FIX EMAIL
+      type: "donation",
       title: "Donación recibida",
       message: `Recibiste $${donationAmount}`,
       metadata: { campaign_id, amount: donationAmount, message },

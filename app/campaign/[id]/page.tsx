@@ -15,15 +15,13 @@ export default function CampaignDetail() {
   const [campaign, setCampaign] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [rate, setRate] = useState<number>(900)
-
-  // 🔥 NUEVO (NO ROMPE NADA)
   const [donations, setDonations] = useState<any[]>([])
 
   useEffect(() => {
     if (id) {
       load()
       loadRate()
-      loadDonations() // 🔥 NUEVO
+      loadDonations()
     }
   }, [id])
 
@@ -47,7 +45,6 @@ export default function CampaignDetail() {
     } catch {}
   }
 
-  // 🔥 NUEVO (DONACIONES)
   const loadDonations = async () => {
     try {
       const res = await fetch(`/api/donations-live?campaign_id=${id}`)
@@ -135,7 +132,7 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* 🔥 NUEVO: DONACIONES */}
+          {/* DONACIONES */}
           <div className="mt-10">
 
             <h2 className="text-xl font-bold mb-4">
@@ -152,9 +149,9 @@ export default function CampaignDetail() {
 
               {donations.map((donation: any) => {
 
-                const name = donation.user_email
+                const name = donation.user_email && donation.user_email.includes("@")
                   ? donation.user_email.split("@")[0]
-                  : "Anónimo"
+                  : "Donador"
 
                 return (
                   <div
@@ -168,7 +165,6 @@ export default function CampaignDetail() {
                         {name}
                       </span>
 
-                      {/* 🔥 MENSAJE */}
                       {donation.metadata?.message && (
                         <span className="text-xs text-gray-500">
                           {donation.metadata.message}
