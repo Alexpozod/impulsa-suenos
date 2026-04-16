@@ -69,8 +69,9 @@ export async function POST(req: Request) {
 
     const campaign_id = payment.metadata?.campaign_id
     const user_email =
-      payment.metadata?.user_email ||
-      payment.payer?.email
+  payment.metadata?.user_email ||
+  payment.payer?.email ||
+  `donador_${paymentId}@anon.com`
 
     const grossRaw = Number(payment.transaction_amount || 0)
     const tipRaw = Number(payment.metadata?.tip || 0)
