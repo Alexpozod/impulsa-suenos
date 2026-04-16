@@ -53,7 +53,7 @@ export async function GET(req: Request) {
     }
 
     /* =========================
-       💰 LEDGER (NUEVO MODELO)
+       💰 LEDGER
     ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
@@ -127,14 +127,14 @@ export async function GET(req: Request) {
         fees,
         withdrawn,
         pending,
-        available: balance - withdrawn - pending
+        available: balance - pending // ✅ FIX CLAVE (sin duplicar)
       }
     })
 
     return NextResponse.json({
       campaigns: campaignsData,
       totals: {
-        balance: totalBalance - totalWithdrawn - pendingAmount,
+        balance: totalBalance - pendingAmount, // ✅ FIX CLAVE
         raised: totalRaised,
         fees: totalFees,
         withdrawn: totalWithdrawn,
