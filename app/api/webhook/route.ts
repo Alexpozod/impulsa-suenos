@@ -77,14 +77,7 @@ export async function POST(req: Request) {
 
     const gross = Math.max(grossRaw, 0)
     const tip = Math.min(Math.max(tipRaw, 0), gross)
-
-    /* =========================
-       💸 COMISIONES (SOLO AGREGADO)
-    ========================= */
-    const mpFee = Math.round(gross * 0.0349)
-    const platformFee = Math.round(300 * 1.19)
-
-    const net = gross - tip - mpFee - platformFee
+    const net = gross - tip
 
     const message = payment.metadata?.message || ""
 
@@ -92,8 +85,6 @@ export async function POST(req: Request) {
       paymentId,
       gross,
       tip,
-      mpFee,
-      platformFee,
       net
     })
 
@@ -104,11 +95,7 @@ export async function POST(req: Request) {
     const metadata = {
       message,
       tip,
-      gross,
-      mp_fee: mpFee,
-      platform_fee: platformFee,
-      net,
-      amount: net
+      gross
     }
 
     /* =========================
@@ -171,7 +158,7 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
 
     /* =========================
-       🔔 NOTIFICACIÓN ATÓMICA
+       🔔 NOTIFICACIÓN ATÓMICA (FIX FINAL)
     ========================= */
     const { data: updated } = await supabase
       .from("payments")
