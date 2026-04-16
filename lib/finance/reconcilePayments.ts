@@ -1,5 +1,3 @@
-// lib/finance/reconcilePayments.ts
-
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -11,9 +9,9 @@ export async function reconcileCampaign(campaign_id: string) {
   try {
     const { data, error } = await supabase
       .from("financial_ledger")
-      .select("amount, flow_type")
+      .select("amount, flow_type, type")
       .eq("campaign_id", campaign_id)
-      .eq("status", "confirmed") // 🔐 SOLO DINERO REAL
+      .eq("status", "confirmed")
 
     if (error || !data) {
       return {
@@ -27,6 +25,9 @@ export async function reconcileCampaign(campaign_id: string) {
 
     for (const row of data) {
       const amount = Number(row.amount || 0)
+
+      // 🔥 IGNORAR PENDING
+      if (row.type === "withdraw_pending") continue
 
       if (row.flow_type === "in") {
         totalIn += amount
