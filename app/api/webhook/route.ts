@@ -43,15 +43,15 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🔒 IDEMPOTENCIA CORRECTA
+       🔒 IDEMPOTENCIA
     ========================= */
-    const { data: exists } = await supabase
+    const { data: existingPayment } = await supabase
       .from("payments")
-      .select("id, status")
+      .select("*")
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-    if (exists && exists.status === "approved") {
+    if (existingPayment?.status === "approved" && existingPayment?.notified) {
       return NextResponse.json({ ok: true })
     }
 
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     try {
       payment = await paymentClient.get({ id: paymentId })
     } catch (error) {
-      console.error("MP FETCH ERROR:", error)
+      console.warn("⚠️ Payment not found yet:", paymentId)
       return NextResponse.json({ ok: true })
     }
 
@@ -76,9 +76,22 @@ export async function POST(req: Request) {
       payment.metadata?.user_email ||
       payment.payer?.email
 
-    const gross = Number(payment.transaction_amount || 0)
-    const tip = Number(payment.metadata?.tip || 0)
+    const grossRaw = Number(payment.transaction_amount || 0)
+    const tipRaw = Number(payment.metadata?.tip || 0)
+
+    // 🔒 PROTECCIÓN DE DATOS
+    const gross = Math.max(grossRaw, 0)
+    const tip = Math.min(Math.max(tipRaw, 0), gross)
+    const net = gross - tip
+
     const message = payment.metadata?.message || ""
+
+    console.log("💰 DEBUG PAYMENT:", {
+      paymentId,
+      gross,
+      tip,
+      net
+    })
 
     if (!campaign_id || !user_email) {
       return NextResponse.json({ ok: true })
@@ -91,9 +104,9 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📝 REGISTRO PREVIO (SI NO EXISTE)
+       📝 REGISTRO PREVIO
     ========================= */
-    if (!exists) {
+    if (!existingPayment) {
       await supabase.from("payments").insert({
         payment_id: paymentId,
         campaign_id,
@@ -101,7 +114,8 @@ export async function POST(req: Request) {
         amount: gross,
         tip,
         status: "processing",
-        metadata
+        metadata,
+        notified: false
       })
     }
 
@@ -141,7 +155,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       ✅ ACTUALIZAR ESTADO FINAL
+       ✅ ACTUALIZAR ESTADO
     ========================= */
     await supabase
       .from("payments")
@@ -149,16 +163,29 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
 
     /* =========================
-       🔔 NOTIFICACIÓN
+       🔔 NOTIFICACIÓN SEGURA
     ========================= */
-    await sendNotification({
-      user_email,
-      type: "donation",
-      title: "Donación recibida",
-      message: `Recibiste $${gross - tip}`,
-      metadata,
-      sendEmail: true
-    })
+    const { data: paymentRow } = await supabase
+      .from("payments")
+      .select("notified")
+      .eq("payment_id", paymentId)
+      .maybeSingle()
+
+    if (!paymentRow?.notified) {
+      await sendNotification({
+        user_email,
+        type: "donation",
+        title: "Donación recibida",
+        message: `Recibiste $${net}`,
+        metadata,
+        sendEmail: true
+      })
+
+      await supabase
+        .from("payments")
+        .update({ notified: true })
+        .eq("payment_id", paymentId)
+    }
 
     /* =========================
        🧾 LOG FINAL
