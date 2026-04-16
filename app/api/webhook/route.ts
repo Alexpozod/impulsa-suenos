@@ -34,7 +34,9 @@ export async function POST(req: Request) {
 
     if (!paymentId) return NextResponse.json({ ok: true })
 
-    // 🔥 IDPOTENCIA REAL (EVITA DOBLE PROCESO)
+    /* =========================
+       🔒 IDPOTENCIA REAL
+    ========================= */
     const { data: existing } = await supabase
       .from("financial_ledger")
       .select("id")
@@ -43,10 +45,12 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (existing) {
-      console.log("⚠️ PAYMENT YA PROCESADO:", paymentId)
       return NextResponse.json({ ok: true })
     }
 
+    /* =========================
+       💰 PAYMENT
+    ========================= */
     const payment = await paymentClient.get({ id: paymentId })
 
     if (!payment || payment.status !== "approved") {
@@ -54,7 +58,6 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
-
     const user_email =
       payment.metadata?.user_email ||
       payment.payer?.email
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💾 LOG (SIN DUPLICAR)
+       💾 LOG (SIN DUPLICADOS)
     ========================= */
     await supabase
       .from("payment_logs")
@@ -84,7 +87,7 @@ export async function POST(req: Request) {
       }, { onConflict: "payment_id" })
 
     /* =========================
-       💰 DONACIÓN
+       💰 DONACIÓN (CON MESSAGE)
     ========================= */
     await supabase.from("financial_ledger").insert({
       campaign_id,
@@ -96,12 +99,16 @@ export async function POST(req: Request) {
       flow_type: "in",
       payment_id: paymentId,
       provider: "mercadopago",
-      metadata: { message },
+      metadata: {
+        message,
+        original_amount: gross,
+        tip
+      },
       created_at: new Date().toISOString()
     })
 
     /* =========================
-       💸 TIP (PLATAFORMA)
+       💸 TIP
     ========================= */
     if (tip > 0) {
       await supabase.from("financial_ledger").insert({
@@ -119,7 +126,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💸 FEE MERCADOPAGO
+       💸 FEE MP
     ========================= */
     const mpFee = payment.transaction_details?.net_received_amount
       ? gross - payment.transaction_details.net_received_amount
@@ -167,25 +174,26 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       💰 WALLET (SUMA, NO REEMPLAZA)
+       💰 WALLET (SUMATORIA)
     ========================= */
-    await supabase
-      .from("wallets")
-      .upsert({
-        user_email,
-        balance: donationAmount,
-        total_earned: donationAmount
-      }, { onConflict: "user_email" })
+    await supabase.rpc("update_wallet_after_payment", {
+      p_user_email: user_email,
+      p_amount: donationAmount
+    })
 
     /* =========================
-       🔔 NOTIFICACIÓN + EMAIL
+       🔔 NOTIFICACIÓN
     ========================= */
     await sendNotification({
       user_email,
       type: "donation",
       title: "Donación recibida",
       message: `Recibiste $${donationAmount}`,
-      metadata: { campaign_id, amount: donationAmount, message },
+      metadata: {
+        campaign_id,
+        amount: donationAmount,
+        message
+      },
       sendEmail: true
     })
 

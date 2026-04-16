@@ -15,6 +15,7 @@ export default function CampaignDetail() {
   const [campaign, setCampaign] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [rate, setRate] = useState<number>(900)
+
   const [donations, setDonations] = useState<any[]>([])
 
   useEffect(() => {
@@ -132,7 +133,7 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* DONACIONES */}
+          {/* 🔥 DONACIONES */}
           <div className="mt-10">
 
             <h2 className="text-xl font-bold mb-4">
@@ -149,9 +150,18 @@ export default function CampaignDetail() {
 
               {donations.map((donation: any) => {
 
-                const name = donation.user_email && donation.user_email.includes("@")
-                  ? donation.user_email.split("@")[0]
-                  : "Donador"
+                // ✅ NOMBRE SEGURO
+                const name =
+                  donation.user_email && donation.user_email.includes("@")
+                    ? donation.user_email.split("@")[0]
+                    : "Donador"
+
+                // ✅ MENSAJE SEGURO
+                const message =
+                  donation.metadata?.message ||
+                  (typeof donation.metadata === "string"
+                    ? donation.metadata
+                    : "")
 
                 return (
                   <div
@@ -165,9 +175,9 @@ export default function CampaignDetail() {
                         {name}
                       </span>
 
-                      {donation.metadata?.message && (
+                      {message && (
                         <span className="text-xs text-gray-500">
-                          {donation.metadata.message}
+                          {message}
                         </span>
                       )}
 
