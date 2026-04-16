@@ -18,10 +18,10 @@ export async function createPayment({
   campaign_id,
   user_email,
   provider,
-  message // 🔥 NUEVO
+  message
 }: any) {
 
-  switch (provider) {
+  switch ((provider || "mercadopago").toLowerCase()) {
 
     case "mercadopago":
       return createMercadoPagoPayment({
@@ -29,7 +29,7 @@ export async function createPayment({
         tip,
         campaign_id,
         user_email,
-        message // 🔥 PASAMOS
+        message
       })
 
     default:
@@ -44,7 +44,7 @@ async function createMercadoPagoPayment({
   tip = 0,
   campaign_id,
   user_email,
-  message // 🔥 NUEVO
+  message
 }: any) {
 
   if (!mpPreference) {
@@ -78,12 +78,16 @@ async function createMercadoPagoPayment({
           },
         ],
 
+        payer: {
+          email: user_email
+        },
+
         metadata: {
           campaign_id,
           user_email,
           amount: safeAmount,
           tip: safeTip,
-          message // 🔥 CLAVE FINAL
+          message
         },
 
         external_reference: campaign_id,
@@ -91,7 +95,7 @@ async function createMercadoPagoPayment({
         notification_url: `${baseUrl}/api/webhook`,
 
         back_urls: {
-          success: `${baseUrl}/payment/success`,
+          success: `${baseUrl}/payment/success?amount=${total}`,
           failure: `${baseUrl}/payment/failure`,
           pending: `${baseUrl}/payment/pending`,
         },

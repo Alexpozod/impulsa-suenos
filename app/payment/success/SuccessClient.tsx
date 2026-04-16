@@ -28,11 +28,12 @@ export default function SuccessClient() {
 
     if (payment_id) {
       fetchWithRetry(payment_id)
+    } else {
+      setLoadingData(false)
     }
 
   }, [searchParams])
 
-  // 🔥 CLAVE: REINTENTAR HASTA QUE EXISTA EL PAGO
   const fetchWithRetry = async (payment_id: string, attempts = 0) => {
 
     try {
@@ -40,14 +41,15 @@ export default function SuccessClient() {
       const res = await fetch(`/api/payment-info?payment_id=${payment_id}`)
       const data = await res.json()
 
-      if (data?.amount > 0) {
-        setAmount(data.amount)
+      console.log("PAYMENT DATA:", data)
+
+      if (data?.amount && data.amount > 0) {
+        setAmount(Number(data.amount))
         setCampaign(data.campaign)
         setLoadingData(false)
         return
       }
 
-      // 🔥 SI AÚN NO ESTÁ → REINTENTA
       if (attempts < 10) {
         setTimeout(() => {
           fetchWithRetry(payment_id, attempts + 1)
@@ -73,32 +75,30 @@ export default function SuccessClient() {
 
         <p className="text-lg mb-4">{status}</p>
 
-        {/* 🔥 LOADING */}
         {loadingData && (
           <p className="text-gray-500 mb-4">
             Procesando confirmación de pago...
           </p>
         )}
 
-        {/* 💰 MONTO */}
         {!loadingData && (
-          <div className="mb-4">
-            <p className="text-gray-500 text-sm">Monto pagado</p>
-            <p className="text-xl font-bold text-green-600">
-              ${amount.toLocaleString()}
-            </p>
-          </div>
+          <>
+            <div className="mb-4">
+              <p className="text-gray-500 text-sm">Monto pagado</p>
+              <p className="text-xl font-bold text-green-600">
+                ${amount.toLocaleString()}
+              </p>
+            </div>
+
+            {campaign && (
+              <div className="mb-4">
+                <p className="text-gray-500 text-sm">Campaña</p>
+                <p className="font-semibold">{campaign.title}</p>
+              </div>
+            )}
+          </>
         )}
 
-        {/* CAMPAÑA */}
-        {!loadingData && campaign && (
-          <div className="mb-4">
-            <p className="text-gray-500 text-sm">Campaña</p>
-            <p className="font-semibold">{campaign.title}</p>
-          </div>
-        )}
-
-        {/* CTA */}
         <div className="flex flex-col gap-3">
 
           <button
