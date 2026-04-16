@@ -47,14 +47,17 @@ export async function POST(req: Request) {
 
     const orgId = user.user_metadata?.organization_id
 
+    /* =========================
+       📦 PAYOUT (FIX CRÍTICO)
+    ========================= */
     const { data: payout } = await supabase
-  .from("payouts")
-  .select("*")
-  .eq("id", payout_id)
-  .single()
+      .from("payouts")
+      .select("*")
+      .eq("id", payout_id)
+      .maybeSingle()
 
     if (!payout) {
-      return NextResponse.json({ error: "not found" }, { status: 404 })
+      return NextResponse.json({ error: "payout not found" }, { status: 404 })
     }
 
     if (payout.status === "paid") {
@@ -79,14 +82,13 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📊 CAMPAIGN
+       📊 CAMPAIGN (FIX CRÍTICO)
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("*")
       .eq("id", payout.campaign_id)
-      .eq("organization_id", orgId)
-      .single()
+      .maybeSingle()
 
     if (!campaign) {
       return NextResponse.json({ error: "campaign not found" }, { status: 404 })
@@ -135,7 +137,7 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       👛 WALLET (FIX FINAL)
+       👛 WALLET
     ========================= */
     await supabase.rpc("update_wallet_after_payout", {
       p_user_email: campaign.user_email,
@@ -177,7 +179,10 @@ export async function POST(req: Request) {
 
     logInfo("Payout aprobado", { payout_id })
 
-    return NextResponse.json({ ok: true, message: "Payout aprobado" })
+    return NextResponse.json({
+      ok: true,
+      message: "Payout aprobado correctamente"
+    })
 
   } catch (error) {
 
