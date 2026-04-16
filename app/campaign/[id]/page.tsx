@@ -150,11 +150,19 @@ export default function CampaignDetail() {
 
               {donations.map((donation: any) => {
 
-                // ✅ NOMBRE SEGURO
-                const name =
-                  donation.user_email && donation.user_email.includes("@")
-                    ? donation.user_email.split("@")[0]
-                    : "Donador"
+                // 🔥 NOMBRE CORREGIDO (FIX FINAL)
+                const name = (() => {
+                  const email =
+                    donation.user_email ||
+                    donation.metadata?.user_email ||
+                    ""
+
+                  if (email && email.includes("@")) {
+                    return email.split("@")[0]
+                  }
+
+                  return "Anónimo"
+                })()
 
                 // ✅ MENSAJE SEGURO
                 const message =
