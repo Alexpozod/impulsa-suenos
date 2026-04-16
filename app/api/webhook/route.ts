@@ -51,10 +51,6 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-    if (existingPayment?.status === "approved" && existingPayment?.notified) {
-      return NextResponse.json({ ok: true })
-    }
-
     /* =========================
        💳 GET PAYMENT
     ========================= */
@@ -79,7 +75,6 @@ export async function POST(req: Request) {
     const grossRaw = Number(payment.transaction_amount || 0)
     const tipRaw = Number(payment.metadata?.tip || 0)
 
-    // 🔒 PROTECCIÓN DE DATOS
     const gross = Math.max(grossRaw, 0)
     const tip = Math.min(Math.max(tipRaw, 0), gross)
     const net = gross - tip
@@ -163,15 +158,17 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
 
     /* =========================
-       🔔 NOTIFICACIÓN SEGURA
+       🔔 NOTIFICACIÓN ATÓMICA (FIX FINAL)
     ========================= */
-    const { data: paymentRow } = await supabase
+    const { data: updated } = await supabase
       .from("payments")
-      .select("notified")
+      .update({ notified: true })
       .eq("payment_id", paymentId)
+      .eq("notified", false) // 🔒 CLAVE ANTI DUPLICADOS
+      .select()
       .maybeSingle()
 
-    if (!paymentRow?.notified) {
+    if (updated) {
       await sendNotification({
         user_email,
         type: "donation",
@@ -180,11 +177,6 @@ export async function POST(req: Request) {
         metadata,
         sendEmail: true
       })
-
-      await supabase
-        .from("payments")
-        .update({ notified: true })
-        .eq("payment_id", paymentId)
     }
 
     /* =========================
