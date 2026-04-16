@@ -93,10 +93,11 @@ export async function POST(req: Request) {
     }
 
     const metadata = {
-      message,
-      tip,
-      gross
-    }
+  message,
+  tip,
+  gross,
+  amount: net // 🔥 CLAVE
+}
 
     /* =========================
        📝 REGISTRO PREVIO
