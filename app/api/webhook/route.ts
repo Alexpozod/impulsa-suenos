@@ -81,7 +81,7 @@ export async function POST(req: Request) {
     const tip = Math.min(Math.max(tipRaw, 0), gross)
 
     /* =========================
-       💸 COMISIONES (NUEVO)
+       💸 COMISIONES
     ========================= */
     const mpFee = Math.round(gross * 0.0349)
     const platformFee = Math.round(300 * 1.19)
@@ -167,28 +167,44 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💸 REGISTRAR COMISIONES
+       💸 REGISTRAR COMISIONES (FIX FINAL)
     ========================= */
-    await supabase.from("financial_ledger").insert([
-      {
-        campaign_id,
-        user_email: "platform",
-        amount: -mpFee,
-        type: "fee_mp",
-        status: "confirmed",
-        flow_type: "out",
-        payment_id: paymentId
-      },
-      {
-        campaign_id,
-        user_email: "platform",
-        amount: -platformFee,
-        type: "fee_platform",
-        status: "confirmed",
-        flow_type: "out",
-        payment_id: paymentId
+    const { data: feeExists } = await supabase
+      .from("financial_ledger")
+      .select("id")
+      .eq("payment_id", paymentId)
+      .in("type", ["fee_mp", "fee_platform"])
+      .limit(1)
+
+    if (!feeExists || feeExists.length === 0) {
+
+      const { error: feeError } = await supabase
+        .from("financial_ledger")
+        .insert([
+          {
+            campaign_id,
+            user_email: "platform",
+            amount: -mpFee,
+            type: "fee_mp",
+            status: "confirmed",
+            flow_type: "out",
+            payment_id: paymentId
+          },
+          {
+            campaign_id,
+            user_email: "platform",
+            amount: -platformFee,
+            type: "fee_platform",
+            status: "confirmed",
+            flow_type: "out",
+            payment_id: paymentId
+          }
+        ])
+
+      if (feeError) {
+        console.error("❌ ERROR INSERT FEES:", feeError)
       }
-    ])
+    }
 
     /* =========================
        ✅ ACTUALIZAR ESTADO
