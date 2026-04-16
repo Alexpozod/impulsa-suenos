@@ -48,11 +48,10 @@ export async function POST(req: Request) {
     const orgId = user.user_metadata?.organization_id
 
     const { data: payout } = await supabase
-      .from("payouts")
-      .select("*")
-      .eq("id", payout_id)
-      .eq("organization_id", orgId)
-      .single()
+  .from("payouts")
+  .select("*")
+  .eq("id", payout_id)
+  .single()
 
     if (!payout) {
       return NextResponse.json({ error: "not found" }, { status: 404 })
@@ -178,7 +177,7 @@ export async function POST(req: Request) {
 
     logInfo("Payout aprobado", { payout_id })
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, message: "Payout aprobado" })
 
   } catch (error) {
 
