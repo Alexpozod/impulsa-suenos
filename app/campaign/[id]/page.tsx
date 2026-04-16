@@ -150,20 +150,21 @@ export default function CampaignDetail() {
 
               {donations.map((donation: any) => {
 
-                // 🔥 FIX FINAL DEFINITIVO
+                // 🔥 PRIVACIDAD PRO (ÚNICO CAMBIO)
                 const name = (() => {
 
-                  // 1. email real
                   if (donation.user_email && donation.user_email.includes("@")) {
-                    return donation.user_email.split("@")[0]
+                    const raw = donation.user_email.split("@")[0]
+
+                    if (raw.length <= 2) return raw
+
+                    return raw[0] + "***" + raw.slice(-1)
                   }
 
-                  // 2. fallback con payment_id (IMPORTANTE)
                   if (donation.payment_id) {
                     return `Donador ${donation.payment_id.slice(-4)}`
                   }
 
-                  // 3. fallback final
                   return "Donador"
 
                 })()
