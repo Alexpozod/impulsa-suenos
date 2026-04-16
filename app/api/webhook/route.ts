@@ -35,20 +35,18 @@ export async function POST(req: Request) {
     if (!paymentId) return NextResponse.json({ ok: true })
 
     /* =========================
-       🔒 EVITAR DUPLICADOS
+       🔒 ID EMPOTENTE
     ========================= */
-    const { data: existing } = await supabase
+    const { data: exists } = await supabase
       .from("financial_ledger")
       .select("id")
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-    if (existing) {
-      return NextResponse.json({ ok: true })
-    }
+    if (exists) return NextResponse.json({ ok: true })
 
     /* =========================
-       💳 PAYMENT
+       💳 GET PAYMENT
     ========================= */
     let payment
 
@@ -71,8 +69,6 @@ export async function POST(req: Request) {
     const tip = Number(payment.metadata?.tip || 0)
     const message = payment.metadata?.message || ""
 
-    const donationAmount = gross - tip
-
     if (!campaign_id || !user_email) {
       return NextResponse.json({ ok: true })
     }
@@ -80,86 +76,38 @@ export async function POST(req: Request) {
     /* =========================
        🧠 METADATA NORMALIZADA
     ========================= */
-    const cleanMetadata = {
-      message: message || "",
-      tip,
-      gross,
-      donation: donationAmount
-    }
-
-    /* =========================
-       💾 LOG
-    ========================= */
-    await supabase.from("payment_logs").insert({
-      payment_id: paymentId,
-      campaign_id,
-      status: "approved",
+    const metadata = {
       message,
-      payload: payment,
-      created_at: new Date().toISOString()
-    })
-
-    /* =========================
-       💰 DONACIÓN
-    ========================= */
-    await supabase.from("financial_ledger").insert({
-      campaign_id,
-      user_email,
-      amount: donationAmount,
-      currency: "CLP",
-      type: "payment",
-      status: "confirmed",
-      flow_type: "in",
-      payment_id: paymentId,
-      provider: "mercadopago",
-      metadata: cleanMetadata,
-      created_at: new Date().toISOString()
-    })
-
-    /* =========================
-       💸 TIP
-    ========================= */
-    if (tip > 0) {
-      await supabase.from("financial_ledger").insert({
-        campaign_id,
-        user_email: "platform",
-        amount: tip,
-        currency: "CLP",
-        type: "tip",
-        status: "confirmed",
-        flow_type: "in",
-        payment_id: paymentId,
-        provider: "mercadopago",
-        metadata: { type: "tip" },
-        created_at: new Date().toISOString()
-      })
+      tip,
+      gross
     }
 
     /* =========================
-       📈 CAMPAÑA
+       🧠 PROCESAMIENTO CENTRAL
     ========================= */
-    await supabase.rpc("increment_campaign_amount", {
-      campaign_id_input: campaign_id,
-      amount_input: donationAmount
-    })
-
-    /* =========================
-       💰 WALLET
-    ========================= */
-    await supabase.rpc("update_wallet_after_payment", {
+    const { error } = await supabase.rpc("process_payment_atomic", {
+      p_payment_id: paymentId,
+      p_campaign_id: campaign_id,
       p_user_email: user_email,
-      p_amount: donationAmount
+      p_amount: gross,
+      p_tip: tip,
+      p_metadata: metadata
     })
 
+    if (error) {
+      console.error("RPC ERROR:", error)
+      return NextResponse.json({ ok: true })
+    }
+
     /* =========================
-       🔔 NOTIFICACIÓN
+       🔔 NOTIFICACIÓN (UNA SOLA VEZ)
     ========================= */
     await sendNotification({
       user_email,
       type: "donation",
       title: "Donación recibida",
-      message: `Recibiste $${donationAmount}`,
-      metadata: cleanMetadata,
+      message: `Recibiste $${gross - tip}`,
+      metadata,
       sendEmail: true
     })
 
