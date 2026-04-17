@@ -5,18 +5,32 @@ import { useParams } from "next/navigation"
 
 export default function CampaignUpdatesPage() {
 
-  const { id } = useParams()
+  const params = useParams()
+
+  // 🔥 FIX CRÍTICO (NO MÁS [id])
+  const id = Array.isArray(params?.id)
+    ? params.id[0]
+    : params?.id
+
   const [content, setContent] = useState("")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
   const submit = async () => {
+
     if (!content.trim()) return
+
+    // 🔒 VALIDACIÓN REAL
+    if (!id || id === "[id]") {
+      alert("Error: campaña inválida")
+      return
+    }
 
     setLoading(true)
 
     try {
-      await fetch("/api/campaign-updates", {
+
+      const res = await fetch("/api/campaign-updates", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -27,11 +41,21 @@ export default function CampaignUpdatesPage() {
         })
       })
 
+      const data = await res.json()
+
+      // 🔥 MANEJO REAL DE ERROR
+      if (!res.ok) {
+        console.error("ERROR API:", data)
+        alert(data?.error || "Error al publicar actualización")
+        return
+      }
+
       setContent("")
       setSuccess(true)
 
     } catch (err) {
-      console.error(err)
+      console.error("ERROR FETCH:", err)
+      alert("Error de conexión")
     }
 
     setLoading(false)
