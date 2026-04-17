@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import LedgerTable from "@/app/components/finance/LedgerTable"
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
+import FinancialAlerts from "@/app/components/finance/FinancialAlerts"
 
 export default function DashboardPage() {
 
@@ -10,7 +11,7 @@ export default function DashboardPage() {
   const [ledger, setLedger] = useState<any[]>([])
 
   /* =========================
-     🔄 LOAD LEDGER (SEGURO)
+     🔄 LOAD LEDGER
   ========================= */
   useEffect(() => {
     if (data?.campaigns) {
@@ -34,7 +35,7 @@ export default function DashboardPage() {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )
 
-      setLedger(filtered.slice(0, 10)) // últimos 10
+      setLedger(filtered.slice(0, 10))
 
     } catch (err) {
       console.error("Error loading ledger:", err)
@@ -51,6 +52,9 @@ export default function DashboardPage() {
 
   return (
     <main className="p-6 max-w-6xl mx-auto space-y-8">
+
+      {/* 🚨 ALERTAS */}
+      <FinancialAlerts data={data} />
 
       {/* =========================
          💰 RESUMEN
@@ -120,7 +124,7 @@ export default function DashboardPage() {
       </section>
 
       {/* =========================
-         📜 MOVIMIENTOS 🔥
+         📜 MOVIMIENTOS
       ========================= */}
       <section>
         <h2 className="text-xl font-bold mb-4">
