@@ -53,11 +53,11 @@ export default function DashboardPage() {
   return (
     <main className="p-6 max-w-6xl mx-auto space-y-8">
 
-      {/* 🚨 ALERTAS */}
+      {/* 🚨 ALERTAS (NUEVO) */}
       <FinancialAlerts data={data} />
 
       {/* =========================
-         💰 RESUMEN
+         💰 RESUMEN (ORIGINAL)
       ========================= */}
       <section className="grid md:grid-cols-5 gap-4">
 
@@ -70,7 +70,7 @@ export default function DashboardPage() {
       </section>
 
       {/* =========================
-         📊 CAMPAÑAS
+         📊 CAMPAÑAS (ORIGINAL + botón updates)
       ========================= */}
       <section>
         <h2 className="text-xl font-bold mb-4">Tus campañas</h2>
@@ -112,6 +112,14 @@ export default function DashboardPage() {
                     Retirar
                   </a>
 
+                  {/* 🔥 NUEVO (NO ROMPE NADA) */}
+                  <a
+                    href={`/dashboard/campaigns/${c.id}/updates`}
+                    className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
+                  >
+                    Updates
+                  </a>
+
                 </div>
 
               </div>
@@ -124,7 +132,7 @@ export default function DashboardPage() {
       </section>
 
       {/* =========================
-         📜 MOVIMIENTOS
+         📜 MOVIMIENTOS (ORIGINAL)
       ========================= */}
       <section>
         <h2 className="text-xl font-bold mb-4">
@@ -139,7 +147,7 @@ export default function DashboardPage() {
 }
 
 /* =========================
-   🎨 UI CARD
+   🎨 UI CARD (ORIGINAL)
 ========================= */
 
 function Card({ title, value, highlight }: any) {
