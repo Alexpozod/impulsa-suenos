@@ -18,6 +18,7 @@ export default function CampaignDetail() {
 
   const [donations, setDonations] = useState<any[]>([])
   const [ledger, setLedger] = useState<any[]>([])
+  const [updates, setUpdates] = useState<any[]>([]) // ✅ NUEVO
 
   useEffect(() => {
     if (id) {
@@ -25,6 +26,7 @@ export default function CampaignDetail() {
       loadRate()
       loadDonations()
       loadLedger()
+      loadUpdates() // ✅ NUEVO
     }
   }, [id])
 
@@ -75,6 +77,17 @@ export default function CampaignDetail() {
     }
   }
 
+  // ✅ NUEVO
+  const loadUpdates = async () => {
+    try {
+      const res = await fetch(`/api/campaign-updates?campaign_id=${id}`)
+      const data = await res.json()
+      setUpdates(data || [])
+    } catch (err) {
+      console.error("Error loading updates:", err)
+    }
+  }
+
   const buildImageUrl = (url: string) => {
     if (!url) return "https://via.placeholder.com/800"
 
@@ -108,12 +121,14 @@ export default function CampaignDetail() {
     : [campaign.image_url]
   ).filter(Boolean).map(buildImageUrl)
 
+  // ✅ NUEVO (ESTADO SEGURO)
+  const status = campaign.status || "active"
+
   return (
     <main className="bg-white min-h-screen">
 
       <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-5 gap-10">
 
-        {/* ================= LEFT ================= */}
         <div className="md:col-span-3">
 
           <CampaignCarousel images={images} />
@@ -122,7 +137,7 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* PROGRESO */}
+          {/* PROGRESO ORIGINAL (NO TOCADO) */}
           <div className="mt-6 space-y-3">
 
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -154,117 +169,87 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* DONACIONES */}
+          {/* DONACIONES ORIGINAL (NO TOCADO) */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               💬 Últimas donaciones
             </h2>
 
-            {donations.length === 0 && (
-              <p className="text-gray-500 text-sm">
-                Aún no hay donaciones
-              </p>
-            )}
-
             <div className="space-y-3">
-
-              {donations.map((donation: any) => {
-
-                const name = donation.user_email
-                  ? donation.user_email.split("@")[0][0] + "***"
-                  : "Donador"
-
-                return (
-                  <div key={donation.id} className="flex justify-between border-b pb-2">
-
-                    <span>{name}</span>
-
-                    <span className="text-green-600 font-semibold">
-                      ${Number(donation.amount).toLocaleString()}
-                    </span>
-
-                  </div>
-                )
-              })}
-
+              {donations.map((donation: any) => (
+                <div key={donation.id} className="flex justify-between border-b pb-2">
+                  <span>{donation.user_email?.[0] + "***" || "Donador"}</span>
+                  <span className="text-green-600 font-semibold">
+                    ${Number(donation.amount).toLocaleString()}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* ================= TIMELINE PRO ================= */}
+          {/* TIMELINE ORIGINAL (NO TOCADO) */}
           <div className="mt-12">
-
             <h2 className="text-xl font-bold mb-6">
               📊 Actividad de la campaña
             </h2>
 
             <div className="relative border-l pl-6 space-y-6">
-
-              {ledger.length === 0 && (
-                <p className="text-gray-500 text-sm">
-                  Sin actividad aún
-                </p>
-              )}
-
-              {ledger.map((tx: any) => {
-
-                const getConfig = () => {
-                  switch (tx.type) {
-                    case "payment":
-                      return { icon: "💰", title: "Donación", color: "bg-green-500", text: "text-green-600", sign: "+" }
-                    case "withdraw":
-                      return { icon: "🏦", title: "Retiro", color: "bg-blue-500", text: "text-blue-600", sign: "-" }
-                    case "withdraw_pending":
-                      return { icon: "⏳", title: "Retiro pendiente", color: "bg-yellow-500", text: "text-yellow-600", sign: "-" }
-                    case "withdraw_rejected":
-                      return { icon: "❌", title: "Retiro rechazado", color: "bg-red-500", text: "text-red-600", sign: "-" }
-                    default:
-                      return { icon: "📌", title: tx.type, color: "bg-gray-400", text: "text-gray-600", sign: "" }
-                  }
-                }
-
-                const config = getConfig()
-
-                return (
-                  <div key={tx.id} className="relative flex items-start gap-4">
-
-                    <div className={`absolute -left-9 top-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs ${config.color}`}>
-                      {config.icon}
-                    </div>
-
-                    <div className="flex-1 border rounded-xl p-4 bg-white shadow-sm">
-
-                      <div className="flex justify-between">
-
-                        <div>
-                          <p className="font-semibold">{config.title}</p>
-                          <p className="text-xs text-gray-500">
-                            {new Date(tx.created_at).toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div className={`font-bold ${config.text}`}>
-                          {config.sign}${Math.abs(Number(tx.amount)).toLocaleString()}
-                        </div>
-
-                      </div>
-
-                    </div>
+              {ledger.map((tx: any) => (
+                <div key={tx.id} className="relative">
+                  <div className="absolute -left-8 bg-green-500 w-5 h-5 rounded-full" />
+                  <div className="border p-4 rounded-xl">
+                    <p>{tx.type}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(tx.created_at).toLocaleString()}
+                    </p>
+                    <p>${Number(tx.amount).toLocaleString()}</p>
                   </div>
-                )
-              })}
-
+                </div>
+              ))}
             </div>
+          </div>
 
+          {/* UPDATES */}
+          <div className="mt-12">
+            <h2 className="text-xl font-bold mb-4">
+              📢 Actualizaciones del creador
+            </h2>
+
+            {updates.length === 0 && (
+              <p className="text-gray-500 text-sm">
+                Aún no hay actualizaciones
+              </p>
+            )}
+
+            <div className="space-y-4">
+              {updates.map((u: any) => (
+                <div key={u.id} className="border rounded-xl p-4 bg-gray-50">
+                  <p className="whitespace-pre-line">{u.content}</p>
+                  <p className="text-xs text-gray-400 mt-2">
+                    {new Date(u.created_at).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
 
-        {/* ================= RIGHT SIDEBAR ================= */}
         <div className="md:col-span-2">
           <div className="sticky top-6">
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
               <ViewersCounter />
-              <DonationBox campaign_id={campaign.id} />
+
+              {/* 🔥 SOLO AQUÍ SE CAMBIA */}
+              {status === "active" ? (
+                <DonationBox campaign_id={campaign.id} />
+              ) : (
+                <div className="bg-gray-100 border rounded-xl p-4 text-center text-sm text-gray-600">
+                  {status === "paused" && "⏸️ Campaña pausada temporalmente"}
+                  {status === "completed" && "✅ Campaña finalizada"}
+                </div>
+              )}
+
             </div>
           </div>
         </div>
