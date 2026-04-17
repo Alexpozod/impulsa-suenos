@@ -129,7 +129,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "saldo insuficiente" }, { status: 400 })
     }
 
-    // 👛 WALLET (solo validación aquí)
+    // 👛 WALLET (solo validación, NO modificar)
     const { data: wallet } = await supabase
       .from("wallets")
       .select("*")
@@ -171,11 +171,11 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString()
     })
 
-    // 🔐 VALIDACIÓN FINAL DE CONSISTENCIA
+    // 🔐 VALIDACIÓN FINAL
     if (numericAmount > walletCalc.available) {
       throw new Error("Ledger inconsistency detected")
     }
-    
+
     await logToDB("info", "payout_requested", {
       campaign_id,
       amount,
