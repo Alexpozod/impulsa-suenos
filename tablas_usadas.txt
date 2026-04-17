@@ -1,0 +1,35 @@
+app/admin/earnings/page.tsx:      .from('transactions')
+app/admin/kyc/page.tsx:        .from('profiles')
+app/admin/kyc/page.tsx:      .from('kyc')
+app/admin/withdrawals/page.tsx:        .from('profiles')
+app/api/upload/route.ts:      .from(bucket)
+app/api/upload/route.ts:    const buffer = Buffer.from(arrayBuffer)
+app/campaign/edit/[id]/page.tsx:            .from('campaign-images')
+app/campaign/edit/[id]/page.tsx:          .from('campaign-images')
+app/components/ImageUploader.tsx:    const newFiles = Array.from(files)
+app/create/page.tsx:            .from('campaign-images')
+app/create/page.tsx:          .from('campaign-images')
+app/dashboard/edit/[id]/page.tsx:    const arr = Array.from(files)
+app/kyc/page.tsx:        .from('kyc')
+audit_logs
+bank_accounts
+campaign-images
+campaign_updates
+campaigns
+error_logs
+financial_ledger
+fraud_alerts
+kyc
+notifications
+otp_codes
+payments
+payouts
+processed_payments
+profiles
+reconciliation_logs
+settings
+system_events
+system_health
+user_risk
+wallets
+webhook_logs

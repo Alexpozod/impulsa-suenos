@@ -1,0 +1,271 @@
+.
+├── README.md
+├── app
+│   ├── account
+│   │   ├── bank
+│   │   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   └── withdraw
+│   │       └── page.tsx
+│   ├── admin
+│   │   ├── alerts
+│   │   │   └── page.tsx
+│   │   ├── audit
+│   │   │   └── page.tsx
+│   │   ├── campaign
+│   │   │   └── [id]
+│   │   ├── campaign-updates
+│   │   │   └── page.tsx
+│   │   ├── campaigns
+│   │   │   └── page.tsx
+│   │   ├── earnings
+│   │   │   └── page.tsx
+│   │   ├── events
+│   │   │   └── page.tsx
+│   │   ├── finance
+│   │   │   └── page.tsx
+│   │   ├── financial
+│   │   │   └── page.tsx
+│   │   ├── kyc
+│   │   │   └── page.tsx
+│   │   ├── layout.tsx
+│   │   ├── ledger
+│   │   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   ├── payouts
+│   │   │   └── page.tsx
+│   │   ├── reconcile
+│   │   │   └── page.tsx
+│   │   ├── risk
+│   │   │   └── page.tsx
+│   │   ├── settings
+│   │   │   └── page.tsx
+│   │   ├── users
+│   │   │   └── page.tsx
+│   │   ├── wallet
+│   │   │   └── page.tsx
+│   │   └── withdrawals
+│   │       └── page.tsx
+│   ├── api
+│   │   ├── admin
+│   │   │   ├── alerts
+│   │   │   ├── campaign-updates
+│   │   │   ├── campaigns
+│   │   │   ├── events
+│   │   │   ├── export
+│   │   │   ├── finance
+│   │   │   ├── fraud
+│   │   │   ├── kyc
+│   │   │   ├── payouts
+│   │   │   ├── reconcile
+│   │   │   ├── release-funds
+│   │   │   ├── risk
+│   │   │   ├── settings
+│   │   │   ├── user-risk
+│   │   │   ├── users
+│   │   │   └── wallet
+│   │   ├── audit-log
+│   │   │   ├── list
+│   │   │   └── route.ts
+│   │   ├── campaign
+│   │   │   ├── [id]
+│   │   │   ├── create
+│   │   │   └── update
+│   │   ├── campaign-updates
+│   │   │   └── route.ts
+│   │   ├── campaign-wallet
+│   │   │   └── route.ts
+│   │   ├── campaigns
+│   │   │   ├── enriched
+│   │   │   └── route.ts
+│   │   ├── create-payment
+│   │   │   └── route.ts
+│   │   ├── create-wallet
+│   │   │   └── route.ts
+│   │   ├── donate
+│   │   │   └── route.ts
+│   │   ├── donations-live
+│   │   │   └── route.ts
+│   │   ├── exchange-rate
+│   │   │   └── route.ts
+│   │   ├── ledger
+│   │   │   └── route.ts
+│   │   ├── notifications
+│   │   │   └── route.ts
+│   │   ├── otp
+│   │   │   ├── send
+│   │   │   └── verify
+│   │   ├── payment-info
+│   │   │   └── route.ts
+│   │   ├── payout
+│   │   │   ├── approve
+│   │   │   ├── list
+│   │   │   ├── reject
+│   │   │   └── request
+│   │   ├── refund
+│   │   │   └── route.ts
+│   │   ├── send-email
+│   │   │   └── route.ts
+│   │   ├── upload
+│   │   │   └── route.ts
+│   │   ├── user
+│   │   │   └── finance
+│   │   ├── webhook
+│   │   │   └── route.ts
+│   │   └── withdraw
+│   │       └── route.ts
+│   ├── campaign
+│   │   ├── [id]
+│   │   │   ├── buy
+│   │   │   └── page.tsx
+│   │   └── edit
+│   │       └── [id]
+│   ├── campaigns
+│   │   └── page.tsx
+│   ├── como-funciona
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── CampaignCard.tsx
+│   │   ├── CampaignCarousel.tsx
+│   │   ├── Countdown.tsx
+│   │   ├── DonationBox.tsx
+│   │   ├── Footer.tsx
+│   │   ├── ImageUploader.tsx
+│   │   ├── LiveFeed.tsx
+│   │   ├── Navbar.tsx
+│   │   ├── Notifications.tsx
+│   │   ├── ViewersCounter.tsx
+│   │   └── finance
+│   │       ├── FinancialAlerts.tsx
+│   │       ├── LedgerTable.tsx
+│   │       └── RevenueChart.tsx
+│   ├── contador
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── cookies
+│   │   └── page.tsx
+│   ├── create
+│   │   └── page.tsx
+│   ├── dashboard
+│   │   ├── campaigns
+│   │   │   └── [id]
+│   │   ├── edit
+│   │   │   └── [id]
+│   │   ├── finance
+│   │   │   └── page.tsx
+│   │   ├── notifications
+│   │   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   └── payouts
+│   │       └── page.tsx
+│   ├── faq
+│   │   └── page.tsx
+│   ├── favicon.ico
+│   ├── force-deploy.txt
+│   ├── globals.css
+│   ├── hooks
+│   │   └── useFinancialDashboard.ts
+│   ├── kyc
+│   │   └── page.tsx
+│   ├── layout.tsx
+│   ├── login
+│   │   └── page.tsx
+│   ├── middleware.ts
+│   ├── page.tsx
+│   ├── payment
+│   │   ├── failure
+│   │   │   └── page.tsx
+│   │   ├── pending
+│   │   │   └── page.tsx
+│   │   └── success
+│   │       ├── SuccessClient.tsx
+│   │       └── page.tsx
+│   ├── privacidad
+│   │   └── page.tsx
+│   ├── recover
+│   │   └── page.tsx
+│   ├── reembolsos
+│   │   └── page.tsx
+│   ├── register
+│   │   └── page.tsx
+│   ├── sorteos
+│   │   └── page.tsx
+│   ├── success
+│   │   └── page.tsx
+│   └── terminos
+│       └── page.tsx
+├── backup.sql
+├── components
+│   └── ui
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── input.tsx
+│       └── progress.tsx
+├── components.json
+├── eslint.config.mjs
+├── estructura.txt
+├── estructura_front.txt
+├── lib
+│   ├── alerts
+│   │   ├── alertEngine.ts
+│   │   └── sendAlert.ts
+│   ├── auth
+│   │   ├── getProfile.ts
+│   │   ├── getUser.ts
+│   │   ├── isAdmin.ts
+│   │   └── rbac.ts
+│   ├── calculateCampaignBalance.ts
+│   ├── email.ts
+│   ├── events
+│   │   └── eventBus.ts
+│   ├── finance
+│   │   └── reconcilePayments.ts
+│   ├── fraud
+│   │   ├── checkBlock.ts
+│   │   ├── detector.ts
+│   │   └── engine.ts
+│   ├── groupLedgerByDay.ts
+│   ├── logToDB.ts
+│   ├── logger-api.ts
+│   ├── logger.ts
+│   ├── notifications
+│   │   └── sendNotification.ts
+│   ├── org
+│   │   └── getOrg.ts
+│   ├── payments
+│   │   └── provider.ts
+│   ├── risk
+│   │   └── riskEngine.ts
+│   ├── security
+│   │   ├── enforceRisk.ts
+│   │   ├── guard.ts
+│   │   ├── logger.ts
+│   │   └── rateLimit.ts
+│   ├── storage
+│   │   └── getSignedUrl.ts
+│   ├── system
+│   │   └── logger.ts
+│   ├── tickets
+│   │   ├── generatePrefix.ts
+│   │   └── generateTicketCode.ts
+│   ├── utils
+│   │   └── currency.ts
+│   └── utils.ts
+├── next-env.d.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── src
+│   └── lib
+│       └── supabase.ts
+├── tsconfig.json
+└── vercel_backup.json
+
+131 directories, 138 files

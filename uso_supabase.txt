@@ -1,0 +1,19 @@
+app/api/webhook/route.ts:    await supabase.from("webhook_logs").insert({
+app/api/webhook/route.ts:      await supabase.from("payments").insert({
+app/api/webhook/route.ts:      await supabase.from("webhook_logs").insert({
+app/api/webhook/route.ts:    await supabase.from("webhook_logs").insert({
+app/api/otp/send/route.ts:    const { error } = await supabase.from("otp_codes").insert({
+app/api/admin/reconcile/auto/route.ts:    const { data: ledger } = await supabase.from("financial_ledger").select("*")
+app/api/admin/reconcile/auto/route.ts:    const { data: processed } = await supabase.from("processed_payments").select("*")
+app/api/admin/reconcile/auto/route.ts:      await supabase.from("reconciliation_logs").insert(
+app/api/admin/reconcile/auto/route.ts:    await supabase.from("system_health").insert({
+app/api/admin/campaign-updates/route.ts:      await supabase.from("notifications").insert({
+app/api/admin/campaign-updates/route.ts:      await supabase.from("notifications").insert({
+app/api/admin/users/route.ts:    await supabase.from("audit_logs").insert({
+app/api/admin/users/create/route.ts:    await supabase.from("profiles").insert({
+app/api/admin/campaigns/manage/route.ts:    await supabase.from("audit_logs").insert({
+app/api/audit-log/route.ts:    const { error } = await supabase.from("audit_logs").insert({
+app/api/create-wallet/route.ts:    await supabase.from("wallets").insert({
+app/api/campaign/update/route.ts:    await supabase.from("campaign_updates").insert({
+app/api/payout/reject/route.ts:    await supabase.from("financial_ledger").insert({
+app/api/payout/request/route.ts:    await supabase.from("financial_ledger").insert({

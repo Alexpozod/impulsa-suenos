@@ -1,0 +1,234 @@
+app
+├── account
+│   ├── bank
+│   │   └── page.tsx
+│   ├── page.tsx
+│   └── withdraw
+│       └── page.tsx
+├── admin
+│   ├── alerts
+│   │   └── page.tsx
+│   ├── audit
+│   │   └── page.tsx
+│   ├── campaign
+│   │   └── [id]
+│   │       └── page.tsx
+│   ├── campaign-updates
+│   │   └── page.tsx
+│   ├── campaigns
+│   │   └── page.tsx
+│   ├── earnings
+│   │   └── page.tsx
+│   ├── events
+│   │   └── page.tsx
+│   ├── finance
+│   │   └── page.tsx
+│   ├── financial
+│   │   └── page.tsx
+│   ├── kyc
+│   │   └── page.tsx
+│   ├── layout.tsx
+│   ├── ledger
+│   │   └── page.tsx
+│   ├── page.tsx
+│   ├── payouts
+│   │   └── page.tsx
+│   ├── reconcile
+│   │   └── page.tsx
+│   ├── risk
+│   │   └── page.tsx
+│   ├── settings
+│   │   └── page.tsx
+│   ├── users
+│   │   └── page.tsx
+│   ├── wallet
+│   │   └── page.tsx
+│   └── withdrawals
+│       └── page.tsx
+├── api
+│   ├── admin
+│   │   ├── alerts
+│   │   │   ├── resolve
+│   │   │   └── route.ts
+│   │   ├── campaign-updates
+│   │   │   └── route.ts
+│   │   ├── campaigns
+│   │   │   ├── manage
+│   │   │   └── route.ts
+│   │   ├── events
+│   │   │   └── route.ts
+│   │   ├── export
+│   │   │   └── route.ts
+│   │   ├── finance
+│   │   │   └── route.ts
+│   │   ├── fraud
+│   │   │   └── route.ts
+│   │   ├── kyc
+│   │   │   └── route.ts
+│   │   ├── payouts
+│   │   │   └── route.ts
+│   │   ├── reconcile
+│   │   │   ├── auto
+│   │   │   └── route.ts
+│   │   ├── release-funds
+│   │   │   └── route.ts
+│   │   ├── risk
+│   │   │   └── route.ts
+│   │   ├── settings
+│   │   │   └── route.ts
+│   │   ├── user-risk
+│   │   │   └── route.ts
+│   │   ├── users
+│   │   │   ├── create
+│   │   │   ├── route.ts
+│   │   │   └── update-role
+│   │   └── wallet
+│   │       └── route.ts
+│   ├── audit-log
+│   │   ├── list
+│   │   │   └── route.ts
+│   │   └── route.ts
+│   ├── campaign
+│   │   ├── [id]
+│   │   │   └── route.ts
+│   │   ├── create
+│   │   │   └── route.ts
+│   │   └── update
+│   │       └── route.ts
+│   ├── campaign-updates
+│   │   └── route.ts
+│   ├── campaign-wallet
+│   │   └── route.ts
+│   ├── campaigns
+│   │   ├── enriched
+│   │   │   └── route.ts
+│   │   └── route.ts
+│   ├── create-payment
+│   │   └── route.ts
+│   ├── create-wallet
+│   │   └── route.ts
+│   ├── donate
+│   │   └── route.ts
+│   ├── donations-live
+│   │   └── route.ts
+│   ├── exchange-rate
+│   │   └── route.ts
+│   ├── ledger
+│   │   └── route.ts
+│   ├── notifications
+│   │   └── route.ts
+│   ├── otp
+│   │   ├── send
+│   │   │   └── route.ts
+│   │   └── verify
+│   │       └── route.ts
+│   ├── payment-info
+│   │   └── route.ts
+│   ├── payout
+│   │   ├── approve
+│   │   │   └── route.ts
+│   │   ├── list
+│   │   │   └── route.ts
+│   │   ├── reject
+│   │   │   └── route.ts
+│   │   └── request
+│   │       └── route.ts
+│   ├── refund
+│   │   └── route.ts
+│   ├── send-email
+│   │   └── route.ts
+│   ├── upload
+│   │   └── route.ts
+│   ├── user
+│   │   └── finance
+│   │       └── route.ts
+│   ├── webhook
+│   │   └── route.ts
+│   └── withdraw
+│       └── route.ts
+├── campaign
+│   ├── [id]
+│   │   ├── buy
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   └── edit
+│       └── [id]
+│           └── page.tsx
+├── campaigns
+│   └── page.tsx
+├── como-funciona
+│   └── page.tsx
+├── components
+│   ├── CampaignCard.tsx
+│   ├── CampaignCarousel.tsx
+│   ├── Countdown.tsx
+│   ├── DonationBox.tsx
+│   ├── Footer.tsx
+│   ├── ImageUploader.tsx
+│   ├── LiveFeed.tsx
+│   ├── Navbar.tsx
+│   ├── Notifications.tsx
+│   ├── ViewersCounter.tsx
+│   └── finance
+│       ├── FinancialAlerts.tsx
+│       ├── LedgerTable.tsx
+│       └── RevenueChart.tsx
+├── contador
+│   ├── layout.tsx
+│   └── page.tsx
+├── cookies
+│   └── page.tsx
+├── create
+│   └── page.tsx
+├── dashboard
+│   ├── campaigns
+│   │   └── [id]
+│   │       └── updates
+│   ├── edit
+│   │   └── [id]
+│   │       └── page.tsx
+│   ├── finance
+│   │   └── page.tsx
+│   ├── notifications
+│   │   └── page.tsx
+│   ├── page.tsx
+│   └── payouts
+│       └── page.tsx
+├── faq
+│   └── page.tsx
+├── favicon.ico
+├── force-deploy.txt
+├── globals.css
+├── hooks
+│   └── useFinancialDashboard.ts
+├── kyc
+│   └── page.tsx
+├── layout.tsx
+├── login
+│   └── page.tsx
+├── middleware.ts
+├── page.tsx
+├── payment
+│   ├── failure
+│   │   └── page.tsx
+│   ├── pending
+│   │   └── page.tsx
+│   └── success
+│       ├── SuccessClient.tsx
+│       └── page.tsx
+├── privacidad
+│   └── page.tsx
+├── recover
+│   └── page.tsx
+├── reembolsos
+│   └── page.tsx
+├── register
+│   └── page.tsx
+├── sorteos
+│   └── page.tsx
+├── success
+│   └── page.tsx
+└── terminos
+    └── page.tsx
+
+116 directories, 116 files

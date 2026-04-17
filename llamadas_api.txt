@@ -1,0 +1,59 @@
+app/middleware.ts:    const res = await fetch(
+app/middleware.ts:      const adminCheck = await fetch(
+app/middleware.ts:        const profileRes = await fetch(
+app/kyc/page.tsx:    const res = await fetch("/api/upload", {
+app/contador/page.tsx:    const res = await fetch('/api/admin/finance')
+app/payment/success/SuccessClient.tsx:      const res = await fetch(`/api/payment-info?payment_id=${payment_id}`)
+app/admin/settings/page.tsx:    const res = await fetch('/api/admin/settings')
+app/admin/settings/page.tsx:    const res = await fetch('/api/admin/settings', {
+app/admin/ledger/page.tsx:      const res = await fetch('/api/ledger')
+app/admin/reconcile/page.tsx:      const res = await fetch("/api/admin/reconcile")
+app/admin/kyc/page.tsx:      const res = await fetch('/api/admin/kyc', {
+app/admin/financial/page.tsx:    const res = await fetch("/api/admin/finance")
+app/admin/campaign-updates/page.tsx:      const res = await fetch('/api/admin/campaign-updates')
+app/admin/campaign-updates/page.tsx:    await fetch('/api/admin/campaign-updates', {
+app/admin/campaign-updates/page.tsx:    await fetch('/api/admin/campaign-updates', {
+app/admin/alerts/page.tsx:    const res = await fetch(url)
+app/admin/alerts/page.tsx:    await fetch("/api/admin/alerts/resolve", {
+app/admin/audit/page.tsx:    const res = await fetch("/api/audit-log/list")
+app/admin/users/page.tsx:      const res = await fetch('/api/admin/users')
+app/admin/users/page.tsx:      const res = await fetch('/api/admin/users/create', {
+app/admin/users/page.tsx:      await fetch('/api/admin/users', {
+app/admin/withdrawals/page.tsx:    const res = await fetch('/api/admin/withdrawals')
+app/admin/withdrawals/page.tsx:    const res = await fetch('/api/admin/withdrawals', {
+app/admin/wallet/page.tsx:      const res = await fetch('/api/admin/wallet')
+app/admin/campaigns/page.tsx:    const res = await fetch('/api/admin/campaigns')
+app/admin/campaigns/page.tsx:      await fetch('/api/admin/campaigns/manage', {
+app/admin/events/page.tsx:      const res = await fetch("/api/admin/events")
+app/admin/page.tsx:      const res = await fetch("/api/admin/finance", {
+app/admin/risk/page.tsx:      const res = await fetch("/api/admin/risk")
+app/admin/payouts/page.tsx:      const res = await fetch("/api/payout/list", {
+app/admin/payouts/page.tsx:      const res = await fetch("/api/payout/approve", {
+app/admin/payouts/page.tsx:      const res = await fetch("/api/payout/reject", {
+app/dashboard/edit/[id]/page.tsx:    await fetch("/api/campaign/update", {
+app/dashboard/finance/page.tsx:    const res = await fetch("/api/user/finance", {
+app/dashboard/finance/page.tsx:    const res = await fetch("/api/payout/request", {
+app/dashboard/campaigns/[id]/updates/page.tsx:      const res = await fetch("/api/campaign-updates", {
+app/dashboard/page.tsx:      const res = await fetch("/api/ledger")
+app/dashboard/notifications/page.tsx:    const res = await fetch('/api/notifications', {
+app/dashboard/notifications/page.tsx:    await fetch('/api/notifications', {
+app/dashboard/payouts/page.tsx:      const resFinance = await fetch("/api/user/finance", {
+app/dashboard/payouts/page.tsx:      const resPayouts = await fetch("/api/payout")
+app/components/Navbar.tsx:      const res = await fetch('/api/notifications', {
+app/components/LiveFeed.tsx:        const res = await fetch("/api/donations-live")
+app/components/Notifications.tsx:        const res = await fetch("/api/donations-live")
+app/components/DonationBox.tsx:      const res = await fetch('/api/create-payment', {
+app/hooks/useFinancialDashboard.ts:      const res = await fetch("/api/user/finance", {
+app/campaign/edit/[id]/page.tsx:      const res = await fetch(`/api/campaign/${id}`)
+app/campaign/edit/[id]/page.tsx:      await fetch(`/api/campaign/update`, {
+app/campaign/[id]/page.tsx:      const res = await fetch(`/api/campaign/${id}`)
+app/campaign/[id]/page.tsx:      const res = await fetch(`/api/exchange-rate`)
+app/campaign/[id]/page.tsx:      const res = await fetch(`/api/donations-live?campaign_id=${id}`)
+app/campaign/[id]/page.tsx:      const res = await fetch(`/api/campaign-updates?campaign_id=${id}`)
+app/api/exchange-rate/route.ts:      const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD")
+app/campaigns/page.tsx:      const res = await fetch('/api/campaigns')
+app/account/withdraw/page.tsx:          const res = await fetch(`/api/campaign-wallet?campaign_id=${c.id}`)
+app/account/withdraw/page.tsx:      const res = await fetch("/api/payout/list", {
+app/account/withdraw/page.tsx:      const res = await fetch("/api/payout/request", {
+app/page.tsx:    fetch("/api/campaigns")
+app/create/page.tsx:      const res = await fetch('/api/campaign/create', {
