@@ -45,10 +45,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
     }
 
-    const orgId = user.user_metadata?.organization_id
-
     /* =========================
-       📦 PAYOUT (FIX CRÍTICO)
+       📦 PAYOUT
     ========================= */
     const { data: payout } = await supabase
       .from("payouts")
@@ -82,7 +80,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📊 CAMPAIGN (FIX CRÍTICO)
+       📊 CAMPAIGN
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
@@ -123,26 +121,29 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 LEDGER
+       💰 LEDGER (FIX DEFINITIVO)
+       eliminar pending y crear withdraw limpio
     ========================= */
-    await supabase.from("financial_ledger").insert({
-      campaign_id: payout.campaign_id,
-      user_email: campaign.user_email,
-      amount: -Math.abs(payout.amount),
-      type: "withdraw",
-      flow_type: "out",
-      payment_id: `payout_${payout.id}`,
-      created_at: new Date().toISOString(),
-      organization_id: orgId
-    })
 
-    /* =========================
-       👛 WALLET
-    ========================= */
-    await supabase.rpc("update_wallet_after_payout", {
-      p_user_email: campaign.user_email,
-      p_amount: payout.amount
-    })
+    // 🔥 eliminar pending
+    await supabase
+      .from("financial_ledger")
+      .delete()
+      .eq("payment_id", `pending_${payout.id}`)
+
+    // 🔥 insertar withdraw real
+    await supabase
+      .from("financial_ledger")
+      .insert({
+        campaign_id: payout.campaign_id,
+        user_email: campaign.user_email,
+        amount: -Math.abs(payout.amount),
+        type: "withdraw",
+        status: "confirmed",
+        flow_type: "out",
+        payment_id: `payout_${payout.id}`,
+        created_at: new Date().toISOString()
+      })
 
     /* =========================
        📦 PAYOUT
@@ -154,17 +155,6 @@ export async function POST(req: Request) {
         processed_at: new Date().toISOString()
       })
       .eq("id", payout_id)
-
-    /* =========================
-       📊 CAMPAIGN UPDATE
-    ========================= */
-    await supabase
-      .from("campaigns")
-      .update({
-        total_withdrawn: (campaign.total_withdrawn || 0) + payout.amount,
-        balance: (campaign.balance || 0) - payout.amount
-      })
-      .eq("id", payout.campaign_id)
 
     /* =========================
        🔔 NOTIFICACIÓN
