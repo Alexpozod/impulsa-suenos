@@ -17,7 +17,7 @@ export default function CampaignDetail() {
   const [rate, setRate] = useState<number>(900)
 
   const [donations, setDonations] = useState<any[]>([])
-  const [updates, setUpdates] = useState<any[]>([]) // ✅ updates
+  const [updates, setUpdates] = useState<any[]>([])
 
   useEffect(() => {
     if (id) {
@@ -162,10 +162,19 @@ export default function CampaignDetail() {
             <div className="space-y-4">
               {updates.map((u: any) => (
                 <div key={u.id} className="border rounded-xl p-4 bg-gray-50">
-                  <p className="whitespace-pre-line">{u.content}</p>
-                  <p className="text-xs text-gray-400 mt-2">
-                    {new Date(u.created_at).toLocaleString()}
+
+                  {/* FIX SEGURO */}
+                  <p className="whitespace-pre-line">
+                    {u.description || "Actualización sin contenido"}
                   </p>
+
+                  <p className="text-xs text-gray-400 mt-2">
+                    {u.created_at
+                      ? new Date(u.created_at).toLocaleString()
+                      : ""
+                    }
+                  </p>
+
                 </div>
               ))}
             </div>

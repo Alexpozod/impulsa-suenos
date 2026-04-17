@@ -47,10 +47,11 @@ export async function POST(req: Request) {
   const { error } = await supabase
     .from("campaign_updates")
     .insert({
-      campaign_id,
-      content,
-      status: "approved" // 🔥 IMPORTANTE (para que se vea altiro)
-    })
+  campaign_id,
+  description: content,
+  title: "Actualización",
+  status: "approved"
+})
 
   if (error) {
     return NextResponse.json(
