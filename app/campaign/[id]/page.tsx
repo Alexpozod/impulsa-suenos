@@ -58,9 +58,6 @@ export default function CampaignDetail() {
     }
   }
 
-  /* =========================
-     🔥 LEDGER TIMELINE
-  ========================= */
   const loadLedger = async () => {
     try {
       const res = await fetch(`/api/ledger`)
@@ -111,34 +108,12 @@ export default function CampaignDetail() {
     : [campaign.image_url]
   ).filter(Boolean).map(buildImageUrl)
 
-  const getLabel = (type: string) => {
-    switch (type) {
-      case "payment": return "💰 Donación recibida"
-      case "withdraw": return "🏦 Retiro realizado"
-      case "withdraw_pending": return "⏳ Retiro solicitado"
-      case "withdraw_rejected": return "❌ Retiro rechazado"
-      case "fee_mp": return "💳 Comisión MP"
-      case "fee_platform": return "🧾 Comisión plataforma"
-      default: return type
-    }
-  }
-
-  const getColor = (type: string) => {
-    if (type === "payment") return "text-green-600"
-    if (type.includes("withdraw") || type.includes("fee")) return "text-red-600"
-    return "text-gray-700"
-  }
-
-  const getSign = (type: string) => {
-    if (type === "payment") return "+"
-    return "-"
-  }
-
   return (
     <main className="bg-white min-h-screen">
 
       <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-5 gap-10">
 
+        {/* ================= LEFT ================= */}
         <div className="md:col-span-3">
 
           <CampaignCarousel images={images} />
@@ -179,7 +154,7 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* 💬 DONACIONES */}
+          {/* DONACIONES */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               💬 Últimas donaciones
@@ -199,26 +174,12 @@ export default function CampaignDetail() {
                   ? donation.user_email.split("@")[0][0] + "***"
                   : "Donador"
 
-                const message =
-                  donation.metadata?.message || ""
-
                 return (
-                  <div
-                    key={donation.id}
-                    className="flex justify-between items-start border-b pb-2"
-                  >
+                  <div key={donation.id} className="flex justify-between border-b pb-2">
 
-                    <div>
-                      <span className="font-medium">{name}</span>
+                    <span>{name}</span>
 
-                      {message && (
-                        <div className="text-xs text-gray-500">
-                          {message}
-                        </div>
-                      )}
-                    </div>
-
-                    <span className="font-semibold text-green-600">
+                    <span className="text-green-600 font-semibold">
                       ${Number(donation.amount).toLocaleString()}
                     </span>
 
@@ -229,14 +190,14 @@ export default function CampaignDetail() {
             </div>
           </div>
 
-          {/* 🔥 TIMELINE REAL */}
+          {/* ================= TIMELINE PRO ================= */}
           <div className="mt-12">
 
-            <h2 className="text-xl font-bold mb-4">
+            <h2 className="text-xl font-bold mb-6">
               📊 Actividad de la campaña
             </h2>
 
-            <div className="space-y-3">
+            <div className="relative border-l pl-6 space-y-6">
 
               {ledger.length === 0 && (
                 <p className="text-gray-500 text-sm">
@@ -244,23 +205,53 @@ export default function CampaignDetail() {
                 </p>
               )}
 
-              {ledger.map((tx: any) => (
-                <div
-                  key={tx.id}
-                  className="flex justify-between border-b pb-2 text-sm"
-                >
+              {ledger.map((tx: any) => {
 
-                  <span>
-                    {getLabel(tx.type)}
-                  </span>
+                const getConfig = () => {
+                  switch (tx.type) {
+                    case "payment":
+                      return { icon: "💰", title: "Donación", color: "bg-green-500", text: "text-green-600", sign: "+" }
+                    case "withdraw":
+                      return { icon: "🏦", title: "Retiro", color: "bg-blue-500", text: "text-blue-600", sign: "-" }
+                    case "withdraw_pending":
+                      return { icon: "⏳", title: "Retiro pendiente", color: "bg-yellow-500", text: "text-yellow-600", sign: "-" }
+                    case "withdraw_rejected":
+                      return { icon: "❌", title: "Retiro rechazado", color: "bg-red-500", text: "text-red-600", sign: "-" }
+                    default:
+                      return { icon: "📌", title: tx.type, color: "bg-gray-400", text: "text-gray-600", sign: "" }
+                  }
+                }
 
-                  <span className={getColor(tx.type)}>
-                    {getSign(tx.type)}
-                    ${Math.abs(Number(tx.amount)).toLocaleString()}
-                  </span>
+                const config = getConfig()
 
-                </div>
-              ))}
+                return (
+                  <div key={tx.id} className="relative flex items-start gap-4">
+
+                    <div className={`absolute -left-9 top-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs ${config.color}`}>
+                      {config.icon}
+                    </div>
+
+                    <div className="flex-1 border rounded-xl p-4 bg-white shadow-sm">
+
+                      <div className="flex justify-between">
+
+                        <div>
+                          <p className="font-semibold">{config.title}</p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(tx.created_at).toLocaleString()}
+                          </p>
+                        </div>
+
+                        <div className={`font-bold ${config.text}`}>
+                          {config.sign}${Math.abs(Number(tx.amount)).toLocaleString()}
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+                )
+              })}
 
             </div>
 
@@ -268,7 +259,7 @@ export default function CampaignDetail() {
 
         </div>
 
-        {/* 💳 SIDEBAR */}
+        {/* ================= RIGHT SIDEBAR ================= */}
         <div className="md:col-span-2">
           <div className="sticky top-6">
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
