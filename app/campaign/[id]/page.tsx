@@ -17,16 +17,14 @@ export default function CampaignDetail() {
   const [rate, setRate] = useState<number>(900)
 
   const [donations, setDonations] = useState<any[]>([])
-  const [ledger, setLedger] = useState<any[]>([])
-  const [updates, setUpdates] = useState<any[]>([]) // ✅ NUEVO
+  const [updates, setUpdates] = useState<any[]>([]) // ✅ updates
 
   useEffect(() => {
     if (id) {
       load()
       loadRate()
       loadDonations()
-      loadLedger()
-      loadUpdates() // ✅ NUEVO
+      loadUpdates()
     }
   }, [id])
 
@@ -60,24 +58,6 @@ export default function CampaignDetail() {
     }
   }
 
-  const loadLedger = async () => {
-    try {
-      const res = await fetch(`/api/ledger`)
-      const data = await res.json()
-
-      const filtered = data
-        ?.filter((tx: any) => tx.campaign_id === id)
-        ?.sort((a: any, b: any) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
-
-      setLedger(filtered || [])
-    } catch (err) {
-      console.error("Error loading ledger:", err)
-    }
-  }
-
-  // ✅ NUEVO
   const loadUpdates = async () => {
     try {
       const res = await fetch(`/api/campaign-updates?campaign_id=${id}`)
@@ -121,14 +101,12 @@ export default function CampaignDetail() {
     : [campaign.image_url]
   ).filter(Boolean).map(buildImageUrl)
 
-  // ✅ NUEVO (ESTADO SEGURO)
-  const status = campaign.status || "active"
-
   return (
     <main className="bg-white min-h-screen">
 
       <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-5 gap-10">
 
+        {/* ================= LEFT ================= */}
         <div className="md:col-span-3">
 
           <CampaignCarousel images={images} />
@@ -137,7 +115,7 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* PROGRESO ORIGINAL (NO TOCADO) */}
+          {/* PROGRESO */}
           <div className="mt-6 space-y-3">
 
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -169,48 +147,8 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* DONACIONES ORIGINAL (NO TOCADO) */}
+          {/* ================= 🔥 UPDATES ================= */}
           <div className="mt-10">
-            <h2 className="text-xl font-bold mb-4">
-              💬 Últimas donaciones
-            </h2>
-
-            <div className="space-y-3">
-              {donations.map((donation: any) => (
-                <div key={donation.id} className="flex justify-between border-b pb-2">
-                  <span>{donation.user_email?.[0] + "***" || "Donador"}</span>
-                  <span className="text-green-600 font-semibold">
-                    ${Number(donation.amount).toLocaleString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* TIMELINE ORIGINAL (NO TOCADO) */}
-          <div className="mt-12">
-            <h2 className="text-xl font-bold mb-6">
-              📊 Actividad de la campaña
-            </h2>
-
-            <div className="relative border-l pl-6 space-y-6">
-              {ledger.map((tx: any) => (
-                <div key={tx.id} className="relative">
-                  <div className="absolute -left-8 bg-green-500 w-5 h-5 rounded-full" />
-                  <div className="border p-4 rounded-xl">
-                    <p>{tx.type}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(tx.created_at).toLocaleString()}
-                    </p>
-                    <p>${Number(tx.amount).toLocaleString()}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* UPDATES */}
-          <div className="mt-12">
             <h2 className="text-xl font-bold mb-4">
               📢 Actualizaciones del creador
             </h2>
@@ -233,23 +171,59 @@ export default function CampaignDetail() {
             </div>
           </div>
 
+          {/* ================= 💬 DONACIONES ================= */}
+          <div className="mt-10">
+            <h2 className="text-xl font-bold mb-4">
+              💬 Últimas donaciones
+            </h2>
+
+            {donations.length === 0 && (
+              <p className="text-gray-500 text-sm">
+                Aún no hay donaciones
+              </p>
+            )}
+
+            <div className="space-y-3">
+
+              {donations.map((donation: any) => {
+
+                const name = donation.user_email
+                  ? donation.user_email.split("@")[0][0] + "***"
+                  : "Donador"
+
+                const message = donation.metadata?.message || ""
+
+                return (
+                  <div key={donation.id} className="border-b pb-2">
+
+                    <div className="flex justify-between">
+                      <span className="font-medium">{name}</span>
+                      <span className="text-green-600 font-semibold">
+                        ${Number(donation.amount).toLocaleString()}
+                      </span>
+                    </div>
+
+                    {message && (
+                      <p className="text-xs text-gray-500">
+                        {message}
+                      </p>
+                    )}
+
+                  </div>
+                )
+              })}
+
+            </div>
+          </div>
+
         </div>
 
+        {/* ================= RIGHT ================= */}
         <div className="md:col-span-2">
           <div className="sticky top-6">
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
               <ViewersCounter />
-
-              {/* 🔥 SOLO AQUÍ SE CAMBIA */}
-              {status === "active" ? (
-                <DonationBox campaign_id={campaign.id} />
-              ) : (
-                <div className="bg-gray-100 border rounded-xl p-4 text-center text-sm text-gray-600">
-                  {status === "paused" && "⏸️ Campaña pausada temporalmente"}
-                  {status === "completed" && "✅ Campaña finalizada"}
-                </div>
-              )}
-
+              <DonationBox campaign_id={campaign.id} />
             </div>
           </div>
         </div>
