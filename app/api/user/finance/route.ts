@@ -127,14 +127,14 @@ export async function GET(req: Request) {
         fees,
         withdrawn,
         pending,
-        available: balance // ✅ FIX CLAVE (sin duplicar)
+        available: balance // ✅ CORRECTO
       }
     })
 
     return NextResponse.json({
       campaigns: campaignsData,
       totals: {
-        balance: totalBalance - pendingAmount, // ✅ FIX CLAVE
+        balance: totalBalance, // 🔥 FIX AQUÍ (ANTES RESTABA PENDING)
         raised: totalRaised,
         fees: totalFees,
         withdrawn: totalWithdrawn,
