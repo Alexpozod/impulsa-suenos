@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/src/lib/supabase"
-import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard" // ✅ NUEVO
+import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 
 export default function AccountPage() {
 
@@ -15,7 +15,6 @@ export default function AccountPage() {
   const [kycStatus, setKycStatus] = useState<string | null>(null)
   const [bankLoaded, setBankLoaded] = useState(false)
 
-  // ✅ NUEVO (NO interfiere con nada)
   const { data: finance } = useFinancialDashboard()
 
   useEffect(() => {
@@ -63,9 +62,7 @@ export default function AccountPage() {
         <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
         <p className="text-gray-600 mb-6">{user?.email}</p>
 
-        {/* =========================
-           🔐 STATUS (NO TOCADO)
-        ========================= */}
+        {/* 🔐 STATUS */}
         <div className="mb-6 flex gap-3">
 
           <span className={`px-3 py-1 rounded text-sm ${
@@ -86,9 +83,7 @@ export default function AccountPage() {
 
         </div>
 
-        {/* =========================
-           💰 RESUMEN FINANCIERO (NUEVO)
-        ========================= */}
+        {/* 💰 RESUMEN */}
         {finance && (
           <div className="grid md:grid-cols-4 gap-4 mb-6">
 
@@ -100,9 +95,7 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* =========================
-           ⚡ ACCIONES INTELIGENTES (NUEVO)
-        ========================= */}
+        {/* ⚡ ACCIONES */}
         <div className="mb-6 flex flex-wrap gap-3">
 
           <button
@@ -123,24 +116,23 @@ export default function AccountPage() {
 
         </div>
 
-        {/* =========================
-           🔘 BOTONES ORIGINALES (NO TOCADOS)
-        ========================= */}
+        {/* 🔘 ACCESOS */}
         <div className="grid md:grid-cols-2 gap-6">
 
-          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded">
+          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded hover:bg-gray-100">
             📊 Dashboard
           </button>
 
-          <button onClick={() => router.push("/create")} className="p-4 bg-white border rounded">
-            ➕ Crear campaña
+          {/* ✅ CAMBIO QUIRÚRGICO */}
+          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded hover:bg-gray-100">
+            📂 Gestionar campañas
           </button>
 
-          <button onClick={() => router.push("/account/bank")} className="p-4 bg-white border rounded">
+          <button onClick={() => router.push("/account/bank")} className="p-4 bg-white border rounded hover:bg-gray-100">
             🏦 Banco
           </button>
 
-          <button onClick={() => router.push("/kyc")} className="p-4 bg-white border rounded">
+          <button onClick={() => router.push("/kyc")} className="p-4 bg-white border rounded hover:bg-gray-100">
             🪪 KYC
           </button>
 
@@ -151,9 +143,7 @@ export default function AccountPage() {
   )
 }
 
-/* =========================
-   💳 MINI CARD (NUEVO)
-========================= */
+/* 💳 CARD */
 
 function MiniCard({ title, value, highlight }: any) {
   return (
