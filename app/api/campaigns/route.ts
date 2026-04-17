@@ -40,17 +40,20 @@ export async function GET() {
     }
 
     /* =========================
-       💰 TODAS LAS DONACIONES
+       💰 DONACIONES REALES (MISMA LÓGICA QUE DETALLE)
     ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("campaign_id, amount")
-      .eq("flow_type", "payment")
-      .eq("status", "confirmed")
+      .eq("type", "payment")        // 🔥 CLAVE
+      .eq("status", "confirmed")    // 🔥 CLAVE
 
     const map: any = {}
 
     ledger?.forEach((d) => {
+
+      if (!d.amount || d.amount <= 0) return
+
       if (!map[d.campaign_id]) {
         map[d.campaign_id] = {
           amount: 0,
