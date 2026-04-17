@@ -45,7 +45,7 @@ export async function GET() {
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("campaign_id, amount")
-      .eq("flow_type", "in")
+      .eq("flow_type", "payment")
       .eq("status", "confirmed")
 
     const map: any = {}
