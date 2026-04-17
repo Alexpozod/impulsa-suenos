@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
@@ -17,12 +17,14 @@ export default function CampaignDetail() {
   const [rate, setRate] = useState<number>(900)
 
   const [donations, setDonations] = useState<any[]>([])
+  const [ledger, setLedger] = useState<any[]>([])
 
   useEffect(() => {
     if (id) {
       load()
       loadRate()
       loadDonations()
+      loadLedger()
     }
   }, [id])
 
@@ -53,6 +55,26 @@ export default function CampaignDetail() {
       setDonations(data || [])
     } catch (err) {
       console.error("Error loading donations:", err)
+    }
+  }
+
+  /* =========================
+     🔥 LEDGER TIMELINE
+  ========================= */
+  const loadLedger = async () => {
+    try {
+      const res = await fetch(`/api/ledger`)
+      const data = await res.json()
+
+      const filtered = data
+        ?.filter((tx: any) => tx.campaign_id === id)
+        ?.sort((a: any, b: any) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+
+      setLedger(filtered || [])
+    } catch (err) {
+      console.error("Error loading ledger:", err)
     }
   }
 
@@ -89,6 +111,29 @@ export default function CampaignDetail() {
     : [campaign.image_url]
   ).filter(Boolean).map(buildImageUrl)
 
+  const getLabel = (type: string) => {
+    switch (type) {
+      case "payment": return "💰 Donación recibida"
+      case "withdraw": return "🏦 Retiro realizado"
+      case "withdraw_pending": return "⏳ Retiro solicitado"
+      case "withdraw_rejected": return "❌ Retiro rechazado"
+      case "fee_mp": return "💳 Comisión MP"
+      case "fee_platform": return "🧾 Comisión plataforma"
+      default: return type
+    }
+  }
+
+  const getColor = (type: string) => {
+    if (type === "payment") return "text-green-600"
+    if (type.includes("withdraw") || type.includes("fee")) return "text-red-600"
+    return "text-gray-700"
+  }
+
+  const getSign = (type: string) => {
+    if (type === "payment") return "+"
+    return "-"
+  }
+
   return (
     <main className="bg-white min-h-screen">
 
@@ -102,6 +147,7 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
+          {/* PROGRESO */}
           <div className="mt-6 space-y-3">
 
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -133,9 +179,8 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* 🔥 DONACIONES */}
+          {/* 💬 DONACIONES */}
           <div className="mt-10">
-
             <h2 className="text-xl font-bold mb-4">
               💬 Últimas donaciones
             </h2>
@@ -150,30 +195,12 @@ export default function CampaignDetail() {
 
               {donations.map((donation: any) => {
 
-                // 🔥 PRIVACIDAD PRO (ÚNICO CAMBIO)
-                const name = (() => {
-
-                  if (donation.user_email && donation.user_email.includes("@")) {
-                    const raw = donation.user_email.split("@")[0]
-
-                    if (raw.length <= 2) return raw
-
-                    return raw[0] + "***" + raw.slice(-1)
-                  }
-
-                  if (donation.payment_id) {
-                    return `Donador ${donation.payment_id.slice(-4)}`
-                  }
-
-                  return "Donador"
-
-                })()
+                const name = donation.user_email
+                  ? donation.user_email.split("@")[0][0] + "***"
+                  : "Donador"
 
                 const message =
-                  donation.metadata?.message ||
-                  (typeof donation.metadata === "string"
-                    ? donation.metadata
-                    : "")
+                  donation.metadata?.message || ""
 
                 return (
                   <div
@@ -181,18 +208,14 @@ export default function CampaignDetail() {
                     className="flex justify-between items-start border-b pb-2"
                   >
 
-                    <div className="flex flex-col">
-
-                      <span className="font-medium">
-                        {name}
-                      </span>
+                    <div>
+                      <span className="font-medium">{name}</span>
 
                       {message && (
-                        <span className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500">
                           {message}
-                        </span>
+                        </div>
                       )}
-
                     </div>
 
                     <span className="font-semibold text-green-600">
@@ -204,11 +227,48 @@ export default function CampaignDetail() {
               })}
 
             </div>
+          </div>
+
+          {/* 🔥 TIMELINE REAL */}
+          <div className="mt-12">
+
+            <h2 className="text-xl font-bold mb-4">
+              📊 Actividad de la campaña
+            </h2>
+
+            <div className="space-y-3">
+
+              {ledger.length === 0 && (
+                <p className="text-gray-500 text-sm">
+                  Sin actividad aún
+                </p>
+              )}
+
+              {ledger.map((tx: any) => (
+                <div
+                  key={tx.id}
+                  className="flex justify-between border-b pb-2 text-sm"
+                >
+
+                  <span>
+                    {getLabel(tx.type)}
+                  </span>
+
+                  <span className={getColor(tx.type)}>
+                    {getSign(tx.type)}
+                    ${Math.abs(Number(tx.amount)).toLocaleString()}
+                  </span>
+
+                </div>
+              ))}
+
+            </div>
 
           </div>
 
         </div>
 
+        {/* 💳 SIDEBAR */}
         <div className="md:col-span-2">
           <div className="sticky top-6">
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
