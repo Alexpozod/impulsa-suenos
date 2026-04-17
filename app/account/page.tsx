@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/src/lib/supabase"
+import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard" // ✅ NUEVO
 
 export default function AccountPage() {
 
@@ -13,6 +14,9 @@ export default function AccountPage() {
 
   const [kycStatus, setKycStatus] = useState<string | null>(null)
   const [bankLoaded, setBankLoaded] = useState(false)
+
+  // ✅ NUEVO (NO interfiere con nada)
+  const { data: finance } = useFinancialDashboard()
 
   useEffect(() => {
     const load = async () => {
@@ -59,6 +63,9 @@ export default function AccountPage() {
         <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
         <p className="text-gray-600 mb-6">{user?.email}</p>
 
+        {/* =========================
+           🔐 STATUS (NO TOCADO)
+        ========================= */}
         <div className="mb-6 flex gap-3">
 
           <span className={`px-3 py-1 rounded text-sm ${
@@ -79,6 +86,46 @@ export default function AccountPage() {
 
         </div>
 
+        {/* =========================
+           💰 RESUMEN FINANCIERO (NUEVO)
+        ========================= */}
+        {finance && (
+          <div className="grid md:grid-cols-4 gap-4 mb-6">
+
+            <MiniCard title="Disponible" value={finance.totals.balance} highlight />
+            <MiniCard title="Recaudado" value={finance.totals.raised} />
+            <MiniCard title="Retirado" value={finance.totals.withdrawn} />
+            <MiniCard title="Pendiente" value={finance.totals.pending} />
+
+          </div>
+        )}
+
+        {/* =========================
+           ⚡ ACCIONES INTELIGENTES (NUEVO)
+        ========================= */}
+        <div className="mb-6 flex flex-wrap gap-3">
+
+          <button
+            onClick={() => router.push("/create")}
+            className="px-4 py-2 bg-green-600 text-white rounded"
+          >
+            ➕ Crear campaña
+          </button>
+
+          {finance?.totals?.balance > 0 && bankLoaded && kycStatus === "approved" && (
+            <button
+              onClick={() => router.push("/account/withdraw")}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              💸 Retirar fondos
+            </button>
+          )}
+
+        </div>
+
+        {/* =========================
+           🔘 BOTONES ORIGINALES (NO TOCADOS)
+        ========================= */}
         <div className="grid md:grid-cols-2 gap-6">
 
           <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded">
@@ -100,6 +147,23 @@ export default function AccountPage() {
         </div>
 
       </div>
+    </div>
+  )
+}
+
+/* =========================
+   💳 MINI CARD (NUEVO)
+========================= */
+
+function MiniCard({ title, value, highlight }: any) {
+  return (
+    <div className={`p-4 rounded-xl border ${
+      highlight ? "bg-green-50 border-green-400" : "bg-white"
+    }`}>
+      <p className="text-xs text-gray-500">{title}</p>
+      <p className="text-lg font-bold">
+        ${Number(value || 0).toLocaleString()}
+      </p>
     </div>
   )
 }
