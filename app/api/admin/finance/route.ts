@@ -9,42 +9,137 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    // 💰 ledger
+    /* =========================
+       💰 LEDGER
+    ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
+      .eq("status", "confirmed")
 
-    const deposits = ledger?.filter(l => l.type === "deposit") || []
-    const withdrawals = ledger?.filter(l => l.type === "withdraw") || []
+    /* =========================
+       🎯 FILTROS SEGUROS (ANTI BUG)
+    ========================= */
+    const deposits = ledger?.filter(l =>
+      l.flow_type === "in" &&
+      Number(l.amount) > 0 &&
+      l.type !== "withdraw_rejected"
+    ) || []
 
-    const totalIncome = deposits.reduce((acc, d) => acc + Number(d.amount), 0)
-    const totalWithdrawals = withdrawals.reduce((acc, w) => acc + Number(w.amount), 0)
+    const withdrawals = ledger?.filter(l =>
+      l.type === "withdraw" &&
+      l.status === "confirmed"
+    ) || []
 
-    const balance = totalIncome - totalWithdrawals
+    const fees = ledger?.filter(l =>
+      l.type === "fee_platform" &&
+      l.status === "confirmed"
+    ) || []
 
-    // 💳 pagos recientes
+    /* =========================
+       📊 MÉTRICAS BASE
+    ========================= */
+    const totalIncome = deposits.reduce(
+      (acc, d) => acc + Number(d.amount || 0),
+      0
+    )
+
+    const totalWithdrawals = withdrawals.reduce(
+      (acc, w) => acc + Math.abs(Number(w.amount || 0)),
+      0
+    )
+
+    const totalUSD = deposits.reduce(
+      (acc, d) => acc + Number(d.amount_usd || 0),
+      0
+    )
+
+    const totalFees = fees.reduce(
+      (acc, f) => acc + Math.abs(Number(f.amount || 0)),
+      0
+    )
+
+    const totalTips = deposits.reduce(
+      (acc, d) => acc + Number(d.metadata?.tip || 0),
+      0
+    )
+
+    const balance = totalIncome - totalWithdrawals - totalFees
+
+    /* =========================
+       💳 PROVIDERS
+    ========================= */
+    const providers: any = {}
+
+    deposits.forEach(d => {
+
+      const provider = d.provider || "unknown"
+
+      if (!providers[provider]) {
+        providers[provider] = {
+          total: 0,
+          total_usd: 0,
+          count: 0
+        }
+      }
+
+      providers[provider].total += Number(d.amount || 0)
+      providers[provider].total_usd += Number(d.amount_usd || 0)
+      providers[provider].count += 1
+    })
+
+    /* =========================
+       📅 AGRUPACIÓN POR DÍA
+    ========================= */
+    const daily: any = {}
+
+    deposits.forEach(d => {
+
+      const day = new Date(d.created_at).toISOString().split("T")[0]
+
+      if (!daily[day]) {
+        daily[day] = {
+          total: 0,
+          count: 0
+        }
+      }
+
+      daily[day].total += Number(d.amount || 0)
+      daily[day].count += 1
+    })
+
+    /* =========================
+       💳 PAGOS RECIENTES (RESTRINGIDO)
+    ========================= */
     const { data: payments } = await supabase
       .from("financial_ledger")
       .select("*")
-      .eq("type", "deposit")
+      .eq("flow_type", "in")
+      .eq("status", "confirmed")
       .order("created_at", { ascending: false })
       .limit(10)
 
-    // 🚨 errores
+    /* =========================
+       🚨 ERRORES
+    ========================= */
     const { data: errors } = await supabase
       .from("error_logs")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(10)
 
-    // 🏦 payouts
+    /* =========================
+       🏦 PAYOUTS
+    ========================= */
     const { data: payouts } = await supabase
       .from("payouts")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(10)
 
-    // ⚠️ conciliación
+    /* =========================
+       ⚠️ CONCILIACIÓN
+    ========================= */
     const { data: issues } = await supabase
       .from("reconciliation_logs")
       .select("*")
@@ -54,8 +149,13 @@ export async function GET() {
     return NextResponse.json({
       totalIncome,
       totalWithdrawals,
+      totalUSD,
+      totalFees,
+      totalTips,
       balance,
       totalPayments: deposits.length,
+      providers,
+      daily,
       recentPayments: payments || [],
       errors: errors || [],
       payouts: payouts || [],
@@ -63,6 +163,8 @@ export async function GET() {
     })
 
   } catch (error) {
+    console.error("ADMIN FINANCE ERROR:", error)
+
     return NextResponse.json(
       { error: "finance error" },
       { status: 500 }
