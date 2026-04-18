@@ -18,9 +18,14 @@ export default function FinanceAdminPage() {
   const [topCampaigns, setTopCampaigns] = useState<any[]>([])
   const [balances, setBalances] = useState<any[]>([])
 
+  // 🔥 NUEVO
+  const [profitRanking, setProfitRanking] = useState<any[]>([])
+  const [unhealthyCampaigns, setUnhealthyCampaigns] = useState<any[]>([])
+
   useEffect(() => {
     loadTop()
     loadBalances()
+    loadProfit()
   }, [])
 
   const loadTop = async () => {
@@ -40,6 +45,19 @@ export default function FinanceAdminPage() {
       setBalances(data)
     } catch (e) {
       console.error("Balances error", e)
+    }
+  }
+
+  // 🔥 NUEVO
+  const loadProfit = async () => {
+    try {
+      const res = await fetch("/api/admin/campaign-profit")
+      const data = await res.json()
+
+      setProfitRanking(data.ranking || [])
+      setUnhealthyCampaigns(data.unhealthy || [])
+    } catch (e) {
+      console.error("Profit ranking error", e)
     }
   }
 
@@ -93,9 +111,7 @@ export default function FinanceAdminPage() {
 
         </div>
 
-        {/* =========================
-           🔥 KPIs PRINCIPALES
-        ========================= */}
+        {/* KPIs */}
         <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
 
           <Card title="Ingresos" value={stats.totalIncome} />
@@ -116,9 +132,7 @@ export default function FinanceAdminPage() {
 
         </div>
 
-        {/* =========================
-           🚀 KPIs PRO (NUEVOS)
-        ========================= */}
+        {/* KPIs PRO */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
 
           <Card title="Profit" value={stats.profit} />
@@ -143,19 +157,10 @@ export default function FinanceAdminPage() {
         {/* 📈 GRÁFICO */}
         <RevenueChart data={stats.daily} />
 
-        {/* =========================
-           🚨 ALERTAS
-        ========================= */}
-
+        {/* ALERTAS */}
         {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
           <div className="bg-red-900 p-3 rounded-xl border border-red-700">
             ⚠️ Retiros altos respecto a ingresos
-          </div>
-        )}
-
-        {stats.totalProviderFees === 0 && (
-          <div className="bg-yellow-900 p-3 rounded-xl border border-yellow-700">
-            ⚠️ No se detectan comisiones de pasarela
           </div>
         )}
 
@@ -171,9 +176,7 @@ export default function FinanceAdminPage() {
           </div>
         )}
 
-        {/* =========================
-           🏆 TOP CAMPAÑAS
-        ========================= */}
+        {/* 🏆 TOP CAMPAÑAS */}
         <Section title="🏆 Top campañas">
 
           {topCampaigns.length === 0 && (
@@ -196,9 +199,49 @@ export default function FinanceAdminPage() {
 
         </Section>
 
-        {/* =========================
-           💰 BALANCE POR CAMPAÑA
-        ========================= */}
+        {/* 💰 PROFIT RANKING */}
+        <Section title="💰 Campañas más rentables">
+
+          {profitRanking.length === 0 && (
+            <p className="text-gray-400 text-sm">Sin datos</p>
+          )}
+
+          {profitRanking.map((c, i) => (
+            <Row key={i}>
+              <span className="text-blue-400">
+                {c.title}
+              </span>
+
+              <span className="text-green-400">
+                ${Number(c.profit).toLocaleString()}
+                {" | "}
+                {c.margin.toFixed(1)}%
+              </span>
+            </Row>
+          ))}
+
+        </Section>
+
+        {/* 🚨 CAMPAÑAS NO RENTABLES */}
+        {unhealthyCampaigns.length > 0 && (
+          <Section title="🚨 Campañas con bajo margen">
+
+            {unhealthyCampaigns.map((c, i) => (
+              <Row key={i}>
+                <span className="text-red-400">
+                  {c.title}
+                </span>
+
+                <span className="text-yellow-400">
+                  {c.margin.toFixed(1)}%
+                </span>
+              </Row>
+            ))}
+
+          </Section>
+        )}
+
+        {/* 💰 BALANCE POR CAMPAÑA */}
         <Section title="💰 Balance por campaña">
 
           {balances.length === 0 && (
@@ -219,9 +262,7 @@ export default function FinanceAdminPage() {
 
         </Section>
 
-        {/* =========================
-           💳 PAGOS
-        ========================= */}
+        {/* PAGOS */}
         <Section title="Pagos recientes">
 
           {stats.recentPayments?.length === 0 && (
