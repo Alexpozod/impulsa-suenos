@@ -70,7 +70,6 @@ export default function FinanceAdminPage() {
 
         {/* EXPORT */}
         <div className="flex gap-3">
-
           <button
             onClick={() => {
               const from = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
@@ -90,17 +89,20 @@ export default function FinanceAdminPage() {
           >
             📥 Exportar todo
           </button>
-
         </div>
 
-        {/* STATS */}
+        {/* 🔥 KPIs PRO */}
         <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
 
-          <Card title="Ingresos CLP" value={stats.totalIncome} />
-          <Card title="USD" value={stats.totalUSD} />
+          <Card title="Ingresos" value={stats.totalIncome} />
+          <Card title="Fee MP" value={stats.totalProviderFees} />
+          <Card title="Fee Plataforma" value={stats.totalPlatformFees} />
+          <Card title="Neto" value={stats.netIncome} />
           <Card title="Retiros" value={stats.totalWithdrawals} />
           <Card title="Balance" value={stats.balance} />
-          <Card title="Comisiones" value={stats.totalFees} />
+
+          <Card title="Pendientes" value={stats.totalPendingWithdrawals} />
+          <Card title="Rechazados" value={stats.totalRejectedWithdrawals} />
           <Card title="Tips" value={stats.totalTips} />
 
           <Card
@@ -117,64 +119,46 @@ export default function FinanceAdminPage() {
         {/* 📈 GRÁFICO */}
         <RevenueChart data={stats.daily} />
 
-        {/* ⚠️ ALERTA */}
+        {/* ALERTA */}
         {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
           <div className="bg-red-900 p-3 rounded-xl border border-red-700">
             ⚠️ Retiros altos respecto a ingresos
           </div>
         )}
 
-        {/* 🏆 TOP CAMPAÑAS */}
+        {/* ⚠️ ALERTA FEES */}
+        {stats.totalProviderFees === 0 && (
+          <div className="bg-yellow-900 p-3 rounded-xl">
+            ⚠️ No se detectan comisiones de pasarela
+          </div>
+        )}
+
+        {/* TOP CAMPAÑAS */}
         <Section title="🏆 Top campañas">
-
-          {topCampaigns.length === 0 && (
-            <p className="text-gray-400 text-sm">Sin datos</p>
-          )}
-
           {topCampaigns.map((c, i) => (
             <Row key={i}>
-              <span className="text-blue-400">
-                {c.title}
-              </span>
-
+              <span className="text-blue-400">{c.title}</span>
               <span className="text-green-400">
-                ${Number(c.total).toLocaleString()}
-                {" "}
-                ({c.percentage?.toFixed(1)}%)
+                ${Number(c.total).toLocaleString()} ({c.percentage?.toFixed(1)}%)
               </span>
             </Row>
           ))}
-
         </Section>
 
-        {/* 💰 BALANCE POR CAMPAÑA */}
+        {/* BALANCES */}
         <Section title="💰 Balance por campaña">
-
-          {balances.length === 0 && (
-            <p className="text-gray-400 text-sm">Sin datos</p>
-          )}
-
-          {balances.map((c, i) => (
+          {balances.map((c) => (
             <Row key={c.campaign_id}>
-              <span className="text-blue-400">
-                {c.title}
-              </span>
-
+              <span className="text-blue-400">{c.title}</span>
               <span className="text-green-400">
                 ${Number(c.balance).toLocaleString()}
               </span>
             </Row>
           ))}
-
         </Section>
 
         {/* PAGOS */}
         <Section title="Pagos recientes">
-
-          {stats.recentPayments?.length === 0 && (
-            <p className="text-gray-400">Sin pagos</p>
-          )}
-
           {stats.recentPayments?.map((p: any, i: number) => (
             <Row key={i}>
               <span>{p.user_email || "Usuario"}</span>
@@ -183,21 +167,16 @@ export default function FinanceAdminPage() {
               </span>
             </Row>
           ))}
-
         </Section>
 
       </div>
-
     </main>
   )
 }
 
-/* =========================
-   📊 GRÁFICO
-========================= */
+/* COMPONENTES (sin cambios) */
 
 function RevenueChart({ data }: any) {
-
   const chartData = Object.entries(data || {}).map(([date, val]: any) => ({
     date,
     total: val.total
@@ -205,34 +184,21 @@ function RevenueChart({ data }: any) {
 
   return (
     <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
-
       <h2 className="mb-4 text-gray-200 font-semibold">
         📈 Ingresos por día
       </h2>
-
-      {chartData.length === 0 && (
-        <p className="text-gray-400 text-sm">Sin datos</p>
-      )}
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
           <XAxis dataKey="date" stroke="#94a3b8" />
           <YAxis stroke="#94a3b8" />
           <Tooltip />
-          <Line
-            type="monotone"
-            dataKey="total"
-            stroke="#22c55e"
-            strokeWidth={2}
-          />
+          <Line type="monotone" dataKey="total" stroke="#22c55e" strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
-
     </div>
   )
 }
-
-/* COMPONENTES */
 
 function Card({ title, value }: any) {
   return (

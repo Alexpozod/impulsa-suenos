@@ -19,30 +19,22 @@ export async function GET() {
     }
 
     /* =========================
-       ✅ SOLO PAGOS REALES
+       ✅ CLASIFICACIÓN
     ========================= */
-    const payments = ledger.filter(l =>
-      l.type === "payment"
-    )
+    const payments = ledger.filter(l => l.type === "payment")
 
-    const withdrawals = ledger.filter(l =>
-      l.type === "withdraw"
-    )
+    const withdrawals = ledger.filter(l => l.type === "withdraw")
+    const pendingWithdrawals = ledger.filter(l => l.type === "withdraw_pending")
+    const rejectedWithdrawals = ledger.filter(l => l.type === "withdraw_rejected")
 
-    const fees = ledger.filter(l =>
-      l.type === "fee_platform"
-    )
+    const feePlatform = ledger.filter(l => l.type === "fee_platform")
+    const feeMP = ledger.filter(l => l.type === "fee_mp")
 
     /* =========================
-       📊 MÉTRICAS CORRECTAS
+       📊 MÉTRICAS
     ========================= */
     const totalIncome = payments.reduce(
       (acc, d) => acc + Number(d.amount || 0),
-      0
-    )
-
-    const totalWithdrawals = withdrawals.reduce(
-      (acc, w) => acc + Math.abs(Number(w.amount || 0)),
       0
     )
 
@@ -51,17 +43,44 @@ export async function GET() {
       0
     )
 
-    const totalFees = fees.reduce(
-      (acc, f) => acc + Math.abs(Number(f.amount || 0)),
-      0
-    )
-
     const totalTips = payments.reduce(
       (acc, d) => acc + Number(d.metadata?.tip || 0),
       0
     )
 
-    const balance = totalIncome - totalWithdrawals - totalFees
+    const totalWithdrawals = withdrawals.reduce(
+      (acc, w) => acc + Math.abs(Number(w.amount || 0)),
+      0
+    )
+
+    const totalPendingWithdrawals = pendingWithdrawals.reduce(
+      (acc, w) => acc + Math.abs(Number(w.amount || 0)),
+      0
+    )
+
+    const totalRejectedWithdrawals = rejectedWithdrawals.reduce(
+      (acc, w) => acc + Math.abs(Number(w.amount || 0)),
+      0
+    )
+
+    const totalPlatformFees = feePlatform.reduce(
+      (acc, f) => acc + Math.abs(Number(f.amount || 0)),
+      0
+    )
+
+    const totalProviderFees = feeMP.reduce(
+      (acc, f) => acc + Math.abs(Number(f.amount || 0)),
+      0
+    )
+
+    // 🔥 mantenemos compatibilidad
+    const totalFees = totalPlatformFees
+
+    const netIncome =
+      totalIncome - totalPlatformFees - totalProviderFees
+
+    const balance =
+      netIncome - totalWithdrawals
 
     /* =========================
        💳 PROVIDERS
@@ -132,15 +151,25 @@ export async function GET() {
 
     return NextResponse.json({
       totalIncome,
-      totalWithdrawals,
       totalUSD,
-      totalFees,
       totalTips,
+
+      totalWithdrawals,
+      totalPendingWithdrawals,
+      totalRejectedWithdrawals,
+
+      totalFees,
+      totalPlatformFees,
+      totalProviderFees,
+
+      netIncome,
       balance,
+
       totalPayments: payments.length,
       providers,
       daily,
       recentPayments,
+
       errors: errors || [],
       payouts: payouts || [],
       issues: issues || []
