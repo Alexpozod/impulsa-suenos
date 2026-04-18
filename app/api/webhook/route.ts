@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js"
 
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { sendNotification } from "@/lib/notifications/sendNotification"
+import { syncWallet } from "@/lib/wallet/syncWallet" // 🔥 NUEVO
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -179,6 +180,9 @@ export async function POST(req: Request) {
         sendEmail: true
       })
     }
+
+    // 🔥 AUTO SYNC WALLET (ÚNICA LÍNEA AGREGADA)
+    await syncWallet(user_email)
 
     /* =========================
        🧾 LOG FINAL
