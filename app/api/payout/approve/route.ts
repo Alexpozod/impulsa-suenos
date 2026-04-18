@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
+import { emitEvent } from "@/lib/events/eventBus"
 import { evaluateCampaignRisk } from "@/lib/risk/riskEngine"
 import { canAccess } from "@/lib/auth/rbac"
 import { evaluateFraudAlert } from "@/lib/alerts/alertEngine"
 import { enforceRiskActions } from "@/lib/security/enforceRisk"
 import { reconcileCampaign } from "@/lib/finance/reconcilePayments"
 import { logInfo, logError } from "@/lib/logger-api"
-import { logErrorToDB } from "@/lib/logToDB"
+import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
+import { logSystemEvent } from "@/lib/system/logger"
 import { sendNotification } from "@/lib/notifications/sendNotification"
 
 const supabase = createClient(
@@ -65,7 +67,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 CONCILIACIÓN (ORIGINAL)
+       💰 CONCILIACIÓN
     ========================= */
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
@@ -78,7 +80,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📊 CAMPAIGN (ORIGINAL)
+       📊 CAMPAIGN
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
@@ -91,12 +93,12 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🧠 RIESGO (SIN CAMBIOS)
+       🧠 RIESGO
     ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
     const fraud = await evaluateFraudAlert({
-      campaign, // 🔥 VOLVEMOS AL ORIGINAL
+      campaign,
       payout,
       actor_id: user.id
     })
@@ -119,14 +121,16 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 LEDGER (ORIGINAL)
+       💰 LEDGER
     ========================= */
 
+    // 🔥 eliminar pending
     await supabase
       .from("financial_ledger")
       .delete()
       .eq("payment_id", `pending_${payout.id}`)
 
+    // 🔥 insertar withdraw real
     await supabase
       .from("financial_ledger")
       .insert({
@@ -141,7 +145,7 @@ export async function POST(req: Request) {
       })
 
     /* =========================
-       📦 PAYOUT (ORIGINAL)
+       📦 PAYOUT
     ========================= */
     await supabase
       .from("payouts")
@@ -152,7 +156,7 @@ export async function POST(req: Request) {
       .eq("id", payout_id)
 
     /* =========================
-       🔔 NOTIFICACIÓN (ORIGINAL)
+       🔔 NOTIFICACIÓN
     ========================= */
     await sendNotification({
       user_email: campaign.user_email,
