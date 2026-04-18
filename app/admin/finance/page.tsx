@@ -1,7 +1,7 @@
 'use client'
 
-import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 import { useEffect, useState } from "react"
+import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 import {
   LineChart,
   Line,
@@ -15,11 +15,12 @@ export default function FinanceAdminPage() {
 
   const { data: stats, loading } = useFinancialDashboard()
 
-  /* 🔥 NUEVO */
   const [topCampaigns, setTopCampaigns] = useState<any[]>([])
+  const [balances, setBalances] = useState<any[]>([])
 
   useEffect(() => {
     loadTop()
+    loadBalances()
   }, [])
 
   const loadTop = async () => {
@@ -29,6 +30,16 @@ export default function FinanceAdminPage() {
       setTopCampaigns(data)
     } catch (e) {
       console.error("Top campaigns error", e)
+    }
+  }
+
+  const loadBalances = async () => {
+    try {
+      const res = await fetch("/api/admin/campaign-balances")
+      const data = await res.json()
+      setBalances(data)
+    } catch (e) {
+      console.error("Balances error", e)
     }
   }
 
@@ -92,7 +103,6 @@ export default function FinanceAdminPage() {
           <Card title="Comisiones" value={stats.totalFees} />
           <Card title="Tips" value={stats.totalTips} />
 
-          {/* KPI */}
           <Card
             title="Ticket promedio"
             value={
@@ -107,6 +117,13 @@ export default function FinanceAdminPage() {
         {/* 📈 GRÁFICO */}
         <RevenueChart data={stats.daily} />
 
+        {/* ⚠️ ALERTA */}
+        {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
+          <div className="bg-red-900 p-3 rounded-xl border border-red-700">
+            ⚠️ Retiros altos respecto a ingresos
+          </div>
+        )}
+
         {/* 🏆 TOP CAMPAÑAS */}
         <Section title="🏆 Top campañas">
 
@@ -115,37 +132,41 @@ export default function FinanceAdminPage() {
           )}
 
           {topCampaigns.map((c, i) => (
-            <Row key={c.campaign_id}>
-
-              <a
-  href={`/admin/campaign/${c.campaign_id}`}
-  className="hover:underline text-blue-400"
->
-  #{i + 1} — {c.title}
-</a>
-              <span className="text-green-400 font-semibold">
-  ${Number(c.total).toLocaleString()}
-</span>
-
-<span className="text-blue-400 text-xs">
-  ({c.percentage.toFixed(1)}%)
-</span>
-
-              <span className="text-gray-400 text-xs">
-                {c.count} donaciones
+            <Row key={i}>
+              <span className="text-blue-400">
+                {c.title}
               </span>
 
+              <span className="text-green-400">
+                ${Number(c.total).toLocaleString()}
+                {" "}
+                ({c.percentage?.toFixed(1)}%)
+              </span>
             </Row>
           ))}
 
         </Section>
 
-        {/* ALERTAS */}
-        {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
-          <div className="bg-red-900 p-3 rounded-xl border border-red-700">
-            ⚠️ Retiros altos respecto a ingresos
-          </div>
-        )}
+        {/* 💰 BALANCE POR CAMPAÑA */}
+        <Section title="💰 Balance por campaña">
+
+          {balances.length === 0 && (
+            <p className="text-gray-400 text-sm">Sin datos</p>
+          )}
+
+          {balances.map((c, i) => (
+            <Row key={c.campaign_id}>
+              <span className="text-blue-400">
+                {c.title}
+              </span>
+
+              <span className="text-green-400">
+                ${Number(c.balance).toLocaleString()}
+              </span>
+            </Row>
+          ))}
+
+        </Section>
 
         {/* PAGOS */}
         <Section title="Pagos recientes">
