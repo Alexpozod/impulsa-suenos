@@ -1,171 +1,123 @@
-import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
+'use client'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 
-export async function GET() {
-  try {
+export default function FinanceAdminPage() {
 
-    /* 🔥 SIN FILTRO DE STATUS */
-    const { data: ledger } = await supabase
-      .from("financial_ledger")
-      .select("*")
+  const { data: stats, loading } = useFinancialDashboard()
 
-    if (!ledger || ledger.length === 0) {
-      return NextResponse.json({
-        totalIncome: 0,
-        totalWithdrawals: 0,
-        totalUSD: 0,
-        totalFees: 0,
-        totalTips: 0,
-        balance: 0,
-        totalPayments: 0,
-        providers: {},
-        daily: {},
-        recentPayments: [],
-        errors: [],
-        payouts: [],
-        issues: []
-      })
-    }
-
-    /* =========================
-       ✅ SOLO PAGOS REALES
-    ========================= */
-    const payments = ledger.filter(l =>
-      l.type === "payment"
-    )
-
-    const withdrawals = ledger.filter(l =>
-      l.type === "withdraw"
-    )
-
-    const fees = ledger.filter(l =>
-      l.type === "fee_platform"
-    )
-
-    /* =========================
-       📊 MÉTRICAS
-    ========================= */
-    const totalIncome = payments.reduce(
-      (acc, d) => acc + Number(d.amount || 0),
-      0
-    )
-
-    const totalWithdrawals = withdrawals.reduce(
-      (acc, w) => acc + Math.abs(Number(w.amount || 0)),
-      0
-    )
-
-    const totalUSD = payments.reduce(
-      (acc, d) => acc + Number(d.amount_usd || 0),
-      0
-    )
-
-    const totalFees = fees.reduce(
-      (acc, f) => acc + Math.abs(Number(f.amount || 0)),
-      0
-    )
-
-    const totalTips = payments.reduce(
-      (acc, d) => acc + Number(d.metadata?.tip || 0),
-      0
-    )
-
-    const balance = totalIncome - totalWithdrawals - totalFees
-
-    /* =========================
-       💳 PROVIDERS
-    ========================= */
-    const providers: any = {}
-
-    payments.forEach(d => {
-      const provider = d.provider || "unknown"
-
-      if (!providers[provider]) {
-        providers[provider] = {
-          total: 0,
-          total_usd: 0,
-          count: 0
-        }
-      }
-
-      providers[provider].total += Number(d.amount || 0)
-      providers[provider].total_usd += Number(d.amount_usd || 0)
-      providers[provider].count += 1
-    })
-
-    /* =========================
-       📅 DAILY
-    ========================= */
-    const daily: any = {}
-
-    payments.forEach(d => {
-      const day = new Date(d.created_at).toISOString().split("T")[0]
-
-      if (!daily[day]) {
-        daily[day] = { total: 0, count: 0 }
-      }
-
-      daily[day].total += Number(d.amount || 0)
-      daily[day].count += 1
-    })
-
-    /* =========================
-       💳 PAGOS RECIENTES
-    ========================= */
-    const recentPayments = payments
-      .sort((a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )
-      .slice(0, 10)
-
-    /* =========================
-       OTROS
-    ========================= */
-    const { data: errors } = await supabase
-      .from("error_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(10)
-
-    const { data: payouts } = await supabase
-      .from("payouts")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(10)
-
-    const { data: issues } = await supabase
-      .from("reconciliation_logs")
-      .select("*")
-      .eq("status", "open")
-      .limit(10)
-
-    return NextResponse.json({
-      totalIncome,
-      totalWithdrawals,
-      totalUSD,
-      totalFees,
-      totalTips,
-      balance,
-      totalPayments: payments.length,
-      providers,
-      daily,
-      recentPayments,
-      errors: errors || [],
-      payouts: payouts || [],
-      issues: issues || []
-    })
-
-  } catch (error) {
-    console.error("ADMIN FINANCE ERROR:", error)
-
-    return NextResponse.json(
-      { error: "finance error" },
-      { status: 500 }
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-gray-100 p-6">
+        Cargando panel financiero...
+      </div>
     )
   }
+
+  if (!stats) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-red-400 p-6">
+        Error cargando datos
+      </div>
+    )
+  }
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-gray-100 p-6">
+
+      <div className="max-w-7xl mx-auto space-y-8">
+
+        <h1 className="text-3xl font-bold">
+          💰 Panel Financiero PRO
+        </h1>
+
+        {/* EXPORT */}
+        <div className="flex gap-3">
+
+          <button
+            onClick={() => {
+              const from = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+              const to = new Date().toISOString()
+              window.open(`/api/admin/export?from=${from}&to=${to}`)
+            }}
+            className="bg-black text-white px-4 py-2 rounded-lg"
+          >
+            📥 Exportar mes actual
+          </button>
+
+          <button
+            onClick={() => {
+              window.open(`/api/admin/export`)
+            }}
+            className="bg-gray-700 text-white px-4 py-2 rounded-lg"
+          >
+            📥 Exportar todo
+          </button>
+
+        </div>
+
+        {/* STATS */}
+        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
+
+          <Card title="Ingresos CLP" value={stats.totalIncome} />
+          <Card title="USD" value={stats.totalUSD} />
+          <Card title="Retiros" value={stats.totalWithdrawals} />
+          <Card title="Balance" value={stats.balance} />
+          <Card title="Comisiones" value={stats.totalFees} />
+          <Card title="Tips" value={stats.totalTips} />
+
+        </div>
+
+        {/* PAGOS */}
+        <Section title="Pagos recientes">
+
+          {stats.recentPayments?.length === 0 && (
+            <p className="text-gray-400">Sin pagos</p>
+          )}
+
+          {stats.recentPayments?.map((p: any, i: number) => (
+            <Row key={i}>
+              <span>{p.user_email || "Usuario"}</span>
+              <span className="text-green-400">
+                ${Number(p.amount || 0).toLocaleString()}
+              </span>
+            </Row>
+          ))}
+
+        </Section>
+
+      </div>
+
+    </main>
+  )
+}
+
+/* COMPONENTES */
+
+function Card({ title, value }: any) {
+  return (
+    <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
+      <p className="text-sm text-gray-400">{title}</p>
+      <p className="text-xl font-bold text-green-400">
+        ${Number(value || 0).toLocaleString()}
+      </p>
+    </div>
+  )
+}
+
+function Section({ title, children }: any) {
+  return (
+    <div className="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-3">
+      <h2 className="font-semibold text-gray-200">{title}</h2>
+      {children}
+    </div>
+  )
+}
+
+function Row({ children }: any) {
+  return (
+    <div className="flex justify-between text-sm border-b border-slate-800 py-2">
+      {children}
+    </div>
+  )
 }
