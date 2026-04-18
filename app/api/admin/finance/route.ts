@@ -10,34 +10,37 @@ export async function GET() {
   try {
 
     /* =========================
-       💰 LEDGER
+       💰 LEDGER BASE
     ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
       .eq("status", "confirmed")
 
-    /* =========================
-       🎯 FILTROS SEGUROS (ANTI BUG)
-    ========================= */
-    const deposits = ledger?.filter(l =>
-      l.flow_type === "in" &&
-      Number(l.amount) > 0 &&
-      l.type !== "withdraw_rejected"
-    ) || []
+    if (!ledger) {
+      return NextResponse.json({})
+    }
 
-    const withdrawals = ledger?.filter(l =>
+    /* =========================
+       🔥 FILTROS CORRECTOS
+    ========================= */
+    const deposits = ledger.filter(l =>
+      l.type === "payment" &&
+      l.status === "confirmed"
+    )
+
+    const withdrawals = ledger.filter(l =>
       l.type === "withdraw" &&
       l.status === "confirmed"
-    ) || []
+    )
 
-    const fees = ledger?.filter(l =>
+    const fees = ledger.filter(l =>
       l.type === "fee_platform" &&
       l.status === "confirmed"
-    ) || []
+    )
 
     /* =========================
-       📊 MÉTRICAS BASE
+       📊 MÉTRICAS
     ========================= */
     const totalIncome = deposits.reduce(
       (acc, d) => acc + Number(d.amount || 0),
@@ -72,7 +75,6 @@ export async function GET() {
     const providers: any = {}
 
     deposits.forEach(d => {
-
       const provider = d.provider || "unknown"
 
       if (!providers[provider]) {
@@ -89,19 +91,15 @@ export async function GET() {
     })
 
     /* =========================
-       📅 AGRUPACIÓN POR DÍA
+       📅 DAILY
     ========================= */
     const daily: any = {}
 
     deposits.forEach(d => {
-
       const day = new Date(d.created_at).toISOString().split("T")[0]
 
       if (!daily[day]) {
-        daily[day] = {
-          total: 0,
-          count: 0
-        }
+        daily[day] = { total: 0, count: 0 }
       }
 
       daily[day].total += Number(d.amount || 0)
@@ -109,15 +107,13 @@ export async function GET() {
     })
 
     /* =========================
-       💳 PAGOS RECIENTES (RESTRINGIDO)
+       💳 PAGOS RECIENTES
     ========================= */
-    const { data: payments } = await supabase
-      .from("financial_ledger")
-      .select("*")
-      .eq("flow_type", "in")
-      .eq("status", "confirmed")
-      .order("created_at", { ascending: false })
-      .limit(10)
+    const recentPayments = deposits
+      .sort((a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+      .slice(0, 10)
 
     /* =========================
        🚨 ERRORES
@@ -156,7 +152,7 @@ export async function GET() {
       totalPayments: deposits.length,
       providers,
       daily,
-      recentPayments: payments || [],
+      recentPayments,
       errors: errors || [],
       payouts: payouts || [],
       issues: issues || []
