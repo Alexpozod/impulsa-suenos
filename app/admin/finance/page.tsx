@@ -1,6 +1,7 @@
 'use client'
 
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
+import { useEffect, useState } from "react"
 import {
   LineChart,
   Line,
@@ -13,6 +14,23 @@ import {
 export default function FinanceAdminPage() {
 
   const { data: stats, loading } = useFinancialDashboard()
+
+  /* 🔥 NUEVO */
+  const [topCampaigns, setTopCampaigns] = useState<any[]>([])
+
+  useEffect(() => {
+    loadTop()
+  }, [])
+
+  const loadTop = async () => {
+    try {
+      const res = await fetch("/api/admin/top-campaigns")
+      const data = await res.json()
+      setTopCampaigns(data)
+    } catch (e) {
+      console.error("Top campaigns error", e)
+    }
+  }
 
   if (loading) {
     return (
@@ -74,7 +92,7 @@ export default function FinanceAdminPage() {
           <Card title="Comisiones" value={stats.totalFees} />
           <Card title="Tips" value={stats.totalTips} />
 
-          {/* 🔥 NUEVO KPI */}
+          {/* KPI */}
           <Card
             title="Ticket promedio"
             value={
@@ -88,6 +106,33 @@ export default function FinanceAdminPage() {
 
         {/* 📈 GRÁFICO */}
         <RevenueChart data={stats.daily} />
+
+        {/* 🏆 TOP CAMPAÑAS */}
+        <Section title="🏆 Top campañas">
+
+          {topCampaigns.length === 0 && (
+            <p className="text-gray-400 text-sm">Sin datos</p>
+          )}
+
+          {topCampaigns.map((c, i) => (
+            <Row key={c.campaign_id}>
+
+              <span>
+                #{i + 1} — {c.campaign_id.slice(0, 6)}...
+              </span>
+
+              <span className="text-green-400 font-semibold">
+                ${Number(c.total).toLocaleString()}
+              </span>
+
+              <span className="text-gray-400 text-xs">
+                {c.count} donaciones
+              </span>
+
+            </Row>
+          ))}
+
+        </Section>
 
         {/* ALERTAS */}
         {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
