@@ -18,7 +18,6 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-
     const { payout_id } = await req.json()
 
     if (!payout_id) {
@@ -65,7 +64,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 CONCILIACIÓN (FUENTE REAL)
+       💰 CONCILIACIÓN
     ========================= */
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
@@ -91,7 +90,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🧠 CAMPAIGN REAL (SAFE TYPES)
+       🧠 CAMPAIGN REAL (TIPADO SEGURO)
     ========================= */
     const campaignWithBalance = {
       ...campaign,
@@ -101,12 +100,12 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🧠 RIESGO (ORIGINAL)
+       🧠 RIESGO
     ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
     /* =========================
-       🚨 FRAUDE (REAL)
+       🚨 FRAUDE
     ========================= */
     const fraud = await evaluateFraudAlert({
       campaign: campaignWithBalance,
@@ -114,7 +113,9 @@ export async function POST(req: Request) {
       actor_id: user.id
     })
 
-    /* 🔍 LOG NO BLOQUEANTE */
+    /* =========================
+       🔍 LOG (NO BLOQUEANTE)
+    ========================= */
     logToDB("fraud_check", {
       payout_id,
       campaign_id: campaign.id,
