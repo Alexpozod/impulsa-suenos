@@ -14,22 +14,53 @@ type AlertContext = {
 }
 
 export async function evaluateFraudAlert(ctx: AlertContext) {
+
   const risk = evaluateCampaignRisk(ctx.campaign)
 
-  const score = risk.flags.length * 30
+  let score = risk.score
+  const flags = [...risk.flags]
+
+  /* =========================
+     💸 RETIRO SOSPECHOSO
+  ========================= */
+  if (ctx.payout && ctx.payout.amount > ctx.campaign.balance * 0.8) {
+    score += 30
+    flags.push("high_withdraw_ratio")
+  }
+
+  /* =========================
+     💰 NUEVO — ALERTAS FINANCIERAS
+     (NO rompe lo existente)
+  ========================= */
+
+  // 🔴 campaña sin balance
+  if (ctx.campaign.balance <= 0 && ctx.campaign.total_raised > 0) {
+    score += 20
+    flags.push("no_balance")
+  }
+
+  // 🔴 fees altos
+  if (
+    ctx.campaign.total_raised > 0 &&
+    ctx.campaign.total_withdrawn + ctx.campaign.balance > ctx.campaign.total_raised * 0.9
+  ) {
+    score += 15
+    flags.push("high_outflow")
+  }
+
+  if (score > 100) score = 100
 
   /* =========================
      🔴 CRÍTICO
   ========================= */
-  if (score >= 80 || !risk.safe) {
+  if (score >= 80) {
 
-    // 🔥 GUARDAR ALERTA REAL
     await supabase.from("fraud_alerts").insert({
       campaign_id: ctx.campaign.id,
       payout_id: ctx.payout?.id || null,
       severity: "critical",
       type: "fraud_detected",
-      flags: risk.flags,
+      flags,
       score,
       metadata: ctx
     })
@@ -37,14 +68,14 @@ export async function evaluateFraudAlert(ctx: AlertContext) {
     await emitEvent("alert.fraud_detected", {
       campaign_id: ctx.campaign.id,
       payout_id: ctx.payout?.id,
-      flags: risk.flags,
+      flags,
       score
     })
 
     return {
       block: true,
       reason: "high_risk_detected",
-      risk: { ...risk, score }
+      risk: { score, flags, safe: false }
     }
   }
 
@@ -58,26 +89,26 @@ export async function evaluateFraudAlert(ctx: AlertContext) {
       payout_id: ctx.payout?.id || null,
       severity: "warning",
       type: "risk_warning",
-      flags: risk.flags,
+      flags,
       score,
       metadata: ctx
     })
 
     await emitEvent("alert.risk_warning", {
       campaign_id: ctx.campaign.id,
-      flags: risk.flags,
+      flags,
       score
     })
 
     return {
       block: false,
       warning: true,
-      risk: { ...risk, score }
+      risk: { score, flags, safe: score < 60 }
     }
   }
 
   return {
     block: false,
-    risk: { ...risk, score }
+    risk: { score, flags, safe: true }
   }
 }

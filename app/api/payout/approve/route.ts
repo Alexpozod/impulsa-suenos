@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-import { emitEvent } from "@/lib/events/eventBus"
 import { evaluateCampaignRisk } from "@/lib/risk/riskEngine"
 import { canAccess } from "@/lib/auth/rbac"
 import { evaluateFraudAlert } from "@/lib/alerts/alertEngine"
@@ -10,7 +9,6 @@ import { reconcileCampaign } from "@/lib/finance/reconcilePayments"
 import { logInfo, logError } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
-import { logSystemEvent } from "@/lib/system/logger"
 import { sendNotification } from "@/lib/notifications/sendNotification"
 
 const supabase = createClient(
@@ -67,7 +65,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 CONCILIACIÓN
+       💰 CONCILIACIÓN (FUENTE REAL)
     ========================= */
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
@@ -93,22 +91,47 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🧠 RIESGO
+       🧠 CAMPAIGN REAL (LEDGER BASED)
+    ========================= */
+    const campaignWithBalance = {
+      ...campaign,
+      balance: reconciliation.balance,
+      total_raised: reconciliation.total_income || 0,
+      total_withdrawn: reconciliation.total_withdrawn || 0
+    }
+
+    /* =========================
+       🧠 RIESGO (ORIGINAL)
     ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
+    /* =========================
+       🚨 FRAUDE (REAL)
+    ========================= */
     const fraud = await evaluateFraudAlert({
-      campaign,
+      campaign: campaignWithBalance,
       payout,
       actor_id: user.id
     })
+
+    /* 🔍 LOG NO BLOQUEANTE */
+    logToDB("fraud_check", {
+      payout_id,
+      campaign_id: campaign.id,
+      balance: reconciliation.balance,
+      amount: payout.amount,
+      result: fraud
+    }).catch(() => {})
 
     if (fraud.block) {
       return NextResponse.json({ error: "fraud_detected" }, { status: 403 })
     }
 
+    /* =========================
+       🔐 ENFORCEMENT
+    ========================= */
     const enforcement = await enforceRiskActions({
-      campaign,
+      campaign: campaignWithBalance,
       payout,
       risk: {
         ...risk,
@@ -121,17 +144,14 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 LEDGER (FIX DEFINITIVO)
-       eliminar pending y crear withdraw limpio
+       💰 LEDGER
     ========================= */
 
-    // 🔥 eliminar pending
     await supabase
       .from("financial_ledger")
       .delete()
       .eq("payment_id", `pending_${payout.id}`)
 
-    // 🔥 insertar withdraw real
     await supabase
       .from("financial_ledger")
       .insert({
