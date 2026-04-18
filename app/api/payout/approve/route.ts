@@ -18,6 +18,7 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
+
     const { payout_id } = await req.json()
 
     if (!payout_id) {
@@ -90,13 +91,13 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🧠 CAMPAIGN REAL (TIPADO SEGURO)
+       🧠 CAMPAIGN REAL
     ========================= */
     const campaignWithBalance = {
       ...campaign,
       balance: reconciliation.balance,
-      total_raised: "totalIn" in reconciliation ? reconciliation.totalIn : 0,
-      total_withdrawn: "totalOut" in reconciliation ? reconciliation.totalOut : 0
+      total_raised: (reconciliation as any).totalIn || 0,
+      total_withdrawn: (reconciliation as any).totalOut || 0
     }
 
     /* =========================
@@ -114,15 +115,18 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🔍 LOG (NO BLOQUEANTE)
+       🔍 LOG SEGURO (FIX)
     ========================= */
-    logToDB("fraud_check", {
-      payout_id,
-      campaign_id: campaign.id,
-      balance: reconciliation.balance,
-      amount: payout.amount,
-      result: fraud
-    }).catch(() => {})
+    logToDB(
+      "fraud_check",
+      JSON.stringify({
+        payout_id,
+        campaign_id: campaign.id,
+        balance: reconciliation.balance,
+        amount: payout.amount,
+        result: fraud
+      })
+    ).catch(() => {})
 
     if (fraud.block) {
       return NextResponse.json({ error: "fraud_detected" }, { status: 403 })
@@ -147,7 +151,6 @@ export async function POST(req: Request) {
     /* =========================
        💰 LEDGER
     ========================= */
-
     await supabase
       .from("financial_ledger")
       .delete()
