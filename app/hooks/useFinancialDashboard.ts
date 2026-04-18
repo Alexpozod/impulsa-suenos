@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/src/lib/supabase"
 
 export function useFinancialDashboard() {
 
@@ -15,25 +14,19 @@ export function useFinancialDashboard() {
   const load = async () => {
     try {
 
-      const { data: session } = await supabase.auth.getSession()
-      const token = session?.session?.access_token
+      const res = await fetch("/api/admin/finance")
 
-      if (!token) {
-        setLoading(false)
-        return
+      if (!res.ok) {
+        throw new Error("Error al obtener datos financieros")
       }
 
-      const res = await fetch("/api/user/finance", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-
       const json = await res.json()
+
       setData(json)
 
     } catch (error) {
-      console.error(error)
+      console.error("Financial dashboard error:", error)
+      setData(null)
     } finally {
       setLoading(false)
     }
