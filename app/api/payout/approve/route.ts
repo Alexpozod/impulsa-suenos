@@ -20,29 +20,44 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-
     const { payout_id } = await req.json()
 
     if (!payout_id) {
-      return NextResponse.json({ error: "payout_id requerido" }, { status: 400 })
+      return NextResponse.json(
+        { error: "payout_id requerido" },
+        { status: 400 }
+      )
     }
 
     const authHeader = req.headers.get("authorization")
+
     if (!authHeader) {
-      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+      return NextResponse.json(
+        { error: "unauthorized" },
+        { status: 401 }
+      )
     }
 
     const token = authHeader.replace("Bearer ", "")
-    const { data: { user } } = await supabase.auth.getUser(token)
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser(token)
 
     if (!user) {
-      return NextResponse.json({ error: "invalid session" }, { status: 401 })
+      return NextResponse.json(
+        { error: "invalid session" },
+        { status: 401 }
+      )
     }
 
     const userRole = user.user_metadata?.role || "user"
 
     if (!canAccess(userRole, "payout.approve")) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 })
+      return NextResponse.json(
+        { error: "forbidden" },
+        { status: 403 }
+      )
     }
 
     /* =========================
@@ -55,15 +70,24 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!payout) {
-      return NextResponse.json({ error: "payout not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "payout not found" },
+        { status: 404 }
+      )
     }
 
     if (payout.status === "paid") {
-      return NextResponse.json({ error: "already processed" }, { status: 400 })
+      return NextResponse.json(
+        { error: "already processed" },
+        { status: 400 }
+      )
     }
 
     if (payout.amount <= 0) {
-      return NextResponse.json({ error: "invalid_amount" }, { status: 400 })
+      return NextResponse.json(
+        { error: "invalid_amount" },
+        { status: 400 }
+      )
     }
 
     /* =========================
@@ -72,11 +96,17 @@ export async function POST(req: Request) {
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
     if (!reconciliation.ok || typeof reconciliation.balance !== "number") {
-      return NextResponse.json({ error: "reconciliation_failed" }, { status: 500 })
+      return NextResponse.json(
+        { error: "reconciliation_failed" },
+        { status: 500 }
+      )
     }
 
     if (payout.amount > reconciliation.balance) {
-      return NextResponse.json({ error: "insufficient_balance" }, { status: 400 })
+      return NextResponse.json(
+        { error: "insufficient_balance" },
+        { status: 400 }
+      )
     }
 
     /* =========================
@@ -89,7 +119,10 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!campaign) {
-      return NextResponse.json({ error: "campaign not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "campaign not found" },
+        { status: 404 }
+      )
     }
 
     /* =========================
@@ -104,7 +137,10 @@ export async function POST(req: Request) {
     })
 
     if (fraud.block) {
-      return NextResponse.json({ error: "fraud_detected" }, { status: 403 })
+      return NextResponse.json(
+        { error: "fraud_detected" },
+        { status: 403 }
+      )
     }
 
     const enforcement = await enforceRiskActions({
@@ -117,18 +153,22 @@ export async function POST(req: Request) {
     })
 
     if (enforcement.blocked) {
-      return NextResponse.json({ error: "blocked" }, { status: 403 })
+      return NextResponse.json(
+        { error: "blocked" },
+        { status: 403 }
+      )
     }
 
     /* =========================
-       💰 LEDGER
+       💰 LEDGER (FIX DEFINITIVO)
+       eliminar pending y crear withdraw limpio
     ========================= */
 
     // 🔥 eliminar pending
     await supabase
       .from("financial_ledger")
       .delete()
-      .eq("payment_id", `pending_${payout.id}`)
+      .eq("payment_id", pending_${payout.id})
 
     // 🔥 insertar withdraw real
     await supabase
@@ -140,7 +180,7 @@ export async function POST(req: Request) {
         type: "withdraw",
         status: "confirmed",
         flow_type: "out",
-        payment_id: `payout_${payout.id}`,
+        payment_id: payout_${payout.id},
         created_at: new Date().toISOString()
       })
 
@@ -162,7 +202,7 @@ export async function POST(req: Request) {
       user_email: campaign.user_email,
       type: "payout_paid",
       title: "Retiro aprobado",
-      message: `Tu retiro de $${payout.amount} fue aprobado`,
+      message: Tu retiro de $${payout.amount} fue aprobado,
       metadata: { payout_id }
     })
 
@@ -174,8 +214,8 @@ export async function POST(req: Request) {
     })
 
   } catch (error) {
-
     logError("APPROVE ERROR", error)
+
     await logErrorToDB("approve_payout_error", error)
 
     await sendAlert({
