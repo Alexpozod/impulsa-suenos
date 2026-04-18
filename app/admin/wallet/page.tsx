@@ -14,8 +14,6 @@ export default function WalletAdminPage() {
 
   useEffect(() => {
     loadWallets()
-
-    // 🔥 NUEVO
     loadDistribution()
     loadWalletUsers()
   }, [])
@@ -24,35 +22,51 @@ export default function WalletAdminPage() {
     try {
       const res = await fetch("/api/admin/wallets")
       const data = await res.json()
-      setWallets(data || [])
+
+      // 🔥 FIX CRÍTICO (NO ROMPE NADA)
+      if (Array.isArray(data)) {
+        setWallets(data)
+      } else if (Array.isArray(data?.wallets)) {
+        setWallets(data.wallets)
+      } else {
+        setWallets([])
+      }
+
     } catch (e) {
       console.error(e)
+      setWallets([])
     } finally {
       setLoading(false)
     }
   }
 
-  // 🔥 NUEVO
   const loadDistribution = async () => {
     try {
       const res = await fetch("/api/admin/wallets/distribution")
       const data = await res.json()
-      setDistribution(data)
+
+      // 🔥 DEFENSIVO
+      setDistribution(data || {})
+
     } catch (e) {
       console.error(e)
+      setDistribution({})
     }
   }
 
-  // 🔥 NUEVO
   const loadWalletUsers = async () => {
     try {
       const res = await fetch("/api/admin/wallets/users")
       const data = await res.json()
 
-      setWalletUsers(data.users || [])
-      setWalletIssues(data.issues || [])
+      // 🔥 DEFENSIVO
+      setWalletUsers(Array.isArray(data?.users) ? data.users : [])
+      setWalletIssues(Array.isArray(data?.issues) ? data.issues : [])
+
     } catch (e) {
       console.error(e)
+      setWalletUsers([])
+      setWalletIssues([])
     }
   }
 
@@ -74,20 +88,18 @@ export default function WalletAdminPage() {
         </h1>
 
         {/* =========================
-           🔥 DISTRIBUCIÓN (NUEVO)
+           🔥 DISTRIBUCIÓN
         ========================= */}
         <div className="grid md:grid-cols-3 gap-4">
 
-          <Card title="Fondos en campañas" value={distribution.campaignFunds} />
-
-          <Card title="Fondos plataforma" value={distribution.platformFunds} />
-
-          <Card title="Retiros pendientes" value={distribution.pendingWithdrawals} />
+          <Card title="Fondos en campañas" value={distribution?.campaignFunds} />
+          <Card title="Fondos plataforma" value={distribution?.platformFunds} />
+          <Card title="Retiros pendientes" value={distribution?.pendingWithdrawals} />
 
         </div>
 
         {/* =========================
-           📊 LISTADO ORIGINAL (NO TOCADO)
+           📊 LISTADO ORIGINAL
         ========================= */}
         <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
 
@@ -95,7 +107,7 @@ export default function WalletAdminPage() {
             Wallets del sistema
           </p>
 
-          {wallets.map((w, i) => (
+          {(Array.isArray(wallets) ? wallets : []).map((w, i) => (
             <div
               key={i}
               className="flex justify-between border-b border-slate-800 py-2 text-sm"
@@ -115,7 +127,7 @@ export default function WalletAdminPage() {
         </div>
 
         {/* =========================
-           👤 AUDITORÍA (NUEVO)
+           👤 AUDITORÍA
         ========================= */}
         <Section title="👤 Wallets (auditoría real)">
 
@@ -131,11 +143,11 @@ export default function WalletAdminPage() {
               </span>
 
               <span className="text-gray-300">
-                Wallet: ${Number(u.wallet_balance).toLocaleString()}
+                Wallet: ${Number(u.wallet_balance || 0).toLocaleString()}
               </span>
 
               <span className="text-gray-400">
-                Ledger: ${Number(u.ledger_balance).toLocaleString()}
+                Ledger: ${Number(u.ledger_balance || 0).toLocaleString()}
               </span>
 
               <span className={
@@ -167,7 +179,7 @@ export default function WalletAdminPage() {
                 </span>
 
                 <span className="text-yellow-400">
-                  Diff: ${Number(u.difference).toLocaleString()}
+                  Diff: ${Number(u.difference || 0).toLocaleString()}
                 </span>
 
               </Row>
@@ -182,9 +194,7 @@ export default function WalletAdminPage() {
   )
 }
 
-/* =========================
-   COMPONENTES (NO ROMPE NADA)
-========================= */
+/* COMPONENTES */
 
 function Card({ title, value }: any) {
   return (
