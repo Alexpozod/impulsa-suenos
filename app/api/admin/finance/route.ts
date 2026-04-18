@@ -9,39 +9,60 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    /* =========================
-       💰 LEDGER BASE
-    ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
       .eq("status", "confirmed")
 
-    if (!ledger) {
-      return NextResponse.json({})
+    if (!ledger || ledger.length === 0) {
+      console.log("⚠️ Ledger vacío")
+      return NextResponse.json({
+        totalIncome: 0,
+        totalWithdrawals: 0,
+        totalUSD: 0,
+        totalFees: 0,
+        totalTips: 0,
+        balance: 0,
+        totalPayments: 0,
+        providers: {},
+        daily: {},
+        recentPayments: [],
+        errors: [],
+        payouts: [],
+        issues: []
+      })
     }
 
+    console.log("🔥 LEDGER TOTAL:", ledger.length)
+
     /* =========================
-       🔥 FILTROS CORRECTOS
+       🔥 FILTROS ROBUSTOS
     ========================= */
+
     const deposits = ledger.filter(l =>
-      l.type === "payment" &&
-      l.status === "confirmed"
+      (
+        l.type === "payment" ||
+        l.flow_type === "in"
+      ) &&
+      Number(l.amount) > 0
     )
 
     const withdrawals = ledger.filter(l =>
-      l.type === "withdraw" &&
-      l.status === "confirmed"
+      l.type === "withdraw" ||
+      l.flow_type === "out"
     )
 
     const fees = ledger.filter(l =>
-      l.type === "fee_platform" &&
-      l.status === "confirmed"
+      l.type === "fee_platform"
     )
+
+    console.log("💰 deposits:", deposits.length)
+    console.log("💸 withdrawals:", withdrawals.length)
 
     /* =========================
        📊 MÉTRICAS
     ========================= */
+
     const totalIncome = deposits.reduce(
       (acc, d) => acc + Number(d.amount || 0),
       0
@@ -72,6 +93,7 @@ export async function GET() {
     /* =========================
        💳 PROVIDERS
     ========================= */
+
     const providers: any = {}
 
     deposits.forEach(d => {
@@ -93,6 +115,7 @@ export async function GET() {
     /* =========================
        📅 DAILY
     ========================= */
+
     const daily: any = {}
 
     deposits.forEach(d => {
@@ -109,6 +132,7 @@ export async function GET() {
     /* =========================
        💳 PAGOS RECIENTES
     ========================= */
+
     const recentPayments = deposits
       .sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -118,6 +142,7 @@ export async function GET() {
     /* =========================
        🚨 ERRORES
     ========================= */
+
     const { data: errors } = await supabase
       .from("error_logs")
       .select("*")
@@ -127,6 +152,7 @@ export async function GET() {
     /* =========================
        🏦 PAYOUTS
     ========================= */
+
     const { data: payouts } = await supabase
       .from("payouts")
       .select("*")
@@ -136,6 +162,7 @@ export async function GET() {
     /* =========================
        ⚠️ CONCILIACIÓN
     ========================= */
+
     const { data: issues } = await supabase
       .from("reconciliation_logs")
       .select("*")
