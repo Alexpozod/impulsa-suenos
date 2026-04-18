@@ -150,30 +150,51 @@ export async function GET() {
       .limit(10)
 
     return NextResponse.json({
-      totalIncome,
-      totalUSD,
-      totalTips,
+  totalIncome,
+  totalUSD,
+  totalTips,
 
-      totalWithdrawals,
-      totalPendingWithdrawals,
-      totalRejectedWithdrawals,
+  totalWithdrawals,
+  totalPendingWithdrawals,
+  totalRejectedWithdrawals,
 
-      totalFees,
-      totalPlatformFees,
-      totalProviderFees,
+  totalFees,
+  totalPlatformFees,
+  totalProviderFees,
 
-      netIncome,
-      balance,
+  netIncome,
+  balance,
 
-      totalPayments: payments.length,
-      providers,
-      daily,
-      recentPayments,
+  /* =========================
+     🔥 NUEVAS MÉTRICAS PRO
+  ========================= */
 
-      errors: errors || [],
-      payouts: payouts || [],
-      issues: issues || []
-    })
+  profit: totalPlatformFees,
+
+  margin:
+    totalIncome > 0
+      ? (totalPlatformFees / totalIncome) * 100
+      : 0,
+
+  takeRate:
+    totalIncome > 0
+      ? ((totalPlatformFees + totalProviderFees) / totalIncome) * 100
+      : 0,
+
+  avgFeePerPayment:
+    payments.length > 0
+      ? totalPlatformFees / payments.length
+      : 0,
+
+  totalPayments: payments.length,
+  providers,
+  daily,
+  recentPayments,
+
+  errors: errors || [],
+  payouts: payouts || [],
+  issues: issues || []
+})
 
   } catch (error) {
     console.error("ADMIN FINANCE ERROR:", error)
