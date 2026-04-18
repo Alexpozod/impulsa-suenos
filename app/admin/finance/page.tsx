@@ -1,6 +1,14 @@
 'use client'
 
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts"
 
 export default function FinanceAdminPage() {
 
@@ -66,7 +74,27 @@ export default function FinanceAdminPage() {
           <Card title="Comisiones" value={stats.totalFees} />
           <Card title="Tips" value={stats.totalTips} />
 
+          {/* 🔥 NUEVO KPI */}
+          <Card
+            title="Ticket promedio"
+            value={
+              stats.totalPayments > 0
+                ? Math.round(stats.totalIncome / stats.totalPayments)
+                : 0
+            }
+          />
+
         </div>
+
+        {/* 📈 GRÁFICO */}
+        <RevenueChart data={stats.daily} />
+
+        {/* ALERTAS */}
+        {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
+          <div className="bg-red-900 p-3 rounded-xl border border-red-700">
+            ⚠️ Retiros altos respecto a ingresos
+          </div>
+        )}
 
         {/* PAGOS */}
         <Section title="Pagos recientes">
@@ -89,6 +117,46 @@ export default function FinanceAdminPage() {
       </div>
 
     </main>
+  )
+}
+
+/* =========================
+   📊 GRÁFICO
+========================= */
+
+function RevenueChart({ data }: any) {
+
+  const chartData = Object.entries(data || {}).map(([date, val]: any) => ({
+    date,
+    total: val.total
+  }))
+
+  return (
+    <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
+
+      <h2 className="mb-4 text-gray-200 font-semibold">
+        📈 Ingresos por día
+      </h2>
+
+      {chartData.length === 0 && (
+        <p className="text-gray-400 text-sm">Sin datos</p>
+      )}
+
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={chartData}>
+          <XAxis dataKey="date" stroke="#94a3b8" />
+          <YAxis stroke="#94a3b8" />
+          <Tooltip />
+          <Line
+            type="monotone"
+            dataKey="total"
+            stroke="#22c55e"
+            strokeWidth={2}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+
+    </div>
   )
 }
 
