@@ -7,7 +7,7 @@ import { evaluateFraudAlert } from "@/lib/alerts/alertEngine"
 import { enforceRiskActions } from "@/lib/security/enforceRisk"
 import { reconcileCampaign } from "@/lib/finance/reconcilePayments"
 import { logInfo, logError } from "@/lib/logger-api"
-import { logToDB, logErrorToDB } from "@/lib/logToDB"
+import { logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { sendNotification } from "@/lib/notifications/sendNotification"
 
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 CONCILIACIÓN
+       💰 CONCILIACIÓN (ORIGINAL)
     ========================= */
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📊 CAMPAIGN
+       📊 CAMPAIGN (ORIGINAL)
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
@@ -91,52 +91,22 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🧠 CAMPAIGN REAL
-    ========================= */
-    const campaignWithBalance = {
-      ...campaign,
-      balance: reconciliation.balance,
-      total_raised: (reconciliation as any).totalIn || 0,
-      total_withdrawn: (reconciliation as any).totalOut || 0
-    }
-
-    /* =========================
-       🧠 RIESGO
+       🧠 RIESGO (SIN CAMBIOS)
     ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
-    /* =========================
-       🚨 FRAUDE
-    ========================= */
     const fraud = await evaluateFraudAlert({
-      campaign: campaignWithBalance,
+      campaign, // 🔥 VOLVEMOS AL ORIGINAL
       payout,
       actor_id: user.id
     })
-
-    /* =========================
-       🔍 LOG SEGURO (FIX)
-    ========================= */
-    logToDB(
-      "fraud_check",
-      JSON.stringify({
-        payout_id,
-        campaign_id: campaign.id,
-        balance: reconciliation.balance,
-        amount: payout.amount,
-        result: fraud
-      })
-    ).catch(() => {})
 
     if (fraud.block) {
       return NextResponse.json({ error: "fraud_detected" }, { status: 403 })
     }
 
-    /* =========================
-       🔐 ENFORCEMENT
-    ========================= */
     const enforcement = await enforceRiskActions({
-      campaign: campaignWithBalance,
+      campaign,
       payout,
       risk: {
         ...risk,
@@ -149,8 +119,9 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 LEDGER
+       💰 LEDGER (ORIGINAL)
     ========================= */
+
     await supabase
       .from("financial_ledger")
       .delete()
@@ -170,7 +141,7 @@ export async function POST(req: Request) {
       })
 
     /* =========================
-       📦 PAYOUT
+       📦 PAYOUT (ORIGINAL)
     ========================= */
     await supabase
       .from("payouts")
@@ -181,7 +152,7 @@ export async function POST(req: Request) {
       .eq("id", payout_id)
 
     /* =========================
-       🔔 NOTIFICACIÓN
+       🔔 NOTIFICACIÓN (ORIGINAL)
     ========================= */
     await sendNotification({
       user_email: campaign.user_email,
