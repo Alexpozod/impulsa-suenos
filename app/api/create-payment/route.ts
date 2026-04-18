@@ -16,7 +16,7 @@ const paymentSchema = z.object({
   campaign_id: z.string().min(1),
   user_email: z.string().email(),
   message: z.string().optional(),
-  provider: z.string().optional() // 🔥 CAMBIO CLAVE (NO ENUM)
+  provider: z.string().optional()
 })
 
 export async function POST(req: Request) {
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     const body = await req.json()
 
-    console.log("BODY:", body) // 🔍 DEBUG REAL
+    console.log("BODY:", body)
 
     const parsed = paymentSchema.safeParse(body)
 
@@ -41,7 +41,31 @@ export async function POST(req: Request) {
       message = ""
     } = parsed.data
 
-    // 🔥 FORZAMOS PROVIDER SIEMPRE
+    /* =========================
+       🔒 VALIDAR CAMPAÑA (NUEVO - SEGURO)
+    ========================= */
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("id, status")
+      .eq("id", campaign_id)
+      .maybeSingle()
+
+    if (!campaign) {
+      return NextResponse.json(
+        { error: "campaign_not_found" },
+        { status: 404 }
+      )
+    }
+
+    // 🔥 BLOQUEO REAL
+    if (campaign.status === "frozen") {
+      return NextResponse.json(
+        { error: "campaign_frozen" },
+        { status: 403 }
+      )
+    }
+
+    // 🔥 FORZAMOS PROVIDER
     const provider = "mercadopago"
 
     const result = await createPayment({
