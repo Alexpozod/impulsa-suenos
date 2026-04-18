@@ -91,13 +91,13 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🧠 CAMPAIGN REAL (LEDGER BASED)
+       🧠 CAMPAIGN REAL (SAFE TYPES)
     ========================= */
     const campaignWithBalance = {
       ...campaign,
       balance: reconciliation.balance,
-      total_raised: reconciliation.total_income || 0,
-      total_withdrawn: reconciliation.total_withdrawn || 0
+      total_raised: "totalIn" in reconciliation ? reconciliation.totalIn : 0,
+      total_withdrawn: "totalOut" in reconciliation ? reconciliation.totalOut : 0
     }
 
     /* =========================
