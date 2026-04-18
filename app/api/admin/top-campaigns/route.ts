@@ -51,13 +51,23 @@ export async function GET() {
       campaignMap[c.id] = c.title
     })
 
-    /* 🏆 RESULTADO FINAL */
+    /* 🔥 CALCULAR TOTAL GLOBAL */
+    const totalGlobal = Object.values(map).reduce(
+      (acc: number, val: any) => acc + val.total,
+      0
+    )
+
+    /* 🏆 RESULTADO FINAL (CON % ) */
     const result = Object.entries(map)
       .map(([campaign_id, val]: any) => ({
         campaign_id,
         title: campaignMap[campaign_id] || "Campaña",
         total: val.total,
-        count: val.count
+        count: val.count,
+        percentage:
+          totalGlobal > 0
+            ? (val.total / totalGlobal) * 100
+            : 0
       }))
       .sort((a, b) => b.total - a.total)
       .slice(0, 10)

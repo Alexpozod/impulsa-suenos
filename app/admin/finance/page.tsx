@@ -124,8 +124,12 @@ export default function FinanceAdminPage() {
   #{i + 1} — {c.title}
 </a>
               <span className="text-green-400 font-semibold">
-                ${Number(c.total).toLocaleString()}
-              </span>
+  ${Number(c.total).toLocaleString()}
+</span>
+
+<span className="text-blue-400 text-xs">
+  ({c.percentage.toFixed(1)}%)
+</span>
 
               <span className="text-gray-400 text-xs">
                 {c.count} donaciones
