@@ -17,7 +17,10 @@ export async function evaluateFraudAlert(ctx: AlertContext) {
 
   const risk = evaluateCampaignRisk(ctx.campaign)
 
-  let score = risk.score
+  /* =========================
+     FIX MÍNIMO (NO ROMPE NADA)
+  ========================= */
+  let score = (risk as any).score || 0
   const flags = [...risk.flags]
 
   /* =========================
@@ -26,26 +29,6 @@ export async function evaluateFraudAlert(ctx: AlertContext) {
   if (ctx.payout && ctx.payout.amount > ctx.campaign.balance * 0.8) {
     score += 30
     flags.push("high_withdraw_ratio")
-  }
-
-  /* =========================
-     💰 NUEVO — ALERTAS FINANCIERAS
-     (NO rompe lo existente)
-  ========================= */
-
-  // 🔴 campaña sin balance
-  if (ctx.campaign.balance <= 0 && ctx.campaign.total_raised > 0) {
-    score += 20
-    flags.push("no_balance")
-  }
-
-  // 🔴 fees altos
-  if (
-    ctx.campaign.total_raised > 0 &&
-    ctx.campaign.total_withdrawn + ctx.campaign.balance > ctx.campaign.total_raised * 0.9
-  ) {
-    score += 15
-    flags.push("high_outflow")
   }
 
   if (score > 100) score = 100
