@@ -9,25 +9,22 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    const { data: ledger, error } = await supabase
+    /* 🔥 TRAER PAGOS */
+    const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("campaign_id, amount")
       .eq("type", "payment")
 
-    if (error) {
-      console.error("Ledger error:", error)
-      return NextResponse.json([], { status: 200 })
-    }
-
     if (!ledger || ledger.length === 0) {
-      return NextResponse.json([], { status: 200 })
+      return NextResponse.json([])
     }
 
-    const map: Record<string, { total: number; count: number }> = {}
+    /* 🧠 AGRUPAR */
+    const map: any = {}
 
-    for (const l of ledger) {
+    ledger.forEach((l) => {
 
-      if (!l.campaign_id) continue
+      if (!l.campaign_id) return
 
       if (!map[l.campaign_id]) {
         map[l.campaign_id] = {
@@ -38,11 +35,27 @@ export async function GET() {
 
       map[l.campaign_id].total += Number(l.amount || 0)
       map[l.campaign_id].count += 1
-    }
+    })
 
+    /* 🔥 OBTENER CAMPAÑAS */
+    const ids = Object.keys(map)
+
+    const { data: campaigns } = await supabase
+      .from("campaigns")
+      .select("id, title")
+      .in("id", ids)
+
+    const campaignMap: any = {}
+
+    campaigns?.forEach(c => {
+      campaignMap[c.id] = c.title
+    })
+
+    /* 🏆 RESULTADO FINAL */
     const result = Object.entries(map)
-      .map(([campaign_id, val]) => ({
+      .map(([campaign_id, val]: any) => ({
         campaign_id,
+        title: campaignMap[campaign_id] || "Campaña",
         total: val.total,
         count: val.count
       }))
@@ -53,6 +66,6 @@ export async function GET() {
 
   } catch (error) {
     console.error("TOP CAMPAIGNS ERROR:", error)
-    return NextResponse.json([], { status: 200 })
+    return NextResponse.json([])
   }
 }

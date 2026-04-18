@@ -117,10 +117,12 @@ export default function FinanceAdminPage() {
           {topCampaigns.map((c, i) => (
             <Row key={c.campaign_id}>
 
-              <span>
-                #{i + 1} — {c.campaign_id.slice(0, 6)}...
-              </span>
-
+              <a
+  href={`/admin/campaign/${c.campaign_id}`}
+  className="hover:underline text-blue-400"
+>
+  #{i + 1} — {c.title}
+</a>
               <span className="text-green-400 font-semibold">
                 ${Number(c.total).toLocaleString()}
               </span>
