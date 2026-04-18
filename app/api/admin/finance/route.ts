@@ -14,56 +14,29 @@ export async function GET() {
       .select("*")
       .eq("status", "confirmed")
 
-    if (!ledger || ledger.length === 0) {
-      console.log("⚠️ Ledger vacío")
-      return NextResponse.json({
-        totalIncome: 0,
-        totalWithdrawals: 0,
-        totalUSD: 0,
-        totalFees: 0,
-        totalTips: 0,
-        balance: 0,
-        totalPayments: 0,
-        providers: {},
-        daily: {},
-        recentPayments: [],
-        errors: [],
-        payouts: [],
-        issues: []
-      })
+    if (!ledger) {
+      return NextResponse.json({})
     }
 
-    console.log("🔥 LEDGER TOTAL:", ledger.length)
-
     /* =========================
-       🔥 FILTROS ROBUSTOS
+       ✅ SOLO PAGOS REALES
     ========================= */
-
-    const deposits = ledger.filter(l =>
-      (
-        l.type === "payment" ||
-        l.flow_type === "in"
-      ) &&
-      Number(l.amount) > 0
+    const payments = ledger.filter(l =>
+      l.type === "payment"
     )
 
     const withdrawals = ledger.filter(l =>
-      l.type === "withdraw" ||
-      l.flow_type === "out"
+      l.type === "withdraw"
     )
 
     const fees = ledger.filter(l =>
       l.type === "fee_platform"
     )
 
-    console.log("💰 deposits:", deposits.length)
-    console.log("💸 withdrawals:", withdrawals.length)
-
     /* =========================
-       📊 MÉTRICAS
+       📊 MÉTRICAS CORRECTAS
     ========================= */
-
-    const totalIncome = deposits.reduce(
+    const totalIncome = payments.reduce(
       (acc, d) => acc + Number(d.amount || 0),
       0
     )
@@ -73,7 +46,7 @@ export async function GET() {
       0
     )
 
-    const totalUSD = deposits.reduce(
+    const totalUSD = payments.reduce(
       (acc, d) => acc + Number(d.amount_usd || 0),
       0
     )
@@ -83,7 +56,7 @@ export async function GET() {
       0
     )
 
-    const totalTips = deposits.reduce(
+    const totalTips = payments.reduce(
       (acc, d) => acc + Number(d.metadata?.tip || 0),
       0
     )
@@ -93,10 +66,9 @@ export async function GET() {
     /* =========================
        💳 PROVIDERS
     ========================= */
-
     const providers: any = {}
 
-    deposits.forEach(d => {
+    payments.forEach(d => {
       const provider = d.provider || "unknown"
 
       if (!providers[provider]) {
@@ -115,10 +87,9 @@ export async function GET() {
     /* =========================
        📅 DAILY
     ========================= */
-
     const daily: any = {}
 
-    deposits.forEach(d => {
+    payments.forEach(d => {
       const day = new Date(d.created_at).toISOString().split("T")[0]
 
       if (!daily[day]) {
@@ -132,36 +103,26 @@ export async function GET() {
     /* =========================
        💳 PAGOS RECIENTES
     ========================= */
-
-    const recentPayments = deposits
+    const recentPayments = payments
       .sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
       .slice(0, 10)
 
     /* =========================
-       🚨 ERRORES
+       🚨 OTROS DATOS
     ========================= */
-
     const { data: errors } = await supabase
       .from("error_logs")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(10)
 
-    /* =========================
-       🏦 PAYOUTS
-    ========================= */
-
     const { data: payouts } = await supabase
       .from("payouts")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(10)
-
-    /* =========================
-       ⚠️ CONCILIACIÓN
-    ========================= */
 
     const { data: issues } = await supabase
       .from("reconciliation_logs")
@@ -176,7 +137,7 @@ export async function GET() {
       totalFees,
       totalTips,
       balance,
-      totalPayments: deposits.length,
+      totalPayments: payments.length,
       providers,
       daily,
       recentPayments,

@@ -11,7 +11,7 @@ export default function FinanceAdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
+    <main className="min-h-screen bg-slate-950 text-gray-100 p-6">
 
       <div className="max-w-7xl mx-auto space-y-8">
 
