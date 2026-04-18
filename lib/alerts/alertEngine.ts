@@ -17,9 +17,6 @@ export async function evaluateFraudAlert(ctx: AlertContext) {
 
   const risk = evaluateCampaignRisk(ctx.campaign)
 
-  /* =========================
-     FIX MÍNIMO (NO ROMPE NADA)
-  ========================= */
   let score = (risk as any).score || 0
   const flags = [...risk.flags]
 
@@ -37,6 +34,19 @@ export async function evaluateFraudAlert(ctx: AlertContext) {
      🔴 CRÍTICO
   ========================= */
   if (score >= 80) {
+
+    /* 🔥 AUTO FREEZE (NUEVO) */
+    try {
+      await supabase
+        .from("campaigns")
+        .update({
+          status: "frozen",
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", ctx.campaign.id)
+    } catch (e) {
+      console.error("AUTO FREEZE ERROR:", e)
+    }
 
     await supabase.from("fraud_alerts").insert({
       campaign_id: ctx.campaign.id,
