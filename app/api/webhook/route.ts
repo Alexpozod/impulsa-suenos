@@ -51,7 +51,10 @@ export async function POST(req: Request) {
       .select("*")
       .eq("payment_id", paymentId)
       .maybeSingle()
-
+// 🛑 EVITAR DOBLE PROCESAMIENTO
+if (existingPayment?.status === "approved") {
+  return NextResponse.json({ ok: true })
+}
     /* =========================
        💳 GET PAYMENT
     ========================= */
@@ -119,6 +122,8 @@ export async function POST(req: Request) {
     /* =========================
        🧠 PROCESAMIENTO CENTRAL
     ========================= */
+    // 🔒 LOCK PARA EVITAR DOBLE EJECUCIÓN
+await supabase.rpc("advisory_lock", { lock_key: paymentId })
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
