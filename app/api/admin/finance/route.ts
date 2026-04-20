@@ -14,8 +14,16 @@ export async function GET() {
       .select("*")
       .eq("status", "confirmed")
 
+    /* =========================
+       📊 CAMPAÑAS (FIX CRÍTICO)
+    ========================= */
+    const { data: campaigns } = await supabase
+      .from("campaigns")
+      .select("*")
+
     if (!ledger) {
       return NextResponse.json({
+        campaigns: campaigns || [],
         totals: {
           balance: 0,
           raised: 0,
@@ -158,6 +166,8 @@ export async function GET() {
 
     return NextResponse.json({
 
+      campaigns: campaigns || [], // 🔥 FIX PRINCIPAL
+
       totalIncome,
       totalUSD,
       totalTips,
@@ -173,7 +183,6 @@ export async function GET() {
       netIncome,
       balance,
 
-      /* 🔥 FIX CRÍTICO: COMPATIBILIDAD */
       totals: {
         balance: balance,
         raised: totalIncome,
@@ -181,10 +190,6 @@ export async function GET() {
         withdrawn: totalWithdrawals,
         pending: totalPendingWithdrawals
       },
-
-      /* =========================
-         MÉTRICAS PRO
-      ========================= */
 
       profit: totalPlatformFees,
 

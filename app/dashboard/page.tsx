@@ -9,13 +9,14 @@ export default function DashboardPage() {
 
   const { data, loading } = useFinancialDashboard()
   console.log("🔥 DATA DASHBOARD:", data)
+
   const [ledger, setLedger] = useState<any[]>([])
 
   /* =========================
      🔄 LOAD LEDGER
   ========================= */
   useEffect(() => {
-    if (data?.campaigns) {
+    if (Array.isArray(data?.campaigns) && data.campaigns.length > 0) {
       loadLedger()
     }
   }, [data])
@@ -28,7 +29,7 @@ export default function DashboardPage() {
 
       if (!Array.isArray(all)) return
 
-      const campaignIds = data.campaigns.map((c: any) => c.id)
+      const campaignIds = (data?.campaigns || []).map((c: any) => c.id)
 
       const filtered = all
         .filter((tx: any) => campaignIds.includes(tx.campaign_id))
@@ -49,30 +50,22 @@ export default function DashboardPage() {
   if (loading) return <div className="p-10">Cargando...</div>
   if (!data) return <div className="p-10">Error cargando datos</div>
 
-  const { totals, campaigns } = data
+  const totals = data?.totals || {}
+  const campaigns = Array.isArray(data?.campaigns) ? data.campaigns : []
 
   return (
     <main className="p-6 max-w-6xl mx-auto space-y-8">
 
-      {/* 🚨 ALERTAS (NUEVO) */}
       <FinancialAlerts data={data} />
 
-      {/* =========================
-         💰 RESUMEN (ORIGINAL)
-      ========================= */}
       <section className="grid md:grid-cols-5 gap-4">
-
         <Card title="Disponible" value={totals.balance} highlight />
         <Card title="Recaudado" value={totals.raised} />
         <Card title="Comisiones" value={totals.fees} />
         <Card title="Retirado" value={totals.withdrawn} />
         <Card title="Pendiente" value={totals.pending} />
-
       </section>
 
-      {/* =========================
-         📊 CAMPAÑAS (ORIGINAL + botón updates)
-      ========================= */}
       <section>
         <h2 className="text-xl font-bold mb-4">Tus campañas</h2>
 
@@ -113,7 +106,6 @@ export default function DashboardPage() {
                     Retirar
                   </a>
 
-                  {/* 🔥 NUEVO (NO ROMPE NADA) */}
                   <a
                     href={`/dashboard/campaigns/${c.id}/updates`}
                     className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
@@ -132,9 +124,6 @@ export default function DashboardPage() {
 
       </section>
 
-      {/* =========================
-         📜 MOVIMIENTOS (ORIGINAL)
-      ========================= */}
       <section>
         <h2 className="text-xl font-bold mb-4">
           Movimientos recientes
@@ -146,10 +135,6 @@ export default function DashboardPage() {
     </main>
   )
 }
-
-/* =========================
-   🎨 UI CARD (ORIGINAL)
-========================= */
 
 function Card({ title, value, highlight }: any) {
   return (
