@@ -136,13 +136,14 @@ export async function GET() {
     /* =========================
        💳 PAGOS RECIENTES
     ========================= */
-    const recentPayments = payments
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() -
-          new Date(a.created_at).getTime()
-      )
-      .slice(0, 10)
+    const recentPayments = ledger
+  .filter(l =>
+    l.type === "payment" || l.type === "withdraw"
+  )
+  .sort((a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  )
+  .slice(0, 10)
 
     /* =========================
        🚨 OTROS DATOS
