@@ -74,9 +74,7 @@ export async function GET() {
         balance: 0
       }
 
-      const walletBalance =
-        Number(w.available_balance || 0) +
-        Number(w.pending_balance || 0)
+      const walletBalance = Number(w.balance || 0)
 
       const diff = ledgerData.balance - walletBalance
 

@@ -9,45 +9,63 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    /* =========================
-       📥 LEDGER
-    ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
-      .select("amount, flow_type, type")
+      .select("amount, type")
       .eq("status", "confirmed")
 
     if (!ledger) {
-      return NextResponse.json([])
+      return NextResponse.json({})
     }
 
-    let totalIn = 0
-    let totalOut = 0
+    let campaignFunds = 0
+    let platformFunds = 0
+    let pendingWithdrawals = 0
 
     for (const row of ledger) {
 
       const amount = Number(row.amount || 0)
 
-      // 🔥 ignorar pending
-      if (row.type === "withdraw_pending") continue
+      switch (row.type) {
 
-      if (row.flow_type === "in") {
-        totalIn += amount
-      }
+        // 💰 dinero real en campañas
+        case "payment":
+          campaignFunds += amount
+          break
 
-      if (row.flow_type === "out") {
-        totalOut += Math.abs(amount)
+        case "fee_platform":
+        case "fee_mp":
+          campaignFunds -= Math.abs(amount)
+          break
+
+        case "withdraw":
+          campaignFunds -= Math.abs(amount)
+          break
+
+        // 🟢 dinero real de la plataforma
+        case "fee_platform_income":
+          platformFunds += amount
+          break
+
+        case "tip_income":
+          platformFunds += amount
+          break
+
+        // ⏳ pendientes
+        case "withdraw_pending":
+          pendingWithdrawals += Math.abs(amount)
+          break
       }
     }
 
     return NextResponse.json({
-      totalIn,
-      totalOut,
-      balance: totalIn - totalOut
+      campaignFunds,
+      platformFunds,
+      pendingWithdrawals
     })
 
   } catch (error) {
     console.error("wallet distribution error", error)
-    return NextResponse.json([])
+    return NextResponse.json({})
   }
 }
