@@ -15,7 +15,15 @@ export async function GET() {
       .eq("status", "confirmed")
 
     if (!ledger) {
-      return NextResponse.json({})
+      return NextResponse.json({
+        totals: {
+          balance: 0,
+          raised: 0,
+          fees: 0,
+          withdrawn: 0,
+          pending: 0
+        }
+      })
     }
 
     /* =========================
@@ -73,7 +81,6 @@ export async function GET() {
       0
     )
 
-    // 🔥 mantenemos compatibilidad
     const totalFees = totalPlatformFees
 
     const netIncome =
@@ -150,51 +157,61 @@ export async function GET() {
       .limit(10)
 
     return NextResponse.json({
-  totalIncome,
-  totalUSD,
-  totalTips,
 
-  totalWithdrawals,
-  totalPendingWithdrawals,
-  totalRejectedWithdrawals,
+      totalIncome,
+      totalUSD,
+      totalTips,
 
-  totalFees,
-  totalPlatformFees,
-  totalProviderFees,
+      totalWithdrawals,
+      totalPendingWithdrawals,
+      totalRejectedWithdrawals,
 
-  netIncome,
-  balance,
+      totalFees,
+      totalPlatformFees,
+      totalProviderFees,
 
-  /* =========================
-     🔥 NUEVAS MÉTRICAS PRO
-  ========================= */
+      netIncome,
+      balance,
 
-  profit: totalPlatformFees,
+      /* 🔥 FIX CRÍTICO: COMPATIBILIDAD */
+      totals: {
+        balance: balance,
+        raised: totalIncome,
+        fees: totalFees,
+        withdrawn: totalWithdrawals,
+        pending: totalPendingWithdrawals
+      },
 
-  margin:
-    totalIncome > 0
-      ? (totalPlatformFees / totalIncome) * 100
-      : 0,
+      /* =========================
+         MÉTRICAS PRO
+      ========================= */
 
-  takeRate:
-    totalIncome > 0
-      ? ((totalPlatformFees + totalProviderFees) / totalIncome) * 100
-      : 0,
+      profit: totalPlatformFees,
 
-  avgFeePerPayment:
-    payments.length > 0
-      ? totalPlatformFees / payments.length
-      : 0,
+      margin:
+        totalIncome > 0
+          ? (totalPlatformFees / totalIncome) * 100
+          : 0,
 
-  totalPayments: payments.length,
-  providers,
-  daily,
-  recentPayments,
+      takeRate:
+        totalIncome > 0
+          ? ((totalPlatformFees + totalProviderFees) / totalIncome) * 100
+          : 0,
 
-  errors: errors || [],
-  payouts: payouts || [],
-  issues: issues || []
-})
+      avgFeePerPayment:
+        payments.length > 0
+          ? totalPlatformFees / payments.length
+          : 0,
+
+      totalPayments: payments.length,
+      providers,
+      daily,
+      recentPayments,
+
+      errors: errors || [],
+      payouts: payouts || [],
+      issues: issues || []
+    })
 
   } catch (error) {
     console.error("ADMIN FINANCE ERROR:", error)
