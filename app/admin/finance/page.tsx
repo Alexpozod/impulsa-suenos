@@ -18,7 +18,6 @@ export default function FinanceAdminPage() {
   const [topCampaigns, setTopCampaigns] = useState<any[]>([])
   const [balances, setBalances] = useState<any[]>([])
 
-  // 🔥 NUEVO
   const [profitRanking, setProfitRanking] = useState<any[]>([])
   const [unhealthyCampaigns, setUnhealthyCampaigns] = useState<any[]>([])
 
@@ -32,9 +31,12 @@ export default function FinanceAdminPage() {
     try {
       const res = await fetch("/api/admin/top-campaigns")
       const data = await res.json()
-      setTopCampaigns(data)
+
+      setTopCampaigns(Array.isArray(data) ? data : [])
+
     } catch (e) {
       console.error("Top campaigns error", e)
+      setTopCampaigns([])
     }
   }
 
@@ -42,22 +44,27 @@ export default function FinanceAdminPage() {
     try {
       const res = await fetch("/api/admin/campaign-balances")
       const data = await res.json()
-      setBalances(data)
+
+      setBalances(Array.isArray(data) ? data : [])
+
     } catch (e) {
       console.error("Balances error", e)
+      setBalances([])
     }
   }
 
-  // 🔥 NUEVO
   const loadProfit = async () => {
     try {
       const res = await fetch("/api/admin/campaign-profit")
       const data = await res.json()
 
-      setProfitRanking(data.ranking || [])
-      setUnhealthyCampaigns(data.unhealthy || [])
+      setProfitRanking(Array.isArray(data?.ranking) ? data.ranking : [])
+      setUnhealthyCampaigns(Array.isArray(data?.unhealthy) ? data.unhealthy : [])
+
     } catch (e) {
       console.error("Profit ranking error", e)
+      setProfitRanking([])
+      setUnhealthyCampaigns([])
     }
   }
 
@@ -86,7 +93,6 @@ export default function FinanceAdminPage() {
           💰 Panel Financiero PRO
         </h1>
 
-        {/* EXPORT */}
         <div className="flex gap-3">
 
           <button
@@ -114,17 +120,17 @@ export default function FinanceAdminPage() {
         {/* KPIs */}
         <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
 
-          <Card title="Ingresos" value={stats.totalIncome} />
-          <Card title="USD" value={stats.totalUSD} />
-          <Card title="Retiros" value={stats.totalWithdrawals} />
-          <Card title="Balance" value={stats.balance} />
-          <Card title="Comisiones" value={stats.totalFees} />
-          <Card title="Tips" value={stats.totalTips} />
+          <Card title="Ingresos" value={stats?.totalIncome} />
+          <Card title="USD" value={stats?.totalUSD} />
+          <Card title="Retiros" value={stats?.totalWithdrawals} />
+          <Card title="Balance" value={stats?.balance} />
+          <Card title="Comisiones" value={stats?.totalFees} />
+          <Card title="Tips" value={stats?.totalTips} />
 
           <Card
             title="Ticket promedio"
             value={
-              stats.totalPayments > 0
+              stats?.totalPayments > 0
                 ? Math.round(stats.totalIncome / stats.totalPayments)
                 : 0
             }
@@ -135,48 +141,48 @@ export default function FinanceAdminPage() {
         {/* KPIs PRO */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-          <Card title="Profit" value={stats.profit} />
+          <Card title="Profit" value={stats?.profit} />
 
           <Card
             title="Margen %"
-            value={Number(stats.margin || 0).toFixed(2)}
+            value={Number(stats?.margin || 0).toFixed(2)}
           />
 
           <Card
             title="Take Rate %"
-            value={Number(stats.takeRate || 0).toFixed(2)}
+            value={Number(stats?.takeRate || 0).toFixed(2)}
           />
 
           <Card
             title="Fee Promedio"
-            value={stats.avgFeePerPayment}
+            value={stats?.avgFeePerPayment}
           />
 
         </div>
 
-        {/* 📈 GRÁFICO */}
-        <RevenueChart data={stats.daily} />
+        {/* GRÁFICO */}
+        <RevenueChart data={stats?.daily || {}} />
 
         {/* ALERTAS */}
-        {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
+        {stats?.totalWithdrawals > stats?.totalIncome * 0.8 && (
           <div className="bg-red-900 p-3 rounded-xl border border-red-700">
             ⚠️ Retiros altos respecto a ingresos
           </div>
         )}
 
-        {stats.margin < 5 && (
+        {stats?.margin < 5 && (
           <div className="bg-yellow-900 p-3 rounded-xl border border-yellow-700">
             ⚠️ Margen bajo (menos del 5%)
           </div>
         )}
 
-        {stats.margin > 20 && (
+        {stats?.margin > 20 && (
           <div className="bg-green-900 p-3 rounded-xl border border-green-700">
             🚀 Excelente margen de negocio
           </div>
         )}
 
-        {/* 🏆 TOP CAMPAÑAS */}
+        {/* TOP CAMPAÑAS */}
         <Section title="🏆 Top campañas">
 
           {topCampaigns.length === 0 && (
@@ -185,21 +191,16 @@ export default function FinanceAdminPage() {
 
           {topCampaigns.map((c, i) => (
             <Row key={i}>
-              <span className="text-blue-400">
-                {c.title}
-              </span>
-
+              <span className="text-blue-400">{c.title}</span>
               <span className="text-green-400">
-                ${Number(c.total).toLocaleString()}
-                {" "}
-                ({c.percentage?.toFixed(1)}%)
+                ${Number(c.total).toLocaleString()} ({c.percentage?.toFixed(1)}%)
               </span>
             </Row>
           ))}
 
         </Section>
 
-        {/* 💰 PROFIT RANKING */}
+        {/* PROFIT */}
         <Section title="💰 Campañas más rentables">
 
           {profitRanking.length === 0 && (
@@ -208,40 +209,16 @@ export default function FinanceAdminPage() {
 
           {profitRanking.map((c, i) => (
             <Row key={i}>
-              <span className="text-blue-400">
-                {c.title}
-              </span>
-
+              <span className="text-blue-400">{c.title}</span>
               <span className="text-green-400">
-                ${Number(c.profit).toLocaleString()}
-                {" | "}
-                {c.margin.toFixed(1)}%
+                ${Number(c.profit).toLocaleString()} | {c.margin?.toFixed(1)}%
               </span>
             </Row>
           ))}
 
         </Section>
 
-        {/* 🚨 CAMPAÑAS NO RENTABLES */}
-        {unhealthyCampaigns.length > 0 && (
-          <Section title="🚨 Campañas con bajo margen">
-
-            {unhealthyCampaigns.map((c, i) => (
-              <Row key={i}>
-                <span className="text-red-400">
-                  {c.title}
-                </span>
-
-                <span className="text-yellow-400">
-                  {c.margin.toFixed(1)}%
-                </span>
-              </Row>
-            ))}
-
-          </Section>
-        )}
-
-        {/* 💰 BALANCE POR CAMPAÑA */}
+        {/* BALANCES */}
         <Section title="💰 Balance por campaña">
 
           {balances.length === 0 && (
@@ -250,30 +227,9 @@ export default function FinanceAdminPage() {
 
           {balances.map((c) => (
             <Row key={c.campaign_id}>
-              <span className="text-blue-400">
-                {c.title}
-              </span>
-
+              <span className="text-blue-400">{c.title}</span>
               <span className="text-green-400">
                 ${Number(c.balance).toLocaleString()}
-              </span>
-            </Row>
-          ))}
-
-        </Section>
-
-        {/* PAGOS */}
-        <Section title="Pagos recientes">
-
-          {stats.recentPayments?.length === 0 && (
-            <p className="text-gray-400">Sin pagos</p>
-          )}
-
-          {stats.recentPayments?.map((p: any, i: number) => (
-            <Row key={i}>
-              <span>{p.user_email || "Usuario"}</span>
-              <span className="text-green-400">
-                ${Number(p.amount || 0).toLocaleString()}
               </span>
             </Row>
           ))}
@@ -286,15 +242,13 @@ export default function FinanceAdminPage() {
   )
 }
 
-/* =========================
-   📊 GRÁFICO
-========================= */
+/* COMPONENTES */
 
 function RevenueChart({ data }: any) {
 
   const chartData = Object.entries(data || {}).map(([date, val]: any) => ({
     date,
-    total: val.total
+    total: val?.total || 0
   }))
 
   return (
@@ -313,20 +267,13 @@ function RevenueChart({ data }: any) {
           <XAxis dataKey="date" stroke="#94a3b8" />
           <YAxis stroke="#94a3b8" />
           <Tooltip />
-          <Line
-            type="monotone"
-            dataKey="total"
-            stroke="#22c55e"
-            strokeWidth={2}
-          />
+          <Line type="monotone" dataKey="total" stroke="#22c55e" strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
 
     </div>
   )
 }
-
-/* COMPONENTES */
 
 function Card({ title, value }: any) {
   return (
