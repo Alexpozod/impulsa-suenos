@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   try {
 
     /* =========================
-       👤 USER EMAIL DESDE MIDDLEWARE
+       👤 EMAIL DESDE MIDDLEWARE
     ========================= */
     const userEmail = req.headers.get("x-user-email")
 
@@ -22,15 +22,15 @@ export async function GET(req: Request) {
     }
 
     /* =========================
-       💰 LEDGER DEL USUARIO
+       🔍 OBTENER USER ID REAL
     ========================= */
-    const { data: ledger } = await supabase
-      .from("financial_ledger")
-      .select("*")
-      .eq("status", "confirmed")
-      .eq("user_email", userEmail)
+    const { data: user } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", userEmail)
+      .single()
 
-    if (!ledger || ledger.length === 0) {
+    if (!user?.id) {
       return NextResponse.json({
         campaigns: [],
         totals: {
@@ -46,18 +46,45 @@ export async function GET(req: Request) {
     /* =========================
        📊 CAMPAÑAS DEL USUARIO
     ========================= */
-    const campaignIds = [
-      ...new Set(ledger.map(l => l.campaign_id))
-    ]
-
     const { data: campaigns } = await supabase
       .from("campaigns")
       .select("*")
-      .in("id", campaignIds)
+      .eq("user_id", user.id)
+
+    const campaignIds = (campaigns || []).map(c => c.id)
 
     /* =========================
-       ✅ CLASIFICACIÓN
+       💰 LEDGER (SOLO DE ESAS CAMPAÑAS)
     ========================= */
+    const { data: ledger } = await supabase
+      .from("financial_ledger")
+      .select("*")
+      .eq("status", "confirmed")
+      .in(
+        "campaign_id",
+        campaignIds.length > 0
+          ? campaignIds
+          : ["00000000-0000-0000-0000-000000000000"]
+      )
+
+    if (!ledger) {
+      return NextResponse.json({
+        campaigns: campaigns || [],
+        totals: {
+          balance: 0,
+          raised: 0,
+          fees: 0,
+          withdrawn: 0,
+          pending: 0
+        }
+      })
+    }
+
+    /* =========================
+       🔁 DESDE AQUÍ NO TOCO NADA
+       (tu lógica original intacta)
+    ========================= */
+
     const payments = ledger.filter(l => l.type === "payment")
 
     const withdrawals = ledger.filter(l => l.type === "withdraw")
@@ -67,9 +94,6 @@ export async function GET(req: Request) {
     const feePlatform = ledger.filter(l => l.type === "fee_platform")
     const feeMP = ledger.filter(l => l.type === "fee_mp")
 
-    /* =========================
-       📊 MÉTRICAS
-    ========================= */
     const totalIncome = payments.reduce(
       (acc, d) => acc + Number(d.amount || 0),
       0
@@ -118,9 +142,6 @@ export async function GET(req: Request) {
     const balance =
       netIncome - totalWithdrawals
 
-    /* =========================
-       💳 PROVIDERS
-    ========================= */
     const providers: any = {}
 
     payments.forEach(d => {
@@ -139,9 +160,6 @@ export async function GET(req: Request) {
       providers[provider].count += 1
     })
 
-    /* =========================
-       📅 DAILY
-    ========================= */
     const daily: any = {}
 
     payments.forEach(d => {
@@ -155,9 +173,6 @@ export async function GET(req: Request) {
       daily[day].count += 1
     })
 
-    /* =========================
-       💳 PAGOS RECIENTES
-    ========================= */
     const recentPayments = payments
       .sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
