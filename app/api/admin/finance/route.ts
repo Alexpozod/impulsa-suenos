@@ -6,20 +6,39 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
 
-    const { data: ledger } = await supabase
-      .from("financial_ledger")
-      .select("*")
-      .eq("status", "confirmed")
+    /* =========================
+       👤 USUARIO DESDE MIDDLEWARE
+    ========================= */
+    const userId = req.headers.get("x-user-id")
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "No user id" },
+        { status: 401 }
+      )
+    }
 
     /* =========================
-       📊 CAMPAÑAS (FIX CRÍTICO)
+       📊 CAMPAÑAS DEL USUARIO
     ========================= */
     const { data: campaigns } = await supabase
       .from("campaigns")
       .select("*")
+      .eq("user_id", userId)
+
+    const campaignIds = (campaigns || []).map(c => c.id)
+
+    /* =========================
+       💰 LEDGER FILTRADO
+    ========================= */
+    const { data: ledger } = await supabase
+      .from("financial_ledger")
+      .select("*")
+      .eq("status", "confirmed")
+      .in("campaign_id", campaignIds.length > 0 ? campaignIds : ["00000000-0000-0000-0000-000000000000"])
 
     if (!ledger) {
       return NextResponse.json({
@@ -134,39 +153,15 @@ export async function GET() {
       daily[day].count += 1
     })
 
-    /* =========================
-       💳 PAGOS RECIENTES
-    ========================= */
     const recentPayments = payments
       .sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
       .slice(0, 10)
 
-    /* =========================
-       🚨 OTROS DATOS
-    ========================= */
-    const { data: errors } = await supabase
-      .from("error_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(10)
-
-    const { data: payouts } = await supabase
-      .from("payouts")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(10)
-
-    const { data: issues } = await supabase
-      .from("reconciliation_logs")
-      .select("*")
-      .eq("status", "open")
-      .limit(10)
-
     return NextResponse.json({
 
-      campaigns: campaigns || [], // 🔥 FIX PRINCIPAL
+      campaigns: campaigns || [],
 
       totalIncome,
       totalUSD,
@@ -184,7 +179,7 @@ export async function GET() {
       balance,
 
       totals: {
-        balance: balance,
+        balance,
         raised: totalIncome,
         fees: totalFees,
         withdrawn: totalWithdrawals,
@@ -211,11 +206,7 @@ export async function GET() {
       totalPayments: payments.length,
       providers,
       daily,
-      recentPayments,
-
-      errors: errors || [],
-      payouts: payouts || [],
-      issues: issues || []
+      recentPayments
     })
 
   } catch (error) {
