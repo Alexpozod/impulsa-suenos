@@ -51,8 +51,8 @@ export default function KYCPage() {
       }
 
       if (kyc?.status === 'approved') {
-        router.push('/dashboard')
-      }
+  setMessage('✅ Tu cuenta ya está verificada')
+}
     }
 
     init()
