@@ -92,9 +92,29 @@ export default function WalletAdminPage() {
         ========================= */}
         <div className="grid md:grid-cols-3 gap-4">
 
-          <Card title="Fondos en campañas" value={distribution?.campaignFunds} />
-          <Card title="Fondos plataforma" value={distribution?.platformFunds} />
-          <Card title="Retiros pendientes" value={distribution?.pendingWithdrawals} />
+          <Card
+  title="Fondos en campañas"
+  value={
+    walletUsers
+      .filter((u: any) => u.user_email !== "platform")
+      .reduce((acc: number, u: any) => acc + Number(u.ledger_balance || 0), 0)
+  }
+/>
+
+<Card
+  title="Fondos plataforma"
+  value={
+    walletUsers.find((u: any) => u.user_email === "platform")?.ledger_balance || 0
+  }
+/>
+
+<Card
+  title="Retiros pendientes"
+  value={
+    walletUsers
+      .reduce((acc: number, u: any) => acc + Number(u.pending_withdrawals || 0), 0)
+  }
+/>
 
         </div>
 
