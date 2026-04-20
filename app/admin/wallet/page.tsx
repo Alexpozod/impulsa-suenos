@@ -94,26 +94,17 @@ export default function WalletAdminPage() {
 
           <Card
   title="Fondos en campañas"
-  value={
-    walletUsers
-      .filter((u: any) => u.user_email !== "platform")
-      .reduce((acc: number, u: any) => acc + Number(u.ledger_balance || 0), 0)
-  }
+  value={distribution?.campaignFunds || 0}
 />
 
 <Card
   title="Fondos plataforma"
-  value={
-    walletUsers.find((u: any) => u.user_email === "platform")?.ledger_balance || 0
-  }
+  value={distribution?.platformFunds || 0}
 />
 
 <Card
   title="Retiros pendientes"
-  value={
-    walletUsers
-      .reduce((acc: number, u: any) => acc + Number(u.pending_withdrawals || 0), 0)
-  }
+  value={distribution?.pendingWithdrawals || 0}
 />
 
         </div>
