@@ -6,66 +6,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-
-    /* =========================
-       👤 EMAIL DESDE MIDDLEWARE
-    ========================= */
-    const userEmail = req.headers.get("x-user-email")
-
-    if (!userEmail) {
-      return NextResponse.json(
-        { error: "No user email" },
-        { status: 401 }
-      )
-    }
-
-    /* =========================
-       🔍 OBTENER USER ID REAL
-    ========================= */
-    const { data: user } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", userEmail)
-      .single()
-
-    if (!user?.id) {
-      return NextResponse.json({
-        campaigns: [],
-        totals: {
-          balance: 0,
-          raised: 0,
-          fees: 0,
-          withdrawn: 0,
-          pending: 0
-        }
-      })
-    }
-
-    /* =========================
-       📊 CAMPAÑAS DEL USUARIO
-    ========================= */
-    const { data: campaigns } = await supabase
-      .from("campaigns")
-      .select("*")
-      .eq("user_id", user.id)
-
-    const campaignIds = (campaigns || []).map(c => c.id)
-
-    /* =========================
-       💰 LEDGER (SOLO DE ESAS CAMPAÑAS)
-    ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
       .eq("status", "confirmed")
-      .in(
-        "campaign_id",
-        campaignIds.length > 0
-          ? campaignIds
-          : ["00000000-0000-0000-0000-000000000000"]
-      )
+
+    /* =========================
+       📊 CAMPAÑAS (FIX CRÍTICO)
+    ========================= */
+    const { data: campaigns } = await supabase
+      .from("campaigns")
+      .select("*")
 
     if (!ledger) {
       return NextResponse.json({
@@ -81,10 +34,8 @@ export async function GET(req: Request) {
     }
 
     /* =========================
-       🔁 DESDE AQUÍ NO TOCO NADA
-       (tu lógica original intacta)
+       ✅ CLASIFICACIÓN
     ========================= */
-
     const payments = ledger.filter(l => l.type === "payment")
 
     const withdrawals = ledger.filter(l => l.type === "withdraw")
@@ -94,6 +45,9 @@ export async function GET(req: Request) {
     const feePlatform = ledger.filter(l => l.type === "fee_platform")
     const feeMP = ledger.filter(l => l.type === "fee_mp")
 
+    /* =========================
+       📊 MÉTRICAS
+    ========================= */
     const totalIncome = payments.reduce(
       (acc, d) => acc + Number(d.amount || 0),
       0
@@ -142,6 +96,9 @@ export async function GET(req: Request) {
     const balance =
       netIncome - totalWithdrawals
 
+    /* =========================
+       💳 PROVIDERS
+    ========================= */
     const providers: any = {}
 
     payments.forEach(d => {
@@ -160,6 +117,9 @@ export async function GET(req: Request) {
       providers[provider].count += 1
     })
 
+    /* =========================
+       📅 DAILY
+    ========================= */
     const daily: any = {}
 
     payments.forEach(d => {
@@ -173,15 +133,40 @@ export async function GET(req: Request) {
       daily[day].count += 1
     })
 
+    /* =========================
+       💳 PAGOS RECIENTES
+    ========================= */
     const recentPayments = payments
-      .sort((a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() -
+          new Date(a.created_at).getTime()
       )
       .slice(0, 10)
 
-    return NextResponse.json({
+    /* =========================
+       🚨 OTROS DATOS
+    ========================= */
+    const { data: errors } = await supabase
+      .from("error_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10)
 
-      campaigns: campaigns || [],
+    const { data: payouts } = await supabase
+      .from("payouts")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10)
+
+    const { data: issues } = await supabase
+      .from("reconciliation_logs")
+      .select("*")
+      .eq("status", "open")
+      .limit(10)
+
+    return NextResponse.json({
+      campaigns: campaigns || [], // 🔥 FIX PRINCIPAL
 
       totalIncome,
       totalUSD,
@@ -199,7 +184,7 @@ export async function GET(req: Request) {
       balance,
 
       totals: {
-        balance,
+        balance: balance,
         raised: totalIncome,
         fees: totalFees,
         withdrawn: totalWithdrawals,
@@ -226,7 +211,11 @@ export async function GET(req: Request) {
       totalPayments: payments.length,
       providers,
       daily,
-      recentPayments
+      recentPayments,
+
+      errors: errors || [],
+      payouts: payouts || [],
+      issues: issues || []
     })
 
   } catch (error) {
