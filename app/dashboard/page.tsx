@@ -88,14 +88,11 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="font-semibold">{c.title}</h3>
 
+                  {/* ✅ FIX AQUÍ (ÚNICO CAMBIO) */}
                   <p className="text-sm text-gray-500">
-  Disponible: $
-  {Number(
-    ledger
-      .filter((tx: any) => tx.campaign_id === c.id)
-      .reduce((acc: number, tx: any) => acc + Number(tx.amount || 0), 0)
-  ).toLocaleString()}
-</p>
+                    Disponible: ${Number(totals.balance || 0).toLocaleString()}
+                  </p>
+
                 </div>
 
                 <div className="flex gap-2">
