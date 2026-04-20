@@ -32,7 +32,10 @@ export default function DashboardPage() {
       const campaignIds = (data?.campaigns || []).map((c: any) => c.id)
 
       const filtered = all
-        .filter((tx: any) => campaignIds.includes(tx.campaign_id))
+        .filter((tx: any) =>
+          campaignIds.includes(tx.campaign_id) &&
+          (tx.type === "payment" || tx.type === "withdraw")
+        )
         .sort((a: any, b: any) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )
