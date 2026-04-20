@@ -14,11 +14,13 @@ export function useFinancialDashboard() {
   const load = async () => {
     try {
 
-      const res = await fetch("/api/admin/finance")
+      const token = localStorage.getItem("token") // o como lo guardes
 
-      if (!res.ok) {
-        throw new Error("Error al obtener datos financieros")
-      }
+const res = await fetch("/api/admin/finance", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+})
 
       const json = await res.json()
 
