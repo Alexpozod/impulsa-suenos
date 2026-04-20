@@ -10,39 +10,29 @@ export async function GET(req: Request) {
   try {
 
     /* =========================
-       👤 USUARIO DESDE MIDDLEWARE
+       👤 USER EMAIL DESDE MIDDLEWARE
     ========================= */
-    const userId = req.headers.get("x-user-id")
+    const userEmail = req.headers.get("x-user-email")
 
-    if (!userId) {
+    if (!userEmail) {
       return NextResponse.json(
-        { error: "No user id" },
+        { error: "No user email" },
         { status: 401 }
       )
     }
 
     /* =========================
-       📊 CAMPAÑAS DEL USUARIO
-    ========================= */
-    const { data: campaigns } = await supabase
-      .from("campaigns")
-      .select("*")
-      .eq("user_id", userId)
-
-    const campaignIds = (campaigns || []).map(c => c.id)
-
-    /* =========================
-       💰 LEDGER FILTRADO
+       💰 LEDGER DEL USUARIO
     ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
       .eq("status", "confirmed")
-      .in("campaign_id", campaignIds.length > 0 ? campaignIds : ["00000000-0000-0000-0000-000000000000"])
+      .eq("user_email", userEmail)
 
-    if (!ledger) {
+    if (!ledger || ledger.length === 0) {
       return NextResponse.json({
-        campaigns: campaigns || [],
+        campaigns: [],
         totals: {
           balance: 0,
           raised: 0,
@@ -52,6 +42,18 @@ export async function GET(req: Request) {
         }
       })
     }
+
+    /* =========================
+       📊 CAMPAÑAS DEL USUARIO
+    ========================= */
+    const campaignIds = [
+      ...new Set(ledger.map(l => l.campaign_id))
+    ]
+
+    const { data: campaigns } = await supabase
+      .from("campaigns")
+      .select("*")
+      .in("id", campaignIds)
 
     /* =========================
        ✅ CLASIFICACIÓN
@@ -153,6 +155,9 @@ export async function GET(req: Request) {
       daily[day].count += 1
     })
 
+    /* =========================
+       💳 PAGOS RECIENTES
+    ========================= */
     const recentPayments = payments
       .sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
