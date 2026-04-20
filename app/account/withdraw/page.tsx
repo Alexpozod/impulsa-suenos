@@ -47,24 +47,54 @@ export default function WithdrawPage() {
 
       const balancesMap: any = {}
 
-      for (const c of campaignsData || []) {
-        try {
-          const res = await fetch(`/api/campaign-wallet?campaign_id=${c.id}`)
-          const data = await res.json()
+      /* =========================
+         🔥 FIX REAL AQUÍ (IMPORTANTE)
+         Calculamos desde ledger correctamente
+      ========================= */
+      try {
+        const res = await fetch("/api/ledger")
+        const ledger = await res.json()
+
+        for (const c of campaignsData || []) {
+
+          const campaignLedger = (ledger || []).filter((tx: any) =>
+            tx.campaign_id === c.id &&
+            tx.user_email === email && // 🔥 SOLO USUARIO
+            tx.status === "confirmed"
+          )
+
+          const available = campaignLedger.reduce(
+            (acc: number, tx: any) => acc + Number(tx.amount || 0),
+            0
+          )
+
+          const pending = (ledger || [])
+            .filter((tx: any) =>
+              tx.campaign_id === c.id &&
+              tx.user_email === email &&
+              tx.type === "withdraw_pending"
+            )
+            .reduce((acc: number, tx: any) => acc + Math.abs(Number(tx.amount || 0)), 0)
 
           balancesMap[c.id] = {
-            available: data.balance || 0,
-            pending: data.pending || 0
+            available,
+            pending
           }
+        }
 
-        } catch {
+      } catch (err) {
+        console.error("Error calculando balances:", err)
+
+        for (const c of campaignsData || []) {
           balancesMap[c.id] = { available: 0, pending: 0 }
         }
       }
 
       setBalances(balancesMap)
 
-      // 🔥 FIX CORRECTO AQUÍ
+      /* =========================
+         HISTORIAL
+      ========================= */
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
 
