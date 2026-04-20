@@ -8,6 +8,7 @@ import FinancialAlerts from "@/app/components/finance/FinancialAlerts"
 export default function DashboardPage() {
 
   const { data, loading } = useFinancialDashboard()
+  console.log("🔥 DATA DASHBOARD:", data)
   const [ledger, setLedger] = useState<any[]>([])
 
   /* =========================
