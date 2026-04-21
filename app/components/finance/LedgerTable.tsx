@@ -44,9 +44,25 @@ export default function LedgerTable({ ledger }: { ledger: any[] }) {
 
             <tr key={tx.id} className="border-t">
 
-              {/* Tipo */}
+              {/* Tipo + Campaña (PRO) */}
               <td className="py-2">
-                {getLabel(tx.type)}
+                <div className="flex flex-col">
+
+                  <span>
+                    {getLabel(tx.type)}
+                  </span>
+
+                  {/* 🔥 nombre campaña */}
+                  <span className="text-xs text-gray-400">
+                    {tx.campaigns?.title}
+                  </span>
+
+                  {/* 🔥 id campaña (fallback/debug PRO) */}
+                  <span className="text-[10px] text-gray-500">
+                    {tx.campaign_id}
+                  </span>
+
+                </div>
               </td>
 
               {/* Monto */}
