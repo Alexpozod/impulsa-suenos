@@ -1,6 +1,9 @@
 import { createClient } from "@supabase/supabase-js"
+import { Resend } from "resend"
 import { sendDonationEmail } from "@/lib/email"
 import { logSystemEvent } from "@/lib/system/logger"
+
+const resend = new Resend(process.env.RESEND_API_KEY!)
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,6 +17,29 @@ type NotificationParams = {
   message: string
   metadata?: any
   sendEmail?: boolean
+}
+
+/* =========================
+   🎨 TEMPLATE BASE PRO
+========================= */
+function baseTemplate(content: string) {
+  return `
+  <div style="font-family: Arial; background:#f4f4f5; padding:20px;">
+    <div style="max-width:600px; margin:auto; background:white; padding:25px; border-radius:12px;">
+      
+      <h2 style="color:#16a34a;">💚 ImpulsaSueños</h2>
+
+      ${content}
+
+      <hr style="margin:25px 0"/>
+
+      <p style="font-size:12px; color:#666;">
+        Este correo fue generado automáticamente.
+      </p>
+
+    </div>
+  </div>
+  `
 }
 
 export async function sendNotification({
@@ -41,13 +67,13 @@ export async function sendNotification({
     })
 
     /* =========================
-       📧 EMAIL SEGÚN TIPO
+       📧 EMAILS
     ========================= */
     if (sendEmail) {
 
       try {
 
-        // 💖 DONACIÓN (NO TOCAR)
+        // 💖 DONACIÓN
         if (type === "donation") {
           await sendDonationEmail({
             to: user_email,
@@ -56,29 +82,89 @@ export async function sendNotification({
           })
         }
 
-        // ✅ KYC APROBADO
+        // 🎯 DONACIÓN RECIBIDA (CREADOR)
+        else if (type === "donation_received") {
+          await resend.emails.send({
+            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
+            to: user_email,
+            subject: "💸 Recibiste una donación",
+            html: baseTemplate(`
+              <h3>🎉 Nueva donación</h3>
+              <p>Recibiste un aporte en tu campaña.</p>
+
+              <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+                <p><b>Monto:</b> $${metadata?.amount?.toLocaleString?.() || 0}</p>
+              </div>
+            `)
+          })
+        }
+
+        // 🪪 KYC APROBADO
         else if (type === "kyc_approved") {
-          await sendSimpleEmail({
+          await resend.emails.send({
+            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
             to: user_email,
             subject: "✅ Verificación aprobada",
-            html: `
-              <h2>Tu identidad fue verificada</h2>
+            html: baseTemplate(`
+              <h3>✅ Verificación aprobada</h3>
               <p>Ya puedes crear campañas y retirar fondos.</p>
-              <br/>
-              <p>Gracias por confiar en ImpulsaSueños 💚</p>
-            `
+            `)
           })
         }
 
         // ❌ KYC RECHAZADO
         else if (type === "kyc_rejected") {
-          await sendSimpleEmail({
+          await resend.emails.send({
+            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
             to: user_email,
             subject: "❌ Verificación rechazada",
-            html: `
-              <h2>Tu verificación fue rechazada</h2>
-              <p>Revisa los documentos enviados y vuelve a intentarlo.</p>
-            `
+            html: baseTemplate(`
+              <h3>❌ Verificación rechazada</h3>
+              <p>Revisa tus documentos e intenta nuevamente.</p>
+            `)
+          })
+        }
+
+        // 💸 RETIRO SOLICITADO
+        else if (type === "payout_requested") {
+          await resend.emails.send({
+            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
+            to: user_email,
+            subject: "⏳ Retiro en revisión",
+            html: baseTemplate(`
+              <h3>⏳ Retiro en revisión</h3>
+              <p>Tu solicitud fue recibida.</p>
+
+              <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+                <p><b>Monto:</b> $${metadata?.amount?.toLocaleString?.() || 0}</p>
+              </div>
+            `)
+          })
+        }
+
+        // ✅ RETIRO APROBADO
+        else if (type === "payout_paid") {
+          await resend.emails.send({
+            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
+            to: user_email,
+            subject: "🎉 Retiro aprobado",
+            html: baseTemplate(`
+              <h3>🎉 Retiro aprobado</h3>
+              <p>Tu retiro fue procesado correctamente.</p>
+            `)
+          })
+        }
+
+        // ❌ RETIRO RECHAZADO
+        else if (type === "payout_rejected") {
+          await resend.emails.send({
+            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
+            to: user_email,
+            subject: "❌ Retiro rechazado",
+            html: baseTemplate(`
+              <h3>❌ Retiro rechazado</h3>
+              <p>Revisa la información y vuelve a intentarlo.</p>
+            `)
           })
         }
 
@@ -104,35 +190,5 @@ export async function sendNotification({
       metadata: { error }
     })
 
-  }
-}
-
-/* =========================
-   📧 EMAIL SIMPLE (NUEVO)
-========================= */
-async function sendSimpleEmail({
-  to,
-  subject,
-  html
-}: {
-  to: string
-  subject: string
-  html: string
-}) {
-
-  // ⚠️ reutiliza tu sistema actual de envío
-  // si ya tienes sendEmail general, usa ese
-
-  const res = await fetch("/api/send-email", {
-    method: "POST",
-    body: JSON.stringify({
-      to,
-      subject,
-      html
-    })
-  })
-
-  if (!res.ok) {
-    throw new Error("email failed")
   }
 }
