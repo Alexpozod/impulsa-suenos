@@ -44,9 +44,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
     }
 
-    /* =========================
-       📦 PAYOUT
-    ========================= */
     const { data: payout } = await supabase
       .from("payouts")
       .select("*")
@@ -65,19 +62,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid_amount" }, { status: 400 })
     }
 
-    /* =========================
-       💰 CONCILIACIÓN
-    ========================= */
     const reconciliation = await reconcileCampaign(payout.campaign_id)
 
     if (!reconciliation.ok || typeof reconciliation.balance !== "number") {
       return NextResponse.json({ error: "reconciliation_failed" }, { status: 500 })
     }
 
-    /* =========================
-       🔥 FIX REAL (NO ROMPE NADA)
-       usamos ledger directo como fuente final
-    ========================= */
+    // 🔥 FIX REAL
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("amount")
@@ -94,9 +85,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "insufficient_balance" }, { status: 400 })
     }
 
-    /* =========================
-       📊 CAMPAIGN
-    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("*")
@@ -107,9 +95,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "campaign not found" }, { status: 404 })
     }
 
-    /* =========================
-       🧠 RIESGO
-    ========================= */
     const risk = evaluateCampaignRisk(campaign)
 
     const fraud = await evaluateFraudAlert({
@@ -139,13 +124,11 @@ export async function POST(req: Request) {
        💰 LEDGER
     ========================= */
 
-    // 🔥 eliminar pending
     await supabase
       .from("financial_ledger")
       .delete()
       .eq("payment_id", `pending_${payout.id}`)
 
-    // 🔥 insertar withdraw real
     await supabase
       .from("financial_ledger")
       .insert({
@@ -160,6 +143,25 @@ export async function POST(req: Request) {
       })
 
     /* =========================
+       🔥 FIX NUEVO (SOLO ESTO AGREGADO)
+       SINCRONIZAR WALLET
+    ========================= */
+    const { data: wallet } = await supabase
+      .from("wallets")
+      .select("*")
+      .eq("user_email", campaign.user_email)
+      .maybeSingle()
+
+    if (wallet) {
+      await supabase
+        .from("wallets")
+        .update({
+          balance: Number(wallet.balance || 0) - Math.abs(payout.amount)
+        })
+        .eq("user_email", campaign.user_email)
+    }
+
+    /* =========================
        📦 PAYOUT
     ========================= */
     await supabase
@@ -170,9 +172,6 @@ export async function POST(req: Request) {
       })
       .eq("id", payout_id)
 
-    /* =========================
-       🔔 NOTIFICACIÓN
-    ========================= */
     await sendNotification({
       user_email: campaign.user_email,
       type: "payout_paid",

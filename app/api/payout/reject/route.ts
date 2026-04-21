@@ -96,6 +96,14 @@ export async function POST(req: Request) {
     /* =========================
        💰 LEDGER
     ========================= */
+
+    // 🔥 FIX CRÍTICO: eliminar pending real del sistema
+    await supabase
+      .from("financial_ledger")
+      .delete()
+      .eq("payment_id", `pending_${payout.id}`)
+
+    // 🔥 mantener trazabilidad (NO se elimina tu lógica)
     await supabase.from("financial_ledger").insert({
       campaign_id: payout.campaign_id,
       user_email,
