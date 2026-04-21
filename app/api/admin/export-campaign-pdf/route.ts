@@ -117,11 +117,11 @@ export async function GET(req: Request) {
 
     doc.end()
 
-    const pdfBuffer = await new Promise((resolve) => {
-      doc.on("end", () => {
-        resolve(Buffer.concat(buffers))
-      })
-    })
+    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+  doc.on("end", () => {
+    resolve(Buffer.concat(buffers))
+  })
+})
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
