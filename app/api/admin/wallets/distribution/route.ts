@@ -20,7 +20,6 @@ export async function GET() {
 
     let campaignFunds = 0
     let platformFunds = 0
-    let pendingWithdrawals = 0
 
     for (const row of ledger) {
 
@@ -50,12 +49,22 @@ export async function GET() {
         case "tip_income":
           platformFunds += amount
           break
-
-        // ⏳ pendientes
-        case "withdraw_pending":
-          pendingWithdrawals += Math.abs(amount)
-          break
       }
+    }
+
+    /* =========================
+       🔥 FIX CORRECTO
+       PENDING DESDE PAYOUTS
+    ========================= */
+    const { data: payouts } = await supabase
+      .from("payouts")
+      .select("amount")
+      .eq("status", "pending")
+
+    let pendingWithdrawals = 0
+
+    for (const p of payouts || []) {
+      pendingWithdrawals += Number(p.amount || 0)
     }
 
     return NextResponse.json({
