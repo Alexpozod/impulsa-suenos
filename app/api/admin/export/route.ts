@@ -14,7 +14,12 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("financial_ledger")
-      .select("*")
+      .select(`
+        *,
+        campaigns (
+          title
+        )
+      `)
       .order("created_at", { ascending: false })
 
     if (error) throw error
@@ -28,17 +33,22 @@ export async function GET() {
         Tipo: l.type,
         Flow: l.flow_type,
 
-        Campaña: l.campaign_id,
+        // ✅ FIX: nombre campaña (fallback seguro)
+        Campaña: l.campaigns?.title || l.campaign_id,
+
         Usuario: l.user_email,
 
         Debe: amount > 0 ? amount : 0,
         Haber: amount < 0 ? Math.abs(amount) : 0,
 
-        Moneda: l.currency || "CLP",
+        // ✅ FIX: moneda SIEMPRE CLP
+        Moneda: "CLP",
+
         Proveedor: l.provider || "mercadopago",
         PaymentID: l.payment_id,
 
-        Descripción: l.flow_type
+        // 🔥 mejora: descripción más útil (sin romper nada)
+        Descripción: `${l.type} (${l.flow_type})`
       }
     })
 

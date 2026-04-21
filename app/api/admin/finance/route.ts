@@ -10,7 +10,12 @@ export async function GET() {
   try {
     const { data: ledger } = await supabase
       .from("financial_ledger")
-      .select("*")
+      .select(`
+        *,
+        campaigns (
+          title
+        )
+      `)
       .eq("status", "confirmed")
 
     /* =========================
@@ -137,13 +142,13 @@ export async function GET() {
        💳 PAGOS RECIENTES
     ========================= */
     const recentPayments = ledger
-  .filter(l =>
-    l.type === "payment" || l.type === "withdraw"
-  )
-  .sort((a, b) =>
-    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  )
-  .slice(0, 10)
+      .filter(l =>
+        l.type === "payment" || l.type === "withdraw"
+      )
+      .sort((a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+      .slice(0, 10)
 
     /* =========================
        🚨 OTROS DATOS
@@ -167,23 +172,18 @@ export async function GET() {
       .limit(10)
 
     return NextResponse.json({
-      campaigns: campaigns || [], // 🔥 FIX PRINCIPAL
-
+      campaigns: campaigns || [],
       totalIncome,
       totalUSD,
       totalTips,
-
       totalWithdrawals,
       totalPendingWithdrawals,
       totalRejectedWithdrawals,
-
       totalFees,
       totalPlatformFees,
       totalProviderFees,
-
       netIncome,
       balance,
-
       totals: {
         balance: balance,
         raised: totalIncome,
@@ -191,29 +191,23 @@ export async function GET() {
         withdrawn: totalWithdrawals,
         pending: totalPendingWithdrawals
       },
-
       profit: totalPlatformFees,
-
       margin:
         totalIncome > 0
           ? (totalPlatformFees / totalIncome) * 100
           : 0,
-
       takeRate:
         totalIncome > 0
           ? ((totalPlatformFees + totalProviderFees) / totalIncome) * 100
           : 0,
-
       avgFeePerPayment:
         payments.length > 0
           ? totalPlatformFees / payments.length
           : 0,
-
       totalPayments: payments.length,
       providers,
       daily,
       recentPayments,
-
       errors: errors || [],
       payouts: payouts || [],
       issues: issues || []

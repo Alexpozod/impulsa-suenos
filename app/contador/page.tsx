@@ -59,21 +59,45 @@ export default function ContadorPanel() {
               <th className="p-2 text-left">Fecha</th>
               <th className="p-2">Tipo</th>
               <th className="p-2">Monto</th>
+              <th className="p-2">Moneda</th>
+              <th className="p-2">Campaña</th>
               <th className="p-2">Usuario</th>
+              <th className="p-2">Flow</th>
             </tr>
           </thead>
 
           <tbody>
             {data.recentPayments.map((p: any) => (
               <tr key={p.id} className="border-t">
+
                 <td className="p-2">
                   {new Date(p.created_at).toLocaleDateString()}
                 </td>
-                <td className="p-2">payment</td>
+
+                <td className="p-2">
+                  {p.type}
+                </td>
+
                 <td className="p-2">
                   ${Number(p.amount).toLocaleString()}
                 </td>
-                <td className="p-2">{p.user_email}</td>
+
+                <td className="p-2">
+                  CLP
+                </td>
+
+                <td className="p-2">
+                  {p.campaigns?.title || p.campaign_id}
+                </td>
+
+                <td className="p-2">
+                  {p.user_email}
+                </td>
+
+                <td className="p-2">
+                  {p.flow_type}
+                </td>
+
               </tr>
             ))}
           </tbody>
