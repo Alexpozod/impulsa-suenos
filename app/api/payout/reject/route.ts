@@ -103,17 +103,6 @@ export async function POST(req: Request) {
       .delete()
       .eq("payment_id", `pending_${payout.id}`)
 
-    // 🔥 mantener trazabilidad (NO se elimina tu lógica)
-    await supabase.from("financial_ledger").insert({
-      campaign_id: payout.campaign_id,
-      user_email,
-      amount: amount,
-      type: "withdraw_rejected",
-      flow_type: "in",
-      payment_id: `reject_${payout.id}`,
-      created_at: new Date().toISOString()
-    })
-
     /* =========================
        📦 UPDATE
     ========================= */
