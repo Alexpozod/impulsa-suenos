@@ -102,9 +102,11 @@ export async function POST(req: Request) {
 
     // 🔥 FIX CRÍTICO: eliminar pending real del sistema
     await supabase
-      .from("financial_ledger")
-      .delete()
-      .eq("payment_id", `pending_${payout.id}`)
+  .from("financial_ledger")
+  .delete()
+  .eq("campaign_id", payout.campaign_id)
+  .eq("user_email", user_email)
+  .eq("type", "withdraw_pending")
 
     /* =========================
        📦 UPDATE
