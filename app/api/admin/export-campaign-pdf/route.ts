@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { Buffer } from "buffer"
 
 const PDFDocument = require("pdfkit")
 
@@ -67,18 +66,24 @@ export async function GET(req: Request) {
     }
 
     /* =========================
-       📄 PDF
+       📄 PDF (FIX PRO)
     ========================= */
     const doc = new PDFDocument({ margin: 40 })
 
     const buffers: Uint8Array[] = []
 
-    doc.on("data", (chunk: Uint8Array) => {
-      buffers.push(chunk)
+    doc.on("data", (chunk: Uint8Array) => buffers.push(chunk))
+
+    const pdfPromise = new Promise<Uint8Array>((resolve, reject) => {
+      doc.on("end", () => {
+        resolve(Buffer.concat(buffers))
+      })
+      doc.on("error", reject)
     })
 
-    doc.on("end", () => {})
-
+    /* =========================
+       ✍️ CONTENIDO PDF
+    ========================= */
     doc.fontSize(18).text("ImpulsaSueños", { align: "center" })
     doc.moveDown()
 
@@ -117,25 +122,24 @@ export async function GET(req: Request) {
 
     doc.end()
 
-    const pdfBuffer = await new Promise<Buffer>((resolve) => {
-  doc.on("end", () => {
-    resolve(Buffer.concat(buffers))
-  })
-})
+    /* =========================
+       📦 OUTPUT (FIX CLAVE)
+    ========================= */
+    const pdfBuffer = await pdfPromise
 
-    return new NextResponse(new Uint8Array(pdfBuffer), {
+    return new NextResponse(pdfBuffer as any, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename=campaign_${campaign_id}.pdf`
       }
     })
 
-  } catch (error) {
+  } catch (error: any) {
 
-    console.error("❌ PDF ERROR:", error)
+    console.error("❌ PDF ERROR REAL:", error)
 
     return NextResponse.json(
-      { error: "pdf error" },
+      { error: error?.message || "pdf error" },
       { status: 500 }
     )
   }
