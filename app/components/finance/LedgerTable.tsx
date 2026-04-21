@@ -1,4 +1,10 @@
-export default function LedgerTable({ ledger }: { ledger: any[] }) {
+export default function LedgerTable({ 
+  ledger, 
+  showCampaignId = false 
+}: { 
+  ledger: any[],
+  showCampaignId?: boolean 
+}) {
 
   const getLabel = (type: string) => {
     switch (type) {
@@ -44,7 +50,7 @@ export default function LedgerTable({ ledger }: { ledger: any[] }) {
 
             <tr key={tx.id} className="border-t">
 
-              {/* Tipo + Campaña (PRO) */}
+              {/* Tipo + Campaña */}
               <td className="py-2">
                 <div className="flex flex-col">
 
@@ -52,15 +58,17 @@ export default function LedgerTable({ ledger }: { ledger: any[] }) {
                     {getLabel(tx.type)}
                   </span>
 
-                  {/* 🔥 nombre campaña */}
+                  {/* ✅ nombre campaña */}
                   <span className="text-xs text-gray-400">
                     {tx.campaigns?.title}
                   </span>
 
-                  {/* 🔥 id campaña (fallback/debug PRO) */}
-                  <span className="text-[10px] text-gray-500">
-                    {tx.campaign_id}
-                  </span>
+                  {/* 🔥 SOLO ADMIN */}
+                  {showCampaignId && (
+                    <span className="text-[10px] text-gray-500">
+                      {tx.campaign_id}
+                    </span>
+                  )}
 
                 </div>
               </td>
