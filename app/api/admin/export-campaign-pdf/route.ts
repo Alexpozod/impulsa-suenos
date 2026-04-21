@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { Buffer } from "buffer"
+
 const PDFDocument = require("pdfkit")
 
 export const runtime = "nodejs"
@@ -69,13 +71,18 @@ export async function GET(req: Request) {
     ========================= */
     const doc = new PDFDocument({ margin: 40 })
 
-    const buffers: any[] = []
-    doc.on("data", buffers.push.bind(buffers))
+    const buffers: Uint8Array[] = []
+
+    doc.on("data", (chunk: Uint8Array) => {
+      buffers.push(chunk)
+    })
+
+    doc.on("end", () => {})
 
     doc.fontSize(18).text("ImpulsaSueños", { align: "center" })
     doc.moveDown()
 
-    doc.fontSize(14).text(`Reporte de Campaña`, { align: "center" })
+    doc.fontSize(14).text("Reporte de Campaña", { align: "center" })
     doc.text(campaignName, { align: "center" })
 
     doc.moveDown(2)
@@ -110,13 +117,13 @@ export async function GET(req: Request) {
 
     doc.end()
 
-    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+    const pdfBuffer = await new Promise((resolve) => {
       doc.on("end", () => {
         resolve(Buffer.concat(buffers))
       })
     })
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as Buffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename=campaign_${campaign_id}.pdf`
