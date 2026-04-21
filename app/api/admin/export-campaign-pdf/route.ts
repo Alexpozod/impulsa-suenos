@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import PDFDocument from "pdfkit"
+const PDFDocument = require("pdfkit")
 
 export const runtime = "nodejs"
 
