@@ -134,7 +134,7 @@ export default function DashboardPage() {
           Movimientos recientes
         </h2>
 
-        <LedgerTable ledger={ledger} showCampaignId />
+        <LedgerTable ledger={ledger} />
       </section>
 
     </main>

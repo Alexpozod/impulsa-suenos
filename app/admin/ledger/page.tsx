@@ -51,7 +51,14 @@ export default function LedgerPage() {
                   ${Number(l.amount).toLocaleString()}
                 </td>
                 <td className="p-3">{l.flow_type}</td>
-                <td className="p-3">{l.campaign_id}</td>
+                <td className="p-3">
+  <div className="flex flex-col">
+    <span>{l.campaigns?.title || "Sin nombre"}</span>
+    <span className="text-xs text-gray-400">
+      {l.campaign_id}
+    </span>
+  </div>
+</td>
                 <td className="p-3">{l.user_email}</td>
                 <td className="p-3">{l.payment_id}</td>
               </tr>
