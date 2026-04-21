@@ -85,12 +85,15 @@ export async function POST(req: Request) {
 
     if (wallet) {
       await supabase
-        .from("wallets")
-        .update({
-          available_balance: Number(wallet.available_balance || 0) + amount,
-          pending_balance: Number(wallet.pending_balance || 0) - amount
-        })
-        .eq("user_email", user_email)
+  .from("wallets")
+  .update({
+    available_balance: Number(wallet.available_balance || 0), // 🔥 NO SUMAR
+    pending_balance: Math.max(
+      Number(wallet.pending_balance || 0) - amount,
+      0
+    )
+  })
+  .eq("user_email", user_email)
     }
 
     /* =========================
