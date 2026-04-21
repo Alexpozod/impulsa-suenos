@@ -95,7 +95,12 @@ export default function ContadorPanel() {
               </a>
             </div>
           ))}
-
+<a
+  href={`/api/admin/export-campaign-pdf?campaign_id=${c.id}`}
+  className="bg-blue-600 text-white px-3 py-1 rounded"
+>
+  PDF
+</a>
         </div>
       </div>
 
