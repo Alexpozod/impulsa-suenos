@@ -20,6 +20,22 @@ export default function ContadorPanel() {
     return <div className="p-6">Cargando datos contables...</div>
   }
 
+  /* =========================
+     🧠 AGRUPAR CAMPAÑAS (PRO)
+  ========================= */
+  const campaignsMap: any = {}
+
+  data.recentPayments.forEach((p: any) => {
+    if (!campaignsMap[p.campaign_id]) {
+      campaignsMap[p.campaign_id] = {
+        id: p.campaign_id,
+        title: p.campaigns?.title || p.campaign_id
+      }
+    }
+  })
+
+  const campaignsList = Object.values(campaignsMap)
+
   return (
     <main className="min-h-screen bg-white text-black p-10 space-y-8">
 
@@ -27,7 +43,9 @@ export default function ContadorPanel() {
         📊 Panel Contable ImpulsaSueños
       </h1>
 
-      {/* RESUMEN */}
+      {/* =========================
+         RESUMEN
+      ========================= */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
         <Card title="Ingresos Totales" value={data.totalIncome} />
@@ -37,7 +55,9 @@ export default function ContadorPanel() {
 
       </div>
 
-      {/* EXPORT */}
+      {/* =========================
+         EXPORT GENERAL
+      ========================= */}
       <div>
         <a
           href="/api/admin/export"
@@ -47,7 +67,41 @@ export default function ContadorPanel() {
         </a>
       </div>
 
-      {/* DETALLE */}
+      {/* =========================
+         🔥 EXPORT POR CAMPAÑA (PRO)
+      ========================= */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">
+          Exportar por campaña
+        </h2>
+
+        <div className="space-y-3">
+
+          {campaignsList.map((c: any) => (
+            <div
+              key={c.id}
+              className="border p-4 rounded flex justify-between items-center"
+            >
+              <div>
+                <p className="font-semibold">{c.title}</p>
+                <p className="text-xs text-gray-500">{c.id}</p>
+              </div>
+
+              <a
+                href={`/api/admin/export-campaign?campaign_id=${c.id}`}
+                className="bg-black text-white px-3 py-1 rounded"
+              >
+                Exportar CSV
+              </a>
+            </div>
+          ))}
+
+        </div>
+      </div>
+
+      {/* =========================
+         DETALLE (NO SE TOCA)
+      ========================= */}
       <div>
         <h2 className="text-xl font-bold mb-4">
           Últimos movimientos
