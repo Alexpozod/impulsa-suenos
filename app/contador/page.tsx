@@ -25,7 +25,7 @@ export default function ContadorPanel() {
   ========================= */
   const campaignsMap: any = {}
 
-  data.recentPayments.forEach((p: any) => {
+  ;(data.recentPayments || []).forEach((p: any) => {
     if (!campaignsMap[p.campaign_id]) {
       campaignsMap[p.campaign_id] = {
         id: p.campaign_id,
@@ -87,20 +87,27 @@ export default function ContadorPanel() {
                 <p className="text-xs text-gray-500">{c.id}</p>
               </div>
 
-              <a
-                href={`/api/admin/export-campaign?campaign_id=${c.id}`}
-                className="bg-black text-white px-3 py-1 rounded"
-              >
-                Exportar CSV
-              </a>
+              <div className="flex gap-2">
+
+                <a
+                  href={`/api/admin/export-campaign?campaign_id=${c.id}`}
+                  className="bg-black text-white px-3 py-1 rounded"
+                >
+                  CSV
+                </a>
+
+                <a
+                  href={`/api/admin/export-campaign-pdf?campaign_id=${c.id}`}
+                  className="bg-blue-600 text-white px-3 py-1 rounded"
+                >
+                  PDF
+                </a>
+
+              </div>
+
             </div>
           ))}
-<a
-  href={`/api/admin/export-campaign-pdf?campaign_id=${c.id}`}
-  className="bg-blue-600 text-white px-3 py-1 rounded"
->
-  PDF
-</a>
+
         </div>
       </div>
 
@@ -126,7 +133,7 @@ export default function ContadorPanel() {
           </thead>
 
           <tbody>
-            {data.recentPayments.map((p: any) => (
+            {(data.recentPayments || []).map((p: any) => (
               <tr key={p.id} className="border-t">
 
                 <td className="p-2">
