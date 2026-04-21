@@ -11,7 +11,12 @@ const supabase = createClient(
 export async function GET() {
   const { data, error } = await supabase
     .from("financial_ledger")
-    .select("*")
+    .select(`
+      *,
+      campaigns (
+        title
+      )
+    `)
     .order("created_at", { ascending: false })
 
   if (error) {
