@@ -26,30 +26,51 @@ export async function calculateCampaignBalance(
   for (const row of data) {
     const amount = Number(row.amount || 0)
 
-    // 💰 TODO LO QUE ENTRA
-    if (row.flow_type === "in") {
+    /* =========================
+       💰 INGRESOS REALES USUARIO
+    ========================= */
+    if (row.flow_type === "in" && row.type === "payment") {
       totalIn += amount
       balance += amount
     }
 
-    // 💸 SOLO RETIRO REAL (APROBADO)
+    /* =========================
+       💸 COMISIONES (RESTAN)
+    ========================= */
+    if (
+      row.type === "fee_mp" ||
+      row.type === "fee_platform"
+    ) {
+      balance -= Math.abs(amount)
+    }
+
+    /* =========================
+       💸 RETIRO REAL (APROBADO)
+    ========================= */
     if (row.flow_type === "out" && row.type === "withdraw") {
       totalOut += Math.abs(amount)
       balance -= Math.abs(amount)
     }
 
-    // 🟡 RETIRO PENDIENTE (NO DESCARTA AQUÍ)
+    /* =========================
+       🟡 RETIRO PENDIENTE
+    ========================= */
     if (row.flow_type === "out" && row.type === "withdraw_pending") {
       pending += Math.abs(amount)
     }
+
+    /* =========================
+       🚫 IGNORAR (CLAVE)
+    ========================= */
+    // fee_platform_income ❌
+    // tip_income ❌
   }
 
-  // 🔥 CLAVE: available real
   const available = balance - pending
 
   return {
     available,
-    balance, // 👈 dinero real sin bloquear
+    balance,
     totalIn,
     totalOut,
     pending
