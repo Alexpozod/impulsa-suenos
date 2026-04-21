@@ -123,7 +123,7 @@ export async function GET(req: Request) {
       })
     })
 
-    return new NextResponse(pdfBuffer as Buffer, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename=campaign_${campaign_id}.pdf`
