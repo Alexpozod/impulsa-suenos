@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import path from "path"
-import fs from "fs"
-
-// @ts-ignore
-import PDFDocument from "pdfkit"
 
 export const runtime = "nodejs"
 
@@ -56,76 +51,13 @@ export async function GET(req: Request) {
       filtered[0]?.campaigns?.title || campaign_id
 
     /* =========================
-       🧠 HELPERS
+       📊 CALCULO
     ========================= */
-    const getLabel = (type: string) => {
-      switch (type) {
-        case "payment": return "Donación"
-        case "withdraw": return "Retiro"
-        case "fee_mp": return "Comisión MP"
-        case "fee_platform": return "Comisión Plataforma"
-        default: return type
-      }
-    }
-
-    /* =========================
-       🔐 VALIDAR FUENTE
-    ========================= */
-    const fontPath = path.join(
-      process.cwd(),
-      "public/fonts/Inter-Regular.ttf"
-    )
-
-    if (!fs.existsSync(fontPath)) {
-      throw new Error("Fuente no encontrada en /public/fonts/Inter-Regular.ttf")
-    }
-
-    /* =========================
-       📄 PDF
-    ========================= */
-    const doc = new PDFDocument({ margin: 40 })
-
-    // 🔥 FIX DEFINITIVO Helvetica
-    doc.registerFont("custom", fontPath)
-    doc.font("custom")
-
-    const chunks: Uint8Array[] = []
-
-    doc.on("data", (chunk: Uint8Array) => {
-      chunks.push(chunk)
-    })
-
-    const pdfBufferPromise = new Promise<Uint8Array>((resolve, reject) => {
-      doc.on("end", () => {
-        const buffer = Buffer.concat(chunks)
-        resolve(buffer)
-      })
-
-      doc.on("error", reject)
-    })
-
-    /* =========================
-       ✍️ CONTENIDO
-    ========================= */
-    doc.fontSize(18).text("ImpulsaSueños", { align: "center" })
-    doc.moveDown()
-
-    doc.fontSize(14).text("Reporte Financiero de Campaña", {
-      align: "center"
-    })
-
-    doc.moveDown(0.5)
-    doc.fontSize(12).text(campaignName, { align: "center" })
-
-    doc.moveDown(2)
-
     let totalIn = 0
     let totalOut = 0
     let balance = 0
 
-    doc.fontSize(10)
-
-    filtered.forEach((l: any) => {
+    const rows = filtered.map((l: any) => {
       const amount = Number(l.amount || 0)
 
       if (amount > 0) {
@@ -136,55 +68,77 @@ export async function GET(req: Request) {
         balance -= Math.abs(amount)
       }
 
-      const sign = amount > 0 ? "+" : "-"
-      const formatted = `${sign} $${Math.abs(amount).toLocaleString("es-CL")}`
-
-      doc.text(
-        `${new Date(l.created_at).toLocaleDateString("es-CL")} | ${getLabel(l.type)} | ${formatted}`
-      )
-    })
-
-    doc.moveDown(2)
-
-    /* =========================
-       📊 RESUMEN FINAL
-    ========================= */
-    doc.fontSize(12).text("Resumen:", { underline: true })
-
-    doc.moveDown(0.5)
-    doc.text(`Total Recaudado: $${totalIn.toLocaleString("es-CL")}`)
-    doc.text(`Total Comisiones + Retiros: $${totalOut.toLocaleString("es-CL")}`)
-    doc.text(`Balance Final Entregado: $${balance.toLocaleString("es-CL")}`, {
-      align: "right"
-    })
-
-    doc.moveDown(2)
-
-    doc.fontSize(9).text(
-      "Documento generado automáticamente por ImpulsaSueños para fines de transparencia.",
-      { align: "center" }
-    )
-
-    doc.end()
+      return `
+        <tr>
+          <td>${new Date(l.created_at).toLocaleDateString("es-CL")}</td>
+          <td>${l.type}</td>
+          <td>${amount > 0 ? "+" : "-"} $${Math.abs(amount).toLocaleString("es-CL")}</td>
+        </tr>
+      `
+    }).join("")
 
     /* =========================
-       📦 RESPONSE
+       📄 HTML (PDF READY)
     ========================= */
-    const pdfBuffer = await pdfBufferPromise
+    const html = `
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <title>Reporte</title>
+          <style>
+            body { font-family: Arial; padding: 40px; }
+            h1, h2 { text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            td, th { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background: #f5f5f5; }
+            .summary { margin-top: 30px; }
+          </style>
+        </head>
+        <body>
 
-    return new NextResponse(pdfBuffer as any, {
+          <h1>ImpulsaSueños</h1>
+          <h2>${campaignName}</h2>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+
+          <div class="summary">
+            <p><strong>Total Recaudado:</strong> $${totalIn.toLocaleString("es-CL")}</p>
+            <p><strong>Total Descuentos:</strong> $${totalOut.toLocaleString("es-CL")}</p>
+            <p><strong>Balance Final:</strong> $${balance.toLocaleString("es-CL")}</p>
+          </div>
+
+          <p style="margin-top:40px; text-align:center; font-size:12px;">
+            Documento generado automáticamente por ImpulsaSueños
+          </p>
+
+        </body>
+      </html>
+    `
+
+    return new NextResponse(html, {
       headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=campaña_${campaignName}.pdf`
+        "Content-Type": "text/html",
+        "Content-Disposition": `attachment; filename=campaña_${campaignName}.html`
       }
     })
 
   } catch (error: any) {
 
-    console.error("❌ PDF ERROR REAL:", error)
+    console.error("❌ EXPORT ERROR:", error)
 
     return NextResponse.json(
-      { error: error?.message || "pdf error" },
+      { error: error?.message || "export error" },
       { status: 500 }
     )
   }
