@@ -186,6 +186,24 @@ await supabase.rpc("advisory_lock", { lock_key: paymentId })
       })
     }
 
+    // 🔥 EMAIL AL CREADOR DE LA CAMPAÑA
+const { data: campaign } = await supabase
+  .from("campaigns")
+  .select("user_email")
+  .eq("id", campaign_id)
+  .single()
+
+if (campaign?.user_email) {
+  await sendNotification({
+    user_email: campaign.user_email,
+    type: "donation_received",
+    title: "Nueva donación",
+    message: `Recibiste $${net}`,
+    metadata,
+    sendEmail: true
+  })
+}
+
     // 🔥 AUTO SYNC WALLET (ÚNICA LÍNEA AGREGADA)
     await syncWallet(user_email)
 
