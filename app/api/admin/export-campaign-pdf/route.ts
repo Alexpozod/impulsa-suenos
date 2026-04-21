@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import path from "path"
+import fs from "fs"
 
 // @ts-ignore
 import PDFDocument from "pdfkit"
@@ -67,9 +69,25 @@ export async function GET(req: Request) {
     }
 
     /* =========================
+       🔐 VALIDAR FUENTE
+    ========================= */
+    const fontPath = path.join(
+      process.cwd(),
+      "public/fonts/Inter-Regular.ttf"
+    )
+
+    if (!fs.existsSync(fontPath)) {
+      throw new Error("Fuente no encontrada en /public/fonts/Inter-Regular.ttf")
+    }
+
+    /* =========================
        📄 PDF
     ========================= */
     const doc = new PDFDocument({ margin: 40 })
+
+    // 🔥 FIX DEFINITIVO Helvetica
+    doc.registerFont("custom", fontPath)
+    doc.font("custom")
 
     const chunks: Uint8Array[] = []
 
@@ -87,16 +105,22 @@ export async function GET(req: Request) {
     })
 
     /* =========================
-       ✍️ CONTENIDO PDF
+       ✍️ CONTENIDO
     ========================= */
     doc.fontSize(18).text("ImpulsaSueños", { align: "center" })
     doc.moveDown()
 
-    doc.fontSize(14).text("Reporte de Campaña", { align: "center" })
-    doc.text(campaignName, { align: "center" })
+    doc.fontSize(14).text("Reporte Financiero de Campaña", {
+      align: "center"
+    })
+
+    doc.moveDown(0.5)
+    doc.fontSize(12).text(campaignName, { align: "center" })
 
     doc.moveDown(2)
 
+    let totalIn = 0
+    let totalOut = 0
     let balance = 0
 
     doc.fontSize(10)
@@ -104,26 +128,42 @@ export async function GET(req: Request) {
     filtered.forEach((l: any) => {
       const amount = Number(l.amount || 0)
 
-      let line = ""
-
       if (amount > 0) {
+        totalIn += amount
         balance += amount
-        line = `+ $${amount}`
       } else {
+        totalOut += Math.abs(amount)
         balance -= Math.abs(amount)
-        line = `- $${Math.abs(amount)}`
       }
 
+      const sign = amount > 0 ? "+" : "-"
+      const formatted = `${sign} $${Math.abs(amount).toLocaleString("es-CL")}`
+
       doc.text(
-        `${new Date(l.created_at).toLocaleDateString("es-CL")} | ${getLabel(l.type)} | ${line} | Balance: $${balance}`
+        `${new Date(l.created_at).toLocaleDateString("es-CL")} | ${getLabel(l.type)} | ${formatted}`
       )
     })
 
     doc.moveDown(2)
 
-    doc.fontSize(12).text(`Balance Final: $${balance}`, {
+    /* =========================
+       📊 RESUMEN FINAL
+    ========================= */
+    doc.fontSize(12).text("Resumen:", { underline: true })
+
+    doc.moveDown(0.5)
+    doc.text(`Total Recaudado: $${totalIn.toLocaleString("es-CL")}`)
+    doc.text(`Total Comisiones + Retiros: $${totalOut.toLocaleString("es-CL")}`)
+    doc.text(`Balance Final Entregado: $${balance.toLocaleString("es-CL")}`, {
       align: "right"
     })
+
+    doc.moveDown(2)
+
+    doc.fontSize(9).text(
+      "Documento generado automáticamente por ImpulsaSueños para fines de transparencia.",
+      { align: "center" }
+    )
 
     doc.end()
 
@@ -135,7 +175,7 @@ export async function GET(req: Request) {
     return new NextResponse(pdfBuffer as any, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=campaign_${campaign_id}.pdf`
+        "Content-Disposition": `attachment; filename=campaña_${campaignName}.pdf`
       }
     })
 
