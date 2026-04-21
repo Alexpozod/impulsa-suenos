@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-const PDFDocument = require("pdfkit")
+// @ts-ignore
+import PDFDocument from "pdfkit"
 
 export const runtime = "nodejs"
 
@@ -66,18 +67,22 @@ export async function GET(req: Request) {
     }
 
     /* =========================
-       📄 PDF (FIX PRO)
+       📄 PDF
     ========================= */
     const doc = new PDFDocument({ margin: 40 })
 
-    const buffers: Uint8Array[] = []
+    const chunks: Uint8Array[] = []
 
-    doc.on("data", (chunk: Uint8Array) => buffers.push(chunk))
+    doc.on("data", (chunk: Uint8Array) => {
+      chunks.push(chunk)
+    })
 
-    const pdfPromise = new Promise<Uint8Array>((resolve, reject) => {
+    const pdfBufferPromise = new Promise<Uint8Array>((resolve, reject) => {
       doc.on("end", () => {
-        resolve(Buffer.concat(buffers))
+        const buffer = Buffer.concat(chunks)
+        resolve(buffer)
       })
+
       doc.on("error", reject)
     })
 
@@ -123,9 +128,9 @@ export async function GET(req: Request) {
     doc.end()
 
     /* =========================
-       📦 OUTPUT (FIX CLAVE)
+       📦 RESPONSE
     ========================= */
-    const pdfBuffer = await pdfPromise
+    const pdfBuffer = await pdfBufferPromise
 
     return new NextResponse(pdfBuffer as any, {
       headers: {
