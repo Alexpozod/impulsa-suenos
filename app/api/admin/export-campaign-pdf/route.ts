@@ -1,0 +1,135 @@
+import { NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
+import PDFDocument from "pdfkit"
+
+export const runtime = "nodejs"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+  process.env.SUPABASE_SERVICE_ROLE_KEY as string
+)
+
+export async function GET(req: Request) {
+  try {
+
+    const { searchParams } = new URL(req.url)
+    const campaign_id = searchParams.get("campaign_id")
+
+    if (!campaign_id) {
+      return NextResponse.json(
+        { error: "campaign_id requerido" },
+        { status: 400 }
+      )
+    }
+
+    /* =========================
+       📦 DATA
+    ========================= */
+    const { data: ledger, error } = await supabase
+      .from("financial_ledger")
+      .select(`*, campaigns(title)`)
+      .eq("campaign_id", campaign_id)
+      .eq("status", "confirmed")
+      .order("created_at", { ascending: true })
+
+    if (error) throw error
+
+    if (!ledger || ledger.length === 0) {
+      return NextResponse.json(
+        { error: "no data" },
+        { status: 404 }
+      )
+    }
+
+    /* =========================
+       🔥 FILTRO USUARIO
+    ========================= */
+    const filtered = ledger.filter((l: any) =>
+      ["payment", "withdraw", "fee_mp", "fee_platform"].includes(l.type)
+    )
+
+    const campaignName =
+      filtered[0]?.campaigns?.title || campaign_id
+
+    /* =========================
+       🧠 HELPERS
+    ========================= */
+    const getLabel = (type: string) => {
+      switch (type) {
+        case "payment": return "Donación"
+        case "withdraw": return "Retiro"
+        case "fee_mp": return "Comisión MP"
+        case "fee_platform": return "Comisión Plataforma"
+        default: return type
+      }
+    }
+
+    /* =========================
+       📄 PDF
+    ========================= */
+    const doc = new PDFDocument({ margin: 40 })
+
+    const buffers: any[] = []
+    doc.on("data", buffers.push.bind(buffers))
+
+    doc.fontSize(18).text("ImpulsaSueños", { align: "center" })
+    doc.moveDown()
+
+    doc.fontSize(14).text(`Reporte de Campaña`, { align: "center" })
+    doc.text(campaignName, { align: "center" })
+
+    doc.moveDown(2)
+
+    let balance = 0
+
+    doc.fontSize(10)
+
+    filtered.forEach((l: any) => {
+      const amount = Number(l.amount || 0)
+
+      let line = ""
+
+      if (amount > 0) {
+        balance += amount
+        line = `+ $${amount}`
+      } else {
+        balance -= Math.abs(amount)
+        line = `- $${Math.abs(amount)}`
+      }
+
+      doc.text(
+        `${new Date(l.created_at).toLocaleDateString("es-CL")} | ${getLabel(l.type)} | ${line} | Balance: $${balance}`
+      )
+    })
+
+    doc.moveDown(2)
+
+    doc.fontSize(12).text(`Balance Final: $${balance}`, {
+      align: "right"
+    })
+
+    doc.end()
+
+    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+      doc.on("end", () => {
+        resolve(Buffer.concat(buffers))
+      })
+    })
+
+    return new NextResponse(pdfBuffer, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename=campaign_${campaign_id}.pdf`
+      }
+    })
+
+  } catch (error) {
+
+    console.error("❌ PDF ERROR:", error)
+
+    return NextResponse.json(
+      { error: "pdf error" },
+      { status: 500 }
+    )
+  }
+}
