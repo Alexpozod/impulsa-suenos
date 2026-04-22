@@ -46,18 +46,18 @@ export default function HomePage() {
       <Stats />
 
       {/* ================= CAMPAÑAS ================= */}
-      <section className="py-28 px-6 bg-gray-50">
+      <section className="py-32 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
 
           {/* HEADER */}
-          <div className="flex items-center justify-between mb-14">
+          <div className="flex items-end justify-between mb-16">
 
             <div>
-              <p className="text-green-600 text-sm font-semibold mb-2">
+              <p className="text-green-600 text-sm font-semibold tracking-wide mb-3">
                 HISTORIAS EN MARCHA
               </p>
 
-              <h2 className="text-3xl md:text-4xl font-bold">
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
                 Campañas destacadas
               </h2>
             </div>
@@ -66,7 +66,7 @@ export default function HomePage() {
               onClick={() => router.push("/campaigns")}
               className="hidden md:flex items-center gap-2 text-green-600 font-semibold hover:gap-3 transition-all"
             >
-              Ver todas →
+              Ver todas las campañas →
             </button>
 
           </div>
@@ -84,7 +84,7 @@ export default function HomePage() {
 
           ) : (
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 justify-items-center">
 
               {topCampaigns.map((c) => {
 
@@ -97,19 +97,18 @@ export default function HomePage() {
                 return (
                   <div
                     key={c.id}
-                    className="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 group border"
+                    className="w-full max-w-sm bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group"
                   >
 
                     {/* IMAGE */}
                     <div className="relative h-60 overflow-hidden">
-
                       <img
                         src={
                           c.images?.[0] ||
                           c.image_url ||
                           "https://images.unsplash.com/photo-1593113630400-ea4288922497"
                         }
-                        className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                       />
 
                       {nearGoal && (
@@ -117,24 +116,23 @@ export default function HomePage() {
                           🔥 ¡Casi lo logra!
                         </div>
                       )}
-
                     </div>
 
                     {/* CONTENT */}
-                    <div className="p-6 flex flex-col gap-4">
+                    <div className="p-6 flex flex-col gap-5">
 
                       <div>
-                        <h3 className="font-bold text-lg leading-tight">
+                        <h3 className="font-semibold text-lg leading-snug tracking-tight">
                           {c.title}
                         </h3>
 
-                        <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                        <p className="text-gray-500 text-sm mt-1 line-clamp-2 leading-relaxed">
                           {c.description}
                         </p>
                       </div>
 
                       {/* MONEY */}
-                      <div className="flex justify-between items-center text-sm">
+                      <div className="flex justify-between items-center text-sm mt-2">
                         <span className="font-bold text-gray-900 text-base">
                           ${Number(c.current_amount || 0).toLocaleString()}
                         </span>
@@ -144,7 +142,7 @@ export default function HomePage() {
                       </div>
 
                       {/* PROGRESS */}
-                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-green-600 transition-all duration-500"
                           style={{ width: `${progress}%` }}
@@ -160,7 +158,7 @@ export default function HomePage() {
 
                         <button
                           onClick={() => router.push(`/campaign/${c.id}`)}
-                          className="bg-green-600 hover:bg-green-700 text-white text-sm px-5 py-2 rounded-full font-semibold transition flex items-center gap-2"
+                          className="bg-green-600 hover:bg-green-700 text-white text-sm px-5 py-2 rounded-full font-medium transition flex items-center gap-2"
                         >
                           ❤ Donar
                         </button>

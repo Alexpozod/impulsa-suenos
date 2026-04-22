@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 @import "tailwindcss";
-
 @import "tw-animate-css";
-
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -99,7 +97,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans); /* 🔥 FIX PRO */
 }
 
 .dark {
@@ -136,14 +134,36 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* =========================
+   🔥 BASE LAYER PRO
+========================= */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
+  }
+
+  /* 🔥 TIPOGRAFÍA NIVEL BASE44 */
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    line-height: 1.1;
+  }
+
+  h2 {
+    line-height: 1.2;
+  }
+
+  p {
+    line-height: 1.6;
   }
 }
