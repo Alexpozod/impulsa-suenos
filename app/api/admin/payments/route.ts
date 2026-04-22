@@ -21,83 +21,78 @@ export async function GET(req: Request) {
       )
     }
 
+    let data = null
+
     /* =========================
-       🔥 BUSQUEDA INTELIGENTE
+       1️⃣ BUSCAR EN payment_logs (CLAVE)
     ========================= */
-    // 1️⃣ intentar payments
-let data = null
+    const logs = await supabase
+      .from("payment_logs")
+      .select("*")
+      .eq("payment_id", id)
+      .maybeSingle()
 
-// 1️⃣ payments (campos directos)
-let res = await supabase
-  .from("payments")
-  .select("*")
-  .or(`id.eq.${id},external_id.eq.${id},mp_payment_id.eq.${id}`)
-  .limit(1)
-  .maybeSingle()
-
-if (res.data) data = res.data
-
-// 2️⃣ buscar en financial_ledger metadata
-if (!data) {
-  const ledger = await supabase
-    .from("financial_ledger")
-    .select("*")
-    .ilike("metadata::text", `%${id}%`)
-    .limit(1)
-    .maybeSingle()
-
-  if (ledger.data) {
-    data = {
-      ...ledger.data,
-      source: "ledger"
+    if (logs.data) {
+      data = {
+        ...logs.data,
+        source: "payment_logs"
+      }
     }
-  }
-}
 
-// 3️⃣ buscar en payment_logs
-if (!data) {
-  const logs = await supabase
-    .from("payment_logs")
-    .select("*")
-    .ilike("data::text", `%${id}%`)
-    .limit(1)
-    .maybeSingle()
+    /* =========================
+       2️⃣ BUSCAR EN payment_events
+    ========================= */
+    if (!data) {
+      const events = await supabase
+        .from("payment_events")
+        .select("*")
+        .eq("payment_id", id)
+        .maybeSingle()
 
-  if (logs.data) {
-    data = {
-      ...logs.data,
-      source: "logs"
+      if (events.data) {
+        data = {
+          ...events.data,
+          source: "payment_events"
+        }
+      }
     }
-  }
-}
 
-// 2️⃣ fallback → financial_ledger
-if (!data) {
-  const res = await supabase
-    .from("financial_ledger")
-    .select("*")
-    .eq("reference_id", id)
-    .limit(1)
-    .maybeSingle()
+    /* =========================
+       3️⃣ BUSCAR EN financial_ledger
+    ========================= */
+    if (!data) {
+      const ledger = await supabase
+        .from("financial_ledger")
+        .select("*")
+        .eq("reference_id", id)
+        .maybeSingle()
 
-  if (res.data) {
-    data = res.data
-  }
-}
+      if (ledger.data) {
+        data = {
+          ...ledger.data,
+          source: "ledger"
+        }
+      }
+    }
 
-// 3️⃣ fallback → payment_logs
-if (!data) {
-  const res = await supabase
-    .from("payment_logs")
-    .select("*")
-    .eq("payment_id", id)
-    .limit(1)
-    .maybeSingle()
+    /* =========================
+       4️⃣ payments (por si acaso)
+    ========================= */
+    if (!data) {
+      const payments = await supabase
+        .from("payments")
+        .select("*")
+        .or(`id.eq.${id},external_id.eq.${id},mp_payment_id.eq.${id}`)
+        .maybeSingle()
 
-  if (res.data) {
-    data = res.data
-  }
-}
+      if (payments.data) {
+        data = {
+          ...payments.data,
+          source: "payments"
+        }
+      }
+    }
+
     if (!data) {
       return NextResponse.json(
         { error: "payment not found" },
