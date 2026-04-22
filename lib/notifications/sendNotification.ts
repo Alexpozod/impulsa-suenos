@@ -53,9 +53,6 @@ export async function sendNotification({
 
   try {
 
-    /* =========================
-       💾 GUARDAR EN BD
-    ========================= */
     await supabase.from("notifications").insert({
       user_email,
       type,
@@ -66,129 +63,134 @@ export async function sendNotification({
       created_at: new Date().toISOString()
     })
 
-    /* =========================
-       📧 EMAILS
-    ========================= */
-    if (sendEmail) {
+    if (!sendEmail) return
 
-      try {
+    try {
 
-        // 💖 DONACIÓN
-        if (type === "donation") {
-          await sendDonationEmail({
-            to: user_email,
-            campaign: title,
-            amount: metadata?.amount || 0
-          })
-        }
+      const FROM = process.env.RESEND_FROM || "onboarding@resend.dev"
 
-        // 🎯 DONACIÓN RECIBIDA (CREADOR)
-        else if (type === "donation_received") {
-          await resend.emails.send({
-            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
-            to: user_email,
-            subject: "💸 Recibiste una donación",
-            html: baseTemplate(`
-              <h3>🎉 Nueva donación</h3>
-              <p>Recibiste un aporte en tu campaña.</p>
-
-              <div style="background:#f9fafb;padding:15px;border-radius:10px;">
-                <p><b>Monto:</b> $${metadata?.amount?.toLocaleString?.() || 0}</p>
-              </div>
-            `)
-          })
-        }
-
-        // 🪪 KYC APROBADO
-        else if (type === "kyc_approved") {
-          await resend.emails.send({
-            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
-            to: user_email,
-            subject: "✅ Verificación aprobada",
-            html: baseTemplate(`
-              <h3>✅ Verificación aprobada</h3>
-              <p>Ya puedes crear campañas y retirar fondos.</p>
-            `)
-          })
-        }
-
-        // ❌ KYC RECHAZADO
-        else if (type === "kyc_rejected") {
-          await resend.emails.send({
-            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
-            to: user_email,
-            subject: "❌ Verificación rechazada",
-            html: baseTemplate(`
-              <h3>❌ Verificación rechazada</h3>
-              <p>Revisa tus documentos e intenta nuevamente.</p>
-            `)
-          })
-        }
-
-        // 💸 RETIRO SOLICITADO
-        else if (type === "payout_requested") {
-          await resend.emails.send({
-            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
-            to: user_email,
-            subject: "⏳ Retiro en revisión",
-            html: baseTemplate(`
-              <h3>⏳ Retiro en revisión</h3>
-              <p>Tu solicitud fue recibida.</p>
-
-              <div style="background:#f9fafb;padding:15px;border-radius:10px;">
-                <p><b>Monto:</b> $${metadata?.amount?.toLocaleString?.() || 0}</p>
-              </div>
-            `)
-          })
-        }
-
-        // ✅ RETIRO APROBADO
-        else if (type === "payout_paid") {
-          await resend.emails.send({
-            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
-            to: user_email,
-            subject: "🎉 Retiro aprobado",
-            html: baseTemplate(`
-              <h3>🎉 Retiro aprobado</h3>
-              <p>Tu retiro fue procesado correctamente.</p>
-            `)
-          })
-        }
-
-        // ❌ RETIRO RECHAZADO
-        else if (type === "payout_rejected") {
-          await resend.emails.send({
-            from: "ImpulsaSueños <contacto@impulsasuenos.com>",
-            to: user_email,
-            subject: "❌ Retiro rechazado",
-            html: baseTemplate(`
-              <h3>❌ Retiro rechazado</h3>
-              <p>Revisa la información y vuelve a intentarlo.</p>
-            `)
-          })
-        }
-
-      } catch (err) {
-
-        await logSystemEvent({
-          type: "notification_email_error",
-          severity: "warning",
-          message: "Error enviando email",
-          metadata: { user_email, type }
+      // 💖 DONACIÓN
+      if (type === "donation") {
+        await sendDonationEmail({
+          to: user_email,
+          campaign: title,
+          amount: metadata?.amount || 0
         })
-
       }
+
+      // 🎯 DONACIÓN RECIBIDA
+      else if (type === "donation_received") {
+        await resend.emails.send({
+          from: FROM,
+          to: user_email,
+          subject: "💸 Recibiste una donación",
+          html: baseTemplate(`
+            <h3>🎉 Nueva donación</h3>
+            <p>Recibiste un aporte en tu campaña.</p>
+
+            <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+              <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
+            </div>
+          `)
+        })
+      }
+
+      // 🪪 KYC APROBADO
+      else if (type === "kyc_approved") {
+        await resend.emails.send({
+          from: FROM,
+          to: user_email,
+          subject: "✅ Verificación aprobada",
+          html: baseTemplate(`
+            <h3>✅ Verificación aprobada</h3>
+            <p>Ya puedes crear campañas y retirar fondos.</p>
+          `)
+        })
+      }
+
+      // ❌ KYC
+      else if (type === "kyc_rejected") {
+        await resend.emails.send({
+          from: FROM,
+          to: user_email,
+          subject: "❌ Verificación rechazada",
+          html: baseTemplate(`
+            <h3>❌ Verificación rechazada</h3>
+            <p>Revisa tus documentos e intenta nuevamente.</p>
+          `)
+        })
+      }
+
+      // 💸 REQUEST
+      else if (type === "payout_requested") {
+        await resend.emails.send({
+          from: FROM,
+          to: user_email,
+          subject: "⏳ Retiro en revisión",
+          html: baseTemplate(`
+            <h3>⏳ Retiro en revisión</h3>
+            <p>Tu solicitud fue recibida.</p>
+
+            <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+              <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
+            </div>
+          `)
+        })
+      }
+
+      // ✅ PAID
+      else if (type === "payout_paid") {
+        await resend.emails.send({
+          from: FROM,
+          to: user_email,
+          subject: "🎉 Retiro aprobado",
+          html: baseTemplate(`
+            <h3>🎉 Retiro aprobado</h3>
+            <p>Tu retiro fue procesado correctamente.</p>
+          `)
+        })
+      }
+
+      // ❌ REJECTED
+      else if (type === "payout_rejected") {
+        await resend.emails.send({
+          from: FROM,
+          to: user_email,
+          subject: "❌ Retiro rechazado",
+          html: baseTemplate(`
+            <h3>❌ Retiro rechazado</h3>
+            <p>Revisa la información y vuelve a intentarlo.</p>
+          `)
+        })
+      }
+
+    } catch (err: any) {
+
+      console.error("❌ EMAIL ERROR REAL:", err)
+
+      await logSystemEvent({
+        type: "notification_email_error",
+        severity: "warning",
+        message: err?.message || "email_error",
+        metadata: {
+          user_email,
+          type,
+          error_message: err?.message || "unknown",
+          error_name: err?.name || "unknown"
+        }
+      })
 
     }
 
-  } catch (error) {
+  } catch (error: any) {
 
     await logSystemEvent({
       type: "notification_error",
       severity: "warning",
-      message: "Error creando notificación",
-      metadata: { error }
+      message: error?.message || "notification_error",
+      metadata: {
+        error_message: error?.message || "unknown"
+      }
     })
-
   }
 }
