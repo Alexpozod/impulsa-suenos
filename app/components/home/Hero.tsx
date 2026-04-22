@@ -10,7 +10,7 @@ export default function Hero({ onCreate }: { onCreate: () => void }) {
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 
-        {/* TEXT */}
+        {/* ================= TEXT ================= */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -28,16 +28,17 @@ export default function Hero({ onCreate }: { onCreate: () => void }) {
             <span className="text-green-600">encuentran su impulso</span>
           </h1>
 
-          {/* TEXT */}
+          {/* SUBTEXT */}
           <p className="text-gray-600 text-lg mb-8 max-w-lg">
             Crea una campaña en minutos o apoya una causa real.
           </p>
 
-          {/* CTA */}
+          {/* ================= CTA ================= */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
 
-            {/* BOTÓN PRINCIPAL */}
-            <div>
+            {/* BOTÓN PRINCIPAL + TEXTO */}
+            <div className="flex flex-col">
+
               <button
                 onClick={onCreate}
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all text-lg hover:scale-[1.03] active:scale-[0.98]"
@@ -48,6 +49,7 @@ export default function Hero({ onCreate }: { onCreate: () => void }) {
               <p className="text-xs text-gray-400 mt-2">
                 🔒 Seguro · Sin comisiones ocultas
               </p>
+
             </div>
 
             {/* BOTÓN SECUNDARIO */}
@@ -69,13 +71,14 @@ export default function Hero({ onCreate }: { onCreate: () => void }) {
 
         </motion.div>
 
-        {/* IMAGE */}
+        {/* ================= IMAGE ================= */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="relative"
         >
+
           <img
             src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e"
             className="rounded-3xl w-full h-[450px] object-cover shadow-2xl"

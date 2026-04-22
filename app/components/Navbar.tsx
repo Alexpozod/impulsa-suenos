@@ -17,7 +17,6 @@ export default function Navbar() {
   }, [])
 
   const loadSession = async () => {
-
     const { data } = await supabase.auth.getSession()
     const currentUser = data.session?.user || null
 
@@ -63,19 +62,6 @@ export default function Navbar() {
     router.push('/')
   }
 
-  /* =========================
-     🚀 CREAR CAMPAÑA
-  ========================= */
-  const handleCreateCampaign = async () => {
-    const { data } = await supabase.auth.getSession()
-
-    if (!data.session) {
-      router.push("/login")
-    } else {
-      router.push("/create")
-    }
-  }
-
   return (
     <nav className="w-full bg-white border-b sticky top-0 z-50">
 
@@ -105,13 +91,6 @@ export default function Navbar() {
               <Link href="/login" className="text-sm text-gray-600 hover:text-green-600">
                 Iniciar sesión
               </Link>
-
-              <button
-                onClick={handleCreateCampaign}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
-              >
-                Crear campaña
-              </button>
             </>
           ) : (
             <>
@@ -127,14 +106,6 @@ export default function Navbar() {
                 )}
 
               </Link>
-
-              {/* CTA */}
-              <button
-                onClick={handleCreateCampaign}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
-              >
-                Crear campaña
-              </button>
 
               <Link href="/dashboard" className="text-sm font-medium hover:text-green-600">
                 Dashboard
