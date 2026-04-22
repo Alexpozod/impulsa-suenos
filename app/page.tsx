@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation"
 import Hero from "./components/home/Hero"
 import CampaignCardPro from "./components/home/CampaignCardPro"
 
+import Stats from "./components/home/Stats"
+import HowItWorks from "./components/home/HowItWorks"
+import Trust from "./components/home/Trust"
+import FinalCTA from "./components/home/FinalCTA"
+
 export default function HomePage() {
 
   const router = useRouter()
@@ -25,21 +30,18 @@ export default function HomePage() {
   const topCampaigns = campaigns.slice(0, 6)
 
   return (
-    <main className="bg-white">
+    <main>
 
       <Hero onCreate={handleCreateCampaign} />
+
+      <Stats />
 
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
 
-          <div className="mb-12">
-            <p className="text-sm font-semibold text-green-600 mb-2">
-              Historias reales
-            </p>
-            <h2 className="text-3xl font-bold">
-              Campañas destacadas
-            </h2>
-          </div>
+          <h2 className="text-3xl font-bold mb-12 text-center">
+            Campañas destacadas
+          </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             {topCampaigns.map(c => (
@@ -49,6 +51,12 @@ export default function HomePage() {
 
         </div>
       </section>
+
+      <HowItWorks />
+
+      <Trust />
+
+      <FinalCTA onCreate={handleCreateCampaign} />
 
     </main>
   )
