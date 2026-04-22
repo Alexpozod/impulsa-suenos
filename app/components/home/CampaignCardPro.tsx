@@ -18,36 +18,22 @@ export default function CampaignCardPro({ c }: any) {
     100
   )
 
-  const isNearGoal = progress >= 75
-
   return (
     <motion.div
-      whileHover={{ y: -6 }}
+      whileHover={{ y: -8, scale: 1.02 }}
       transition={{ duration: 0.3 }}
       onClick={() => router.push(`/campaign/${c.id}`)}
-      className="group bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl hover:shadow-green-100 transition-all duration-500 cursor-pointer"
+      className="group bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-2xl hover:shadow-green-100 transition-all duration-500 cursor-pointer"
     >
-      {/* IMAGE */}
       <div className="relative h-56 overflow-hidden">
-
         <img
-          src={image.replace(/\s/g, "%20")}
+          src={image}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
-
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-
-        {isNearGoal && (
-          <div className="absolute top-4 left-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1.5 rounded-full">
-            🔥 ¡Casi lo logra!
-          </div>
-        )}
-
       </div>
 
-      {/* CONTENT */}
       <div className="p-6">
-
         <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
           {c.title}
         </h3>
@@ -56,14 +42,11 @@ export default function CampaignCardPro({ c }: any) {
           {c.description}
         </p>
 
-        {/* PROGRESS */}
         <div className="mb-4">
-
           <div className="flex justify-between mb-2 text-sm">
             <span className="font-bold text-gray-900">
               ${Number(c.current_amount || 0).toLocaleString()}
             </span>
-
             <span className="text-gray-500">
               de ${Number(c.goal_amount || 0).toLocaleString()}
             </span>
@@ -77,12 +60,9 @@ export default function CampaignCardPro({ c }: any) {
               transition={{ duration: 1 }}
             />
           </div>
-
         </div>
 
-        {/* FOOTER */}
         <div className="flex justify-between items-center">
-
           <span className="text-sm text-gray-500">
             {c.donations_count || 0} donantes
           </span>
@@ -97,9 +77,7 @@ export default function CampaignCardPro({ c }: any) {
             <Heart className="w-4 h-4" />
             Donar
           </button>
-
         </div>
-
       </div>
     </motion.div>
   )
