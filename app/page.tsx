@@ -1,19 +1,17 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 
-import HeroSection from "./components/home/HeroSection"
-import SocialProofStats from "./components/home/SocialProofStats"
-import HowItWorks from "./components/home/HowItWorks"
-import TrustSecurity from "./components/home/TrustSecurity"
-import FinalCTA from "./components/home/FinalCTA"
+import Hero from "./components/home/Hero"
 import CampaignCardPro from "./components/home/CampaignCardPro"
 
 export default function HomePage() {
 
+  const router = useRouter()
   const [campaigns, setCampaigns] = useState<any[]>([])
 
   useEffect(() => {
@@ -23,25 +21,22 @@ export default function HomePage() {
       .catch(console.error)
   }, [])
 
-  // usamos las mejores campañas (ya vienen ordenadas por ranking_score)
+  const handleCreateCampaign = () => {
+    router.push("/create")
+  }
+
   const topCampaigns = campaigns.slice(0, 6)
 
   return (
     <main className="bg-white">
 
-      {/* NAVBAR EXISTENTE */}
+      {/* NAVBAR */}
       <Navbar />
 
-      {/* HERO BASE44 */}
-      <HeroSection />
+      {/* HERO (YA EXISTENTE) */}
+      <Hero onCreate={handleCreateCampaign} />
 
-      {/* PRUEBA SOCIAL */}
-      <SocialProofStats />
-
-      {/* COMO FUNCIONA */}
-      <HowItWorks />
-
-      {/* CAMPAÑAS REALES */}
+      {/* CAMPAÑAS */}
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
 
@@ -65,13 +60,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SEGURIDAD */}
-      <TrustSecurity />
-
-      {/* CTA FINAL */}
-      <FinalCTA />
-
-      {/* FOOTER EXISTENTE */}
+      {/* FOOTER */}
       <Footer />
 
     </main>
