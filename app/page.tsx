@@ -11,7 +11,7 @@ import Trust from "./components/home/Trust"
 import FinalCTA from "./components/home/FinalCTA"
 
 /* =========================
-   🎬 ANIMACIONES (AFUERA DEL COMPONENTE)
+   🎬 ANIMACIONES (FIX TYPESCRIPT)
 ========================= */
 const container = {
   hidden: {},
@@ -29,7 +29,7 @@ const item = {
     y: 0,
     transition: {
       duration: 0.4,
-      ease: "easeOut"
+      ease: [0.25, 0.8, 0.25, 1] as const // ✅ FIX
     }
   }
 }
