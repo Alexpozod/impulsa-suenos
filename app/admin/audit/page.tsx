@@ -117,7 +117,7 @@ export default function AuditDashboard() {
   const warnings = logs.filter(l => l.action?.includes("warning")).length
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 text-white">
 
       {/* HEADER */}
       <h1 className="text-2xl font-bold">
@@ -173,19 +173,19 @@ export default function AuditDashboard() {
           return (
             <div
               key={log.id}
-              className={`border p-4 rounded shadow-sm ${
-                isError
-                  ? "bg-red-50 border-red-300"
-                  : isWarning
-                  ? "bg-yellow-50 border-yellow-300"
-                  : "bg-white"
-              }`}
+              className={`border p-4 rounded shadow-sm text-black ${
+  isError
+    ? "bg-red-50 border-red-300"
+    : isWarning
+    ? "bg-yellow-50 border-yellow-300"
+    : "bg-white"
+}`}
             >
 
               {/* HEADER LOG */}
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
-                  <span className="font-semibold">
+                  <span className="font-semibold text-black">
                     {log.action}
                   </span>
 
@@ -200,12 +200,12 @@ export default function AuditDashboard() {
               </div>
 
               {/* ENTITY */}
-              <div className="text-sm text-gray-600 mt-1">
+              <div className="text-sm text-gray-700 mt-1">
                 {log.entity} → {log.entity_id || "-"}
               </div>
 
               {/* METADATA */}
-              <pre className="text-xs bg-gray-100 p-2 mt-2 rounded overflow-auto">
+              <pre className="text-xs bg-gray-100 text-black p-2 mt-2 rounded overflow-auto">
                 {JSON.stringify(log.metadata, null, 2)}
               </pre>
 
