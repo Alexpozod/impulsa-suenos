@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 function timeAgo(date: string) {
   const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
@@ -18,22 +19,19 @@ export default function LiveFeed() {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
-
     const load = async () => {
       try {
         const res = await fetch("/api/donations-live")
         const data = await res.json()
-        setDonations(data || [])
+        setDonations(Array.isArray(data) ? data : [])
       } catch (err) {
         console.error("LiveFeed error:", err)
       }
     }
 
     load()
-
-    const refresh = setInterval(load, 10000) // 🔥 más dinámico
+    const refresh = setInterval(load, 8000)
     return () => clearInterval(refresh)
-
   }, [])
 
   useEffect(() => {
@@ -41,7 +39,7 @@ export default function LiveFeed() {
 
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % donations.length)
-    }, 3500) // 🔥 más fluido
+    }, 3500)
 
     return () => clearInterval(interval)
   }, [donations])
@@ -55,8 +53,41 @@ export default function LiveFeed() {
     : "Alguien"
 
   return (
-    <div className="bg-slate-900 text-white text-sm rounded-xl px-4 py-3 text-center shadow animate-pulse">
-      🔴 En vivo: <b>{name}</b> donó ${Number(current.amount).toLocaleString()} {timeAgo(current.created_at)}
+    <div className="fixed bottom-6 left-6 z-50">
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+
+          className="flex items-center gap-3 bg-white/90 backdrop-blur-md border border-gray-200 shadow-xl rounded-2xl px-4 py-3"
+        >
+
+          {/* DOT LIVE */}
+          <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
+
+          {/* TEXT */}
+          <div className="text-sm">
+
+            <p className="text-gray-900 font-medium leading-tight">
+              {name} donó{" "}
+              <span className="font-bold text-green-600">
+                ${Number(current.amount).toLocaleString()}
+              </span>
+            </p>
+
+            <p className="text-xs text-gray-500">
+              {timeAgo(current.created_at)}
+            </p>
+
+          </div>
+
+        </motion.div>
+      </AnimatePresence>
+
     </div>
   )
 }
