@@ -24,6 +24,27 @@ export default function ReconcilePage() {
     }
   }
 
+  /* =========================
+     🔁 REPROCESAR PAYMENT
+  ========================= */
+  const reprocessPayment = async (payment_id: string) => {
+    try {
+      const res = await fetch("/api/admin/reconcile/auto", {
+        method: "POST",
+        body: JSON.stringify({ payment_id })
+      })
+
+      if (res.ok) {
+        alert("✅ Pago reprocesado")
+        load()
+      } else {
+        alert("❌ Error reprocesando pago")
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   if (loading) {
     return (
       <div className="p-10 text-white">
@@ -41,43 +62,95 @@ export default function ReconcilePage() {
           🧠 Conciliación PRO
         </h1>
 
+        {/* RESUMEN */}
         <div className="bg-slate-900 p-4 rounded border border-slate-800">
           <p>Total issues: {data?.issues_found || 0}</p>
         </div>
 
+        {/* OK */}
         {data?.issues_found === 0 && (
-          <p className="text-green-400">
+          <div className="bg-green-900/30 border border-green-500 p-4 rounded">
             ✔ Todo está conciliado correctamente
-          </p>
+          </div>
         )}
 
-        {data?.issues?.map((i: any, idx: number) => (
-          <div
-            key={idx}
-            className="bg-red-900/30 p-4 rounded border border-red-500"
-          >
+        {/* ISSUES */}
+        <div className="space-y-4">
 
-            {i.user_email && (
-              <>
-                <p className="font-bold">{i.user_email}</p>
-                <p>Ledger: ${Number(i.ledger_balance || 0).toLocaleString()}</p>
-                <p>Wallet: ${Number(i.wallet_balance || 0).toLocaleString()}</p>
-                <p className="text-red-400">
-                  Diferencia: ${Number(i.diff || 0).toLocaleString()}
-                </p>
-              </>
-            )}
+          {data?.issues?.map((i: any, idx: number) => (
+            <div
+              key={idx}
+              className="bg-red-900/30 p-4 rounded border border-red-500 space-y-3"
+            >
 
-            {i.payment_id && (
-              <p>⚠️ Payment issue: {i.payment_id}</p>
-            )}
+              {/* 🧠 WALLET vs LEDGER */}
+              {i.user_email && (
+                <div>
+                  <p className="font-bold text-lg">
+                    👤 {i.user_email}
+                  </p>
 
-            {i.payout_id && (
-              <p>⚠️ Payout issue: {i.payout_id}</p>
-            )}
+                  <div className="text-sm space-y-1 mt-2">
+                    <p>Ledger: ${Number(i.ledger_balance || 0).toLocaleString()}</p>
+                    <p>Wallet: ${Number(i.wallet_balance || 0).toLocaleString()}</p>
 
-          </div>
-        ))}
+                    <p className="text-red-400 font-semibold">
+                      Diferencia: ${Number(i.diff || 0).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* 💳 PAYMENT ISSUE */}
+              {i.payment_id && (
+                <div className="bg-red-950 p-3 rounded border border-red-400">
+
+                  <p className="font-semibold">
+                    ⚠️ Payment inconsistente
+                  </p>
+
+                  <p className="text-sm">
+                    ID: {i.payment_id}
+                  </p>
+
+                  <div className="flex gap-2 mt-3">
+
+                    <button
+                      onClick={() => reprocessPayment(i.payment_id)}
+                      className="bg-yellow-500 text-black px-3 py-1 rounded"
+                    >
+                      🔁 Reprocesar
+                    </button>
+
+                    <a
+                      href={`/admin/payments/${i.payment_id}`}
+                      className="bg-white text-black px-3 py-1 rounded"
+                    >
+                      🔍 Ver detalle
+                    </a>
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* 💸 PAYOUT ISSUE */}
+              {i.payout_id && (
+                <div className="bg-orange-950 p-3 rounded border border-orange-400">
+                  <p className="font-semibold">
+                    ⚠️ Payout inconsistente
+                  </p>
+
+                  <p className="text-sm">
+                    ID: {i.payout_id}
+                  </p>
+                </div>
+              )}
+
+            </div>
+          ))}
+
+        </div>
 
       </div>
 
