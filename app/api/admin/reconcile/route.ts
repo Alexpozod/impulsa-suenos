@@ -1,5 +1,3 @@
-// app/api/admin/reconcile/route.ts
-
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { sendAlert } from "@/lib/alerts/sendAlert"
@@ -28,6 +26,15 @@ export async function GET() {
       .from("wallets")
       .select("*")
 
+    // 🔥 NUEVO: traer payments reales
+    const { data: payments } = await supabase
+      .from("payments")
+      .select("payment_id")
+
+    const validPayments = new Set(
+      (payments || []).map(p => p.payment_id)
+    )
+
     const issues: any[] = []
 
     const ledgerMap = new Map()
@@ -53,10 +60,16 @@ export async function GET() {
     }
 
     /* =========================
-       🔴 PAGOS
+       🔴 PAGOS (FIX PRO)
     ========================= */
 
     for (const p of processed || []) {
+
+      // 🔥 IGNORAR HUÉRFANOS
+      if (!validPayments.has(p.payment_id)) {
+        continue
+      }
+
       if (!ledgerMap.has(p.payment_id)) {
         issues.push({
           payment_id: p.payment_id,
@@ -66,7 +79,15 @@ export async function GET() {
     }
 
     for (const l of ledger || []) {
-      if (l.type === "payment" && l.payment_id && !processedSet.has(l.payment_id)) {
+
+      if (l.type !== "payment" || !l.payment_id) continue
+
+      // 🔥 IGNORAR HUÉRFANOS
+      if (!validPayments.has(l.payment_id)) {
+        continue
+      }
+
+      if (!processedSet.has(l.payment_id)) {
         issues.push({
           payment_id: l.payment_id,
           campaign_id: l.campaign_id,
@@ -92,7 +113,7 @@ export async function GET() {
     }
 
     /* =========================
-       🟣 NUEVO: BALANCE REAL (CRÍTICO)
+       🟣 BALANCE REAL
     ========================= */
 
     const balanceMap: Record<string, number> = {}
