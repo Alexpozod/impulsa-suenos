@@ -183,13 +183,13 @@ export async function POST(req: Request) {
     })
 
     await sendNotification({
-      user_email,
-      type: "payout_requested",
-      title: "Retiro en revisión",
-      message: `Tu solicitud de retiro por $${numericAmount} fue enviada`,
-      metadata: { campaign_id, amount },
-      sendEmail: true
-    })
+  user_email,
+  type: "payout_requested",
+  title: "Retiro en revisión",
+  message: `Tu solicitud de retiro por $${numericAmount} fue enviada`,
+  metadata: { campaign_id, amount: numericAmount },
+  sendEmail: true
+})
 
     return NextResponse.json({
       ok: true,

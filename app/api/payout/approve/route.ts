@@ -68,7 +68,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "reconciliation_failed" }, { status: 500 })
     }
 
-    // 🔥 FIX REAL
+    /* =========================
+       🔍 BALANCE REAL DESDE LEDGER
+    ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("amount")
@@ -121,49 +123,89 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 LEDGER
+       💰 LEDGER (IDEMPOTENTE)
     ========================= */
 
-    await supabase
+    const { data: existingLedger } = await supabase
       .from("financial_ledger")
-      .delete()
-      .eq("payment_id", `pending_${payout.id}`)
-
-    await supabase
-      .from("financial_ledger")
-      .insert({
-        campaign_id: payout.campaign_id,
-        user_email: campaign.user_email,
-        amount: -Math.abs(payout.amount),
-        type: "withdraw",
-        status: "confirmed",
-        flow_type: "out",
-        payment_id: `payout_${payout.id}`,
-        created_at: new Date().toISOString()
-      })
-
-    /* =========================
-       🔥 FIX NUEVO (SOLO ESTO AGREGADO)
-       SINCRONIZAR WALLET
-    ========================= */
-    const { data: wallet } = await supabase
-      .from("wallets")
-      .select("*")
-      .eq("user_email", campaign.user_email)
+      .select("id")
+      .eq("payment_id", `payout_${payout.id}`)
       .maybeSingle()
 
-    if (wallet) {
+    if (!existingLedger) {
+
       await supabase
-        .from("wallets")
-        .update({
-          balance: Number(wallet.balance || 0) - Math.abs(payout.amount)
+        .from("financial_ledger")
+        .delete()
+        .eq("payment_id", `pending_${payout.id}`)
+
+      const { error: ledgerError } = await supabase
+        .from("financial_ledger")
+        .insert({
+          campaign_id: payout.campaign_id,
+          user_email: campaign.user_email,
+          amount: -Math.abs(payout.amount),
+          type: "withdraw",
+          status: "confirmed",
+          flow_type: "out",
+          payment_id: `payout_${payout.id}`,
+          created_at: new Date().toISOString()
         })
-        .eq("user_email", campaign.user_email)
+
+      if (ledgerError) {
+        console.error("❌ ledger insert error", ledgerError)
+
+        await logSystemEvent({
+          type: "ledger_error",
+          severity: "critical",
+          message: "Error insertando retiro en ledger",
+          metadata: { payout_id, ledgerError }
+        })
+
+        return NextResponse.json(
+          { error: "ledger_insert_failed" },
+          { status: 500 }
+        )
+      }
+    }
+
+    /* =========================
+       💰 WALLET (CONSISTENTE)
+    ========================= */
+
+    const { data: ledgerAfter } = await supabase
+      .from("financial_ledger")
+      .select("amount")
+      .eq("user_email", campaign.user_email)
+      .eq("status", "confirmed")
+
+    const realBalanceAfter = (ledgerAfter || []).reduce(
+      (acc: number, tx: any) => acc + Number(tx.amount || 0),
+      0
+    )
+
+    const { error: walletError } = await supabase
+      .from("wallets")
+      .update({
+        balance: realBalanceAfter
+      })
+      .eq("user_email", campaign.user_email)
+
+    if (walletError) {
+      console.error("❌ wallet update error", walletError)
+
+      await logSystemEvent({
+        type: "wallet_error",
+        severity: "critical",
+        message: "Error sincronizando wallet",
+        metadata: { payout_id, walletError }
+      })
     }
 
     /* =========================
        📦 PAYOUT
     ========================= */
+
     await supabase
       .from("payouts")
       .update({
@@ -172,12 +214,17 @@ export async function POST(req: Request) {
       })
       .eq("id", payout_id)
 
+    /* =========================
+       📧 NOTIFICACIÓN
+    ========================= */
+
     await sendNotification({
       user_email: campaign.user_email,
       type: "payout_paid",
       title: "Retiro aprobado",
       message: `Tu retiro de $${payout.amount} fue aprobado`,
-      metadata: { payout_id }
+      metadata: { payout_id },
+      sendEmail: true
     })
 
     logInfo("Payout aprobado", { payout_id })

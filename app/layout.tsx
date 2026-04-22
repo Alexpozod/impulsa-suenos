@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+import type { ReactNode } from "react"
+
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <html lang="es">
@@ -36,7 +38,6 @@ export default function RootLayout({
           text-gray-900
         `}
       >
-
         <Navbar />
 
         <main className="min-h-screen">
@@ -44,7 +45,6 @@ export default function RootLayout({
         </main>
 
         <Footer />
-
       </body>
     </html>
   )
