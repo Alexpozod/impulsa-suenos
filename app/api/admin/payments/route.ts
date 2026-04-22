@@ -10,6 +10,7 @@ const supabase = createClient(
 
 export async function GET(req: Request) {
   try {
+
     const { searchParams } = new URL(req.url)
     const id = searchParams.get("id")
 
@@ -20,13 +21,17 @@ export async function GET(req: Request) {
       )
     }
 
+    /* =========================
+       🔥 BUSQUEDA INTELIGENTE
+    ========================= */
     const { data, error } = await supabase
       .from("payments")
       .select("*")
-      .eq("id", id)
-      .single()
+      .or(`id.eq.${id},external_id.eq.${id},mp_payment_id.eq.${id}`)
+      .limit(1)
+      .maybeSingle()
 
-    if (error) {
+    if (!data) {
       return NextResponse.json(
         { error: "payment not found" },
         { status: 404 }
