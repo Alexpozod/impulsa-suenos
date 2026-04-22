@@ -22,17 +22,56 @@ export default function AuditDashboard() {
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [filter, setFilter] = useState("all")
 
-  // 🔥 initial load
+  /* =========================
+     🔥 LOAD INICIAL (FIX)
+  ========================= */
   async function loadInitial() {
-    const res = await fetch("/api/audit-log/list")
-    const data = await res.json()
-    setLogs(data.logs || [])
+    try {
+      const [auditRes, systemRes] = await Promise.all([
+        fetch("/api/audit-log/list"),
+        fetch("/api/system-events/list")
+      ])
+
+      const auditData = await auditRes.json()
+      const systemData = await systemRes.json()
+
+      const auditLogs = (auditData.logs || []).map((l: any) => ({
+        ...l,
+      }))
+
+      const systemLogs = (systemData.logs || []).map((l: any) => ({
+        id: l.id,
+        action: l.type,
+        entity: "system",
+        entity_id: "",
+        metadata: l.metadata,
+        actor_id: "system",
+        created_at: l.created_at
+      }))
+
+      const combined = [...auditLogs, ...systemLogs]
+
+      setLogs(
+        combined.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime()
+        )
+      )
+
+    } catch (err) {
+      console.error("❌ error loading audit:", err)
+    }
   }
 
+  /* =========================
+     🚀 USE EFFECT (ARREGLADO)
+  ========================= */
   useEffect(() => {
-    loadInitial()
 
-    // ⚡ REALTIME SUBSCRIPTION
+    loadInitial() // 🔥 ESTO FALTABA
+
+    // ⚡ REALTIME SOLO audit_logs
     const channel = supabase
       .channel("audit-live")
       .on(
@@ -44,7 +83,6 @@ export default function AuditDashboard() {
         },
         (payload) => {
           const newLog = payload.new as AuditLog
-
           setLogs((prev) => [newLog, ...prev])
         }
       )
@@ -53,8 +91,12 @@ export default function AuditDashboard() {
     return () => {
       supabase.removeChannel(channel)
     }
+
   }, [])
 
+  /* =========================
+     🎯 FILTRO
+  ========================= */
   const filtered =
     filter === "all"
       ? logs
@@ -68,7 +110,7 @@ export default function AuditDashboard() {
 
       {/* FILTERS */}
       <div className="flex gap-2 flex-wrap">
-        {["all", "payout.approved", "payment.success", "campaign.flagged"].map(
+        {["all", "payout_requested", "campaign_created", "notification_email_error"].map(
           (f) => (
             <button
               key={f}
