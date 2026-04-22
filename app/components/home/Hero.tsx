@@ -1,9 +1,19 @@
 'use client'
 
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, useScroll, useTransform } from "framer-motion"
 
-export default function Hero({ onCreate }: { onCreate: () => void }) {
+type Props = {
+  onCreate: () => void
+}
+
+export default function Hero({ onCreate }: Props) {
+
+  /* =========================
+     🎬 PARALLAX (SAFE TS)
+  ========================= */
+  const { scrollY } = useScroll()
+  const y = useTransform(scrollY, [0, 300], [0, 50])
 
   return (
     <section className="relative pt-20 pb-28 px-6 overflow-hidden bg-gradient-to-b from-white to-gray-50">
@@ -69,21 +79,23 @@ export default function Hero({ onCreate }: { onCreate: () => void }) {
 
         {/* IMAGE */}
         <motion.div
+          style={{ y }} // ✅ parallax aplicado aquí
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.2 }}
           className="relative"
         >
 
-          {/* IMAGE WRAPPER (DEPTH EFFECT) */}
-          <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+          {/* IMAGE WRAPPER */}
+          <div className="relative rounded-3xl overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.18)]">
 
             <img
               src="https://images.unsplash.com/photo-1516589091380-5d8e87df6999"
               className="w-full h-[440px] object-cover"
+              alt="Personas ayudando en comunidad"
             />
 
-            {/* OVERLAY SUAVE */}
+            {/* OVERLAY */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
 
           </div>

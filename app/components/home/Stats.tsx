@@ -1,27 +1,60 @@
 'use client'
 
 import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
+
+/* =========================
+   🔢 COUNTER PRO (TIPO STRIPE)
+========================= */
+function Counter({ value }: { value: number }) {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    let start = 0
+    const duration = 1200
+    const increment = value / (duration / 16)
+
+    const timer = setInterval(() => {
+      start += increment
+
+      if (start >= value) {
+        setCount(value)
+        clearInterval(timer)
+      } else {
+        setCount(Math.floor(start))
+      }
+    }, 16)
+
+    return () => clearInterval(timer)
+  }, [value])
+
+  return <>{count.toLocaleString()}</>
+}
 
 export default function Stats() {
 
   const stats = [
     {
-      value: "$2.4M+",
+      value: 2400000,
+      prefix: "$",
+      suffix: "+",
       label: "Total recaudado",
       desc: "En donaciones verificadas"
     },
     {
-      value: "1,850+",
+      value: 1850,
+      suffix: "+",
       label: "Campañas activas",
       desc: "Historias que necesitan apoyo"
     },
     {
-      value: "12,000+",
+      value: 12000,
+      suffix: "+",
       label: "Personas ayudadas",
       desc: "Vidas transformadas"
     },
     {
-      value: "15",
+      value: 15,
       label: "Países",
       desc: "Impacto en Latinoamérica"
     }
@@ -57,7 +90,9 @@ export default function Stats() {
             >
 
               <p className="text-3xl font-extrabold text-green-600 mb-2">
-                {s.value}
+                {s.prefix || ""}
+                <Counter value={s.value} />
+                {s.suffix || ""}
               </p>
 
               <p className="font-semibold text-gray-800">
