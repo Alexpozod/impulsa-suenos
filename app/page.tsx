@@ -2,12 +2,37 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
 
 import Hero from "./components/home/Hero"
 import Stats from "./components/home/Stats"
 import HowItWorks from "./components/home/HowItWorks"
 import Trust from "./components/home/Trust"
 import FinalCTA from "./components/home/FinalCTA"
+
+/* =========================
+   🎬 ANIMACIONES (AFUERA DEL COMPONENTE)
+========================= */
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.08
+    }
+  }
+}
+
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: "easeOut"
+    }
+  }
+}
 
 export default function HomePage() {
 
@@ -50,7 +75,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
 
           {/* HEADER */}
-          <div className="flex items-end justify-between mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="flex items-end justify-between mb-16"
+          >
 
             <div>
               <p className="text-green-600 text-sm font-semibold tracking-wide mb-3">
@@ -69,7 +100,7 @@ export default function HomePage() {
               Ver todas las campañas →
             </button>
 
-          </div>
+          </motion.div>
 
           {/* LOADING / DATA */}
           {loading ? (
@@ -84,7 +115,13 @@ export default function HomePage() {
 
           ) : (
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 justify-items-center">
+            <motion.div
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 justify-items-center"
+            >
 
               {topCampaigns.map((c) => {
 
@@ -95,8 +132,9 @@ export default function HomePage() {
                 const nearGoal = progress >= 75
 
                 return (
-                  <div
+                  <motion.div
                     key={c.id}
+                    variants={item}
                     className="w-full max-w-sm bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group"
                   >
 
@@ -156,22 +194,23 @@ export default function HomePage() {
                           {c.donations_count || 0} donaciones
                         </span>
 
-                        <button
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => router.push(`/campaign/${c.id}`)}
                           className="bg-green-600 hover:bg-green-700 text-white text-sm px-5 py-2 rounded-full font-medium transition flex items-center gap-2"
                         >
                           ❤ Donar
-                        </button>
+                        </motion.button>
 
                       </div>
 
                     </div>
 
-                  </div>
+                  </motion.div>
                 )
               })}
 
-            </div>
+            </motion.div>
 
           )}
 

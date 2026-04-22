@@ -1,27 +1,85 @@
 'use client'
 
-type Props = {
-  onCreate: () => void
-}
+import { useRouter } from "next/navigation"
 
-export default function FinalCTA({ onCreate }: Props) {
+export default function FinalCTA({ onCreate }: { onCreate: () => void }) {
+
+  const router = useRouter()
+
   return (
-    <section className="py-28 text-center bg-green-600 text-white">
+    <section className="py-32 px-6 bg-white">
 
-      <h2 className="text-3xl font-bold mb-6">
-        Tú puedes cambiar una vida hoy
-      </h2>
+      <div className="max-w-6xl mx-auto">
 
-      <p className="mb-8 opacity-90">
-        Crea una campaña o apoya una causa real.
-      </p>
+        <div className="
+          relative
+          rounded-[32px]
+          px-10 md:px-20 py-20
+          text-center
+          text-white
+          overflow-hidden
+          bg-gradient-to-br from-green-700 via-green-600 to-green-800
+          shadow-xl
+        ">
 
-      <button
-        onClick={onCreate}
-        className="bg-white text-green-600 px-8 py-4 rounded-xl font-semibold"
-      >
-        Crear campaña
-      </button>
+          {/* ICON */}
+          <div className="flex justify-center mb-6">
+            <div className="bg-white/20 backdrop-blur-md p-4 rounded-2xl">
+              <span className="text-2xl">❤</span>
+            </div>
+          </div>
+
+          {/* TITLE */}
+          <h2 className="text-3xl md:text-5xl font-extrabold leading-tight mb-6">
+            Tú eres el impulso que alguien está esperando
+          </h2>
+
+          {/* TEXT */}
+          <p className="text-green-100 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+            Cada donación, por pequeña que sea, tiene el poder de transformar una vida.
+            Crea tu campaña o apoya una causa hoy.
+          </p>
+
+          {/* BUTTONS */}
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+
+            <button
+              onClick={onCreate}
+              className="
+                bg-white text-green-700
+                px-8 py-4 rounded-xl
+                font-semibold
+                shadow-lg
+                hover:scale-105 hover:shadow-xl
+                transition-all
+              "
+            >
+              Crear mi campaña →
+            </button>
+
+            <button
+              onClick={() => router.push("/campaigns")}
+              className="
+                border border-white/40
+                px-8 py-4 rounded-xl
+                font-semibold
+                hover:bg-white/10
+                transition-all
+              "
+            >
+              Explorar campañas
+            </button>
+
+          </div>
+
+          {/* TRUST */}
+          <p className="text-sm text-green-200">
+            Sin costos ocultos · Pagos seguros · Retiros rápidos
+          </p>
+
+        </div>
+
+      </div>
 
     </section>
   )
