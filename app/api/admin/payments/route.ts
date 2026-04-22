@@ -24,13 +24,41 @@ export async function GET(req: Request) {
     /* =========================
        🔥 BUSQUEDA INTELIGENTE
     ========================= */
-    const { data, error } = await supabase
-      .from("payments")
-      .select("*")
-      .or(`id.eq.${id},external_id.eq.${id},mp_payment_id.eq.${id}`)
-      .limit(1)
-      .maybeSingle()
+    // 1️⃣ intentar payments
+let { data } = await supabase
+  .from("payments")
+  .select("*")
+  .or(`id.eq.${id},external_id.eq.${id},mp_payment_id.eq.${id}`)
+  .limit(1)
+  .maybeSingle()
 
+// 2️⃣ fallback → financial_ledger
+if (!data) {
+  const res = await supabase
+    .from("financial_ledger")
+    .select("*")
+    .eq("reference_id", id)
+    .limit(1)
+    .maybeSingle()
+
+  if (res.data) {
+    data = res.data
+  }
+}
+
+// 3️⃣ fallback → payment_logs
+if (!data) {
+  const res = await supabase
+    .from("payment_logs")
+    .select("*")
+    .eq("payment_id", id)
+    .limit(1)
+    .maybeSingle()
+
+  if (res.data) {
+    data = res.data
+  }
+}
     if (!data) {
       return NextResponse.json(
         { error: "payment not found" },
