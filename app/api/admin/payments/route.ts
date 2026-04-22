@@ -25,12 +25,51 @@ export async function GET(req: Request) {
        🔥 BUSQUEDA INTELIGENTE
     ========================= */
     // 1️⃣ intentar payments
-let { data } = await supabase
+let data = null
+
+// 1️⃣ payments (campos directos)
+let res = await supabase
   .from("payments")
   .select("*")
   .or(`id.eq.${id},external_id.eq.${id},mp_payment_id.eq.${id}`)
   .limit(1)
   .maybeSingle()
+
+if (res.data) data = res.data
+
+// 2️⃣ buscar en financial_ledger metadata
+if (!data) {
+  const ledger = await supabase
+    .from("financial_ledger")
+    .select("*")
+    .ilike("metadata::text", `%${id}%`)
+    .limit(1)
+    .maybeSingle()
+
+  if (ledger.data) {
+    data = {
+      ...ledger.data,
+      source: "ledger"
+    }
+  }
+}
+
+// 3️⃣ buscar en payment_logs
+if (!data) {
+  const logs = await supabase
+    .from("payment_logs")
+    .select("*")
+    .ilike("data::text", `%${id}%`)
+    .limit(1)
+    .maybeSingle()
+
+  if (logs.data) {
+    data = {
+      ...logs.data,
+      source: "logs"
+    }
+  }
+}
 
 // 2️⃣ fallback → financial_ledger
 if (!data) {
