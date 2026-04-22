@@ -13,13 +13,22 @@ import FinalCTA from "./components/home/FinalCTA"
 export default function HomePage() {
 
   const router = useRouter()
+
   const [campaigns, setCampaigns] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch("/api/campaigns")
       .then(res => res.json())
-      .then(setCampaigns)
-      .catch(console.error)
+      .then(data => {
+        setCampaigns(Array.isArray(data) ? data : [])
+      })
+      .catch(() => {
+        setCampaigns([])
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [])
 
   const handleCreateCampaign = () => {
@@ -29,12 +38,15 @@ export default function HomePage() {
   const topCampaigns = campaigns.slice(0, 6)
 
   return (
-    <main>
+    <main className="bg-white">
 
+      {/* HERO */}
       <Hero onCreate={handleCreateCampaign} />
 
+      {/* STATS */}
       <Stats />
 
+      {/* CAMPAÑAS */}
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
 
@@ -42,19 +54,33 @@ export default function HomePage() {
             Campañas destacadas
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {topCampaigns.map(c => (
-              <CampaignCardPro key={c.id} c={c} />
-            ))}
-          </div>
+          {/* LOADING */}
+          {loading ? (
+            <p className="text-center text-gray-400">
+              Cargando campañas...
+            </p>
+          ) : topCampaigns.length === 0 ? (
+            <p className="text-center text-gray-400">
+              No hay campañas disponibles
+            </p>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8">
+              {topCampaigns.map(c => (
+                <CampaignCardPro key={c.id} c={c} />
+              ))}
+            </div>
+          )}
 
         </div>
       </section>
 
+      {/* HOW IT WORKS */}
       <HowItWorks />
 
+      {/* TRUST */}
       <Trust />
 
+      {/* CTA FINAL */}
       <FinalCTA onCreate={handleCreateCampaign} />
 
     </main>
