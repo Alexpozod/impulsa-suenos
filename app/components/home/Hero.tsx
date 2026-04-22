@@ -6,9 +6,9 @@ import { motion } from "framer-motion"
 export default function Hero({ onCreate }: { onCreate: () => void }) {
 
   return (
-    <section className="relative py-32 px-6 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+    <section className="relative pt-20 pb-24 px-6 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
 
-      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
 
         {/* TEXT */}
         <motion.div
@@ -23,14 +23,14 @@ export default function Hero({ onCreate }: { onCreate: () => void }) {
           </div>
 
           {/* TITLE */}
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6 text-gray-900">
+          <h1 className="text-4xl md:text-[56px] font-extrabold leading-[1.1] tracking-tight mb-6 text-gray-900">
             Donde los sueños{" "}
             <span className="text-green-600">encuentran su impulso</span>
           </h1>
 
-          {/* SUBTEXT */}
+          {/* TEXT */}
           <p className="text-gray-600 text-lg leading-relaxed mb-10 max-w-xl">
-            Personas reales ayudando a otras personas.
+            Personas reales ayudando a otras personas. 
             Crea tu campaña en minutos o dona para cambiar una vida hoy.
           </p>
 
@@ -71,17 +71,17 @@ export default function Hero({ onCreate }: { onCreate: () => void }) {
         >
 
           <img
-            src="https://images.unsplash.com/photo-1607746882042-944635dfe10e"
-            className="rounded-3xl w-full h-[480px] object-cover shadow-2xl"
+            src="https://images.unsplash.com/photo-1516589091380-5d8e87df6999"
+            className="rounded-3xl w-full h-[440px] object-cover shadow-2xl"
           />
 
-          {/* FLOATING CARD */}
+          {/* CARD */}
           <div className="absolute -bottom-6 left-6 bg-white px-6 py-4 rounded-2xl shadow-xl border">
             <p className="text-lg font-bold text-gray-900">$2.4M+</p>
             <p className="text-sm text-gray-500">Recaudado este año</p>
           </div>
 
-          {/* EXTRA BADGE (tipo base44) */}
+          {/* BADGE */}
           <div className="absolute top-6 right-6 bg-white px-4 py-2 rounded-full shadow text-sm font-medium">
             +12K donantes
           </div>
