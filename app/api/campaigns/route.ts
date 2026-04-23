@@ -28,11 +28,20 @@ export async function GET() {
   try {
 
     /* =========================
-       📊 CAMPAÑAS
+       📊 CAMPAÑAS (SOLO DATOS PÚBLICOS)
     ========================= */
     const { data: campaigns } = await supabase
       .from("campaigns")
-      .select("*")
+      .select(`
+        id,
+        title,
+        description,
+        goal_amount,
+        image_url,
+        images,
+        status,
+        created_at
+      `)
       .eq("status", "active")
 
     if (!campaigns) {
@@ -40,13 +49,13 @@ export async function GET() {
     }
 
     /* =========================
-       💰 DONACIONES REALES (MISMA LÓGICA QUE DETALLE)
+       💰 DONACIONES
     ========================= */
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("campaign_id, amount")
-      .eq("type", "payment")        // 🔥 CLAVE
-      .eq("status", "confirmed")    // 🔥 CLAVE
+      .eq("type", "payment")
+      .eq("status", "confirmed")
 
     const map: any = {}
 
@@ -66,7 +75,7 @@ export async function GET() {
     })
 
     /* =========================
-       🧠 ENRIQUECER + RANKING
+       🧠 ENRIQUECER
     ========================= */
     const enriched = campaigns.map((c) => {
 
@@ -81,7 +90,6 @@ export async function GET() {
 
       const trust = calculateTrustScore(c, current_amount, donations_count)
 
-      /* 🔥 SCORE FINAL */
       const ranking_score =
         (current_amount * 0.4) +
         (donations_count * 10) +
@@ -97,9 +105,6 @@ export async function GET() {
       }
     })
 
-    /* =========================
-       🔥 ORDEN AUTOMÁTICO
-    ========================= */
     enriched.sort((a, b) => b.ranking_score - a.ranking_score)
 
     return NextResponse.json(enriched)

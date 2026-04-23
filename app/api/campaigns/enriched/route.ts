@@ -9,19 +9,30 @@ const supabase = createClient(
 
 export async function GET() {
   try {
+
+    /* =========================
+       📊 CAMPAÑAS (PÚBLICO)
+    ========================= */
     const { data: campaigns } = await supabase
       .from("campaigns")
-      .select("*")
+      .select(`
+        id,
+        title,
+        goal_amount,
+        image_url,
+        status
+      `)
       .eq("status", "active")
 
     const enriched = await Promise.all(
       (campaigns || []).map(async (c) => {
+
         const wallet = await calculateCampaignBalance(supabase, c.id)
 
         return {
           ...c,
           raised: wallet.totalIn,
-          balance: wallet.available,
+          balance: wallet.available
         }
       })
     )
