@@ -9,6 +9,29 @@ const supabase = createClient(
 
 export async function GET(req: Request) {
   try {
+
+    /* =========================
+       🔐 AUTH
+    ========================= */
+    const authHeader = req.headers.get("authorization")
+
+    if (!authHeader) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.replace("Bearer ", "")
+
+    const { data: { user } } = await supabase.auth.getUser(token)
+
+    if (!user?.email) {
+      return NextResponse.json({ error: "invalid user" }, { status: 401 })
+    }
+
+    const user_email = user.email.toLowerCase()
+
+    /* =========================
+       📥 PARAMS
+    ========================= */
     const { searchParams } = new URL(req.url)
     const campaign_id = searchParams.get("campaign_id")
 
@@ -20,8 +43,24 @@ export async function GET(req: Request) {
     }
 
     /* =========================
+       🔐 VALIDAR PROPIEDAD
+    ========================= */
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("user_email")
+      .eq("id", campaign_id)
+      .maybeSingle()
+
+    if (!campaign || campaign.user_email !== user_email) {
+      return NextResponse.json(
+        { error: "no autorizado" },
+        { status: 403 }
+      )
+    }
+
+    /* =========================
        🔓 LIBERACIÓN AUTOMÁTICA (SAFE)
-       ========================= */
+    ========================= */
     const cutoff = new Date(
       Date.now() - 24 * 60 * 60 * 1000
     ).toISOString()
@@ -35,8 +74,8 @@ export async function GET(req: Request) {
       .lte("created_at", cutoff)
 
     /* =========================
-       💰 CALCULAR BALANCE REAL
-       ========================= */
+       💰 BALANCE REAL
+    ========================= */
     const wallet = await calculateCampaignBalance(
       supabase,
       campaign_id
