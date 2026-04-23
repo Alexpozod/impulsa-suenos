@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   try {
 
     /* =========================
-       🔐 AUTH (TU MODELO ORIGINAL)
+       🔐 AUTH (SEGURO)
     ========================= */
 
     const authHeader = req.headers.get("authorization")
@@ -31,16 +31,25 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "invalid user" }, { status: 401 })
     }
 
-    const user_email = user.email.toLowerCase()
+    const user_email = user.email.toLowerCase().trim()
+
+    console.log("👤 USER EMAIL:", user_email)
 
     /* =========================
-       📊 CAMPAÑAS
+       📊 CAMPAÑAS (FIX CRÍTICO)
     ========================= */
 
-    const { data: campaigns } = await supabase
+    const { data: campaigns, error: campaignsError } = await supabase
       .from("campaigns")
-      .select("id, title")
-      .eq("user_email", user_email)
+      .select("id, title, user_email")
+      .ilike("user_email", user_email) // 🔥 FIX REAL
+
+    if (campaignsError) {
+      console.error("❌ Campaigns error:", campaignsError)
+      return NextResponse.json({ error: "campaigns error" }, { status: 500 })
+    }
+
+    console.log("📊 CAMPAIGNS FOUND:", campaigns?.length)
 
     const campaignIds = campaigns?.map(c => c.id) || []
 
@@ -61,20 +70,28 @@ export async function GET(req: Request) {
        💰 LEDGER
     ========================= */
 
-    const { data: ledger } = await supabase
+    const { data: ledger, error: ledgerError } = await supabase
       .from("financial_ledger")
       .select("*")
       .in("campaign_id", campaignIds)
       .eq("status", "confirmed")
 
+    if (ledgerError) {
+      console.error("❌ Ledger error:", ledgerError)
+    }
+
     /* =========================
        🏦 PAYOUTS
     ========================= */
 
-    const { data: payouts } = await supabase
+    const { data: payouts, error: payoutsError } = await supabase
       .from("payouts")
       .select("*")
       .in("campaign_id", campaignIds)
+
+    if (payoutsError) {
+      console.error("❌ Payouts error:", payoutsError)
+    }
 
     /* =========================
        📊 TOTALES
@@ -150,6 +167,8 @@ export async function GET(req: Request) {
     })
 
   } catch (error) {
+
+    console.error("❌ FINANCE ERROR:", error)
 
     await logErrorToDB("finance_error", error)
 
