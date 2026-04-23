@@ -13,29 +13,30 @@ export default function DashboardPage() {
   const [ledger, setLedger] = useState<any[]>([])
 
   /* =========================
-     🔄 LOAD LEDGER (FIX REAL)
+     🔄 LOAD LEDGER (SAFE)
   ========================= */
   useEffect(() => {
-    if (data?.campaigns) {
+    if (data?.campaigns && Array.isArray(data.campaigns)) {
       buildLedgerFromData()
+    } else {
+      setLedger([])
     }
   }, [data])
 
   const buildLedgerFromData = () => {
     try {
 
-      // 🔥 usamos SOLO datos del backend seguro
       const campaigns = data?.campaigns || []
 
       let merged: any[] = []
 
       campaigns.forEach((c: any) => {
 
-        if (!c?.transactions) return
+        if (!Array.isArray(c?.transactions)) return
 
         const filtered = c.transactions
           .filter((tx: any) =>
-            tx.type === "payment" || tx.type === "withdraw"
+            tx?.type === "payment" || tx?.type === "withdraw"
           )
           .map((tx: any) => ({
             ...tx,
@@ -53,6 +54,7 @@ export default function DashboardPage() {
 
     } catch (err) {
       console.error("Error building ledger:", err)
+      setLedger([])
     }
   }
 
@@ -60,10 +62,27 @@ export default function DashboardPage() {
      🧠 STATES
   ========================= */
   if (loading) return <div className="p-10">Cargando...</div>
-  if (!data) return <div className="p-10">Error cargando datos</div>
 
-  const totals = data?.totals || {}
-  const campaigns = Array.isArray(data?.campaigns) ? data.campaigns : []
+  if (!data) {
+    return (
+      <div className="p-10 text-red-500">
+        Error cargando datos (revisa sesión)
+      </div>
+    )
+  }
+
+  /* 🔥 FIX CRÍTICO (NO MÁS CRASH) */
+  const totals = data?.totals || {
+    balance: 0,
+    raised: 0,
+    fees: 0,
+    withdrawn: 0,
+    pending: 0
+  }
+
+  const campaigns = Array.isArray(data?.campaigns)
+    ? data.campaigns
+    : []
 
   return (
     <main className="p-6 max-w-6xl mx-auto space-y-8">
@@ -100,7 +119,6 @@ export default function DashboardPage() {
                   <p className="text-sm text-gray-500">
                     Disponible: ${Number(c.available || 0).toLocaleString()}
                   </p>
-
                 </div>
 
                 <div className="flex gap-2">
