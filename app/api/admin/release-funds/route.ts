@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { sendAlert } from "@/lib/alerts/sendAlert"
+import { requireAdmin } from "@/lib/auth/requireAdmin"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+
+    // 🔐 PROTECCIÓN ADMIN (NO TOCAR NADA MÁS)
+    await requireAdmin(req)
 
     const cutoff = new Date(
       Date.now() - 24 * 60 * 60 * 1000
@@ -27,9 +31,6 @@ export async function GET() {
 
     for (const p of pending) {
 
-      /* =========================
-         💰 MOVER WALLET
-      ========================= */
       await supabase.rpc("update_wallet_release_funds", {
         p_user_email: p.user_email,
         p_amount: p.amount
@@ -48,7 +49,15 @@ export async function GET() {
       released: ids.length
     })
 
-  } catch (error) {
+  } catch (error: any) {
+
+    if (error.message === "unauthorized" || error.message === "invalid user") {
+      return NextResponse.json({ error: error.message }, { status: 401 })
+    }
+
+    if (error.message === "forbidden") {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 })
+    }
 
     await sendAlert({
       title: "Error liberación fondos",

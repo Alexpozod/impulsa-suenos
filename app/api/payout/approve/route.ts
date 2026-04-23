@@ -38,7 +38,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid session" }, { status: 401 })
     }
 
-    const userRole = user.user_metadata?.role || "user"
+    const { data: profile } = await supabase
+  .from("profiles")
+  .select("role")
+  .eq("id", user.id)
+  .maybeSingle()
+
+const userRole = profile?.role || "user"
 
     if (!canAccess(userRole, "payout.approve")) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
