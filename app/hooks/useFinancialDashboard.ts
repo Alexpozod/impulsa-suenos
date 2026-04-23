@@ -20,19 +20,35 @@ export function useFinancialDashboard() {
   const load = async () => {
     try {
 
-      /* 🔐 TOKEN REAL */
-      const { data: sessionData } = await supabase.auth.getSession()
-      const token = sessionData.session?.access_token
+      /* =========================
+         🔐 SESIÓN REAL
+      ========================= */
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession()
 
-      if (!token) {
-        console.error("❌ No token")
+      if (sessionError) {
+        console.error("❌ Session error:", sessionError)
         setData(null)
         return
       }
 
+      const session = sessionData?.session
+
+      if (!session?.access_token) {
+        console.warn("⚠️ No session/token")
+        setData(null)
+        return
+      }
+
+      /* 🔍 DEBUG (BORRAR DESPUÉS) */
+      console.log("👤 USER:", session.user?.email)
+
+      /* =========================
+         📡 FETCH SEGURO
+      ========================= */
       const res = await fetch("/api/user/finance", {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${session.access_token}`
         }
       })
 
@@ -43,6 +59,15 @@ export function useFinancialDashboard() {
       }
 
       const json = await res.json()
+
+      /* =========================
+         🛡️ VALIDACIÓN DEFENSIVA
+      ========================= */
+      if (!json || typeof json !== "object") {
+        console.warn("⚠️ Invalid response")
+        setData(null)
+        return
+      }
 
       setData(json)
 
