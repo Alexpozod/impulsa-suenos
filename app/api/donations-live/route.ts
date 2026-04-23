@@ -14,6 +14,13 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
     const campaign_id = searchParams.get("campaign_id")
 
+    /* =========================
+       🔐 FIX SEGURIDAD (CRÍTICO)
+    ========================= */
+    if (!campaign_id) {
+      return NextResponse.json([], { status: 200 })
+    }
+
     let query = supabase
       .from("financial_ledger")
       .select(`
@@ -27,12 +34,9 @@ export async function GET(req: Request) {
       `)
       .eq("type", "payment")
       .eq("status", "confirmed")
+      .eq("campaign_id", campaign_id) // 🔥 FORZADO
       .order("created_at", { ascending: false })
       .limit(10)
-
-    if (campaign_id) {
-      query = query.eq("campaign_id", campaign_id)
-    }
 
     const { data, error } = await query
 

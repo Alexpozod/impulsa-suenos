@@ -9,6 +9,28 @@ const supabase = createClient(
 export async function POST(req: Request) {
   try {
 
+    /* =========================
+       🔐 AUTH (BIEN UBICADO)
+    ========================= */
+    const authHeader = req.headers.get("authorization")
+
+    if (!authHeader) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.replace("Bearer ", "")
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+
+    if (userError || !user?.email) {
+      return NextResponse.json({ error: "invalid user" }, { status: 401 })
+    }
+
+    const user_email = user.email.toLowerCase()
+
+    /* =========================
+       📥 BODY
+    ========================= */
     const body = await req.json()
 
     const {
@@ -21,6 +43,19 @@ export async function POST(req: Request) {
 
     if (!id) {
       return NextResponse.json({ error: "ID requerido" }, { status: 400 })
+    }
+
+    /* =========================
+       🔐 VALIDAR DUEÑO (CRÍTICO)
+    ========================= */
+    const { data: campaignOwner } = await supabase
+      .from("campaigns")
+      .select("user_email")
+      .eq("id", id)
+      .maybeSingle()
+
+    if (!campaignOwner || campaignOwner.user_email !== user_email) {
+      return NextResponse.json({ error: "no autorizado" }, { status: 403 })
     }
 
     /* =========================

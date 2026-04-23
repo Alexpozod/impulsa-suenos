@@ -15,6 +15,23 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
+
+    const authHeader = req.headers.get("authorization")
+
+    if (!authHeader) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.replace("Bearer ", "")
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+
+    if (userError || !user?.email) {
+      return NextResponse.json({ error: "invalid user" }, { status: 401 })
+    }
+
+    const user_email = user.email.toLowerCase()
+
     const { campaign_id, amount } = await req.json()
 
     if (!campaign_id || !amount) {
@@ -27,27 +44,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid_amount" }, { status: 400 })
     }
 
-    const authHeader = req.headers.get("authorization")
-    if (!authHeader) {
-      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
-    }
-
-    const token = authHeader.replace("Bearer ", "")
-    const { data: { user } } = await supabase.auth.getUser(token)
-
-    if (!user?.email) {
-      return NextResponse.json({ error: "invalid user" }, { status: 401 })
-    }
-
-    // 🔐 EMAIL NORMALIZADO
-    const user_email = user.email.toLowerCase()
-
-    // 🔐 BLOQUEO POR EMAIL NO VERIFICADO
     if (!user.email_confirmed_at) {
-      return NextResponse.json(
-        { error: "Email not verified" },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "Email not verified" }, { status: 403 })
     }
 
     const ip =
@@ -63,7 +61,6 @@ export async function POST(req: Request) {
 
     logInfo("Payout request iniciado", { user_email, campaign_id, amount })
 
-    // 🔐 LOCK PARA EVITAR RACE CONDITIONS
     const lockKey = crypto.createHash("md5").update(campaign_id).digest("hex")
     await supabase.rpc("advisory_lock", { lock_key: lockKey })
 
@@ -81,7 +78,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "no autorizado" }, { status: 403 })
     }
 
-    // 🔐 KYC
     const { data: kyc } = await supabase
       .from("kyc")
       .select("status")
@@ -92,7 +88,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "KYC requerido" }, { status: 403 })
     }
 
-    // 🔐 BANCO
     const { data: bank } = await supabase
       .from("bank_accounts")
       .select("id")
@@ -103,7 +98,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Agrega cuenta bancaria" }, { status: 400 })
     }
 
-    // 🔐 EVITAR DOBLE PENDING
     const { data: existing } = await supabase
       .from("payouts")
       .select("id")
@@ -118,7 +112,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 💰 BALANCE REAL (LEDGER)
     const walletCalc = await calculateCampaignBalance(supabase, campaign_id)
 
     if (!walletCalc || typeof walletCalc.available !== "number") {
@@ -129,7 +122,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "saldo insuficiente" }, { status: 400 })
     }
 
-    // 👛 WALLET (solo validación, NO modificar)
     const { data: wallet } = await supabase
       .from("wallets")
       .select("*")
@@ -145,7 +137,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // 🧾 CREAR PAYOUT
     const { data, error } = await supabase
       .from("payouts")
       .insert({
@@ -160,7 +151,6 @@ export async function POST(req: Request) {
 
     if (error) throw error
 
-    // 📊 LEDGER (FUENTE DE VERDAD)
     await supabase.from("financial_ledger").insert({
       campaign_id,
       user_email,
@@ -171,11 +161,6 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString()
     })
 
-    // 🔐 VALIDACIÓN FINAL
-    if (numericAmount > walletCalc.available) {
-      throw new Error("Ledger inconsistency detected")
-    }
-
     await logToDB("info", "payout_requested", {
       campaign_id,
       amount,
@@ -183,20 +168,18 @@ export async function POST(req: Request) {
     })
 
     await sendNotification({
-  user_email,
-  type: "payout_requested",
-  title: "Retiro en revisión",
-  message: `Tu solicitud de retiro por $${numericAmount} fue enviada`,
-  metadata: { campaign_id, amount: numericAmount },
-  sendEmail: true
-})
-
-    return NextResponse.json({
-      ok: true,
-      payout: data
+      user_email,
+      type: "payout_requested",
+      title: "Retiro en revisión",
+      message: `Tu solicitud de retiro por $${numericAmount} fue enviada`,
+      metadata: { campaign_id, amount: numericAmount },
+      sendEmail: true
     })
 
+    return NextResponse.json({ ok: true, payout: data })
+
   } catch (error) {
+
     logError("PAYOUT REQUEST ERROR", error)
     await logErrorToDB("payout_request_error", error)
 
