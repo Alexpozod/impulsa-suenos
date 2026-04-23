@@ -13,37 +13,46 @@ export default function DashboardPage() {
   const [ledger, setLedger] = useState<any[]>([])
 
   /* =========================
-     🔄 LOAD LEDGER
+     🔄 LOAD LEDGER (FIX REAL)
   ========================= */
   useEffect(() => {
-    if (Array.isArray(data?.campaigns) && data.campaigns.length > 0) {
-      loadLedger()
+    if (data?.campaigns) {
+      buildLedgerFromData()
     }
   }, [data])
 
-  const loadLedger = async () => {
+  const buildLedgerFromData = () => {
     try {
 
-      const res = await fetch("/api/ledger")
-      const all = await res.json()
+      // 🔥 usamos SOLO datos del backend seguro
+      const campaigns = data?.campaigns || []
 
-      if (!Array.isArray(all)) return
+      let merged: any[] = []
 
-      const campaignIds = (data?.campaigns || []).map((c: any) => c.id)
+      campaigns.forEach((c: any) => {
 
-      const filtered = all
-        .filter((tx: any) =>
-          campaignIds.includes(tx.campaign_id) &&
-          (tx.type === "payment" || tx.type === "withdraw")
-        )
-        .sort((a: any, b: any) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
+        if (!c?.transactions) return
 
-      setLedger(filtered.slice(0, 10))
+        const filtered = c.transactions
+          .filter((tx: any) =>
+            tx.type === "payment" || tx.type === "withdraw"
+          )
+          .map((tx: any) => ({
+            ...tx,
+            campaign_id: c.id
+          }))
+
+        merged = [...merged, ...filtered]
+      })
+
+      merged.sort((a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+
+      setLedger(merged.slice(0, 10))
 
     } catch (err) {
-      console.error("Error loading ledger:", err)
+      console.error("Error building ledger:", err)
     }
   }
 
@@ -88,9 +97,8 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="font-semibold">{c.title}</h3>
 
-                  {/* ✅ FIX AQUÍ (ÚNICO CAMBIO) */}
                   <p className="text-sm text-gray-500">
-                    Disponible: ${Number(totals.balance || 0).toLocaleString()}
+                    Disponible: ${Number(c.available || 0).toLocaleString()}
                   </p>
 
                 </div>
