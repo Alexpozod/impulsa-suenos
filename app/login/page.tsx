@@ -85,6 +85,19 @@ export default function Login() {
     if (error) {
       setMessage("❌ " + error.message)
     } else {
+
+      // 🚀 EMAIL BIENVENIDA (NO BLOQUEA LOGIN)
+      fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          type: "welcome",
+          email
+        })
+      })
+
       await handlePostLoginRedirect()
     }
 

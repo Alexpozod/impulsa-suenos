@@ -9,13 +9,61 @@ export async function POST(req: Request) {
     const body = await req.json()
 
     /* =========================
+       🚀 WELCOME EMAIL
+    ========================= */
+    if (body.type === "welcome" && body.email) {
+
+      const { email } = body
+
+      await resend.emails.send({
+        from: "Impulsa Sueños <contacto@impulsasuenos.com>",
+        to: email,
+        subject: "Bienvenido a ImpulsaSueños 🚀",
+        html: `
+          <div style="font-family: Arial, Helvetica, sans-serif; background:#f9fafb; padding:40px 20px;">
+
+            <div style="max-width:600px; margin:auto; background:white; border-radius:12px; padding:40px; box-shadow:0 10px 30px rgba(0,0,0,0.05);">
+
+              <h1 style="color:#16a34a;">ImpulsaSueños</h1>
+
+              <h2 style="color:#111;">Bienvenido 🚀</h2>
+
+              <p style="color:#444; font-size:16px;">
+                Tu cuenta ya está activa.
+              </p>
+
+              <p style="color:#444; font-size:16px;">
+                Ahora puedes crear campañas, apoyar causas y generar impacto real.
+              </p>
+
+              <div style="text-align:center; margin:30px 0;">
+                <a href="https://impulsasuenos.com/dashboard"
+                  style="display:inline-block;padding:14px 28px;background:#16a34a;color:white;border-radius:10px;text-decoration:none;font-weight:bold;">
+                  Ir a mi panel
+                </a>
+              </div>
+
+              <p style="text-align:center; color:#666; font-size:14px;">
+                💚 Gracias por ser parte del cambio
+              </p>
+
+            </div>
+
+          </div>
+        `
+      })
+
+      return NextResponse.json({ ok: true })
+    }
+
+    /* =========================
        💖 DONACIÓN (LEGACY)
     ========================= */
     if (body.email && body.amount !== undefined && body.campaign) {
 
       const { email, amount, campaign } = body
 
-      const response = await resend.emails.send({
+      await resend.emails.send({
         from: "Impulsa Sueños <contacto@impulsasuenos.com>",
         to: email,
         subject: "💖 Donación confirmada - ImpulsaSueños",
@@ -51,7 +99,7 @@ export async function POST(req: Request) {
 
       const { to, subject, html } = body
 
-      const response = await resend.emails.send({
+      await resend.emails.send({
         from: "Impulsa Sueños <contacto@impulsasuenos.com>",
         to,
         subject,
