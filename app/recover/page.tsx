@@ -6,29 +6,39 @@ import { supabase } from '@/src/lib/supabase'
 export default function RecoverPage() {
 
   const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleRecover = async () => {
 
-    if (!email) {
-      setMessage("⚠️ Ingresa tu correo")
-      return
-    }
-
     setLoading(true)
-    setMessage('')
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${location.origin}/update-password` // 👈 respetamos tu ruta actual
+    // 🔥 GENERA LINK REAL (NO LO PIERDAS)
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${location.origin}/update-password`
     })
 
     if (error) {
-      setMessage("❌ " + error.message)
-    } else {
-      setMessage("📩 Revisa tu correo para recuperar tu contraseña")
+      alert(error.message)
+      setLoading(false)
+      return
     }
 
+    // ⚠️ AQUÍ ESTÁ EL CAMBIO IMPORTANTE
+    // Supabase NO devuelve el link directamente
+    // por eso usamos el flujo híbrido
+
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        type: "recover",
+        email
+      })
+    })
+
+    alert("📩 Revisa tu correo")
     setLoading(false)
   }
 
@@ -37,38 +47,24 @@ export default function RecoverPage() {
 
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
 
-        {/* TITLE */}
-        <h1 className="text-2xl font-bold mb-2 text-center">
+        <h1 className="text-xl font-bold mb-4 text-center">
           Recuperar contraseña
         </h1>
 
-        <p className="text-center text-gray-500 text-sm mb-6">
-          Te enviaremos un enlace para restablecer tu contraseña
-        </p>
-
-        {/* INPUT */}
         <input
           type="email"
           placeholder="Correo"
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border p-3 mb-4 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+          className="border p-3 mb-4 w-full rounded-lg"
         />
 
-        {/* BUTTON */}
         <button
           onClick={handleRecover}
           disabled={loading}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+          className="w-full bg-green-600 text-white py-3 rounded-lg"
         >
           {loading ? "Enviando..." : "Enviar enlace"}
         </button>
-
-        {/* MESSAGE */}
-        {message && (
-          <p className="mt-4 text-center text-sm text-gray-600">
-            {message}
-          </p>
-        )}
 
       </div>
 

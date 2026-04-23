@@ -11,13 +11,30 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [redirect, setRedirect] = useState<string | null>(null)
 
+  /* =========================
+     🔐 PASSWORD VALIDATION PRO
+  ========================= */
+  const validatePassword = (password: string) => {
+    const minLength = password.length >= 8
+    const hasUpper = /[A-Z]/.test(password)
+    const hasNumber = /[0-9]/.test(password)
+    const hasSymbol = /[^A-Za-z0-9]/.test(password)
+
+    if (!minLength) return "Debe tener al menos 8 caracteres"
+    if (!hasUpper) return "Debe incluir una mayúscula"
+    if (!hasNumber) return "Debe incluir un número"
+    if (!hasSymbol) return "Debe incluir un símbolo"
+
+    return null
+  }
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     setRedirect(params.get("redirect"))
   }, [])
 
   /* =========================
-     🎯 REDIRECCIÓN PRO REAL
+     🎯 REDIRECCIÓN PRO
   ========================= */
   const handlePostLoginRedirect = async () => {
 
@@ -94,11 +111,19 @@ export default function Login() {
   }
 
   /* =========================
-     🆕 REGISTER
+     🆕 REGISTER (PRO + SECURITY)
   ========================= */
   const signUp = async () => {
     setLoading(true)
     setMessage('')
+
+    // 🔐 VALIDACIÓN
+    const passwordError = validatePassword(password)
+    if (passwordError) {
+      setMessage("❌ " + passwordError)
+      setLoading(false)
+      return
+    }
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -112,7 +137,7 @@ export default function Login() {
       setMessage(error.message)
     } else {
 
-      // 🔐 REGISTRO LEGAL
+      // 🔐 CONSENTIMIENTO LEGAL
       fetch("/api/legal-consent", {
         method: "POST",
         headers: {
@@ -157,7 +182,7 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-6 pt-28">
 
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
 
@@ -189,7 +214,7 @@ export default function Login() {
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        {/* INPUTS */}
+        {/* EMAIL */}
         <input
           type="email"
           placeholder="Correo"
@@ -198,15 +223,21 @@ export default function Login() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
+        {/* PASSWORD */}
         <input
           type="password"
           placeholder="Contraseña"
-          className="w-full border p-3 mb-2 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+          className="w-full border p-3 mb-1 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {/* 🔥 RECOVER PASSWORD */}
+        {/* PASSWORD INFO */}
+        <p className="text-xs text-gray-400 mb-3">
+          Mínimo 8 caracteres, una mayúscula, un número y un símbolo
+        </p>
+
+        {/* RECOVER */}
         <div className="flex justify-end mb-4">
           <button
             onClick={() => window.location.href = "/recover"}
