@@ -10,7 +10,7 @@ type Props = {
 export default function Hero({ onCreate }: Props) {
 
   /* =========================
-     🎬 PARALLAX (SAFE TS)
+     🎬 PARALLAX
   ========================= */
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 300], [0, 50])
@@ -23,16 +23,30 @@ export default function Hero({ onCreate }: Props) {
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
 
-        {/* TEXT */}
+        {/* =========================
+            TEXT
+        ========================= */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
 
-          {/* BADGE */}
-          <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm mb-8 font-medium shadow-sm">
-            ● 128 campañas verificadas hoy
+          {/* ✅ BADGES REALES */}
+          <div className="flex flex-wrap items-center gap-2 mb-8">
+
+            <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-medium shadow-sm">
+              🟢 Plataforma en lanzamiento
+            </span>
+
+            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+              🔒 Campañas verificadas
+            </span>
+
+            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+              💳 Pagos seguros
+            </span>
+
           </div>
 
           {/* TITLE */}
@@ -68,18 +82,20 @@ export default function Hero({ onCreate }: Props) {
 
           </div>
 
-          {/* TRUST */}
+          {/* ✅ TRUST PRO */}
           <div className="flex gap-6 mt-8 text-sm text-gray-500 flex-wrap">
             <span>✔ Pagos seguros</span>
-            <span>✔ Transparencia total</span>
-            <span>✔ Campañas verificadas</span>
+            <span>✔ Sin costos ocultos</span>
+            <span>✔ Plataforma transparente</span>
           </div>
 
         </motion.div>
 
-        {/* IMAGE */}
+        {/* =========================
+            IMAGE
+        ========================= */}
         <motion.div
-          style={{ y }} // ✅ parallax aplicado aquí
+          style={{ y }}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.2 }}
@@ -100,18 +116,22 @@ export default function Hero({ onCreate }: Props) {
 
           </div>
 
-          {/* FLOAT CARD */}
+          {/* ✅ FLOAT CARD (SIN FAKE NUMBERS) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="absolute -bottom-6 left-6 bg-white px-6 py-4 rounded-2xl shadow-xl border backdrop-blur"
           >
-            <p className="text-lg font-bold text-gray-900">$2.4M+</p>
-            <p className="text-sm text-gray-500">Recaudado este año</p>
+            <p className="text-sm font-semibold text-gray-900">
+              🚀 Plataforma en crecimiento
+            </p>
+            <p className="text-xs text-gray-500">
+              Nuevas campañas activándose
+            </p>
           </motion.div>
 
-          {/* DONORS BADGE */}
+          {/* ✅ SOCIAL PROOF REALISTA */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -123,7 +143,7 @@ export default function Hero({ onCreate }: Props) {
               <div className="w-6 h-6 rounded-full bg-green-300 border-2 border-white" />
               <div className="w-6 h-6 rounded-full bg-green-200 border-2 border-white" />
             </div>
-            +12K donantes
+            Usuarios iniciales activos
           </motion.div>
 
         </motion.div>
