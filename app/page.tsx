@@ -29,7 +29,7 @@ const item = {
     y: 0,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1] as const // ✅ FIX
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   }
 }
@@ -71,7 +71,7 @@ export default function HomePage() {
       <Stats />
 
       {/* ================= CAMPAÑAS ================= */}
-       bg-gray-50">
+      <section className="py-28 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
 
           {/* HEADER */}
