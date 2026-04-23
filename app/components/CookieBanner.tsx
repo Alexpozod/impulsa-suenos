@@ -2,44 +2,152 @@
 
 import { useEffect, useState } from "react"
 
+type Preferences = {
+  necessary: true
+  analytics: boolean
+}
+
 export default function CookieBanner() {
 
   const [visible, setVisible] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [prefs, setPrefs] = useState<Preferences>({
+    necessary: true,
+    analytics: false
+  })
 
   useEffect(() => {
-    const accepted = localStorage.getItem("cookies_accepted")
-    if (!accepted) {
+    const saved = localStorage.getItem("cookie_preferences")
+    if (!saved) {
       setVisible(true)
     }
   }, [])
 
-  const acceptCookies = () => {
-    localStorage.setItem("cookies_accepted", "true")
+  const savePreferences = (preferences: Preferences) => {
+    localStorage.setItem("cookie_preferences", JSON.stringify(preferences))
     setVisible(false)
+    setShowSettings(false)
+
+    // 👉 AQUÍ ACTIVAS ANALYTICS FUTURO
+    if (preferences.analytics) {
+      console.log("📊 Analytics activado")
+    }
+  }
+
+  const acceptAll = () => {
+    savePreferences({
+      necessary: true,
+      analytics: true
+    })
+  }
+
+  const rejectOptional = () => {
+    savePreferences({
+      necessary: true,
+      analytics: false
+    })
   }
 
   if (!visible) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:max-w-xl bg-white border shadow-xl rounded-2xl p-5 z-50">
+    <>
+      {/* 🍪 BANNER */}
+      <div className="fixed bottom-4 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:max-w-xl bg-white border shadow-2xl rounded-2xl p-5 z-50">
 
-      <p className="text-sm text-gray-700 leading-relaxed">
-        Utilizamos cookies para mejorar tu experiencia. 
-        Al continuar navegando aceptas nuestra{" "}
-        <a href="/cookies" className="text-green-600 underline">
-          Política de Cookies
-        </a>.
-      </p>
+        <p className="text-sm text-gray-700 leading-relaxed">
+          Usamos cookies para mejorar tu experiencia. Puedes aceptar todas o configurar tus preferencias.
+        </p>
 
-      <div className="flex justify-end mt-4">
-        <button
-          onClick={acceptCookies}
-          className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-semibold"
-        >
-          Aceptar
-        </button>
+        <div className="flex flex-wrap justify-end gap-2 mt-4">
+
+          <button
+            onClick={rejectOptional}
+            className="text-sm px-4 py-2 border rounded-lg hover:bg-gray-50"
+          >
+            Rechazar
+          </button>
+
+          <button
+            onClick={() => setShowSettings(true)}
+            className="text-sm px-4 py-2 border rounded-lg hover:bg-gray-50"
+          >
+            Configurar
+          </button>
+
+          <button
+            onClick={acceptAll}
+            className="text-sm px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold"
+          >
+            Aceptar todo
+          </button>
+
+        </div>
       </div>
 
-    </div>
+      {/* ⚙️ MODAL */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+
+            <h2 className="text-lg font-bold mb-4">
+              Configuración de cookies
+            </h2>
+
+            {/* NECESARIAS */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="font-medium">Cookies esenciales</p>
+                <p className="text-xs text-gray-500">
+                  Necesarias para el funcionamiento del sitio
+                </p>
+              </div>
+              <input type="checkbox" checked disabled />
+            </div>
+
+            {/* ANALYTICS */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="font-medium">Cookies de análisis</p>
+                <p className="text-xs text-gray-500">
+                  Nos ayudan a mejorar la plataforma
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={prefs.analytics}
+                onChange={(e) =>
+                  setPrefs({
+                    ...prefs,
+                    analytics: e.target.checked
+                  })
+                }
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+
+              <button
+                onClick={() => setShowSettings(false)}
+                className="px-4 py-2 text-sm border rounded-lg"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={() => savePreferences(prefs)}
+                className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg"
+              >
+                Guardar
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+    </>
   )
 }
