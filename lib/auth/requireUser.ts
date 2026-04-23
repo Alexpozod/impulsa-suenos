@@ -1,29 +1,25 @@
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
+import { createClient } from "@supabase/supabase-js"
 
-export async function requireUser() {
+export async function requireUser(req: Request) {
 
-  const cookieStore = cookies()
-
-  const supabase = createServerClient(
+  const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set() {},
-        remove() {}
-      }
-    }
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  const authHeader = req.headers.get("authorization")
 
-  if (!user) throw new Error("UNAUTHORIZED")
+  if (!authHeader) {
+    throw new Error("unauthorized")
+  }
+
+  const token = authHeader.replace("Bearer ", "")
+
+  const { data: { user }, error } = await supabase.auth.getUser(token)
+
+  if (error || !user) {
+    throw new Error("invalid user")
+  }
 
   return user
 }
