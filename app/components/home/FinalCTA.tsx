@@ -7,7 +7,7 @@ export default function FinalCTA({ onCreate }: { onCreate: () => void }) {
   const router = useRouter()
 
   return (
-    <section className="py-32 px-6 bg-white">
+     bg-white">
 
       <div className="max-w-6xl mx-auto">
 

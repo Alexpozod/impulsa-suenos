@@ -27,7 +27,7 @@ const features = [
 
 export default function Trust() {
   return (
-    <section className="py-28 px-6 bg-white">
+    <section className="py-18 px-6 bg-white">
 
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
 

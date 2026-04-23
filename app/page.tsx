@@ -71,7 +71,7 @@ export default function HomePage() {
       <Stats />
 
       {/* ================= CAMPAÑAS ================= */}
-      <section className="py-32 px-6 bg-gray-50">
+       bg-gray-50">
         <div className="max-w-7xl mx-auto">
 
           {/* HEADER */}
