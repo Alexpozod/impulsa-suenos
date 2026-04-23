@@ -16,7 +16,7 @@ export default function Hero({ onCreate }: Props) {
   const y = useTransform(scrollY, [0, 300], [0, 50])
 
   return (
-    <section className="relative pt-20 pb-28 px-6 overflow-hidden bg-gradient-to-b from-white to-gray-50">
+    <section className="relative pt-28 pb-20 px-6 overflow-hidden bg-gradient-to-b from-white to-gray-50">
 
       {/* BACKGROUND GLOW */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-green-100 blur-3xl opacity-40 rounded-full pointer-events-none" />
