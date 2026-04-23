@@ -28,7 +28,6 @@ export default function Login() {
       return
     }
 
-    /* 🔥 CONSULTA REAL A DB (NO JWT) */
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -37,14 +36,12 @@ export default function Login() {
 
     const role = profile?.role
 
-    /* 🎯 donation intent */
     const intent = localStorage.getItem('donation_intent')
 
     if (intent) {
       try {
         const parsed = JSON.parse(intent)
         localStorage.removeItem('donation_intent')
-
         window.location.href = `/campaign/${parsed.campaign_id}`
         return
       } catch {
@@ -52,32 +49,26 @@ export default function Login() {
       }
     }
 
-    /* 🔐 ADMIN */
     if (role === 'admin') {
       window.location.href = "/admin"
       return
     }
 
-    /* 🔁 redirect param */
     if (redirect) {
       window.location.href = redirect
       return
     }
 
-    /* 👤 USER */
     window.location.href = "/dashboard"
   }
 
-  /* 🔍 SESSION CHECK */
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession()
-
       if (data.session) {
         handlePostLoginRedirect()
       }
     }
-
     checkSession()
   }, [redirect])
 
@@ -116,7 +107,7 @@ export default function Login() {
     if (error) {
       setMessage(error.message)
     } else {
-      setMessage("📩 Revisa tu correo")
+      setMessage("📩 Revisa tu correo para confirmar tu cuenta")
     }
 
     setLoading(false)
@@ -135,16 +126,41 @@ export default function Login() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
 
-      <div className="bg-white p-8 rounded-xl shadow w-full max-w-md">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
 
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Iniciar sesión
+        {/* TITLE */}
+        <h1 className="text-2xl font-bold mb-2 text-center">
+          Bienvenido
         </h1>
 
+        <p className="text-center text-gray-500 text-sm mb-6">
+          Ingresa o crea tu cuenta
+        </p>
+
+        {/* GOOGLE */}
+        <button
+          onClick={signInWithGoogle}
+          className="w-full border py-3 rounded-xl mb-4 flex items-center justify-center gap-3 hover:bg-gray-50 transition"
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            className="w-5 h-5"
+          />
+          Continuar con Google
+        </button>
+
+        {/* DIVIDER */}
+        <div className="flex items-center gap-3 my-4">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-xs text-gray-400">o con email</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        {/* INPUTS */}
         <input
           type="email"
           placeholder="Correo"
-          className="w-full border p-3 mb-3 rounded"
+          className="w-full border p-3 mb-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -152,34 +168,30 @@ export default function Login() {
         <input
           type="password"
           placeholder="Contraseña"
-          className="w-full border p-3 mb-4 rounded"
+          className="w-full border p-3 mb-4 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
+        {/* LOGIN */}
         <button
           onClick={signIn}
-          className="w-full bg-green-600 text-white py-3 rounded mb-3 font-semibold"
+          className="w-full bg-green-600 text-white py-3 rounded-lg mb-3 font-semibold hover:bg-green-700 transition"
           disabled={loading}
         >
           {loading ? "Ingresando..." : "Entrar"}
         </button>
 
+        {/* REGISTER */}
         <button
           onClick={signUp}
-          className="w-full border py-3 rounded mb-3"
+          className="w-full border py-3 rounded-lg font-medium hover:bg-gray-50 transition"
           disabled={loading}
         >
           Crear cuenta
         </button>
 
-        <button
-          onClick={signInWithGoogle}
-          className="w-full border py-3 rounded"
-        >
-          Continuar con Google
-        </button>
-
+        {/* MESSAGE */}
         {message && (
           <p className="mt-4 text-center text-sm text-red-500">
             {message}
@@ -187,6 +199,7 @@ export default function Login() {
         )}
 
       </div>
+
     </main>
   )
 }
