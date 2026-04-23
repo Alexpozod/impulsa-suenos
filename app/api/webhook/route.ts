@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
+import crypto from "crypto"
 
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { sendNotification } from "@/lib/notifications/sendNotification"
-import { syncWallet } from "@/lib/wallet/syncWallet" // 🔥 NUEVO
+import { syncWallet } from "@/lib/wallet/syncWallet"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -19,20 +20,68 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
+
+    /* =========================
+       🔐 VALIDACIÓN FIRMA (SAFE MODE)
+       ⚠️ No rompe si no tienes secret aún
+    ========================= */
+    const signature = req.headers.get("x-signature")
+    const rawBody = await req.text()
+
+    if (process.env.WEBHOOK_SECRET && signature) {
+      const expected = crypto
+        .createHmac("sha256", process.env.WEBHOOK_SECRET)
+        .update(rawBody)
+        .digest("hex")
+
+      if (signature !== expected) {
+        console.warn("⚠️ Invalid webhook signature")
+        return NextResponse.json({ ok: true })
+      }
+    }
+
+    /* =========================
+       🔁 PARSE BODY (SIN ROMPER)
+    ========================= */
+    let body: any = {}
+    try {
+      body = JSON.parse(rawBody)
+    } catch {}
+
     const url = new URL(req.url)
 
     let paymentId =
       url.searchParams.get("data.id") ||
-      url.searchParams.get("id")
-
-    if (!paymentId) {
-      try {
-        const body = await req.json()
-        paymentId = body?.data?.id || body?.id || null
-      } catch {}
-    }
+      url.searchParams.get("id") ||
+      body?.data?.id ||
+      body?.id ||
+      null
 
     if (!paymentId) return NextResponse.json({ ok: true })
+
+    /* =========================
+       🔁 IDEMPOTENCIA GLOBAL (WEBHOOK EVENT)
+    ========================= */
+    const eventId =
+      req.headers.get("x-request-id") ||
+      req.headers.get("x-event-id") ||
+      `mp_${paymentId}`
+
+    const { data: existingEvent } = await supabase
+      .from("webhook_events")
+      .select("id")
+      .eq("event_id", eventId)
+      .maybeSingle()
+
+    if (existingEvent) {
+      return NextResponse.json({ ok: true })
+    }
+
+    await supabase.from("webhook_events").insert({
+      event_id: eventId,
+      payload: body,
+      created_at: new Date().toISOString()
+    })
 
     /* =========================
        🧾 LOG INICIAL
@@ -44,17 +93,18 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🔒 IDEMPOTENCIA
+       🔒 IDEMPOTENCIA PAYMENT
     ========================= */
     const { data: existingPayment } = await supabase
       .from("payments")
       .select("*")
       .eq("payment_id", paymentId)
       .maybeSingle()
-// 🛑 EVITAR DOBLE PROCESAMIENTO
-if (existingPayment?.status === "approved") {
-  return NextResponse.json({ ok: true })
-}
+
+    if (existingPayment?.status === "approved") {
+      return NextResponse.json({ ok: true })
+    }
+
     /* =========================
        💳 GET PAYMENT
     ========================= */
@@ -71,11 +121,26 @@ if (existingPayment?.status === "approved") {
       return NextResponse.json({ ok: true })
     }
 
+    /* =========================
+       🔍 VALIDACIONES EXTRA
+    ========================= */
+    if (Number(payment.transaction_amount) <= 0) {
+      console.warn("⚠️ Invalid amount")
+      return NextResponse.json({ ok: true })
+    }
+
     const campaign_id = payment.metadata?.campaign_id
     const user_email =
       payment.metadata?.user_email ||
       payment.payer?.email
 
+    if (!campaign_id || !user_email) {
+      return NextResponse.json({ ok: true })
+    }
+
+    /* =========================
+       💰 NORMALIZACIÓN
+    ========================= */
     const grossRaw = Number(payment.transaction_amount || 0)
     const tipRaw = Number(payment.metadata?.tip || 0)
 
@@ -85,23 +150,12 @@ if (existingPayment?.status === "approved") {
 
     const message = payment.metadata?.message || ""
 
-    console.log("💰 DEBUG PAYMENT:", {
-      paymentId,
-      gross,
-      tip,
-      net
-    })
-
-    if (!campaign_id || !user_email) {
-      return NextResponse.json({ ok: true })
-    }
-
     const metadata = {
-  message,
-  tip,
-  gross,
-  amount: net // 🔥 CLAVE
-}
+      message,
+      tip,
+      gross,
+      amount: net
+    }
 
     /* =========================
        📝 REGISTRO PREVIO
@@ -120,10 +174,15 @@ if (existingPayment?.status === "approved") {
     }
 
     /* =========================
+       🔐 LOCK (ANTI DUPLICADO)
+    ========================= */
+    await supabase.rpc("advisory_lock", {
+      lock_key: `payment_${paymentId}`
+    })
+
+    /* =========================
        🧠 PROCESAMIENTO CENTRAL
     ========================= */
-    // 🔒 LOCK PARA EVITAR DOBLE EJECUCIÓN
-await supabase.rpc("advisory_lock", { lock_key: paymentId })
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -165,7 +224,7 @@ await supabase.rpc("advisory_lock", { lock_key: paymentId })
       .eq("payment_id", paymentId)
 
     /* =========================
-       🔔 NOTIFICACIÓN ATÓMICA (FIX FINAL)
+       🔔 NOTIFICACIÓN ATÓMICA
     ========================= */
     const { data: updated } = await supabase
       .from("payments")
@@ -186,25 +245,29 @@ await supabase.rpc("advisory_lock", { lock_key: paymentId })
       })
     }
 
-    // 🔥 EMAIL AL CREADOR DE LA CAMPAÑA
-const { data: campaign } = await supabase
-  .from("campaigns")
-  .select("user_email")
-  .eq("id", campaign_id)
-  .single()
+    /* =========================
+       📧 NOTIFICAR CAMPAÑA
+    ========================= */
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("user_email")
+      .eq("id", campaign_id)
+      .single()
 
-if (campaign?.user_email) {
-  await sendNotification({
-    user_email: campaign.user_email,
-    type: "donation_received",
-    title: "Nueva donación",
-    message: `Recibiste $${net}`,
-    metadata,
-    sendEmail: true
-  })
-}
+    if (campaign?.user_email) {
+      await sendNotification({
+        user_email: campaign.user_email,
+        type: "donation_received",
+        title: "Nueva donación",
+        message: `Recibiste $${net}`,
+        metadata,
+        sendEmail: true
+      })
+    }
 
-    // 🔥 AUTO SYNC WALLET (ÚNICA LÍNEA AGREGADA)
+    /* =========================
+       🔄 SYNC WALLET
+    ========================= */
     await syncWallet(user_email)
 
     /* =========================

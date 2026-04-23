@@ -11,8 +11,13 @@ const supabase = createClient(
 export async function GET(req: Request) {
   try {
 
-    // 🔐 PROTECCIÓN ADMIN (NO TOCAR NADA MÁS)
+    // 🔐 ADMIN
     await requireAdmin(req)
+
+    // 🔐 LOCK GLOBAL (evita doble ejecución del endpoint completo)
+    await supabase.rpc("advisory_lock", {
+      lock_key: "release_funds_cron"
+    })
 
     const cutoff = new Date(
       Date.now() - 24 * 60 * 60 * 1000
@@ -29,29 +34,50 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
+    const processedIds: string[] = []
+
     for (const p of pending) {
 
+      // 🔐 IDEMPOTENCIA POR REGISTRO
+      const { data: alreadyProcessed } = await supabase
+        .from("financial_ledger")
+        .select("id")
+        .eq("id", p.id)
+        .eq("status", "confirmed")
+        .maybeSingle()
+
+      if (alreadyProcessed) continue
+
+      /* =========================
+         💰 MOVER WALLET (NO TOCAR)
+      ========================= */
       await supabase.rpc("update_wallet_release_funds", {
         p_user_email: p.user_email,
         p_amount: p.amount
       })
+
+      processedIds.push(p.id)
     }
 
-    const ids = pending.map(p => p.id)
-
-    await supabase
-      .from("financial_ledger")
-      .update({ status: "confirmed" })
-      .in("id", ids)
+    // 🔥 UPDATE MASIVO SOLO DE LOS PROCESADOS
+    if (processedIds.length > 0) {
+      await supabase
+        .from("financial_ledger")
+        .update({ status: "confirmed" })
+        .in("id", processedIds)
+    }
 
     return NextResponse.json({
       ok: true,
-      released: ids.length
+      released: processedIds.length
     })
 
   } catch (error: any) {
 
-    if (error.message === "unauthorized" || error.message === "invalid user") {
+    if (
+      error.message === "unauthorized" ||
+      error.message === "invalid user"
+    ) {
       return NextResponse.json({ error: error.message }, { status: 401 })
     }
 

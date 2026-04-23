@@ -38,17 +38,42 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid session" }, { status: 401 })
     }
 
+    // 🔐 ROLE DESDE DB (correcto)
     const { data: profile } = await supabase
-  .from("profiles")
-  .select("role")
-  .eq("id", user.id)
-  .maybeSingle()
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle()
 
-const userRole = profile?.role || "user"
+    const userRole = profile?.role || "user"
 
     if (!canAccess(userRole, "payout.approve")) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
     }
+
+    /* =========================
+       🔐 IDEMPOTENCIA (ANTES DE TODO)
+    ========================= */
+    const { data: existingPaid } = await supabase
+      .from("payouts")
+      .select("status")
+      .eq("id", payout_id)
+      .maybeSingle()
+
+    if (!existingPaid) {
+      return NextResponse.json({ error: "payout not found" }, { status: 404 })
+    }
+
+    if (existingPaid.status === "paid") {
+      return NextResponse.json({ ok: true, message: "already processed" })
+    }
+
+    /* =========================
+       🔐 LOCK (ANTI RACE)
+    ========================= */
+    await supabase.rpc("advisory_lock", {
+      lock_key: `payout_${payout_id}`
+    })
 
     const { data: payout } = await supabase
       .from("payouts")
@@ -61,7 +86,7 @@ const userRole = profile?.role || "user"
     }
 
     if (payout.status === "paid") {
-      return NextResponse.json({ error: "already processed" }, { status: 400 })
+      return NextResponse.json({ ok: true, message: "already processed" })
     }
 
     if (payout.amount <= 0) {
@@ -131,7 +156,6 @@ const userRole = profile?.role || "user"
     /* =========================
        💰 LEDGER (IDEMPOTENTE)
     ========================= */
-
     const { data: existingLedger } = await supabase
       .from("financial_ledger")
       .select("id")
@@ -178,7 +202,6 @@ const userRole = profile?.role || "user"
     /* =========================
        💰 WALLET (CONSISTENTE)
     ========================= */
-
     const { data: ledgerAfter } = await supabase
       .from("financial_ledger")
       .select("amount")
@@ -190,28 +213,16 @@ const userRole = profile?.role || "user"
       0
     )
 
-    const { error: walletError } = await supabase
+    await supabase
       .from("wallets")
       .update({
         balance: realBalanceAfter
       })
       .eq("user_email", campaign.user_email)
 
-    if (walletError) {
-      console.error("❌ wallet update error", walletError)
-
-      await logSystemEvent({
-        type: "wallet_error",
-        severity: "critical",
-        message: "Error sincronizando wallet",
-        metadata: { payout_id, walletError }
-      })
-    }
-
     /* =========================
        📦 PAYOUT
     ========================= */
-
     await supabase
       .from("payouts")
       .update({
@@ -223,7 +234,6 @@ const userRole = profile?.role || "user"
     /* =========================
        📧 NOTIFICACIÓN
     ========================= */
-
     await sendNotification({
       user_email: campaign.user_email,
       type: "payout_paid",
