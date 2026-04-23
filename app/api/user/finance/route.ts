@@ -1,45 +1,41 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
 import { logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
 
 export const runtime = "nodejs"
 
-export async function GET() {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function GET(req: Request) {
   try {
 
-    /* 🔐 AUTH REAL (NO service_role) */
-    const cookieStore = cookies()
+    /* =========================
+       🔐 AUTH (TU MODELO ORIGINAL)
+    ========================= */
 
-    const supabaseAuth = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set() {},
-          remove() {}
-        }
-      }
-    )
+    const authHeader = req.headers.get("authorization")
 
-    const { data: { user } } = await supabaseAuth.auth.getUser()
-
-    if (!user?.email) {
+    if (!authHeader) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.replace("Bearer ", "")
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+
+    if (userError || !user?.email) {
+      return NextResponse.json({ error: "invalid user" }, { status: 401 })
     }
 
     const user_email = user.email.toLowerCase()
 
-    /* 🔥 TU LÓGICA ORIGINAL (INTACTA) */
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    /* =========================
+       📊 CAMPAÑAS
+    ========================= */
 
     const { data: campaigns } = await supabase
       .from("campaigns")
@@ -61,34 +57,51 @@ export async function GET() {
       })
     }
 
+    /* =========================
+       💰 LEDGER
+    ========================= */
+
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
       .in("campaign_id", campaignIds)
       .eq("status", "confirmed")
 
+    /* =========================
+       🏦 PAYOUTS
+    ========================= */
+
     const { data: payouts } = await supabase
       .from("payouts")
       .select("*")
       .in("campaign_id", campaignIds)
 
-    /* 👇 TODO tu cálculo queda igual */
+    /* =========================
+       📊 TOTALES
+    ========================= */
 
-    const totalRaised = ledger?.filter(l => l.type === "payment")
+    const totalRaised = ledger
+      ?.filter(l => l.type === "payment")
       .reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
 
-    const totalFees = ledger?.filter(l =>
-      l.type === "fee_mp" || l.type === "fee_platform"
-    ).reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0) || 0
+    const totalFees = ledger
+      ?.filter(l => l.type === "fee_mp" || l.type === "fee_platform")
+      .reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0) || 0
 
     const totalBalance = ledger
       ?.reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
 
-    const totalWithdrawn = ledger?.filter(l => l.type === "withdraw")
+    const totalWithdrawn = ledger
+      ?.filter(l => l.type === "withdraw")
       .reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
 
-    const pendingAmount = payouts?.filter(p => p.status === "pending")
+    const pendingAmount = payouts
+      ?.filter(p => p.status === "pending")
       .reduce((sum, p) => sum + Number(p.amount || 0), 0) || 0
+
+    /* =========================
+       📊 POR CAMPAÑA
+    ========================= */
 
     const campaignsData = (campaigns || []).map(c => {
 
