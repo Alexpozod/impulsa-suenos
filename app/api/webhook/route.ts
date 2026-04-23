@@ -23,25 +23,51 @@ export async function POST(req: Request) {
 
     /* =========================
        🔐 VALIDACIÓN FIRMA (SAFE MODE)
-       ⚠️ No rompe si no tienes secret aún
     ========================= */
     const signature = req.headers.get("x-signature")
+    const requestId = req.headers.get("x-request-id")
+
     const rawBody = await req.text()
 
-    if (process.env.WEBHOOK_SECRET && signature) {
-      const expected = crypto
-        .createHmac("sha256", process.env.WEBHOOK_SECRET)
-        .update(rawBody)
-        .digest("hex")
+    if (process.env.WEBHOOK_SECRET && signature && requestId) {
 
-      if (signature !== expected) {
-        console.warn("⚠️ Invalid webhook signature")
+      try {
+        const parts = signature.split(",")
+
+        const ts = parts.find(p => p.startsWith("ts="))?.split("=")[1]
+        const hash = parts.find(p => p.startsWith("v1="))?.split("=")[1]
+
+        if (!ts || !hash) {
+          console.warn("⚠️ Invalid signature format")
+          return NextResponse.json({ ok: true })
+        }
+
+        const url = new URL(req.url)
+
+        const paymentId =
+          url.searchParams.get("data.id") ||
+          url.searchParams.get("id")
+
+        const manifest = `id:${paymentId};request-id:${requestId};ts:${ts};`
+
+        const expected = crypto
+          .createHmac("sha256", process.env.WEBHOOK_SECRET)
+          .update(manifest)
+          .digest("hex")
+
+        if (expected !== hash) {
+          console.warn("⚠️ Signature mismatch")
+          return NextResponse.json({ ok: true })
+        }
+
+      } catch (err) {
+        console.warn("⚠️ Signature validation error", err)
         return NextResponse.json({ ok: true })
       }
     }
 
     /* =========================
-       🔁 PARSE BODY (SIN ROMPER)
+       🔁 PARSE BODY
     ========================= */
     let body: any = {}
     try {
@@ -60,7 +86,7 @@ export async function POST(req: Request) {
     if (!paymentId) return NextResponse.json({ ok: true })
 
     /* =========================
-       🔁 IDEMPOTENCIA GLOBAL (WEBHOOK EVENT)
+       🔁 IDEMPOTENCIA GLOBAL
     ========================= */
     const eventId =
       req.headers.get("x-request-id") ||
@@ -122,6 +148,49 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       🛡️ ANTIFRAUDE (NO BLOQUEANTE)
+    ========================= */
+    try {
+
+      const timeWindow = new Date(Date.now() - 60 * 1000).toISOString()
+
+      const { data: recentPayments } = await supabase
+        .from("payments")
+        .select("id, amount, created_at")
+        .eq("user_email", payment.metadata?.user_email || payment.payer?.email)
+        .gte("created_at", timeWindow)
+
+      const count = recentPayments?.length || 0
+
+      if (count >= 5) {
+        await sendAlert({
+          title: "🚨 Posible fraude",
+          message: "Muchos pagos en corto tiempo",
+          data: {
+            user_email: payment.metadata?.user_email,
+            count,
+            paymentId
+          }
+        })
+      }
+
+      if (Number(payment.transaction_amount) > 500000) {
+        await sendAlert({
+          title: "🚨 Pago alto sospechoso",
+          message: "Monto elevado detectado",
+          data: {
+            user_email: payment.metadata?.user_email,
+            amount: payment.transaction_amount,
+            paymentId
+          }
+        })
+      }
+
+    } catch (err) {
+      console.warn("antifraud check failed", err)
+    }
+
+    /* =========================
        🔍 VALIDACIONES EXTRA
     ========================= */
     if (Number(payment.transaction_amount) <= 0) {
@@ -174,14 +243,14 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔐 LOCK (ANTI DUPLICADO)
+       🔐 LOCK
     ========================= */
     await supabase.rpc("advisory_lock", {
       lock_key: `payment_${paymentId}`
     })
 
     /* =========================
-       🧠 PROCESAMIENTO CENTRAL
+       🧠 PROCESAMIENTO
     ========================= */
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
@@ -216,7 +285,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       ✅ ACTUALIZAR ESTADO
+       ✅ STATUS
     ========================= */
     await supabase
       .from("payments")
@@ -224,7 +293,7 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
 
     /* =========================
-       🔔 NOTIFICACIÓN ATÓMICA
+       🔔 NOTIFICACIÓN
     ========================= */
     const { data: updated } = await supabase
       .from("payments")
@@ -246,7 +315,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📧 NOTIFICAR CAMPAÑA
+       📧 CAMPAÑA
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
@@ -266,7 +335,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔄 SYNC WALLET
+       🔄 WALLET
     ========================= */
     await syncWallet(user_email)
 
