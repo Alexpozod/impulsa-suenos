@@ -29,6 +29,7 @@ export async function GET(request: Request) {
       .select("amount, campaign_id")
       .eq("payment_id", payment_id)
       .eq("type", "payment")
+      .eq("status", "confirmed") // 🔥 IMPORTANTE
       .maybeSingle()
 
     if (error) {
@@ -41,12 +42,13 @@ export async function GET(request: Request) {
     }
 
     /* =========================
-       📦 CAMPAÑA
+       📦 CAMPAÑA (SOLO DATOS PÚBLICOS)
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("id, title")
       .eq("id", payment.campaign_id)
+      .eq("status", "active") // 🔥 evita campañas ocultas
       .maybeSingle()
 
     return NextResponse.json({

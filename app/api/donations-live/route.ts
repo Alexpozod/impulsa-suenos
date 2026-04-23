@@ -15,37 +15,46 @@ export async function GET(req: Request) {
     const campaign_id = searchParams.get("campaign_id")
 
     /* =========================
-       🔐 FIX SEGURIDAD (CRÍTICO)
+       🔐 SEGURIDAD
     ========================= */
     if (!campaign_id) {
       return NextResponse.json([], { status: 200 })
     }
 
-    let query = supabase
+    const { data, error } = await supabase
       .from("financial_ledger")
       .select(`
         id,
         amount,
         created_at,
         campaign_id,
-        user_email,
         metadata,
         payment_id
-      `)
+      `) // ❌ user_email eliminado
       .eq("type", "payment")
       .eq("status", "confirmed")
-      .eq("campaign_id", campaign_id) // 🔥 FORZADO
+      .eq("campaign_id", campaign_id)
       .order("created_at", { ascending: false })
       .limit(10)
-
-    const { data, error } = await query
 
     if (error) {
       console.error("Donations fetch error:", error)
       return NextResponse.json([], { status: 200 })
     }
 
-    return NextResponse.json(data || [])
+    /* =========================
+       🧠 ANONIMIZAR
+    ========================= */
+    const safe = (data || []).map((d) => ({
+      id: d.id,
+      amount: d.amount,
+      created_at: d.created_at,
+      campaign_id: d.campaign_id,
+      message: d.metadata?.message || "",
+      payment_id: d.payment_id
+    }))
+
+    return NextResponse.json(safe)
 
   } catch (error) {
     console.error("API error:", error)
