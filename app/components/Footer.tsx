@@ -40,6 +40,8 @@ export default function Footer() {
             <li><Link href="/terms">Términos y condiciones</Link></li>
             <li><Link href="/privacy">Política de privacidad</Link></li>
             <li><Link href="/cookies">Política de cookies</Link></li>
+            <Link href="/aml-kyc">AML / KYC</Link>
+            <Link href="/pagos-retiros">Pagos y Retiros</Link>
           </ul>
         </div>
 
@@ -60,6 +62,15 @@ export default function Footer() {
       <div className="border-t border-gray-800 text-center text-xs py-4 text-gray-500">
         © {new Date().getFullYear()} ImpulsaSueños — Todos los derechos reservados
       </div>
+
+{/* 🔒 AVISO LEGAL */}
+<div className="mt-10 border-t pt-6 text-center">
+  <p className="text-xs text-gray-400 max-w-xl mx-auto leading-relaxed">
+    ImpulsaSueños es una plataforma de intermediación tecnológica. 
+    Los aportes realizados no constituyen donaciones legales ni generan beneficios tributarios. 
+    Cada creador de campaña es responsable por el uso de los fondos recibidos.
+  </p>
+</div>
 
     </footer>
   )
