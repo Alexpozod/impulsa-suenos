@@ -16,6 +16,9 @@ export default function DonationBox({
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
+  // 🔐 NUEVO
+  const [acceptedLegal, setAcceptedLegal] = useState(false)
+
   const router = useRouter()
   const presets = [2000, 5000, 10000, 20000]
 
@@ -37,6 +40,12 @@ export default function DonationBox({
   const donate = async () => {
 
     console.log("CLICK DONAR")
+
+    // 🚨 VALIDACIÓN LEGAL (CRÍTICA)
+    if (!acceptedLegal) {
+      alert("Debes aceptar los términos antes de continuar")
+      return
+    }
 
     if (!amount || amount < 100) {
       alert("Monto mínimo $100")
@@ -60,6 +69,24 @@ export default function DonationBox({
 
       setLoading(true)
 
+      // 🔐 LOG LEGAL (NO BLOQUEA UX)
+      try {
+        fetch("/api/legal-consent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            type: "donation_ack",
+            accepted: true,
+            version: "v1.0",
+            email: userEmail
+          })
+        })
+      } catch (err) {
+        console.error("Consent error", err)
+      }
+
       const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: {
@@ -71,7 +98,7 @@ export default function DonationBox({
           campaign_id,
           user_email: userEmail,
           message,
-          provider: "mercadopago" // 🔥 FIX CRÍTICO
+          provider: "mercadopago"
         })
       })
 
@@ -123,6 +150,7 @@ export default function DonationBox({
         ⚡ Cada aporte ayuda a lograr la meta más rápido
       </p>
 
+      {/* PRESETS */}
       <div className="grid grid-cols-4 gap-2">
         {presets.map(p => (
           <button
@@ -140,6 +168,7 @@ export default function DonationBox({
         ))}
       </div>
 
+      {/* INPUT */}
       <input
         type="number"
         value={amount}
@@ -147,6 +176,7 @@ export default function DonationBox({
         className="w-full border p-2 rounded-lg"
       />
 
+      {/* MENSAJE */}
       <textarea
         placeholder="Deja un mensaje de apoyo (opcional)"
         value={message}
@@ -154,8 +184,8 @@ export default function DonationBox({
         className="w-full border p-3 rounded-lg text-sm"
       />
 
+      {/* TIP */}
       <div className="bg-gray-50 p-3 rounded-xl">
-
         <p className="text-sm font-semibold">
           💚 Apoya ImpulsaSueños (opcional)
         </p>
@@ -176,9 +206,9 @@ export default function DonationBox({
             </button>
           ))}
         </div>
-
       </div>
 
+      {/* TOTAL */}
       <div className="text-center">
         <p className="text-sm text-gray-500">Total</p>
         <p className="text-2xl font-bold text-green-600">
@@ -186,6 +216,18 @@ export default function DonationBox({
         </p>
       </div>
 
+      {/* 🔐 CHECK LEGAL */}
+      <label className="flex items-start gap-2 text-xs text-gray-500">
+        <input
+          type="checkbox"
+          checked={acceptedLegal}
+          onChange={(e) => setAcceptedLegal(e.target.checked)}
+        />
+        Acepto los{" "}
+        <a href="/terminos" className="underline">Términos</a> y reconozco que los aportes no constituyen donaciones legales.
+      </label>
+
+      {/* BOTÓN */}
       <button
         onClick={donate}
         disabled={loading}

@@ -23,14 +23,37 @@ export default function CookieBanner() {
     }
   }, [])
 
-  const savePreferences = (preferences: Preferences) => {
+  /* =========================
+     💾 SAVE + COMPLIANCE
+  ========================= */
+  const savePreferences = async (preferences: Preferences) => {
+
     localStorage.setItem("cookie_preferences", JSON.stringify(preferences))
+
     setVisible(false)
     setShowSettings(false)
 
-    // 👉 AQUÍ ACTIVAS ANALYTICS FUTURO
+    try {
+      // 🔐 REGISTRO LEGAL (NO BLOQUEA UX)
+      fetch("/api/legal-consent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          type: "cookies",
+          accepted: true,
+          version: "v1.0"
+        })
+      })
+    } catch (err) {
+      console.error("Consent log error", err)
+    }
+
+    // 📊 FUTURO ANALYTICS
     if (preferences.analytics) {
       console.log("📊 Analytics activado")
+      // aquí luego puedes cargar GA / PostHog
     }
   }
 

@@ -72,7 +72,9 @@ export default function Login() {
     checkSession()
   }, [redirect])
 
-  /* 🔐 LOGIN */
+  /* =========================
+     🔐 LOGIN
+  ========================= */
   const signIn = async () => {
     setLoading(true)
     setMessage('')
@@ -85,26 +87,15 @@ export default function Login() {
     if (error) {
       setMessage("❌ " + error.message)
     } else {
-
-      // 🚀 EMAIL BIENVENIDA (NO BLOQUEA LOGIN)
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          type: "welcome",
-          email
-        })
-      })
-
       await handlePostLoginRedirect()
     }
 
     setLoading(false)
   }
 
-  /* 🆕 REGISTER */
+  /* =========================
+     🆕 REGISTER (CON COMPLIANCE)
+  ========================= */
   const signUp = async () => {
     setLoading(true)
     setMessage('')
@@ -120,13 +111,50 @@ export default function Login() {
     if (error) {
       setMessage(error.message)
     } else {
+
+      // 🔐 REGISTRO LEGAL
+      try {
+        fetch("/api/legal-consent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            type: "terms",
+            accepted: true,
+            version: "v1.0",
+            email
+          })
+        })
+      } catch (err) {
+        console.error("Consent error", err)
+      }
+
+      // 📩 EMAIL BIENVENIDA
+      try {
+        fetch("/api/send-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            type: "welcome",
+            email
+          })
+        })
+      } catch (err) {
+        console.error("Email error", err)
+      }
+
       setMessage("📩 Revisa tu correo para confirmar tu cuenta")
     }
 
     setLoading(false)
   }
 
-  /* 🔐 GOOGLE */
+  /* =========================
+     🔐 GOOGLE
+  ========================= */
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -203,6 +231,13 @@ export default function Login() {
         >
           Crear cuenta
         </button>
+
+        {/* LEGAL */}
+        <p className="text-xs text-gray-400 text-center mt-4">
+          Al continuar aceptas nuestros{" "}
+          <a href="/terminos" className="underline">Términos</a> y{" "}
+          <a href="/privacidad" className="underline">Política de Privacidad</a>.
+        </p>
 
         {/* MESSAGE */}
         {message && (
