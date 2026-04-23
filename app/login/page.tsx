@@ -94,7 +94,7 @@ export default function Login() {
   }
 
   /* =========================
-     🆕 REGISTER (CON COMPLIANCE)
+     🆕 REGISTER
   ========================= */
   const signUp = async () => {
     setLoading(true)
@@ -113,38 +113,30 @@ export default function Login() {
     } else {
 
       // 🔐 REGISTRO LEGAL
-      try {
-        fetch("/api/legal-consent", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            type: "terms",
-            accepted: true,
-            version: "v1.0",
-            email
-          })
+      fetch("/api/legal-consent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          type: "terms",
+          accepted: true,
+          version: "v1.0",
+          email
         })
-      } catch (err) {
-        console.error("Consent error", err)
-      }
+      }).catch(() => {})
 
       // 📩 EMAIL BIENVENIDA
-      try {
-        fetch("/api/send-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            type: "welcome",
-            email
-          })
+      fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          type: "welcome",
+          email
         })
-      } catch (err) {
-        console.error("Email error", err)
-      }
+      }).catch(() => {})
 
       setMessage("📩 Revisa tu correo para confirmar tu cuenta")
     }
@@ -209,10 +201,20 @@ export default function Login() {
         <input
           type="password"
           placeholder="Contraseña"
-          className="w-full border p-3 mb-4 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+          className="w-full border p-3 mb-2 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+
+        {/* 🔥 RECOVER PASSWORD */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => window.location.href = "/recover"}
+            className="text-sm text-green-600 hover:underline"
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
+        </div>
 
         {/* LOGIN */}
         <button
