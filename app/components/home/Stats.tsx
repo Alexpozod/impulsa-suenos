@@ -1,67 +1,37 @@
 'use client'
 
 import { motion } from "framer-motion"
-import { useEffect, useState } from "react"
 
 /* =========================
-   🔢 COUNTER PRO (TIPO STRIPE)
+   🚀 STATS (FASE LANZAMIENTO)
 ========================= */
-function Counter({ value }: { value: number }) {
-  const [count, setCount] = useState(0)
-
-  useEffect(() => {
-    let start = 0
-    const duration = 1200
-    const increment = value / (duration / 16)
-
-    const timer = setInterval(() => {
-      start += increment
-
-      if (start >= value) {
-        setCount(value)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(start))
-      }
-    }, 16)
-
-    return () => clearInterval(timer)
-  }, [value])
-
-  return <>{count.toLocaleString()}</>
-}
-
 export default function Stats() {
 
   const stats = [
     {
-      value: 2400000,
-      prefix: "$",
-      suffix: "+",
-      label: "Total recaudado",
-      desc: "En donaciones verificadas"
+      icon: "🚀",
+      title: "Plataforma en crecimiento",
+      desc: "Nuevas campañas activándose progresivamente"
     },
     {
-      value: 1850,
-      suffix: "+",
-      label: "Campañas activas",
-      desc: "Historias que necesitan apoyo"
+      icon: "✔",
+      title: "Campañas verificadas",
+      desc: "Revisión manual antes de publicación"
     },
     {
-      value: 12000,
-      suffix: "+",
-      label: "Personas ayudadas",
-      desc: "Vidas transformadas"
+      icon: "💚",
+      title: "Impacto real",
+      desc: "Primeras historias ya están en marcha"
     },
     {
-      value: 15,
-      label: "Países",
-      desc: "Impacto en Latinoamérica"
+      icon: "🌍",
+      title: "Expansión global",
+      desc: "Disponible en múltiples países"
     }
   ]
 
   return (
-    <section className="py-18 px-6">
+    <section className="py-20 px-6 bg-gray-50">
 
       <div className="max-w-7xl mx-auto">
 
@@ -72,12 +42,17 @@ export default function Stats() {
           </p>
 
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Números que cuentan historias
+            Primeras historias que comienzan a cambiar vidas
           </h2>
+
+          <p className="text-gray-500 mt-4 max-w-2xl mx-auto">
+            Estamos en fase inicial, construyendo una plataforma segura,
+            transparente y enfocada en generar impacto real.
+          </p>
         </div>
 
         {/* CARDS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
 
           {stats.map((s, i) => (
             <motion.div
@@ -89,17 +64,18 @@ export default function Stats() {
               className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300"
             >
 
-              <p className="text-3xl font-extrabold text-green-600 mb-2">
-                {s.prefix || ""}
-                <Counter value={s.value} />
-                {s.suffix || ""}
+              {/* ICON */}
+              <div className="text-3xl mb-3">
+                {s.icon}
+              </div>
+
+              {/* TITLE */}
+              <p className="font-semibold text-gray-800 mb-1">
+                {s.title}
               </p>
 
-              <p className="font-semibold text-gray-800">
-                {s.label}
-              </p>
-
-              <p className="text-sm text-gray-500 mt-1">
+              {/* DESC */}
+              <p className="text-sm text-gray-500">
                 {s.desc}
               </p>
 
