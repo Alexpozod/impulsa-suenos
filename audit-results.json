@@ -1,0 +1,357 @@
+[
+  {
+    "file": "app/account/bank/page.tsx",
+    "service_role": false,
+    "queries": 4
+  },
+  {
+    "file": "app/account/page.tsx",
+    "service_role": false,
+    "queries": 2
+  },
+  {
+    "file": "app/account/withdraw/page.tsx",
+    "service_role": false,
+    "queries": 1
+  },
+  {
+    "file": "app/admin/campaign/[id]/page.tsx",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/admin/earnings/page.tsx",
+    "service_role": false,
+    "queries": 1
+  },
+  {
+    "file": "app/admin/kyc/page.tsx",
+    "service_role": false,
+    "queries": 2
+  },
+  {
+    "file": "app/admin/withdrawals/page.tsx",
+    "service_role": false,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/alerts/resolve/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/alerts/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/campaign-balances/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/campaign-profit/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/admin/campaign-updates/route.ts",
+    "service_role": true,
+    "queries": 7
+  },
+  {
+    "file": "app/api/admin/campaigns/manage/route.ts",
+    "service_role": true,
+    "queries": 4
+  },
+  {
+    "file": "app/api/admin/campaigns/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/admin/events/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/export/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/export-campaign/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/export-campaign-pdf/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/finance/route.ts",
+    "service_role": true,
+    "queries": 5
+  },
+  {
+    "file": "app/api/admin/fraud/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/kyc/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/admin/payments/route.ts",
+    "service_role": true,
+    "queries": 4
+  },
+  {
+    "file": "app/api/admin/payouts/route.ts",
+    "service_role": true,
+    "queries": 3
+  },
+  {
+    "file": "app/api/admin/reconcile/auto/route.ts",
+    "service_role": true,
+    "queries": 6
+  },
+  {
+    "file": "app/api/admin/reconcile/route.ts",
+    "service_role": true,
+    "queries": 5
+  },
+  {
+    "file": "app/api/admin/release-funds/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/admin/risk/route.ts",
+    "service_role": true,
+    "queries": 3
+  },
+  {
+    "file": "app/api/admin/settings/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/admin/top-campaigns/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/admin/user-risk/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/users/create/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/users/route.ts",
+    "service_role": true,
+    "queries": 3
+  },
+  {
+    "file": "app/api/admin/users/update-role/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/wallets/distribution/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/admin/wallets/fix/route.ts",
+    "service_role": true,
+    "queries": 3
+  },
+  {
+    "file": "app/api/admin/wallets/reconcile/route.ts",
+    "service_role": true,
+    "queries": 4
+  },
+  {
+    "file": "app/api/admin/wallets/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/admin/wallets/users/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/audit-log/list/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/audit-log/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/campaign/[id]/route.ts",
+    "service_role": true,
+    "queries": 4
+  },
+  {
+    "file": "app/api/campaign/create/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/campaign/update/route.ts",
+    "service_role": true,
+    "queries": 3
+  },
+  {
+    "file": "app/api/campaign-updates/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/campaign-wallet/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/campaigns/enriched/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/campaigns/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/create-payment/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/create-wallet/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/donations-live/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/ledger/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/legal-consent/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/notifications/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/otp/send/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/otp/verify/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/payment-info/route.ts",
+    "service_role": true,
+    "queries": 2
+  },
+  {
+    "file": "app/api/payout/approve/route.ts",
+    "service_role": true,
+    "queries": 9
+  },
+  {
+    "file": "app/api/payout/list/route.ts",
+    "service_role": true,
+    "queries": 3
+  },
+  {
+    "file": "app/api/payout/reject/route.ts",
+    "service_role": true,
+    "queries": 6
+  },
+  {
+    "file": "app/api/payout/request/route.ts",
+    "service_role": true,
+    "queries": 7
+  },
+  {
+    "file": "app/api/refund/route.ts",
+    "service_role": true,
+    "queries": 0
+  },
+  {
+    "file": "app/api/system-events/list/route.ts",
+    "service_role": true,
+    "queries": 1
+  },
+  {
+    "file": "app/api/upload/route.ts",
+    "service_role": true,
+    "queries": 3
+  },
+  {
+    "file": "app/api/user/finance/route.ts",
+    "service_role": true,
+    "queries": 3
+  },
+  {
+    "file": "app/api/webhook/route.ts",
+    "service_role": true,
+    "queries": 9
+  },
+  {
+    "file": "app/campaign/edit/[id]/page.tsx",
+    "service_role": false,
+    "queries": 2
+  },
+  {
+    "file": "app/components/ImageUploader.tsx",
+    "service_role": false,
+    "queries": 1
+  },
+  {
+    "file": "app/create/page.tsx",
+    "service_role": false,
+    "queries": 4
+  },
+  {
+    "file": "app/dashboard/edit/[id]/page.tsx",
+    "service_role": false,
+    "queries": 4
+  },
+  {
+    "file": "app/kyc/page.tsx",
+    "service_role": false,
+    "queries": 2
+  },
+  {
+    "file": "app/login/page.tsx",
+    "service_role": false,
+    "queries": 1
+  }
+]
