@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   try {
 
     /* =========================
-       🔐 VALIDACIÓN FIRMA (SAFE MODE)
+       🔐 VALIDACIÓN FIRMA
     ========================= */
     const signature = req.headers.get("x-signature")
     const requestId = req.headers.get("x-request-id")
@@ -37,7 +37,6 @@ export async function POST(req: Request) {
         const hash = parts.find(p => p.startsWith("v1="))?.split("=")[1]
 
         if (!ts || !hash) {
-          console.warn("⚠️ Invalid signature format")
           return NextResponse.json({ ok: true })
         }
 
@@ -55,18 +54,16 @@ export async function POST(req: Request) {
           .digest("hex")
 
         if (expected !== hash) {
-          console.warn("⚠️ Signature mismatch")
           return NextResponse.json({ ok: true })
         }
 
-      } catch (err) {
-        console.warn("⚠️ Signature validation error", err)
+      } catch {
         return NextResponse.json({ ok: true })
       }
     }
 
     /* =========================
-       🔁 PARSE BODY
+       🔁 BODY
     ========================= */
     let body: any = {}
     try {
@@ -85,12 +82,9 @@ export async function POST(req: Request) {
     if (!paymentId) return NextResponse.json({ ok: true })
 
     /* =========================
-       🔁 IDEMPOTENCIA GLOBAL
+       🔥 IDEMPOTENCIA FIJA (FIX)
     ========================= */
-    const eventId =
-      req.headers.get("x-request-id") ||
-      req.headers.get("x-event-id") ||
-      `mp_${paymentId}`
+    const eventId = `mp_${paymentId}`
 
     const { data: existingEvent } = await supabase
       .from("webhook_events")
@@ -102,14 +96,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    await supabase.from("webhook_events").insert({
-      event_id: eventId,
-      payload: body,
-      created_at: new Date().toISOString()
-    })
+    const { error: eventError } = await supabase
+      .from("webhook_events")
+      .insert({
+        event_id: eventId,
+        payload: body,
+        created_at: new Date().toISOString()
+      })
+
+    if (eventError) {
+      console.error("❌ webhook_events error:", eventError)
+    }
 
     /* =========================
-       🧾 LOG INICIAL
+       🧾 LOG
     ========================= */
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
@@ -137,8 +137,7 @@ export async function POST(req: Request) {
 
     try {
       payment = await paymentClient.get({ id: paymentId })
-    } catch (error) {
-      console.warn("⚠️ Payment not found yet:", paymentId)
+    } catch {
       return NextResponse.json({ ok: true })
     }
 
@@ -176,7 +175,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       📝 REGISTRO PREVIO
+       📝 PAYMENT LOG
     ========================= */
     if (!existingPayment) {
       await supabase.from("payments").insert({
@@ -199,10 +198,8 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🧠 CÁLCULOS FINANCIEROS (FIX REAL)
+       🧠 CÁLCULOS
     ========================= */
-
-    // 🔥 comisión real MP (fallback si no viene)
     let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
     if (!fee_mp) {
@@ -211,12 +208,12 @@ export async function POST(req: Request) {
     }
 
     const PLATFORM_FIXED = 300
-    const PLATFORM_PERCENT = 0.01 // listo para escalar
+    const PLATFORM_PERCENT = 0.01
 
     /* =========================
-       🧠 RPC NUEVO
+       🧠 RPC
     ========================= */
-    const { error } = await supabase.rpc("process_payment_atomic", {
+    const { data: rpcResult, error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
@@ -227,6 +224,8 @@ export async function POST(req: Request) {
       p_platform_percent: PLATFORM_PERCENT,
       p_provider: "mercadopago"
     })
+
+    console.log("🧠 RPC RESULT:", rpcResult)
 
     if (error) {
       console.error("RPC ERROR:", error)
@@ -240,12 +239,6 @@ export async function POST(req: Request) {
         title: "Error en RPC",
         message: "Fallo process_payment_atomic",
         data: { paymentId, error }
-      })
-
-      await supabase.from("webhook_logs").insert({
-        payment_id: paymentId,
-        payload: { error },
-        status: "failed"
       })
 
       return NextResponse.json({ ok: true })
