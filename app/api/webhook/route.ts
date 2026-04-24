@@ -1,3 +1,5 @@
+console.log("🔥 WEBHOOK HIT")
+
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
@@ -23,50 +25,13 @@ export async function POST(req: Request) {
 
     console.log("🔥 WEBHOOK HIT")
 
-    /* =========================
-       🔐 VALIDACIÓN FIRMA (NO BLOQUEANTE)
-    ========================= */
-    const signature = req.headers.get("x-signature")
-    const requestId = req.headers.get("x-request-id")
-
     const rawBody = await req.text()
-
-    if (process.env.WEBHOOK_SECRET && signature && requestId) {
-      try {
-        const parts = signature.split(",")
-
-        const ts = parts.find(p => p.startsWith("ts="))?.split("=")[1]
-        const hash = parts.find(p => p.startsWith("v1="))?.split("=")[1]
-
-        const url = new URL(req.url)
-
-        const paymentId =
-          url.searchParams.get("data.id") ||
-          url.searchParams.get("id")
-
-        const manifest = `id:${paymentId};request-id:${requestId};ts:${ts};`
-
-        const expected = crypto
-          .createHmac("sha256", process.env.WEBHOOK_SECRET!)
-          .update(manifest)
-          .digest("hex")
-
-        if (expected !== hash) {
-          console.warn("⚠️ signature mismatch (IGNORED)")
-        }
-
-      } catch (err) {
-        console.warn("⚠️ signature error (IGNORED)", err)
-      }
-    }
 
     /* =========================
        🔁 BODY
     ========================= */
     let body: any = {}
-    try {
-      body = JSON.parse(rawBody)
-    } catch {}
+    try { body = JSON.parse(rawBody) } catch {}
 
     const url = new URL(req.url)
 
@@ -77,12 +42,12 @@ export async function POST(req: Request) {
       body?.id ||
       null
 
-    console.log("🆔 PAYMENT ID:", paymentId)
-
     if (!paymentId) return NextResponse.json({ ok: true })
 
+    console.log("🆔 PAYMENT ID:", paymentId)
+
     /* =========================
-       🔁 IDEMPOTENCIA EVENTO
+       🔁 IDEMPOTENCIA
     ========================= */
     const eventId = `mp_${paymentId}`
 
@@ -104,52 +69,30 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🧾 LOG INICIAL
-    ========================= */
-    await supabase.from("webhook_logs").insert({
-      payment_id: paymentId,
-      payload: { received: true },
-      status: "received"
-    })
-
-    /* =========================
-       🔒 IDEMPOTENCIA PAYMENT
-    ========================= */
-    const { data: existingPayment } = await supabase
-      .from("payments")
-      .select("*")
-      .eq("payment_id", paymentId)
-      .maybeSingle()
-
-    if (existingPayment?.status === "approved") {
-      console.log("⚠️ PAYMENT YA PROCESADO")
-      return NextResponse.json({ ok: true })
-    }
-
-    /* =========================
        💳 GET PAYMENT
     ========================= */
     let payment
 
     try {
       payment = await paymentClient.get({ id: paymentId })
-    } catch (err) {
-      console.warn("⚠️ MP aún no disponible", err)
+    } catch {
       return NextResponse.json({ ok: true })
     }
 
-    console.log("💰 PAYMENT STATUS:", payment?.status)
-
     if (!payment || payment.status !== "approved") {
-      console.log("⏳ PAYMENT NO APROBADO AÚN")
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       🔍 VALIDACIONES
+       🔥 NORMALIZACIÓN CORRECTA
     ========================= */
-    if (Number(payment.transaction_amount) <= 0) {
-      console.warn("⚠️ MONTO INVALIDO")
+    const total = Number(payment.transaction_amount || 0)
+    const tip = Number(payment.metadata?.tip || 0)
+
+    const donation = total - tip
+
+    if (donation <= 0) {
+      console.warn("⚠️ donation inválida")
       return NextResponse.json({ ok: true })
     }
 
@@ -158,42 +101,41 @@ export async function POST(req: Request) {
       payment.metadata?.user_email ||
       payment.payer?.email
 
-    console.log("📦 CAMPAIGN:", campaign_id)
-    console.log("👤 USER:", user_email)
-
     if (!campaign_id || !user_email) {
-      console.warn("⚠️ metadata incompleta")
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       💰 NORMALIZACIÓN
+       💰 FEES (SOBRE DONATION)
     ========================= */
-    const gross = Number(payment.transaction_amount || 0)
-    const tip = Number(payment.metadata?.tip || 0)
+    let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
-    const metadata = {
-      message: payment.metadata?.message || "",
-      tip,
-      gross,
-      amount: gross - tip
+    if (!fee_mp) {
+      const MP_PERCENT = 0.0415
+      fee_mp = Math.round(donation * MP_PERCENT)
     }
+
+    const PLATFORM_FIXED = 300
+    const PLATFORM_PERCENT = 0.01
+
+    console.log("🧮 CALC:", { donation, tip, fee_mp })
 
     /* =========================
        📝 PAYMENT LOG
     ========================= */
-    if (!existingPayment) {
-      await supabase.from("payments").insert({
-        payment_id: paymentId,
-        campaign_id,
-        user_email,
-        amount: gross,
-        tip,
-        status: "processing",
-        metadata,
-        notified: false
-      })
-    }
+    await supabase.from("payments").upsert({
+      payment_id: paymentId,
+      campaign_id,
+      user_email,
+      amount: donation, // 🔥 SOLO DONACIÓN
+      tip,
+      status: "approved",
+      metadata: {
+        total,
+        donation,
+        tip
+      }
+    })
 
     /* =========================
        🔐 LOCK
@@ -203,28 +145,13 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🧠 CÁLCULOS
+       🧠 RPC CORRECTO
     ========================= */
-    let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
-
-    if (!fee_mp) {
-      const MP_PERCENT = 0.0415
-      fee_mp = Math.round(gross * MP_PERCENT)
-    }
-
-    const PLATFORM_FIXED = 300
-    const PLATFORM_PERCENT = 0.01
-
-    console.log("🧮 CALC:", { gross, fee_mp, tip })
-
-    /* =========================
-       🧠 RPC
-    ========================= */
-    const { data: rpcResult, error } = await supabase.rpc("process_payment_atomic", {
+    const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
-      p_amount: gross,
+      p_amount: donation, // 🔥 FIX CRÍTICO
       p_fee_mp: fee_mp,
       p_tip: tip,
       p_platform_fixed: PLATFORM_FIXED,
@@ -232,15 +159,8 @@ export async function POST(req: Request) {
       p_provider: "mercadopago"
     })
 
-    console.log("🧠 RPC RESULT:", rpcResult)
-
     if (error) {
       console.error("❌ RPC ERROR:", error)
-
-      await supabase
-        .from("payments")
-        .update({ status: "failed" })
-        .eq("payment_id", paymentId)
 
       await sendAlert({
         title: "Error en RPC",
@@ -252,48 +172,20 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       ✅ STATUS
-    ========================= */
-    await supabase
-      .from("payments")
-      .update({ status: "approved" })
-      .eq("payment_id", paymentId)
-
-    /* =========================
        🔔 NOTIFICACIÓN
     ========================= */
-    const { data: updated } = await supabase
-      .from("payments")
-      .update({ notified: true })
-      .eq("payment_id", paymentId)
-      .eq("notified", false)
-      .select()
-      .maybeSingle()
-
-    if (updated) {
-      await sendNotification({
-        user_email,
-        type: "donation",
-        title: "Donación recibida",
-        message: `Recibiste $${gross - tip}`,
-        metadata,
-        sendEmail: true
-      })
-    }
+    await sendNotification({
+      user_email,
+      type: "donation",
+      title: "Donación recibida",
+      message: `Recibiste $${donation}`,
+      sendEmail: true
+    })
 
     /* =========================
        🔄 WALLET
     ========================= */
     await syncWallet(user_email)
-
-    /* =========================
-       🧾 LOG FINAL
-    ========================= */
-    await supabase.from("webhook_logs").insert({
-      payment_id: paymentId,
-      payload: { success: true },
-      status: "approved"
-    })
 
     console.log("✅ PAYMENT PROCESADO")
 
