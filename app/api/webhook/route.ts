@@ -147,7 +147,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔍 VALIDACIONES EXTRA
+       🔍 VALIDACIONES
     ========================= */
     if (Number(payment.transaction_amount) <= 0) {
       return NextResponse.json({ ok: true })
@@ -199,19 +199,32 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🧠 PROCESAMIENTO (FIX REAL)
+       🧠 CÁLCULOS FINANCIEROS (FIX REAL)
     ========================= */
 
-    const fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
-    const platform_fee = Number(tip || 0)
+    // 🔥 comisión real MP (fallback si no viene)
+    let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
+    if (!fee_mp) {
+      const MP_PERCENT = 0.0415
+      fee_mp = Math.round(gross * MP_PERCENT)
+    }
+
+    const PLATFORM_FIXED = 300
+    const PLATFORM_PERCENT = 0.01 // listo para escalar
+
+    /* =========================
+       🧠 RPC NUEVO
+    ========================= */
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
       p_amount: gross,
       p_fee_mp: fee_mp,
-      p_platform_fee: platform_fee,
+      p_tip: tip,
+      p_platform_fixed: PLATFORM_FIXED,
+      p_platform_percent: PLATFORM_PERCENT,
       p_provider: "mercadopago"
     })
 
@@ -227,6 +240,12 @@ export async function POST(req: Request) {
         title: "Error en RPC",
         message: "Fallo process_payment_atomic",
         data: { paymentId, error }
+      })
+
+      await supabase.from("webhook_logs").insert({
+        payment_id: paymentId,
+        payload: { error },
+        status: "failed"
       })
 
       return NextResponse.json({ ok: true })
