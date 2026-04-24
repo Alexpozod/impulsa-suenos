@@ -3,7 +3,6 @@ console.log("🔥 WEBHOOK HIT")
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
-import crypto from "crypto"
 
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { sendNotification } from "@/lib/notifications/sendNotification"
@@ -47,7 +46,7 @@ export async function POST(req: Request) {
     console.log("🆔 PAYMENT ID:", paymentId)
 
     /* =========================
-       🔁 IDEMPOTENCIA
+       🔁 IDEMPOTENCIA EVENTO
     ========================= */
     const eventId = `mp_${paymentId}`
 
@@ -69,6 +68,29 @@ export async function POST(req: Request) {
     })
 
     /* =========================
+       🧾 LOG INICIAL
+    ========================= */
+    await supabase.from("webhook_logs").insert({
+      payment_id: paymentId,
+      payload: { received: true },
+      status: "received"
+    })
+
+    /* =========================
+       🔒 IDEMPOTENCIA PAYMENT
+    ========================= */
+    const { data: existingPayment } = await supabase
+      .from("payments")
+      .select("*")
+      .eq("payment_id", paymentId)
+      .maybeSingle()
+
+    if (existingPayment?.status === "approved") {
+      console.log("⚠️ PAYMENT YA PROCESADO")
+      return NextResponse.json({ ok: true })
+    }
+
+    /* =========================
        💳 GET PAYMENT
     ========================= */
     let payment
@@ -76,10 +98,12 @@ export async function POST(req: Request) {
     try {
       payment = await paymentClient.get({ id: paymentId })
     } catch {
+      console.warn("⚠️ MP no disponible aún")
       return NextResponse.json({ ok: true })
     }
 
     if (!payment || payment.status !== "approved") {
+      console.log("⏳ PAYMENT NO APROBADO")
       return NextResponse.json({ ok: true })
     }
 
@@ -88,7 +112,6 @@ export async function POST(req: Request) {
     ========================= */
     const total = Number(payment.transaction_amount || 0)
     const tip = Number(payment.metadata?.tip || 0)
-
     const donation = total - tip
 
     if (donation <= 0) {
@@ -102,6 +125,7 @@ export async function POST(req: Request) {
       payment.payer?.email
 
     if (!campaign_id || !user_email) {
+      console.warn("⚠️ metadata incompleta")
       return NextResponse.json({ ok: true })
     }
 
@@ -121,21 +145,24 @@ export async function POST(req: Request) {
     console.log("🧮 CALC:", { donation, tip, fee_mp })
 
     /* =========================
-       📝 PAYMENT LOG
+       📝 REGISTRO PREVIO
     ========================= */
-    await supabase.from("payments").upsert({
-      payment_id: paymentId,
-      campaign_id,
-      user_email,
-      amount: donation, // 🔥 SOLO DONACIÓN
-      tip,
-      status: "approved",
-      metadata: {
-        total,
-        donation,
-        tip
-      }
-    })
+    if (!existingPayment) {
+      await supabase.from("payments").insert({
+        payment_id: paymentId,
+        campaign_id,
+        user_email,
+        amount: donation,
+        tip,
+        status: "processing",
+        metadata: {
+          total,
+          donation,
+          tip
+        },
+        notified: false
+      })
+    }
 
     /* =========================
        🔐 LOCK
@@ -145,13 +172,13 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🧠 RPC CORRECTO
+       🧠 RPC
     ========================= */
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
-      p_amount: donation, // 🔥 FIX CRÍTICO
+      p_amount: donation,
       p_fee_mp: fee_mp,
       p_tip: tip,
       p_platform_fixed: PLATFORM_FIXED,
@@ -162,36 +189,75 @@ export async function POST(req: Request) {
     if (error) {
       console.error("❌ RPC ERROR:", error)
 
+      await supabase
+        .from("payments")
+        .update({ status: "failed" })
+        .eq("payment_id", paymentId)
+
       await sendAlert({
         title: "Error en RPC",
         message: "Fallo process_payment_atomic",
         data: { paymentId, error }
       })
 
+      await supabase.from("webhook_logs").insert({
+        payment_id: paymentId,
+        payload: { error },
+        status: "failed"
+      })
+
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-       🔔 NOTIFICACIÓN
+       ✅ STATUS FINAL
     ========================= */
-    await sendNotification({
-      user_email,
-      type: "donation",
-      title: "Donación recibida",
-      message: `Recibiste $${donation}`,
-      sendEmail: true
-    })
+    await supabase
+      .from("payments")
+      .update({ status: "approved" })
+      .eq("payment_id", paymentId)
+
+    /* =========================
+       🔔 NOTIFICACIÓN (IDEMPOTENTE)
+    ========================= */
+    const { data: updated } = await supabase
+      .from("payments")
+      .update({ notified: true })
+      .eq("payment_id", paymentId)
+      .eq("notified", false)
+      .select()
+      .maybeSingle()
+
+    if (updated) {
+      await sendNotification({
+        user_email,
+        type: "donation",
+        title: "Donación recibida",
+        message: `Recibiste $${donation}`,
+        sendEmail: true
+      })
+    }
 
     /* =========================
        🔄 WALLET
     ========================= */
     await syncWallet(user_email)
 
+    /* =========================
+       🧾 LOG FINAL
+    ========================= */
+    await supabase.from("webhook_logs").insert({
+      payment_id: paymentId,
+      payload: { success: true },
+      status: "approved"
+    })
+
     console.log("✅ PAYMENT PROCESADO")
 
     return NextResponse.json({ ok: true })
 
   } catch (error) {
+
     console.error("🔥 WEBHOOK ERROR:", error)
 
     await sendAlert({
