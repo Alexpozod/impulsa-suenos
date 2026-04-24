@@ -1,3 +1,4 @@
+console.log("🔥 WEBHOOK HIT")
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
