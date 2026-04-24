@@ -13,50 +13,15 @@ export default function DashboardPage() {
   const [ledger, setLedger] = useState<any[]>([])
 
   /* =========================
-     🔄 LOAD LEDGER (SAFE)
+     🔄 LOAD MOVEMENTS (FIX REAL)
   ========================= */
   useEffect(() => {
-    if (data?.campaigns && Array.isArray(data.campaigns)) {
-      buildLedgerFromData()
+    if (Array.isArray(data?.movements)) {
+      setLedger(data.movements)
     } else {
       setLedger([])
     }
   }, [data])
-
-  const buildLedgerFromData = () => {
-    try {
-
-      const campaigns = data?.campaigns || []
-
-      let merged: any[] = []
-
-      campaigns.forEach((c: any) => {
-
-        if (!Array.isArray(c?.transactions)) return
-
-        const filtered = c.transactions
-          .filter((tx: any) =>
-            tx?.type === "payment" || tx?.type === "withdraw"
-          )
-          .map((tx: any) => ({
-            ...tx,
-            campaign_id: c.id
-          }))
-
-        merged = [...merged, ...filtered]
-      })
-
-      merged.sort((a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )
-
-      setLedger(merged.slice(0, 10))
-
-    } catch (err) {
-      console.error("Error building ledger:", err)
-      setLedger([])
-    }
-  }
 
   /* =========================
      🧠 STATES
@@ -71,7 +36,6 @@ export default function DashboardPage() {
     )
   }
 
-  /* 🔥 FIX CRÍTICO (NO MÁS CRASH) */
   const totals = data?.totals || {
     balance: 0,
     raised: 0,
