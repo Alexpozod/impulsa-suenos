@@ -30,7 +30,6 @@ export async function POST(req: Request) {
     const rawBody = await req.text()
 
     if (process.env.WEBHOOK_SECRET && signature && requestId) {
-
       try {
         const parts = signature.split(",")
 
@@ -148,53 +147,9 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🛡️ ANTIFRAUDE (NO BLOQUEANTE)
-    ========================= */
-    try {
-
-      const timeWindow = new Date(Date.now() - 60 * 1000).toISOString()
-
-      const { data: recentPayments } = await supabase
-        .from("payments")
-        .select("id, amount, created_at")
-        .eq("user_email", payment.metadata?.user_email || payment.payer?.email)
-        .gte("created_at", timeWindow)
-
-      const count = recentPayments?.length || 0
-
-      if (count >= 5) {
-        await sendAlert({
-          title: "🚨 Posible fraude",
-          message: "Muchos pagos en corto tiempo",
-          data: {
-            user_email: payment.metadata?.user_email,
-            count,
-            paymentId
-          }
-        })
-      }
-
-      if (Number(payment.transaction_amount) > 500000) {
-        await sendAlert({
-          title: "🚨 Pago alto sospechoso",
-          message: "Monto elevado detectado",
-          data: {
-            user_email: payment.metadata?.user_email,
-            amount: payment.transaction_amount,
-            paymentId
-          }
-        })
-      }
-
-    } catch (err) {
-      console.warn("antifraud check failed", err)
-    }
-
-    /* =========================
        🔍 VALIDACIONES EXTRA
     ========================= */
     if (Number(payment.transaction_amount) <= 0) {
-      console.warn("⚠️ Invalid amount")
       return NextResponse.json({ ok: true })
     }
 
@@ -210,20 +165,14 @@ export async function POST(req: Request) {
     /* =========================
        💰 NORMALIZACIÓN
     ========================= */
-    const grossRaw = Number(payment.transaction_amount || 0)
-    const tipRaw = Number(payment.metadata?.tip || 0)
-
-    const gross = Math.max(grossRaw, 0)
-    const tip = Math.min(Math.max(tipRaw, 0), gross)
-    const net = gross - tip
-
-    const message = payment.metadata?.message || ""
+    const gross = Number(payment.transaction_amount || 0)
+    const tip = Number(payment.metadata?.tip || 0)
 
     const metadata = {
-      message,
+      message: payment.metadata?.message || "",
       tip,
       gross,
-      amount: net
+      amount: gross - tip
     }
 
     /* =========================
@@ -250,15 +199,20 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🧠 PROCESAMIENTO
+       🧠 PROCESAMIENTO (FIX REAL)
     ========================= */
+
+    const fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
+    const platform_fee = Number(tip || 0)
+
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
       p_user_email: user_email,
       p_amount: gross,
-      p_tip: tip,
-      p_metadata: metadata
+      p_fee_mp: fee_mp,
+      p_platform_fee: platform_fee,
+      p_provider: "mercadopago"
     })
 
     if (error) {
@@ -273,12 +227,6 @@ export async function POST(req: Request) {
         title: "Error en RPC",
         message: "Fallo process_payment_atomic",
         data: { paymentId, error }
-      })
-
-      await supabase.from("webhook_logs").insert({
-        payment_id: paymentId,
-        payload: { error },
-        status: "failed"
       })
 
       return NextResponse.json({ ok: true })
@@ -308,7 +256,7 @@ export async function POST(req: Request) {
         user_email,
         type: "donation",
         title: "Donación recibida",
-        message: `Recibiste $${net}`,
+        message: `Recibiste $${gross - tip}`,
         metadata,
         sendEmail: true
       })
@@ -328,7 +276,7 @@ export async function POST(req: Request) {
         user_email: campaign.user_email,
         type: "donation_received",
         title: "Nueva donación",
-        message: `Recibiste $${net}`,
+        message: `Recibiste $${gross - tip}`,
         metadata,
         sendEmail: true
       })
