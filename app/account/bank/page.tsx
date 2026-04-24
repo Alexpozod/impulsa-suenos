@@ -45,11 +45,15 @@ export default function BankPage() {
 
     const email = data.user.email!.toLowerCase()
 
-    const { data: banks } = await supabase
+    const { data: banks, error } = await supabase
       .from("bank_accounts")
       .select("*")
-      .eq("user_email", email)
+      .ilike("user_email", email) // 🔥 FIX PRO
       .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("❌ Error loading bank accounts:", error)
+    }
 
     setAccounts(banks || [])
     setLoading(false)
@@ -92,7 +96,7 @@ export default function BankPage() {
       if (!email) throw new Error("No autenticado")
 
       if (!editingId && accounts.length >= 2) {
-        setError("Máximo 2 cuentas bancarias")
+        setError("Solo puedes tener 2 cuentas. Edita o elimina una.")
         setSaving(false)
         return
       }
@@ -108,6 +112,8 @@ export default function BankPage() {
         swift: form.swift || null,
         iban: form.iban || null,
       }
+
+      console.log("💾 Saving bank account:", payload)
 
       let errorDb = null
 
@@ -128,6 +134,8 @@ export default function BankPage() {
 
       if (errorDb) throw errorDb
 
+      console.log("✅ Bank account saved")
+
       setMessage("✅ Cuenta bancaria guardada correctamente")
       setForm(emptyForm)
       setEditingId(null)
@@ -135,14 +143,13 @@ export default function BankPage() {
       await loadData()
 
     } catch (err: any) {
-      console.error(err)
+      console.error("❌ Save error:", err)
       setError(err.message || "Error guardando datos")
     }
 
     setSaving(false)
   }
 
-  /* 🔥 FIX EDITAR REAL */
   const handleEdit = (acc: any) => {
     setEditingId(acc.id)
 
@@ -164,10 +171,15 @@ export default function BankPage() {
 
     if (!confirm("¿Eliminar cuenta bancaria?")) return
 
-    await supabase
+    const { error } = await supabase
       .from("bank_accounts")
       .delete()
       .eq("id", id)
+
+    if (error) {
+      console.error("❌ Delete error:", error)
+      return
+    }
 
     await loadData()
   }
@@ -183,7 +195,6 @@ export default function BankPage() {
           🏦 Cuentas bancarias
         </h1>
 
-        {/* 🔥 ALERTA LIMITE */}
         {accounts.length >= 2 && !editingId && (
           <p className="text-red-500 text-sm">
             Ya tienes el máximo de 2 cuentas bancarias
@@ -223,7 +234,6 @@ export default function BankPage() {
 
         </div>
 
-        {/* 🔥 FORM CONTROLADO */}
         {(accounts.length < 2 || editingId) && (
           <div className="bg-white p-6 rounded-xl border space-y-3">
 
