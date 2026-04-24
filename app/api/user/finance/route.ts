@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   try {
 
     /* =========================
-       🔐 AUTH (SEGURO)
+       🔐 AUTH
     ========================= */
 
     const authHeader = req.headers.get("authorization")
@@ -33,23 +33,14 @@ export async function GET(req: Request) {
 
     const user_email = user.email.toLowerCase().trim()
 
-    console.log("👤 USER EMAIL:", user_email)
-
     /* =========================
-       📊 CAMPAÑAS (FIX CRÍTICO)
+       📊 CAMPAÑAS
     ========================= */
 
-    const { data: campaigns, error: campaignsError } = await supabase
+    const { data: campaigns } = await supabase
       .from("campaigns")
-      .select("id, title, user_email")
-      .ilike("user_email", user_email) // 🔥 FIX REAL
-
-    if (campaignsError) {
-      console.error("❌ Campaigns error:", campaignsError)
-      return NextResponse.json({ error: "campaigns error" }, { status: 500 })
-    }
-
-    console.log("📊 CAMPAIGNS FOUND:", campaigns?.length)
+      .select("id, title")
+      .ilike("user_email", user_email)
 
     const campaignIds = campaigns?.map(c => c.id) || []
 
@@ -70,31 +61,23 @@ export async function GET(req: Request) {
        💰 LEDGER
     ========================= */
 
-    const { data: ledger, error: ledgerError } = await supabase
+    const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("*")
       .in("campaign_id", campaignIds)
       .eq("status", "confirmed")
 
-    if (ledgerError) {
-      console.error("❌ Ledger error:", ledgerError)
-    }
-
     /* =========================
        🏦 PAYOUTS
     ========================= */
 
-    const { data: payouts, error: payoutsError } = await supabase
+    const { data: payouts } = await supabase
       .from("payouts")
       .select("*")
       .in("campaign_id", campaignIds)
 
-    if (payoutsError) {
-      console.error("❌ Payouts error:", payoutsError)
-    }
-
     /* =========================
-       📊 TOTALES
+       📊 TOTALES (CORRECTOS)
     ========================= */
 
     const totalRaised = ledger
@@ -102,15 +85,22 @@ export async function GET(req: Request) {
       .reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
 
     const totalFees = ledger
-      ?.filter(l => l.type === "fee_mp" || l.type === "fee_platform")
+      ?.filter(l =>
+        l.type === "fee_mp" ||
+        l.type === "fee_platform" ||
+        l.type === "fee_platform_iva"
+      )
       .reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0) || 0
 
-    const totalBalance = ledger
-      ?.reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
+    const totalCreatorNet = ledger
+      ?.filter(l => l.type === "creator_net")
+      .reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
 
     const totalWithdrawn = ledger
       ?.filter(l => l.type === "withdraw")
-      .reduce((sum, l) => sum + Number(l.amount || 0), 0) || 0
+      .reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0) || 0
+
+    const totalBalance = totalCreatorNet - totalWithdrawn
 
     const pendingAmount = payouts
       ?.filter(p => p.status === "pending")
@@ -130,15 +120,20 @@ export async function GET(req: Request) {
         .reduce((sum, l) => sum + Number(l.amount || 0), 0)
 
       const fees = campaignLedger
-        .filter(l => l.type === "fee_mp" || l.type === "fee_platform")
+        .filter(l =>
+          l.type === "fee_mp" ||
+          l.type === "fee_platform" ||
+          l.type === "fee_platform_iva"
+        )
         .reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0)
 
-      const balance = campaignLedger
+      const creatorNet = campaignLedger
+        .filter(l => l.type === "creator_net")
         .reduce((sum, l) => sum + Number(l.amount || 0), 0)
 
       const withdrawn = campaignLedger
         .filter(l => l.type === "withdraw")
-        .reduce((sum, l) => sum + Number(l.amount || 0), 0)
+        .reduce((sum, l) => sum + Math.abs(Number(l.amount || 0)), 0)
 
       const pending = campaignPayouts
         .filter(p => p.status === "pending")
@@ -151,7 +146,7 @@ export async function GET(req: Request) {
         fees,
         withdrawn,
         pending,
-        available: balance
+        available: creatorNet - withdrawn
       }
     })
 
