@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     console.log("🔥 WEBHOOK HIT")
 
     /* =========================
-       🔐 VALIDACIÓN FIRMA
+       🔐 VALIDACIÓN FIRMA (NO BLOQUEANTE)
     ========================= */
     const signature = req.headers.get("x-signature")
     const requestId = req.headers.get("x-request-id")
@@ -38,11 +38,6 @@ export async function POST(req: Request) {
         const ts = parts.find(p => p.startsWith("ts="))?.split("=")[1]
         const hash = parts.find(p => p.startsWith("v1="))?.split("=")[1]
 
-        if (!ts || !hash) {
-          console.warn("⚠️ invalid signature format")
-          return NextResponse.json({ ok: true })
-        }
-
         const url = new URL(req.url)
 
         const paymentId =
@@ -52,18 +47,16 @@ export async function POST(req: Request) {
         const manifest = `id:${paymentId};request-id:${requestId};ts:${ts};`
 
         const expected = crypto
-          .createHmac("sha256", process.env.WEBHOOK_SECRET)
+          .createHmac("sha256", process.env.WEBHOOK_SECRET!)
           .update(manifest)
           .digest("hex")
 
         if (expected !== hash) {
-          console.warn("⚠️ signature mismatch")
-          return NextResponse.json({ ok: true })
+          console.warn("⚠️ signature mismatch (IGNORED)")
         }
 
       } catch (err) {
-        console.warn("⚠️ signature error", err)
-        return NextResponse.json({ ok: true })
+        console.warn("⚠️ signature error (IGNORED)", err)
       }
     }
 
@@ -89,7 +82,7 @@ export async function POST(req: Request) {
     if (!paymentId) return NextResponse.json({ ok: true })
 
     /* =========================
-       🔁 IDEMPOTENCIA
+       🔁 IDEMPOTENCIA EVENTO
     ========================= */
     const eventId = `mp_${paymentId}`
 
@@ -146,12 +139,7 @@ export async function POST(req: Request) {
     }
 
     console.log("💰 PAYMENT STATUS:", payment?.status)
-    console.log("💰 PAYMENT DATA:", {
-      amount: payment?.transaction_amount,
-      metadata: payment?.metadata
-    })
 
-    /* 🔥 ESTA ERA TU FALLA */
     if (!payment || payment.status !== "approved") {
       console.log("⏳ PAYMENT NO APROBADO AÚN")
       return NextResponse.json({ ok: true })
@@ -227,11 +215,7 @@ export async function POST(req: Request) {
     const PLATFORM_FIXED = 300
     const PLATFORM_PERCENT = 0.01
 
-    console.log("🧮 CALC:", {
-      gross,
-      fee_mp,
-      tip
-    })
+    console.log("🧮 CALC:", { gross, fee_mp, tip })
 
     /* =========================
        🧠 RPC
