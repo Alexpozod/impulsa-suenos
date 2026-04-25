@@ -10,12 +10,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+/* =========================
+   🔥 SCHEMA PRO (DONOR NAME)
+========================= */
 const paymentSchema = z.object({
   amount: z.number().positive().min(100),
   tip: z.number().min(0).optional(),
   campaign_id: z.string().min(1),
   user_email: z.string().email(),
   message: z.string().optional(),
+  donor_name: z.string().optional(), // ✅ NUEVO (NO ROMPE)
   provider: z.string().optional()
 })
 
@@ -38,11 +42,12 @@ export async function POST(req: Request) {
       tip = 0,
       campaign_id,
       user_email,
-      message = ""
+      message = "",
+      donor_name = "" // ✅ NUEVO
     } = parsed.data
 
     /* =========================
-       🔒 VALIDAR CAMPAÑA (NUEVO - SEGURO)
+       🔒 VALIDAR CAMPAÑA
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
@@ -57,7 +62,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔥 BLOQUEO REAL
     if (campaign.status === "frozen") {
       return NextResponse.json(
         { error: "campaign_frozen" },
@@ -65,16 +69,22 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🔥 FORZAMOS PROVIDER
+    /* =========================
+       🔥 PROVIDER FIJO
+    ========================= */
     const provider = "mercadopago"
 
+    /* =========================
+       🚀 CREATE PAYMENT PRO
+    ========================= */
     const result = await createPayment({
       amount,
       tip,
       campaign_id,
       user_email,
       provider,
-      message
+      message,
+      donor_name // ✅ SE ENVÍA A MP
     })
 
     console.log("PAYMENT RESULT:", result)

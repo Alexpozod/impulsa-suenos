@@ -18,7 +18,8 @@ export async function createPayment({
   campaign_id,
   user_email,
   provider,
-  message
+  message,
+  donor_name // ✅ NUEVO (NO ROMPE)
 }: any) {
 
   switch ((provider || "mercadopago").toLowerCase()) {
@@ -29,7 +30,8 @@ export async function createPayment({
         tip,
         campaign_id,
         user_email,
-        message
+        message,
+        donor_name // ✅ PASAMOS
       })
 
     default:
@@ -44,7 +46,8 @@ async function createMercadoPagoPayment({
   tip = 0,
   campaign_id,
   user_email,
-  message
+  message,
+  donor_name // ✅ NUEVO
 }: any) {
 
   if (!mpPreference) {
@@ -67,6 +70,14 @@ async function createMercadoPagoPayment({
       return { error: "BASE URL no definida" }
     }
 
+    /* =========================
+       🧠 DONOR NAME FINAL
+    ========================= */
+    const finalDonorName =
+      donor_name?.trim() ||
+      user_email?.split("@")[0] ||
+      "Donador"
+
     const preference = await mpPreference.create({
       body: {
         items: [
@@ -87,7 +98,8 @@ async function createMercadoPagoPayment({
           user_email,
           amount: safeAmount,
           tip: safeTip,
-          message
+          message,
+          donor_name: finalDonorName // ✅ CLAVE FINAL
         },
 
         external_reference: campaign_id,
