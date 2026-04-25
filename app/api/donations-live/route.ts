@@ -45,7 +45,9 @@ export async function GET(req: Request) {
     /* =========================
        🔥 2. TRAER PAYMENTS
     ========================= */
-    const paymentIds = (ledger || []).map(l => l.payment_id).filter(Boolean)
+    const paymentIds = (ledger || [])
+      .map(l => l.payment_id)
+      .filter(Boolean)
 
     let paymentsMap: Record<string, any> = {}
 
@@ -58,11 +60,11 @@ export async function GET(req: Request) {
       paymentsMap = (payments || []).reduce((acc, p) => {
         acc[p.payment_id] = p.metadata
         return acc
-      }, {} as any)
+      }, {} as Record<string, any>)
     }
 
     /* =========================
-       🔥 3. NORMALIZACIÓN FINAL
+       🔥 3. NORMALIZACIÓN PRO
     ========================= */
     const safe = (ledger || []).map((d) => {
 
@@ -74,18 +76,25 @@ export async function GET(req: Request) {
         paymentMeta?.payer_name ||
         null
 
+      const message =
+        d.metadata?.message ||
+        paymentMeta?.message ||
+        ""
+
       return {
         id: d.id,
         amount: d.amount,
         created_at: d.created_at,
         campaign_id: d.campaign_id,
 
+        // ✅ NUEVO (FLAT → FRONTEND)
+        donor_name: donorName,
+        message: message,
+
+        // ✅ COMPATIBILIDAD (NO ROMPE NADA)
         metadata: {
           donor_name: donorName,
-          message:
-            d.metadata?.message ||
-            paymentMeta?.message ||
-            ""
+          message: message
         },
 
         payment_id: d.payment_id
