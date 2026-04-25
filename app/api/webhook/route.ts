@@ -26,9 +26,6 @@ export async function POST(req: Request) {
 
     const rawBody = await req.text()
 
-    /* =========================
-       🔁 BODY
-    ========================= */
     let body: any = {}
     try { body = JSON.parse(rawBody) } catch {}
 
@@ -67,9 +64,6 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString()
     })
 
-    /* =========================
-       🧾 LOG INICIAL
-    ========================= */
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
       payload: { received: true },
@@ -108,7 +102,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔥 NORMALIZACIÓN CORRECTA
+       🔥 NORMALIZACIÓN
     ========================= */
     const total = Number(payment.transaction_amount || 0)
     const tip = Number(payment.metadata?.tip || 0)
@@ -125,12 +119,13 @@ export async function POST(req: Request) {
       payment.payer?.email
 
     /* =========================
-       🧠 DONOR NAME (NUEVO)
+       🧠 DONOR NAME (FIX PRO)
     ========================= */
     const donor_name =
       payment.metadata?.donor_name ||
-      payment.payer?.first_name ||
-      payment.payer?.last_name ||
+      [payment.payer?.first_name, payment.payer?.last_name]
+        .filter(Boolean)
+        .join(" ") ||
       user_email?.split("@")[0] ||
       "Donador"
 
@@ -140,7 +135,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 FEES (SOBRE DONATION)
+       💰 FEES
     ========================= */
     let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
@@ -169,7 +164,7 @@ export async function POST(req: Request) {
           total,
           donation,
           tip,
-          donor_name // 🔥 NUEVO (NO ROMPE NADA)
+          donor_name // ✅ limpio y correcto
         },
         notified: false
       })
@@ -254,9 +249,6 @@ export async function POST(req: Request) {
     ========================= */
     await syncWallet(user_email)
 
-    /* =========================
-       🧾 LOG FINAL
-    ========================= */
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
       payload: { success: true },
