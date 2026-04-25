@@ -18,6 +18,7 @@ export default function CampaignDetail() {
 
   const [donations, setDonations] = useState<any[]>([])
   const [updates, setUpdates] = useState<any[]>([])
+  const [ranking, setRanking] = useState<any[]>([]) // 🔥 NUEVO
 
   useEffect(() => {
     if (id) {
@@ -25,6 +26,7 @@ export default function CampaignDetail() {
       loadRate()
       loadDonations()
       loadUpdates()
+      loadRanking() // 🔥 NUEVO
     }
   }, [id])
 
@@ -65,6 +67,19 @@ export default function CampaignDetail() {
       setUpdates(data || [])
     } catch (err) {
       console.error("Error loading updates:", err)
+    }
+  }
+
+  /* =========================
+     🏆 RANKING NUEVO
+  ========================= */
+  const loadRanking = async () => {
+    try {
+      const res = await fetch(`/api/campaign-ranking?campaign_id=${id}`)
+      const data = await res.json()
+      setRanking(data || [])
+    } catch (err) {
+      console.error("ranking error", err)
     }
   }
 
@@ -128,16 +143,10 @@ export default function CampaignDetail() {
             <div className="flex justify-between text-sm">
               <span className="font-bold text-green-600 text-lg">
                 ${current.toLocaleString()}
-                <span className="block text-xs text-gray-400">
-                  ≈ ${currentUSD.toFixed(2)} USD
-                </span>
               </span>
 
               <span className="text-gray-500 text-right">
                 de ${goal.toLocaleString()}
-                <span className="block text-xs text-gray-400">
-                  ≈ ${goalUSD.toFixed(2)} USD
-                </span>
               </span>
             </div>
 
@@ -147,137 +156,90 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* ================= 🔥 UPDATES ================= */}
-          <div className="mt-10">
-            <h2 className="text-xl font-bold mb-4">
-              📢 Actualizaciones del creador
-            </h2>
-
-            {updates.length === 0 && (
-              <p className="text-gray-500 text-sm">
-                Aún no hay actualizaciones
-              </p>
-            )}
-
-            <div className="space-y-4">
-              {updates.map((u: any) => (
-                <div key={u.id} className="border rounded-xl p-4 bg-gray-50">
-
-                  <p className="whitespace-pre-line">
-                    {u.description || "Actualización sin contenido"}
-                  </p>
-
-                  <p className="text-xs text-gray-400 mt-2">
-                    {u.created_at
-                      ? new Date(u.created_at).toLocaleString()
-                      : ""
-                    }
-                  </p>
-
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ================= 💬 DONACIONES (GOFUNDME PRO FIXED) ================= */}
+          {/* ================= 💬 DONACIONES ================= */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               💬 Últimas donaciones
             </h2>
 
-            {donations.length === 0 && (
-              <p className="text-gray-500 text-sm">
-                Aún no hay donaciones
-              </p>
-            )}
-
             <div className="space-y-4">
 
               {donations.map((donation: any) => {
 
-                const donorName = (() => {
-                  if (donation.metadata?.donor_name) {
-                    return donation.metadata.donor_name
-                  }
-                  if (donation.user_email) {
-                    const base = donation.user_email.split("@")[0]
-                    return base ? base[0].toUpperCase() + "***" : "Donador"
-                  }
-                  return "Donador anónimo"
-                })()
+                const donorName = donation.metadata?.donor_name
+                  || donation.user_email?.split("@")[0]?.slice(0,2) + "***"
+                  || "Usuario"
 
                 const avatarLetter = donorName?.[0]?.toUpperCase() || "D"
 
-                let timeAgo = ""
-
-                if (donation.created_at) {
-                  const diff = Date.now() - new Date(donation.created_at).getTime()
-                  const minutes = Math.floor(diff / 60000)
-
-                  if (minutes < 1) timeAgo = "Hace unos segundos"
-                  else if (minutes < 60) timeAgo = `Hace ${minutes} min`
-                  else {
-                    const hours = Math.floor(minutes / 60)
-                    if (hours < 24) timeAgo = `Hace ${hours} h`
-                    else {
-                      const days = Math.floor(hours / 24)
-                      timeAgo = `Hace ${days} días`
-                    }
-                  }
-                }
-
-                const isNew = timeAgo === "Hace unos segundos"
-
-                const message = donation.metadata?.message || ""
                 const amount = Number(donation.amount || 0)
 
                 return (
-                  <div
-                    key={donation.id}
-                    className="flex items-start gap-3 p-3 rounded-xl border hover:bg-gray-50 transition"
-                  >
+                  <div key={donation.id} className="flex gap-3 border p-3 rounded-xl">
 
-                    <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-bold">
                       {avatarLetter}
                     </div>
 
                     <div className="flex-1">
 
-                      <div className="flex justify-between items-center">
-
-                        <div className="flex items-center gap-2">
-
-                          <span className="font-semibold text-sm">
-                            {donorName}
-                          </span>
-
-                          {isNew && (
-                            <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                              nuevo
-                            </span>
-                          )}
-
-                        </div>
-
+                      <div className="flex justify-between">
+                        <span className="font-semibold text-sm">{donorName}</span>
                         <span className="text-green-600 font-bold">
                           +${amount.toLocaleString()}
                         </span>
-
                       </div>
 
-                      {message && (
-                        <p className="text-sm text-gray-600 mt-1 italic">
-                          “{message}”
-                        </p>
-                      )}
+                    </div>
 
-                      {timeAgo && (
-                        <div className="text-xs text-gray-400 mt-1">
-                          {timeAgo}
-                        </div>
+                  </div>
+                )
+              })}
+
+            </div>
+          </div>
+
+          {/* ================= 🏆 RANKING ================= */}
+          <div className="mt-10">
+            <h2 className="text-xl font-bold mb-4">
+              🏆 Top donadores
+            </h2>
+
+            <div className="space-y-3">
+
+              {ranking.map((r: any, index: number) => {
+
+                const isTop = index === 0
+
+                return (
+                  <div
+                    key={r.user_email}
+                    className={`flex justify-between items-center p-3 rounded-xl border ${
+                      isTop ? "bg-yellow-50 border-yellow-300" : ""
+                    }`}
+                  >
+
+                    <div className="flex items-center gap-3">
+
+                      <span className="text-sm font-bold text-gray-500">
+                        #{index + 1}
+                      </span>
+
+                      <span className="font-semibold text-sm">
+                        {r.donor_name}
+                      </span>
+
+                      {isTop && (
+                        <span className="text-[10px] bg-yellow-400 text-white px-2 py-0.5 rounded-full">
+                          TOP
+                        </span>
                       )}
 
                     </div>
+
+                    <span className="text-green-600 font-bold">
+                      ${Number(r.total_donated).toLocaleString()}
+                    </span>
 
                   </div>
                 )
