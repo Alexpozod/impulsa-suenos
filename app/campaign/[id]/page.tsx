@@ -163,7 +163,6 @@ export default function CampaignDetail() {
               {updates.map((u: any) => (
                 <div key={u.id} className="border rounded-xl p-4 bg-gray-50">
 
-                  {/* FIX SEGURO */}
                   <p className="whitespace-pre-line">
                     {u.description || "Actualización sin contenido"}
                   </p>
@@ -180,7 +179,7 @@ export default function CampaignDetail() {
             </div>
           </div>
 
-          {/* ================= 💬 DONACIONES ================= */}
+          {/* ================= 💬 DONACIONES (GOFUNDME PRO FIXED) ================= */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               💬 Últimas donaciones
@@ -192,31 +191,93 @@ export default function CampaignDetail() {
               </p>
             )}
 
-            <div className="space-y-3">
+            <div className="space-y-4">
 
               {donations.map((donation: any) => {
 
-                const name = donation.user_email
-                  ? donation.user_email.split("@")[0][0] + "***"
-                  : "Donador"
+                const donorName = (() => {
+                  if (donation.metadata?.donor_name) {
+                    return donation.metadata.donor_name
+                  }
+                  if (donation.user_email) {
+                    const base = donation.user_email.split("@")[0]
+                    return base ? base[0].toUpperCase() + "***" : "Donador"
+                  }
+                  return "Donador anónimo"
+                })()
+
+                const avatarLetter = donorName?.[0]?.toUpperCase() || "D"
+
+                let timeAgo = ""
+
+                if (donation.created_at) {
+                  const diff = Date.now() - new Date(donation.created_at).getTime()
+                  const minutes = Math.floor(diff / 60000)
+
+                  if (minutes < 1) timeAgo = "Hace unos segundos"
+                  else if (minutes < 60) timeAgo = `Hace ${minutes} min`
+                  else {
+                    const hours = Math.floor(minutes / 60)
+                    if (hours < 24) timeAgo = `Hace ${hours} h`
+                    else {
+                      const days = Math.floor(hours / 24)
+                      timeAgo = `Hace ${days} días`
+                    }
+                  }
+                }
+
+                const isNew = timeAgo === "Hace unos segundos"
 
                 const message = donation.metadata?.message || ""
+                const amount = Number(donation.amount || 0)
 
                 return (
-                  <div key={donation.id} className="border-b pb-2">
+                  <div
+                    key={donation.id}
+                    className="flex items-start gap-3 p-3 rounded-xl border hover:bg-gray-50 transition"
+                  >
 
-                    <div className="flex justify-between">
-                      <span className="font-medium">{name}</span>
-                      <span className="text-green-600 font-semibold">
-                        ${Number(donation.amount).toLocaleString()}
-                      </span>
+                    <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">
+                      {avatarLetter}
                     </div>
 
-                    {message && (
-                      <p className="text-xs text-gray-500">
-                        {message}
-                      </p>
-                    )}
+                    <div className="flex-1">
+
+                      <div className="flex justify-between items-center">
+
+                        <div className="flex items-center gap-2">
+
+                          <span className="font-semibold text-sm">
+                            {donorName}
+                          </span>
+
+                          {isNew && (
+                            <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                              nuevo
+                            </span>
+                          )}
+
+                        </div>
+
+                        <span className="text-green-600 font-bold">
+                          +${amount.toLocaleString()}
+                        </span>
+
+                      </div>
+
+                      {message && (
+                        <p className="text-sm text-gray-600 mt-1 italic">
+                          “{message}”
+                        </p>
+                      )}
+
+                      {timeAgo && (
+                        <div className="text-xs text-gray-400 mt-1">
+                          {timeAgo}
+                        </div>
+                      )}
+
+                    </div>
 
                   </div>
                 )
