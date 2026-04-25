@@ -124,6 +124,16 @@ export async function POST(req: Request) {
       payment.metadata?.user_email ||
       payment.payer?.email
 
+    /* =========================
+       🧠 DONOR NAME (NUEVO)
+    ========================= */
+    const donor_name =
+      payment.metadata?.donor_name ||
+      payment.payer?.first_name ||
+      payment.payer?.last_name ||
+      user_email?.split("@")[0] ||
+      "Donador"
+
     if (!campaign_id || !user_email) {
       console.warn("⚠️ metadata incompleta")
       return NextResponse.json({ ok: true })
@@ -158,7 +168,8 @@ export async function POST(req: Request) {
         metadata: {
           total,
           donation,
-          tip
+          tip,
+          donor_name // 🔥 NUEVO (NO ROMPE NADA)
         },
         notified: false
       })
@@ -172,7 +183,7 @@ export async function POST(req: Request) {
     })
 
     /* =========================
-       🧠 RPC
+       🧠 RPC (NO TOCAR)
     ========================= */
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
@@ -218,7 +229,7 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
 
     /* =========================
-       🔔 NOTIFICACIÓN (IDEMPOTENTE)
+       🔔 NOTIFICACIÓN
     ========================= */
     const { data: updated } = await supabase
       .from("payments")
