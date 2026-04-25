@@ -26,6 +26,9 @@ export async function POST(req: Request) {
 
     const rawBody = await req.text()
 
+    /* =========================
+       🔁 BODY
+    ========================= */
     let body: any = {}
     try { body = JSON.parse(rawBody) } catch {}
 
@@ -64,6 +67,9 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString()
     })
 
+    /* =========================
+       🧾 LOG INICIAL
+    ========================= */
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
       payload: { received: true },
@@ -102,7 +108,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔥 NORMALIZACIÓN
+       🔥 NORMALIZACIÓN CORRECTA
     ========================= */
     const total = Number(payment.transaction_amount || 0)
     const tip = Number(payment.metadata?.tip || 0)
@@ -135,7 +141,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 FEES
+       💰 FEES (SOBRE DONATION)
     ========================= */
     let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
@@ -164,7 +170,7 @@ export async function POST(req: Request) {
           total,
           donation,
           tip,
-          donor_name // ✅ limpio y correcto
+          donor_name // ✅ agregado correctamente
         },
         notified: false
       })
@@ -249,6 +255,9 @@ export async function POST(req: Request) {
     ========================= */
     await syncWallet(user_email)
 
+    /* =========================
+       🧾 LOG FINAL
+    ========================= */
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
       payload: { success: true },
