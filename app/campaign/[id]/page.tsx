@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation'
 import DonationBox from '@/app/components/DonationBox'
 import ViewersCounter from '@/app/components/ViewersCounter'
 import CampaignCarousel from '@/app/components/CampaignCarousel'
-import { safeCLPtoUSD } from '@/lib/utils/currency'
 
 export default function CampaignDetail() {
 
@@ -14,7 +13,6 @@ export default function CampaignDetail() {
 
   const [campaign, setCampaign] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [rate, setRate] = useState<number>(900)
 
   const [donations, setDonations] = useState<any[]>([])
   const [updates, setUpdates] = useState<any[]>([])
@@ -23,7 +21,6 @@ export default function CampaignDetail() {
   useEffect(() => {
     if (id) {
       load()
-      loadRate()
       loadDonations()
       loadUpdates()
       loadRanking()
@@ -40,14 +37,6 @@ export default function CampaignDetail() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const loadRate = async () => {
-    try {
-      const res = await fetch(`/api/exchange-rate`)
-      const data = await res.json()
-      if (data?.rate) setRate(data.rate)
-    } catch {}
   }
 
   const loadDonations = async () => {
@@ -126,7 +115,6 @@ export default function CampaignDetail() {
 
           {/* PROGRESO */}
           <div className="mt-6 space-y-3">
-
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-3 bg-green-600"
@@ -143,14 +131,13 @@ export default function CampaignDetail() {
                 de ${goal.toLocaleString()}
               </span>
             </div>
-
           </div>
 
           <p className="mt-6 whitespace-pre-line">
             {campaign.description}
           </p>
 
-          {/* ================= 💬 DONACIONES ================= */}
+          {/* ================= 💬 DONACIONES (FIX REAL) ================= */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               💬 Últimas donaciones
@@ -161,6 +148,7 @@ export default function CampaignDetail() {
               {donations.map((donation: any) => {
 
                 const donorName =
+                  donation.donor_name ||
                   donation.metadata?.donor_name ||
                   "Donador"
 
@@ -168,8 +156,16 @@ export default function CampaignDetail() {
 
                 const amount = Number(donation.amount || 0)
 
+                const message =
+                  donation.message ||
+                  donation.metadata?.message ||
+                  ""
+
                 return (
-                  <div key={donation.id} className="flex gap-3 border p-3 rounded-xl">
+                  <div
+                    key={donation.id}
+                    className="flex items-start gap-3 p-3 rounded-xl border hover:bg-gray-50 transition"
+                  >
 
                     <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-bold">
                       {avatarLetter}
@@ -178,11 +174,20 @@ export default function CampaignDetail() {
                     <div className="flex-1">
 
                       <div className="flex justify-between">
-                        <span className="font-semibold text-sm">{donorName}</span>
+                        <span className="font-semibold text-sm">
+                          {donorName}
+                        </span>
+
                         <span className="text-green-600 font-bold">
                           +${amount.toLocaleString()}
                         </span>
                       </div>
+
+                      {message && (
+                        <p className="text-sm text-gray-600 mt-1 italic">
+                          “{message}”
+                        </p>
+                      )}
 
                     </div>
 
@@ -193,7 +198,7 @@ export default function CampaignDetail() {
             </div>
           </div>
 
-          {/* ================= 🏆 RANKING PRO ================= */}
+          {/* ================= 🏆 RANKING ================= */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               🏆 Top donadores
@@ -226,7 +231,6 @@ export default function CampaignDetail() {
                   >
 
                     <div className="flex items-center gap-3">
-
                       <span>{medal}</span>
 
                       <span className="font-semibold text-sm">
@@ -238,7 +242,6 @@ export default function CampaignDetail() {
                           TOP
                         </span>
                       )}
-
                     </div>
 
                     <span className="text-green-600 font-bold">
