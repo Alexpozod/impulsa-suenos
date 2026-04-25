@@ -30,7 +30,7 @@ export async function GET(req: Request) {
         campaign_id,
         metadata,
         payment_id
-      `) // ❌ user_email eliminado
+      `)
       .eq("type", "payment")
       .eq("status", "confirmed")
       .eq("campaign_id", campaign_id)
@@ -43,16 +43,30 @@ export async function GET(req: Request) {
     }
 
     /* =========================
-       🧠 ANONIMIZAR
+       🧠 NORMALIZACIÓN PRO
     ========================= */
-    const safe = (data || []).map((d) => ({
-      id: d.id,
-      amount: d.amount,
-      created_at: d.created_at,
-      campaign_id: d.campaign_id,
-      message: d.metadata?.message || "",
-      payment_id: d.payment_id
-    }))
+    const safe = (data || []).map((d) => {
+
+      const donorName =
+        d.metadata?.donor_name ||
+        d.metadata?.payer_name ||
+        null
+
+      return {
+        id: d.id,
+        amount: d.amount,
+        created_at: d.created_at,
+        campaign_id: d.campaign_id,
+
+        /* 🔥 CLAVE */
+        metadata: {
+          donor_name: donorName,
+          message: d.metadata?.message || ""
+        },
+
+        payment_id: d.payment_id
+      }
+    })
 
     return NextResponse.json(safe)
 
