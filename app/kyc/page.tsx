@@ -24,12 +24,14 @@ export default function KYCPage() {
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [kycStatus, setKycStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none')
 
   /* =========================
-     🔐 GET USER + KYC STATUS
+     🔐 INIT USER + KYC
   ========================= */
   useEffect(() => {
     const init = async () => {
+
       const { data } = await supabase.auth.getUser()
 
       if (!data.user) {
@@ -39,29 +41,47 @@ export default function KYCPage() {
 
       setUser(data.user)
 
-      // 🔍 revisar si ya tiene KYC
+      const email = data.user.email?.toLowerCase()
+
       const { data: kyc } = await supabase
         .from('kyc')
-        .select('status')
-        .eq('user_email', data.user.email)
+        .select('*')
+        .ilike('user_email', email)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle()
 
-      if (kyc?.status === 'pending') {
+      if (!kyc) {
+        setKycStatus('none')
+        return
+      }
+
+      setKycStatus(kyc.status)
+
+      if (kyc.status === 'pending') {
         setMessage('⏳ Tu verificación está en revisión')
       }
 
-      if (kyc?.status === 'approved') {
-  setMessage('✅ Tu cuenta ya está verificada')
-}
+      if (kyc.status === 'approved') {
+        setMessage('✅ Tu cuenta ya está verificada')
+      }
+
+      if (kyc.status === 'rejected') {
+        setMessage('❌ Verificación rechazada. Puedes reenviarla')
+      }
+
     }
 
     init()
   }, [router])
 
+  const isLocked = kycStatus === 'approved' || kycStatus === 'pending'
+
   /* =========================
-     📤 UPLOAD FILE
+     📤 UPLOAD
   ========================= */
   const uploadFile = async (file: File, name: string) => {
+
     if (!user) throw new Error('Usuario no autenticado')
 
     const filePath = `${user.id}/${Date.now()}-${name}`
@@ -86,13 +106,13 @@ export default function KYCPage() {
   }
 
   /* =========================
-     🎯 VALIDACIONES
+     🎯 VALIDACIÓN
   ========================= */
   const validate = () => {
     if (!fullName) return 'Ingresa tu nombre completo'
     if (!rut) return 'Ingresa tu documento'
     if (!documentType) return 'Selecciona tipo de documento'
-    if (!fileFront) return 'Sube el documento frontal'
+    if (!fileFront && kycStatus !== 'rejected') return 'Sube el documento frontal'
     return null
   }
 
@@ -100,6 +120,8 @@ export default function KYCPage() {
      🚀 SUBMIT
   ========================= */
   const handleSubmit = async () => {
+
+    if (isLocked) return
 
     const errorMsg = validate()
     if (errorMsg) {
@@ -143,6 +165,7 @@ export default function KYCPage() {
       if (error) throw error
 
       setMessage('✅ Verificación enviada. En revisión.')
+      setKycStatus('pending')
 
       setTimeout(() => {
         router.push('/dashboard')
@@ -157,10 +180,11 @@ export default function KYCPage() {
   }
 
   /* =========================
-     🎨 FILE HANDLERS
+     🎨 FILE HANDLER
   ========================= */
   const handleFile = (file: File | null, type: string) => {
-    if (!file) return
+
+    if (!file || isLocked) return
 
     const url = URL.createObjectURL(file)
 
@@ -194,6 +218,7 @@ export default function KYCPage() {
         </p>
 
         <input
+          disabled={isLocked}
           placeholder="Nombre completo"
           className="w-full border p-3 rounded-lg mb-3"
           value={fullName}
@@ -201,6 +226,7 @@ export default function KYCPage() {
         />
 
         <input
+          disabled={isLocked}
           placeholder="RUT / DNI / Pasaporte"
           className="w-full border p-3 rounded-lg mb-3"
           value={rut}
@@ -208,6 +234,7 @@ export default function KYCPage() {
         />
 
         <select
+          disabled={isLocked}
           className="w-full border p-3 rounded-lg mb-4"
           value={documentType}
           onChange={(e) => setDocumentType(e.target.value)}
@@ -217,28 +244,28 @@ export default function KYCPage() {
           <option value="passport">Pasaporte</option>
         </select>
 
-        {/* FRONT */}
         <label className="text-sm font-medium">Documento (frente)</label>
         <input
           type="file"
+          disabled={isLocked}
           className="w-full mb-2 border p-2 rounded-lg"
           onChange={(e) => handleFile(e.target.files?.[0] || null, 'front')}
         />
         {previewFront && <img src={previewFront} className="mb-3 rounded-lg" />}
 
-        {/* BACK */}
         <label className="text-sm font-medium">Documento (reverso)</label>
         <input
           type="file"
+          disabled={isLocked}
           className="w-full mb-2 border p-2 rounded-lg"
           onChange={(e) => handleFile(e.target.files?.[0] || null, 'back')}
         />
         {previewBack && <img src={previewBack} className="mb-3 rounded-lg" />}
 
-        {/* SELFIE */}
         <label className="text-sm font-medium">Selfie con documento</label>
         <input
           type="file"
+          disabled={isLocked}
           className="w-full mb-2 border p-2 rounded-lg"
           onChange={(e) => handleFile(e.target.files?.[0] || null, 'selfie')}
         />
@@ -246,10 +273,18 @@ export default function KYCPage() {
 
         <button
           onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700"
+          disabled={loading || isLocked}
+          className={`w-full py-3 rounded-lg font-semibold text-white ${
+            isLocked ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'
+          }`}
         >
-          {loading ? 'Enviando...' : 'Enviar verificación'}
+          {kycStatus === 'approved'
+            ? 'Cuenta verificada'
+            : kycStatus === 'pending'
+            ? 'En revisión'
+            : loading
+            ? 'Enviando...'
+            : 'Enviar verificación'}
         </button>
 
         {message && (
