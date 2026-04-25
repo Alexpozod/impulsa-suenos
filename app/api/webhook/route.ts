@@ -101,9 +101,6 @@ export async function POST(req: Request) {
       payment.metadata?.user_email ||
       payment.payer?.email
 
-    /* =========================
-       🧠 DONOR NAME FIX FINAL
-    ========================= */
     const donor_name =
       payment.metadata?.donor_name ||
       [payment.payer?.first_name, payment.payer?.last_name]
@@ -112,26 +109,18 @@ export async function POST(req: Request) {
       user_email?.split("@")[0] ||
       "Donador"
 
+    const message =
+      payment.metadata?.message ||
+      payment.metadata?.message_text ||
+      ""
+
     if (!campaign_id || !user_email) {
       console.warn("⚠️ metadata incompleta")
       return NextResponse.json({ ok: true })
     }
 
     /* =========================
-   🔥 FIX FINAL DONOR NAME (SIEMPRE)
-========================= */
-await supabase
-  .from("payments")
-  .update({
-    metadata: {
-      ...(existingPayment?.metadata || {}),
-      donor_name
-    }
-  })
-  .eq("payment_id", paymentId)
-  
-    /* =========================
-       🔥 FIX CRÍTICO (UPDATE SI YA EXISTE)
+       🔥 UPDATE SI YA EXISTE
     ========================= */
     if (existingPayment) {
       await supabase
@@ -139,12 +128,16 @@ await supabase
         .update({
           metadata: {
             ...existingPayment.metadata,
-            donor_name
+            donor_name,
+            message
           }
         })
         .eq("payment_id", paymentId)
     }
 
+    /* =========================
+       💰 FEES
+    ========================= */
     let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
     if (!fee_mp) {
@@ -157,6 +150,9 @@ await supabase
 
     console.log("🧮 CALC:", { donation, tip, fee_mp })
 
+    /* =========================
+       📝 INSERT SI NO EXISTE
+    ========================= */
     if (!existingPayment) {
       await supabase.from("payments").insert({
         payment_id: paymentId,
@@ -169,7 +165,8 @@ await supabase
           total,
           donation,
           tip,
-          donor_name
+          donor_name,
+          message // 🔥 FIX REAL AQUÍ
         },
         notified: false
       })
