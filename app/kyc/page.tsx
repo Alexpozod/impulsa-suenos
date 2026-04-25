@@ -43,6 +43,8 @@ export default function KYCPage() {
 
       const email = data.user.email?.toLowerCase()
 
+      if (!email) return
+
       const { data: kyc } = await supabase
         .from('kyc')
         .select('*')
@@ -73,7 +75,15 @@ export default function KYCPage() {
     }
 
     init()
-  }, [router])
+
+    // 🔥 limpiar previews
+    return () => {
+      previewFront && URL.revokeObjectURL(previewFront)
+      previewBack && URL.revokeObjectURL(previewBack)
+      previewSelfie && URL.revokeObjectURL(previewSelfie)
+    }
+
+  }, [])
 
   const isLocked = kycStatus === 'approved' || kycStatus === 'pending'
 
@@ -117,7 +127,7 @@ export default function KYCPage() {
   }
 
   /* =========================
-     🚀 SUBMIT
+     🚀 SUBMIT (PROTEGIDO)
   ========================= */
   const handleSubmit = async () => {
 
@@ -139,6 +149,20 @@ export default function KYCPage() {
 
     try {
 
+      // 🔥 VALIDACIÓN BACKEND (ANTI DOBLE ENVÍO)
+      const { data: existing } = await supabase
+        .from('kyc')
+        .select('status')
+        .eq('user_email', user.email)
+        .in('status', ['approved', 'pending'])
+        .maybeSingle()
+
+      if (existing) {
+        setMessage('⚠️ Ya tienes una verificación en proceso o aprobada')
+        setLoading(false)
+        return
+      }
+
       let frontPath = ''
       let backPath = ''
       let selfiePath = ''
@@ -149,8 +173,7 @@ export default function KYCPage() {
 
       const { error } = await supabase
         .from('kyc')
-        .upsert({
-          id: user.id,
+        .insert({
           user_email: user.email,
           full_name: fullName,
           rut,
@@ -217,58 +240,26 @@ export default function KYCPage() {
           Necesaria para crear campañas y retirar fondos
         </p>
 
-        <input
-          disabled={isLocked}
-          placeholder="Nombre completo"
-          className="w-full border p-3 rounded-lg mb-3"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-        />
+        <input disabled={isLocked} placeholder="Nombre completo" className="w-full border p-3 rounded-lg mb-3" value={fullName} onChange={(e) => setFullName(e.target.value)} />
 
-        <input
-          disabled={isLocked}
-          placeholder="RUT / DNI / Pasaporte"
-          className="w-full border p-3 rounded-lg mb-3"
-          value={rut}
-          onChange={(e) => setRut(e.target.value)}
-        />
+        <input disabled={isLocked} placeholder="RUT / DNI / Pasaporte" className="w-full border p-3 rounded-lg mb-3" value={rut} onChange={(e) => setRut(e.target.value)} />
 
-        <select
-          disabled={isLocked}
-          className="w-full border p-3 rounded-lg mb-4"
-          value={documentType}
-          onChange={(e) => setDocumentType(e.target.value)}
-        >
+        <select disabled={isLocked} className="w-full border p-3 rounded-lg mb-4" value={documentType} onChange={(e) => setDocumentType(e.target.value)}>
           <option value="">Tipo de documento</option>
           <option value="dni">DNI</option>
           <option value="passport">Pasaporte</option>
         </select>
 
         <label className="text-sm font-medium">Documento (frente)</label>
-        <input
-          type="file"
-          disabled={isLocked}
-          className="w-full mb-2 border p-2 rounded-lg"
-          onChange={(e) => handleFile(e.target.files?.[0] || null, 'front')}
-        />
+        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg" onChange={(e) => handleFile(e.target.files?.[0] || null, 'front')} />
         {previewFront && <img src={previewFront} className="mb-3 rounded-lg" />}
 
         <label className="text-sm font-medium">Documento (reverso)</label>
-        <input
-          type="file"
-          disabled={isLocked}
-          className="w-full mb-2 border p-2 rounded-lg"
-          onChange={(e) => handleFile(e.target.files?.[0] || null, 'back')}
-        />
+        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg" onChange={(e) => handleFile(e.target.files?.[0] || null, 'back')} />
         {previewBack && <img src={previewBack} className="mb-3 rounded-lg" />}
 
         <label className="text-sm font-medium">Selfie con documento</label>
-        <input
-          type="file"
-          disabled={isLocked}
-          className="w-full mb-2 border p-2 rounded-lg"
-          onChange={(e) => handleFile(e.target.files?.[0] || null, 'selfie')}
-        />
+        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg" onChange={(e) => handleFile(e.target.files?.[0] || null, 'selfie')} />
         {previewSelfie && <img src={previewSelfie} className="mb-3 rounded-lg" />}
 
         <button
