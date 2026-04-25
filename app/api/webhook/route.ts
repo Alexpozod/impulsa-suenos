@@ -26,9 +26,6 @@ export async function POST(req: Request) {
 
     const rawBody = await req.text()
 
-    /* =========================
-       🔁 BODY
-    ========================= */
     let body: any = {}
     try { body = JSON.parse(rawBody) } catch {}
 
@@ -45,9 +42,6 @@ export async function POST(req: Request) {
 
     console.log("🆔 PAYMENT ID:", paymentId)
 
-    /* =========================
-       🔁 IDEMPOTENCIA EVENTO
-    ========================= */
     const eventId = `mp_${paymentId}`
 
     const { data: existingEvent } = await supabase
@@ -67,32 +61,18 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString()
     })
 
-    /* =========================
-       🧾 LOG INICIAL
-    ========================= */
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
       payload: { received: true },
       status: "received"
     })
 
-    /* =========================
-       🔒 IDEMPOTENCIA PAYMENT
-    ========================= */
     const { data: existingPayment } = await supabase
       .from("payments")
       .select("*")
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-    if (existingPayment?.status === "approved") {
-      console.log("⚠️ PAYMENT YA PROCESADO")
-      return NextResponse.json({ ok: true })
-    }
-
-    /* =========================
-       💳 GET PAYMENT
-    ========================= */
     let payment
 
     try {
@@ -107,9 +87,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       🔥 NORMALIZACIÓN CORRECTA
-    ========================= */
     const total = Number(payment.transaction_amount || 0)
     const tip = Number(payment.metadata?.tip || 0)
     const donation = total - tip
@@ -125,7 +102,7 @@ export async function POST(req: Request) {
       payment.payer?.email
 
     /* =========================
-       🧠 DONOR NAME (FIX PRO)
+       🧠 DONOR NAME FIX FINAL
     ========================= */
     const donor_name =
       payment.metadata?.donor_name ||
@@ -141,8 +118,20 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💰 FEES (SOBRE DONATION)
+       🔥 FIX CRÍTICO (UPDATE SI YA EXISTE)
     ========================= */
+    if (existingPayment) {
+      await supabase
+        .from("payments")
+        .update({
+          metadata: {
+            ...existingPayment.metadata,
+            donor_name
+          }
+        })
+        .eq("payment_id", paymentId)
+    }
+
     let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
     if (!fee_mp) {
@@ -155,9 +144,6 @@ export async function POST(req: Request) {
 
     console.log("🧮 CALC:", { donation, tip, fee_mp })
 
-    /* =========================
-       📝 REGISTRO PREVIO
-    ========================= */
     if (!existingPayment) {
       await supabase.from("payments").insert({
         payment_id: paymentId,
@@ -170,22 +156,16 @@ export async function POST(req: Request) {
           total,
           donation,
           tip,
-          donor_name // ✅ agregado correctamente
+          donor_name
         },
         notified: false
       })
     }
 
-    /* =========================
-       🔐 LOCK
-    ========================= */
     await supabase.rpc("advisory_lock", {
       lock_key: `payment_${paymentId}`
     })
 
-    /* =========================
-       🧠 RPC (NO TOCAR)
-    ========================= */
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
@@ -221,17 +201,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       ✅ STATUS FINAL
-    ========================= */
     await supabase
       .from("payments")
       .update({ status: "approved" })
       .eq("payment_id", paymentId)
 
-    /* =========================
-       🔔 NOTIFICACIÓN
-    ========================= */
     const { data: updated } = await supabase
       .from("payments")
       .update({ notified: true })
@@ -250,14 +224,8 @@ export async function POST(req: Request) {
       })
     }
 
-    /* =========================
-       🔄 WALLET
-    ========================= */
     await syncWallet(user_email)
 
-    /* =========================
-       🧾 LOG FINAL
-    ========================= */
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
       payload: { success: true },
