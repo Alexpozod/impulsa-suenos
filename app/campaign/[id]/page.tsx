@@ -18,7 +18,7 @@ export default function CampaignDetail() {
 
   const [donations, setDonations] = useState<any[]>([])
   const [updates, setUpdates] = useState<any[]>([])
-  const [ranking, setRanking] = useState<any[]>([]) // 🔥 NUEVO
+  const [ranking, setRanking] = useState<any[]>([])
 
   useEffect(() => {
     if (id) {
@@ -26,7 +26,7 @@ export default function CampaignDetail() {
       loadRate()
       loadDonations()
       loadUpdates()
-      loadRanking() // 🔥 NUEVO
+      loadRanking()
     }
   }, [id])
 
@@ -70,9 +70,6 @@ export default function CampaignDetail() {
     }
   }
 
-  /* =========================
-     🏆 RANKING NUEVO
-  ========================= */
   const loadRanking = async () => {
     try {
       const res = await fetch(`/api/campaign-ranking?campaign_id=${id}`)
@@ -103,9 +100,6 @@ export default function CampaignDetail() {
 
   const current = Number(campaign.current_amount || 0)
   const goal = Number(campaign.goal_amount || 0)
-
-  const currentUSD = safeCLPtoUSD(current, rate)
-  const goalUSD = safeCLPtoUSD(goal, rate)
 
   const progress = goal > 0
     ? Math.min((current / goal) * 100, 100)
@@ -166,23 +160,9 @@ export default function CampaignDetail() {
 
               {donations.map((donation: any) => {
 
-                const donorName = (() => {
-
-  // 1. nombre real desde metadata
-  if (donation.metadata?.donor_name) {
-    return donation.metadata.donor_name
-  }
-
-  // 2. fallback email
-  if (donation.user_email && donation.user_email.includes("@")) {
-    const base = donation.user_email.split("@")[0]
-    if (base) return base.slice(0, 2).toUpperCase() + "***"
-  }
-
-  // 3. fallback final seguro
-  return "Donador"
-
-})()
+                const donorName =
+                  donation.metadata?.donor_name ||
+                  "Donador"
 
                 const avatarLetter = donorName?.[0]?.toUpperCase() || "D"
 
@@ -213,34 +193,44 @@ export default function CampaignDetail() {
             </div>
           </div>
 
-          {/* ================= 🏆 RANKING ================= */}
+          {/* ================= 🏆 RANKING PRO ================= */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               🏆 Top donadores
             </h2>
 
+            {ranking.length === 0 && (
+              <p className="text-gray-500 text-sm">
+                Aún no hay ranking
+              </p>
+            )}
+
             <div className="space-y-3">
 
               {ranking.map((r: any, index: number) => {
+
+                const medal =
+                  index === 0 ? "🥇" :
+                  index === 1 ? "🥈" :
+                  index === 2 ? "🥉" :
+                  `#${index + 1}`
 
                 const isTop = index === 0
 
                 return (
                   <div
-                    key={r.user_email}
+                    key={index}
                     className={`flex justify-between items-center p-3 rounded-xl border ${
-                      isTop ? "bg-yellow-50 border-yellow-300" : ""
+                      isTop ? "bg-yellow-50 border-yellow-300" : "bg-white"
                     }`}
                   >
 
                     <div className="flex items-center gap-3">
 
-                      <span className="text-sm font-bold text-gray-500">
-                        #{index + 1}
-                      </span>
+                      <span>{medal}</span>
 
                       <span className="font-semibold text-sm">
-                        {r.donor_name}
+                        {r.name || "Donador"}
                       </span>
 
                       {isTop && (
@@ -252,7 +242,7 @@ export default function CampaignDetail() {
                     </div>
 
                     <span className="text-green-600 font-bold">
-                      ${Number(r.total_donated).toLocaleString()}
+                      ${Number(r.total || 0).toLocaleString()}
                     </span>
 
                   </div>
