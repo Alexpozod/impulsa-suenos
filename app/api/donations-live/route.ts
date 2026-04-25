@@ -58,26 +58,33 @@ export async function GET(req: Request) {
         .in("payment_id", paymentIds)
 
       paymentsMap = (payments || []).reduce((acc, p) => {
-        acc[p.payment_id] = p.metadata || {} // ✅ FIX CLAVE
+        acc[p.payment_id] = p.metadata || {}
         return acc
       }, {} as Record<string, any>)
     }
 
     /* =========================
-       🔥 3. NORMALIZACIÓN PRO
+       🔥 3. NORMALIZACIÓN PRO FINAL
     ========================= */
     const safe = (ledger || []).map((d) => {
 
       const paymentMeta = paymentsMap[d.payment_id] || {}
 
+      /* =========================
+         🧠 DONOR NAME ROBUSTO
+      ========================= */
       const donorName =
         paymentMeta?.donor_name ||
         d.metadata?.donor_name ||
         paymentMeta?.payer_name ||
         "Donador"
 
+      /* =========================
+         💬 MESSAGE ROBUSTO (FIX REAL)
+      ========================= */
       const message =
-        paymentMeta?.message ||   // ✅ PRIORIDAD CORRECTA
+        paymentMeta?.message ||
+        paymentMeta?.message_text || // 🔥 fallback clave
         d.metadata?.message ||
         ""
 
@@ -87,11 +94,11 @@ export async function GET(req: Request) {
         created_at: d.created_at,
         campaign_id: d.campaign_id,
 
-        // ✅ FRONTEND DIRECTO
+        // 🔥 FRONTEND DIRECTO (LO QUE USA TU UI)
         donor_name: donorName,
         message: message,
 
-        // ✅ COMPATIBILIDAD TOTAL
+        // 🔒 BACKWARD COMPATIBILITY (NO ROMPE NADA)
         metadata: {
           donor_name: donorName,
           message: message
