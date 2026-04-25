@@ -19,7 +19,7 @@ const paymentSchema = z.object({
   campaign_id: z.string().min(1),
   user_email: z.string().email(),
   message: z.string().optional(),
-  donor_name: z.string().optional(), // ✅ NUEVO (NO ROMPE)
+  donor_name: z.string().optional(),
   provider: z.string().optional()
 })
 
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       campaign_id,
       user_email,
       message = "",
-      donor_name = "" // ✅ NUEVO
+      donor_name
     } = parsed.data
 
     /* =========================
@@ -70,6 +70,17 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       🧠 NORMALIZACIÓN DONOR NAME (CLAVE)
+    ========================= */
+    let safeDonorName = "Donador"
+
+    if (donor_name && donor_name.trim().length > 0) {
+      safeDonorName = donor_name.trim()
+    } else if (user_email && user_email.includes("@")) {
+      safeDonorName = user_email.split("@")[0]
+    }
+
+    /* =========================
        🔥 PROVIDER FIJO
     ========================= */
     const provider = "mercadopago"
@@ -84,7 +95,7 @@ export async function POST(req: Request) {
       user_email,
       provider,
       message,
-      donor_name // ✅ SE ENVÍA A MP
+      donor_name: safeDonorName // 🔥 SIEMPRE LIMPIO
     })
 
     console.log("PAYMENT RESULT:", result)

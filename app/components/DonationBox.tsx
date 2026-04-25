@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
@@ -19,7 +19,7 @@ export default function DonationBox({
   // 🔐 LEGAL
   const [acceptedLegal, setAcceptedLegal] = useState(false)
 
-  // 🔥 NUEVO (DONADOR PRO)
+  // 🔥 DONADOR PRO
   const [donorName, setDonorName] = useState("")
   const [isAnonymous, setIsAnonymous] = useState(false)
 
@@ -92,11 +92,17 @@ export default function DonationBox({
       }
 
       /* =========================
-         🧠 DONOR NAME FINAL
+         🧠 DONOR NAME FINAL (FIX PRO)
       ========================= */
-      const finalDonorName = isAnonymous
-        ? "Anónimo"
-        : donorName?.trim() || userEmail.split("@")[0]
+      let finalDonorName = "Donador"
+
+      if (isAnonymous) {
+        finalDonorName = "Anónimo"
+      } else if (donorName && donorName.trim().length > 0) {
+        finalDonorName = donorName.trim()
+      } else if (userEmail && userEmail.includes("@")) {
+        finalDonorName = userEmail.split("@")[0]
+      }
 
       const res = await fetch('/api/create-payment', {
         method: 'POST',
@@ -109,7 +115,7 @@ export default function DonationBox({
           campaign_id,
           user_email: userEmail,
           message,
-          donor_name: finalDonorName, // 🔥 NUEVO
+          donor_name: finalDonorName, // 🔥 CLAVE FINAL
           provider: "mercadopago"
         })
       })
@@ -162,8 +168,9 @@ export default function DonationBox({
         ⚡ Cada aporte ayuda a lograr la meta más rápido
       </p>
 
-      {/* 🔥 NOMBRE DONADOR */}
+      {/* 🔥 DONADOR */}
       <div className="space-y-2">
+
         <input
           type="text"
           placeholder="Tu nombre (opcional)"
@@ -181,6 +188,7 @@ export default function DonationBox({
           />
           Donar de forma anónima
         </label>
+
       </div>
 
       {/* PRESETS */}
