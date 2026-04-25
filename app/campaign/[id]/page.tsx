@@ -166,9 +166,23 @@ export default function CampaignDetail() {
 
               {donations.map((donation: any) => {
 
-                const donorName = donation.metadata?.donor_name
-                  || donation.user_email?.split("@")[0]?.slice(0,2) + "***"
-                  || "Usuario"
+                const donorName = (() => {
+
+  // 1. nombre real desde metadata
+  if (donation.metadata?.donor_name) {
+    return donation.metadata.donor_name
+  }
+
+  // 2. fallback email
+  if (donation.user_email && donation.user_email.includes("@")) {
+    const base = donation.user_email.split("@")[0]
+    if (base) return base.slice(0, 2).toUpperCase() + "***"
+  }
+
+  // 3. fallback final seguro
+  return "Donador"
+
+})()
 
                 const avatarLetter = donorName?.[0]?.toUpperCase() || "D"
 
