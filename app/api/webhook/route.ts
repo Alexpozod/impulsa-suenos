@@ -118,6 +118,19 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+   🔥 FIX FINAL DONOR NAME (SIEMPRE)
+========================= */
+await supabase
+  .from("payments")
+  .update({
+    metadata: {
+      ...(existingPayment?.metadata || {}),
+      donor_name
+    }
+  })
+  .eq("payment_id", paymentId)
+  
+    /* =========================
        🔥 FIX CRÍTICO (UPDATE SI YA EXISTE)
     ========================= */
     if (existingPayment) {
