@@ -16,8 +16,12 @@ export default function DonationBox({
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
-  // 🔐 NUEVO
+  // 🔐 LEGAL
   const [acceptedLegal, setAcceptedLegal] = useState(false)
+
+  // 🔥 NUEVO (DONADOR PRO)
+  const [donorName, setDonorName] = useState("")
+  const [isAnonymous, setIsAnonymous] = useState(false)
 
   const router = useRouter()
   const presets = [2000, 5000, 10000, 20000]
@@ -41,7 +45,7 @@ export default function DonationBox({
 
     console.log("CLICK DONAR")
 
-    // 🚨 VALIDACIÓN LEGAL (CRÍTICA)
+    // 🚨 VALIDACIÓN LEGAL
     if (!acceptedLegal) {
       alert("Debes aceptar los términos antes de continuar")
       return
@@ -69,7 +73,7 @@ export default function DonationBox({
 
       setLoading(true)
 
-      // 🔐 LOG LEGAL (NO BLOQUEA UX)
+      // 🔐 LOG LEGAL
       try {
         fetch("/api/legal-consent", {
           method: "POST",
@@ -87,6 +91,13 @@ export default function DonationBox({
         console.error("Consent error", err)
       }
 
+      /* =========================
+         🧠 DONOR NAME FINAL
+      ========================= */
+      const finalDonorName = isAnonymous
+        ? "Anónimo"
+        : donorName?.trim() || userEmail.split("@")[0]
+
       const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: {
@@ -98,6 +109,7 @@ export default function DonationBox({
           campaign_id,
           user_email: userEmail,
           message,
+          donor_name: finalDonorName, // 🔥 NUEVO
           provider: "mercadopago"
         })
       })
@@ -149,6 +161,27 @@ export default function DonationBox({
       <p className="text-xs text-orange-600 text-center font-semibold">
         ⚡ Cada aporte ayuda a lograr la meta más rápido
       </p>
+
+      {/* 🔥 NOMBRE DONADOR */}
+      <div className="space-y-2">
+        <input
+          type="text"
+          placeholder="Tu nombre (opcional)"
+          value={donorName}
+          onChange={(e) => setDonorName(e.target.value)}
+          disabled={isAnonymous}
+          className="w-full border p-2 rounded-lg text-sm"
+        />
+
+        <label className="flex items-center gap-2 text-xs text-gray-500">
+          <input
+            type="checkbox"
+            checked={isAnonymous}
+            onChange={(e) => setIsAnonymous(e.target.checked)}
+          />
+          Donar de forma anónima
+        </label>
+      </div>
 
       {/* PRESETS */}
       <div className="grid grid-cols-4 gap-2">
@@ -216,7 +249,7 @@ export default function DonationBox({
         </p>
       </div>
 
-      {/* 🔐 CHECK LEGAL */}
+      {/* LEGAL */}
       <label className="flex items-start gap-2 text-xs text-gray-500">
         <input
           type="checkbox"
