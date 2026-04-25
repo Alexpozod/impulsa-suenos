@@ -58,7 +58,7 @@ export async function GET(req: Request) {
         .in("payment_id", paymentIds)
 
       paymentsMap = (payments || []).reduce((acc, p) => {
-        acc[p.payment_id] = p.metadata
+        acc[p.payment_id] = p.metadata || {} // ✅ FIX CLAVE
         return acc
       }, {} as Record<string, any>)
     }
@@ -71,14 +71,14 @@ export async function GET(req: Request) {
       const paymentMeta = paymentsMap[d.payment_id] || {}
 
       const donorName =
-        d.metadata?.donor_name ||
         paymentMeta?.donor_name ||
+        d.metadata?.donor_name ||
         paymentMeta?.payer_name ||
-        null
+        "Donador"
 
       const message =
+        paymentMeta?.message ||   // ✅ PRIORIDAD CORRECTA
         d.metadata?.message ||
-        paymentMeta?.message ||
         ""
 
       return {
@@ -87,11 +87,11 @@ export async function GET(req: Request) {
         created_at: d.created_at,
         campaign_id: d.campaign_id,
 
-        // ✅ NUEVO (FLAT → FRONTEND)
+        // ✅ FRONTEND DIRECTO
         donor_name: donorName,
         message: message,
 
-        // ✅ COMPATIBILIDAD (NO ROMPE NADA)
+        // ✅ COMPATIBILIDAD TOTAL
         metadata: {
           donor_name: donorName,
           message: message
