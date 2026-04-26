@@ -85,12 +85,21 @@ export default function NotificationsPage() {
 
 </p>
 
-{/* 🔥 MENSAJE DETALLADO */}
-{n.message && (
-  <p className="text-xs text-gray-400 mt-1">
-    {n.message}
-  </p>
-)}
+{/* 🔥 MENSAJE INTELIGENTE (FIX REAL) */}
+{(() => {
+  let msg = n.message || ""
+
+  // ❌ si viene con $0 lo corregimos
+  if (msg.includes("$0")) {
+    msg = "Recibiste una donación en tu campaña"
+  }
+
+  return msg ? (
+    <p className="text-xs text-gray-400 mt-1">
+      {msg}
+    </p>
+  ) : null
+})()}
             <div className="flex justify-between mt-2 text-xs text-gray-400">
 
               <span>
