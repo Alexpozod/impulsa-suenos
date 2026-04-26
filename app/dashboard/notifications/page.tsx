@@ -40,7 +40,7 @@ export default function NotificationsPage() {
   }
 
   /* =========================
-     🎨 UI HELPERS (SaaS style)
+     🎨 UI HELPERS
   ========================= */
 
   const getIcon = (n: any) => {
@@ -54,120 +54,110 @@ export default function NotificationsPage() {
     return "🔔"
   }
 
-  const getBorder = (n: any) => {
-    if (!n.read) return "border border-green-500"
-    return ""
-  }
-
-  const getBg = (n: any) => {
-    return n.read ? "bg-slate-900" : "bg-slate-800"
-  }
-
-  /* =========================
-     🧠 MENSAJE INTELIGENTE
-  ========================= */
-
-  const buildMessage = (n: any) => {
-
-    let msg = n.message || ""
-
-    // 🔥 limpiar $0
-    if (msg.includes("$0")) {
-      msg = "Recibiste una donación en tu campaña"
-    }
-
+  const cleanMessage = (msg: string) => {
+    if (!msg) return ""
+    if (msg.includes("$0")) return "Recibiste una donación en tu campaña"
     return msg
   }
 
-  if (loading) return <div className="p-6">Cargando...</div>
+  if (loading) return <div className="p-10 text-center">Cargando...</div>
 
   return (
-    <main className="p-6 bg-slate-950 text-white min-h-screen">
+    <main className="bg-white min-h-screen">
 
-      <h1 className="text-2xl font-bold mb-6">
-        🔔 Notificaciones
-      </h1>
+      <section className="max-w-4xl mx-auto px-6 py-10">
 
-      {notifications.length === 0 && (
-        <p className="text-gray-400">No tienes notificaciones</p>
-      )}
+        <h1 className="text-2xl font-bold mb-6">
+          🔔 Notificaciones
+        </h1>
 
-      <div className="space-y-3">
+        {notifications.length === 0 && (
+          <p className="text-gray-500">
+            No tienes notificaciones
+          </p>
+        )}
 
-        {notifications.map(n => {
+        <div className="space-y-3">
 
-          const message = buildMessage(n)
+          {notifications.map(n => {
 
-          return (
-            <div
-              key={n.id}
-              className={`p-4 rounded-xl transition ${getBg(n)} ${getBorder(n)}`}
-            >
+            const message = cleanMessage(n.message)
 
-              {/* HEADER */}
-              <div className="flex items-start gap-3">
+            return (
+              <div
+                key={n.id}
+                className={`p-4 rounded-xl border transition hover:shadow-sm ${
+                  n.read ? "bg-white" : "bg-green-50 border-green-400"
+                }`}
+              >
 
-                {/* ICON */}
-                <div className="text-xl mt-1">
-                  {getIcon(n)}
-                </div>
+                <div className="flex gap-3">
 
-                {/* CONTENT */}
-                <div className="flex-1">
+                  {/* ICON */}
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100">
+                    <span className="text-lg">
+                      {getIcon(n)}
+                    </span>
+                  </div>
 
-                  {/* TITLE */}
-                  <p className="text-sm font-semibold">
-                    {n.title || "Nueva notificación"}
-                  </p>
+                  {/* CONTENT */}
+                  <div className="flex-1">
 
-                  {/* MESSAGE */}
-                  {message && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      {message}
+                    {/* TITLE */}
+                    <div className="flex justify-between items-start">
+
+                      <p className="font-semibold text-sm text-gray-800">
+                        {n.title || "Nueva notificación"}
+                      </p>
+
+                      {!n.read && (
+                        <button
+                          onClick={() => markAsRead(n.id)}
+                          className="text-xs text-green-600 hover:underline"
+                        >
+                          Marcar como leído
+                        </button>
+                      )}
+
+                    </div>
+
+                    {/* MESSAGE */}
+                    {message && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        {message}
+                      </p>
+                    )}
+
+                    {/* 💰 MONTO */}
+                    {n.metadata?.amount > 0 && (
+                      <p className="text-sm text-green-600 font-semibold mt-1">
+                        +${Number(n.metadata.amount).toLocaleString()}
+                      </p>
+                    )}
+
+                    {/* 🏷 CAMPAÑA */}
+                    {n.metadata?.campaign_title && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        Campaña: {n.metadata.campaign_title}
+                      </p>
+                    )}
+
+                    {/* FECHA */}
+                    <p className="text-xs text-gray-400 mt-2">
+                      {new Date(n.created_at).toLocaleString()}
                     </p>
-                  )}
 
-                  {/* 💰 MONTO */}
-                  {n.metadata?.amount > 0 && (
-                    <p className="text-xs text-green-400 mt-1 font-semibold">
-                      +${Number(n.metadata.amount).toLocaleString()}
-                    </p>
-                  )}
-
-                  {/* 🏷 CAMPAÑA */}
-                  {n.metadata?.campaign_title && (
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      Campaña: {n.metadata.campaign_title}
-                    </p>
-                  )}
+                  </div>
 
                 </div>
 
               </div>
+            )
+          })}
 
-              {/* FOOTER */}
-              <div className="flex justify-between mt-3 text-xs text-gray-500">
+        </div>
 
-                <span>
-                  {new Date(n.created_at).toLocaleString()}
-                </span>
-
-                {!n.read && (
-                  <button
-                    onClick={() => markAsRead(n.id)}
-                    className="text-green-400 hover:underline"
-                  >
-                    Marcar como leído
-                  </button>
-                )}
-
-              </div>
-
-            </div>
-          )
-        })}
-
-      </div>
+      </section>
 
     </main>
   )
