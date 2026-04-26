@@ -71,12 +71,20 @@ export async function sendNotification({
 
       // 💖 DONACIÓN
       if (type === "donation") {
-        await sendDonationEmail({
-          to: user_email,
-          campaign: title,
-          amount: metadata?.amount || 0
-        })
-      }
+
+  const campaignName =
+    metadata?.campaign_title ||
+    "Tu campaña"
+
+  const amount =
+    Number(metadata?.amount || 0)
+
+  await sendDonationEmail({
+    to: user_email,
+    campaign: campaignName,
+    amount
+  })
+}
 
       // 🎯 DONACIÓN RECIBIDA
       else if (type === "donation_received") {
