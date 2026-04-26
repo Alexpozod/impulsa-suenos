@@ -152,35 +152,42 @@ export async function GET(req: Request) {
     })
 
     /* =========================
-       📜 MOVIMIENTOS (FIX REAL)
-    ========================= */
+   📜 MOVIMIENTOS (FIX PRO REAL)
+========================= */
 
-    const movements = [
+const campaignMap = (campaigns || []).reduce((acc, c) => {
+  acc[c.id] = c.title
+  return acc
+}, {} as Record<string, string>)
 
-      ...(ledger || [])
-        .filter(l => l.type === "creator_net")
-        .map(l => ({
-          id: l.id,
-          type: "donation",
-          amount: Number(l.amount),
-          campaign_id: l.campaign_id,
-          created_at: l.created_at
-        })),
+const movements = [
 
-      ...(payouts || []).map(p => ({
-        id: p.id,
-        type: "withdraw",
-        amount: Number(p.amount),
-        campaign_id: p.campaign_id,
-        status: p.status,
-        created_at: p.created_at
-      }))
+  ...(ledger || [])
+    .filter(l => l.type === "creator_net")
+    .map(l => ({
+      id: l.id,
+      type: "donation",
+      amount: Number(l.amount),
+      campaign_id: l.campaign_id,
+      campaign_title: campaignMap[l.campaign_id] || "Campaña",
+      created_at: l.created_at
+    })),
 
-    ]
-    .sort((a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    )
-    .slice(0, 10)
+  ...(payouts || []).map(p => ({
+    id: p.id,
+    type: "withdraw",
+    amount: Number(p.amount),
+    campaign_id: p.campaign_id,
+    campaign_title: campaignMap[p.campaign_id] || "Campaña",
+    status: p.status,
+    created_at: p.created_at
+  }))
+
+]
+.sort((a, b) =>
+  new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+)
+.slice(0, 10)
 
     /* =========================
        ✅ RESPONSE FINAL
