@@ -225,14 +225,36 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (updated) {
-      await sendNotification({
-        user_email,
-        type: "donation",
-        title: "Donación recibida",
-        message: `Recibiste $${donation}`,
-        sendEmail: true
-      })
-    }
+
+  /* =========================
+     🎯 OBTENER CAMPAÑA REAL
+  ========================= */
+  const { data: campaign } = await supabase
+    .from("campaigns")
+    .select("title")
+    .eq("id", campaign_id)
+    .maybeSingle()
+
+  const campaignTitle = campaign?.title || "Tu campaña"
+
+  /* =========================
+     📩 NOTIFICACIÓN + EMAIL REAL
+  ========================= */
+  await sendNotification({
+    user_email,
+    type: "payment_received",
+    title: "💰 Donación recibida",
+    message: `Recibiste una donación de $${Number(donation).toLocaleString()} en "${campaignTitle}"`,
+    
+    // 🔥 CLAVE (ESTO FALTABA)
+    metadata: {
+      amount: donation,
+      campaign_title: campaignTitle
+    },
+
+    sendEmail: true
+  })
+}
 
     await syncWallet(user_email)
 
