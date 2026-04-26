@@ -1,5 +1,3 @@
-console.log("🔥 WEBHOOK HIT")
-
 import { NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
@@ -120,7 +118,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔥 UPDATE SI YA EXISTE
+       🔄 UPDATE SI YA EXISTE
     ========================= */
     if (existingPayment) {
       await supabase
@@ -129,7 +127,8 @@ export async function POST(req: Request) {
           metadata: {
             ...existingPayment.metadata,
             donor_name,
-            message
+            message,
+            donation
           }
         })
         .eq("payment_id", paymentId)
@@ -166,7 +165,7 @@ export async function POST(req: Request) {
           donation,
           tip,
           donor_name,
-          message // 🔥 FIX REAL AQUÍ
+          message
         },
         notified: false
       })
@@ -216,45 +215,44 @@ export async function POST(req: Request) {
       .update({ status: "approved" })
       .eq("payment_id", paymentId)
 
-    const { data: updated } = await supabase
+    /* =========================
+       ✅ ENVÍO SEGURO DE NOTIFICACIÓN + EMAIL
+    ========================= */
+    const { data: paymentRow } = await supabase
       .from("payments")
-      .update({ notified: true })
+      .select("notified")
       .eq("payment_id", paymentId)
-      .eq("notified", false)
-      .select()
       .maybeSingle()
 
-    if (updated) {
+    if (!paymentRow?.notified) {
 
-  /* =========================
-     🎯 OBTENER CAMPAÑA REAL
-  ========================= */
-  const { data: campaign } = await supabase
-    .from("campaigns")
-    .select("title")
-    .eq("id", campaign_id)
-    .maybeSingle()
+      await supabase
+        .from("payments")
+        .update({ notified: true })
+        .eq("payment_id", paymentId)
 
-  const campaignTitle = campaign?.title || "Tu campaña"
+      const { data: campaign } = await supabase
+        .from("campaigns")
+        .select("title")
+        .eq("id", campaign_id)
+        .maybeSingle()
 
-  /* =========================
-     📩 NOTIFICACIÓN + EMAIL REAL
-  ========================= */
-  await sendNotification({
-    user_email,
-    type: "payment_received",
-    title: "💰 Donación recibida",
-    message: `Recibiste una donación de $${Number(donation).toLocaleString()} en "${campaignTitle}"`,
-    
-    // 🔥 CLAVE (ESTO FALTABA)
-    metadata: {
-      amount: donation,
-      campaign_title: campaignTitle
-    },
+      const campaignTitle = campaign?.title || "Tu campaña"
 
-    sendEmail: true
-  })
-}
+      await sendNotification({
+        user_email,
+        type: "donation",
+        title: "💰 Donación recibida",
+        message: `Recibiste una donación de $${Number(donation).toLocaleString()} en "${campaignTitle}"`,
+        metadata: {
+          amount: donation,
+          campaign_title: campaignTitle,
+          donor_name,
+          message
+        },
+        sendEmail: true
+      })
+    }
 
     await syncWallet(user_email)
 
