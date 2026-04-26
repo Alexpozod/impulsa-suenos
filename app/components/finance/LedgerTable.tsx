@@ -111,7 +111,7 @@ export default function LedgerTable({
                       </span>
 
                       <span className="text-xs text-gray-400">
-                        {tx.campaigns?.title || "Campaña"}
+                        {tx.campaign?.title || "Campaña"}
                       </span>
 
                       {showCampaignId && (
