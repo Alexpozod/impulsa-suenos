@@ -13,7 +13,6 @@ export default function NotificationsPage() {
   }, [])
 
   const load = async () => {
-
     const { data: sessionData } = await supabase.auth.getSession()
     const token = sessionData?.session?.access_token
 
@@ -29,7 +28,6 @@ export default function NotificationsPage() {
   }
 
   const markAsRead = async (id: string) => {
-
     await fetch('/api/notifications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -41,18 +39,44 @@ export default function NotificationsPage() {
     )
   }
 
-  const getMessage = (type: string) => {
+  /* =========================
+     🎨 UI HELPERS (SaaS style)
+  ========================= */
 
-    switch (type) {
-      case "campaign_update_approved":
-        return "✅ Tus cambios fueron aprobados"
-      case "campaign_update_rejected":
-        return "❌ Tus cambios fueron rechazados"
-      case "payment_received":
-        return "💰 Recibiste una donación"
-      default:
-        return "🔔 Nueva notificación"
+  const getIcon = (n: any) => {
+    const type = (n.type || "").toLowerCase()
+
+    if (type.includes("payment")) return "💰"
+    if (type.includes("withdraw")) return "🏦"
+    if (type.includes("kyc")) return "🛡️"
+    if (type.includes("update")) return "📢"
+
+    return "🔔"
+  }
+
+  const getBorder = (n: any) => {
+    if (!n.read) return "border border-green-500"
+    return ""
+  }
+
+  const getBg = (n: any) => {
+    return n.read ? "bg-slate-900" : "bg-slate-800"
+  }
+
+  /* =========================
+     🧠 MENSAJE INTELIGENTE
+  ========================= */
+
+  const buildMessage = (n: any) => {
+
+    let msg = n.message || ""
+
+    // 🔥 limpiar $0
+    if (msg.includes("$0")) {
+      msg = "Recibiste una donación en tu campaña"
     }
+
+    return msg
   }
 
   if (loading) return <div className="p-6">Cargando...</div>
@@ -70,55 +94,78 @@ export default function NotificationsPage() {
 
       <div className="space-y-3">
 
-        {notifications.map(n => (
-          <div
-            key={n.id}
-            className={`p-4 rounded-xl ${
-              n.read ? "bg-slate-900" : "bg-slate-800 border border-green-500"
-            }`}
-          >
+        {notifications.map(n => {
 
-            <p className="text-sm">
+          const message = buildMessage(n)
 
-  {/* ✅ PRIORIDAD REAL */}
-  {n.title || getMessage(n.type)}
+          return (
+            <div
+              key={n.id}
+              className={`p-4 rounded-xl transition ${getBg(n)} ${getBorder(n)}`}
+            >
 
-</p>
+              {/* HEADER */}
+              <div className="flex items-start gap-3">
 
-{/* 🔥 MENSAJE INTELIGENTE (FIX REAL) */}
-{(() => {
-  let msg = n.message || ""
+                {/* ICON */}
+                <div className="text-xl mt-1">
+                  {getIcon(n)}
+                </div>
 
-  // ❌ si viene con $0 lo corregimos
-  if (msg.includes("$0")) {
-    msg = "Recibiste una donación en tu campaña"
-  }
+                {/* CONTENT */}
+                <div className="flex-1">
 
-  return msg ? (
-    <p className="text-xs text-gray-400 mt-1">
-      {msg}
-    </p>
-  ) : null
-})()}
-            <div className="flex justify-between mt-2 text-xs text-gray-400">
+                  {/* TITLE */}
+                  <p className="text-sm font-semibold">
+                    {n.title || "Nueva notificación"}
+                  </p>
 
-              <span>
-                {new Date(n.created_at).toLocaleString()}
-              </span>
+                  {/* MESSAGE */}
+                  {message && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {message}
+                    </p>
+                  )}
 
-              {!n.read && (
-                <button
-                  onClick={() => markAsRead(n.id)}
-                  className="text-green-400"
-                >
-                  Marcar como leído
-                </button>
-              )}
+                  {/* 💰 MONTO */}
+                  {n.metadata?.amount > 0 && (
+                    <p className="text-xs text-green-400 mt-1 font-semibold">
+                      +${Number(n.metadata.amount).toLocaleString()}
+                    </p>
+                  )}
+
+                  {/* 🏷 CAMPAÑA */}
+                  {n.metadata?.campaign_title && (
+                    <p className="text-[11px] text-gray-500 mt-1">
+                      Campaña: {n.metadata.campaign_title}
+                    </p>
+                  )}
+
+                </div>
+
+              </div>
+
+              {/* FOOTER */}
+              <div className="flex justify-between mt-3 text-xs text-gray-500">
+
+                <span>
+                  {new Date(n.created_at).toLocaleString()}
+                </span>
+
+                {!n.read && (
+                  <button
+                    onClick={() => markAsRead(n.id)}
+                    className="text-green-400 hover:underline"
+                  >
+                    Marcar como leído
+                  </button>
+                )}
+
+              </div>
 
             </div>
-
-          </div>
-        ))}
+          )
+        })}
 
       </div>
 
