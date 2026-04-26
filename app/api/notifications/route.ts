@@ -40,7 +40,82 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json(data || [])
+    /* =========================
+       🔥 NORMALIZACIÓN REAL
+    ========================= */
+    const formatted = (data || []).map((n: any) => {
+
+      const type = n.type || n.event_type
+      const meta = n.metadata || {}
+
+      let title = "🔔 Nueva notificación"
+      let message = ""
+
+      /* =========================
+         💰 DONACIÓN
+      ========================= */
+      if (type === "donation" || type === "payment") {
+        title = "💰 Donación recibida"
+
+        const amount = Number(meta.amount || meta.donation || 0)
+        const campaign = meta.campaign_title || "tu campaña"
+
+        message = `Recibiste $${amount.toLocaleString()} en ${campaign}`
+      }
+
+      /* =========================
+         🏦 RETIRO
+      ========================= */
+      if (type === "withdraw") {
+        if (n.status === "pending") {
+          title = "⏳ Retiro en revisión"
+          message = "Tu solicitud está siendo revisada"
+        }
+
+        if (n.status === "approved") {
+          title = "🏦 Retiro aprobado"
+          message = "Tu retiro fue aprobado"
+        }
+
+        if (n.status === "rejected") {
+          title = "❌ Retiro rechazado"
+          message = "Tu retiro fue rechazado"
+        }
+      }
+
+      /* =========================
+         🛡️ KYC
+      ========================= */
+      if (type === "kyc_approved") {
+        title = "✅ Verificación aprobada"
+        message = "Tu identidad fue validada correctamente"
+      }
+
+      if (type === "kyc_rejected") {
+        title = "⚠️ Verificación rechazada"
+        message = "Debes subir nuevamente tus documentos"
+      }
+
+      /* =========================
+         📢 FALLBACK INTELIGENTE
+      ========================= */
+      if (!message) {
+        message =
+          meta?.message ||
+          meta?.description ||
+          "Tienes una nueva actividad en tu cuenta"
+      }
+
+      return {
+        id: n.id,
+        title,
+        message,
+        created_at: n.created_at,
+        read: n.read || false
+      }
+    })
+
+    return NextResponse.json(formatted)
 
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
