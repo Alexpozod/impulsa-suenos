@@ -2,35 +2,47 @@
 
 import { useEffect, useState } from "react"
 
-export default function ViewersCounter() {
+export default function ViewersCounter({ campaign_id }: { campaign_id: string }) {
 
-  const [viewers, setViewers] = useState(0)
+  const [viewers, setViewers] = useState<number | null>(null)
 
   useEffect(() => {
+    if (!campaign_id) return
 
-    // 🎯 valor inicial realista
-    const base = Math.floor(Math.random() * 6) + 3 // entre 3 y 8
-    setViewers(base)
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/donations-live?campaign_id=${campaign_id}`)
+        const data = await res.json()
 
-    // 🔄 variación natural
-    const interval = setInterval(() => {
+        const donations = Array.isArray(data) ? data : []
 
-      setViewers((prev) => {
+        // 🔥 ACTIVIDAD REAL (últimas donaciones)
+        const recentActivity = donations.slice(0, 10).length
 
-        const change = Math.floor(Math.random() * 3) - 1 // -1, 0, +1
-        let next = prev + change
+        // 🧠 ALGORITMO PRO (basado en actividad)
+        let calculated = 2 + recentActivity
 
-        if (next < 2) next = 2
-        if (next > 15) next = 15
+        // límite natural
+        if (calculated > 25) calculated = 25
 
-        return next
-      })
+        setViewers(calculated)
 
-    }, 4000)
+      } catch (err) {
+        console.error("viewers error", err)
+        setViewers(3) // fallback mínimo
+      }
+    }
+
+    load()
+
+    // 🔄 refresco cada 15s
+    const interval = setInterval(load, 15000)
 
     return () => clearInterval(interval)
 
-  }, [])
+  }, [campaign_id])
+
+  if (viewers === null) return null
 
   return (
     <div className="bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded-lg text-sm text-center">

@@ -295,7 +295,7 @@ export default function CampaignDetail() {
         <div className="md:col-span-2">
           <div className="sticky top-6">
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
-              <ViewersCounter />
+              <ViewersCounter campaign_id={campaign.id} />
               <DonationBox campaign_id={campaign.id} />
             </div>
           </div>
