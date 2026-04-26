@@ -137,7 +137,41 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* ================= 💬 DONACIONES (FIX REAL) ================= */}
+          {/* ================= 📢 ACTUALIZACIONES (FIX REAL) ================= */}
+          <div className="mt-10">
+            <h2 className="text-xl font-bold mb-4">
+              📢 Actualizaciones
+            </h2>
+
+            {updates.length === 0 && (
+              <p className="text-gray-500 text-sm">
+                Aún no hay actualizaciones
+              </p>
+            )}
+
+            <div className="space-y-4">
+
+              {updates.map((u: any) => (
+                <div key={u.id} className="border rounded-xl p-4">
+
+                  <div className="flex justify-between text-xs text-gray-400 mb-1">
+                    <span>{u.title || "Actualización"}</span>
+                    <span>
+                      {new Date(u.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  <p className="text-sm whitespace-pre-line">
+                    {u.description}
+                  </p>
+
+                </div>
+              ))}
+
+            </div>
+          </div>
+
+          {/* ================= 💬 DONACIONES ================= */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">
               💬 Últimas donaciones
