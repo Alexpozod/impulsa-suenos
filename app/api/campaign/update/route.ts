@@ -1,16 +1,53 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
+export const runtime = "nodejs"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+/* =========================
+   🔵 GET → OBTENER UPDATES
+========================= */
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const campaign_id = searchParams.get("campaign_id")
+
+    if (!campaign_id) {
+      return NextResponse.json([])
+    }
+
+    const { data, error } = await supabase
+      .from("campaign_updates")
+      .select("*")
+      .eq("campaign_id", campaign_id)
+      .in("status", ["approved", "published"]) // 🔥 FIX REAL
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("GET updates error:", error)
+      return NextResponse.json([])
+    }
+
+    return NextResponse.json(data || [])
+
+  } catch (error) {
+    console.error("GET error:", error)
+    return NextResponse.json([])
+  }
+}
+
+/* =========================
+   🟢 POST → CREAR UPDATE
+========================= */
 export async function POST(req: Request) {
   try {
 
     /* =========================
-       🔐 AUTH (BIEN UBICADO)
+       🔐 AUTH
     ========================= */
     const authHeader = req.headers.get("authorization")
 
@@ -20,7 +57,8 @@ export async function POST(req: Request) {
 
     const token = authHeader.replace("Bearer ", "")
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    const { data: { user }, error: userError } =
+      await supabase.auth.getUser(token)
 
     if (userError || !user?.email) {
       return NextResponse.json({ error: "invalid user" }, { status: 401 })
@@ -46,7 +84,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔐 VALIDAR DUEÑO (CRÍTICO)
+       🔐 VALIDAR DUEÑO
     ========================= */
     const { data: campaignOwner } = await supabase
       .from("campaigns")
@@ -76,10 +114,9 @@ export async function POST(req: Request) {
     const cover = finalImages?.[0] || null
 
     /* =========================
-       🔥 SI NO HAY DINERO → DIRECTO
+       🔥 SIN DINERO → EDITA
     ========================= */
     if (!hasMoney) {
-
       await supabase
         .from("campaigns")
         .update({
@@ -95,23 +132,31 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🚨 SI HAY DINERO → PENDIENTE
+       🚨 CON DINERO → UPDATE
     ========================= */
-    await supabase.from("campaign_updates").insert({
-      campaign_id: id,
-      title,
-      description,
-      image_url: cover,
-      images: finalImages,
-      status: "pending"
-    })
+    const { error: insertError } = await supabase
+      .from("campaign_updates")
+      .insert({
+        campaign_id: id,
+        title,
+        description,
+        image_url: cover,
+        images: finalImages,
+        status: "approved" // 🔥 IMPORTANTE (VISIBLE)
+      })
+
+    if (insertError) {
+      console.error("INSERT ERROR:", insertError)
+      return NextResponse.json({ error: "Error guardando update" }, { status: 500 })
+    }
 
     return NextResponse.json({
       ok: true,
-      mode: "pending_approval"
+      mode: "approved"
     })
 
   } catch (err: any) {
+    console.error("POST ERROR:", err)
     return NextResponse.json(
       { error: err.message },
       { status: 500 }
