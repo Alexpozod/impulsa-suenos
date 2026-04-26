@@ -156,9 +156,12 @@ export async function GET(req: Request) {
 ========================= */
 
 const campaignMap = (campaigns || []).reduce((acc, c) => {
-  acc[c.id] = c.title
+  acc[c.id] = {
+    id: c.id,
+    title: c.title
+  }
   return acc
-}, {} as Record<string, string>)
+}, {} as Record<string, any>)
 
 const movements = [
 
@@ -168,8 +171,7 @@ const movements = [
       id: l.id,
       type: "donation",
       amount: Number(l.amount),
-      campaign_id: l.campaign_id,
-      campaign_title: campaignMap[l.campaign_id] || "Campaña",
+      campaign: campaignMap[l.campaign_id] || null,
       created_at: l.created_at
     })),
 
@@ -177,8 +179,7 @@ const movements = [
     id: p.id,
     type: "withdraw",
     amount: Number(p.amount),
-    campaign_id: p.campaign_id,
-    campaign_title: campaignMap[p.campaign_id] || "Campaña",
+    campaign: campaignMap[p.campaign_id] || null,
     status: p.status,
     created_at: p.created_at
   }))
