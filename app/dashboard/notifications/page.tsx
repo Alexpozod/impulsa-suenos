@@ -79,9 +79,18 @@ export default function NotificationsPage() {
           >
 
             <p className="text-sm">
-              {getMessage(n.type)}
-            </p>
 
+  {/* ✅ PRIORIDAD REAL */}
+  {n.title || getMessage(n.type)}
+
+</p>
+
+{/* 🔥 MENSAJE DETALLADO */}
+{n.message && (
+  <p className="text-xs text-gray-400 mt-1">
+    {n.message}
+  </p>
+)}
             <div className="flex justify-between mt-2 text-xs text-gray-400">
 
               <span>
