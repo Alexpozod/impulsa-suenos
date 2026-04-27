@@ -48,6 +48,10 @@ export async function GET() {
     const rejectedWithdrawals = ledger.filter(l => l.type === "withdraw_rejected")
 
     const feePlatform = ledger.filter(l => l.type === "fee_platform")
+
+    // 🔥 FIX: AGREGAMOS IVA (SIN TOCAR NADA EXISTENTE)
+    const feePlatformIVA = ledger.filter(l => l.type === "fee_platform_iva")
+
     const feeMP = ledger.filter(l => l.type === "fee_mp")
 
     /* =========================
@@ -83,10 +87,16 @@ export async function GET() {
       0
     )
 
-    const totalPlatformFees = feePlatform.reduce(
-      (acc, f) => acc + Math.abs(Number(f.amount || 0)),
-      0
-    )
+    // 🔥 FIX REAL: PLATFORM = BASE + IVA
+    const totalPlatformFees =
+      feePlatform.reduce(
+        (acc, f) => acc + Math.abs(Number(f.amount || 0)),
+        0
+      ) +
+      feePlatformIVA.reduce(
+        (acc, f) => acc + Math.abs(Number(f.amount || 0)),
+        0
+      )
 
     const totalProviderFees = feeMP.reduce(
       (acc, f) => acc + Math.abs(Number(f.amount || 0)),
