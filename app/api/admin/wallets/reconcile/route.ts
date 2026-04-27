@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-export const dynamic = "force-dynamic" // 🔥 evita problemas de build
+export const dynamic = "force-dynamic"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
@@ -16,7 +16,7 @@ export async function POST() {
     ========================= */
     const { data: ledger, error } = await supabase
       .from("financial_ledger")
-      .select("user_email, amount, flow_type, type")
+      .select("user_email, amount, type")
       .eq("status", "confirmed")
 
     if (error || !ledger) {
@@ -24,7 +24,7 @@ export async function POST() {
     }
 
     /* =========================
-       🧠 AGRUPAR
+       🧠 AGRUPAR CORRECTO
     ========================= */
     const map: Record<string, number> = {}
 
@@ -36,17 +36,28 @@ export async function POST() {
         map[email] = 0
       }
 
-      // ❌ ignorar pending
-      if (row.type === "withdraw_pending") continue
-
       const amount = Number(row.amount || 0)
 
-      if (row.flow_type === "in") {
-        map[email] += amount
-      }
+      switch (row.type) {
 
-      if (row.flow_type === "out") {
-        map[email] -= Math.abs(amount)
+        // 💰 ENTRADAS
+        case "payment":
+        case "tip":
+        case "creator_net":
+          map[email] += amount
+          break
+
+        // 💸 SALIDAS
+        case "fee_platform":
+        case "fee_platform_iva":
+        case "fee_mp":
+        case "withdraw":
+          map[email] -= Math.abs(amount)
+          break
+
+        // ❌ ignoramos pending
+        case "withdraw_pending":
+          break
       }
     }
 
