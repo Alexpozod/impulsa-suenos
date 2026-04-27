@@ -4,9 +4,9 @@ export async function calculateCampaignBalance(
 ) {
   const { data, error } = await supabase
     .from("financial_ledger")
-    .select("amount, flow_type, type")
+    .select("amount, type")
     .eq("campaign_id", campaign_id)
-    .eq("status", "confirmed") // 🔥 IMPORTANTE
+    .eq("status", "confirmed")
 
   if (error || !data) {
     return {
@@ -27,43 +27,27 @@ export async function calculateCampaignBalance(
     const amount = Number(row.amount || 0)
 
     /* =========================
-       💰 INGRESOS REALES USUARIO
+       💰 DINERO REAL USUARIO
     ========================= */
-    if (row.flow_type === "in" && row.type === "payment") {
-      totalIn += amount
+    if (row.type === "creator_net") {
       balance += amount
+      totalIn += amount
     }
 
     /* =========================
-       💸 COMISIONES (RESTAN)
+       💸 RETIROS APROBADOS
     ========================= */
-    if (
-      row.type === "fee_mp" ||
-      row.type === "fee_platform"
-    ) {
+    if (row.type === "withdraw") {
       balance -= Math.abs(amount)
-    }
-
-    /* =========================
-       💸 RETIRO REAL (APROBADO)
-    ========================= */
-    if (row.flow_type === "out" && row.type === "withdraw") {
       totalOut += Math.abs(amount)
-      balance -= Math.abs(amount)
     }
 
     /* =========================
-       🟡 RETIRO PENDIENTE
+       🟡 RETIROS PENDIENTES
     ========================= */
-    if (row.flow_type === "out" && row.type === "withdraw_pending") {
+    if (row.type === "withdraw_pending") {
       pending += Math.abs(amount)
     }
-
-    /* =========================
-       🚫 IGNORAR (CLAVE)
-    ========================= */
-    // fee_platform_income ❌
-    // tip_income ❌
   }
 
   const available = balance - pending
