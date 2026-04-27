@@ -10,14 +10,13 @@ export async function GET() {
   try {
 
     /* =========================
-       📥 LEDGER (FIX REAL)
+       📥 LEDGER
     ========================= */
     const { data: ledger, error } = await supabase
       .from("financial_ledger")
       .select(`
         user_email,
         amount,
-        flow_type,
         type,
         campaign_id,
         campaigns (
@@ -26,9 +25,6 @@ export async function GET() {
       `)
       .eq("status", "confirmed")
 
-    /* =========================
-       👛 WALLETS (NO SE ELIMINA)
-    ========================= */
     const { data: wallets } = await supabase
       .from("wallets")
       .select("*")
@@ -43,13 +39,12 @@ export async function GET() {
     }
 
     /* =========================
-       🧠 AGRUPAR LEDGER CORRECTO
+       🧠 MAPA REAL (TIPOS CORRECTOS)
     ========================= */
     const map: Record<string, any> = {}
 
     for (const row of ledger) {
 
-      // ✅ campaigns SIEMPRE ES ARRAY
       const campaignOwner =
         Array.isArray(row.campaigns) && row.campaigns.length > 0
           ? row.campaigns[0]?.user_email
@@ -68,25 +63,45 @@ export async function GET() {
         }
       }
 
-      // ignorar pendientes
-      if (row.type === "withdraw_pending") continue
-
       const amount = Number(row.amount || 0)
 
-      // balance real
-      map[email].balance += amount
+      switch (row.type) {
 
-      if (row.flow_type === "in") {
-        map[email].income += amount
-      }
+        /* 💰 DINERO REAL USUARIO */
+        case "creator_net":
+          map[email].balance += amount
+          map[email].income += amount
+          break
 
-      if (row.flow_type === "out") {
-        map[email].withdrawn += Math.abs(amount)
+        /* 💸 RETIROS */
+        case "withdraw":
+          map[email].balance -= Math.abs(amount)
+          map[email].withdrawn += Math.abs(amount)
+          break
+
+        /* ⏳ IGNORAR */
+        case "withdraw_pending":
+        case "withdraw_rejected":
+          break
+
+        /* 🏦 PLATFORM (no afecta usuario) */
+        case "fee_platform":
+        case "fee_platform_iva":
+        case "fee_mp":
+        case "tip":
+          if (!map["platform"]) {
+            map["platform"] = { income: 0, withdrawn: 0, balance: 0 }
+          }
+          map["platform"].balance += Math.abs(amount)
+          break
+
+        default:
+          break
       }
     }
 
     /* =========================
-       🔍 CONSTRUIR RESULTADO
+       🔍 RESULTADO
     ========================= */
     const result = wallets.map(w => {
 
