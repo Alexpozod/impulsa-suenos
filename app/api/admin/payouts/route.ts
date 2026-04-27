@@ -6,10 +6,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const ADMIN_EMAIL = "contacto@impulsasuenos.com"
-
 export async function GET(req: Request) {
   try {
+
+    /* =========================
+       🔐 AUTH
+    ========================= */
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
@@ -18,79 +20,81 @@ export async function GET(req: Request) {
 
     const token = authHeader.replace("Bearer ", "")
 
-    const { data: { user } } = await supabase.auth.getUser(token)
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
 
-    if (!user || user.email !== ADMIN_EMAIL) {
+    if (userError || !user?.id) {
+      return NextResponse.json({ error: "invalid_user" }, { status: 401 })
+    }
+
+    /* =========================
+       🔐 VALIDAR ADMIN REAL (NO EMAIL)
+    ========================= */
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+
+    if (!profile || profile.role !== "admin") {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
     }
 
     /* =========================
-       🏦 PAYOUTS
+       📥 PAYOUTS
     ========================= */
-    const { data: payouts } = await supabase
+    const { data: payouts, error } = await supabase
       .from("payouts")
       .select("*")
       .order("created_at", { ascending: false })
 
-    if (!payouts) {
+    if (error) {
+      return NextResponse.json({ error: "payouts_error" }, { status: 500 })
+    }
+
+    if (!payouts || payouts.length === 0) {
       return NextResponse.json([])
     }
 
     /* =========================
-       📊 ENRIQUECER DATA (FIX REAL)
+       📊 ENRIQUECER (FIX REAL)
     ========================= */
     const enriched = await Promise.all(
       payouts.map(async (p) => {
 
-        // 🎯 CAMPAÑA
         const { data: campaign } = await supabase
           .from("campaigns")
           .select("title, user_email")
           .eq("id", p.campaign_id)
           .maybeSingle()
 
-        // 📥 LEDGER REAL
         const { data: ledger } = await supabase
           .from("financial_ledger")
           .select("amount, type")
           .eq("campaign_id", p.campaign_id)
           .eq("status", "confirmed")
 
-        /* =========================
-           🔥 LÓGICA FINANCIERA CORRECTA
-        ========================= */
+        let balance = 0
 
-        const creatorNet = ledger?.filter(l => l.type === "creator_net") || []
-        const withdrawals = ledger?.filter(l => l.type === "withdraw") || []
-        const pending = ledger?.filter(l => l.type === "withdraw_pending") || []
+        for (const l of ledger || []) {
+          const amount = Number(l.amount || 0)
 
-        const totalIncome = creatorNet.reduce(
-          (acc, d) => acc + Number(d.amount || 0),
-          0
-        )
+          // 🔥 SOLO LO REAL DEL USUARIO
+          if (l.type === "creator_net") {
+            balance += amount
+          }
 
-        const totalWithdrawn = withdrawals.reduce(
-          (acc, w) => acc + Math.abs(Number(w.amount || 0)),
-          0
-        )
+          if (l.type === "withdraw") {
+            balance -= Math.abs(amount)
+          }
 
-        const totalPending = pending.reduce(
-          (acc, w) => acc + Math.abs(Number(w.amount || 0)),
-          0
-        )
-
-        const balance = totalIncome - totalWithdrawn
-        const available = balance - totalPending
+          // ⚠️ NO RESTAMOS withdraw_pending
+        }
 
         return {
           ...p,
           campaign_title: campaign?.title,
           owner: campaign?.user_email,
-
-          // 🔥 CLAVE
-          balance,
-          pending: totalPending,
-          available
+          balance
         }
       })
     )
@@ -101,7 +105,7 @@ export async function GET(req: Request) {
     console.error("ADMIN PAYOUTS ERROR:", error)
 
     return NextResponse.json(
-      { error: "error" },
+      { error: "server_error" },
       { status: 500 }
     )
   }
