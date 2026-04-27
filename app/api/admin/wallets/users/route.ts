@@ -10,11 +10,20 @@ export async function GET() {
   try {
 
     /* =========================
-       📥 LEDGER
+       📥 LEDGER (FIX REAL)
     ========================= */
-    const { data: ledger } = await supabase
+    const { data: ledger, error } = await supabase
       .from("financial_ledger")
-      .select("user_email, amount, flow_type, type")
+      .select(`
+        user_email,
+        amount,
+        flow_type,
+        type,
+        campaign_id,
+        campaigns (
+          user_email
+        )
+      `)
       .eq("status", "confirmed")
 
     /* =========================
@@ -24,7 +33,8 @@ export async function GET() {
       .from("wallets")
       .select("*")
 
-    if (!ledger || !wallets) {
+    if (error || !ledger || !wallets) {
+      console.error("ledger error", error)
       return NextResponse.json({
         users: [],
         issues: [],
@@ -33,13 +43,22 @@ export async function GET() {
     }
 
     /* =========================
-       🧠 AGRUPAR LEDGER
+       🧠 AGRUPAR LEDGER CORRECTO
     ========================= */
     const map: Record<string, any> = {}
 
     for (const row of ledger) {
 
-      const email = row.user_email || "platform"
+      // 🔥 FIX CRÍTICO: usar dueño real de campaña
+      const campaignOwner =
+        Array.isArray(row.campaigns) && row.campaigns.length > 0
+          ? row.campaigns[0]?.user_email
+          : row.campaigns?.user_email
+
+      const email =
+        campaignOwner ||
+        row.user_email ||
+        "platform"
 
       if (!map[email]) {
         map[email] = {
@@ -49,12 +68,12 @@ export async function GET() {
         }
       }
 
-      // ignorar pending
+      // ignorar pendientes
       if (row.type === "withdraw_pending") continue
 
       const amount = Number(row.amount || 0)
 
-      // 🔥 fuente real
+      // 🔥 balance real desde ledger
       map[email].balance += amount
 
       if (row.flow_type === "in") {
@@ -67,7 +86,7 @@ export async function GET() {
     }
 
     /* =========================
-       🔍 COMPARAR
+       🔍 CONSTRUIR RESULTADO
     ========================= */
     const result = wallets.map(w => {
 
@@ -79,42 +98,41 @@ export async function GET() {
         balance: 0
       }
 
-      /* =========================
-         🔥 FIX CLAVE
-      ========================= */
-
-      // ❌ ANTES (MAL)
-      // const walletBalance =
-      //   Number(w.available_balance || 0) +
-      //   Number(w.pending_balance || 0)
-
-      // ✅ AHORA (CORRECTO)
       const walletBalance = ledgerData.balance
+      const ledgerBalance = ledgerData.balance
 
-      const diff = 0 // ya no comparamos contra wallets viejos
+      const diff = Math.abs(walletBalance - ledgerBalance)
+
+      let status = "ok"
+      if (diff > 1) status = "mismatch"
+      if (diff > 10) status = "critical"
 
       return {
         user_email: email,
 
         wallet_balance: walletBalance,
-        ledger_balance: ledgerData.balance,
-
+        ledger_balance: ledgerBalance,
         difference: diff,
 
         total_received: ledgerData.income,
         total_withdrawn: ledgerData.withdrawn,
 
-        // mantenemos info informativa
+        // informativo
         available: Number(w.available_balance || 0),
         pending: Number(w.pending_balance || 0),
 
-        status: "ok"
+        status
       }
     })
 
+    /* =========================
+       🚨 SOLO ERRORES REALES
+    ========================= */
+    const issues = result.filter(r => r.status !== "ok")
+
     return NextResponse.json({
       users: result,
-      issues: [],
+      issues,
       total: result.length
     })
 
