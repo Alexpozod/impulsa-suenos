@@ -2,14 +2,27 @@
 
 import { useEffect, useState } from "react"
 
+/* =========================
+   🧠 TIPOS (FIX TS)
+========================= */
+type WalletUser = {
+  user_email: string
+  wallet_balance: number
+  ledger_balance: number
+  difference: number
+  status: "ok" | "mismatch" | "critical"
+  available?: number
+  pending?: number
+}
+
 export default function WalletAdminPage() {
 
   const [wallets, setWallets] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   const [distribution, setDistribution] = useState<any>({})
-  const [walletUsers, setWalletUsers] = useState<any[]>([])
-  const [walletIssues, setWalletIssues] = useState<any[]>([])
+  const [walletUsers, setWalletUsers] = useState<WalletUser[]>([])
+  const [walletIssues, setWalletIssues] = useState<WalletUser[]>([])
 
   useEffect(() => {
     loadWallets()
@@ -65,29 +78,33 @@ export default function WalletAdminPage() {
 
       const users = Array.isArray(data?.users) ? data.users : []
 
-      const normalized = users.map((u: any) => {
+      const normalized: WalletUser[] = users.map((u: any) => {
 
         const wallet = Number(u.wallet_balance || 0)
         const ledger = Number(u.ledger_balance || 0)
 
         const diff = Math.abs(wallet - ledger)
 
-        let status = "ok"
+        let status: WalletUser["status"] = "ok"
 
         if (diff > 1) status = "mismatch"
         if (diff > 10) status = "critical"
 
         return {
-          ...u,
+          user_email: u.user_email,
           wallet_balance: wallet,
           ledger_balance: ledger,
           difference: diff,
-          status
+          status,
+          available: Number(u.available || 0),
+          pending: Number(u.pending || 0)
         }
       })
 
-      // 🔥 SOLO PROBLEMAS REALES
-      const realIssues = normalized.filter(u => u.status !== "ok")
+      // 🔥 SOLO PROBLEMAS REALES (FIX TS)
+      const realIssues: WalletUser[] = normalized.filter(
+        (u: WalletUser) => u.status !== "ok"
+      )
 
       setWalletUsers(normalized)
       setWalletIssues(realIssues)
@@ -206,7 +223,7 @@ export default function WalletAdminPage() {
                 </span>
 
                 <span className="text-yellow-400">
-                  Diff: ${Math.abs(Number(u.difference || 0)).toLocaleString()}
+                  Diff: ${Math.abs(u.difference).toLocaleString()}
                 </span>
 
               </Row>
