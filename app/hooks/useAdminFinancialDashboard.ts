@@ -35,7 +35,7 @@ export function useAdminFinancialDashboard() {
       })
 
       if (!res.ok) {
-        console.error("❌ ADMIN FINANCE ERROR:", res.status)
+        console.error("❌ ADMIN API ERROR:", res.status)
         setData(null)
         return
       }
@@ -43,8 +43,8 @@ export function useAdminFinancialDashboard() {
       const json = await res.json()
       setData(json)
 
-    } catch (err) {
-      console.error("Admin finance error:", err)
+    } catch (error) {
+      console.error("Admin finance error:", error)
       setData(null)
     } finally {
       setLoading(false)
