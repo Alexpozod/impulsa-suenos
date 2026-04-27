@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
+export const runtime = "nodejs"
+
 export async function POST() {
   try {
 
@@ -10,14 +12,14 @@ export async function POST() {
     )
 
     /* =========================
-       📥 LEDGER REAL (FUENTE ÚNICA)
+       📥 LEDGER + OWNER REAL
     ========================= */
     const { data: ledger, error } = await supabase
       .from("financial_ledger")
       .select(`
         user_email,
         amount,
-        status,
+        campaign_id,
         campaigns (
           user_email
         )
@@ -25,6 +27,7 @@ export async function POST() {
       .eq("status", "confirmed")
 
     if (error || !ledger) {
+      console.error("Ledger error:", error)
       return NextResponse.json(
         { error: "ledger error" },
         { status: 500 }
@@ -38,13 +41,18 @@ export async function POST() {
 
     for (const row of ledger as any[]) {
 
-      // 🔥 FIX REAL (CLAVE)
-      const campaignUser = row.campaigns?.user_email || null
+      // 🔥 FIX REAL: campaigns SIEMPRE ES ARRAY
+      let campaignUser: string | null = null
 
+      if (Array.isArray(row.campaigns) && row.campaigns.length > 0) {
+        campaignUser = row.campaigns[0]?.user_email || null
+      }
+
+      // 🔥 PRIORIDAD CORRECTA
       const email =
-        campaignUser ||
-        row.user_email ||
-        "platform"
+        campaignUser ||          // dueño campaña (CORRECTO)
+        row.user_email ||        // fallback legacy
+        "platform"               // último fallback
 
       if (!map[email]) {
         map[email] = 0
@@ -55,7 +63,7 @@ export async function POST() {
     }
 
     /* =========================
-       🔄 SYNC TOTAL (UPSERT)
+       🔄 SYNC TOTAL (UPSERT REAL)
     ========================= */
     let updated = 0
 
@@ -63,14 +71,19 @@ export async function POST() {
 
       const balance = map[email]
 
-      const { data: existing } = await supabase
+      const { data: existing, error: findError } = await supabase
         .from("wallets")
         .select("user_email")
         .eq("user_email", email)
         .maybeSingle()
 
+      if (findError) {
+        console.error("Find wallet error:", findError)
+        continue
+      }
+
       if (existing) {
-        await supabase
+        const { error: updateError } = await supabase
           .from("wallets")
           .update({
             available_balance: balance,
@@ -78,8 +91,14 @@ export async function POST() {
             updated_at: new Date().toISOString()
           })
           .eq("user_email", email)
+
+        if (updateError) {
+          console.error("Update wallet error:", updateError)
+          continue
+        }
+
       } else {
-        await supabase
+        const { error: insertError } = await supabase
           .from("wallets")
           .insert({
             user_email: email,
@@ -87,6 +106,11 @@ export async function POST() {
             pending_balance: 0,
             created_at: new Date().toISOString()
           })
+
+        if (insertError) {
+          console.error("Insert wallet error:", insertError)
+          continue
+        }
       }
 
       updated++
@@ -94,7 +118,8 @@ export async function POST() {
 
     return NextResponse.json({
       ok: true,
-      updated
+      updated,
+      wallets: Object.keys(map).length
     })
 
   } catch (error) {
