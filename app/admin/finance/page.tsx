@@ -107,9 +107,8 @@ export default function FinanceAdminPage() {
           </button>
         </div>
 
-        {/* KPIs PRINCIPALES */}
+        {/* KPIs */}
         <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
-
           <Card title="Ingresos" value={stats.totalIncome} />
           <Card title="USD" value={stats.totalUSD} />
           <Card title="Retiros" value={stats.totalWithdrawals} />
@@ -125,24 +124,26 @@ export default function FinanceAdminPage() {
                 : 0
             }
           />
-
         </div>
 
-        {/* KPIs AVANZADOS */}
+        {/* KPIs PRO */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-
           <Card title="Profit" value={stats.profit} />
           <Card title="Margen %" value={Number(stats.margin || 0).toFixed(2)} />
           <Card title="Take Rate %" value={Number(stats.takeRate || 0).toFixed(2)} />
           <Card title="Fee Promedio" value={stats.avgFeePerPayment} />
-
         </div>
 
-        {/* 🔥 NUEVO: DESGLOSE REAL */}
-        <div className="grid md:grid-cols-3 gap-4">
+        {/* 🔥 DESGLOSE COMPLETO */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
 
           <Card title="Fee Plataforma (Base)" value={stats?.platform?.base} />
           <Card title="IVA Plataforma" value={stats?.platform?.iva} />
+
+          {/* 🔥 NUEVO */}
+          <Card title="Fee Fijo ($300)" value={stats?.feeBreakdown?.fixed} />
+          <Card title="Fee Variable (1%)" value={stats?.feeBreakdown?.variable} />
+
           <Card title="Neto a Creadores" value={stats?.creatorNet} />
 
         </div>
@@ -152,18 +153,18 @@ export default function FinanceAdminPage() {
 
         {/* ALERTAS */}
         {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
-          <Alert color="red" text="Retiros altos respecto a ingresos" />
+          <Alert type="red" text="Retiros altos respecto a ingresos" />
         )}
 
         {stats.margin < 5 && (
-          <Alert color="yellow" text="Margen bajo (menos del 5%)" />
+          <Alert type="yellow" text="Margen bajo (menos del 5%)" />
         )}
 
         {stats.margin > 20 && (
-          <Alert color="green" text="Excelente margen de negocio" />
+          <Alert type="green" text="Excelente margen de negocio" />
         )}
 
-        {/* TOP CAMPAÑAS */}
+        {/* SECCIONES */}
         <Section title="🏆 Top campañas">
           {topCampaigns.length === 0 && <Empty />}
           {topCampaigns.map((c, i) => (
@@ -176,7 +177,6 @@ export default function FinanceAdminPage() {
           ))}
         </Section>
 
-        {/* RENTABILIDAD */}
         <Section title="💰 Campañas más rentables">
           {profitRanking.length === 0 && <Empty />}
           {profitRanking.map((c, i) => (
@@ -189,7 +189,6 @@ export default function FinanceAdminPage() {
           ))}
         </Section>
 
-        {/* BALANCES */}
         <Section title="💰 Balance por campaña">
           {balances.length === 0 && <Empty />}
           {balances.map((c) => (
@@ -208,12 +207,9 @@ export default function FinanceAdminPage() {
   )
 }
 
-/* =========================
-   COMPONENTES
-========================= */
+/* COMPONENTES */
 
 function RevenueChart({ data }: any) {
-
   const chartData = Object.entries(data || {}).map(([date, val]: any) => ({
     date,
     total: val?.total || 0
@@ -240,11 +236,7 @@ function RevenueChart({ data }: any) {
 }
 
 function Card({ title, value }: any) {
-
-  const parsed =
-    value !== null && value !== undefined
-      ? Number(value)
-      : 0
+  const parsed = value !== null && value !== undefined ? Number(value) : 0
 
   return (
     <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
@@ -277,9 +269,15 @@ function Empty() {
   return <p className="text-gray-400 text-sm">Sin datos</p>
 }
 
-function Alert({ color, text }: any) {
+function Alert({ type, text }: any) {
+  const styles: any = {
+    red: "bg-red-900 border-red-700",
+    yellow: "bg-yellow-900 border-yellow-700",
+    green: "bg-green-900 border-green-700"
+  }
+
   return (
-    <div className={`bg-${color}-900 p-3 rounded-xl border border-${color}-700`}>
+    <div className={`${styles[type]} p-3 rounded-xl border`}>
       ⚠️ {text}
     </div>
   )
