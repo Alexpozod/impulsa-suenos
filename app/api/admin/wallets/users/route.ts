@@ -25,17 +25,21 @@ export async function GET() {
       .select("*")
 
     if (!ledger || !wallets) {
-      return NextResponse.json([])
+      return NextResponse.json({
+        users: [],
+        issues: [],
+        total: 0
+      })
     }
 
     /* =========================
        🧠 AGRUPAR LEDGER
     ========================= */
-    const map: any = {}
+    const map: Record<string, any> = {}
 
     for (const row of ledger) {
 
-      const email = row.user_email || "unknown"
+      const email = row.user_email || "platform"
 
       if (!map[email]) {
         map[email] = {
@@ -45,19 +49,20 @@ export async function GET() {
         }
       }
 
+      // ❌ ignorar pending
+      if (row.type === "withdraw_pending") continue
+
       const amount = Number(row.amount || 0)
 
-      // 🔥 ignorar pending
-      if (row.type === "withdraw_pending") continue
+      // 🔥 IMPORTANTE: amount YA viene con signo correcto
+      map[email].balance += amount
 
       if (row.flow_type === "in") {
         map[email].income += amount
-        map[email].balance += amount
       }
 
       if (row.flow_type === "out") {
         map[email].withdrawn += Math.abs(amount)
-        map[email].balance -= Math.abs(amount)
       }
     }
 
@@ -66,7 +71,7 @@ export async function GET() {
     ========================= */
     const result = wallets.map(w => {
 
-      const email = w.user_email
+      const email = w.user_email || "platform"
 
       const ledgerData = map[email] || {
         income: 0,
@@ -74,7 +79,10 @@ export async function GET() {
         balance: 0
       }
 
-      const walletBalance = Number(w.balance || 0)
+      // 🔥 FIX REAL (CRÍTICO)
+      const walletBalance =
+        Number(w.available_balance || 0) +
+        Number(w.pending_balance || 0)
 
       const diff = ledgerData.balance - walletBalance
 
@@ -119,6 +127,11 @@ export async function GET() {
 
   } catch (error) {
     console.error("wallet users error", error)
-    return NextResponse.json([])
+
+    return NextResponse.json({
+      users: [],
+      issues: [],
+      total: 0
+    })
   }
 }
