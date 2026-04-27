@@ -24,9 +24,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
     }
 
-    // =========================
-    // 🏦 PAYOUTS
-    // =========================
+    /* =========================
+       🏦 PAYOUTS
+    ========================= */
     const { data: payouts } = await supabase
       .from("payouts")
       .select("*")
@@ -36,36 +36,61 @@ export async function GET(req: Request) {
       return NextResponse.json([])
     }
 
-    // =========================
-    // 📊 ENRIQUECER DATA
-    // =========================
+    /* =========================
+       📊 ENRIQUECER DATA (FIX REAL)
+    ========================= */
     const enriched = await Promise.all(
       payouts.map(async (p) => {
 
+        // 🎯 CAMPAÑA
         const { data: campaign } = await supabase
           .from("campaigns")
           .select("title, user_email")
           .eq("id", p.campaign_id)
           .maybeSingle()
 
+        // 📥 LEDGER REAL
         const { data: ledger } = await supabase
           .from("financial_ledger")
           .select("amount, type")
           .eq("campaign_id", p.campaign_id)
+          .eq("status", "confirmed")
 
-        const deposits = ledger?.filter(l => l.type === "deposit") || []
+        /* =========================
+           🔥 LÓGICA FINANCIERA CORRECTA
+        ========================= */
+
+        const creatorNet = ledger?.filter(l => l.type === "creator_net") || []
         const withdrawals = ledger?.filter(l => l.type === "withdraw") || []
+        const pending = ledger?.filter(l => l.type === "withdraw_pending") || []
 
-        const totalIncome = deposits.reduce((acc, d) => acc + Number(d.amount), 0)
-        const totalWithdrawn = withdrawals.reduce((acc, w) => acc + Number(w.amount), 0)
+        const totalIncome = creatorNet.reduce(
+          (acc, d) => acc + Number(d.amount || 0),
+          0
+        )
+
+        const totalWithdrawn = withdrawals.reduce(
+          (acc, w) => acc + Math.abs(Number(w.amount || 0)),
+          0
+        )
+
+        const totalPending = pending.reduce(
+          (acc, w) => acc + Math.abs(Number(w.amount || 0)),
+          0
+        )
 
         const balance = totalIncome - totalWithdrawn
+        const available = balance - totalPending
 
         return {
           ...p,
           campaign_title: campaign?.title,
           owner: campaign?.user_email,
-          balance
+
+          // 🔥 CLAVE
+          balance,
+          pending: totalPending,
+          available
         }
       })
     )
@@ -73,6 +98,11 @@ export async function GET(req: Request) {
     return NextResponse.json(enriched)
 
   } catch (error) {
-    return NextResponse.json({ error: "error" }, { status: 500 })
+    console.error("ADMIN PAYOUTS ERROR:", error)
+
+    return NextResponse.json(
+      { error: "error" },
+      { status: 500 }
+    )
   }
 }

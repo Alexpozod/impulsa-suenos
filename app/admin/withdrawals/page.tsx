@@ -13,7 +13,15 @@ export default function AdminWithdrawals() {
   const [adminEmail, setAdminEmail] = useState("")
 
   const load = async () => {
-    const res = await fetch('/api/admin/withdrawals')
+    const { data: sessionData } = await supabase.auth.getSession()
+    const token = sessionData?.session?.access_token
+
+    const res = await fetch('/api/admin/payouts', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
     const data = await res.json()
     setList(data || [])
     setLoading(false)
@@ -97,103 +105,126 @@ export default function AdminWithdrawals() {
   return (
     <main className="min-h-screen bg-slate-950 text-white p-10">
 
-      <h1 className="text-3xl font-bold mb-8">
-        💸 Panel de Retiros
-      </h1>
+      <div className="max-w-5xl mx-auto">
 
-      {loading ? (
-        <p className="text-slate-400">Cargando...</p>
-      ) : list.length === 0 ? (
-        <p className="text-slate-400">No hay retiros</p>
-      ) : (
-        <div className="grid gap-5">
+        <h1 className="text-3xl font-bold mb-8">
+          💸 Panel de Retiros
+        </h1>
 
-          {list.map((w) => {
+        {loading ? (
+          <p className="text-slate-400">Cargando...</p>
+        ) : list.length === 0 ? (
+          <p className="text-slate-400">No hay retiros</p>
+        ) : (
+          <div className="space-y-5">
 
-            const risk = w.user_risk?.score || 0
+            {list.map((w) => {
 
-            return (
-              <div
-                key={w.id}
-                className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg"
-              >
+              const risk = w.user_risk?.score || 0
 
-                {/* HEADER */}
-                <div className="flex justify-between items-center">
+              // 🔥 FIX REAL (NO MÁS ERROR FALSO)
+              const available = Number(w.available || 0)
+              const isInvalid = w.amount > available
 
-                  <div>
-                    <p className="font-semibold text-lg">
-                      {w.user_email}
-                    </p>
+              return (
+                <div
+                  key={w.id}
+                  className="bg-slate-900 border border-slate-800 p-5 rounded-xl"
+                >
 
-                    <p className="text-xs text-slate-400">
-                      {new Date(w.created_at).toLocaleString()}
-                    </p>
+                  {/* HEADER */}
+                  <div className="flex justify-between items-center">
+
+                    <div>
+                      <p className="font-semibold text-lg">
+                        {w.user_email}
+                      </p>
+
+                      <p className="text-xs text-slate-400">
+                        {new Date(w.created_at).toLocaleString()}
+                      </p>
+
+                      {/* 🔥 INFO FINANCIERA REAL */}
+                      <p className="text-xs text-slate-500 mt-1">
+                        Balance: ${Number(w.balance || 0).toLocaleString()} | 
+                        Retenido: ${Number(w.pending || 0).toLocaleString()} | 
+                        Disponible: ${available.toLocaleString()}
+                      </p>
+
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-green-400">
+                        ${Number(w.amount).toLocaleString()}
+                      </p>
+
+                      <span className={`text-xs px-3 py-1 rounded-full ${getStatusColor(w.status)}`}>
+                        {w.status.toUpperCase()}
+                      </span>
+                    </div>
+
                   </div>
 
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-green-400">
-                      ${Number(w.amount).toLocaleString()}
-                    </p>
+                  {/* ⚠️ WARNING CORRECTO */}
+                  {isInvalid && (
+                    <div className="mt-3 text-yellow-400 text-sm">
+                      ⚠️ Excede saldo disponible (${available.toLocaleString()})
+                    </div>
+                  )}
 
-                    <span className={`text-xs px-3 py-1 rounded-full ${getStatusColor(w.status)}`}>
-                      {w.status.toUpperCase()}
+                  {/* RIESGO */}
+                  <div className="mt-4 flex items-center gap-3">
+
+                    <span className="text-sm text-slate-400">
+                      Riesgo:
                     </span>
+
+                    <span className={`text-xs px-3 py-1 rounded-full ${getRiskColor(risk)}`}>
+                      {risk}
+                    </span>
+
+                    <span className="text-xs text-slate-400">
+                      {w.user_risk?.status || "normal"}
+                    </span>
+
                   </div>
+
+                  {/* MOTIVO RECHAZO */}
+                  {w.rejection_reason && (
+                    <div className="mt-3 text-sm text-red-400">
+                      Motivo: {w.rejection_reason}
+                    </div>
+                  )}
+
+                  {/* BOTONES */}
+                  {w.status === 'pending' && (
+                    <div className="flex gap-3 mt-5">
+
+                      <button
+                        onClick={() => update(w.id, 'approve')}
+                        className="bg-green-600 px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
+                      >
+                        ✅ Aprobar
+                      </button>
+
+                      <button
+                        onClick={() => update(w.id, 'reject')}
+                        className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
+                      >
+                        ❌ Rechazar
+                      </button>
+
+                    </div>
+                  )}
 
                 </div>
+              )
+            })}
 
-                {/* RIESGO */}
-                <div className="mt-4 flex items-center gap-3">
+          </div>
+        )}
 
-                  <span className="text-sm text-slate-400">
-                    Riesgo:
-                  </span>
-
-                  <span className={`text-xs px-3 py-1 rounded-full ${getRiskColor(risk)}`}>
-                    {risk}
-                  </span>
-
-                  <span className="text-xs text-slate-400">
-                    {w.user_risk?.status || "normal"}
-                  </span>
-
-                </div>
-
-                {/* MOTIVO RECHAZO */}
-                {w.rejection_reason && (
-                  <div className="mt-3 text-sm text-red-400">
-                    Motivo: {w.rejection_reason}
-                  </div>
-                )}
-
-                {/* BOTONES */}
-                {w.status === 'pending' && (
-                  <div className="flex gap-3 mt-5">
-
-                    <button
-                      onClick={() => update(w.id, 'approve')}
-                      className="bg-green-600 px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
-                    >
-                      ✅ Aprobar
-                    </button>
-
-                    <button
-                      onClick={() => update(w.id, 'reject')}
-                      className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
-                    >
-                      ❌ Rechazar
-                    </button>
-
-                  </div>
-                )}
-
-              </div>
-            )
-          })}
-
-        </div>
-      )}
+      </div>
 
     </main>
   )
