@@ -36,12 +36,10 @@ export async function POST() {
     ========================= */
     const map: Record<string, number> = {}
 
-    for (const row of ledger) {
+    for (const row of ledger as any[]) {
 
-      const campaignUser =
-        Array.isArray(row.campaigns) && row.campaigns.length > 0
-          ? row.campaigns[0]?.user_email
-          : null
+      // 🔥 FIX REAL (CLAVE)
+      const campaignUser = row.campaigns?.user_email || null
 
       const email =
         campaignUser ||
