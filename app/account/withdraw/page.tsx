@@ -13,6 +13,7 @@ export default function WithdrawPage() {
   const [selectedCampaign, setSelectedCampaign] = useState<string>("")
 
   const [balances, setBalances] = useState<any>({})
+  const [globalPending, setGlobalPending] = useState(0) // 🔥 NUEVO
 
   const [amount, setAmount] = useState("")
   const [loading, setLoading] = useState(false)
@@ -47,19 +48,32 @@ export default function WithdrawPage() {
 
       const balancesMap: any = {}
 
-      /* =========================
-         🔥 FIX REAL AQUÍ (IMPORTANTE)
-         Calculamos desde ledger correctamente
-      ========================= */
       try {
         const res = await fetch("/api/ledger")
         const ledger = await res.json()
 
+        /* =========================
+           🔥 GLOBAL PENDING (FIX REAL)
+        ========================= */
+        const totalPending = (ledger || [])
+          .filter((tx: any) =>
+            tx.user_email === email &&
+            tx.type === "withdraw_pending" &&
+            tx.status === "confirmed"
+          )
+          .reduce((acc: number, tx: any) =>
+            acc + Math.abs(Number(tx.amount || 0)), 0)
+
+        setGlobalPending(totalPending)
+
+        /* =========================
+           💰 BALANCES POR CAMPAÑA
+        ========================= */
         for (const c of campaignsData || []) {
 
           const campaignLedger = (ledger || []).filter((tx: any) =>
             tx.campaign_id === c.id &&
-            tx.user_email === email && // 🔥 SOLO USUARIO
+            tx.user_email === email &&
             tx.status === "confirmed"
           )
 
@@ -68,17 +82,8 @@ export default function WithdrawPage() {
             0
           )
 
-          const pending = (ledger || [])
-            .filter((tx: any) =>
-              tx.campaign_id === c.id &&
-              tx.user_email === email &&
-              tx.type === "withdraw_pending"
-            )
-            .reduce((acc: number, tx: any) => acc + Math.abs(Number(tx.amount || 0)), 0)
-
           balancesMap[c.id] = {
-            available,
-            pending
+            available
           }
         }
 
@@ -86,7 +91,7 @@ export default function WithdrawPage() {
         console.error("Error calculando balances:", err)
 
         for (const c of campaignsData || []) {
-          balancesMap[c.id] = { available: 0, pending: 0 }
+          balancesMap[c.id] = { available: 0 }
         }
       }
 
@@ -153,10 +158,12 @@ export default function WithdrawPage() {
   }
 
   const currentBalance = balances[selectedCampaign]?.available || 0
-  const pendingBalance = balances[selectedCampaign]?.pending || 0
 
-  const insufficient = Number(amount) > currentBalance
-  const disabled = loading || insufficient || currentBalance <= 0
+  // 🔥 DISPONIBLE REAL = balance campaña - pending global
+  const realAvailable = currentBalance - globalPending
+
+  const insufficient = Number(amount) > realAvailable
+  const disabled = loading || insufficient || realAvailable <= 0
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -195,12 +202,12 @@ export default function WithdrawPage() {
           />
 
           <p className="text-sm text-gray-500">
-            Disponible: ${Number(currentBalance).toLocaleString()}
+            Disponible: ${Number(realAvailable).toLocaleString()}
           </p>
 
-          {pendingBalance > 0 && (
+          {globalPending > 0 && (
             <p className="text-xs text-yellow-600 mb-2">
-              🔒 Retenido: ${Number(pendingBalance).toLocaleString()}
+              🔒 Retenido total: ${Number(globalPending).toLocaleString()}
             </p>
           )}
 
