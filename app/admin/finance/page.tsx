@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
+import { useAdminFinancialDashboard } from "@/app/hooks/useAdminFinancialDashboard"
 import {
   LineChart,
   Line,
@@ -13,7 +13,7 @@ import {
 
 export default function FinanceAdminPage() {
 
-  const { data: stats, loading } = useFinancialDashboard()
+  const { data: stats, loading } = useAdminFinancialDashboard()
 
   const [topCampaigns, setTopCampaigns] = useState<any[]>([])
   const [balances, setBalances] = useState<any[]>([])
@@ -276,11 +276,18 @@ function RevenueChart({ data }: any) {
 }
 
 function Card({ title, value }: any) {
+
+  const parsedValue =
+    value !== null && value !== undefined
+      ? Number(value)
+      : 0
+
   return (
     <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
       <p className="text-sm text-gray-400">{title}</p>
+
       <p className="text-xl font-bold text-green-400">
-        ${Number(value || 0).toLocaleString()}
+        ${parsedValue.toLocaleString()}
       </p>
     </div>
   )
