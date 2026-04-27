@@ -17,7 +17,6 @@ export default function FinanceAdminPage() {
 
   const [topCampaigns, setTopCampaigns] = useState<any[]>([])
   const [balances, setBalances] = useState<any[]>([])
-
   const [profitRanking, setProfitRanking] = useState<any[]>([])
   const [unhealthyCampaigns, setUnhealthyCampaigns] = useState<any[]>([])
 
@@ -31,9 +30,7 @@ export default function FinanceAdminPage() {
     try {
       const res = await fetch("/api/admin/top-campaigns")
       const data = await res.json()
-
       setTopCampaigns(Array.isArray(data) ? data : [])
-
     } catch (e) {
       console.error("Top campaigns error", e)
       setTopCampaigns([])
@@ -44,9 +41,7 @@ export default function FinanceAdminPage() {
     try {
       const res = await fetch("/api/admin/campaign-balances")
       const data = await res.json()
-
       setBalances(Array.isArray(data) ? data : [])
-
     } catch (e) {
       console.error("Balances error", e)
       setBalances([])
@@ -57,10 +52,8 @@ export default function FinanceAdminPage() {
     try {
       const res = await fetch("/api/admin/campaign-profit")
       const data = await res.json()
-
       setProfitRanking(Array.isArray(data?.ranking) ? data.ranking : [])
       setUnhealthyCampaigns(Array.isArray(data?.unhealthy) ? data.unhealthy : [])
-
     } catch (e) {
       console.error("Profit ranking error", e)
       setProfitRanking([])
@@ -93,8 +86,8 @@ export default function FinanceAdminPage() {
           💰 Panel Financiero PRO
         </h1>
 
+        {/* EXPORT */}
         <div className="flex gap-3">
-
           <button
             onClick={() => {
               const from = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
@@ -107,30 +100,27 @@ export default function FinanceAdminPage() {
           </button>
 
           <button
-            onClick={() => {
-              window.open(`/api/admin/export`)
-            }}
+            onClick={() => window.open(`/api/admin/export`)}
             className="bg-gray-700 text-white px-4 py-2 rounded-lg"
           >
             📥 Exportar todo
           </button>
-
         </div>
 
-        {/* KPIs */}
+        {/* KPIs PRINCIPALES */}
         <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
 
-          <Card title="Ingresos" value={stats?.totalIncome} />
-          <Card title="USD" value={stats?.totalUSD} />
-          <Card title="Retiros" value={stats?.totalWithdrawals} />
-          <Card title="Balance" value={stats?.balance} />
-          <Card title="Comisiones" value={stats?.totalFees} />
-          <Card title="Tips" value={stats?.totalTips} />
+          <Card title="Ingresos" value={stats.totalIncome} />
+          <Card title="USD" value={stats.totalUSD} />
+          <Card title="Retiros" value={stats.totalWithdrawals} />
+          <Card title="Balance" value={stats.balance} />
+          <Card title="Comisiones" value={stats.totalFees} />
+          <Card title="Tips" value={stats.totalTips} />
 
           <Card
             title="Ticket promedio"
             value={
-              stats?.totalPayments > 0
+              stats.totalPayments > 0
                 ? Math.round(stats.totalIncome / stats.totalPayments)
                 : 0
             }
@@ -138,57 +128,44 @@ export default function FinanceAdminPage() {
 
         </div>
 
-        {/* KPIs PRO */}
+        {/* KPIs AVANZADOS */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-          <Card title="Profit" value={stats?.profit} />
+          <Card title="Profit" value={stats.profit} />
+          <Card title="Margen %" value={Number(stats.margin || 0).toFixed(2)} />
+          <Card title="Take Rate %" value={Number(stats.takeRate || 0).toFixed(2)} />
+          <Card title="Fee Promedio" value={stats.avgFeePerPayment} />
 
-          <Card
-            title="Margen %"
-            value={Number(stats?.margin || 0).toFixed(2)}
-          />
+        </div>
 
-          <Card
-            title="Take Rate %"
-            value={Number(stats?.takeRate || 0).toFixed(2)}
-          />
+        {/* 🔥 NUEVO: DESGLOSE REAL */}
+        <div className="grid md:grid-cols-3 gap-4">
 
-          <Card
-            title="Fee Promedio"
-            value={stats?.avgFeePerPayment}
-          />
+          <Card title="Fee Plataforma (Base)" value={stats?.platform?.base} />
+          <Card title="IVA Plataforma" value={stats?.platform?.iva} />
+          <Card title="Neto a Creadores" value={stats?.creatorNet} />
 
         </div>
 
         {/* GRÁFICO */}
-        <RevenueChart data={stats?.daily || {}} />
+        <RevenueChart data={stats.daily || {}} />
 
         {/* ALERTAS */}
-        {stats?.totalWithdrawals > stats?.totalIncome * 0.8 && (
-          <div className="bg-red-900 p-3 rounded-xl border border-red-700">
-            ⚠️ Retiros altos respecto a ingresos
-          </div>
+        {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
+          <Alert color="red" text="Retiros altos respecto a ingresos" />
         )}
 
-        {stats?.margin < 5 && (
-          <div className="bg-yellow-900 p-3 rounded-xl border border-yellow-700">
-            ⚠️ Margen bajo (menos del 5%)
-          </div>
+        {stats.margin < 5 && (
+          <Alert color="yellow" text="Margen bajo (menos del 5%)" />
         )}
 
-        {stats?.margin > 20 && (
-          <div className="bg-green-900 p-3 rounded-xl border border-green-700">
-            🚀 Excelente margen de negocio
-          </div>
+        {stats.margin > 20 && (
+          <Alert color="green" text="Excelente margen de negocio" />
         )}
 
         {/* TOP CAMPAÑAS */}
         <Section title="🏆 Top campañas">
-
-          {topCampaigns.length === 0 && (
-            <p className="text-gray-400 text-sm">Sin datos</p>
-          )}
-
+          {topCampaigns.length === 0 && <Empty />}
           {topCampaigns.map((c, i) => (
             <Row key={i}>
               <span className="text-blue-400">{c.title}</span>
@@ -197,16 +174,11 @@ export default function FinanceAdminPage() {
               </span>
             </Row>
           ))}
-
         </Section>
 
-        {/* PROFIT */}
+        {/* RENTABILIDAD */}
         <Section title="💰 Campañas más rentables">
-
-          {profitRanking.length === 0 && (
-            <p className="text-gray-400 text-sm">Sin datos</p>
-          )}
-
+          {profitRanking.length === 0 && <Empty />}
           {profitRanking.map((c, i) => (
             <Row key={i}>
               <span className="text-blue-400">{c.title}</span>
@@ -215,16 +187,11 @@ export default function FinanceAdminPage() {
               </span>
             </Row>
           ))}
-
         </Section>
 
         {/* BALANCES */}
         <Section title="💰 Balance por campaña">
-
-          {balances.length === 0 && (
-            <p className="text-gray-400 text-sm">Sin datos</p>
-          )}
-
+          {balances.length === 0 && <Empty />}
           {balances.map((c) => (
             <Row key={c.campaign_id}>
               <span className="text-blue-400">{c.title}</span>
@@ -233,7 +200,6 @@ export default function FinanceAdminPage() {
               </span>
             </Row>
           ))}
-
         </Section>
 
       </div>
@@ -242,7 +208,9 @@ export default function FinanceAdminPage() {
   )
 }
 
-/* COMPONENTES */
+/* =========================
+   COMPONENTES
+========================= */
 
 function RevenueChart({ data }: any) {
 
@@ -253,14 +221,11 @@ function RevenueChart({ data }: any) {
 
   return (
     <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
-
       <h2 className="mb-4 text-gray-200 font-semibold">
         📈 Ingresos por día
       </h2>
 
-      {chartData.length === 0 && (
-        <p className="text-gray-400 text-sm">Sin datos</p>
-      )}
+      {chartData.length === 0 && <Empty />}
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
@@ -270,14 +235,13 @@ function RevenueChart({ data }: any) {
           <Line type="monotone" dataKey="total" stroke="#22c55e" strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
-
     </div>
   )
 }
 
 function Card({ title, value }: any) {
 
-  const parsedValue =
+  const parsed =
     value !== null && value !== undefined
       ? Number(value)
       : 0
@@ -285,9 +249,8 @@ function Card({ title, value }: any) {
   return (
     <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
       <p className="text-sm text-gray-400">{title}</p>
-
       <p className="text-xl font-bold text-green-400">
-        ${parsedValue.toLocaleString()}
+        ${parsed.toLocaleString()}
       </p>
     </div>
   )
@@ -306,6 +269,18 @@ function Row({ children }: any) {
   return (
     <div className="flex justify-between text-sm border-b border-slate-800 py-2">
       {children}
+    </div>
+  )
+}
+
+function Empty() {
+  return <p className="text-gray-400 text-sm">Sin datos</p>
+}
+
+function Alert({ color, text }: any) {
+  return (
+    <div className={`bg-${color}-900 p-3 rounded-xl border border-${color}-700`}>
+      ⚠️ {text}
     </div>
   )
 }

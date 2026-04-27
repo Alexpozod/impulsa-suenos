@@ -18,9 +18,6 @@ export async function GET() {
       `)
       .eq("status", "confirmed")
 
-    /* =========================
-       📊 CAMPAÑAS (FIX CRÍTICO)
-    ========================= */
     const { data: campaigns } = await supabase
       .from("campaigns")
       .select("*")
@@ -48,14 +45,11 @@ export async function GET() {
     const rejectedWithdrawals = ledger.filter(l => l.type === "withdraw_rejected")
 
     const feePlatform = ledger.filter(l => l.type === "fee_platform")
-
-    // 🔥 FIX: AGREGAMOS IVA (SIN TOCAR NADA EXISTENTE)
     const feePlatformIVA = ledger.filter(l => l.type === "fee_platform_iva")
-
     const feeMP = ledger.filter(l => l.type === "fee_mp")
 
     /* =========================
-       📊 MÉTRICAS
+       📊 MÉTRICAS BASE
     ========================= */
     const totalIncome = payments.reduce(
       (acc, d) => acc + Number(d.amount || 0),
@@ -87,16 +81,20 @@ export async function GET() {
       0
     )
 
-    // 🔥 FIX REAL: PLATFORM = BASE + IVA
-    const totalPlatformFees =
-      feePlatform.reduce(
-        (acc, f) => acc + Math.abs(Number(f.amount || 0)),
-        0
-      ) +
-      feePlatformIVA.reduce(
-        (acc, f) => acc + Math.abs(Number(f.amount || 0)),
-        0
-      )
+    /* =========================
+       💰 DESGLOSE PLATFORM
+    ========================= */
+    const feePlatformBase = feePlatform.reduce(
+      (acc, f) => acc + Math.abs(Number(f.amount || 0)),
+      0
+    )
+
+    const feePlatformIVATotal = feePlatformIVA.reduce(
+      (acc, f) => acc + Math.abs(Number(f.amount || 0)),
+      0
+    )
+
+    const totalPlatformFees = feePlatformBase + feePlatformIVATotal
 
     const totalProviderFees = feeMP.reduce(
       (acc, f) => acc + Math.abs(Number(f.amount || 0)),
@@ -110,6 +108,16 @@ export async function GET() {
 
     const balance =
       netIncome - totalWithdrawals
+
+    /* =========================
+       💰 NETO A CREADORES
+    ========================= */
+    const creatorNet = ledger
+      .filter(l => l.type === "creator_net")
+      .reduce(
+        (acc, l) => acc + Number(l.amount || 0),
+        0
+      )
 
     /* =========================
        💳 PROVIDERS
@@ -194,6 +202,16 @@ export async function GET() {
       totalProviderFees,
       netIncome,
       balance,
+
+      // 🔥 NUEVO (NO ROMPE NADA)
+      platform: {
+        base: feePlatformBase,
+        iva: feePlatformIVATotal,
+        total: totalPlatformFees
+      },
+
+      creatorNet,
+
       totals: {
         balance: balance,
         raised: totalIncome,
@@ -201,19 +219,24 @@ export async function GET() {
         withdrawn: totalWithdrawals,
         pending: totalPendingWithdrawals
       },
+
       profit: totalPlatformFees,
+
       margin:
         totalIncome > 0
           ? (totalPlatformFees / totalIncome) * 100
           : 0,
+
       takeRate:
         totalIncome > 0
           ? ((totalPlatformFees + totalProviderFees) / totalIncome) * 100
           : 0,
+
       avgFeePerPayment:
         payments.length > 0
           ? totalPlatformFees / payments.length
           : 0,
+
       totalPayments: payments.length,
       providers,
       daily,
