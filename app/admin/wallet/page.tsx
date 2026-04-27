@@ -7,7 +7,6 @@ export default function WalletAdminPage() {
   const [wallets, setWallets] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // 🔥 NUEVO
   const [distribution, setDistribution] = useState<any>({})
   const [walletUsers, setWalletUsers] = useState<any[]>([])
   const [walletIssues, setWalletIssues] = useState<any[]>([])
@@ -18,12 +17,14 @@ export default function WalletAdminPage() {
     loadWalletUsers()
   }, [])
 
+  /* =========================
+     📊 WALLETS BASE
+  ========================= */
   const loadWallets = async () => {
     try {
       const res = await fetch("/api/admin/wallets")
       const data = await res.json()
 
-      // 🔥 FIX CRÍTICO (NO ROMPE NADA)
       if (Array.isArray(data)) {
         setWallets(data)
       } else if (Array.isArray(data?.wallets)) {
@@ -40,28 +41,53 @@ export default function WalletAdminPage() {
     }
   }
 
+  /* =========================
+     🔥 DISTRIBUCIÓN
+  ========================= */
   const loadDistribution = async () => {
     try {
       const res = await fetch("/api/admin/wallets/distribution")
       const data = await res.json()
-
-      // 🔥 DEFENSIVO
       setDistribution(data || {})
-
     } catch (e) {
       console.error(e)
       setDistribution({})
     }
   }
 
+  /* =========================
+     🧠 AUDITORÍA (FIX REAL)
+  ========================= */
   const loadWalletUsers = async () => {
     try {
       const res = await fetch("/api/admin/wallets/users")
       const data = await res.json()
 
-      // 🔥 DEFENSIVO
-      setWalletUsers(Array.isArray(data?.users) ? data.users : [])
-      setWalletIssues(Array.isArray(data?.issues) ? data.issues : [])
+      const users = Array.isArray(data?.users) ? data.users : []
+      const issues = Array.isArray(data?.issues) ? data.issues : []
+
+      const normalized = users.map((u: any) => {
+
+        const wallet = Number(u.wallet_balance || 0)
+        const ledger = Number(u.ledger_balance || 0)
+
+        let status = u.status || "unknown"
+
+        // 🔥 evita falsos críticos
+        if (ledger === 0 && wallet !== 0) {
+          status = "syncing"
+        }
+
+        return {
+          ...u,
+          wallet_balance: wallet,
+          ledger_balance: ledger,
+          status
+        }
+      })
+
+      setWalletUsers(normalized)
+      setWalletIssues(issues)
 
     } catch (e) {
       console.error(e)
@@ -88,29 +114,16 @@ export default function WalletAdminPage() {
         </h1>
 
         {/* =========================
-           🔥 DISTRIBUCIÓN
+           💰 DISTRIBUCIÓN
         ========================= */}
         <div className="grid md:grid-cols-3 gap-4">
-
-          <Card
-  title="Fondos en campañas"
-  value={distribution?.campaignFunds || 0}
-/>
-
-<Card
-  title="Fondos plataforma"
-  value={distribution?.platformFunds || 0}
-/>
-
-<Card
-  title="Retiros pendientes"
-  value={distribution?.pendingWithdrawals || 0}
-/>
-
+          <Card title="Fondos en campañas" value={distribution?.campaignFunds} />
+          <Card title="Fondos plataforma" value={distribution?.platformFunds} />
+          <Card title="Retiros pendientes" value={distribution?.pendingWithdrawals} />
         </div>
 
         {/* =========================
-           📊 LISTADO ORIGINAL
+           📊 WALLETS
         ========================= */}
         <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
 
@@ -118,12 +131,12 @@ export default function WalletAdminPage() {
             Wallets del sistema
           </p>
 
-          {(Array.isArray(wallets) ? wallets : []).map((w, i) => (
+          {wallets.map((w, i) => (
             <div
               key={i}
               className="flex justify-between border-b border-slate-800 py-2 text-sm"
             >
-              <span>{w.user_email || "Platform"}</span>
+              <span>{w.user_email || "platform"}</span>
 
               <span className={
                 Number(w.balance) >= 0
@@ -154,11 +167,11 @@ export default function WalletAdminPage() {
               </span>
 
               <span className="text-gray-300">
-                Wallet: ${Number(u.wallet_balance || 0).toLocaleString()}
+                Wallet: ${u.wallet_balance.toLocaleString()}
               </span>
 
               <span className="text-gray-400">
-                Ledger: ${Number(u.ledger_balance || 0).toLocaleString()}
+                Ledger: ${u.ledger_balance.toLocaleString()}
               </span>
 
               <span className={
@@ -166,9 +179,11 @@ export default function WalletAdminPage() {
                   ? "text-green-400"
                   : u.status === "mismatch"
                   ? "text-yellow-400"
+                  : u.status === "syncing"
+                  ? "text-gray-400"
                   : "text-red-500"
               }>
-                {u.status}
+                {u.status === "syncing" ? "syncing..." : u.status}
               </span>
 
             </Row>
@@ -190,7 +205,7 @@ export default function WalletAdminPage() {
                 </span>
 
                 <span className="text-yellow-400">
-                  Diff: ${Number(u.difference || 0).toLocaleString()}
+                  Diff: ${Math.abs(Number(u.difference || 0)).toLocaleString()}
                 </span>
 
               </Row>
@@ -205,7 +220,9 @@ export default function WalletAdminPage() {
   )
 }
 
-/* COMPONENTES */
+/* =========================
+   COMPONENTES
+========================= */
 
 function Card({ title, value }: any) {
   return (
