@@ -9,57 +9,87 @@ export async function POST() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const { data: users, error } = await supabase
-      .from("wallets")
-      .select("user_email")
+    /* =========================
+       📥 LEDGER REAL (FUENTE ÚNICA)
+    ========================= */
+    const { data: ledger, error } = await supabase
+      .from("financial_ledger")
+      .select(`
+        user_email,
+        amount,
+        status,
+        campaigns (
+          user_email
+        )
+      `)
+      .eq("status", "confirmed")
 
-    if (error) {
-      return NextResponse.json({ error: "db error" }, { status: 500 })
+    if (error || !ledger) {
+      return NextResponse.json(
+        { error: "ledger error" },
+        { status: 500 }
+      )
     }
 
-    if (!users) {
-      return NextResponse.json({ error: "no users" }, { status: 400 })
-    }
+    /* =========================
+       🧠 AGRUPACIÓN CORRECTA
+    ========================= */
+    const map: Record<string, number> = {}
 
-    let updated = 0
+    for (const row of ledger) {
 
-    for (const u of users) {
+      const campaignUser =
+        Array.isArray(row.campaigns) && row.campaigns.length > 0
+          ? row.campaigns[0]?.user_email
+          : null
 
-      const email = u.user_email
+      const email =
+        campaignUser ||
+        row.user_email ||
+        "platform"
 
-      const { data: ledger } = await supabase
-        .from("financial_ledger")
-        .select("amount, flow_type, type")
-        .eq("user_email", email)
-        .eq("status", "confirmed")
-
-      if (!ledger) continue
-
-      let balance = 0
-
-      for (const row of ledger) {
-
-        if (row.type === "withdraw_pending") continue
-
-        const amount = Number(row.amount || 0)
-
-        if (row.flow_type === "in") {
-          balance += amount
-        }
-
-        if (row.flow_type === "out") {
-          balance -= Math.abs(amount)
-        }
+      if (!map[email]) {
+        map[email] = 0
       }
 
-      await supabase
+      // 🔥 amount YA VIENE CON SIGNO CORRECTO
+      map[email] += Number(row.amount || 0)
+    }
+
+    /* =========================
+       🔄 SYNC TOTAL (UPSERT)
+    ========================= */
+    let updated = 0
+
+    for (const email of Object.keys(map)) {
+
+      const balance = map[email]
+
+      const { data: existing } = await supabase
         .from("wallets")
-        .update({
-          available_balance: balance,
-          pending_balance: 0,
-          updated_at: new Date().toISOString()
-        })
+        .select("user_email")
         .eq("user_email", email)
+        .maybeSingle()
+
+      if (existing) {
+        await supabase
+          .from("wallets")
+          .update({
+            available_balance: balance,
+            pending_balance: 0,
+            updated_at: new Date().toISOString()
+          })
+          .eq("user_email", email)
+      } else {
+        await supabase
+          .from("wallets")
+          .insert({
+            user_email: email,
+            available_balance: balance,
+            pending_balance: 0,
+            created_at: new Date().toISOString()
+          })
+      }
 
       updated++
     }
