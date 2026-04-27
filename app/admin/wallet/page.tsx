@@ -64,30 +64,33 @@ export default function WalletAdminPage() {
       const data = await res.json()
 
       const users = Array.isArray(data?.users) ? data.users : []
-      const issues = Array.isArray(data?.issues) ? data.issues : []
 
       const normalized = users.map((u: any) => {
 
         const wallet = Number(u.wallet_balance || 0)
         const ledger = Number(u.ledger_balance || 0)
 
-        let status = u.status || "unknown"
+        const diff = Math.abs(wallet - ledger)
 
-        // 🔥 evita falsos críticos
-        if (ledger === 0 && wallet !== 0) {
-          status = "syncing"
-        }
+        let status = "ok"
+
+        if (diff > 1) status = "mismatch"
+        if (diff > 10) status = "critical"
 
         return {
           ...u,
           wallet_balance: wallet,
           ledger_balance: ledger,
+          difference: diff,
           status
         }
       })
 
+      // 🔥 SOLO PROBLEMAS REALES
+      const realIssues = normalized.filter(u => u.status !== "ok")
+
       setWalletUsers(normalized)
-      setWalletIssues(issues)
+      setWalletIssues(realIssues)
 
     } catch (e) {
       console.error(e)
@@ -179,11 +182,9 @@ export default function WalletAdminPage() {
                   ? "text-green-400"
                   : u.status === "mismatch"
                   ? "text-yellow-400"
-                  : u.status === "syncing"
-                  ? "text-gray-400"
                   : "text-red-500"
               }>
-                {u.status === "syncing" ? "syncing..." : u.status}
+                {u.status}
               </span>
 
             </Row>
