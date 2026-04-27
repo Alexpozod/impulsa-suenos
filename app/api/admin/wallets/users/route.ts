@@ -49,11 +49,11 @@ export async function GET() {
 
     for (const row of ledger) {
 
-      // 🔥 FIX CRÍTICO: usar dueño real de campaña
+      // ✅ campaigns SIEMPRE ES ARRAY
       const campaignOwner =
         Array.isArray(row.campaigns) && row.campaigns.length > 0
           ? row.campaigns[0]?.user_email
-          : row.campaigns?.user_email
+          : null
 
       const email =
         campaignOwner ||
@@ -73,7 +73,7 @@ export async function GET() {
 
       const amount = Number(row.amount || 0)
 
-      // 🔥 balance real desde ledger
+      // balance real
       map[email].balance += amount
 
       if (row.flow_type === "in") {
@@ -117,7 +117,6 @@ export async function GET() {
         total_received: ledgerData.income,
         total_withdrawn: ledgerData.withdrawn,
 
-        // informativo
         available: Number(w.available_balance || 0),
         pending: Number(w.pending_balance || 0),
 
@@ -125,9 +124,6 @@ export async function GET() {
       }
     })
 
-    /* =========================
-       🚨 SOLO ERRORES REALES
-    ========================= */
     const issues = result.filter(r => r.status !== "ok")
 
     return NextResponse.json({
