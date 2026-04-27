@@ -47,6 +47,7 @@ export async function GET() {
     const feePlatform = ledger.filter(l => l.type === "fee_platform")
     const feePlatformIVA = ledger.filter(l => l.type === "fee_platform_iva")
     const feeMP = ledger.filter(l => l.type === "fee_mp")
+    const tips = ledger.filter(l => l.type === "tip")
 
     /* =========================
        📊 MÉTRICAS BASE
@@ -61,10 +62,10 @@ export async function GET() {
       0
     )
 
-    const totalTips = payments.reduce(
-      (acc, d) => acc + Number(d.metadata?.tip || 0),
-      0
-    )
+    const totalTips = tips.reduce(
+  (acc, t) => acc + Number(t.amount || 0),
+  0
+)
 
     const totalWithdrawals = withdrawals.reduce(
       (acc, w) => acc + Math.abs(Number(w.amount || 0)),
@@ -94,7 +95,10 @@ export async function GET() {
       0
     )
 
-    const totalPlatformFees = feePlatformBase + feePlatformIVATotal
+    const totalPlatformFees =
+  feePlatformBase +
+  feePlatformIVATotal +
+  totalTips
 
     const totalProviderFees = feeMP.reduce(
       (acc, f) => acc + Math.abs(Number(f.amount || 0)),
