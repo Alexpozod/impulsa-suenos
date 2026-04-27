@@ -19,7 +19,7 @@ export default function PayoutAdmin() {
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
 
-      const res = await fetch("/api/payout/list", {
+      const res = await fetch("/api/admin/payouts", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -70,9 +70,6 @@ export default function PayoutAdmin() {
     setProcessing(null)
   }
 
-  /* =========================
-     ❌ RECHAZAR (NUEVO PRO)
-  ========================= */
   const reject = async (id: string) => {
 
     const confirmAction = confirm("¿Rechazar este retiro?")
@@ -110,7 +107,7 @@ export default function PayoutAdmin() {
   }
 
   /* =========================
-     📊 KPIs PRO
+     📊 KPIs
   ========================= */
   const totalPending = payouts
     .filter(p => p.status === "pending")
@@ -125,127 +122,133 @@ export default function PayoutAdmin() {
   }
 
   return (
-    <main className="p-6 max-w-6xl mx-auto space-y-6">
+    <main className="min-h-screen bg-slate-950 text-white p-6">
 
-      <h1 className="text-2xl font-bold">
-        🏦 Panel de Retiros
-      </h1>
+      <div className="max-w-5xl mx-auto space-y-6">
 
-      {error && (
-        <p className="text-red-600">{error}</p>
-      )}
+        <h1 className="text-3xl font-bold">
+          💸 Panel de Retiros
+        </h1>
 
-      {/* =========================
-          KPIs
-      ========================= */}
-      <div className="grid md:grid-cols-2 gap-4">
-
-        <div className="bg-yellow-100 p-4 rounded">
-          <p className="text-sm text-gray-600">Pendiente</p>
-          <p className="text-xl font-bold">
-            ${totalPending.toLocaleString()}
-          </p>
-        </div>
-
-        <div className="bg-green-100 p-4 rounded">
-          <p className="text-sm text-gray-600">Pagado</p>
-          <p className="text-xl font-bold">
-            ${totalPaid.toLocaleString()}
-          </p>
-        </div>
-
-      </div>
-
-      {/* =========================
-          LISTA
-      ========================= */}
-      <div className="space-y-4">
-
-        {payouts.length === 0 && (
-          <p className="text-gray-500">No hay payouts</p>
+        {error && (
+          <p className="text-red-500">{error}</p>
         )}
 
-        {payouts.map((p) => {
+        {/* KPIs */}
+        <div className="grid md:grid-cols-2 gap-4">
 
-          const isPending = p.status === "pending"
+          <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl">
+            <p className="text-sm text-yellow-400">Pendiente</p>
+            <p className="text-xl font-bold text-white">
+              ${totalPending.toLocaleString()}
+            </p>
+          </div>
 
-          return (
-            <div
-              key={p.id}
-              className="bg-white border rounded-xl p-5 shadow-sm space-y-3"
-            >
+          <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl">
+            <p className="text-sm text-green-400">Pagado</p>
+            <p className="text-xl font-bold text-white">
+              ${totalPaid.toLocaleString()}
+            </p>
+          </div>
 
-              {/* HEADER */}
-              <div className="flex justify-between items-center">
+        </div>
 
-                <div>
-                  <p className="font-bold text-lg">
-                    {p.campaign_title || p.campaign_id}
-                  </p>
+        {/* LISTA */}
+        <div className="space-y-4">
 
-                  <p className="text-sm text-gray-500">
-                    {p.owner || p.user_email || "Sin info"}
-                  </p>
+          {payouts.length === 0 && (
+            <p className="text-slate-400">No hay payouts</p>
+          )}
+
+          {payouts.map((p) => {
+
+            const isPending = p.status === "pending"
+
+            // 🔥 FIX REAL
+            const available = Number(p.available || 0)
+            const isInvalid = p.amount > available
+
+            return (
+              <div
+                key={p.id}
+                className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3"
+              >
+
+                {/* HEADER */}
+                <div className="flex justify-between items-center">
+
+                  <div>
+                    <p className="font-bold text-lg text-white">
+                      {p.campaign_title || p.campaign_id}
+                    </p>
+
+                    <p className="text-sm text-slate-400">
+                      {p.owner || p.user_email || "Sin info"}
+                    </p>
+                  </div>
+
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium
+                    ${p.status === "pending" && "bg-yellow-500/20 text-yellow-400"}
+                    ${p.status === "paid" && "bg-green-500/20 text-green-400"}
+                    ${p.status === "rejected" && "bg-red-500/20 text-red-400"}
+                  `}>
+                    {p.status}
+                  </span>
+
                 </div>
 
-                <span className={`px-3 py-1 rounded text-sm font-medium
-                  ${p.status === "pending" && "bg-yellow-100 text-yellow-700"}
-                  ${p.status === "paid" && "bg-green-100 text-green-700"}
-                  ${p.status === "rejected" && "bg-red-100 text-red-700"}
-                `}>
-                  {p.status}
-                </span>
+                {/* INFO */}
+                <div className="text-sm space-y-1 text-slate-300">
 
-              </div>
+                  <p>💰 Monto: <strong>${Number(p.amount).toLocaleString()}</strong></p>
 
-              {/* INFO */}
-              <div className="text-sm space-y-1">
+                  <p>📊 Balance: ${Number(p.balance || 0).toLocaleString()}</p>
 
-                <p>💰 Monto solicitado: <strong>${Number(p.amount).toLocaleString()}</strong></p>
+                  <p>🔒 Retenido: ${Number(p.pending || 0).toLocaleString()}</p>
 
-                {p.balance !== undefined && (
-                  <p>📊 Balance campaña: ${Number(p.balance).toLocaleString()}</p>
+                  <p>✅ Disponible: ${available.toLocaleString()}</p>
+
+                  <p className="text-slate-500">
+                    🕒 {new Date(p.created_at).toLocaleString()}
+                  </p>
+
+                </div>
+
+                {/* WARNING CORRECTO */}
+                {isInvalid && (
+                  <p className="text-yellow-400 text-sm font-medium">
+                    ⚠️ Excede saldo disponible
+                  </p>
                 )}
 
-                <p className="text-gray-500">
-                  🕒 {new Date(p.created_at).toLocaleString()}
-                </p>
+                {/* ACCIONES */}
+                {isPending && (
+                  <div className="flex gap-3 pt-2">
+
+                    <button
+                      onClick={() => approve(p.id)}
+                      disabled={processing === p.id}
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                    >
+                      {processing === p.id ? "Procesando..." : "Aprobar"}
+                    </button>
+
+                    <button
+                      onClick={() => reject(p.id)}
+                      disabled={processing === p.id}
+                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
+                    >
+                      Rechazar
+                    </button>
+
+                  </div>
+                )}
 
               </div>
+            )
+          })}
 
-              {/* ALERTA */}
-              {p.balance !== undefined && p.amount > p.balance && (
-                <p className="text-red-600 text-sm font-medium">
-                  ⚠️ Este payout supera el balance disponible
-                </p>
-              )}
-
-              {/* ACCIONES */}
-              {isPending && (
-                <div className="flex gap-3 pt-2">
-
-                  <button
-                    onClick={() => approve(p.id)}
-                    disabled={processing === p.id}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
-                  >
-                    {processing === p.id ? "Procesando..." : "Aprobar"}
-                  </button>
-
-                  <button
-                    onClick={() => reject(p.id)}
-                    disabled={processing === p.id}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
-                  >
-                    Rechazar
-                  </button>
-
-                </div>
-              )}
-
-            </div>
-          )
-        })}
+        </div>
 
       </div>
 
