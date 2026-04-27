@@ -53,7 +53,7 @@ export async function GET() {
     }
 
     /* =========================
-       🔥 LÓGICA ALINEADA CON FINANCE
+       🔥 LÓGICA FINANCIERA REAL
     ========================= */
     for (const row of ledger) {
 
@@ -72,9 +72,8 @@ export async function GET() {
       switch (row.type) {
 
         /* =========================
-           💰 INGRESOS USUARIO
+           👤 USUARIO (DINERO REAL)
         ========================= */
-        case "payment":
         case "creator_net":
           add(userEmail, amount)
           break
@@ -83,26 +82,30 @@ export async function GET() {
            💸 RETIROS
         ========================= */
         case "withdraw":
+          add(userEmail, -Math.abs(amount))
+          break
+
         case "withdraw_pending":
           add(userEmail, -Math.abs(amount))
           break
 
         /* =========================
-           🏦 FEES (RESTAN)
+           🏦 PLATAFORMA (GANANCIA)
         ========================= */
         case "fee_platform":
         case "fee_platform_iva":
         case "fee_mp":
-          add("platform", -Math.abs(amount))
+          add("platform", Math.abs(amount))
           break
 
-        /* =========================
-           🎁 TIPS (SÍ SUMAN)
-        ========================= */
         case "tip":
           add("platform", amount)
           break
 
+        /* =========================
+           ❌ IGNORAR
+        ========================= */
+        case "payment":
         default:
           break
       }
