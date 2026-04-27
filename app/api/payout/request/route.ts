@@ -8,6 +8,8 @@ import { rateLimit } from "@/lib/security/rateLimit"
 import { sendNotification } from "@/lib/notifications/sendNotification"
 import crypto from "crypto"
 
+export const runtime = "nodejs"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -16,6 +18,9 @@ const supabase = createClient(
 export async function POST(req: Request) {
   try {
 
+    /* =========================
+       🔐 AUTH
+    ========================= */
     const authHeader = req.headers.get("authorization")
 
     if (!authHeader) {
@@ -24,7 +29,8 @@ export async function POST(req: Request) {
 
     const token = authHeader.replace("Bearer ", "")
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    const { data: { user }, error: userError } =
+      await supabase.auth.getUser(token)
 
     if (userError || !user?.email) {
       return NextResponse.json({ error: "invalid user" }, { status: 401 })
@@ -32,6 +38,9 @@ export async function POST(req: Request) {
 
     const user_email = user.email.toLowerCase()
 
+    /* =========================
+       📥 INPUT
+    ========================= */
     const { campaign_id, amount } = await req.json()
 
     if (!campaign_id || !amount) {
@@ -48,6 +57,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email not verified" }, { status: 403 })
     }
 
+    /* =========================
+       🛡️ RATE LIMIT
+    ========================= */
     const ip =
       req.headers.get("x-forwarded-for") ||
       req.headers.get("x-real-ip") ||
@@ -61,9 +73,15 @@ export async function POST(req: Request) {
 
     logInfo("Payout request iniciado", { user_email, campaign_id, amount })
 
+    /* =========================
+       🔒 LOCK
+    ========================= */
     const lockKey = crypto.createHash("md5").update(campaign_id).digest("hex")
     await supabase.rpc("advisory_lock", { lock_key: lockKey })
 
+    /* =========================
+       📌 CAMPAÑA
+    ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("id, user_email")
@@ -78,6 +96,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "no autorizado" }, { status: 403 })
     }
 
+    /* =========================
+       🪪 KYC
+    ========================= */
     const { data: kyc } = await supabase
       .from("kyc")
       .select("status")
@@ -88,6 +109,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "KYC requerido" }, { status: 403 })
     }
 
+    /* =========================
+       🏦 BANK
+    ========================= */
     const { data: bank } = await supabase
       .from("bank_accounts")
       .select("id")
@@ -98,6 +122,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Agrega cuenta bancaria" }, { status: 400 })
     }
 
+    /* =========================
+       🚫 DUPLICADOS
+    ========================= */
     const { data: existing } = await supabase
       .from("payouts")
       .select("id")
@@ -112,6 +139,9 @@ export async function POST(req: Request) {
       )
     }
 
+    /* =========================
+       💰 BALANCE REAL (LEDGER)
+    ========================= */
     const walletCalc = await calculateCampaignBalance(supabase, campaign_id)
 
     if (!walletCalc || typeof walletCalc.available !== "number") {
@@ -119,24 +149,15 @@ export async function POST(req: Request) {
     }
 
     if (numericAmount > walletCalc.available) {
-      return NextResponse.json({ error: "saldo insuficiente" }, { status: 400 })
+      return NextResponse.json(
+        { error: "saldo insuficiente" },
+        { status: 400 }
+      )
     }
 
-    const { data: wallet } = await supabase
-      .from("wallets")
-      .select("*")
-      .eq("user_email", user_email)
-      .maybeSingle()
-
-    if (wallet) {
-      if (numericAmount > Number(wallet.available_balance)) {
-        return NextResponse.json(
-          { error: "wallet_insufficient_balance" },
-          { status: 400 }
-        )
-      }
-    }
-
+    /* =========================
+       💸 CREAR RETIRO
+    ========================= */
     const { data, error } = await supabase
       .from("payouts")
       .insert({
@@ -151,6 +172,9 @@ export async function POST(req: Request) {
 
     if (error) throw error
 
+    /* =========================
+       🧾 LEDGER (PENDING)
+    ========================= */
     await supabase.from("financial_ledger").insert({
       campaign_id,
       user_email,
@@ -161,9 +185,12 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString()
     })
 
+    /* =========================
+       📢 LOGS + NOTIFICACIÓN
+    ========================= */
     await logToDB("info", "payout_requested", {
       campaign_id,
-      amount,
+      amount: numericAmount,
       user_email
     })
 
