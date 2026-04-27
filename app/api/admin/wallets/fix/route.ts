@@ -16,8 +16,8 @@ export async function POST() {
       .from("financial_ledger")
       .select(`
         amount,
-        campaign_id,
         type,
+        campaign_id,
         campaigns (
           user_email
         )
@@ -32,9 +32,50 @@ export async function POST() {
     }
 
     /* =========================
-       🧠 AGRUPAR POR USUARIO REAL
+       🧠 AGRUPACIÓN CORRECTA
+       SOLO DINERO REAL
     ========================= */
     const balances: Record<string, number> = {}
+
+    for (const row of ledger as any[]) {
+
+      const email =
+        row.campaigns?.user_email ||
+        "platform"
+
+      if (!balances[email]) {
+        balances[email] = 0
+      }
+
+      const amount = Number(row.amount || 0)
+
+      // 💰 SOLO LO QUE REALMENTE LE PERTENECE AL CREADOR
+      if (row.type === "creator_net") {
+        balances[email] += amount
+      }
+
+      // 💰 TIPS TAMBIÉN SON DEL CREADOR
+      if (row.type === "tip") {
+        balances[email] += amount
+      }
+    }
+
+    /* =========================
+       🏦 PLATFORM (COMISIONES)
+    ========================= */
+    const platformBalance = (ledger as any[])
+      .filter((l) =>
+        l.type === "fee_platform" ||
+        l.type === "fee_platform_iva" ||
+        l.type === "fee_mp"
+      )
+      .reduce((acc, l) => acc + Math.abs(Number(l.amount || 0)), 0)
+
+    balances["platform"] = platformBalance
+
+    /* =========================
+       📊 TOTAL EARNED (solo payments)
+    ========================= */
     const earnings: Record<string, number> = {}
 
     for (const row of ledger as any[]) {
@@ -43,17 +84,12 @@ export async function POST() {
         row.campaigns?.user_email ||
         "platform"
 
-      if (!balances[email]) balances[email] = 0
-      if (!earnings[email]) earnings[email] = 0
+      if (!earnings[email]) {
+        earnings[email] = 0
+      }
 
-      const amount = Number(row.amount || 0)
-
-      // 🔥 BALANCE REAL
-      balances[email] += amount
-
-      // 🔥 TOTAL EARNED (solo ingresos reales del usuario)
       if (row.type === "payment") {
-        earnings[email] += amount
+        earnings[email] += Number(row.amount || 0)
       }
     }
 
@@ -65,7 +101,7 @@ export async function POST() {
     for (const email of Object.keys(balances)) {
 
       const balance = balances[email]
-      const totalEarned = earnings[email]
+      const totalEarned = earnings[email] || 0
 
       const { data: existing } = await supabase
         .from("wallets")
