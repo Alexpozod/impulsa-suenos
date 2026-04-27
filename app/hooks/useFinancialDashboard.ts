@@ -1,6 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export function useFinancialDashboard() {
 
@@ -15,10 +21,35 @@ export function useFinancialDashboard() {
     try {
 
       /* =========================
-         📡 ADMIN ENDPOINT REAL
+         🔐 SESIÓN REAL
       ========================= */
-      const res = await fetch("/api/admin/finance", {
-        cache: "no-store"
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession()
+
+      if (sessionError) {
+        console.error("❌ Session error:", sessionError)
+        setData(null)
+        return
+      }
+
+      const session = sessionData?.session
+
+      if (!session?.access_token) {
+        console.warn("⚠️ No session/token")
+        setData(null)
+        return
+      }
+
+      /* 🔍 DEBUG (BORRAR DESPUÉS) */
+      console.log("👤 USER:", session.user?.email)
+
+      /* =========================
+         📡 FETCH SEGURO
+      ========================= */
+      const res = await fetch("/api/user/finance", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
       })
 
       if (!res.ok) {
@@ -29,8 +60,9 @@ export function useFinancialDashboard() {
 
       const json = await res.json()
 
-      console.log("📊 ADMIN FINANCE:", json)
-
+      /* =========================
+         🛡️ VALIDACIÓN DEFENSIVA
+      ========================= */
       if (!json || typeof json !== "object") {
         console.warn("⚠️ Invalid response")
         setData(null)
