@@ -11,9 +11,21 @@ const supabase = createClient(
 export async function GET() {
   try {
 
+    /* =========================
+       📥 LEDGER + RELACIÓN REAL
+    ========================= */
     const { data: ledger, error } = await supabase
       .from("financial_ledger")
-      .select("user_email, amount, status")
+      .select(`
+        user_email,
+        amount,
+        status,
+        campaign_id,
+        campaigns (
+          user_email
+        )
+      `)
+      .eq("status", "confirmed")
 
     if (error) {
       console.error("Ledger error:", error)
@@ -23,33 +35,51 @@ export async function GET() {
       )
     }
 
-    const map: Record<string, { user_email: string; balance: number }> = {}
+    /* =========================
+       🧠 AGRUPACIÓN PRO (REAL)
+    ========================= */
+    const map: Record<string, number> = {}
 
-    ledger?.forEach((l: any) => {
+    for (const row of ledger || []) {
 
-      if (!l.user_email) return
-      if (l.status !== "confirmed") return
+      // 🔥 PRIORIDAD:
+      // 1. campaign.user_email (real)
+      // 2. user_email directo (fallback)
+      // 3. platform (si no hay nada)
+      const email =
+        row.campaigns?.user_email ||
+        row.user_email ||
+        "platform"
 
-      if (!map[l.user_email]) {
-        map[l.user_email] = {
-          user_email: l.user_email,
-          balance: 0
-        }
+      if (!map[email]) {
+        map[email] = 0
       }
 
       // 🔥 IMPORTANTE: amount ya viene con signo correcto
-      map[l.user_email].balance += Number(l.amount || 0)
+      map[email] += Number(row.amount || 0)
+    }
 
-    })
-
-    const wallets = Object.values(map).sort(
-      (a, b) => b.balance - a.balance
-    )
+    /* =========================
+       📊 FORMATEO
+    ========================= */
+    const wallets = Object.entries(map)
+      .map(([user_email, balance]) => ({
+        user_email,
+        balance
+      }))
+      .sort((a, b) => b.balance - a.balance)
 
     const total = wallets.reduce(
       (acc, w) => acc + w.balance,
       0
     )
+
+    /* =========================
+       🛡️ VALIDACIÓN INTERNA (PRO)
+    ========================= */
+    if (ledger && ledger.length > 0 && total === 0) {
+      console.warn("⚠️ Wallet total = 0 con ledger existente → posible inconsistencia")
+    }
 
     return NextResponse.json({
       wallets,
