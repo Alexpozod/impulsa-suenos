@@ -2,6 +2,10 @@ export async function calculateCampaignBalance(
   supabase: any,
   campaign_id: string
 ) {
+
+  /* =========================
+     📥 LEDGER DE LA CAMPAÑA
+  ========================= */
   const { data, error } = await supabase
     .from("financial_ledger")
     .select("amount, type")
@@ -21,42 +25,61 @@ export async function calculateCampaignBalance(
   let balance = 0
   let totalIn = 0
   let totalOut = 0
-  let pending = 0
 
   for (const row of data) {
     const amount = Number(row.amount || 0)
 
-    /* =========================
-       💰 DINERO REAL USUARIO
-    ========================= */
+    // 💰 dinero real del creador
     if (row.type === "creator_net") {
       balance += amount
       totalIn += amount
     }
 
-    /* =========================
-       💸 RETIROS APROBADOS
-    ========================= */
+    // 💸 retiros aprobados
     if (row.type === "withdraw") {
       balance -= Math.abs(amount)
       totalOut += Math.abs(amount)
     }
+  }
 
-    /* =========================
-       🟡 RETIROS PENDIENTES
-    ========================= */
-    if (row.type === "withdraw_pending") {
-      pending += Math.abs(amount)
+  /* =========================
+     🔥 PENDING GLOBAL (FIX REAL)
+  ========================= */
+
+  // 1. Obtener dueño de la campaña
+  const { data: campaign } = await supabase
+    .from("campaigns")
+    .select("user_email")
+    .eq("id", campaign_id)
+    .single()
+
+  let totalPending = 0
+
+  if (campaign?.user_email) {
+
+    // 2. Buscar TODOS los retiros pendientes del usuario
+    const { data: pendingRows } = await supabase
+      .from("financial_ledger")
+      .select("amount")
+      .eq("user_email", campaign.user_email)
+      .eq("type", "withdraw_pending")
+      .eq("status", "confirmed")
+
+    for (const row of pendingRows || []) {
+      totalPending += Math.abs(Number(row.amount || 0))
     }
   }
 
-  const available = balance - pending
+  /* =========================
+     💰 DISPONIBLE REAL
+  ========================= */
+  const available = balance - totalPending
 
   return {
     available,
     balance,
     totalIn,
     totalOut,
-    pending
+    pending: totalPending
   }
 }
