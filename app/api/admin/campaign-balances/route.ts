@@ -49,9 +49,13 @@ export async function GET() {
         map[l.campaign_id].income += Number(l.amount || 0)
       }
 
-      if (l.type === "withdraw") {
-        map[l.campaign_id].withdrawn += Math.abs(Number(l.amount || 0))
-      }
+      if (
+  l.type === "fee_platform" ||
+  l.type === "fee_platform_iva" ||
+  l.type === "fee_mp"
+) {
+  map[l.campaign_id].fees += Math.abs(Number(l.amount || 0))
+}
 
       /* 🔥 FIX REAL: TODAS LAS FEES */
       if (
