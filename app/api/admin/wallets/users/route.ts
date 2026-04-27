@@ -39,9 +39,13 @@ export async function GET() {
     }
 
     /* =========================
-       🧠 MAPA REAL (TIPOS CORRECTOS)
+       🧠 MAPA FINANCIERO REAL
     ========================= */
-    const map: Record<string, any> = {}
+    const map: Record<string, {
+      income: number
+      withdrawn: number
+      balance: number
+    }> = {}
 
     for (const row of ledger) {
 
@@ -50,58 +54,56 @@ export async function GET() {
           ? row.campaigns[0]?.user_email
           : null
 
-      const email =
-        campaignOwner ||
-        row.user_email ||
-        "platform"
-
-      if (!map[email]) {
-        map[email] = {
-          income: 0,
-          withdrawn: 0,
-          balance: 0
-        }
-      }
+      const userEmail = campaignOwner || row.user_email
 
       const amount = Number(row.amount || 0)
 
-      switch (row.type) {
+      /* =========================
+         👤 USUARIO → SOLO creator_net
+      ========================= */
+      if (row.type === "creator_net" && userEmail) {
 
-        /* 💰 DINERO REAL USUARIO */
-        case "creator_net":
-          map[email].balance += amount
-          map[email].income += amount
-          break
+        if (!map[userEmail]) {
+          map[userEmail] = { income: 0, withdrawn: 0, balance: 0 }
+        }
 
-        /* 💸 RETIROS */
-        case "withdraw":
-          map[email].balance -= Math.abs(amount)
-          map[email].withdrawn += Math.abs(amount)
-          break
+        map[userEmail].balance += amount
+        map[userEmail].income += amount
+      }
 
-        /* ⏳ IGNORAR */
-        case "withdraw_pending":
-        case "withdraw_rejected":
-          break
+      /* =========================
+         💸 RETIROS USUARIO
+      ========================= */
+      if (row.type === "withdraw" && userEmail) {
 
-        /* 🏦 PLATFORM (no afecta usuario) */
-        case "fee_platform":
-        case "fee_platform_iva":
-        case "fee_mp":
-        case "tip":
-          if (!map["platform"]) {
-            map["platform"] = { income: 0, withdrawn: 0, balance: 0 }
-          }
-          map["platform"].balance += Math.abs(amount)
-          break
+        if (!map[userEmail]) {
+          map[userEmail] = { income: 0, withdrawn: 0, balance: 0 }
+        }
 
-        default:
-          break
+        map[userEmail].balance -= Math.abs(amount)
+        map[userEmail].withdrawn += Math.abs(amount)
+      }
+
+      /* =========================
+         🏦 PLATFORM → SOLO FEES + TIPS
+      ========================= */
+      if (
+        row.type === "fee_platform" ||
+        row.type === "fee_platform_iva" ||
+        row.type === "fee_mp" ||
+        row.type === "tip"
+      ) {
+
+        if (!map["platform"]) {
+          map["platform"] = { income: 0, withdrawn: 0, balance: 0 }
+        }
+
+        map["platform"].balance += Math.abs(amount)
       }
     }
 
     /* =========================
-       🔍 RESULTADO
+       🔍 RESULTADO FINAL
     ========================= */
     const result = wallets.map(w => {
 
@@ -132,6 +134,7 @@ export async function GET() {
         total_received: ledgerData.income,
         total_withdrawn: ledgerData.withdrawn,
 
+        // informativo (no usado en cálculo)
         available: Number(w.available_balance || 0),
         pending: Number(w.pending_balance || 0),
 
