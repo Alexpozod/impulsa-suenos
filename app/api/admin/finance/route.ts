@@ -120,6 +120,19 @@ export async function GET() {
       )
 
     /* =========================
+       🔥 DESGLOSE REAL (300 + 1%)
+    ========================= */
+    const FIXED_FEE = 300
+    const totalTransactions = payments.length
+
+    const totalFixedFee = totalTransactions * FIXED_FEE
+
+    const totalVariableFee =
+      feePlatformBase - totalFixedFee
+
+    const totalIVA = feePlatformIVATotal
+
+    /* =========================
        💳 PROVIDERS
     ========================= */
     const providers: any = {}
@@ -203,11 +216,17 @@ export async function GET() {
       netIncome,
       balance,
 
-      // 🔥 NUEVO (NO ROMPE NADA)
       platform: {
         base: feePlatformBase,
         iva: feePlatformIVATotal,
         total: totalPlatformFees
+      },
+
+      // ✅ NUEVO CORRECTO
+      feeBreakdown: {
+        fixed: totalFixedFee,
+        variable: totalVariableFee,
+        iva: totalIVA
       },
 
       creatorNet,
