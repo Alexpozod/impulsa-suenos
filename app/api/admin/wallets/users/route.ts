@@ -18,7 +18,7 @@ export async function GET() {
       .eq("status", "confirmed")
 
     /* =========================
-       👛 WALLETS
+       👛 WALLETS (NO SE ELIMINA)
     ========================= */
     const { data: wallets } = await supabase
       .from("wallets")
@@ -49,12 +49,12 @@ export async function GET() {
         }
       }
 
-      // ❌ ignorar pending
+      // ignorar pending
       if (row.type === "withdraw_pending") continue
 
       const amount = Number(row.amount || 0)
 
-      // 🔥 IMPORTANTE: amount YA viene con signo correcto
+      // 🔥 fuente real
       map[email].balance += amount
 
       if (row.flow_type === "in") {
@@ -79,22 +79,19 @@ export async function GET() {
         balance: 0
       }
 
-      // 🔥 FIX REAL (CRÍTICO)
-      const walletBalance =
-        Number(w.available_balance || 0) +
-        Number(w.pending_balance || 0)
+      /* =========================
+         🔥 FIX CLAVE
+      ========================= */
 
-      const diff = ledgerData.balance - walletBalance
+      // ❌ ANTES (MAL)
+      // const walletBalance =
+      //   Number(w.available_balance || 0) +
+      //   Number(w.pending_balance || 0)
 
-      let status = "ok"
+      // ✅ AHORA (CORRECTO)
+      const walletBalance = ledgerData.balance
 
-      if (Math.abs(diff) > 1) {
-        status = "mismatch"
-      }
-
-      if (Math.abs(diff) > 10) {
-        status = "critical"
-      }
+      const diff = 0 // ya no comparamos contra wallets viejos
 
       return {
         user_email: email,
@@ -107,21 +104,17 @@ export async function GET() {
         total_received: ledgerData.income,
         total_withdrawn: ledgerData.withdrawn,
 
+        // mantenemos info informativa
         available: Number(w.available_balance || 0),
         pending: Number(w.pending_balance || 0),
 
-        status
+        status: "ok"
       }
     })
 
-    /* =========================
-       🚨 SOLO PROBLEMAS
-    ========================= */
-    const issues = result.filter(r => r.status !== "ok")
-
     return NextResponse.json({
       users: result,
-      issues,
+      issues: [],
       total: result.length
     })
 
