@@ -35,19 +35,29 @@ export async function GET() {
       )
     }
 
+    if (!ledger || ledger.length === 0) {
+      return NextResponse.json({
+        wallets: [],
+        total: 0
+      })
+    }
+
     /* =========================
        🧠 AGRUPACIÓN PRO (REAL)
     ========================= */
     const map: Record<string, number> = {}
 
-    for (const row of ledger || []) {
+    for (const row of ledger) {
 
-      // 🔥 PRIORIDAD:
-      // 1. campaign.user_email (real)
-      // 2. user_email directo (fallback)
-      // 3. platform (si no hay nada)
+      // 🔥 Obtener email correctamente (campaigns es ARRAY)
+      const campaignUser =
+        Array.isArray(row.campaigns) && row.campaigns.length > 0
+          ? row.campaigns[0]?.user_email
+          : null
+
+      // 🔥 Prioridad correcta
       const email =
-        row.campaigns?.user_email ||
+        campaignUser ||
         row.user_email ||
         "platform"
 
@@ -55,12 +65,12 @@ export async function GET() {
         map[email] = 0
       }
 
-      // 🔥 IMPORTANTE: amount ya viene con signo correcto
+      // 🔥 amount YA viene con signo correcto
       map[email] += Number(row.amount || 0)
     }
 
     /* =========================
-       📊 FORMATEO
+       📊 FORMATEO FINAL
     ========================= */
     const wallets = Object.entries(map)
       .map(([user_email, balance]) => ({
@@ -75,10 +85,10 @@ export async function GET() {
     )
 
     /* =========================
-       🛡️ VALIDACIÓN INTERNA (PRO)
+       🛡️ VALIDACIÓN PRO
     ========================= */
-    if (ledger && ledger.length > 0 && total === 0) {
-      console.warn("⚠️ Wallet total = 0 con ledger existente → posible inconsistencia")
+    if (total === 0 && ledger.length > 0) {
+      console.warn("⚠️ Wallet total = 0 con ledger existente")
     }
 
     return NextResponse.json({
