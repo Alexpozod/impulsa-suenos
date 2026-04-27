@@ -12,14 +12,14 @@ export async function GET() {
   try {
 
     /* =========================
-       📥 LEDGER + RELACIÓN REAL
+       📥 LEDGER REAL
     ========================= */
     const { data: ledger, error } = await supabase
       .from("financial_ledger")
       .select(`
-        user_email,
+        type,
         amount,
-        status,
+        user_email,
         campaign_id,
         campaigns (
           user_email
@@ -43,34 +43,65 @@ export async function GET() {
     }
 
     /* =========================
-       🧠 AGRUPACIÓN PRO (REAL)
+       🧠 MAPA DE BALANCES
     ========================= */
     const map: Record<string, number> = {}
 
+    const add = (email: string, value: number) => {
+      if (!map[email]) map[email] = 0
+      map[email] += value
+    }
+
+    /* =========================
+       🔥 MISMA LÓGICA QUE FINANCE
+    ========================= */
     for (const row of ledger) {
 
-      // 🔥 Obtener email correctamente (campaigns es ARRAY)
       const campaignUser =
         Array.isArray(row.campaigns) && row.campaigns.length > 0
           ? row.campaigns[0]?.user_email
           : null
 
-      // 🔥 Prioridad correcta
-      const email =
+      const userEmail =
         campaignUser ||
         row.user_email ||
         "platform"
 
-      if (!map[email]) {
-        map[email] = 0
-      }
+      const amount = Number(row.amount || 0)
 
-      // 🔥 amount YA viene con signo correcto
-      map[email] += Number(row.amount || 0)
+      switch (row.type) {
+
+        case "payment":
+          add(userEmail, amount)
+          break
+
+        case "creator_net":
+          add(userEmail, amount)
+          break
+
+        case "withdraw":
+          add(userEmail, -Math.abs(amount))
+          break
+
+        case "withdraw_pending":
+          add(userEmail, -Math.abs(amount))
+          break
+
+        case "fee_platform":
+        case "fee_platform_iva":
+        case "fee_mp":
+        case "tip":
+          add("platform", Math.abs(amount))
+          break
+
+        default:
+          // no hacer nada
+          break
+      }
     }
 
     /* =========================
-       📊 FORMATEO FINAL
+       📊 FORMATO FINAL
     ========================= */
     const wallets = Object.entries(map)
       .map(([user_email, balance]) => ({
@@ -83,13 +114,6 @@ export async function GET() {
       (acc, w) => acc + w.balance,
       0
     )
-
-    /* =========================
-       🛡️ VALIDACIÓN PRO
-    ========================= */
-    if (total === 0 && ledger.length > 0) {
-      console.warn("⚠️ Wallet total = 0 con ledger existente")
-    }
 
     return NextResponse.json({
       wallets,
