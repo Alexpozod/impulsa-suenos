@@ -17,6 +17,7 @@ export async function POST() {
       .select(`
         amount,
         campaign_id,
+        type,
         campaigns (
           user_email
         )
@@ -31,9 +32,10 @@ export async function POST() {
     }
 
     /* =========================
-       🧠 AGRUPAR POR OWNER REAL
+       🧠 AGRUPAR POR USUARIO REAL
     ========================= */
-    const map: Record<string, number> = {}
+    const balances: Record<string, number> = {}
+    const earnings: Record<string, number> = {}
 
     for (const row of ledger as any[]) {
 
@@ -41,12 +43,18 @@ export async function POST() {
         row.campaigns?.user_email ||
         "platform"
 
-      if (!map[email]) {
-        map[email] = 0
-      }
+      if (!balances[email]) balances[email] = 0
+      if (!earnings[email]) earnings[email] = 0
 
-      // 🔥 CRÍTICO: amount ya viene con signo correcto
-      map[email] += Number(row.amount || 0)
+      const amount = Number(row.amount || 0)
+
+      // 🔥 BALANCE REAL
+      balances[email] += amount
+
+      // 🔥 TOTAL EARNED (solo ingresos reales del usuario)
+      if (row.type === "payment") {
+        earnings[email] += amount
+      }
     }
 
     /* =========================
@@ -54,13 +62,14 @@ export async function POST() {
     ========================= */
     let updated = 0
 
-    for (const email of Object.keys(map)) {
+    for (const email of Object.keys(balances)) {
 
-      const balance = map[email]
+      const balance = balances[email]
+      const totalEarned = earnings[email]
 
       const { data: existing } = await supabase
         .from("wallets")
-        .select("user_email")
+        .select("id")
         .eq("user_email", email)
         .maybeSingle()
 
@@ -68,7 +77,8 @@ export async function POST() {
         await supabase
           .from("wallets")
           .update({
-            balance: balance, // 🔥 usa ESTE campo (no available_balance)
+            balance: balance,
+            total_earned: totalEarned,
             updated_at: new Date().toISOString()
           })
           .eq("user_email", email)
@@ -78,6 +88,7 @@ export async function POST() {
           .insert({
             user_email: email,
             balance: balance,
+            total_earned: totalEarned,
             created_at: new Date().toISOString()
           })
       }
@@ -87,11 +98,12 @@ export async function POST() {
 
     return NextResponse.json({
       ok: true,
-      updated
+      updated,
+      users: Object.keys(balances).length
     })
 
   } catch (error) {
-    console.error("FIX ERROR:", error)
+    console.error("WALLET FIX ERROR:", error)
 
     return NextResponse.json(
       { error: "internal error" },
