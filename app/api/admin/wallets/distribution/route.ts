@@ -9,13 +9,18 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    const { data: ledger } = await supabase
+    const { data: ledger, error } = await supabase
       .from("financial_ledger")
       .select("amount, type")
       .eq("status", "confirmed")
 
-    if (!ledger) {
-      return NextResponse.json({})
+    if (error || !ledger) {
+      console.error("ledger error", error)
+      return NextResponse.json({
+        campaignFunds: 0,
+        platformFunds: 0,
+        pendingWithdrawals: 0
+      })
     }
 
     let campaignFunds = 0
@@ -27,34 +32,34 @@ export async function GET() {
 
       switch (row.type) {
 
-        // 💰 dinero real en campañas
-        case "payment":
+        /* =========================
+           👤 USUARIOS (REAL)
+        ========================= */
+        case "creator_net":
           campaignFunds += amount
-          break
-
-        case "fee_platform":
-        case "fee_mp":
-          campaignFunds -= Math.abs(amount)
           break
 
         case "withdraw":
           campaignFunds -= Math.abs(amount)
           break
 
-        // 🟢 dinero real de la plataforma
-        case "fee_platform_income":
-          platformFunds += amount
+        /* =========================
+           🏦 PLATFORM (REAL)
+        ========================= */
+        case "fee_platform":
+        case "fee_platform_iva":
+        case "fee_mp":
+        case "tip":
+          platformFunds += Math.abs(amount)
           break
 
-        case "tip_income":
-          platformFunds += amount
+        default:
           break
       }
     }
 
     /* =========================
-       🔥 FIX CORRECTO
-       PENDING DESDE PAYOUTS
+       ⏳ PENDING DESDE PAYOUTS
     ========================= */
     const { data: payouts } = await supabase
       .from("payouts")
@@ -75,6 +80,11 @@ export async function GET() {
 
   } catch (error) {
     console.error("wallet distribution error", error)
-    return NextResponse.json({})
+
+    return NextResponse.json({
+      campaignFunds: 0,
+      platformFunds: 0,
+      pendingWithdrawals: 0
+    })
   }
 }
