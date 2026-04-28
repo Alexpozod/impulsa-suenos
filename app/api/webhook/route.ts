@@ -71,6 +71,10 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
       .maybeSingle()
 
+      // 🔥 FIX: recuperar ref/source desde DB si MP no los trae
+let dbRef = existingPayment?.ref || null
+let dbSource = existingPayment?.source || null
+
     let payment
 
     try {
@@ -100,14 +104,16 @@ export async function POST(req: Request) {
 
     // 🔥 REF + SOURCE
     const referrer =
-      payment.metadata?.referrer ||
-      payment.metadata?.ref ||
-      null
+  payment.metadata?.referrer ||
+  payment.metadata?.ref ||
+  dbRef ||
+  null
 
-    const source =
-      payment.metadata?.traffic_source ||
-      payment.metadata?.source ||
-      "unknown"
+const source =
+  payment.metadata?.traffic_source ||
+  payment.metadata?.source ||
+  dbSource ||
+  "direct"
 
     const donor_name =
       payment.metadata?.donor_name ||
