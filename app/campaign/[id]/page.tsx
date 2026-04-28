@@ -89,9 +89,6 @@ export default function CampaignDetail() {
     return clean
   }
 
-  /* =========================
-     🔥 SHARE PRO (MEJORADO)
-  ========================= */
   const getCampaignUrl = () => {
     let url = `${window.location.origin}/campaign/${id}`
     if (ref) url += `?ref=${ref}`
@@ -120,10 +117,9 @@ export default function CampaignDetail() {
     window.open(url, "_blank")
   }
 
-  // 🔥 Instagram y TikTok (no tienen share directo)
   const shareInstagram = () => {
     copyLink()
-    alert("📸 Pega el link en Instagram Stories")
+    alert("📸 Pega el link en Instagram")
   }
 
   const shareTikTok = () => {
@@ -157,7 +153,6 @@ export default function CampaignDetail() {
 
       <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-5 gap-10">
 
-        {/* LEFT */}
         <div className="md:col-span-3">
 
           <CampaignCarousel images={images} />
@@ -166,31 +161,39 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* 🔥 SHARE PRO UI */}
+          {/* 🔥 SHARE PRO (GOFUNDME STYLE) */}
           <div className="flex items-center gap-3 mt-4 flex-wrap">
 
-            <button onClick={copyLink} className="p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-              🔗
+            {/* COPY */}
+            <button onClick={copyLink} className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition">
+              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth={2} d="M8 16h8M8 12h8m-6 8h6a2 2 0 002-2V6a2 2 0 00-2-2h-6l-4 4v10a2 2 0 002 2z" />
+              </svg>
             </button>
 
-            <button onClick={shareWhatsApp} className="p-3 rounded-full bg-green-500 text-white hover:scale-105 transition">
-              💬
+            {/* WHATSAPP */}
+            <button onClick={shareWhatsApp} className="w-11 h-11 flex items-center justify-center rounded-full bg-green-500 text-white hover:scale-105 transition">
+              <span className="text-xs font-bold">WA</span>
             </button>
 
-            <button onClick={shareFacebook} className="p-3 rounded-full bg-blue-600 text-white hover:scale-105 transition">
+            {/* FACEBOOK */}
+            <button onClick={shareFacebook} className="w-11 h-11 flex items-center justify-center rounded-full bg-blue-600 text-white hover:scale-105 transition">
               f
             </button>
 
-            <button onClick={shareX} className="p-3 rounded-full bg-black text-white hover:scale-105 transition">
+            {/* X */}
+            <button onClick={shareX} className="w-11 h-11 flex items-center justify-center rounded-full bg-black text-white hover:scale-105 transition">
               X
             </button>
 
-            <button onClick={shareInstagram} className="p-3 rounded-full bg-pink-500 text-white hover:scale-105 transition">
-              📸
+            {/* IG */}
+            <button onClick={shareInstagram} className="w-11 h-11 flex items-center justify-center rounded-full bg-pink-500 text-white hover:scale-105 transition">
+              IG
             </button>
 
-            <button onClick={shareTikTok} className="p-3 rounded-full bg-gray-800 text-white hover:scale-105 transition">
-              🎵
+            {/* TIKTOK */}
+            <button onClick={shareTikTok} className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-900 text-white hover:scale-105 transition">
+              TT
             </button>
 
           </div>
