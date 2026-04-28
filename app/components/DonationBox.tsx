@@ -28,6 +28,27 @@ export default function DonationBox({
 
   useEffect(() => {
     loadUser()
+
+    /* =========================
+       🔥 GUARDAR REF (CRÍTICO)
+    ========================= */
+    try {
+      const params = new URLSearchParams(window.location.search)
+
+      const refFromUrl = params.get("ref")
+      const sourceFromUrl = params.get("source")
+
+      if (refFromUrl) {
+        localStorage.setItem("referrer", refFromUrl)
+      }
+
+      if (sourceFromUrl) {
+        localStorage.setItem("traffic_source", sourceFromUrl)
+      }
+    } catch (err) {
+      console.error("Ref save error:", err)
+    }
+
   }, [])
 
   const loadUser = async () => {
@@ -57,6 +78,9 @@ export default function DonationBox({
 
     if (!userEmail) {
 
+      /* =========================
+         🔥 GUARDAR INTENTO + REF
+      ========================= */
       localStorage.setItem('donation_intent', JSON.stringify({
         campaign_id,
         amount,
@@ -100,7 +124,7 @@ export default function DonationBox({
       }
 
       /* =========================
-         🔥 TRACKING REAL (FIX)
+         🔥 TRACKING REAL (FIX FINAL)
       ========================= */
 
       const params = new URLSearchParams(window.location.search)
@@ -108,8 +132,19 @@ export default function DonationBox({
       const refFromUrl = params.get("ref")
       const sourceFromUrl = params.get("source")
 
-      const finalRef = refParam || refFromUrl || null
-      const finalSource = sourceFromUrl || "web"
+      const refFromStorage = localStorage.getItem("referrer")
+      const sourceFromStorage = localStorage.getItem("traffic_source")
+
+      const finalRef =
+        refParam ||
+        refFromUrl ||
+        refFromStorage ||
+        null
+
+      const finalSource =
+        sourceFromUrl ||
+        sourceFromStorage ||
+        "direct"
 
       /* =========================
          🚀 REQUEST
@@ -129,7 +164,7 @@ export default function DonationBox({
           donor_name: finalDonorName,
           provider: "mercadopago",
 
-          // 🔥 FIX REAL
+          // 🔥 TRACKING FINAL
           ref: finalRef,
           source: finalSource
         })
