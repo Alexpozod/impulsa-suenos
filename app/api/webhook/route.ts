@@ -95,10 +95,6 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
-
-    /* =========================
-       🔥 SEPARACIÓN REAL (CLAVE)
-    ========================= */
     const creator_email = payment.metadata?.user_email
     const donor_email = payment.payer?.email
 
@@ -141,9 +137,6 @@ export async function POST(req: Request) {
       fee_mp = Math.round(donation * MP_PERCENT)
     }
 
-    /* =========================
-       ⚙️ CONFIG DINÁMICA
-    ========================= */
     let PLATFORM_FIXED = 300
     let PLATFORM_PERCENT = 0.01
 
@@ -162,7 +155,6 @@ export async function POST(req: Request) {
         if (!isNaN(fixed)) PLATFORM_FIXED = fixed
         if (!isNaN(percent)) PLATFORM_PERCENT = percent
       }
-
     } catch {
       console.warn("⚠️ fallback config")
     }
@@ -224,6 +216,12 @@ export async function POST(req: Request) {
       .update({ status: "approved" })
       .eq("payment_id", paymentId)
 
+    const { data: paymentRow } = await supabase
+      .from("payments")
+      .select("notified")
+      .eq("payment_id", paymentId)
+      .maybeSingle()
+
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("title")
@@ -232,38 +230,42 @@ export async function POST(req: Request) {
 
     const campaignTitle = campaign?.title || "Tu campaña"
 
-    /* =========================
-       📩 EMAIL CREADOR (NUEVO REAL)
-    ========================= */
-    await sendNotification({
-      user_email: creator_email,
-      type: "donation_received",
-      title: "💰 Nueva donación recibida",
-      message: `Recibiste una donación de $${Number(donation).toLocaleString()} en "${campaignTitle}"`,
-      metadata: {
-        amount: donation,
-        campaign_title: campaignTitle,
-        donor_name,
-        message
-      },
-      sendEmail: true
-    })
+    if (!paymentRow?.notified) {
 
-    /* =========================
-       💌 EMAIL DONADOR
-    ========================= */
-    if (donor_email) {
+      await supabase
+        .from("payments")
+        .update({ notified: true })
+        .eq("payment_id", paymentId)
+
+      // ✅ EMAIL CREADOR
       await sendNotification({
-        user_email: donor_email,
-        type: "donation_thanks",
-        title: "🙏 Gracias por tu donación",
-        message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
+        user_email: creator_email,
+        type: "donation_received",
+        title: "💰 Nueva donación recibida",
+        message: `Recibiste una donación de $${Number(donation).toLocaleString()} en "${campaignTitle}"`,
         metadata: {
-          campaign_id,
-          share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
+          amount: donation,
+          campaign_title: campaignTitle,
+          donor_name,
+          message
         },
         sendEmail: true
       })
+
+      // ✅ EMAIL DONADOR
+      if (donor_email) {
+        await sendNotification({
+          user_email: donor_email,
+          type: "donation_thanks",
+          title: "🙏 Gracias por tu donación",
+          message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
+          metadata: {
+            campaign_id,
+            share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
+          },
+          sendEmail: true
+        })
+      }
     }
 
     await syncWallet(creator_email)
