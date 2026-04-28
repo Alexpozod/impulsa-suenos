@@ -28,7 +28,7 @@ const paymentSchema = z.object({
 
   provider: z.string().optional(),
 
-  // 🔥 NUEVO (NO ROMPE NADA)
+  // 🔥 NUEVO (COMPATIBLE)
   ref: z.string().optional()
 })
 
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       amount,
       tip = 0,
       campaign_id,
-      user_email, // 👈 CREADOR
+      user_email,
       message = "",
       donor_name,
       ref
@@ -106,13 +106,18 @@ export async function POST(req: Request) {
     const provider = "mercadopago"
 
     /* =========================
+       🔥 REF NORMALIZADO (CLAVE)
+    ========================= */
+    const referrer = ref || null
+
+    /* =========================
        🚀 CREATE PAYMENT PRO
     ========================= */
     const result = await createPayment({
       amount,
       tip,
       campaign_id,
-      user_email, // 👈 CREADOR
+      user_email,
       provider,
       message,
       donor_name: safeDonorName,
@@ -124,8 +129,9 @@ export async function POST(req: Request) {
         source: "web",
         created_at: new Date().toISOString(),
 
-        // 🔥 VIRAL READY (NO AFECTA NADA)
-        ref: ref || null
+        // 🔥 COMPATIBILIDAD + FUTURO
+        ref: ref || null,
+        referrer: referrer
       }
     })
 

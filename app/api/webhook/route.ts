@@ -98,6 +98,14 @@ export async function POST(req: Request) {
     const creator_email = payment.metadata?.user_email
     const donor_email = payment.payer?.email
 
+    /* =========================
+       🔥 NUEVO: REFERRAL (NO ROMPE)
+    ========================= */
+    const referrer =
+      payment.metadata?.referrer ||
+      payment.metadata?.ref ||
+      null
+
     const donor_name =
       payment.metadata?.donor_name ||
       [payment.payer?.first_name, payment.payer?.last_name]
@@ -124,7 +132,10 @@ export async function POST(req: Request) {
             ...existingPayment.metadata,
             donor_name,
             message,
-            donation
+            donation,
+
+            // 🔥 NUEVO (NO ROMPE)
+            referrer
           }
         })
         .eq("payment_id", paymentId)
@@ -172,7 +183,10 @@ export async function POST(req: Request) {
           donation,
           tip,
           donor_name,
-          message
+          message,
+
+          // 🔥 NUEVO (NO ROMPE)
+          referrer
         },
         notified: false
       })
@@ -237,7 +251,6 @@ export async function POST(req: Request) {
         .update({ notified: true })
         .eq("payment_id", paymentId)
 
-      // ✅ EMAIL CREADOR
       await sendNotification({
         user_email: creator_email,
         type: "donation_received",
@@ -252,7 +265,6 @@ export async function POST(req: Request) {
         sendEmail: true
       })
 
-      // ✅ EMAIL DONADOR
       if (donor_email) {
         await sendNotification({
           user_email: donor_email,
