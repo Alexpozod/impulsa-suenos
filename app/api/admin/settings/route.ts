@@ -1,55 +1,84 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { requireAdmin } from "@/lib/auth/requireAdmin"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// 📥 OBTENER CONFIG
-export async function GET() {
-  const { data, error } = await supabase
-    .from("settings")
-    .select("*")
-    .eq("key", "commission_rate")
-    .single()
+/* =========================
+   📥 GET CONFIG REAL
+========================= */
+export async function GET(req: Request) {
+  try {
 
-  if (error) {
-    return NextResponse.json({ error: "Error cargando config" }, { status: 500 })
+    await requireAdmin(req)
+
+    const { data, error } = await supabase
+      .from("platform_settings")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (error) throw error
+
+    return NextResponse.json(data || {})
+
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "error" },
+      { status: 500 }
+    )
   }
-
-  return NextResponse.json(data)
 }
 
-// 💾 ACTUALIZAR COMISIÓN
+/* =========================
+   💾 GUARDAR CONFIG
+========================= */
 export async function POST(req: Request) {
   try {
-    const { value } = await req.json()
 
-    if (!value) {
+    await requireAdmin(req)
+
+    const body = await req.json()
+
+    const fee_fixed = Number(body.fee_fixed)
+    const fee_percent = Number(body.fee_percent)
+    const iva = Number(body.iva)
+
+    if (
+      isNaN(fee_fixed) ||
+      isNaN(fee_percent) ||
+      isNaN(iva)
+    ) {
       return NextResponse.json(
-        { error: "Valor requerido" },
+        { error: "invalid_values" },
         { status: 400 }
       )
     }
 
-    const { error } = await supabase
-      .from("settings")
-      .update({ value })
-      .eq("key", "commission_rate")
+    const { data, error } = await supabase
+      .from("platform_settings")
+      .insert({
+        fee_fixed,
+        fee_percent,
+        iva
+      })
+      .select()
+      .single()
 
-    if (error) {
-      return NextResponse.json(
-        { error: "Error actualizando" },
-        { status: 500 }
-      )
-    }
+    if (error) throw error
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({
+      ok: true,
+      config: data
+    })
 
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
-      { error: "Error servidor" },
+      { error: error.message || "error" },
       { status: 500 }
     )
   }
