@@ -17,7 +17,6 @@ export default function AccountPage() {
 
   const { data: finance } = useFinancialDashboard()
 
-  // 🔥 ANALYTICS
   const [analytics, setAnalytics] = useState<any>(null)
 
   useEffect(() => {
@@ -54,33 +53,77 @@ export default function AccountPage() {
 
         setBankLoaded((bankAccounts?.length || 0) > 0)
 
-        // 🔥 CAMPAÑA ACTIVA
+        /* =========================
+           🔥 TODAS LAS CAMPAÑAS
+        ========================= */
         const { data: campaigns } = await supabase
           .from("campaigns")
           .select("id")
           .eq("user_email", email)
           .eq("status", "active")
-          .limit(1)
 
-        const campaignId = campaigns?.[0]?.id
+        if (!campaigns || campaigns.length === 0) {
+          setAnalytics(null)
+          setLoading(false) // 🔥 FIX CRÍTICO
+          return
+        }
 
-console.log("🔥 CAMPAIGN USADA:", campaignId)
+        /* =========================
+           🚀 ANALYTICS GLOBAL
+        ========================= */
+        try {
 
-        // 🔥 ANALYTICS REAL
-        if (campaignId) {
-          try {
-            const res = await fetch(`/api/campaign-analytics?campaign_id=${campaignId}`)
+          const results = await Promise.all(
+            campaigns.map(async (c: any) => {
+              const res = await fetch(`/api/campaign-analytics?campaign_id=${c.id}`)
+              if (!res.ok) return null
+              return res.json()
+            })
+          )
 
-            if (!res.ok) throw new Error("Error analytics")
+          const valid = results.filter(Boolean)
 
-            const json = await res.json()
+          let total_donations = 0
+          let total_amount = 0
+          let refs = 0
+          let conversionSum = 0
+          let sources: any = {}
 
-            console.log("📊 ANALYTICS:", json)
+          valid.forEach((a: any) => {
 
-            setAnalytics(json)
-          } catch (err) {
-            console.error("Analytics error:", err)
+            total_donations += a.total_donations || 0
+            total_amount += a.total_amount || 0
+            refs += a.refs || 0
+            conversionSum += Number(a.conversion || 0)
+
+            if (a.sources) {
+              Object.entries(a.sources).forEach(([key, val]: any) => {
+                if (!sources[key]) {
+                  sources[key] = { count: 0, amount: 0 }
+                }
+                sources[key].count += val.count || 0
+                sources[key].amount += val.amount || 0
+              })
+            }
+
+          })
+
+          const finalAnalytics = {
+            total_donations,
+            total_amount,
+            refs,
+            conversion: valid.length
+              ? Number((conversionSum / valid.length).toFixed(2)) // 🔥 FIX
+              : 0,
+            sources
           }
+
+          console.log("🔥 ANALYTICS GLOBAL:", finalAnalytics)
+
+          setAnalytics(finalAnalytics)
+
+        } catch (err) {
+          console.error("Analytics error:", err)
         }
 
       } catch (err) {
@@ -95,7 +138,7 @@ console.log("🔥 CAMPAIGN USADA:", campaignId)
 
   if (loading) return <div className="p-6">Cargando...</div>
 
-  // 🔥 TOP SOURCE (ROBUSTO)
+  // 🔥 TOP SOURCE
   let topSource: string | null = null
 
   if (analytics?.sources) {
@@ -119,7 +162,6 @@ console.log("🔥 CAMPAIGN USADA:", campaignId)
         <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
         <p className="text-gray-600 mb-6">{user?.email}</p>
 
-        {/* STATUS */}
         <div className="mb-6 flex gap-3 flex-wrap">
 
           <span className={`px-3 py-1 rounded text-sm ${
@@ -140,7 +182,6 @@ console.log("🔥 CAMPAIGN USADA:", campaignId)
 
         </div>
 
-        {/* FINANZAS */}
         {finance && (
           <div className="grid md:grid-cols-4 gap-4 mb-6">
             <MiniCard title="Disponible" value={finance.totals.balance} highlight />
@@ -150,7 +191,6 @@ console.log("🔥 CAMPAIGN USADA:", campaignId)
           </div>
         )}
 
-        {/* ACCIONES */}
         <div className="mb-8 flex flex-wrap gap-3">
 
           <button
@@ -171,32 +211,6 @@ console.log("🔥 CAMPAIGN USADA:", campaignId)
 
         </div>
 
-        {/* ACCESOS */}
-        <div className="grid md:grid-cols-2 gap-4 mb-10">
-
-          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
-            <p className="font-semibold">📊 Dashboard</p>
-            <p className="text-xs text-gray-500">Métricas y control</p>
-          </button>
-
-          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
-            <p className="font-semibold">📂 Gestionar campañas</p>
-            <p className="text-xs text-gray-500">Administra tus campañas</p>
-          </button>
-
-          <button onClick={() => router.push("/account/bank")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
-            <p className="font-semibold">🏦 Banco</p>
-            <p className="text-xs text-gray-500">Configura pagos</p>
-          </button>
-
-          <button onClick={() => router.push("/kyc")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
-            <p className="font-semibold">🪪 KYC</p>
-            <p className="text-xs text-gray-500">Verificación de identidad</p>
-          </button>
-
-        </div>
-
-        {/* 🚀 VIRALIDAD REAL */}
         <div className="bg-white border rounded-2xl p-6">
 
           <h2 className="text-xl font-bold mb-4">
@@ -218,8 +232,6 @@ console.log("🔥 CAMPAIGN USADA:", campaignId)
     </div>
   )
 }
-
-/* ================= UI ================= */
 
 function MiniCard({ title, value, highlight }: any) {
   return (
