@@ -11,22 +11,25 @@ const supabase = createClient(
 )
 
 /* =========================
-   🔥 SCHEMA PRO (CLARO)
+   🔥 SCHEMA PRO (EXTENDIDO)
 ========================= */
 const paymentSchema = z.object({
   amount: z.number().positive().min(100),
   tip: z.number().min(0).optional(),
   campaign_id: z.string().min(1),
 
-  // 👇 ESTE ES EL CREADOR (NO DONADOR)
+  // 👇 CREADOR
   user_email: z.string().email(),
 
   message: z.string().optional(),
 
-  // 👇 ESTE ES EL DONADOR REAL
+  // 👇 DONADOR
   donor_name: z.string().optional(),
 
-  provider: z.string().optional()
+  provider: z.string().optional(),
+
+  // 🔥 NUEVO (NO ROMPE NADA)
+  ref: z.string().optional()
 })
 
 export async function POST(req: Request) {
@@ -51,7 +54,8 @@ export async function POST(req: Request) {
       campaign_id,
       user_email, // 👈 CREADOR
       message = "",
-      donor_name
+      donor_name,
+      ref
     } = parsed.data
 
     /* =========================
@@ -78,8 +82,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔐 VALIDACIÓN EXTRA (PRO)
-       evita fraude manual
+       🔐 VALIDACIÓN CRÍTICA
     ========================= */
     if (campaign.user_email !== user_email) {
       return NextResponse.json(
@@ -109,15 +112,20 @@ export async function POST(req: Request) {
       amount,
       tip,
       campaign_id,
-      user_email, // 👈 CREADOR (correcto)
+      user_email, // 👈 CREADOR
       provider,
       message,
       donor_name: safeDonorName,
 
-      // 🔥 PREPARADO PARA ESCALAR (NO ROMPE)
+      /* =========================
+         🔥 METADATA PRO (ESCALABLE)
+      ========================= */
       metadata: {
         source: "web",
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+
+        // 🔥 VIRAL READY (NO AFECTA NADA)
+        ref: ref || null
       }
     })
 
