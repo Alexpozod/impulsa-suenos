@@ -89,6 +89,9 @@ export default function CampaignDetail() {
     return clean
   }
 
+  /* =========================
+     🔥 SHARE PRO
+  ========================= */
   const getCampaignUrl = () => {
     let url = `${window.location.origin}/campaign/${id}`
     if (ref) url += `?ref=${ref}`
@@ -152,23 +155,25 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* SHARE */}
-          <div className="flex flex-wrap gap-3 mt-4">
-            <button onClick={copyLink} className="bg-black text-white px-4 py-2 rounded-lg text-sm">
-              🔗 Copiar
+          {/* SHARE PRO */}
+          <div className="flex items-center gap-3 mt-4">
+
+            <button onClick={copyLink} className="p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+              🔗
             </button>
 
-            <button onClick={shareWhatsApp} className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm">
-              WhatsApp
+            <button onClick={shareWhatsApp} className="p-3 rounded-full bg-green-500 text-white hover:scale-105 transition">
+              🟢
             </button>
 
-            <button onClick={shareFacebook} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
-              Facebook
+            <button onClick={shareFacebook} className="p-3 rounded-full bg-blue-600 text-white hover:scale-105 transition">
+              f
             </button>
 
-            <button onClick={shareX} className="bg-black text-white px-4 py-2 rounded-lg text-sm">
+            <button onClick={shareX} className="p-3 rounded-full bg-black text-white hover:scale-105 transition">
               X
             </button>
+
           </div>
 
           {/* PROGRESO */}
@@ -252,7 +257,7 @@ export default function CampaignDetail() {
             </div>
           </div>
 
-          {/* 🏆 RANKING (AQUÍ VA) */}
+          {/* 🏆 RANKING */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">🏆 Top donadores</h2>
 

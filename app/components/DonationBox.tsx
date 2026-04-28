@@ -94,7 +94,7 @@ export default function DonationBox({
       }
 
       /* =========================
-         🧠 DONOR NAME FINAL
+         🧠 DONOR NAME FINAL (FIX PRO)
       ========================= */
       let finalDonorName = "Donador"
 
@@ -107,9 +107,9 @@ export default function DonationBox({
       }
 
       /* =========================
-         🔥 REF (NUEVO SIN ROMPER)
+         🔥 REF (CORRECTO FINAL)
       ========================= */
-      const ref = refParam || null
+      const referrer = refParam || null
 
       const res = await fetch('/api/create-payment', {
         method: 'POST',
@@ -124,7 +124,7 @@ export default function DonationBox({
           message,
           donor_name: finalDonorName,
           provider: "mercadopago",
-          ref // 🔥 SE AGREGA SIN AFECTAR NADA
+          referrer // 🔥 CLAVE CORREGIDA (antes estaba como "ref")
         })
       })
 
