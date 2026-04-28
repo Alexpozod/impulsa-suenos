@@ -16,15 +16,16 @@ export async function GET(req: Request) {
     }
 
     /* =========================
-       🔥 TRAER PAYMENTS REALES
+       💰 LEDGER (FUENTE REAL)
     ========================= */
-    const { data: payments } = await supabase
-      .from("payments")
-      .select("amount, metadata, ref, source, created_at")
+    const { data: ledger } = await supabase
+      .from("financial_ledger")
+      .select("amount, payment_id")
       .eq("campaign_id", campaign_id)
-      .eq("status", "approved")
+      .eq("type", "payment")
+      .eq("status", "confirmed")
 
-    if (!payments || payments.length === 0) {
+    if (!ledger || ledger.length === 0) {
       return NextResponse.json({
         total_donations: 0,
         total_amount: 0,
@@ -34,41 +35,59 @@ export async function GET(req: Request) {
       })
     }
 
+    const paymentIds = ledger.map(l => l.payment_id)
+
+    /* =========================
+       🔍 TRAER METADATA
+    ========================= */
+    const { data: payments } = await supabase
+      .from("payments")
+      .select("payment_id, ref, source, metadata")
+      .in("payment_id", paymentIds)
+
+    const paymentsMap: Record<string, any> = {}
+
+    ;(payments || []).forEach(p => {
+      paymentsMap[p.payment_id] = p
+    })
+
     /* =========================
        💰 TOTAL
     ========================= */
-    const total_amount = payments.reduce(
-      (acc, p) => acc + Number(p.amount || 0),
+    const total_amount = ledger.reduce(
+      (acc, l) => acc + Number(l.amount || 0),
       0
     )
 
-    const total_donations = payments.length
+    const total_donations = ledger.length
 
     /* =========================
        🔗 REFERIDOS
     ========================= */
     const refSet = new Set<string>()
 
-    payments.forEach(p => {
+    ledger.forEach(l => {
+      const p = paymentsMap[l.payment_id]
+
       const ref =
-        p.ref ||
-        p.metadata?.ref ||
-        p.metadata?.referrer
+        p?.ref ||
+        p?.metadata?.ref ||
+        p?.metadata?.referrer
 
       if (ref) refSet.add(ref)
     })
 
-    const total_refs = refSet.size
-
     /* =========================
-       🌍 SOURCES (TRÁFICO)
+       🌍 SOURCES
     ========================= */
     const sources: Record<string, { count: number; amount: number }> = {}
 
-    payments.forEach(p => {
+    ledger.forEach(l => {
+      const p = paymentsMap[l.payment_id]
+
       const source =
-        p.source ||
-        p.metadata?.source ||
+        p?.source ||
+        p?.metadata?.source ||
         "direct"
 
       if (!sources[source]) {
@@ -76,13 +95,14 @@ export async function GET(req: Request) {
       }
 
       sources[source].count += 1
-      sources[source].amount += Number(p.amount || 0)
+      sources[source].amount += Number(l.amount || 0)
     })
 
     /* =========================
-       📈 CONVERSIÓN (SIMPLE)
+       📈 CONVERSIÓN
     ========================= */
-    const estimated_visits = total_donations * 3 // aproximación inicial
+    const estimated_visits = total_donations * 3
+
     const conversion =
       estimated_visits > 0
         ? Number(((total_donations / estimated_visits) * 100).toFixed(2))
@@ -91,7 +111,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       total_donations,
       total_amount,
-      refs: total_refs,
+      refs: refSet.size,
       sources,
       conversion
     })
