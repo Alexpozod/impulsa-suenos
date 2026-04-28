@@ -17,64 +17,75 @@ export default function AccountPage() {
 
   const { data: finance } = useFinancialDashboard()
 
-  // 🔥 NUEVO: ANALYTICS
+  // 🔥 ANALYTICS
   const [analytics, setAnalytics] = useState<any>(null)
 
   useEffect(() => {
     const load = async () => {
 
-      const { data } = await supabase.auth.getUser()
+      try {
+        const { data } = await supabase.auth.getUser()
 
-      if (!data.user) {
-        router.push('/login')
-        return
-      }
-
-      setUser(data.user)
-
-      const email = data.user.email!.toLowerCase()
-
-      const { data: kyc } = await supabase
-        .from("kyc")
-        .select("status")
-        .eq("user_email", email)
-        .maybeSingle()
-
-      setKycStatus(kyc?.status || null)
-
-      const { data: bankAccounts } = await supabase
-        .from("bank_accounts")
-        .select("id")
-        .eq("user_email", email)
-        .limit(1)
-
-      setBankLoaded((bankAccounts?.length || 0) > 0)
-
-      // 🔥 TRAER CAMPAÑA (LA PRIMERA ACTIVA)
-      const { data: campaigns } = await supabase
-        .from("campaigns")
-        .select("id")
-        .eq("user_email", email)
-        .eq("status", "active")
-        .limit(1)
-
-      const campaignId = campaigns?.[0]?.id
-
-      // 🔥 TRAER ANALYTICS REAL
-      if (campaignId) {
-        try {
-          const res = await fetch(`/api/campaign-analytics?campaign_id=${campaignId}`)
-          const json = await res.json()
-
-          console.log("📊 ANALYTICS:", json)
-
-          setAnalytics(json)
-        } catch (err) {
-          console.error("Analytics error:", err)
+        if (!data.user) {
+          router.push('/login')
+          return
         }
-      }
 
-      setLoading(false)
+        const currentUser = data.user
+        setUser(currentUser)
+
+        const email = currentUser.email!.toLowerCase()
+
+        // KYC
+        const { data: kyc } = await supabase
+          .from("kyc")
+          .select("status")
+          .eq("user_email", email)
+          .maybeSingle()
+
+        setKycStatus(kyc?.status || null)
+
+        // Banco
+        const { data: bankAccounts } = await supabase
+          .from("bank_accounts")
+          .select("id")
+          .eq("user_email", email)
+          .limit(1)
+
+        setBankLoaded((bankAccounts?.length || 0) > 0)
+
+        // 🔥 CAMPAÑA ACTIVA
+        const { data: campaigns } = await supabase
+          .from("campaigns")
+          .select("id")
+          .eq("user_email", email)
+          .eq("status", "active")
+          .limit(1)
+
+        const campaignId = campaigns?.[0]?.id
+
+        // 🔥 ANALYTICS REAL
+        if (campaignId) {
+          try {
+            const res = await fetch(`/api/campaign-analytics?campaign_id=${campaignId}`)
+
+            if (!res.ok) throw new Error("Error analytics")
+
+            const json = await res.json()
+
+            console.log("📊 ANALYTICS:", json)
+
+            setAnalytics(json)
+          } catch (err) {
+            console.error("Analytics error:", err)
+          }
+        }
+
+      } catch (err) {
+        console.error("LOAD ERROR:", err)
+      } finally {
+        setLoading(false)
+      }
     }
 
     load()
@@ -82,10 +93,22 @@ export default function AccountPage() {
 
   if (loading) return <div className="p-6">Cargando...</div>
 
-  // 🔥 PROCESAR DATOS
-  const topSource = analytics?.sources
-    ? Object.entries(analytics.sources).sort((a: any, b: any) => b[1].count - a[1].count)[0]
-    : null
+  // 🔥 TOP SOURCE (ROBUSTO)
+  let topSource: string | null = null
+
+  if (analytics?.sources) {
+    const entries = Object.entries(analytics.sources)
+
+    if (entries.length > 0) {
+      const sorted = entries.sort((a: any, b: any) => {
+        const aVal = a[1]?.amount ?? a[1]?.count ?? 0
+        const bVal = b[1]?.amount ?? b[1]?.count ?? 0
+        return bVal - aVal
+      })
+
+      topSource = sorted[0][0]
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -94,6 +117,7 @@ export default function AccountPage() {
         <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
         <p className="text-gray-600 mb-6">{user?.email}</p>
 
+        {/* STATUS */}
         <div className="mb-6 flex gap-3 flex-wrap">
 
           <span className={`px-3 py-1 rounded text-sm ${
@@ -114,6 +138,7 @@ export default function AccountPage() {
 
         </div>
 
+        {/* FINANZAS */}
         {finance && (
           <div className="grid md:grid-cols-4 gap-4 mb-6">
             <MiniCard title="Disponible" value={finance.totals.balance} highlight />
@@ -123,6 +148,7 @@ export default function AccountPage() {
           </div>
         )}
 
+        {/* ACCIONES */}
         <div className="mb-8 flex flex-wrap gap-3">
 
           <button
@@ -143,6 +169,7 @@ export default function AccountPage() {
 
         </div>
 
+        {/* ACCESOS */}
         <div className="grid md:grid-cols-2 gap-4 mb-10">
 
           <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
@@ -167,7 +194,7 @@ export default function AccountPage() {
 
         </div>
 
-        {/* 🔥 VIRALIDAD REAL */}
+        {/* 🚀 VIRALIDAD REAL */}
         <div className="bg-white border rounded-2xl p-6">
 
           <h2 className="text-xl font-bold mb-4">
@@ -176,33 +203,10 @@ export default function AccountPage() {
 
           <div className="grid md:grid-cols-4 gap-4">
 
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <p className="text-sm text-gray-500">🔗 Referidos</p>
-              <p className="text-xl font-bold">
-                {analytics?.refs ?? 0}
-              </p>
-            </div>
-
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <p className="text-sm text-gray-500">👥 Donaciones</p>
-              <p className="text-xl font-bold">
-                {analytics?.total_donations ?? 0}
-              </p>
-            </div>
-
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <p className="text-sm text-gray-500">🌐 Fuente top</p>
-              <p className="text-sm font-bold">
-                {topSource ? topSource[0] : "N/A"}
-              </p>
-            </div>
-
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <p className="text-sm text-gray-500">📈 Conversión</p>
-              <p className="text-xl font-bold">
-                {analytics?.conversion ?? 0}%
-              </p>
-            </div>
+            <StatCard label="🔗 Referidos" value={analytics?.refs ?? 0} />
+            <StatCard label="👥 Donaciones" value={analytics?.total_donations ?? 0} />
+            <StatCard label="🌐 Fuente top" value={topSource || "N/A"} small />
+            <StatCard label="📈 Conversión" value={`${analytics?.conversion ?? 0}%`} />
 
           </div>
 
@@ -213,6 +217,8 @@ export default function AccountPage() {
   )
 }
 
+/* ================= UI ================= */
+
 function MiniCard({ title, value, highlight }: any) {
   return (
     <div className={`p-4 rounded-xl border ${
@@ -221,6 +227,17 @@ function MiniCard({ title, value, highlight }: any) {
       <p className="text-xs text-gray-500">{title}</p>
       <p className="text-lg font-bold">
         ${Number(value || 0).toLocaleString()}
+      </p>
+    </div>
+  )
+}
+
+function StatCard({ label, value, small }: any) {
+  return (
+    <div className="p-4 bg-gray-50 rounded-xl text-center">
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className={`font-bold ${small ? "text-sm" : "text-xl"}`}>
+        {value}
       </p>
     </div>
   )
