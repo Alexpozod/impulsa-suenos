@@ -1,22 +1,25 @@
 import type { Metadata } from "next"
 
 /* =========================
-   🔥 GENERATE METADATA (OG PRO)
+   🔥 GENERATE METADATA (OG PRO FIX)
 ========================= */
 export async function generateMetadata(
   { params }: { params: { id: string } }
 ): Promise<Metadata> {
 
-  const id = params.id
+  const id = params?.id
+
+  // 🔥 fallback si algo falla
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000"
 
   let campaign: any = null
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL}/api/campaign/${id}`,
-      {
-        cache: "no-store"
-      }
+      `${baseUrl}/api/campaign/${id}`,
+      { cache: "no-store" }
     )
 
     if (res.ok) {
@@ -27,6 +30,7 @@ export async function generateMetadata(
   }
 
   const title = campaign?.title || "ImpulsaSueños"
+
   const description =
     campaign?.description?.slice(0, 150) ||
     "Apoya esta campaña en ImpulsaSueños"
@@ -34,9 +38,9 @@ export async function generateMetadata(
   const image =
     campaign?.image_url ||
     campaign?.images?.[0] ||
-    `${process.env.NEXT_PUBLIC_APP_URL}/default-og.jpg`
+    `${baseUrl}/default-og.jpg`
 
-  const url = `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${id}`
+  const url = `${baseUrl}/campaign/${id}`
 
   return {
     title,
