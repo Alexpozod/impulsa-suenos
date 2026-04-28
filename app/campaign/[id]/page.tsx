@@ -161,39 +161,31 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* 🔥 SHARE PRO (GOFUNDME STYLE) */}
+          {/* 🔥 SHARE PRO LIMPIO (ÚNICO BLOQUE CORRECTO) */}
           <div className="flex items-center gap-3 mt-4 flex-wrap">
 
-            {/* COPY */}
             <button onClick={copyLink} className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition">
-              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeWidth={2} d="M8 16h8M8 12h8m-6 8h6a2 2 0 002-2V6a2 2 0 00-2-2h-6l-4 4v10a2 2 0 002 2z" />
-              </svg>
+              🔗
             </button>
 
-            {/* WHATSAPP */}
             <button onClick={shareWhatsApp} className="w-11 h-11 flex items-center justify-center rounded-full bg-green-500 text-white hover:scale-105 transition">
-              <span className="text-xs font-bold">WA</span>
+              💬
             </button>
 
-            {/* FACEBOOK */}
             <button onClick={shareFacebook} className="w-11 h-11 flex items-center justify-center rounded-full bg-blue-600 text-white hover:scale-105 transition">
-              f
+              📘
             </button>
 
-            {/* X */}
             <button onClick={shareX} className="w-11 h-11 flex items-center justify-center rounded-full bg-black text-white hover:scale-105 transition">
-              X
+              ✖️
             </button>
 
-            {/* IG */}
-            <button onClick={shareInstagram} className="w-11 h-11 flex items-center justify-center rounded-full bg-pink-500 text-white hover:scale-105 transition">
-              IG
+            <button onClick={shareInstagram} className="w-11 h-11 flex items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white hover:scale-105 transition">
+              📸
             </button>
 
-            {/* TIKTOK */}
             <button onClick={shareTikTok} className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-900 text-white hover:scale-105 transition">
-              TT
+              🎵
             </button>
 
           </div>
