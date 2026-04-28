@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/src/lib/supabase' // 🔥 FALTABA ESTO
+import { supabase } from '@/src/lib/supabase'
 
 export default function AdminSettings() {
 
@@ -18,15 +18,31 @@ export default function AdminSettings() {
   const previewAmount = 10000
 
   /* =========================
-     📥 LOAD
+     📥 LOAD (FIX REAL)
   ========================= */
   const load = async () => {
     try {
-      const res = await fetch('/api/admin/settings')
+
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData?.session?.access_token
+
+      if (!token) {
+        setMessage("❌ Sesión inválida")
+        setLoading(false)
+        return
+      }
+
+      const res = await fetch('/api/admin/settings', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
       const data = await res.json()
 
       if (!res.ok) {
-        setMessage("❌ Error cargando configuración")
+        setMessage(`❌ ${data.error || "Error cargando config"}`)
+        setLoading(false)
         return
       }
 
@@ -93,7 +109,7 @@ export default function AdminSettings() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // 🔥 FIX REAL
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           fee_fixed: Number(feeFixed),
@@ -131,9 +147,7 @@ export default function AdminSettings() {
 
       <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
 
-        {/* =========================
-            📊 VALORES ACTUALES
-        ========================= */}
+        {/* VALORES ACTUALES */}
         <div className="bg-slate-900 p-6 rounded-xl">
 
           <h2 className="font-semibold mb-4 text-green-400">
@@ -141,18 +155,14 @@ export default function AdminSettings() {
           </h2>
 
           <div className="space-y-2 text-sm">
-
             <p>💰 Fijo: <strong>${Number(current?.fee_fixed || 0).toLocaleString()}</strong></p>
             <p>📊 %: <strong>{(Number(current?.fee_percent || 0) * 100).toFixed(2)}%</strong></p>
             <p>🧾 IVA: <strong>{(Number(current?.iva || 0) * 100).toFixed(2)}%</strong></p>
-
           </div>
 
         </div>
 
-        {/* =========================
-            ✏️ EDITAR
-        ========================= */}
+        {/* EDITAR */}
         <div className="bg-slate-900 p-6 rounded-xl space-y-4">
 
           <h2 className="font-semibold mb-2 text-blue-400">
@@ -209,9 +219,7 @@ export default function AdminSettings() {
 
         </div>
 
-        {/* =========================
-            🧪 PREVIEW
-        ========================= */}
+        {/* PREVIEW */}
         <div className="bg-slate-900 p-6 rounded-xl md:col-span-2">
 
           <h2 className="font-semibold mb-4 text-yellow-400">
