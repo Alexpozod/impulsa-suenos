@@ -35,7 +35,7 @@ export async function createPayment({
         user_email,
         message,
         donor_name,
-        metadata // 🔥 PASAMOS METADATA REAL
+        metadata // 🔥 CLAVE
       })
 
     default:
@@ -75,9 +75,6 @@ async function createMercadoPagoPayment({
       return { error: "BASE URL no definida" }
     }
 
-    /* =========================
-       🧠 NORMALIZACIÓN SEGURA
-    ========================= */
     const finalDonorName =
       donor_name?.trim() ||
       user_email?.split("@")[0] ||
@@ -91,6 +88,7 @@ async function createMercadoPagoPayment({
     /* =========================
        🔥 TRACKING REAL (FIX FINAL)
     ========================= */
+
     const referrer =
       metadata?.ref ||
       metadata?.referrer ||
@@ -104,6 +102,7 @@ async function createMercadoPagoPayment({
     /* =========================
        🚀 CREAR PREFERENCE
     ========================= */
+
     const preference = await mpPreference.create({
       body: {
         items: [
@@ -129,7 +128,7 @@ async function createMercadoPagoPayment({
           message: finalMessage,
           message_text: finalMessage,
 
-          // 🔥 🔥 🔥 CLAVE FINAL
+          // 🔥 AQUÍ ESTÁ EL FIX REAL
           ref: referrer,
           referrer: referrer,
           source: source,
