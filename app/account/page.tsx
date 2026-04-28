@@ -57,13 +57,14 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6">
 
+        {/* ================= HEADER ================= */}
         <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
         <p className="text-gray-600 mb-6">{user?.email}</p>
 
-        {/* 🔐 STATUS */}
-        <div className="mb-6 flex gap-3">
+        {/* ================= STATUS ================= */}
+        <div className="mb-6 flex gap-3 flex-wrap">
 
           <span className={`px-3 py-1 rounded text-sm ${
             kycStatus === 'approved'
@@ -83,7 +84,7 @@ export default function AccountPage() {
 
         </div>
 
-        {/* 💰 RESUMEN */}
+        {/* ================= FINANZAS ================= */}
         {finance && (
           <div className="grid md:grid-cols-4 gap-4 mb-6">
 
@@ -95,12 +96,12 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* ⚡ ACCIONES */}
-        <div className="mb-6 flex flex-wrap gap-3">
+        {/* ================= ACCIONES ================= */}
+        <div className="mb-8 flex flex-wrap gap-3">
 
           <button
             onClick={() => router.push("/create")}
-            className="px-4 py-2 bg-green-600 text-white rounded"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
             ➕ Crear campaña
           </button>
@@ -108,7 +109,7 @@ export default function AccountPage() {
           {finance?.totals?.balance > 0 && bankLoaded && kycStatus === "approved" && (
             <button
               onClick={() => router.push("/account/withdraw")}
-              className="px-4 py-2 bg-blue-600 text-white rounded"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               💸 Retirar fondos
             </button>
@@ -116,25 +117,77 @@ export default function AccountPage() {
 
         </div>
 
-        {/* 🔘 ACCESOS */}
-        <div className="grid md:grid-cols-2 gap-6">
+        {/* ================= ACCESOS (MEJORADOS) ================= */}
+        <div className="grid md:grid-cols-2 gap-4 mb-10">
 
-          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded hover:bg-gray-100">
-            📊 Dashboard
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left"
+          >
+            <p className="font-semibold">📊 Dashboard</p>
+            <p className="text-xs text-gray-500">Métricas y control</p>
           </button>
 
-          {/* ✅ CAMBIO QUIRÚRGICO */}
-          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded hover:bg-gray-100">
-            📂 Gestionar campañas
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left"
+          >
+            <p className="font-semibold">📂 Gestionar campañas</p>
+            <p className="text-xs text-gray-500">Administra tus campañas</p>
           </button>
 
-          <button onClick={() => router.push("/account/bank")} className="p-4 bg-white border rounded hover:bg-gray-100">
-            🏦 Banco
+          <button
+            onClick={() => router.push("/account/bank")}
+            className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left"
+          >
+            <p className="font-semibold">🏦 Banco</p>
+            <p className="text-xs text-gray-500">Configura pagos</p>
           </button>
 
-          <button onClick={() => router.push("/kyc")} className="p-4 bg-white border rounded hover:bg-gray-100">
-            🪪 KYC
+          <button
+            onClick={() => router.push("/kyc")}
+            className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left"
+          >
+            <p className="font-semibold">🪪 KYC</p>
+            <p className="text-xs text-gray-500">Verificación de identidad</p>
           </button>
+
+        </div>
+
+        {/* ================= 🚀 DASHBOARD VIRAL ================= */}
+        <div className="bg-white border rounded-2xl p-6">
+
+          <h2 className="text-xl font-bold mb-4">
+            🚀 Crecimiento & Viralidad
+          </h2>
+
+          <div className="grid md:grid-cols-4 gap-4">
+
+            <div className="p-4 bg-gray-50 rounded-xl text-center">
+              <p className="text-sm text-gray-500">🔗 Compartidos</p>
+              <p className="text-xl font-bold">--</p>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-xl text-center">
+              <p className="text-sm text-gray-500">👥 Referidos</p>
+              <p className="text-xl font-bold">--</p>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-xl text-center">
+              <p className="text-sm text-gray-500">💸 Donaciones por tráfico</p>
+              <p className="text-xl font-bold">--</p>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-xl text-center">
+              <p className="text-sm text-gray-500">📈 Conversión</p>
+              <p className="text-xl font-bold">--%</p>
+            </div>
+
+          </div>
+
+          <p className="text-xs text-gray-400 mt-4">
+            Pronto verás métricas reales de viralidad y crecimiento de tus campañas.
+          </p>
 
         </div>
 
@@ -143,7 +196,7 @@ export default function AccountPage() {
   )
 }
 
-/* 💳 CARD */
+/* ================= CARD ================= */
 
 function MiniCard({ title, value, highlight }: any) {
   return (

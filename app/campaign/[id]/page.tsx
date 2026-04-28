@@ -27,7 +27,6 @@ export default function CampaignDetail() {
       loadUpdates()
       loadRanking()
 
-      // 🔥 detectar referral
       const urlRef = new URLSearchParams(window.location.search).get("ref")
       if (urlRef) setRef(urlRef)
     }
@@ -90,14 +89,9 @@ export default function CampaignDetail() {
     return clean
   }
 
-  /* =========================
-     🔥 SHARE PRO
-  ========================= */
   const getCampaignUrl = () => {
     let url = `${window.location.origin}/campaign/${id}`
-    if (ref) {
-      url += `?ref=${ref}`
-    }
+    if (ref) url += `?ref=${ref}`
     return url
   }
 
@@ -149,7 +143,7 @@ export default function CampaignDetail() {
 
       <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-5 gap-10">
 
-        {/* ================= LEFT ================= */}
+        {/* LEFT */}
         <div className="md:col-span-3">
 
           <CampaignCarousel images={images} />
@@ -158,40 +152,36 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* 🔥 SHARE PRO */}
+          {/* SHARE */}
           <div className="flex flex-wrap gap-3 mt-4">
             <button onClick={copyLink} className="bg-black text-white px-4 py-2 rounded-lg text-sm">
               🔗 Copiar
             </button>
 
             <button onClick={shareWhatsApp} className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm">
-              🟢 WhatsApp
+              WhatsApp
             </button>
 
             <button onClick={shareFacebook} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
-              🔵 Facebook
+              Facebook
             </button>
 
             <button onClick={shareX} className="bg-black text-white px-4 py-2 rounded-lg text-sm">
-              ⚫ X
+              X
             </button>
           </div>
 
           {/* PROGRESO */}
           <div className="mt-6 space-y-3">
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-3 bg-green-600"
-                style={{ width: `${progress}%` }}
-              />
+              <div className="h-3 bg-green-600" style={{ width: `${progress}%` }} />
             </div>
 
             <div className="flex justify-between text-sm">
               <span className="font-bold text-green-600 text-lg">
                 ${current.toLocaleString()}
               </span>
-
-              <span className="text-gray-500 text-right">
+              <span className="text-gray-500">
                 de ${goal.toLocaleString()}
               </span>
             </div>
@@ -201,14 +191,11 @@ export default function CampaignDetail() {
             {campaign.description}
           </p>
 
-          {/* ================= DONACIONES ================= */}
+          {/* DONACIONES */}
           <div className="mt-10">
-            <h2 className="text-xl font-bold mb-4">
-              💬 Últimas donaciones
-            </h2>
+            <h2 className="text-xl font-bold mb-4">💬 Últimas donaciones</h2>
 
             <div className="space-y-4">
-
               {donations.map((donation: any) => {
 
                 const donorName =
@@ -224,10 +211,7 @@ export default function CampaignDetail() {
                   ""
 
                 return (
-                  <div
-                    key={donation.id}
-                    className="flex items-start gap-3 p-3 rounded-xl border hover:bg-gray-50 transition"
-                  >
+                  <div key={donation.id} className="flex gap-3 p-3 rounded-xl border">
 
                     <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-bold">
                       {donorName?.[0]?.toUpperCase() || "D"}
@@ -235,7 +219,7 @@ export default function CampaignDetail() {
 
                     <div className="flex-1">
 
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between">
                         <span className="font-semibold text-sm">
                           {donorName}
                         </span>
@@ -265,13 +249,43 @@ export default function CampaignDetail() {
                   </div>
                 )
               })}
+            </div>
+          </div>
 
+          {/* 🏆 RANKING (AQUÍ VA) */}
+          <div className="mt-10">
+            <h2 className="text-xl font-bold mb-4">🏆 Top donadores</h2>
+
+            {ranking.length === 0 && (
+              <p className="text-gray-500 text-sm">
+                Aún no hay ranking
+              </p>
+            )}
+
+            <div className="space-y-3">
+              {ranking.map((r: any, index: number) => {
+
+                const medal =
+                  index === 0 ? "🥇" :
+                  index === 1 ? "🥈" :
+                  index === 2 ? "🥉" :
+                  `#${index + 1}`
+
+                return (
+                  <div key={index} className="flex justify-between p-3 border rounded-xl">
+                    <span>{medal} {r.name || "Donador"}</span>
+                    <span className="text-green-600 font-bold">
+                      ${Number(r.total || 0).toLocaleString()}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
         </div>
 
-        {/* ================= RIGHT ================= */}
+        {/* RIGHT */}
         <div className="md:col-span-2">
           <div className="sticky top-6">
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
