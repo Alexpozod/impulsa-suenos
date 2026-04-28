@@ -4,14 +4,28 @@ import { useEffect, useState } from 'react'
 
 export default function AdminSettings() {
 
-  const [commission, setCommission] = useState('')
+  const [feeFixed, setFeeFixed] = useState<string>('300')
+  const [feePercent, setFeePercent] = useState<string>('0.01')
+  const [iva, setIVA] = useState<string>('0.19')
+
   const [loading, setLoading] = useState(true)
 
+  /* =========================
+     📥 LOAD
+  ========================= */
   const load = async () => {
-    const res = await fetch('/api/admin/settings')
-    const data = await res.json()
+    try {
+      const res = await fetch('/api/admin/settings')
+      const data = await res.json()
 
-    setCommission(data.value || '0.10')
+      setFeeFixed(String(data?.fee_fixed ?? 300))
+      setFeePercent(String(data?.fee_percent ?? 0.01))
+      setIVA(String(data?.iva ?? 0.19))
+
+    } catch {
+      alert('Error cargando configuración')
+    }
+
     setLoading(false)
   }
 
@@ -19,12 +33,19 @@ export default function AdminSettings() {
     load()
   }, [])
 
+  /* =========================
+     💾 SAVE
+  ========================= */
   const save = async () => {
 
     const res = await fetch('/api/admin/settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: commission })
+      body: JSON.stringify({
+        fee_fixed: Number(feeFixed),
+        fee_percent: Number(feePercent),
+        iva: Number(iva)
+      })
     })
 
     const data = await res.json()
@@ -32,7 +53,7 @@ export default function AdminSettings() {
     if (data.error) {
       alert(data.error)
     } else {
-      alert('✅ Comisión actualizada')
+      alert('✅ Configuración actualizada')
     }
   }
 
@@ -45,23 +66,58 @@ export default function AdminSettings() {
         ⚙️ Configuración Plataforma
       </h1>
 
-      <div className="bg-slate-900 p-6 rounded-xl max-w-md">
+      <div className="bg-slate-900 p-6 rounded-xl max-w-md space-y-4">
 
-        <label className="block mb-2 text-sm">
-          Comisión (ej: 0.10 = 10%)
-        </label>
+        {/* 💰 FEE FIJO */}
+        <div>
+          <label className="block mb-2 text-sm">
+            Comisión fija (CLP)
+          </label>
 
-        <input
-          value={commission}
-          onChange={(e) => setCommission(e.target.value)}
-          className="w-full p-3 rounded bg-black border border-slate-700 mb-4"
-        />
+          <input
+            type="number"
+            value={feeFixed}
+            onChange={(e) => setFeeFixed(e.target.value)}
+            className="w-full p-3 rounded bg-black border border-slate-700"
+          />
+        </div>
 
+        {/* 📊 PORCENTAJE */}
+        <div>
+          <label className="block mb-2 text-sm">
+            Comisión % (ej: 0.02 = 2%)
+          </label>
+
+          <input
+            type="number"
+            step="0.001"
+            value={feePercent}
+            onChange={(e) => setFeePercent(e.target.value)}
+            className="w-full p-3 rounded bg-black border border-slate-700"
+          />
+        </div>
+
+        {/* 🧾 IVA */}
+        <div>
+          <label className="block mb-2 text-sm">
+            IVA (ej: 0.19 = 19%)
+          </label>
+
+          <input
+            type="number"
+            step="0.01"
+            value={iva}
+            onChange={(e) => setIVA(e.target.value)}
+            className="w-full p-3 rounded bg-black border border-slate-700"
+          />
+        </div>
+
+        {/* BOTÓN */}
         <button
           onClick={save}
-          className="bg-green-600 px-4 py-2 rounded-lg w-full"
+          className="bg-green-600 px-4 py-3 rounded-lg w-full font-semibold hover:bg-green-700"
         >
-          Guardar
+          Guardar configuración
         </button>
 
       </div>
