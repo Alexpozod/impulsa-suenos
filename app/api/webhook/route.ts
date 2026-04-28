@@ -71,9 +71,9 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-      // 🔥 FIX: recuperar ref/source desde DB si MP no los trae
-let dbRef = existingPayment?.ref || null
-let dbSource = existingPayment?.source || null
+    // 🔥 FIX DB FALLBACK
+    let dbRef = existingPayment?.ref || null
+    let dbSource = existingPayment?.source || null
 
     let payment
 
@@ -102,18 +102,20 @@ let dbSource = existingPayment?.source || null
     const creator_email = payment.metadata?.user_email
     const donor_email = payment.payer?.email
 
-    // 🔥 REF + SOURCE
+    // 🔥 FIX FINAL COMPLETO (AQUÍ ESTABA EL ERROR REAL)
     const referrer =
-  payment.metadata?.referrer ||
-  payment.metadata?.ref ||
-  dbRef ||
-  null
+      payment.metadata?.referrer ||
+      payment.metadata?.ref ||
+      body?.metadata?.ref ||
+      dbRef ||
+      null
 
-const source =
-  payment.metadata?.traffic_source ||
-  payment.metadata?.source ||
-  dbSource ||
-  "direct"
+    const source =
+      payment.metadata?.traffic_source ||
+      payment.metadata?.source ||
+      body?.metadata?.source ||
+      dbSource ||
+      "direct"
 
     const donor_name =
       payment.metadata?.donor_name ||
@@ -133,7 +135,6 @@ const source =
       return NextResponse.json({ ok: true })
     }
 
-    // 🔁 UPDATE EXISTENTE
     if (existingPayment) {
       await supabase
         .from("payments")
@@ -181,7 +182,6 @@ const source =
       console.warn("⚠️ fallback config")
     }
 
-    // 🆕 INSERT NUEVO
     if (!existingPayment) {
       await supabase.from("payments").insert({
         payment_id: paymentId,
