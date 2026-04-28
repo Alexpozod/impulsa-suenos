@@ -11,15 +11,21 @@ const supabase = createClient(
 )
 
 /* =========================
-   🔥 SCHEMA PRO (DONOR NAME)
+   🔥 SCHEMA PRO (CLARO)
 ========================= */
 const paymentSchema = z.object({
   amount: z.number().positive().min(100),
   tip: z.number().min(0).optional(),
   campaign_id: z.string().min(1),
+
+  // 👇 ESTE ES EL CREADOR (NO DONADOR)
   user_email: z.string().email(),
+
   message: z.string().optional(),
+
+  // 👇 ESTE ES EL DONADOR REAL
   donor_name: z.string().optional(),
+
   provider: z.string().optional()
 })
 
@@ -27,21 +33,23 @@ export async function POST(req: Request) {
   try {
 
     const body = await req.json()
-
     console.log("BODY:", body)
 
     const parsed = paymentSchema.safeParse(body)
 
     if (!parsed.success) {
       console.error("VALIDATION ERROR:", parsed.error)
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Invalid input" },
+        { status: 400 }
+      )
     }
 
     const {
       amount,
       tip = 0,
       campaign_id,
-      user_email,
+      user_email, // 👈 CREADOR
       message = "",
       donor_name
     } = parsed.data
@@ -51,7 +59,7 @@ export async function POST(req: Request) {
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
-      .select("id, status")
+      .select("id, status, user_email")
       .eq("id", campaign_id)
       .maybeSingle()
 
@@ -70,14 +78,23 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🧠 NORMALIZACIÓN DONOR NAME (CLAVE)
+       🔐 VALIDACIÓN EXTRA (PRO)
+       evita fraude manual
+    ========================= */
+    if (campaign.user_email !== user_email) {
+      return NextResponse.json(
+        { error: "invalid_campaign_owner" },
+        { status: 403 }
+      )
+    }
+
+    /* =========================
+       🧠 NORMALIZACIÓN DONADOR
     ========================= */
     let safeDonorName = "Donador"
 
     if (donor_name && donor_name.trim().length > 0) {
       safeDonorName = donor_name.trim()
-    } else if (user_email && user_email.includes("@")) {
-      safeDonorName = user_email.split("@")[0]
     }
 
     /* =========================
@@ -92,10 +109,16 @@ export async function POST(req: Request) {
       amount,
       tip,
       campaign_id,
-      user_email,
+      user_email, // 👈 CREADOR (correcto)
       provider,
       message,
-      donor_name: safeDonorName // 🔥 SIEMPRE LIMPIO
+      donor_name: safeDonorName,
+
+      // 🔥 PREPARADO PARA ESCALAR (NO ROMPE)
+      metadata: {
+        source: "web",
+        created_at: new Date().toISOString()
+      }
     })
 
     console.log("PAYMENT RESULT:", result)
