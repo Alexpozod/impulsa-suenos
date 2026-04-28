@@ -17,6 +17,9 @@ export default function AccountPage() {
 
   const { data: finance } = useFinancialDashboard()
 
+  // 🔥 NUEVO: ANALYTICS
+  const [analytics, setAnalytics] = useState<any>(null)
+
   useEffect(() => {
     const load = async () => {
 
@@ -47,6 +50,30 @@ export default function AccountPage() {
 
       setBankLoaded((bankAccounts?.length || 0) > 0)
 
+      // 🔥 TRAER CAMPAÑA (LA PRIMERA ACTIVA)
+      const { data: campaigns } = await supabase
+        .from("campaigns")
+        .select("id")
+        .eq("user_email", email)
+        .eq("status", "active")
+        .limit(1)
+
+      const campaignId = campaigns?.[0]?.id
+
+      // 🔥 TRAER ANALYTICS REAL
+      if (campaignId) {
+        try {
+          const res = await fetch(`/api/campaign-analytics?campaign_id=${campaignId}`)
+          const json = await res.json()
+
+          console.log("📊 ANALYTICS:", json)
+
+          setAnalytics(json)
+        } catch (err) {
+          console.error("Analytics error:", err)
+        }
+      }
+
       setLoading(false)
     }
 
@@ -55,15 +82,18 @@ export default function AccountPage() {
 
   if (loading) return <div className="p-6">Cargando...</div>
 
+  // 🔥 PROCESAR DATOS
+  const topSource = analytics?.sources
+    ? Object.entries(analytics.sources).sort((a: any, b: any) => b[1].count - a[1].count)[0]
+    : null
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto p-6">
 
-        {/* ================= HEADER ================= */}
         <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
         <p className="text-gray-600 mb-6">{user?.email}</p>
 
-        {/* ================= STATUS ================= */}
         <div className="mb-6 flex gap-3 flex-wrap">
 
           <span className={`px-3 py-1 rounded text-sm ${
@@ -84,19 +114,15 @@ export default function AccountPage() {
 
         </div>
 
-        {/* ================= FINANZAS ================= */}
         {finance && (
           <div className="grid md:grid-cols-4 gap-4 mb-6">
-
             <MiniCard title="Disponible" value={finance.totals.balance} highlight />
             <MiniCard title="Recaudado" value={finance.totals.raised} />
             <MiniCard title="Retirado" value={finance.totals.withdrawn} />
             <MiniCard title="Pendiente" value={finance.totals.pending} />
-
           </div>
         )}
 
-        {/* ================= ACCIONES ================= */}
         <div className="mb-8 flex flex-wrap gap-3">
 
           <button
@@ -117,44 +143,31 @@ export default function AccountPage() {
 
         </div>
 
-        {/* ================= ACCESOS (MEJORADOS) ================= */}
         <div className="grid md:grid-cols-2 gap-4 mb-10">
 
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left"
-          >
+          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
             <p className="font-semibold">📊 Dashboard</p>
             <p className="text-xs text-gray-500">Métricas y control</p>
           </button>
 
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left"
-          >
+          <button onClick={() => router.push("/dashboard")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
             <p className="font-semibold">📂 Gestionar campañas</p>
             <p className="text-xs text-gray-500">Administra tus campañas</p>
           </button>
 
-          <button
-            onClick={() => router.push("/account/bank")}
-            className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left"
-          >
+          <button onClick={() => router.push("/account/bank")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
             <p className="font-semibold">🏦 Banco</p>
             <p className="text-xs text-gray-500">Configura pagos</p>
           </button>
 
-          <button
-            onClick={() => router.push("/kyc")}
-            className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left"
-          >
+          <button onClick={() => router.push("/kyc")} className="p-4 bg-white border rounded-xl hover:bg-gray-50 text-left">
             <p className="font-semibold">🪪 KYC</p>
             <p className="text-xs text-gray-500">Verificación de identidad</p>
           </button>
 
         </div>
 
-        {/* ================= 🚀 DASHBOARD VIRAL ================= */}
+        {/* 🔥 VIRALIDAD REAL */}
         <div className="bg-white border rounded-2xl p-6">
 
           <h2 className="text-xl font-bold mb-4">
@@ -164,30 +177,34 @@ export default function AccountPage() {
           <div className="grid md:grid-cols-4 gap-4">
 
             <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <p className="text-sm text-gray-500">🔗 Compartidos</p>
-              <p className="text-xl font-bold">--</p>
+              <p className="text-sm text-gray-500">🔗 Referidos</p>
+              <p className="text-xl font-bold">
+                {analytics?.refs ?? 0}
+              </p>
             </div>
 
             <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <p className="text-sm text-gray-500">👥 Referidos</p>
-              <p className="text-xl font-bold">--</p>
+              <p className="text-sm text-gray-500">👥 Donaciones</p>
+              <p className="text-xl font-bold">
+                {analytics?.total_donations ?? 0}
+              </p>
             </div>
 
             <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <p className="text-sm text-gray-500">💸 Donaciones por tráfico</p>
-              <p className="text-xl font-bold">--</p>
+              <p className="text-sm text-gray-500">🌐 Fuente top</p>
+              <p className="text-sm font-bold">
+                {topSource ? topSource[0] : "N/A"}
+              </p>
             </div>
 
             <div className="p-4 bg-gray-50 rounded-xl text-center">
               <p className="text-sm text-gray-500">📈 Conversión</p>
-              <p className="text-xl font-bold">--%</p>
+              <p className="text-xl font-bold">
+                {analytics?.conversion ?? 0}%
+              </p>
             </div>
 
           </div>
-
-          <p className="text-xs text-gray-400 mt-4">
-            Pronto verás métricas reales de viralidad y crecimiento de tus campañas.
-          </p>
 
         </div>
 
@@ -195,8 +212,6 @@ export default function AccountPage() {
     </div>
   )
 }
-
-/* ================= CARD ================= */
 
 function MiniCard({ title, value, highlight }: any) {
   return (
