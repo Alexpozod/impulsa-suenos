@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { supabase } from '@/src/lib/supabase' // 🔥 FALTABA ESTO
 
 export default function AdminSettings() {
 
@@ -14,7 +15,7 @@ export default function AdminSettings() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState("")
 
-  const previewAmount = 10000 // 🔥 base simulación
+  const previewAmount = 10000
 
   /* =========================
      📥 LOAD
@@ -23,6 +24,11 @@ export default function AdminSettings() {
     try {
       const res = await fetch('/api/admin/settings')
       const data = await res.json()
+
+      if (!res.ok) {
+        setMessage("❌ Error cargando configuración")
+        return
+      }
 
       setCurrent(data)
 
@@ -47,9 +53,9 @@ export default function AdminSettings() {
   const calcPreview = () => {
     const amount = previewAmount
 
-    const fixed = Number(feeFixed)
-    const percent = Number(feePercent)
-    const ivaVal = Number(iva)
+    const fixed = Number(feeFixed) || 0
+    const percent = Number(feePercent) || 0
+    const ivaVal = Number(iva) || 0
 
     const fee = fixed + (amount * percent)
     const ivaCalc = fee * ivaVal
@@ -74,9 +80,21 @@ export default function AdminSettings() {
 
     try {
 
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData?.session?.access_token
+
+      if (!token) {
+        setMessage("❌ Sesión inválida")
+        setSaving(false)
+        return
+      }
+
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // 🔥 FIX REAL
+        },
         body: JSON.stringify({
           fee_fixed: Number(feeFixed),
           fee_percent: Number(feePercent),
@@ -86,8 +104,8 @@ export default function AdminSettings() {
 
       const data = await res.json()
 
-      if (data.error) {
-        setMessage(`❌ ${data.error}`)
+      if (!res.ok) {
+        setMessage(`❌ ${data.error || "Error"}`)
         setSaving(false)
         return
       }
@@ -125,8 +143,8 @@ export default function AdminSettings() {
           <div className="space-y-2 text-sm">
 
             <p>💰 Fijo: <strong>${Number(current?.fee_fixed || 0).toLocaleString()}</strong></p>
-            <p>📊 %: <strong>{Number(current?.fee_percent || 0) * 100}%</strong></p>
-            <p>🧾 IVA: <strong>{Number(current?.iva || 0) * 100}%</strong></p>
+            <p>📊 %: <strong>{(Number(current?.fee_percent || 0) * 100).toFixed(2)}%</strong></p>
+            <p>🧾 IVA: <strong>{(Number(current?.iva || 0) * 100).toFixed(2)}%</strong></p>
 
           </div>
 
