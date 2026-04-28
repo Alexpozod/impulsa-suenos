@@ -64,6 +64,8 @@ export default function AccountPage() {
 
         const campaignId = campaigns?.[0]?.id
 
+console.log("🔥 CAMPAIGN USADA:", campaignId)
+
         // 🔥 ANALYTICS REAL
         if (campaignId) {
           try {
