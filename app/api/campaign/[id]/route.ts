@@ -28,8 +28,9 @@ export async function GET(req: Request) {
   try {
 
     const url = new URL(req.url)
-    const parts = url.pathname.split("/")
-    const id = parts[parts.length - 1]?.trim()
+
+    // 🔥 FIX REAL (estable)
+    const id = url.pathname.split("/campaign/")[1]?.split("?")[0]
 
     if (!id) {
       return NextResponse.json(null, { status: 400 })
