@@ -125,14 +125,16 @@ export async function POST(req: Request) {
       /* =========================
          🔥 METADATA PRO (ESCALABLE)
       ========================= */
-      metadata: {
-        source: "web",
-        created_at: new Date().toISOString(),
+     metadata: {
+  source: "web",
+  created_at: new Date().toISOString(),
 
-        // 🔥 COMPATIBILIDAD + FUTURO
-        ref: ref || null,
-        referrer: referrer
-      }
+  ref: ref || null,
+  referrer: referrer,
+
+  // 🔥 NUEVO (CLAVE)
+  traffic_source: "web"
+}
     })
 
     console.log("PAYMENT RESULT:", result)

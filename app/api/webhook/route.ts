@@ -98,13 +98,16 @@ export async function POST(req: Request) {
     const creator_email = payment.metadata?.user_email
     const donor_email = payment.payer?.email
 
-    /* =========================
-       🔥 NUEVO: REFERRAL (NO ROMPE)
-    ========================= */
+    // 🔥 REF + SOURCE
     const referrer =
       payment.metadata?.referrer ||
       payment.metadata?.ref ||
       null
+
+    const source =
+      payment.metadata?.traffic_source ||
+      payment.metadata?.source ||
+      "unknown"
 
     const donor_name =
       payment.metadata?.donor_name ||
@@ -124,18 +127,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
+    // 🔁 UPDATE EXISTENTE
     if (existingPayment) {
       await supabase
         .from("payments")
         .update({
+          ref: referrer,
+          source: source,
           metadata: {
             ...existingPayment.metadata,
             donor_name,
             message,
             donation,
-
-            // 🔥 NUEVO (NO ROMPE)
-            referrer
+            referrer,
+            source
           }
         })
         .eq("payment_id", paymentId)
@@ -170,6 +175,7 @@ export async function POST(req: Request) {
       console.warn("⚠️ fallback config")
     }
 
+    // 🆕 INSERT NUEVO
     if (!existingPayment) {
       await supabase.from("payments").insert({
         payment_id: paymentId,
@@ -178,15 +184,16 @@ export async function POST(req: Request) {
         amount: donation,
         tip,
         status: "processing",
+        ref: referrer,
+        source: source,
         metadata: {
           total,
           donation,
           tip,
           donor_name,
           message,
-
-          // 🔥 NUEVO (NO ROMPE)
-          referrer
+          referrer,
+          source
         },
         notified: false
       })
