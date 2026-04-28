@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 
 export default function DonationBox({
   campaign_id,
-  refParam // 🔥 NUEVO (NO ROMPE NADA)
+  refParam
 }: {
   campaign_id: string
   refParam?: string | null
@@ -18,10 +18,8 @@ export default function DonationBox({
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
-  // 🔐 LEGAL
   const [acceptedLegal, setAcceptedLegal] = useState(false)
 
-  // 🔥 DONADOR PRO
   const [donorName, setDonorName] = useState("")
   const [isAnonymous, setIsAnonymous] = useState(false)
 
@@ -47,7 +45,6 @@ export default function DonationBox({
 
     console.log("CLICK DONAR")
 
-    // 🚨 VALIDACIÓN LEGAL
     if (!acceptedLegal) {
       alert("Debes aceptar los términos antes de continuar")
       return
@@ -75,7 +72,6 @@ export default function DonationBox({
 
       setLoading(true)
 
-      // 🔐 LOG LEGAL
       try {
         fetch("/api/legal-consent", {
           method: "POST",
@@ -93,9 +89,6 @@ export default function DonationBox({
         console.error("Consent error", err)
       }
 
-      /* =========================
-         🧠 DONOR NAME FINAL (FIX PRO)
-      ========================= */
       let finalDonorName = "Donador"
 
       if (isAnonymous) {
@@ -107,9 +100,20 @@ export default function DonationBox({
       }
 
       /* =========================
-         🔥 REF (CORRECTO FINAL)
+         🔥 TRACKING REAL (FIX)
       ========================= */
-      const referrer = refParam || null
+
+      const params = new URLSearchParams(window.location.search)
+
+      const refFromUrl = params.get("ref")
+      const sourceFromUrl = params.get("source")
+
+      const finalRef = refParam || refFromUrl || null
+      const finalSource = sourceFromUrl || "web"
+
+      /* =========================
+         🚀 REQUEST
+      ========================= */
 
       const res = await fetch('/api/create-payment', {
         method: 'POST',
@@ -124,7 +128,10 @@ export default function DonationBox({
           message,
           donor_name: finalDonorName,
           provider: "mercadopago",
-          referrer // 🔥 CLAVE CORREGIDA (antes estaba como "ref")
+
+          // 🔥 FIX REAL
+          ref: finalRef,
+          source: finalSource
         })
       })
 
@@ -176,7 +183,6 @@ export default function DonationBox({
         ⚡ Cada aporte ayuda a lograr la meta más rápido
       </p>
 
-      {/* 🔥 DONADOR */}
       <div className="space-y-2">
 
         <input
@@ -199,7 +205,6 @@ export default function DonationBox({
 
       </div>
 
-      {/* PRESETS */}
       <div className="grid grid-cols-4 gap-2">
         {presets.map(p => (
           <button
@@ -217,7 +222,6 @@ export default function DonationBox({
         ))}
       </div>
 
-      {/* INPUT */}
       <input
         type="number"
         value={amount}
@@ -225,7 +229,6 @@ export default function DonationBox({
         className="w-full border p-2 rounded-lg"
       />
 
-      {/* MENSAJE */}
       <textarea
         placeholder="Deja un mensaje de apoyo (opcional)"
         value={message}
@@ -233,7 +236,6 @@ export default function DonationBox({
         className="w-full border p-3 rounded-lg text-sm"
       />
 
-      {/* TIP */}
       <div className="bg-gray-50 p-3 rounded-xl">
         <p className="text-sm font-semibold">
           💚 Apoya ImpulsaSueños (opcional)
@@ -257,7 +259,6 @@ export default function DonationBox({
         </div>
       </div>
 
-      {/* TOTAL */}
       <div className="text-center">
         <p className="text-sm text-gray-500">Total</p>
         <p className="text-2xl font-bold text-green-600">
@@ -265,7 +266,6 @@ export default function DonationBox({
         </p>
       </div>
 
-      {/* LEGAL */}
       <label className="flex items-start gap-2 text-xs text-gray-500">
         <input
           type="checkbox"
@@ -276,7 +276,6 @@ export default function DonationBox({
         <a href="/terminos" className="underline">Términos</a> y reconozco que los aportes no constituyen donaciones legales.
       </label>
 
-      {/* BOTÓN */}
       <button
         onClick={donate}
         disabled={loading}
