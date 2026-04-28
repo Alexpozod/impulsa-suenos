@@ -19,7 +19,10 @@ export async function createPayment({
   user_email,
   provider,
   message,
-  donor_name
+  donor_name,
+
+  // 🔥 NUEVO (NO ROMPE)
+  metadata = {}
 }: any) {
 
   switch ((provider || "mercadopago").toLowerCase()) {
@@ -31,7 +34,8 @@ export async function createPayment({
         campaign_id,
         user_email,
         message,
-        donor_name
+        donor_name,
+        metadata // 🔥 PASAMOS METADATA REAL
       })
 
     default:
@@ -47,7 +51,8 @@ async function createMercadoPagoPayment({
   campaign_id,
   user_email,
   message,
-  donor_name
+  donor_name,
+  metadata = {} // 🔥 NUEVO
 }: any) {
 
   if (!mpPreference) {
@@ -84,6 +89,19 @@ async function createMercadoPagoPayment({
         : null
 
     /* =========================
+       🔥 TRACKING REAL (FIX FINAL)
+    ========================= */
+    const referrer =
+      metadata?.ref ||
+      metadata?.referrer ||
+      null
+
+    const source =
+      metadata?.source ||
+      metadata?.traffic_source ||
+      "direct"
+
+    /* =========================
        🚀 CREAR PREFERENCE
     ========================= */
     const preference = await mpPreference.create({
@@ -107,12 +125,15 @@ async function createMercadoPagoPayment({
           amount: safeAmount,
           tip: safeTip,
 
-          // ✅ DATOS LIMPIOS
           donor_name: finalDonorName,
           message: finalMessage,
+          message_text: finalMessage,
 
-          // 🔥 BACKUP POR SI MP FALLA
-          message_text: finalMessage
+          // 🔥 🔥 🔥 CLAVE FINAL
+          ref: referrer,
+          referrer: referrer,
+          source: source,
+          traffic_source: source
         },
 
         external_reference: campaign_id,
