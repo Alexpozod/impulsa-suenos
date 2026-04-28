@@ -117,9 +117,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    /* =========================
-       🔄 UPDATE SI YA EXISTE
-    ========================= */
     if (existingPayment) {
       await supabase
         .from("payments")
@@ -134,9 +131,6 @@ export async function POST(req: Request) {
         .eq("payment_id", paymentId)
     }
 
-    /* =========================
-       💰 FEES
-    ========================= */
     let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
     if (!fee_mp) {
@@ -144,14 +138,47 @@ export async function POST(req: Request) {
       fee_mp = Math.round(donation * MP_PERCENT)
     }
 
-    const PLATFORM_FIXED = 300
-    const PLATFORM_PERCENT = 0.01
+    /* =========================
+       ⚙️ CONFIG DINÁMICA SEGURA
+    ========================= */
+    let PLATFORM_FIXED = 300
+    let PLATFORM_PERCENT = 0.01
+
+    try {
+
+      const { data: config } = await supabase
+        .from("platform_settings")
+        .select("fee_fixed, fee_percent")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (config) {
+
+        const fixed = Number(config.fee_fixed)
+        const percent = Number(config.fee_percent)
+
+        if (!isNaN(fixed) && fixed >= 0) {
+          PLATFORM_FIXED = fixed
+        }
+
+        if (!isNaN(percent) && percent >= 0) {
+          PLATFORM_PERCENT = percent
+        }
+
+      }
+
+    } catch (err) {
+      console.warn("⚠️ Error cargando config dinámica, usando fallback")
+    }
+
+    console.log("⚙️ CONFIG USADA:", {
+      PLATFORM_FIXED,
+      PLATFORM_PERCENT
+    })
 
     console.log("🧮 CALC:", { donation, tip, fee_mp })
 
-    /* =========================
-       📝 INSERT SI NO EXISTE
-    ========================= */
     if (!existingPayment) {
       await supabase.from("payments").insert({
         payment_id: paymentId,
@@ -215,9 +242,6 @@ export async function POST(req: Request) {
       .update({ status: "approved" })
       .eq("payment_id", paymentId)
 
-    /* =========================
-       ✅ ENVÍO SEGURO DE NOTIFICACIÓN + EMAIL
-    ========================= */
     const { data: paymentRow } = await supabase
       .from("payments")
       .select("notified")
