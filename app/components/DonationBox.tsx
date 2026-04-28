@@ -5,9 +5,11 @@ import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
 
 export default function DonationBox({
-  campaign_id
+  campaign_id,
+  refParam // 🔥 NUEVO (NO ROMPE NADA)
 }: {
   campaign_id: string
+  refParam?: string | null
 }) {
 
   const [amount, setAmount] = useState(5000)
@@ -92,7 +94,7 @@ export default function DonationBox({
       }
 
       /* =========================
-         🧠 DONOR NAME FINAL (FIX PRO)
+         🧠 DONOR NAME FINAL
       ========================= */
       let finalDonorName = "Donador"
 
@@ -103,6 +105,11 @@ export default function DonationBox({
       } else if (userEmail && userEmail.includes("@")) {
         finalDonorName = userEmail.split("@")[0]
       }
+
+      /* =========================
+         🔥 REF (NUEVO SIN ROMPER)
+      ========================= */
+      const ref = refParam || null
 
       const res = await fetch('/api/create-payment', {
         method: 'POST',
@@ -115,8 +122,9 @@ export default function DonationBox({
           campaign_id,
           user_email: userEmail,
           message,
-          donor_name: finalDonorName, // 🔥 CLAVE FINAL
-          provider: "mercadopago"
+          donor_name: finalDonorName,
+          provider: "mercadopago",
+          ref // 🔥 SE AGREGA SIN AFECTAR NADA
         })
       })
 

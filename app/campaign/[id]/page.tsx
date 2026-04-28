@@ -18,12 +18,18 @@ export default function CampaignDetail() {
   const [updates, setUpdates] = useState<any[]>([])
   const [ranking, setRanking] = useState<any[]>([])
 
+  const [ref, setRef] = useState<string | null>(null)
+
   useEffect(() => {
     if (id) {
       load()
       loadDonations()
       loadUpdates()
       loadRanking()
+
+      // 🔥 detectar referral
+      const urlRef = new URLSearchParams(window.location.search).get("ref")
+      if (urlRef) setRef(urlRef)
     }
   }, [id])
 
@@ -85,42 +91,42 @@ export default function CampaignDetail() {
   }
 
   /* =========================
-     🔥 SHARE FUNCTIONS (NUEVO)
+     🔥 SHARE PRO
   ========================= */
   const getCampaignUrl = () => {
-    return `${window.location.origin}/campaign/${id}`
+    let url = `${window.location.origin}/campaign/${id}`
+    if (ref) {
+      url += `?ref=${ref}`
+    }
+    return url
   }
 
-  const shareCampaign = async () => {
-    const url = getCampaignUrl()
-    const text = `Apoya esta campaña: ${campaign?.title}`
+  const copyLink = () => {
+    navigator.clipboard.writeText(getCampaignUrl())
+    alert("🔗 Link copiado")
+  }
 
-    if (navigator.share) {
-      await navigator.share({
-        title: campaign?.title,
-        text,
-        url
-      })
-    } else {
-      navigator.clipboard.writeText(url)
-      alert("Link copiado")
-    }
+  const shareWhatsApp = () => {
+    const text = `Apoya esta campaña 🙌 ${campaign?.title}`
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + getCampaignUrl())}`
+    window.open(url, "_blank")
+  }
+
+  const shareFacebook = () => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getCampaignUrl())}`
+    window.open(url, "_blank")
+  }
+
+  const shareX = () => {
+    const text = `Apoya esta campaña 🙌 ${campaign?.title}`
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getCampaignUrl())}`
+    window.open(url, "_blank")
   }
 
   const shareDonation = (amount: number) => {
-    const url = getCampaignUrl()
     const text = `Doné $${amount.toLocaleString()} a esta campaña 🙌`
-
-    const shareUrl = `https://wa.me/?text=${encodeURIComponent(text + " " + url)}`
-    window.open(shareUrl, "_blank")
-  }
-
-  const shareTwitter = () => {
-    const url = getCampaignUrl()
-    const text = `Apoya esta campaña: ${campaign?.title}`
-
-    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
-    window.open(shareUrl, "_blank")
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + getCampaignUrl())}`
+    window.open(url, "_blank")
   }
 
   if (loading) return <div className="p-10 text-center">Cargando...</div>
@@ -152,20 +158,22 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* ================= SHARE CAMPAÑA ================= */}
-          <div className="flex gap-3 mt-4 flex-wrap">
-            <button
-              onClick={shareCampaign}
-              className="bg-black text-white px-4 py-2 rounded-lg text-sm"
-            >
-              🔗 Compartir
+          {/* 🔥 SHARE PRO */}
+          <div className="flex flex-wrap gap-3 mt-4">
+            <button onClick={copyLink} className="bg-black text-white px-4 py-2 rounded-lg text-sm">
+              🔗 Copiar
             </button>
 
-            <button
-              onClick={shareTwitter}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm"
-            >
-              🐦 Twitter
+            <button onClick={shareWhatsApp} className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm">
+              🟢 WhatsApp
+            </button>
+
+            <button onClick={shareFacebook} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+              🔵 Facebook
+            </button>
+
+            <button onClick={shareX} className="bg-black text-white px-4 py-2 rounded-lg text-sm">
+              ⚫ X
             </button>
           </div>
 
@@ -237,7 +245,6 @@ export default function CampaignDetail() {
                             +${amount.toLocaleString()}
                           </span>
 
-                          {/* 🔥 SHARE DONACIÓN */}
                           <button
                             onClick={() => shareDonation(amount)}
                             className="text-xs bg-gray-200 px-2 py-1 rounded"
@@ -262,9 +269,6 @@ export default function CampaignDetail() {
             </div>
           </div>
 
-          {/* ================= RESTO SIN TOCAR ================= */}
-          {/* (updates + ranking intactos) */}
-
         </div>
 
         {/* ================= RIGHT ================= */}
@@ -272,7 +276,7 @@ export default function CampaignDetail() {
           <div className="sticky top-6">
             <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
               <ViewersCounter campaign_id={campaign.id} />
-              <DonationBox campaign_id={campaign.id} />
+              <DonationBox campaign_id={campaign.id} refParam={ref} />
             </div>
           </div>
         </div>
