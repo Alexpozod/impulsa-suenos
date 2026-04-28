@@ -90,7 +90,7 @@ export default function CampaignDetail() {
   }
 
   /* =========================
-     🔥 SHARE PRO
+     🔥 SHARE PRO (MEJORADO)
   ========================= */
   const getCampaignUrl = () => {
     let url = `${window.location.origin}/campaign/${id}`
@@ -98,9 +98,9 @@ export default function CampaignDetail() {
     return url
   }
 
-  const copyLink = () => {
-    navigator.clipboard.writeText(getCampaignUrl())
-    alert("🔗 Link copiado")
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(getCampaignUrl())
+    alert("🔗 Link copiado correctamente")
   }
 
   const shareWhatsApp = () => {
@@ -118,6 +118,17 @@ export default function CampaignDetail() {
     const text = `Apoya esta campaña 🙌 ${campaign?.title}`
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(getCampaignUrl())}`
     window.open(url, "_blank")
+  }
+
+  // 🔥 Instagram y TikTok (no tienen share directo)
+  const shareInstagram = () => {
+    copyLink()
+    alert("📸 Pega el link en Instagram Stories")
+  }
+
+  const shareTikTok = () => {
+    copyLink()
+    alert("🎵 Pega el link en TikTok")
   }
 
   const shareDonation = (amount: number) => {
@@ -155,15 +166,15 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* SHARE PRO */}
-          <div className="flex items-center gap-3 mt-4">
+          {/* 🔥 SHARE PRO UI */}
+          <div className="flex items-center gap-3 mt-4 flex-wrap">
 
             <button onClick={copyLink} className="p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition">
               🔗
             </button>
 
             <button onClick={shareWhatsApp} className="p-3 rounded-full bg-green-500 text-white hover:scale-105 transition">
-              🟢
+              💬
             </button>
 
             <button onClick={shareFacebook} className="p-3 rounded-full bg-blue-600 text-white hover:scale-105 transition">
@@ -172,6 +183,14 @@ export default function CampaignDetail() {
 
             <button onClick={shareX} className="p-3 rounded-full bg-black text-white hover:scale-105 transition">
               X
+            </button>
+
+            <button onClick={shareInstagram} className="p-3 rounded-full bg-pink-500 text-white hover:scale-105 transition">
+              📸
+            </button>
+
+            <button onClick={shareTikTok} className="p-3 rounded-full bg-gray-800 text-white hover:scale-105 transition">
+              🎵
             </button>
 
           </div>
@@ -257,7 +276,7 @@ export default function CampaignDetail() {
             </div>
           </div>
 
-          {/* 🏆 RANKING */}
+          {/* RANKING */}
           <div className="mt-10">
             <h2 className="text-xl font-bold mb-4">🏆 Top donadores</h2>
 
