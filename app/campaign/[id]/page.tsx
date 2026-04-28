@@ -161,34 +161,70 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* 🔥 SHARE PRO LIMPIO (ÚNICO BLOQUE CORRECTO) */}
-          <div className="flex items-center gap-3 mt-4 flex-wrap">
+          {/* 🔥 SHARE STYLE GOFUNDME */}
+<div className="flex items-center gap-3 mt-4 flex-wrap">
 
-            <button onClick={copyLink} className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition">
-              🔗
-            </button>
+  {/* COPY LINK */}
+  <button
+    onClick={copyLink}
+    className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition"
+  >
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
+      <path fill="currentColor" d="M3.9 12a5 5 0 0 1 5-5h3v2h-3a3 3 0 0 0 0 6h3v2h-3a5 5 0 0 1-5-5zm6-1h4v2h-4v-2zm5-4h-3v2h3a3 3 0 1 1 0 6h-3v2h3a5 5 0 1 0 0-10z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareWhatsApp} className="w-11 h-11 flex items-center justify-center rounded-full bg-green-500 text-white hover:scale-105 transition">
-              💬
-            </button>
+  {/* FACEBOOK */}
+  <button
+    onClick={shareFacebook}
+    className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1877F2] hover:opacity-90 transition"
+  >
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.3 0-1.7.8-1.7 1.6V12H17l-.4 3h-2.9v7A10 10 0 0 0 22 12z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareFacebook} className="w-11 h-11 flex items-center justify-center rounded-full bg-blue-600 text-white hover:scale-105 transition">
-              📘
-            </button>
+  {/* WHATSAPP */}
+  <button
+    onClick={shareWhatsApp}
+    className="w-10 h-10 flex items-center justify-center rounded-full bg-[#25D366] hover:opacity-90 transition"
+  >
+    <svg viewBox="0 0 32 32" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M16 0C7.2 0 0 6.6 0 14.8c0 2.6.7 5.1 2 7.3L0 32l10.2-2.9c2.1 1.1 4.5 1.7 5.8 1.7 8.8 0 16-6.6 16-14.8S24.8 0 16 0zm0 27.3c-1.9 0-3.8-.5-5.5-1.5l-.4-.2-6 1.7 1.6-5.8-.3-.4c-1.2-1.8-1.8-3.8-1.8-5.9C3.6 8.1 9.2 3.6 16 3.6s12.4 4.5 12.4 10.2-5.6 10.2-12.4 10.2z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareX} className="w-11 h-11 flex items-center justify-center rounded-full bg-black text-white hover:scale-105 transition">
-              ✖️
-            </button>
+  {/* MESSENGER (opcional tipo gofundme) */}
+  <button
+    onClick={shareX}
+    className="w-10 h-10 flex items-center justify-center rounded-full bg-black hover:opacity-90 transition"
+  >
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M18.9 2H22l-7.5 8.6L23 22h-6.9l-5.4-7.1L4.5 22H1.4l8-9.2L1 2h7l4.9 6.5L18.9 2z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareInstagram} className="w-11 h-11 flex items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white hover:scale-105 transition">
-              📸
-            </button>
+  {/* INSTAGRAM */}
+  <button
+    onClick={shareInstagram}
+    className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 hover:opacity-90 transition"
+  >
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm5 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm6.5-.8a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareTikTok} className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-900 text-white hover:scale-105 transition">
-              🎵
-            </button>
+  {/* TIKTOK */}
+  <button
+    onClick={shareTikTok}
+    className="w-10 h-10 flex items-center justify-center rounded-full bg-black hover:opacity-90 transition"
+  >
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M21 8.5c-2.1 0-4-1.2-4.9-3.1v9.5c0 3.4-2.7 6.1-6.1 6.1S4 18.3 4 14.9s2.7-6.1 6.1-6.1c.3 0 .6 0 .9.1v3.2c-.3-.1-.6-.2-.9-.2-1.7 0-3.1 1.4-3.1 3.1s1.4 3.1 3.1 3.1 3.1-1.4 3.1-3.1V2h3.1c.2 2.3 2 4.1 4.3 4.3v2.2z"/>
+    </svg>
+  </button>
 
-          </div>
+</div>
 
           {/* PROGRESO */}
           <div className="mt-6 space-y-3">
