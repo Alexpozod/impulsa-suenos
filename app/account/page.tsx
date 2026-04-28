@@ -64,67 +64,61 @@ export default function AccountPage() {
 
         if (!campaigns || campaigns.length === 0) {
           setAnalytics(null)
-          setLoading(false) // 🔥 FIX CRÍTICO
+          setLoading(false)
           return
         }
 
         /* =========================
            🚀 ANALYTICS GLOBAL
         ========================= */
-        try {
-
-          const results = await Promise.all(
-            campaigns.map(async (c: any) => {
-              const res = await fetch(`/api/campaign-analytics?campaign_id=${c.id}`)
-              if (!res.ok) return null
-              return res.json()
-            })
-          )
-
-          const valid = results.filter(Boolean)
-
-          let total_donations = 0
-          let total_amount = 0
-          let refs = 0
-          let conversionSum = 0
-          let sources: any = {}
-
-          valid.forEach((a: any) => {
-
-            total_donations += a.total_donations || 0
-            total_amount += a.total_amount || 0
-            refs += a.refs || 0
-            conversionSum += Number(a.conversion || 0)
-
-            if (a.sources) {
-              Object.entries(a.sources).forEach(([key, val]: any) => {
-                if (!sources[key]) {
-                  sources[key] = { count: 0, amount: 0 }
-                }
-                sources[key].count += val.count || 0
-                sources[key].amount += val.amount || 0
-              })
-            }
-
+        const results = await Promise.all(
+          campaigns.map(async (c: any) => {
+            const res = await fetch(`/api/campaign-analytics?campaign_id=${c.id}`)
+            if (!res.ok) return null
+            return res.json()
           })
+        )
 
-          const finalAnalytics = {
-            total_donations,
-            total_amount,
-            refs,
-            conversion: valid.length
-              ? Number((conversionSum / valid.length).toFixed(2)) // 🔥 FIX
-              : 0,
-            sources
+        const valid = results.filter(Boolean)
+
+        let total_donations = 0
+        let total_amount = 0
+        let refs = 0
+        let conversionSum = 0
+        let sources: any = {}
+
+        valid.forEach((a: any) => {
+
+          total_donations += a.total_donations || 0
+          total_amount += a.total_amount || 0
+          refs += a.refs || 0
+          conversionSum += Number(a.conversion || 0)
+
+          if (a.sources) {
+            Object.entries(a.sources).forEach(([key, val]: any) => {
+              if (!sources[key]) {
+                sources[key] = { count: 0, amount: 0 }
+              }
+              sources[key].count += val.count || 0
+              sources[key].amount += val.amount || 0
+            })
           }
 
-          console.log("🔥 ANALYTICS GLOBAL:", finalAnalytics)
+        })
 
-          setAnalytics(finalAnalytics)
-
-        } catch (err) {
-          console.error("Analytics error:", err)
+        const finalAnalytics = {
+          total_donations,
+          total_amount,
+          refs,
+          conversion: valid.length
+            ? Number((conversionSum / valid.length).toFixed(2))
+            : 0,
+          sources
         }
+
+        console.log("🔥 ANALYTICS GLOBAL:", finalAnalytics)
+
+        setAnalytics(finalAnalytics)
 
       } catch (err) {
         console.error("LOAD ERROR:", err)
@@ -162,6 +156,7 @@ export default function AccountPage() {
         <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
         <p className="text-gray-600 mb-6">{user?.email}</p>
 
+        {/* STATUS */}
         <div className="mb-6 flex gap-3 flex-wrap">
 
           <span className={`px-3 py-1 rounded text-sm ${
@@ -182,6 +177,7 @@ export default function AccountPage() {
 
         </div>
 
+        {/* FINANZAS */}
         {finance && (
           <div className="grid md:grid-cols-4 gap-4 mb-6">
             <MiniCard title="Disponible" value={finance.totals.balance} highlight />
@@ -191,6 +187,7 @@ export default function AccountPage() {
           </div>
         )}
 
+        {/* ACCIONES */}
         <div className="mb-8 flex flex-wrap gap-3">
 
           <button
@@ -211,19 +208,53 @@ export default function AccountPage() {
 
         </div>
 
-        <div className="bg-white border rounded-2xl p-6">
+        {/* 🚀 VIRALIDAD PRO */}
+        <div className="bg-white border rounded-2xl p-6 space-y-6">
 
-          <h2 className="text-xl font-bold mb-4">
+          <h2 className="text-xl font-bold">
             🚀 Crecimiento & Viralidad
           </h2>
 
+          {/* KPIs */}
           <div className="grid md:grid-cols-4 gap-4">
-
             <StatCard label="🔗 Referidos" value={analytics?.refs ?? 0} />
             <StatCard label="👥 Donaciones" value={analytics?.total_donations ?? 0} />
-            <StatCard label="🌐 Fuente top" value={topSource || "N/A"} small />
             <StatCard label="📈 Conversión" value={`${analytics?.conversion ?? 0}%`} />
+            <StatCard label="💰 Generado" value={`$${Number(analytics?.total_amount || 0).toLocaleString()}`} />
+          </div>
 
+          {/* FUENTES */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-600 mb-2">
+              🌐 Fuentes de tráfico
+            </h3>
+
+            <div className="space-y-2">
+
+              {analytics?.sources
+                ? Object.entries(analytics.sources).map(([key, val]: any) => (
+                    <div
+                      key={key}
+                      className="flex justify-between items-center bg-gray-50 px-4 py-2 rounded-lg"
+                    >
+                      <span className="text-sm font-medium capitalize">
+                        {key}
+                      </span>
+
+                      <div className="text-right text-sm">
+                        <p className="font-bold">
+                          ${Number(val.amount || 0).toLocaleString()}
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          {val.count} donaciones
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                : <p className="text-gray-400 text-sm">Sin datos aún</p>
+              }
+
+            </div>
           </div>
 
         </div>
@@ -232,6 +263,8 @@ export default function AccountPage() {
     </div>
   )
 }
+
+/* ================= UI ================= */
 
 function MiniCard({ title, value, highlight }: any) {
   return (
@@ -246,11 +279,11 @@ function MiniCard({ title, value, highlight }: any) {
   )
 }
 
-function StatCard({ label, value, small }: any) {
+function StatCard({ label, value }: any) {
   return (
     <div className="p-4 bg-gray-50 rounded-xl text-center">
       <p className="text-sm text-gray-500">{label}</p>
-      <p className={`font-bold ${small ? "text-sm" : "text-xl"}`}>
+      <p className="text-xl font-bold">
         {value}
       </p>
     </div>
