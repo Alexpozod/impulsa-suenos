@@ -95,16 +95,19 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
-    const user_email =
-      payment.metadata?.user_email ||
-      payment.payer?.email
+
+    /* =========================
+       🔥 SEPARACIÓN REAL (CLAVE)
+    ========================= */
+    const creator_email = payment.metadata?.user_email
+    const donor_email = payment.payer?.email
 
     const donor_name =
       payment.metadata?.donor_name ||
       [payment.payer?.first_name, payment.payer?.last_name]
         .filter(Boolean)
         .join(" ") ||
-      user_email?.split("@")[0] ||
+      donor_email?.split("@")[0] ||
       "Donador"
 
     const message =
@@ -112,7 +115,7 @@ export async function POST(req: Request) {
       payment.metadata?.message_text ||
       ""
 
-    if (!campaign_id || !user_email) {
+    if (!campaign_id || !creator_email) {
       console.warn("⚠️ metadata incompleta")
       return NextResponse.json({ ok: true })
     }
@@ -139,13 +142,12 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       ⚙️ CONFIG DINÁMICA SEGURA
+       ⚙️ CONFIG DINÁMICA
     ========================= */
     let PLATFORM_FIXED = 300
     let PLATFORM_PERCENT = 0.01
 
     try {
-
       const { data: config } = await supabase
         .from("platform_settings")
         .select("fee_fixed, fee_percent")
@@ -154,36 +156,22 @@ export async function POST(req: Request) {
         .maybeSingle()
 
       if (config) {
-
         const fixed = Number(config.fee_fixed)
         const percent = Number(config.fee_percent)
 
-        if (!isNaN(fixed) && fixed >= 0) {
-          PLATFORM_FIXED = fixed
-        }
-
-        if (!isNaN(percent) && percent >= 0) {
-          PLATFORM_PERCENT = percent
-        }
-
+        if (!isNaN(fixed)) PLATFORM_FIXED = fixed
+        if (!isNaN(percent)) PLATFORM_PERCENT = percent
       }
 
-    } catch (err) {
-      console.warn("⚠️ Error cargando config dinámica, usando fallback")
+    } catch {
+      console.warn("⚠️ fallback config")
     }
-
-    console.log("⚙️ CONFIG USADA:", {
-      PLATFORM_FIXED,
-      PLATFORM_PERCENT
-    })
-
-    console.log("🧮 CALC:", { donation, tip, fee_mp })
 
     if (!existingPayment) {
       await supabase.from("payments").insert({
         payment_id: paymentId,
         campaign_id,
-        user_email,
+        user_email: creator_email,
         amount: donation,
         tip,
         status: "processing",
@@ -205,7 +193,7 @@ export async function POST(req: Request) {
     const { error } = await supabase.rpc("process_payment_atomic", {
       p_payment_id: paymentId,
       p_campaign_id: campaign_id,
-      p_user_email: user_email,
+      p_user_email: creator_email,
       p_amount: donation,
       p_fee_mp: fee_mp,
       p_tip: tip,
@@ -228,12 +216,6 @@ export async function POST(req: Request) {
         data: { paymentId, error }
       })
 
-      await supabase.from("webhook_logs").insert({
-        payment_id: paymentId,
-        payload: { error },
-        status: "failed"
-      })
-
       return NextResponse.json({ ok: true })
     }
 
@@ -242,43 +224,49 @@ export async function POST(req: Request) {
       .update({ status: "approved" })
       .eq("payment_id", paymentId)
 
-    const { data: paymentRow } = await supabase
-      .from("payments")
-      .select("notified")
-      .eq("payment_id", paymentId)
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("title")
+      .eq("id", campaign_id)
       .maybeSingle()
 
-    if (!paymentRow?.notified) {
+    const campaignTitle = campaign?.title || "Tu campaña"
 
-      await supabase
-        .from("payments")
-        .update({ notified: true })
-        .eq("payment_id", paymentId)
+    /* =========================
+       📩 EMAIL CREADOR (NUEVO REAL)
+    ========================= */
+    await sendNotification({
+      user_email: creator_email,
+      type: "donation_received",
+      title: "💰 Nueva donación recibida",
+      message: `Recibiste una donación de $${Number(donation).toLocaleString()} en "${campaignTitle}"`,
+      metadata: {
+        amount: donation,
+        campaign_title: campaignTitle,
+        donor_name,
+        message
+      },
+      sendEmail: true
+    })
 
-      const { data: campaign } = await supabase
-        .from("campaigns")
-        .select("title")
-        .eq("id", campaign_id)
-        .maybeSingle()
-
-      const campaignTitle = campaign?.title || "Tu campaña"
-
+    /* =========================
+       💌 EMAIL DONADOR
+    ========================= */
+    if (donor_email) {
       await sendNotification({
-        user_email,
-        type: "donation",
-        title: "💰 Donación recibida",
-        message: `Recibiste una donación de $${Number(donation).toLocaleString()} en "${campaignTitle}"`,
+        user_email: donor_email,
+        type: "donation_thanks",
+        title: "🙏 Gracias por tu donación",
+        message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
         metadata: {
-          amount: donation,
-          campaign_title: campaignTitle,
-          donor_name,
-          message
+          campaign_id,
+          share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
         },
         sendEmail: true
       })
     }
 
-    await syncWallet(user_email)
+    await syncWallet(creator_email)
 
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
