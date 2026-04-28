@@ -18,18 +18,14 @@ const paymentSchema = z.object({
   tip: z.number().min(0).optional(),
   campaign_id: z.string().min(1),
 
-  // 👇 CREADOR
   user_email: z.string().email(),
-
   message: z.string().optional(),
-
-  // 👇 DONADOR
   donor_name: z.string().optional(),
-
   provider: z.string().optional(),
 
-  // 🔥 NUEVO (COMPATIBLE)
-  ref: z.string().optional()
+  // 🔥 TRACKING
+  ref: z.string().optional(),
+  source: z.string().optional() // ✅ NUEVO
 })
 
 export async function POST(req: Request) {
@@ -55,7 +51,8 @@ export async function POST(req: Request) {
       user_email,
       message = "",
       donor_name,
-      ref
+      ref,
+      source // ✅ NUEVO
     } = parsed.data
 
     /* =========================
@@ -81,9 +78,6 @@ export async function POST(req: Request) {
       )
     }
 
-    /* =========================
-       🔐 VALIDACIÓN CRÍTICA
-    ========================= */
     if (campaign.user_email !== user_email) {
       return NextResponse.json(
         { error: "invalid_campaign_owner" },
@@ -100,15 +94,13 @@ export async function POST(req: Request) {
       safeDonorName = donor_name.trim()
     }
 
-    /* =========================
-       🔥 PROVIDER FIJO
-    ========================= */
     const provider = "mercadopago"
 
     /* =========================
-       🔥 REF NORMALIZADO (CLAVE)
+       🔥 TRACKING REAL (FIX)
     ========================= */
     const referrer = ref || null
+    const finalSource = source || "web"
 
     /* =========================
        🚀 CREATE PAYMENT PRO
@@ -122,19 +114,17 @@ export async function POST(req: Request) {
       message,
       donor_name: safeDonorName,
 
-      /* =========================
-         🔥 METADATA PRO (ESCALABLE)
-      ========================= */
-     metadata: {
-  source: "web",
-  created_at: new Date().toISOString(),
+      metadata: {
+        source: finalSource,
+        created_at: new Date().toISOString(),
 
-  ref: ref || null,
-  referrer: referrer,
+        // 🔥 CLAVE
+        ref: referrer,
+        referrer: referrer,
 
-  // 🔥 NUEVO (CLAVE)
-  traffic_source: "web"
-}
+        // 🔥 CLAVE PARA WEBHOOK
+        traffic_source: finalSource
+      }
     })
 
     console.log("PAYMENT RESULT:", result)
