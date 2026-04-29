@@ -105,9 +105,8 @@ export async function sendNotification({
       }
 
       /* =========================
-         EMAIL TYPES
+         EMAIL HELPER
       ========================= */
-
       const send = async (subject: string, html: string) => {
         const res = await resend.emails.send({
           from: FROM,
@@ -122,6 +121,10 @@ export async function sendNotification({
 
         return res
       }
+
+      /* =========================
+         EMAIL TYPES
+      ========================= */
 
       if (type === "donation_received") {
         response = await send(
@@ -227,13 +230,10 @@ export async function sendNotification({
         )
       }
 
-      // 🗑 BANK DELETE
       else if (type === "bank_deleted") {
-        await resend.emails.send({
-          from: FROM,
-          to: user_email,
-          subject: "🗑 Cuenta bancaria eliminada",
-          html: baseTemplate(`
+        response = await send(
+          "🗑 Cuenta bancaria eliminada",
+          baseTemplate(`
             <h3>🗑 Cuenta eliminada</h3>
             <p>Eliminaste una cuenta bancaria de tu perfil.</p>
 
@@ -245,7 +245,26 @@ export async function sendNotification({
               Si no fuiste tú, cambia tu contraseña inmediatamente y contacta soporte.
             </p>
           `)
-        })
+        )
+      }
+
+      else if (type === "campaign_created") {
+        response = await send(
+          "🚀 Tu campaña está activa",
+          baseTemplate(`
+            <h3>🚀 Campaña creada con éxito</h3>
+            <p>Tu campaña ya está disponible para recibir donaciones.</p>
+
+            <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+              <p><b>Título:</b> ${metadata?.campaign_title || "Sin título"}</p>
+              <p><b>Meta:</b> $${Number(metadata?.goal_amount || 0).toLocaleString()}</p>
+            </div>
+
+            <p style="margin-top:10px;">
+              Comparte tu campaña y comienza a recibir apoyo 💚
+            </p>
+          `)
+        )
       }
 
     } catch (err: any) {
