@@ -39,7 +39,6 @@ export default function BankPage() {
   }, [])
 
   const loadData = async () => {
-
     const { data } = await supabase.auth.getUser()
 
     if (!data.user) {
@@ -52,7 +51,7 @@ export default function BankPage() {
     const { data: banks } = await supabase
       .from("bank_accounts")
       .select("*")
-      .ilike("user_email", email)
+      .eq("user_email", email)
       .order("created_at", { ascending: false })
 
     setAccounts(banks || [])
@@ -76,7 +75,7 @@ export default function BankPage() {
   }
 
   /* =========================
-     🔐 OTP SEND
+     🔐 OTP
   ========================= */
   const sendOtp = async () => {
     const { data } = await supabase.auth.getUser()
@@ -93,10 +92,11 @@ export default function BankPage() {
     })
 
     setOtpSent(true)
+    setMessage("📩 Código enviado")
   }
 
   /* =========================
-     💾 SAVE
+     💾 UPDATE
   ========================= */
   const handleSave = async () => {
 
@@ -104,20 +104,13 @@ export default function BankPage() {
     setMessage("")
 
     const validationError = validate()
-    if (validationError) {
-      setError(validationError)
-      return
-    }
+    if (validationError) return setError(validationError)
 
-    if (!otp) {
-      setError("Debes ingresar el código OTP")
-      return
-    }
+    if (!otp) return setError("Debes ingresar el OTP")
 
     setSaving(true)
 
     try {
-
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
 
@@ -136,25 +129,48 @@ export default function BankPage() {
 
       const data = await res.json()
 
-      if (!res.ok) {
-        setError(data.error)
-        setSaving(false)
-        return
-      }
+      if (!res.ok) return setError(data.error)
 
       setMessage("✅ Cuenta actualizada")
-      setOtp("")
-      setOtpSent(false)
       setEditingId(null)
       setForm(emptyForm)
+      setOtp("")
+      setOtpSent(false)
 
       await loadData()
 
-    } catch (err: any) {
+    } catch {
       setError("Error guardando")
     }
 
     setSaving(false)
+  }
+
+  /* =========================
+     ⭐ SET DEFAULT
+  ========================= */
+  const setDefault = async (id: string) => {
+
+    if (!otp) return setError("Ingresa OTP")
+
+    const { data: sessionData } = await supabase.auth.getSession()
+    const token = sessionData?.session?.access_token
+
+    await fetch("/api/bank/update", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        bank_id: id,
+        is_default: true,
+        otp_code: otp
+      })
+    })
+
+    setOtp("")
+    await loadData()
   }
 
   /* =========================
@@ -163,11 +179,7 @@ export default function BankPage() {
   const handleDelete = async () => {
 
     if (!confirmDeleteId) return
-
-    if (!otp) {
-      setError("Debes ingresar el código OTP")
-      return
-    }
+    if (!otp) return setError("Debes ingresar OTP")
 
     const { data: sessionData } = await supabase.auth.getSession()
     const token = sessionData?.session?.access_token
@@ -176,7 +188,7 @@ export default function BankPage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
         bank_id: confirmDeleteId,
@@ -186,15 +198,10 @@ export default function BankPage() {
 
     const data = await res.json()
 
-    if (!res.ok) {
-      setError(data.error)
-      return
-    }
+    if (!res.ok) return setError(data.error)
 
     setConfirmDeleteId(null)
     setOtp("")
-    setOtpSent(false)
-
     await loadData()
   }
 
@@ -224,17 +231,26 @@ export default function BankPage() {
 
         <h1 className="text-2xl font-bold">🏦 Cuentas bancarias</h1>
 
-        {/* LISTADO */}
+        {/* LIST */}
         <div className="space-y-4">
 
           {accounts.map((acc) => (
             <div key={acc.id} className="bg-white p-5 rounded-2xl border flex justify-between items-center">
 
               <div>
-                <p className="font-semibold">{acc.bank_name}</p>
+                <p className="font-semibold flex items-center gap-2">
+                  {acc.bank_name}
+                  {acc.is_default && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                      Principal
+                    </span>
+                  )}
+                </p>
+
                 <p className="text-sm text-gray-500">
                   **** {acc.account_number?.slice(-4)}
                 </p>
+
                 <p className="text-xs text-gray-400">{acc.account_type}</p>
               </div>
 
@@ -254,6 +270,15 @@ export default function BankPage() {
                   Eliminar
                 </button>
 
+                {!acc.is_default && (
+                  <button
+                    onClick={() => setDefault(acc.id)}
+                    className="text-xs underline text-gray-500"
+                  >
+                    Hacer principal
+                  </button>
+                )}
+
               </div>
 
             </div>
@@ -270,7 +295,6 @@ export default function BankPage() {
             <input name="holder_name" value={form.holder_name} onChange={handleChange} className="input" />
             <input name="rut" value={form.rut} onChange={handleChange} className="input" />
             <input name="bank_name" value={form.bank_name} onChange={handleChange} className="input" />
-
             <input name="account_number" value={form.account_number} onChange={handleChange} className="input" />
 
             {/* OTP */}
@@ -281,17 +305,14 @@ export default function BankPage() {
                 onChange={(e) => setOtp(e.target.value)}
                 className="input flex-1"
               />
-
-              <button
-                onClick={sendOtp}
-                className="px-4 bg-gray-200 rounded-lg"
-              >
+              <button onClick={sendOtp} className="px-4 bg-gray-200 rounded-lg">
                 Enviar
               </button>
             </div>
 
             <button
               onClick={handleSave}
+              disabled={saving}
               className="w-full bg-green-600 text-white py-3 rounded-lg"
             >
               Guardar cambios
@@ -303,7 +324,6 @@ export default function BankPage() {
         {/* DELETE MODAL */}
         {confirmDeleteId && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-
             <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
 
               <h3 className="font-semibold">Confirmar eliminación</h3>
@@ -328,7 +348,6 @@ export default function BankPage() {
               </button>
 
             </div>
-
           </div>
         )}
 

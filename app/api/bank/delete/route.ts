@@ -35,7 +35,8 @@ export async function POST(req: Request) {
     /* =========================
        📥 INPUT
     ========================= */
-    const { bank_id, otp_code } = await req.json()
+    const body = await req.json()
+    const { bank_id, otp_code } = body
 
     if (!bank_id || !otp_code) {
       return NextResponse.json({ error: "datos incompletos" }, { status: 400 })
@@ -84,6 +85,38 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       🔒 BLOQUEO POR RETIRO
+    ========================= */
+    const { data: pending } = await supabase
+      .from("payouts")
+      .select("id")
+      .eq("user_email", user_email)
+      .eq("status", "pending")
+      .limit(1)
+
+    if (pending && pending.length > 0) {
+      return NextResponse.json(
+        { error: "Tienes retiros en proceso. No puedes eliminar esta cuenta." },
+        { status: 400 }
+      )
+    }
+
+    /* =========================
+       🚫 NO ELIMINAR ÚLTIMA CUENTA
+    ========================= */
+    const { data: allAccounts } = await supabase
+      .from("bank_accounts")
+      .select("id")
+      .eq("user_email", user_email)
+
+    if (allAccounts && allAccounts.length <= 1) {
+      return NextResponse.json(
+        { error: "Debes tener al menos una cuenta bancaria" },
+        { status: 400 }
+      )
+    }
+
+    /* =========================
        🚫 ELIMINAR
     ========================= */
     const { error } = await supabase
@@ -93,6 +126,19 @@ export async function POST(req: Request) {
 
     if (error) throw error
 
+    /* =========================
+       📜 AUDITORÍA
+    ========================= */
+    await supabase.from("bank_audit_logs").insert({
+      user_email,
+      bank_id,
+      action: "delete",
+      metadata: {}
+    })
+
+    /* =========================
+       📢 LOGS
+    ========================= */
     await logToDB("info", "bank_deleted", {
       user_email,
       bank_id

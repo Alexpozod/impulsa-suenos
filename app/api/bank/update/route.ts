@@ -35,20 +35,28 @@ export async function POST(req: Request) {
     /* =========================
        📥 INPUT
     ========================= */
+    const body = await req.json()
+
     const {
       bank_id,
       account_number,
       account_type,
       bank_name,
+      holder_name,
+      rut,
+      country,
+      swift,
+      iban,
+      is_default,
       otp_code
-    } = await req.json()
+    } = body
 
-    if (!bank_id || !account_number || !account_type || !otp_code) {
+    if (!bank_id || !account_number || !account_type || !bank_name || !otp_code) {
       return NextResponse.json({ error: "datos incompletos" }, { status: 400 })
     }
 
     /* =========================
-       🔐 OTP VERIFY (CORRECTO)
+       🔐 OTP VERIFY
     ========================= */
     const { data: otp } = await supabase
       .from("otp_codes")
@@ -90,20 +98,53 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       ⭐ SET DEFAULT
+    ========================= */
+    if (is_default === true) {
+      await supabase
+        .from("bank_accounts")
+        .update({ is_default: false })
+        .eq("user_email", user_email)
+    }
+
+    /* =========================
        💾 UPDATE
     ========================= */
     const { error } = await supabase
       .from("bank_accounts")
       .update({
+        holder_name: holder_name ?? bank.holder_name,
+        bank_name,
         account_number,
         account_type,
-        bank_name,
+        country: country ?? bank.country,
+        rut: rut ?? bank.rut,
+        swift: swift ?? bank.swift,
+        iban: iban ?? bank.iban,
+        is_default: is_default ?? bank.is_default,
         updated_at: new Date().toISOString()
       })
       .eq("id", bank_id)
 
     if (error) throw error
 
+    /* =========================
+       📜 AUDITORÍA
+    ========================= */
+    await supabase.from("bank_audit_logs").insert({
+      user_email,
+      bank_id,
+      action: "update",
+      metadata: {
+        bank_name,
+        account_type,
+        is_default
+      }
+    })
+
+    /* =========================
+       📢 LOGS
+    ========================= */
     await logToDB("info", "bank_updated", {
       user_email,
       bank_id
