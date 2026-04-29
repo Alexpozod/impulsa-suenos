@@ -89,9 +89,9 @@ export async function POST(req: Request) {
       document_number
     } = reqBody
 
-    if (!bank_id || !otp_code) {
-      return NextResponse.json({ error: "datos incompletos" }, { status: 400 })
-    }
+    if (!otp_code) {
+  return NextResponse.json({ error: "OTP requerido" }, { status: 400 })
+}
 
     /* =========================
        🔐 OTP VERIFY
@@ -122,6 +122,51 @@ export async function POST(req: Request) {
       .from("otp_codes")
       .update({ used: true })
       .eq("id", otp.id)
+
+      /* =========================
+   🆕 CREATE (SI NO HAY bank_id)
+========================= */
+if (!bank_id) {
+
+  const insertPayload: any = {
+    user_email,
+    account_number,
+    account_type,
+    bank_name,
+    holder_name,
+    rut,
+    document_type,
+    document_number,
+    swift: swift || null,
+    iban: iban || null,
+    is_default: false
+  }
+
+  const { error: insertError } = await supabase
+    .from("bank_accounts")
+    .insert(insertPayload)
+
+  if (insertError) throw insertError
+
+  await sendNotification({
+    user_email,
+    type: "bank_created",
+    title: "Cuenta bancaria agregada",
+    message: "Tu cuenta bancaria fue registrada correctamente",
+    metadata: {
+      bank_name
+    },
+    sendEmail: true
+  })
+
+  await supabase.from("bank_audit_logs").insert({
+    user_email,
+    action: "create",
+    metadata: insertPayload
+  })
+
+  return NextResponse.json({ ok: true })
+}
 
     /* =========================
        🔍 VALIDAR PROPIEDAD
