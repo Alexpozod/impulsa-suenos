@@ -13,13 +13,17 @@ export default function WithdrawPage() {
   const [selectedCampaign, setSelectedCampaign] = useState<string>("")
 
   const [balances, setBalances] = useState<any>({})
-  const [globalPending, setGlobalPending] = useState(0) // 🔥 NUEVO
+  const [globalPending, setGlobalPending] = useState(0)
 
   const [amount, setAmount] = useState("")
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
   const [history, setHistory] = useState<any[]>([])
+
+  // 🔐 OTP
+  const [otp, setOtp] = useState("")
+  const [otpSent, setOtpSent] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -52,9 +56,6 @@ export default function WithdrawPage() {
         const res = await fetch("/api/ledger")
         const ledger = await res.json()
 
-        /* =========================
-           🔥 GLOBAL PENDING (FIX REAL)
-        ========================= */
         const totalPending = (ledger || [])
           .filter((tx: any) =>
             tx.user_email === email &&
@@ -66,9 +67,6 @@ export default function WithdrawPage() {
 
         setGlobalPending(totalPending)
 
-        /* =========================
-           💰 BALANCES POR CAMPAÑA
-        ========================= */
         for (const c of campaignsData || []) {
 
           const campaignLedger = (ledger || []).filter((tx: any) =>
@@ -82,9 +80,7 @@ export default function WithdrawPage() {
             0
           )
 
-          balancesMap[c.id] = {
-            available
-          }
+          balancesMap[c.id] = { available }
         }
 
       } catch (err) {
@@ -97,9 +93,6 @@ export default function WithdrawPage() {
 
       setBalances(balancesMap)
 
-      /* =========================
-         HISTORIAL
-      ========================= */
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
 
@@ -116,7 +109,36 @@ export default function WithdrawPage() {
     load()
   }, [router])
 
+  /* =========================
+     🔐 ENVIAR OTP
+  ========================= */
+  const sendOtp = async () => {
+    const { data } = await supabase.auth.getUser()
+
+    await fetch("/api/otp/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: data.user?.email,
+        type: "withdraw"
+      })
+    })
+
+    setOtpSent(true)
+    alert("Código enviado a tu email")
+  }
+
+  /* =========================
+     💸 RETIRO
+  ========================= */
   const handleWithdraw = async () => {
+
+    if (!otp) {
+      alert("Debes ingresar el código OTP")
+      return
+    }
 
     setLoading(true)
     setMessage("")
@@ -134,7 +156,8 @@ export default function WithdrawPage() {
         },
         body: JSON.stringify({
           campaign_id: selectedCampaign,
-          amount: Number(amount)
+          amount: Number(amount),
+          otp_code: otp // 🔥 CLAVE
         })
       })
 
@@ -148,6 +171,9 @@ export default function WithdrawPage() {
 
       setMessage("✅ Retiro solicitado correctamente")
       setAmount("")
+      setOtp("")
+      setOtpSent(false)
+
       location.reload()
 
     } catch {
@@ -158,8 +184,6 @@ export default function WithdrawPage() {
   }
 
   const currentBalance = balances[selectedCampaign]?.available || 0
-
-  // 🔥 DISPONIBLE REAL = balance campaña - pending global
   const realAvailable = currentBalance - globalPending
 
   const insufficient = Number(amount) > realAvailable
@@ -215,6 +239,24 @@ export default function WithdrawPage() {
             <p className="text-sm text-red-500 mb-2">
               ⚠️ El monto supera el saldo disponible
             </p>
+          )}
+
+          {/* 🔐 OTP FLOW */}
+          <button
+            onClick={sendOtp}
+            className="w-full py-2 bg-gray-200 rounded-lg mb-2"
+          >
+            Enviar código OTP
+          </button>
+
+          {otpSent && (
+            <input
+              type="text"
+              placeholder="Código OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="w-full border p-3 rounded-lg mb-2"
+            />
           )}
 
           <button
@@ -286,7 +328,6 @@ export default function WithdrawPage() {
         </div>
 
       </div>
-
     </div>
   )
 }

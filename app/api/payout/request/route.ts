@@ -39,12 +39,25 @@ export async function POST(req: Request) {
     const user_email = user.email.toLowerCase()
 
     /* =========================
-       📥 INPUT
+       📥 INPUT (FIX CRÍTICO)
     ========================= */
-    const { campaign_id, amount } = await req.json()
+    const body = await req.json()
+
+    const {
+      campaign_id,
+      amount,
+      otp_code
+    } = body
 
     if (!campaign_id || !amount) {
       return NextResponse.json({ error: "datos incompletos" }, { status: 400 })
+    }
+
+    if (!otp_code) {
+      return NextResponse.json(
+        { error: "OTP requerido" },
+        { status: 400 }
+      )
     }
 
     const numericAmount = Number(amount)
@@ -56,6 +69,41 @@ export async function POST(req: Request) {
     if (!user.email_confirmed_at) {
       return NextResponse.json({ error: "Email not verified" }, { status: 403 })
     }
+
+    /* =========================
+       🔐 VERIFY OTP
+    ========================= */
+    const { data: otp } = await supabase
+      .from("otp_codes")
+      .select("*")
+      .eq("email", user_email)
+      .eq("code", otp_code)
+      .eq("used", false)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (!otp) {
+      return NextResponse.json(
+        { error: "OTP inválido" },
+        { status: 403 }
+      )
+    }
+
+    const now = Date.now()
+    const created = new Date(otp.created_at).getTime()
+
+    if (now - created > 5 * 60 * 1000) {
+      return NextResponse.json(
+        { error: "OTP expirado" },
+        { status: 403 }
+      )
+    }
+
+    await supabase
+      .from("otp_codes")
+      .update({ used: true })
+      .eq("id", otp.id)
 
     /* =========================
        🛡️ RATE LIMIT
