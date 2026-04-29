@@ -3,20 +3,52 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/src/lib/supabase'
 
+type Campaign = {
+  id: string
+  title: string
+  description: string
+  status: string
+  total_raised: number
+}
+
 export default function AdminCampaigns() {
 
-  const [data, setData] = useState<any[]>([])
+  const [data, setData] = useState<Campaign[]>([])
   const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState("active")
+
+  const [counts, setCounts] = useState({
+    active: 0,
+    blocked: 0,
+    deleted: 0,
+    all: 0
+  })
 
   useEffect(() => {
     load()
-  }, [])
+  }, [statusFilter])
 
   const load = async () => {
     try {
-      const res = await fetch('/api/admin/campaigns')
+
+      const res = await fetch(`/api/admin/campaigns?status=${statusFilter}`)
       const json = await res.json()
+
       setData(json || [])
+
+      // 🔢 CONTADORES (simple pero efectivo)
+      const resAll = await fetch(`/api/admin/campaigns?status=all`)
+      const all = await resAll.json()
+
+      const counters = {
+        active: all.filter((c: Campaign) => c.status === "active").length,
+        blocked: all.filter((c: Campaign) => c.status === "blocked").length,
+        deleted: all.filter((c: Campaign) => c.status === "deleted").length,
+        all: all.length
+      }
+
+      setCounts(counters)
+
     } catch (err) {
       console.error("❌ LOAD ERROR:", err)
     }
@@ -27,7 +59,8 @@ export default function AdminCampaigns() {
     const confirmMsg = {
       delete: "¿Eliminar campaña?",
       block: "¿Bloquear campaña?",
-      activate: "¿Activar campaña?"
+      activate: "¿Activar campaña?",
+      restore: "¿Restaurar campaña?"
     }[action]
 
     if (!confirm(confirmMsg)) return
@@ -35,20 +68,14 @@ export default function AdminCampaigns() {
     try {
       setLoadingId(campaign_id)
 
-      // 🔐 TOKEN (CRÍTICO)
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
-
-      if (!token) {
-        alert("Sesión inválida")
-        return
-      }
 
       const res = await fetch('/api/admin/campaigns/manage', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // 🔥 FIX CLAVE
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ campaign_id, action })
       })
@@ -56,17 +83,14 @@ export default function AdminCampaigns() {
       const result = await res.json()
 
       if (!res.ok) {
-        console.error("❌ ERROR API:", result)
-        alert(result.error || "Error ejecutando acción")
+        alert(result.error || "Error")
         return
       }
 
-      // 🔄 REFRESH
       await load()
 
     } catch (err) {
-      console.error("❌ ERROR FRONT:", err)
-      alert("Error ejecutando acción")
+      console.error(err)
     } finally {
       setLoadingId(null)
     }
@@ -75,8 +99,33 @@ export default function AdminCampaigns() {
   return (
     <div className="p-6 text-white bg-slate-950 min-h-screen">
 
-      <h1 className="text-2xl font-bold mb-6">🚀 Campañas</h1>
+      <h1 className="text-2xl font-bold mb-6">🚀 Campañas (Admin)</h1>
 
+      {/* TABS */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+
+        {[
+          { key: "active", label: "Activas", count: counts.active },
+          { key: "blocked", label: "Bloqueadas", count: counts.blocked },
+          { key: "deleted", label: "Eliminadas", count: counts.deleted },
+          { key: "all", label: "Todas", count: counts.all },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setStatusFilter(tab.key)}
+            className={`px-4 py-2 rounded-lg text-sm ${
+              statusFilter === tab.key
+                ? "bg-green-600"
+                : "bg-slate-800 hover:bg-slate-700"
+            }`}
+          >
+            {tab.label} ({tab.count})
+          </button>
+        ))}
+
+      </div>
+
+      {/* LISTADO */}
       {data.map(c => (
         <div
           key={c.id}
@@ -97,52 +146,50 @@ export default function AdminCampaigns() {
             Recaudado: ${Number(c.total_raised || 0).toLocaleString()}
           </p>
 
-          <div className="flex flex-wrap gap-2 mb-2">
+          <div className="flex flex-wrap gap-2">
 
-            <button
-              onClick={() => handleAction(c.id, 'activate')}
-              disabled={loadingId === c.id}
-              className={`px-3 py-1 rounded text-sm ${
-                loadingId === c.id
-                  ? "bg-gray-500"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              Activar
-            </button>
+            {c.status !== "active" && (
+              <button
+                onClick={() => handleAction(c.id, 'activate')}
+                disabled={loadingId === c.id}
+                className="bg-green-600 px-3 py-1 rounded text-sm"
+              >
+                Activar
+              </button>
+            )}
 
-            <button
-              onClick={() => handleAction(c.id, 'block')}
-              disabled={loadingId === c.id}
-              className={`px-3 py-1 rounded text-sm ${
-                loadingId === c.id
-                  ? "bg-gray-500"
-                  : "bg-yellow-600 hover:bg-yellow-700"
-              }`}
-            >
-              Bloquear
-            </button>
+            {c.status !== "blocked" && (
+              <button
+                onClick={() => handleAction(c.id, 'block')}
+                disabled={loadingId === c.id}
+                className="bg-yellow-600 px-3 py-1 rounded text-sm"
+              >
+                Bloquear
+              </button>
+            )}
 
-            <button
-              onClick={() => handleAction(c.id, 'delete')}
-              disabled={loadingId === c.id}
-              className={`px-3 py-1 rounded text-sm ${
-                loadingId === c.id
-                  ? "bg-gray-500"
-                  : "bg-red-600 hover:bg-red-700"
-              }`}
-            >
-              Eliminar
-            </button>
+            {c.status !== "deleted" && (
+              <button
+                onClick={() => handleAction(c.id, 'delete')}
+                disabled={loadingId === c.id}
+                className="bg-red-600 px-3 py-1 rounded text-sm"
+              >
+                Eliminar
+              </button>
+            )}
+
+            {/* 🧠 RESTORE */}
+            {c.status === "deleted" && (
+              <button
+                onClick={() => handleAction(c.id, 'restore')}
+                disabled={loadingId === c.id}
+                className="bg-blue-600 px-3 py-1 rounded text-sm"
+              >
+                Restaurar
+              </button>
+            )}
 
           </div>
-
-          <a
-            href={`/admin/campaign/${c.id}`}
-            className="text-blue-400 text-sm inline-block"
-          >
-            Ver detalle →
-          </a>
 
           {loadingId === c.id && (
             <p className="text-xs text-slate-400 mt-2">

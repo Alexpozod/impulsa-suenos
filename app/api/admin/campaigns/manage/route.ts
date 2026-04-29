@@ -3,6 +3,10 @@ import { createClient } from "@supabase/supabase-js"
 
 export const runtime = "nodejs"
 
+/* =========================
+   🔐 CLIENTS
+========================= */
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
   process.env.SUPABASE_SERVICE_ROLE_KEY as string
@@ -12,6 +16,10 @@ const supabaseAuth = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
 )
+
+/* =========================
+   🚀 POST
+========================= */
 
 export async function POST(req: Request) {
   try {
@@ -100,7 +108,23 @@ export async function POST(req: Request) {
         .from("campaigns")
         .update({
           status: "deleted",
-          deleted_at: new Date().toISOString()
+          deleted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", campaign_id)
+    }
+
+    /* =========================
+       ♻️ RESTORE (NUEVO)
+    ========================= */
+
+    else if (action === "restore") {
+      dbResult = await supabaseAdmin
+        .from("campaigns")
+        .update({
+          status: "active",
+          deleted_at: null,
+          updated_at: new Date().toISOString()
         })
         .eq("id", campaign_id)
     }
