@@ -161,36 +161,52 @@ export default function CampaignDetail() {
             {campaign.title}
           </h1>
 
-          {/* SHARE */}
-          <div className="flex items-center gap-3 mt-4 flex-wrap">
+         {/* SHARE */}
+<div className="flex items-center gap-3 mt-4 flex-wrap">
 
-            <button onClick={copyLink} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
-                <path fill="currentColor" d="M3.9 12a5 5 0 0 1 5-5h3v2h-3a3 3 0 0 0 0 6h3v2h-3a5 5 0 0 1-5-5zm6-1h4v2h-4v-2zm5-4h-3v2h3a3 3 0 1 1 0 6h-3v2h3a5 5 0 1 0 0-10z"/>
-              </svg>
-            </button>
+  {/* LINK */}
+  <button onClick={copyLink} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition">
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
+      <path fill="currentColor" d="M3.9 12a5 5 0 0 1 5-5h3v2h-3a3 3 0 0 0 0 6h3v2h-3a5 5 0 0 1-5-5zm6-1h4v2h-4v-2zm5-4h-3v2h3a3 3 0 1 1 0 6h-3v2h3a5 5 0 1 0 0-10z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareFacebook} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1877F2]">
-              <span className="text-white text-sm font-bold">f</span>
-            </button>
+  {/* FACEBOOK */}
+  <button onClick={shareFacebook} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1877F2]">
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M22 12a10 10 0 1 0-11.5 9.9v-7H7.9v-2.9h2.6V9.8c0-2.6 1.5-4 3.9-4 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.3 0-1.7.8-1.7 1.6v2h2.9l-.5 2.9h-2.4v7A10 10 0 0 0 22 12"/>
+    </svg>
+  </button>
 
-            <button onClick={shareWhatsApp} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#25D366]">
-              <span className="text-white text-sm">💬</span>
-            </button>
+  {/* WHATSAPP */}
+  <button onClick={shareWhatsApp} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#25D366]">
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M20.5 3.5A11.8 11.8 0 0 0 12 0 11.9 11.9 0 0 0 1.6 17.8L0 24l6.4-1.6A11.9 11.9 0 1 0 20.5 3.5zm-8.5 18a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.8 1 1-3.7-.3-.4a9.8 9.8 0 1 1 8.5 4.7zm5.4-7.3c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-1 1.1-.3.2-.6 0a8 8 0 0 1-2.3-1.4 8.7 8.7 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.5-.6c.2-.2.2-.3.3-.5s0-.3 0-.5-.7-1.8-1-2.5-.5-.6-.7-.6h-.6c-.2 0-.5.1-.7.3s-1 1-1 2.4 1 2.7 1.2 2.9a12 12 0 0 0 4.6 4.1c.6.3 1 .5 1.4.6.6.2 1.1.2 1.5.1.5-.1 1.8-.7 2-1.4s.2-1.2.2-1.3-.2-.2-.5-.4z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareX} className="w-10 h-10 flex items-center justify-center rounded-full bg-black text-white">
-              X
-            </button>
+  {/* X (TWITTER) */}
+  <button onClick={shareX} className="w-10 h-10 flex items-center justify-center rounded-full bg-black">
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M18.9 2H22l-7.2 8.3L23 22h-6.8l-5.3-6.9L4.7 22H1.5l7.7-8.8L1 2h7l4.8 6.3L18.9 2z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareInstagram} className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white">
-              📸
-            </button>
+  {/* INSTAGRAM */}
+  <button onClick={shareInstagram} className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600">
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm5 5.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2zm6-1.5a1.2 1.2 0 1 1-1.2 1.2A1.2 1.2 0 0 1 18 5.7zM12 9a3 3 0 1 0 3 3 3 3 0 0 0-3-3z"/>
+    </svg>
+  </button>
 
-            <button onClick={shareTikTok} className="w-10 h-10 flex items-center justify-center rounded-full bg-black text-white">
-              🎵
-            </button>
+  {/* TIKTOK */}
+  <button onClick={shareTikTok} className="w-10 h-10 flex items-center justify-center rounded-full bg-black">
+    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
+      <path fill="currentColor" d="M12.7 2h2.6a4.5 4.5 0 0 0 4.4 4.4v2.7a7.2 7.2 0 0 1-4.4-1.5v6.7a5.8 5.8 0 1 1-5.8-5.8c.2 0 .4 0 .6.1v2.9a2.9 2.9 0 1 0 2.6 2.9z"/>
+    </svg>
+  </button>
 
-          </div>
+</div>
 
           {/* PROGRESO */}
           <div className="mt-6 space-y-3">
