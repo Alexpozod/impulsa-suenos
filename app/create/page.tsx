@@ -10,6 +10,7 @@ export default function CreateCampaign() {
   const router = useRouter()
 
   const [loadingPage, setLoadingPage] = useState(true)
+  const [bankWarning, setBankWarning] = useState(false)
 
   /* =========================
      FORM ORIGINAL (NO TOCAR)
@@ -78,15 +79,20 @@ export default function CreateCampaign() {
       }
 
       const { data: banks } = await supabase
-        .from("bank_accounts")
-        .select("id")
-        .eq("user_email", email)
-        .limit(1)
+  .from("bank_accounts")
+  .select("id")
+  .eq("user_email", email)
+  .limit(1)
 
-      if (!banks || banks.length === 0) {
-        router.push('/account/bank')
-        return
-      }
+// 🔓 NO BLOQUEA CREACIÓN
+if (!banks || banks.length === 0) {
+
+  console.warn("⚠️ Usuario sin cuenta bancaria")
+
+  setBankWarning(true)
+
+  // ❌ IMPORTANTE: NO redirigir
+}
 
       setLoadingPage(false)
     }
@@ -109,6 +115,7 @@ export default function CreateCampaign() {
 
       if (!token) {
         setMessage('Debes iniciar sesión')
+          setLoading(false) // 🔥 AGREGAR
         return
       }
 
@@ -194,7 +201,11 @@ export default function CreateCampaign() {
               ⚠️ Puedes crear campañas sin verificación, pero necesitarás completar KYC para retirar dinero.
             </div>
           )}
-
+{bankWarning && (
+  <div className="bg-blue-50 border border-blue-200 text-blue-700 p-3 rounded-lg text-sm">
+    ℹ️ Puedes crear campañas sin cuenta bancaria, pero necesitarás agregar una para retirar fondos.
+  </div>
+)}
           {/* PROGRESS */}
           <div>
             <div className="w-full h-2 bg-gray-200 rounded-full">
@@ -292,11 +303,16 @@ export default function CreateCampaign() {
               </button>
             ) : (
               <button
-                onClick={createCampaign}
-                className="bg-green-600 text-white px-6 py-2 rounded-lg"
-              >
-                {loading ? 'Creando...' : 'Crear campaña'}
-              </button>
+  onClick={createCampaign}
+  disabled={loading}
+  className={`px-6 py-2 rounded-lg text-white transition ${
+    loading
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-green-600 hover:bg-green-700 cursor-pointer"
+  }`}
+>
+  {loading ? 'Creando...' : 'Crear campaña'}
+</button>
             )}
 
           </div>
