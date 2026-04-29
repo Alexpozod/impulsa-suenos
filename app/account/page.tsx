@@ -53,9 +53,6 @@ export default function AccountPage() {
 
         setBankLoaded((bankAccounts?.length || 0) > 0)
 
-        /* =========================
-           🔥 TODAS LAS CAMPAÑAS
-        ========================= */
         const { data: campaigns } = await supabase
           .from("campaigns")
           .select("id")
@@ -68,9 +65,6 @@ export default function AccountPage() {
           return
         }
 
-        /* =========================
-           🚀 ANALYTICS GLOBAL
-        ========================= */
         const results = await Promise.all(
           campaigns.map(async (c: any) => {
             const res = await fetch(`/api/campaign-analytics?campaign_id=${c.id}`)
@@ -106,7 +100,7 @@ export default function AccountPage() {
 
         })
 
-        const finalAnalytics = {
+        setAnalytics({
           total_donations,
           total_amount,
           refs,
@@ -114,11 +108,7 @@ export default function AccountPage() {
             ? Number((conversionSum / valid.length).toFixed(2))
             : 0,
           sources
-        }
-
-        console.log("🔥 ANALYTICS GLOBAL:", finalAnalytics)
-
-        setAnalytics(finalAnalytics)
+        })
 
       } catch (err) {
         console.error("LOAD ERROR:", err)
@@ -132,22 +122,8 @@ export default function AccountPage() {
 
   if (loading) return <div className="p-6">Cargando...</div>
 
-  // 🔥 TOP SOURCE
-  let topSource: string | null = null
-
-  if (analytics?.sources) {
-    const entries = Object.entries(analytics.sources)
-
-    if (entries.length > 0) {
-      const sorted = entries.sort((a: any, b: any) => {
-        const aVal = a[1]?.amount ?? a[1]?.count ?? 0
-        const bVal = b[1]?.amount ?? b[1]?.count ?? 0
-        return bVal - aVal
-      })
-
-      topSource = sorted[0][0]
-    }
-  }
+  const needsKyc = kycStatus !== "approved"
+  const needsBank = !bankLoaded
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -155,6 +131,17 @@ export default function AccountPage() {
 
         <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
         <p className="text-gray-600 mb-6">{user?.email}</p>
+
+        {/* 🔴 ACTIVACIÓN CUENTA */}
+        {(needsKyc || needsBank) && (
+          <div className="mb-6 p-4 rounded-xl border bg-yellow-50 border-yellow-300">
+            <p className="font-semibold mb-2">⚠️ Completa tu cuenta</p>
+            <ul className="text-sm space-y-1">
+              {needsKyc && <li>• Verifica tu identidad (KYC)</li>}
+              {needsBank && <li>• Agrega tu cuenta bancaria</li>}
+            </ul>
+          </div>
+        )}
 
         {/* STATUS */}
         <div className="mb-6 flex gap-3 flex-wrap">
@@ -174,6 +161,31 @@ export default function AccountPage() {
           }`}>
             Banco: {bankLoaded ? 'OK' : 'pendiente'}
           </span>
+
+        </div>
+
+        {/* 🔥 ACCIONES CRÍTICAS */}
+        <div className="mb-8 grid md:grid-cols-2 gap-4">
+
+          <button
+            onClick={() => router.push("/kyc")}
+            className="p-4 rounded-xl border bg-white hover:bg-gray-50 text-left"
+          >
+            <p className="font-semibold">🪪 Verificación KYC</p>
+            <p className="text-xs text-gray-500">
+              {kycStatus === "approved" ? "Completado" : "Requerido para retirar"}
+            </p>
+          </button>
+
+          <button
+            onClick={() => router.push("/account/bank")}
+            className="p-4 rounded-xl border bg-white hover:bg-gray-50 text-left"
+          >
+            <p className="font-semibold">🏦 Cuenta bancaria</p>
+            <p className="text-xs text-gray-500">
+              {bankLoaded ? "Configurada" : "Agrega tu cuenta"}
+            </p>
+          </button>
 
         </div>
 
@@ -197,7 +209,7 @@ export default function AccountPage() {
             ➕ Crear campaña
           </button>
 
-          {finance?.totals?.balance > 0 && bankLoaded && kycStatus === "approved" && (
+          {!needsKyc && !needsBank && finance?.totals?.balance > 0 && (
             <button
               onClick={() => router.push("/account/withdraw")}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -208,14 +220,13 @@ export default function AccountPage() {
 
         </div>
 
-        {/* 🚀 VIRALIDAD PRO */}
+        {/* ANALYTICS */}
         <div className="bg-white border rounded-2xl p-6 space-y-6">
 
           <h2 className="text-xl font-bold">
             🚀 Crecimiento & Viralidad
           </h2>
 
-          {/* KPIs */}
           <div className="grid md:grid-cols-4 gap-4">
             <StatCard label="🔗 Referidos" value={analytics?.refs ?? 0} />
             <StatCard label="👥 Donaciones" value={analytics?.total_donations ?? 0} />
@@ -223,7 +234,6 @@ export default function AccountPage() {
             <StatCard label="💰 Generado" value={`$${Number(analytics?.total_amount || 0).toLocaleString()}`} />
           </div>
 
-          {/* FUENTES */}
           <div>
             <h3 className="text-sm font-semibold text-gray-600 mb-2">
               🌐 Fuentes de tráfico
