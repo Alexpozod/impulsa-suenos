@@ -227,6 +227,27 @@ export async function sendNotification({
         )
       }
 
+      // 🗑 BANK DELETE
+      else if (type === "bank_deleted") {
+        await resend.emails.send({
+          from: FROM,
+          to: user_email,
+          subject: "🗑 Cuenta bancaria eliminada",
+          html: baseTemplate(`
+            <h3>🗑 Cuenta eliminada</h3>
+            <p>Eliminaste una cuenta bancaria de tu perfil.</p>
+
+            <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+              <p><b>Banco:</b> ${metadata?.bank_name || "-"}</p>
+            </div>
+
+            <p style="margin-top:10px;color:#666;">
+              Si no fuiste tú, cambia tu contraseña inmediatamente y contacta soporte.
+            </p>
+          `)
+        })
+      }
+
     } catch (err: any) {
 
       console.error("❌ EMAIL ERROR REAL:", err)
