@@ -114,18 +114,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "no autorizado" }, { status: 403 })
     }
 
-    /* =========================
-       🇨🇱 VALIDACIÓN RUT SI APLICA
-    ========================= */
-    if (bank.document_type === "rut" && bank.rut) {
-      const isValid = validateRUT(bank.rut)
-      if (!isValid) {
-        return NextResponse.json(
-          { error: "RUT inválido (seguridad)" },
-          { status: 400 }
-        )
-      }
-    }
+   /* =========================
+   🇨🇱 VALIDACIÓN RUT (NO BLOQUEANTE EN DELETE)
+========================= */
+if (bank.document_type === "rut" && bank.rut) {
+  const isValid = validateRUT(bank.rut)
+
+  if (!isValid) {
+    // 🔥 NO bloquea eliminación, solo registra evento
+    await logToDB("warning", "invalid_rut_on_delete", {
+      user_email,
+      bank_id,
+      rut: bank.rut
+    })
+
+    logInfo("RUT inválido detectado en eliminación (no bloquea)", {
+      user_email,
+      bank_id
+    })
+  }
+}
 
     /* =========================
        🔒 BLOQUEO POR RETIRO

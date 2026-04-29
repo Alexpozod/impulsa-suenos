@@ -10,6 +10,7 @@ export default function BankPage() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false) // 🔥 NUEVO
 
   const [accounts, setAccounts] = useState<any[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -202,7 +203,7 @@ export default function BankPage() {
     const data = await res.json()
     if (!res.ok) return setError(data.error)
 
-    setMessage("✅ Cuenta principal actualizada")
+    setMessage("⭐ Cuenta principal actualizada")
     setOtp("")
     setOtpSent(false)
 
@@ -226,6 +227,8 @@ export default function BankPage() {
       return setError("Ingresa el OTP")
     }
 
+    setDeleting(true)
+
     const { data: sessionData } = await supabase.auth.getSession()
     const token = sessionData?.session?.access_token
 
@@ -242,10 +245,17 @@ export default function BankPage() {
     })
 
     const data = await res.json()
-    if (!res.ok) return setError(data.error)
+    if (!res.ok) {
+      setDeleting(false)
+      return setError(data.error)
+    }
 
     setConfirmDeleteId(null)
     setOtp("")
+    setDeleting(false)
+
+    setMessage("🗑 Cuenta eliminada correctamente")
+
     await loadData()
   }
 
@@ -288,7 +298,7 @@ export default function BankPage() {
 
         {/* LISTADO */}
         {accounts.map(acc => (
-          <div key={acc.id} className="card">
+          <div key={acc.id} className="card hoverable">
             <div>
               <b className="flex items-center gap-2">
                 {acc.bank_name}
@@ -342,7 +352,9 @@ export default function BankPage() {
           <input name="swift" placeholder="SWIFT" value={form.swift} onChange={handleChange} className="input" />
           <input name="iban" placeholder="IBAN" value={form.iban} onChange={handleChange} className="input" />
 
-          <button onClick={handleSave} className="btn-green">Guardar</button>
+          <button onClick={handleSave} disabled={saving} className="btn-green">
+            {saving ? "Guardando..." : "Guardar"}
+          </button>
         </div>
 
         {error && <p className="text-red-500">{error}</p>}
@@ -363,7 +375,9 @@ export default function BankPage() {
             />
 
             <button onClick={sendOtp} className="btn-gray">Reenviar</button>
-            <button onClick={handleDelete} className="btn-red">Confirmar</button>
+            <button onClick={handleDelete} className="btn-red">
+              {deleting ? "Eliminando..." : "Confirmar"}
+            </button>
             <button onClick={() => setConfirmDeleteId(null)}>Cancelar</button>
           </div>
         </div>
@@ -371,15 +385,68 @@ export default function BankPage() {
 
       <style jsx>{`
         .input { border:1px solid #ddd;padding:10px;border-radius:10px;width:100% }
-        .card { background:white;padding:16px;border-radius:16px;border:1px solid #eee;display:flex;justify-content:space-between }
+
+        .card {
+          background:white;
+          padding:16px;
+          border-radius:16px;
+          border:1px solid #eee;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+        }
+
+        .hoverable:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+          cursor: pointer;
+        }
+
+        button { cursor: pointer; transition: all .2s ease; }
+
+        .btn-blue:hover { background:#1d4ed8 }
+        .btn-red:hover { background:#b91c1c }
+        .btn-green:hover { background:#15803d }
+        .btn-gray:hover { background:#ddd }
+
         .btn-blue { background:#2563eb;color:white;padding:8px;border-radius:8px }
         .btn-red { background:#dc2626;color:white;padding:8px;border-radius:8px }
         .btn-green { background:#16a34a;color:white;padding:10px;border-radius:10px;width:100% }
         .btn-gray { background:#eee;padding:8px;border-radius:8px }
-        .link { font-size:12px;text-decoration:underline }
-        .badge { background:#fef9c3;color:#92400e;padding:2px 6px;border-radius:999px;font-size:10px }
-        .modal { position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center }
-        .modal-box { background:white;padding:20px;border-radius:12px;width:300px }
+
+        .link:hover { color:black }
+
+        .badge {
+          background:#fef9c3;
+          color:#92400e;
+          padding:2px 6px;
+          border-radius:999px;
+          font-size:10px;
+        }
+
+        .modal {
+          position:fixed;
+          inset:0;
+          background:rgba(0,0,0,.5);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          backdrop-filter: blur(4px);
+        }
+
+        .modal-box {
+          background:white;
+          padding:20px;
+          border-radius:12px;
+          width:300px;
+          animation: fadeIn .2s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity:0; transform: scale(.95); }
+          to { opacity:1; transform: scale(1); }
+        }
+
       `}</style>
 
     </div>
