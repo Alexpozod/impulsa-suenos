@@ -24,12 +24,14 @@ export default function BankPage() {
     account_number: "",
     account_type: "",
     country: "Chile",
-    rut: "",
+    rut: "", // 🔥 se mantiene para compatibilidad
+    document_type: "",
+    document_number: "",
     swift: "",
     iban: "",
   }
 
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState<any>(emptyForm)
 
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
@@ -65,13 +67,52 @@ export default function BankPage() {
     })
   }
 
+  /* =========================
+     🔐 VALIDACIONES PRO
+  ========================= */
   const validate = () => {
     if (!form.holder_name) return "Nombre requerido"
     if (!form.bank_name) return "Banco requerido"
     if (!form.account_number) return "Número de cuenta requerido"
     if (!form.account_type) return "Tipo requerido"
-    if (!form.rut) return "RUT requerido"
+    if (!form.document_type) return "Tipo de documento requerido"
+    if (!form.document_number) return "Documento requerido"
+
+    // Validación RUT solo si aplica
+    if (form.document_type === "rut") {
+      if (!validateRUT(form.document_number)) {
+        return "RUT inválido"
+      }
+    }
+
     return null
+  }
+
+  /* =========================
+     🇨🇱 VALIDAR RUT
+  ========================= */
+  function validateRUT(rut: string) {
+    rut = rut.replace(/\./g, "").replace("-", "")
+
+    const body = rut.slice(0, -1)
+    const dv = rut.slice(-1).toUpperCase()
+
+    let sum = 0
+    let multiplier = 2
+
+    for (let i = body.length - 1; i >= 0; i--) {
+      sum += Number(body[i]) * multiplier
+      multiplier = multiplier === 7 ? 2 : multiplier + 1
+    }
+
+    const expectedDV = 11 - (sum % 11)
+
+    const dvCalc =
+      expectedDV === 11 ? "0" :
+      expectedDV === 10 ? "K" :
+      String(expectedDV)
+
+    return dvCalc === dv
   }
 
   /* =========================
@@ -147,16 +188,19 @@ export default function BankPage() {
   }
 
   /* =========================
-     ⭐ SET DEFAULT
+     ⭐ SET DEFAULT (UX PRO)
   ========================= */
   const setDefault = async (id: string) => {
 
-    if (!otp) return setError("Ingresa OTP")
+    if (!otp) {
+      setError("Primero envía e ingresa el código OTP")
+      return
+    }
 
     const { data: sessionData } = await supabase.auth.getSession()
     const token = sessionData?.session?.access_token
 
-    await fetch("/api/bank/update", {
+    const res = await fetch("/api/bank/update", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -169,7 +213,17 @@ export default function BankPage() {
       })
     })
 
+    const data = await res.json()
+
+    if (!res.ok) {
+      setError(data.error)
+      return
+    }
+
+    setMessage("✅ Cuenta principal actualizada")
     setOtp("")
+    setOtpSent(false)
+
     await loadData()
   }
 
@@ -215,6 +269,8 @@ export default function BankPage() {
       account_type: acc.account_type || "",
       country: acc.country || "Chile",
       rut: acc.rut || "",
+      document_type: acc.document_type || "",
+      document_number: acc.document_number || "",
       swift: acc.swift || "",
       iban: acc.iban || "",
     })
@@ -230,6 +286,12 @@ export default function BankPage() {
       <div className="max-w-5xl mx-auto p-6 space-y-6">
 
         <h1 className="text-2xl font-bold">🏦 Cuentas bancarias</h1>
+
+        {otpSent && (
+          <p className="text-green-600 text-sm">
+            📩 Código enviado a tu email
+          </p>
+        )}
 
         {/* LIST */}
         <div className="space-y-4">
@@ -292,10 +354,31 @@ export default function BankPage() {
 
             <h2 className="font-semibold">Editar cuenta</h2>
 
-            <input name="holder_name" value={form.holder_name} onChange={handleChange} className="input" />
-            <input name="rut" value={form.rut} onChange={handleChange} className="input" />
-            <input name="bank_name" value={form.bank_name} onChange={handleChange} className="input" />
-            <input name="account_number" value={form.account_number} onChange={handleChange} className="input" />
+            <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="input" />
+
+            {/* DOCUMENTO */}
+            <select name="document_type" value={form.document_type} onChange={handleChange} className="input">
+              <option value="">Tipo documento</option>
+              <option value="rut">RUT</option>
+              <option value="dni">DNI</option>
+              <option value="passport">Pasaporte</option>
+            </select>
+
+            <input name="document_number" placeholder="Número documento" value={form.document_number} onChange={handleChange} className="input" />
+
+            <input name="bank_name" placeholder="Banco" value={form.bank_name} onChange={handleChange} className="input" />
+
+            <select name="account_type" value={form.account_type} onChange={handleChange} className="input">
+              <option value="">Tipo de cuenta</option>
+              <option value="corriente">Cuenta corriente</option>
+              <option value="vista">Cuenta vista</option>
+              <option value="ahorro">Cuenta ahorro</option>
+              <option value="checking">Checking</option>
+              <option value="savings">Savings</option>
+              <option value="business">Business</option>
+            </select>
+
+            <input name="account_number" placeholder="Número cuenta" value={form.account_number} onChange={handleChange} className="input" />
 
             {/* OTP */}
             <div className="flex gap-2">

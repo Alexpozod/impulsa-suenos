@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js"
 import { logError, logInfo } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
+import { sendNotification } from "@/lib/notifications/sendNotification" // ✅ FIX IMPORT
+
+export const runtime = "nodejs"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,7 +50,9 @@ export async function POST(req: Request) {
       swift,
       iban,
       is_default,
-      otp_code
+      otp_code,
+      document_type,
+      document_number
     } = reqBody
 
     if (!bank_id || !otp_code) {
@@ -71,13 +76,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "OTP inválido" }, { status: 403 })
     }
 
-    const now = new Date().getTime()
+    const now = Date.now()
     const created = new Date(otp.created_at).getTime()
 
     if (now - created > 5 * 60 * 1000) {
       return NextResponse.json({ error: "OTP expirado" }, { status: 403 })
     }
 
+    // 🔥 marcar OTP usado SIEMPRE antes de continuar
     await supabase
       .from("otp_codes")
       .update({ used: true })
@@ -99,7 +105,7 @@ export async function POST(req: Request) {
     /* =========================
        ⭐ SET DEFAULT
     ========================= */
-    if (is_default) {
+    if (is_default === true) {
       await supabase
         .from("bank_accounts")
         .update({ is_default: false })
@@ -107,7 +113,7 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💾 UPDATE (SIN updated_at)
+       💾 BUILD UPDATE PAYLOAD
     ========================= */
     const updatePayload: any = {}
 
@@ -119,13 +125,36 @@ export async function POST(req: Request) {
     if (swift !== undefined) updatePayload.swift = swift
     if (iban !== undefined) updatePayload.iban = iban
     if (is_default !== undefined) updatePayload.is_default = is_default
+    if (document_type) updatePayload.document_type = document_type
+    if (document_number) updatePayload.document_number = document_number
 
+    if (Object.keys(updatePayload).length === 0) {
+      return NextResponse.json({ error: "nada que actualizar" }, { status: 400 })
+    }
+
+    /* =========================
+       💾 UPDATE DB
+    ========================= */
     const { error } = await supabase
       .from("bank_accounts")
       .update(updatePayload)
       .eq("id", bank_id)
 
     if (error) throw error
+
+    /* =========================
+       📧 NOTIFICACIÓN
+    ========================= */
+    await sendNotification({
+      user_email,
+      type: "bank_updated",
+      title: "Cuenta bancaria actualizada",
+      message: "Tu cuenta bancaria fue modificada correctamente",
+      metadata: {
+        bank_name: updatePayload.bank_name || bank.bank_name
+      },
+      sendEmail: true
+    })
 
     /* =========================
        🧾 AUDIT LOG

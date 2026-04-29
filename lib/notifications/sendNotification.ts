@@ -53,145 +53,179 @@ export async function sendNotification({
 
   try {
 
-    await supabase.from("notifications").insert({
-      user_email,
-      type,
-      title,
-      message,
-      metadata,
-      read: false,
-      created_at: new Date().toISOString()
-    })
+    const email = user_email?.toLowerCase()
+
+    if (!email) {
+      console.error("❌ Email inválido en sendNotification")
+      return
+    }
+
+    /* =========================
+       🧾 SAVE NOTIFICATION
+    ========================= */
+    const { error: insertError } = await supabase
+      .from("notifications")
+      .insert({
+        user_email: email,
+        type,
+        title,
+        message,
+        metadata,
+        read: false,
+        created_at: new Date().toISOString()
+      })
+
+    if (insertError) {
+      console.error("❌ Notification insert error:", insertError)
+    }
 
     if (!sendEmail) return
 
     try {
 
-      const FROM = process.env.RESEND_FROM || "onboarding@resend.dev"
+      const FROM = process.env.RESEND_FROM || "no-reply@impulsasuenos.com"
 
-      // 💖 DONACIÓN
+      let response: any = null
+
+      /* =========================
+         💖 DONACIÓN
+      ========================= */
       if (type === "donation") {
 
-  const campaignName =
-    metadata?.campaign_title ||
-    "Tu campaña"
+        const campaignName = metadata?.campaign_title || "Tu campaña"
+        const amount = Number(metadata?.amount || 0)
 
-  const amount =
-    Number(metadata?.amount || 0)
+        await sendDonationEmail({
+          to: email,
+          campaign: campaignName,
+          amount
+        })
 
-  await sendDonationEmail({
-    to: user_email,
-    campaign: campaignName,
-    amount
-  })
-}
+        return
+      }
 
-      // 🎯 DONACIÓN RECIBIDA
-      else if (type === "donation_received") {
-        await resend.emails.send({
+      /* =========================
+         EMAIL TYPES
+      ========================= */
+
+      const send = async (subject: string, html: string) => {
+        const res = await resend.emails.send({
           from: FROM,
-          to: user_email,
-          subject: "💸 Recibiste una donación",
-          html: baseTemplate(`
+          to: email,
+          subject,
+          html
+        })
+
+        if (!res || res.error) {
+          throw new Error(res?.error?.message || "resend_error")
+        }
+
+        return res
+      }
+
+      if (type === "donation_received") {
+        response = await send(
+          "💸 Recibiste una donación",
+          baseTemplate(`
             <h3>🎉 Nueva donación</h3>
             <p>Recibiste un aporte en tu campaña.</p>
-
             <div style="background:#f9fafb;padding:15px;border-radius:10px;">
               <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
             </div>
           `)
-        })
+        )
       }
 
-      // 🪪 KYC APROBADO
       else if (type === "kyc_approved") {
-        await resend.emails.send({
-          from: FROM,
-          to: user_email,
-          subject: "✅ Verificación aprobada",
-          html: baseTemplate(`
+        response = await send(
+          "✅ Verificación aprobada",
+          baseTemplate(`
             <h3>✅ Verificación aprobada</h3>
             <p>Ya puedes crear campañas y retirar fondos.</p>
           `)
-        })
+        )
       }
 
-      // ❌ KYC
       else if (type === "kyc_rejected") {
-        await resend.emails.send({
-          from: FROM,
-          to: user_email,
-          subject: "❌ Verificación rechazada",
-          html: baseTemplate(`
+        response = await send(
+          "❌ Verificación rechazada",
+          baseTemplate(`
             <h3>❌ Verificación rechazada</h3>
             <p>Revisa tus documentos e intenta nuevamente.</p>
           `)
-        })
+        )
       }
 
-      // 💸 REQUEST
       else if (type === "payout_requested") {
-        await resend.emails.send({
-          from: FROM,
-          to: user_email,
-          subject: "⏳ Retiro en revisión",
-          html: baseTemplate(`
+        response = await send(
+          "⏳ Retiro en revisión",
+          baseTemplate(`
             <h3>⏳ Retiro en revisión</h3>
             <p>Tu solicitud fue recibida.</p>
-
             <div style="background:#f9fafb;padding:15px;border-radius:10px;">
               <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
             </div>
           `)
-        })
+        )
       }
 
-      // ✅ PAID
       else if (type === "payout_paid") {
-        await resend.emails.send({
-          from: FROM,
-          to: user_email,
-          subject: "🎉 Retiro aprobado",
-          html: baseTemplate(`
+        response = await send(
+          "🎉 Retiro aprobado",
+          baseTemplate(`
             <h3>🎉 Retiro aprobado</h3>
             <p>Tu retiro fue procesado correctamente.</p>
           `)
-        })
+        )
       }
 
-      // ❌ REJECTED
       else if (type === "payout_rejected") {
-        await resend.emails.send({
-          from: FROM,
-          to: user_email,
-          subject: "❌ Retiro rechazado",
-          html: baseTemplate(`
+        response = await send(
+          "❌ Retiro rechazado",
+          baseTemplate(`
             <h3>❌ Retiro rechazado</h3>
             <p>Revisa la información y vuelve a intentarlo.</p>
           `)
-        })
+        )
       }
 
-// 🔐 OTP CODE
-else if (type === "otp_code") {
-  await resend.emails.send({
-    from: FROM,
-    to: user_email,
-    subject: "🔐 Código de verificación",
-    html: baseTemplate(`
-      <h3>🔐 Código de seguridad</h3>
-      <p>Usa este código para continuar:</p>
+      else if (type === "otp_code") {
+        response = await send(
+          "🔐 Código de verificación",
+          baseTemplate(`
+            <h3>🔐 Código de seguridad</h3>
+            <p>Usa este código para continuar:</p>
 
-      <div style="background:#f9fafb;padding:20px;border-radius:10px;text-align:center;">
-        <h1 style="letter-spacing:4px;">${metadata?.code}</h1>
-      </div>
+            <div style="background:#f9fafb;padding:20px;border-radius:10px;text-align:center;">
+              <h1 style="letter-spacing:4px;">
+                ${metadata?.code || "------"}
+              </h1>
+            </div>
 
-      <p style="margin-top:15px;font-size:13px;color:#666;">
-        Este código expira en 5 minutos.
-      </p>
-    `)
-  })
-}
+            <p style="margin-top:15px;font-size:13px;color:#666;">
+              Este código expira en 5 minutos.
+            </p>
+          `)
+        )
+      }
+
+      else if (type === "bank_updated") {
+        response = await send(
+          "🏦 Cuenta bancaria actualizada",
+          baseTemplate(`
+            <h3>🏦 Cuenta actualizada</h3>
+            <p>Se modificó tu cuenta bancaria.</p>
+
+            <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+              <p><b>Banco:</b> ${metadata?.bank_name || "-"}</p>
+            </div>
+
+            <p style="margin-top:10px;color:#666;">
+              Si no fuiste tú, contacta soporte inmediatamente.
+            </p>
+          `)
+        )
+      }
 
     } catch (err: any) {
 
@@ -202,7 +236,7 @@ else if (type === "otp_code") {
         severity: "warning",
         message: err?.message || "email_error",
         metadata: {
-          user_email,
+          user_email: email,
           type,
           error_message: err?.message || "unknown",
           error_name: err?.name || "unknown"
