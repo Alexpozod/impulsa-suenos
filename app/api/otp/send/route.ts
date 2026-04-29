@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { rateLimit } from "@/lib/security/rateLimit"
+import { sendNotification } from "@/lib/notifications/sendNotification"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,7 +73,19 @@ export async function POST(req: Request) {
       )
     }
 
-    console.log("🔐 OTP:", code)
+    /* =========================
+       📧 ENVÍO DE EMAIL 🔥 FIX
+    ========================= */
+    await sendNotification({
+      user_email,
+      type: "otp_code",
+      title: "Código de verificación",
+      message: `Tu código de retiro es: ${code}`,
+      metadata: { code },
+      sendEmail: true
+    })
+
+    console.log("🔐 OTP enviado:", code)
 
     return NextResponse.json({ ok: true })
 
