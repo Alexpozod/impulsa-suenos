@@ -44,7 +44,12 @@ export default function CreateCampaign() {
   }
 
   /* =========================
-     🔐 ACCESS CONTROL (IGUAL)
+     🧠 NUEVO: KYC WARNING
+  ========================= */
+  const [kycWarning, setKycWarning] = useState(false)
+
+  /* =========================
+     🔐 ACCESS CONTROL (FIX)
   ========================= */
   useEffect(() => {
     const checkAccess = async () => {
@@ -64,9 +69,12 @@ export default function CreateCampaign() {
         .eq("user_email", email)
         .maybeSingle()
 
+      // 🔥 FIX: YA NO BLOQUEA
       if (!kyc || kyc.status !== "approved") {
-        router.push('/kyc')
-        return
+
+        console.warn("⚠️ Usuario sin KYC creando campaña")
+
+        setKycWarning(true)
       }
 
       const { data: banks } = await supabase
@@ -179,6 +187,13 @@ export default function CreateCampaign() {
            FORM (WIZARD)
         ========================= */}
         <div className="bg-white p-8 rounded-2xl shadow-md space-y-6">
+
+          {/* ⚠️ KYC WARNING */}
+          {kycWarning && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-3 rounded-lg text-sm">
+              ⚠️ Puedes crear campañas sin verificación, pero necesitarás completar KYC para retirar dinero.
+            </div>
+          )}
 
           {/* PROGRESS */}
           <div>
@@ -293,7 +308,7 @@ export default function CreateCampaign() {
         </div>
 
         {/* =========================
-           PREVIEW (NUEVO)
+           PREVIEW
         ========================= */}
         <div className="hidden md:block bg-white rounded-2xl shadow-md overflow-hidden">
 

@@ -54,16 +54,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Faltan campos" }, { status: 400 })
     }
 
-    // 🔒 KYC OBLIGATORIO
-    const { data: kyc } = await supabaseAdmin
-      .from("kyc")
-      .select("status")
-      .eq("user_email", user_email)
-      .maybeSingle()
+    // 🔒 KYC (NO BLOQUEA CREACIÓN - SOLO CONTROL)
+const { data: kyc } = await supabaseAdmin
+  .from("kyc")
+  .select("status")
+  .eq("user_email", user_email)
+  .maybeSingle()
 
-    if (!kyc || kyc.status !== "approved") {
-      return NextResponse.json({ error: "Debes completar KYC" }, { status: 403 })
-    }
+// 🔥 PERMITIMOS CREAR CAMPAÑA SIN KYC
+if (!kyc || kyc.status !== "approved") {
+
+  await logToDB("warning", "campaign_created_without_kyc", {
+    user_email,
+    kyc_status: kyc?.status || "none"
+  })
+
+  console.warn("⚠️ Usuario creó campaña sin KYC:", user_email)
+}
 
     // 🧠 NORMALIZAR IMÁGENES
     const safeImages = Array.isArray(images) ? images : []
