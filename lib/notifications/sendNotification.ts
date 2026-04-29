@@ -172,6 +172,27 @@ export async function sendNotification({
         })
       }
 
+// 🔐 OTP CODE
+else if (type === "otp_code") {
+  await resend.emails.send({
+    from: FROM,
+    to: user_email,
+    subject: "🔐 Código de verificación",
+    html: baseTemplate(`
+      <h3>🔐 Código de seguridad</h3>
+      <p>Usa este código para continuar:</p>
+
+      <div style="background:#f9fafb;padding:20px;border-radius:10px;text-align:center;">
+        <h1 style="letter-spacing:4px;">${metadata?.code}</h1>
+      </div>
+
+      <p style="margin-top:15px;font-size:13px;color:#666;">
+        Este código expira en 5 minutos.
+      </p>
+    `)
+  })
+}
+
     } catch (err: any) {
 
       console.error("❌ EMAIL ERROR REAL:", err)
