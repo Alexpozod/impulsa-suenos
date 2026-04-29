@@ -71,39 +71,41 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       🔐 VERIFY OTP
-    ========================= */
-    const { data: otp } = await supabase
-      .from("otp_codes")
-      .select("*")
-      .eq("email", user_email)
-      .eq("code", otp_code)
-      .eq("used", false)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
+   🔐 VERIFY OTP (FIX FINAL)
+========================= */
+const { data: otp } = await supabase
+  .from("otp_codes")
+  .select("*")
+  .eq("user_email", user_email)
+  .eq("code", otp_code)
+  .eq("used", false)
+  .order("created_at", { ascending: false })
+  .limit(1)
+  .maybeSingle()
 
-    if (!otp) {
-      return NextResponse.json(
-        { error: "OTP inválido" },
-        { status: 403 }
-      )
-    }
+if (!otp) {
+  return NextResponse.json(
+    { error: "OTP inválido" },
+    { status: 403 }
+  )
+}
 
-    const now = Date.now()
-    const created = new Date(otp.created_at).getTime()
+// 🔥 VALIDAR EXPIRACIÓN DESDE DB
+const now = new Date().getTime()
+const expires = new Date(otp.expires_at).getTime()
 
-    if (now - created > 5 * 60 * 1000) {
-      return NextResponse.json(
-        { error: "OTP expirado" },
-        { status: 403 }
-      )
-    }
+if (now > expires) {
+  return NextResponse.json(
+    { error: "OTP expirado" },
+    { status: 403 }
+  )
+}
 
-    await supabase
-      .from("otp_codes")
-      .update({ used: true })
-      .eq("id", otp.id)
+// 🔥 MARCAR COMO USADO
+await supabase
+  .from("otp_codes")
+  .update({ used: true })
+  .eq("id", otp.id)
 
     /* =========================
        🛡️ RATE LIMIT
