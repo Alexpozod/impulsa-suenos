@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { logToDB } from "@/lib/logToDB"
+import { sendNotification } from "@/lib/notifications/sendNotification"
 
 export const dynamic = "force-dynamic"
 
@@ -104,6 +105,21 @@ if (!kyc || kyc.status !== "approved") {
       category,
       images_count: safeImages.length
     })
+
+/* =========================
+   📧 NOTIFICACIÓN CREACIÓN CAMPAÑA
+========================= */
+await sendNotification({
+  user_email,
+  type: "campaign_created",
+  title: "Campaña creada con éxito",
+  message: "Tu campaña ya está activa",
+  metadata: {
+    campaign_title: campaign.title,
+    goal_amount: campaign.goal_amount
+  },
+  sendEmail: true
+})
 
     return NextResponse.json({ ok: true, campaign })
 
