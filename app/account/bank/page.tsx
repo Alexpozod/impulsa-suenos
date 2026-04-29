@@ -16,7 +16,7 @@ export default function BankPage() {
 
   const [otp, setOtp] = useState("")
   const [otpSent, setOtpSent] = useState(false)
-  const [otpTimer, setOtpTimer] = useState(0) // 🔥 NUEVO
+  const [otpTimer, setOtpTimer] = useState(0)
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
@@ -27,6 +27,7 @@ export default function BankPage() {
     account_type: "",
     country: "Chile",
     rut: "",
+    document_type: "rut",
     swift: "",
     iban: "",
   }
@@ -78,17 +79,25 @@ export default function BankPage() {
     })
   }
 
+  /* =========================
+     VALIDACIÓN
+  ========================= */
   const validate = () => {
     if (!form.holder_name) return "Nombre requerido"
     if (!form.bank_name) return "Banco requerido"
     if (!form.account_number) return "Número de cuenta requerido"
     if (!form.account_type) return "Tipo requerido"
     if (!form.rut) return "Documento requerido"
+
+    // Validación básica internacional (UX, backend valida fuerte)
+    if (form.iban && form.iban.length < 10) return "IBAN inválido"
+    if (form.swift && form.swift.length < 6) return "SWIFT inválido"
+
     return null
   }
 
   /* =========================
-     🔐 OTP SEND (MEJORADO)
+     🔐 OTP
   ========================= */
   const sendOtp = async () => {
 
@@ -98,9 +107,7 @@ export default function BankPage() {
 
     await fetch("/api/otp/send", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: data.user?.email,
         type: "bank"
@@ -113,7 +120,7 @@ export default function BankPage() {
   }
 
   /* =========================
-     💾 SAVE / UPDATE
+     💾 SAVE (CREATE + UPDATE)
   ========================= */
   const handleSave = async () => {
 
@@ -121,10 +128,7 @@ export default function BankPage() {
     setMessage("")
 
     const validationError = validate()
-    if (validationError) {
-      setError(validationError)
-      return
-    }
+    if (validationError) return setError(validationError)
 
     if (!otp) {
       await sendOtp()
@@ -142,11 +146,12 @@ export default function BankPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          bank_id: editingId,
+          bank_id: editingId || null,
           ...form,
+          document_number: form.rut, // 🔥 FIX importante backend
           otp_code: otp
         })
       })
@@ -159,11 +164,11 @@ export default function BankPage() {
         return
       }
 
-      setMessage("✅ Cuenta actualizada")
-      setOtp("")
-      setOtpSent(false)
+      setMessage("✅ Cuenta guardada correctamente")
       setEditingId(null)
       setForm(emptyForm)
+      setOtp("")
+      setOtpSent(false)
 
       await loadData()
 
@@ -175,7 +180,7 @@ export default function BankPage() {
   }
 
   /* =========================
-     ⭐ SET DEFAULT (FIX REAL)
+     ⭐ DEFAULT
   ========================= */
   const setDefault = async (id: string) => {
 
@@ -184,7 +189,7 @@ export default function BankPage() {
 
     if (!otp) {
       await sendOtp()
-      return setError("Te enviamos un OTP para confirmar")
+      return setError("Confirma con OTP")
     }
 
     const { data: sessionData } = await supabase.auth.getSession()
@@ -204,7 +209,6 @@ export default function BankPage() {
     })
 
     const data = await res.json()
-
     if (!res.ok) return setError(data.error)
 
     setMessage("✅ Cuenta principal actualizada")
@@ -242,11 +246,7 @@ export default function BankPage() {
     })
 
     const data = await res.json()
-
-    if (!res.ok) {
-      setError(data.error)
-      return
-    }
+    if (!res.ok) return setError(data.error)
 
     setConfirmDeleteId(null)
     setOtp("")
@@ -264,7 +264,8 @@ export default function BankPage() {
       account_number: acc.account_number || "",
       account_type: acc.account_type || "",
       country: acc.country || "Chile",
-      rut: acc.rut || "",
+      rut: acc.rut || acc.document_number || "",
+      document_type: acc.document_type || "rut",
       swift: acc.swift || "",
       iban: acc.iban || "",
     })
@@ -276,145 +277,93 @@ export default function BankPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       <div className="max-w-5xl mx-auto p-6 space-y-6">
 
         <h1 className="text-2xl font-bold">🏦 Cuentas bancarias</h1>
 
-        {/* 🔐 OTP GLOBAL */}
-        <div className="flex gap-2 items-center">
+        {/* OTP */}
+        <div className="flex gap-2">
           <input
             placeholder="Código OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
             className="input max-w-xs"
           />
-
-          <button
-            onClick={sendOtp}
-            disabled={otpTimer > 0}
-            className="px-4 py-2 bg-gray-200 rounded-lg"
-          >
+          <button onClick={sendOtp} className="btn-gray">
             {otpTimer > 0 ? `Reenviar (${otpTimer}s)` : "Enviar código"}
           </button>
         </div>
 
         {/* LISTADO */}
-        <div className="space-y-4">
-
-          {accounts.map((acc) => (
-            <div key={acc.id} className="bg-white p-5 rounded-2xl border flex justify-between items-center">
-
-              <div>
-                <p className="font-semibold flex items-center gap-2">
-                  {acc.bank_name}
-                  {acc.is_default && (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                      Principal
-                    </span>
-                  )}
-                </p>
-
-                <p className="text-sm text-gray-500">
-                  **** {acc.account_number?.slice(-4)}
-                </p>
-
-                <p className="text-xs text-gray-400">{acc.account_type}</p>
-              </div>
-
-              <div className="flex gap-2">
-
-                <button onClick={() => handleEdit(acc)} className="btn-blue">
-                  Editar
-                </button>
-
-                <button onClick={() => setConfirmDeleteId(acc.id)} className="btn-red">
-                  Eliminar
-                </button>
-
-                {!acc.is_default && (
-                  <button
-                    onClick={() => setDefault(acc.id)}
-                    className="text-xs underline text-gray-500"
-                  >
-                    Hacer principal
-                  </button>
-                )}
-
-              </div>
-
+        {accounts.map(acc => (
+          <div key={acc.id} className="card">
+            <div>
+              <b>{acc.bank_name}</b>
+              <p>**** {acc.account_number?.slice(-4)}</p>
+              <small>{acc.account_type}</small>
             </div>
-          ))}
+
+            <div className="flex gap-2">
+              <button onClick={() => handleEdit(acc)} className="btn-blue">Editar</button>
+              <button onClick={() => setConfirmDeleteId(acc.id)} className="btn-red">Eliminar</button>
+              {!acc.is_default && (
+                <button onClick={() => setDefault(acc.id)} className="link">
+                  Hacer principal
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* FORM */}
+        <div className="card space-y-3">
+
+          <h2>{editingId ? "Editar cuenta" : "Nueva cuenta"}</h2>
+
+          <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="input" />
+          <input name="bank_name" placeholder="Banco" value={form.bank_name} onChange={handleChange} className="input" />
+
+          <select name="account_type" value={form.account_type} onChange={handleChange} className="input">
+            <option value="">Tipo de cuenta</option>
+            <option value="corriente">Cuenta corriente</option>
+            <option value="vista">Cuenta vista</option>
+            <option value="ahorro">Cuenta ahorro</option>
+            <option value="checking">Checking (US)</option>
+            <option value="savings">Savings (US)</option>
+          </select>
+
+          <input name="account_number" placeholder="Número de cuenta" value={form.account_number} onChange={handleChange} className="input" />
+
+          <select name="document_type" value={form.document_type} onChange={handleChange} className="input">
+            <option value="rut">RUT</option>
+            <option value="dni">DNI</option>
+            <option value="passport">Pasaporte</option>
+          </select>
+
+          <input name="rut" placeholder="Documento" value={form.rut} onChange={handleChange} className="input" />
+
+          <input name="swift" placeholder="SWIFT (internacional)" value={form.swift} onChange={handleChange} className="input" />
+          <input name="iban" placeholder="IBAN (internacional)" value={form.iban} onChange={handleChange} className="input" />
+
+          <button onClick={handleSave} className="btn-green">
+            Guardar
+          </button>
 
         </div>
 
-        {/* FORM */}
-        {editingId && (
-          <div className="bg-white p-6 rounded-2xl border space-y-4">
-
-            <h2 className="font-semibold">Editar cuenta</h2>
-
-            <input name="holder_name" value={form.holder_name} onChange={handleChange} className="input" />
-            <input name="rut" value={form.rut} onChange={handleChange} className="input" />
-            <input name="bank_name" value={form.bank_name} onChange={handleChange} className="input" />
-            <input name="account_number" value={form.account_number} onChange={handleChange} className="input" />
-
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full bg-green-600 text-white py-3 rounded-lg"
-            >
-              Guardar cambios
-            </button>
-
-          </div>
-        )}
-
-        {/* DELETE MODAL */}
-        {confirmDeleteId && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-
-            <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
-
-              <h3 className="font-semibold">Confirmar eliminación</h3>
-
-              <button onClick={handleDelete} className="w-full bg-red-600 text-white py-2 rounded">
-                Confirmar eliminación
-              </button>
-
-              <button onClick={() => setConfirmDeleteId(null)} className="w-full text-gray-500">
-                Cancelar
-              </button>
-
-            </div>
-
-          </div>
-        )}
-
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {message && <p className="text-green-600 text-sm">{message}</p>}
+        {error && <p className="text-red-500">{error}</p>}
+        {message && <p className="text-green-600">{message}</p>}
 
       </div>
 
       <style jsx>{`
-        .input {
-          border: 1px solid #e5e7eb;
-          padding: 10px;
-          border-radius: 10px;
-          width: 100%;
-        }
-        .btn-blue {
-          padding: 8px 14px;
-          background: #2563eb;
-          color: white;
-          border-radius: 10px;
-        }
-        .btn-red {
-          padding: 8px 14px;
-          background: #dc2626;
-          color: white;
-          border-radius: 10px;
-        }
+        .input { border:1px solid #ddd;padding:10px;border-radius:10px;width:100% }
+        .card { background:white;padding:16px;border-radius:16px;border:1px solid #eee;display:flex;justify-content:space-between;flex-direction:column;gap:10px }
+        .btn-blue { background:#2563eb;color:white;padding:8px 12px;border-radius:8px }
+        .btn-red { background:#dc2626;color:white;padding:8px 12px;border-radius:8px }
+        .btn-green { background:#16a34a;color:white;padding:10px;border-radius:10px;width:100% }
+        .btn-gray { background:#eee;padding:8px;border-radius:8px }
+        .link { font-size:12px;color:#555;text-decoration:underline }
       `}</style>
 
     </div>

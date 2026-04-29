@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js"
 import { logError, logInfo } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
-import { sendNotification } from "@/lib/notifications/sendNotification" // ✅ FIX IMPORT
+import { sendNotification } from "@/lib/notifications/sendNotification"
 
 export const runtime = "nodejs"
 
@@ -11,6 +11,40 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+/* =========================
+   🔎 VALIDACIONES GLOBALES
+========================= */
+
+function validateIBAN(iban: string) {
+  return /^[A-Z0-9]{15,34}$/.test(iban.replace(/\s/g, ""))
+}
+
+function validateSWIFT(swift: string) {
+  return /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(swift)
+}
+
+function validateRut(rut: string) {
+  if (!rut || !rut.includes("-")) return false
+
+  const [num, dv] = rut.split("-")
+  let suma = 0
+  let multiplo = 2
+
+  for (let i = num.length - 1; i >= 0; i--) {
+    suma += Number(num[i]) * multiplo
+    multiplo = multiplo === 7 ? 2 : multiplo + 1
+  }
+
+  const dvEsperado = 11 - (suma % 11)
+
+  const dvFinal =
+    dvEsperado === 11 ? "0" :
+    dvEsperado === 10 ? "K" :
+    dvEsperado.toString()
+
+  return dvFinal === dv.toUpperCase()
+}
 
 export async function POST(req: Request) {
   try {
@@ -83,7 +117,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "OTP expirado" }, { status: 403 })
     }
 
-    // 🔥 marcar OTP usado SIEMPRE antes de continuar
+    // 🔥 marcar OTP usado
     await supabase
       .from("otp_codes")
       .update({ used: true })
@@ -103,6 +137,33 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       🌍 VALIDACIÓN LEGAL GLOBAL
+    ========================= */
+
+    if (document_type === "rut") {
+      if (!validateRut(rut)) {
+        return NextResponse.json(
+          { error: "RUT inválido" },
+          { status: 400 }
+        )
+      }
+    }
+
+    if (iban && !validateIBAN(iban)) {
+      return NextResponse.json(
+        { error: "IBAN inválido" },
+        { status: 400 }
+      )
+    }
+
+    if (swift && !validateSWIFT(swift)) {
+      return NextResponse.json(
+        { error: "SWIFT inválido" },
+        { status: 400 }
+      )
+    }
+
+    /* =========================
        ⭐ SET DEFAULT
     ========================= */
     if (is_default === true) {
@@ -113,22 +174,22 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💾 BUILD UPDATE PAYLOAD
+       🧼 NORMALIZACIÓN DATOS
     ========================= */
-    const updatePayload: any = {}
+    const cleanPayload: any = {}
 
-    if (account_number) updatePayload.account_number = account_number
-    if (account_type) updatePayload.account_type = account_type
-    if (bank_name) updatePayload.bank_name = bank_name
-    if (holder_name) updatePayload.holder_name = holder_name
-    if (rut) updatePayload.rut = rut
-    if (swift !== undefined) updatePayload.swift = swift
-    if (iban !== undefined) updatePayload.iban = iban
-    if (is_default !== undefined) updatePayload.is_default = is_default
-    if (document_type) updatePayload.document_type = document_type
-    if (document_number) updatePayload.document_number = document_number
+    if (account_number) cleanPayload.account_number = account_number.trim()
+    if (account_type) cleanPayload.account_type = account_type
+    if (bank_name) cleanPayload.bank_name = bank_name.trim()
+    if (holder_name) cleanPayload.holder_name = holder_name.trim()
+    if (rut) cleanPayload.rut = rut.trim().toUpperCase()
+    if (swift !== undefined) cleanPayload.swift = swift?.toUpperCase() || null
+    if (iban !== undefined) cleanPayload.iban = iban?.replace(/\s/g, "").toUpperCase() || null
+    if (is_default !== undefined) cleanPayload.is_default = is_default
+    if (document_type) cleanPayload.document_type = document_type
+    if (document_number) cleanPayload.document_number = document_number
 
-    if (Object.keys(updatePayload).length === 0) {
+    if (Object.keys(cleanPayload).length === 0) {
       return NextResponse.json({ error: "nada que actualizar" }, { status: 400 })
     }
 
@@ -137,7 +198,7 @@ export async function POST(req: Request) {
     ========================= */
     const { error } = await supabase
       .from("bank_accounts")
-      .update(updatePayload)
+      .update(cleanPayload)
       .eq("id", bank_id)
 
     if (error) throw error
@@ -151,7 +212,7 @@ export async function POST(req: Request) {
       title: "Cuenta bancaria actualizada",
       message: "Tu cuenta bancaria fue modificada correctamente",
       metadata: {
-        bank_name: updatePayload.bank_name || bank.bank_name
+        bank_name: cleanPayload.bank_name || bank.bank_name
       },
       sendEmail: true
     })
@@ -163,7 +224,7 @@ export async function POST(req: Request) {
       user_email,
       bank_id,
       action: "update",
-      metadata: updatePayload
+      metadata: cleanPayload
     })
 
     await logToDB("info", "bank_updated", {
