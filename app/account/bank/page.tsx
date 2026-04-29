@@ -16,6 +16,8 @@ export default function BankPage() {
 
   const [otp, setOtp] = useState("")
   const [otpSent, setOtpSent] = useState(false)
+  const [otpTimer, setOtpTimer] = useState(0) // 🔥 NUEVO
+
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   const emptyForm = {
@@ -24,17 +26,26 @@ export default function BankPage() {
     account_number: "",
     account_type: "",
     country: "Chile",
-    rut: "", // 🔥 se mantiene para compatibilidad
-    document_type: "",
-    document_number: "",
+    rut: "",
     swift: "",
     iban: "",
   }
 
-  const [form, setForm] = useState<any>(emptyForm)
+  const [form, setForm] = useState(emptyForm)
 
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
+
+  /* =========================
+     ⏱ OTP TIMER
+  ========================= */
+  useEffect(() => {
+    if (otpTimer <= 0) return
+    const interval = setInterval(() => {
+      setOtpTimer((prev) => prev - 1)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [otpTimer])
 
   useEffect(() => {
     loadData()
@@ -67,58 +78,22 @@ export default function BankPage() {
     })
   }
 
-  /* =========================
-     🔐 VALIDACIONES PRO
-  ========================= */
   const validate = () => {
     if (!form.holder_name) return "Nombre requerido"
     if (!form.bank_name) return "Banco requerido"
     if (!form.account_number) return "Número de cuenta requerido"
     if (!form.account_type) return "Tipo requerido"
-    if (!form.document_type) return "Tipo de documento requerido"
-    if (!form.document_number) return "Documento requerido"
-
-    // Validación RUT solo si aplica
-    if (form.document_type === "rut") {
-      if (!validateRUT(form.document_number)) {
-        return "RUT inválido"
-      }
-    }
-
+    if (!form.rut) return "Documento requerido"
     return null
   }
 
   /* =========================
-     🇨🇱 VALIDAR RUT
-  ========================= */
-  function validateRUT(rut: string) {
-    rut = rut.replace(/\./g, "").replace("-", "")
-
-    const body = rut.slice(0, -1)
-    const dv = rut.slice(-1).toUpperCase()
-
-    let sum = 0
-    let multiplier = 2
-
-    for (let i = body.length - 1; i >= 0; i--) {
-      sum += Number(body[i]) * multiplier
-      multiplier = multiplier === 7 ? 2 : multiplier + 1
-    }
-
-    const expectedDV = 11 - (sum % 11)
-
-    const dvCalc =
-      expectedDV === 11 ? "0" :
-      expectedDV === 10 ? "K" :
-      String(expectedDV)
-
-    return dvCalc === dv
-  }
-
-  /* =========================
-     🔐 OTP
+     🔐 OTP SEND (MEJORADO)
   ========================= */
   const sendOtp = async () => {
+
+    if (otpTimer > 0) return
+
     const { data } = await supabase.auth.getUser()
 
     await fetch("/api/otp/send", {
@@ -133,11 +108,12 @@ export default function BankPage() {
     })
 
     setOtpSent(true)
-    setMessage("📩 Código enviado")
+    setOtpTimer(60)
+    setMessage("📩 Código enviado a tu correo")
   }
 
   /* =========================
-     💾 UPDATE
+     💾 SAVE / UPDATE
   ========================= */
   const handleSave = async () => {
 
@@ -145,13 +121,20 @@ export default function BankPage() {
     setMessage("")
 
     const validationError = validate()
-    if (validationError) return setError(validationError)
+    if (validationError) {
+      setError(validationError)
+      return
+    }
 
-    if (!otp) return setError("Debes ingresar el OTP")
+    if (!otp) {
+      await sendOtp()
+      return setError("Te enviamos un OTP, ingrésalo para continuar")
+    }
 
     setSaving(true)
 
     try {
+
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
 
@@ -170,13 +153,17 @@ export default function BankPage() {
 
       const data = await res.json()
 
-      if (!res.ok) return setError(data.error)
+      if (!res.ok) {
+        setError(data.error)
+        setSaving(false)
+        return
+      }
 
       setMessage("✅ Cuenta actualizada")
-      setEditingId(null)
-      setForm(emptyForm)
       setOtp("")
       setOtpSent(false)
+      setEditingId(null)
+      setForm(emptyForm)
 
       await loadData()
 
@@ -188,13 +175,16 @@ export default function BankPage() {
   }
 
   /* =========================
-     ⭐ SET DEFAULT (UX PRO)
+     ⭐ SET DEFAULT (FIX REAL)
   ========================= */
   const setDefault = async (id: string) => {
 
+    setError("")
+    setMessage("")
+
     if (!otp) {
-      setError("Primero envía e ingresa el código OTP")
-      return
+      await sendOtp()
+      return setError("Te enviamos un OTP para confirmar")
     }
 
     const { data: sessionData } = await supabase.auth.getSession()
@@ -215,10 +205,7 @@ export default function BankPage() {
 
     const data = await res.json()
 
-    if (!res.ok) {
-      setError(data.error)
-      return
-    }
+    if (!res.ok) return setError(data.error)
 
     setMessage("✅ Cuenta principal actualizada")
     setOtp("")
@@ -233,7 +220,11 @@ export default function BankPage() {
   const handleDelete = async () => {
 
     if (!confirmDeleteId) return
-    if (!otp) return setError("Debes ingresar OTP")
+
+    if (!otp) {
+      await sendOtp()
+      return setError("Ingresa el OTP enviado")
+    }
 
     const { data: sessionData } = await supabase.auth.getSession()
     const token = sessionData?.session?.access_token
@@ -252,10 +243,15 @@ export default function BankPage() {
 
     const data = await res.json()
 
-    if (!res.ok) return setError(data.error)
+    if (!res.ok) {
+      setError(data.error)
+      return
+    }
 
     setConfirmDeleteId(null)
     setOtp("")
+    setOtpSent(false)
+
     await loadData()
   }
 
@@ -269,8 +265,6 @@ export default function BankPage() {
       account_type: acc.account_type || "",
       country: acc.country || "Chile",
       rut: acc.rut || "",
-      document_type: acc.document_type || "",
-      document_number: acc.document_number || "",
       swift: acc.swift || "",
       iban: acc.iban || "",
     })
@@ -287,13 +281,25 @@ export default function BankPage() {
 
         <h1 className="text-2xl font-bold">🏦 Cuentas bancarias</h1>
 
-        {otpSent && (
-          <p className="text-green-600 text-sm">
-            📩 Código enviado a tu email
-          </p>
-        )}
+        {/* 🔐 OTP GLOBAL */}
+        <div className="flex gap-2 items-center">
+          <input
+            placeholder="Código OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            className="input max-w-xs"
+          />
 
-        {/* LIST */}
+          <button
+            onClick={sendOtp}
+            disabled={otpTimer > 0}
+            className="px-4 py-2 bg-gray-200 rounded-lg"
+          >
+            {otpTimer > 0 ? `Reenviar (${otpTimer}s)` : "Enviar código"}
+          </button>
+        </div>
+
+        {/* LISTADO */}
         <div className="space-y-4">
 
           {accounts.map((acc) => (
@@ -318,17 +324,11 @@ export default function BankPage() {
 
               <div className="flex gap-2">
 
-                <button
-                  onClick={() => handleEdit(acc)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-                >
+                <button onClick={() => handleEdit(acc)} className="btn-blue">
                   Editar
                 </button>
 
-                <button
-                  onClick={() => setConfirmDeleteId(acc.id)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
-                >
+                <button onClick={() => setConfirmDeleteId(acc.id)} className="btn-red">
                   Eliminar
                 </button>
 
@@ -354,44 +354,10 @@ export default function BankPage() {
 
             <h2 className="font-semibold">Editar cuenta</h2>
 
-            <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="input" />
-
-            {/* DOCUMENTO */}
-            <select name="document_type" value={form.document_type} onChange={handleChange} className="input">
-              <option value="">Tipo documento</option>
-              <option value="rut">RUT</option>
-              <option value="dni">DNI</option>
-              <option value="passport">Pasaporte</option>
-            </select>
-
-            <input name="document_number" placeholder="Número documento" value={form.document_number} onChange={handleChange} className="input" />
-
-            <input name="bank_name" placeholder="Banco" value={form.bank_name} onChange={handleChange} className="input" />
-
-            <select name="account_type" value={form.account_type} onChange={handleChange} className="input">
-              <option value="">Tipo de cuenta</option>
-              <option value="corriente">Cuenta corriente</option>
-              <option value="vista">Cuenta vista</option>
-              <option value="ahorro">Cuenta ahorro</option>
-              <option value="checking">Checking</option>
-              <option value="savings">Savings</option>
-              <option value="business">Business</option>
-            </select>
-
-            <input name="account_number" placeholder="Número cuenta" value={form.account_number} onChange={handleChange} className="input" />
-
-            {/* OTP */}
-            <div className="flex gap-2">
-              <input
-                placeholder="Código OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="input flex-1"
-              />
-              <button onClick={sendOtp} className="px-4 bg-gray-200 rounded-lg">
-                Enviar
-              </button>
-            </div>
+            <input name="holder_name" value={form.holder_name} onChange={handleChange} className="input" />
+            <input name="rut" value={form.rut} onChange={handleChange} className="input" />
+            <input name="bank_name" value={form.bank_name} onChange={handleChange} className="input" />
+            <input name="account_number" value={form.account_number} onChange={handleChange} className="input" />
 
             <button
               onClick={handleSave}
@@ -407,20 +373,10 @@ export default function BankPage() {
         {/* DELETE MODAL */}
         {confirmDeleteId && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+
             <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
 
               <h3 className="font-semibold">Confirmar eliminación</h3>
-
-              <input
-                placeholder="Código OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="input"
-              />
-
-              <button onClick={sendOtp} className="w-full bg-gray-200 py-2 rounded">
-                Enviar código
-              </button>
 
               <button onClick={handleDelete} className="w-full bg-red-600 text-white py-2 rounded">
                 Confirmar eliminación
@@ -431,6 +387,7 @@ export default function BankPage() {
               </button>
 
             </div>
+
           </div>
         )}
 
@@ -445,6 +402,18 @@ export default function BankPage() {
           padding: 10px;
           border-radius: 10px;
           width: 100%;
+        }
+        .btn-blue {
+          padding: 8px 14px;
+          background: #2563eb;
+          color: white;
+          border-radius: 10px;
+        }
+        .btn-red {
+          padding: 8px 14px;
+          background: #dc2626;
+          color: white;
+          border-radius: 10px;
         }
       `}</style>
 
