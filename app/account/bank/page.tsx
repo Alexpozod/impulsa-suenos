@@ -89,7 +89,6 @@ export default function BankPage() {
     if (!form.account_type) return "Tipo requerido"
     if (!form.rut) return "Documento requerido"
 
-    // Validación básica internacional (UX, backend valida fuerte)
     if (form.iban && form.iban.length < 10) return "IBAN inválido"
     if (form.swift && form.swift.length < 6) return "SWIFT inválido"
 
@@ -120,7 +119,7 @@ export default function BankPage() {
   }
 
   /* =========================
-     💾 SAVE (CREATE + UPDATE)
+     💾 SAVE
   ========================= */
   const handleSave = async () => {
 
@@ -138,7 +137,6 @@ export default function BankPage() {
     setSaving(true)
 
     try {
-
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
 
@@ -151,18 +149,14 @@ export default function BankPage() {
         body: JSON.stringify({
           bank_id: editingId || null,
           ...form,
-          document_number: form.rut, // 🔥 FIX importante backend
+          document_number: form.rut,
           otp_code: otp
         })
       })
 
       const data = await res.json()
 
-      if (!res.ok) {
-        setError(data.error)
-        setSaving(false)
-        return
-      }
+      if (!res.ok) return setError(data.error)
 
       setMessage("✅ Cuenta guardada correctamente")
       setEditingId(null)
@@ -183,9 +177,6 @@ export default function BankPage() {
      ⭐ DEFAULT
   ========================= */
   const setDefault = async (id: string) => {
-
-    setError("")
-    setMessage("")
 
     if (!otp) {
       await sendOtp()
@@ -221,13 +212,18 @@ export default function BankPage() {
   /* =========================
      🗑 DELETE
   ========================= */
+  const openDelete = async (id: string) => {
+    setConfirmDeleteId(id)
+    await sendOtp()
+    setMessage("📩 Código enviado para eliminar")
+  }
+
   const handleDelete = async () => {
 
     if (!confirmDeleteId) return
 
     if (!otp) {
-      await sendOtp()
-      return setError("Ingresa el OTP enviado")
+      return setError("Ingresa el OTP")
     }
 
     const { data: sessionData } = await supabase.auth.getSession()
@@ -250,8 +246,6 @@ export default function BankPage() {
 
     setConfirmDeleteId(null)
     setOtp("")
-    setOtpSent(false)
-
     await loadData()
   }
 
@@ -269,8 +263,6 @@ export default function BankPage() {
       swift: acc.swift || "",
       iban: acc.iban || "",
     })
-
-    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   if (loading) return <div className="p-6">Cargando...</div>
@@ -281,7 +273,7 @@ export default function BankPage() {
 
         <h1 className="text-2xl font-bold">🏦 Cuentas bancarias</h1>
 
-        {/* OTP */}
+        {/* OTP GLOBAL */}
         <div className="flex gap-2">
           <input
             placeholder="Código OTP"
@@ -298,14 +290,20 @@ export default function BankPage() {
         {accounts.map(acc => (
           <div key={acc.id} className="card">
             <div>
-              <b>{acc.bank_name}</b>
+              <b className="flex items-center gap-2">
+                {acc.bank_name}
+                {acc.is_default && (
+                  <span className="badge">⭐ Principal</span>
+                )}
+              </b>
               <p>**** {acc.account_number?.slice(-4)}</p>
               <small>{acc.account_type}</small>
             </div>
 
             <div className="flex gap-2">
               <button onClick={() => handleEdit(acc)} className="btn-blue">Editar</button>
-              <button onClick={() => setConfirmDeleteId(acc.id)} className="btn-red">Eliminar</button>
+              <button onClick={() => openDelete(acc.id)} className="btn-red">Eliminar</button>
+
               {!acc.is_default && (
                 <button onClick={() => setDefault(acc.id)} className="link">
                   Hacer principal
@@ -317,7 +315,6 @@ export default function BankPage() {
 
         {/* FORM */}
         <div className="card space-y-3">
-
           <h2>{editingId ? "Editar cuenta" : "Nueva cuenta"}</h2>
 
           <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="input" />
@@ -342,28 +339,47 @@ export default function BankPage() {
 
           <input name="rut" placeholder="Documento" value={form.rut} onChange={handleChange} className="input" />
 
-          <input name="swift" placeholder="SWIFT (internacional)" value={form.swift} onChange={handleChange} className="input" />
-          <input name="iban" placeholder="IBAN (internacional)" value={form.iban} onChange={handleChange} className="input" />
+          <input name="swift" placeholder="SWIFT" value={form.swift} onChange={handleChange} className="input" />
+          <input name="iban" placeholder="IBAN" value={form.iban} onChange={handleChange} className="input" />
 
-          <button onClick={handleSave} className="btn-green">
-            Guardar
-          </button>
-
+          <button onClick={handleSave} className="btn-green">Guardar</button>
         </div>
 
         {error && <p className="text-red-500">{error}</p>}
         {message && <p className="text-green-600">{message}</p>}
-
       </div>
+
+      {/* MODAL DELETE */}
+      {confirmDeleteId && (
+        <div className="modal">
+          <div className="modal-box">
+            <h3>Eliminar cuenta</h3>
+
+            <input
+              placeholder="OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="input"
+            />
+
+            <button onClick={sendOtp} className="btn-gray">Reenviar</button>
+            <button onClick={handleDelete} className="btn-red">Confirmar</button>
+            <button onClick={() => setConfirmDeleteId(null)}>Cancelar</button>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .input { border:1px solid #ddd;padding:10px;border-radius:10px;width:100% }
-        .card { background:white;padding:16px;border-radius:16px;border:1px solid #eee;display:flex;justify-content:space-between;flex-direction:column;gap:10px }
-        .btn-blue { background:#2563eb;color:white;padding:8px 12px;border-radius:8px }
-        .btn-red { background:#dc2626;color:white;padding:8px 12px;border-radius:8px }
+        .card { background:white;padding:16px;border-radius:16px;border:1px solid #eee;display:flex;justify-content:space-between }
+        .btn-blue { background:#2563eb;color:white;padding:8px;border-radius:8px }
+        .btn-red { background:#dc2626;color:white;padding:8px;border-radius:8px }
         .btn-green { background:#16a34a;color:white;padding:10px;border-radius:10px;width:100% }
         .btn-gray { background:#eee;padding:8px;border-radius:8px }
-        .link { font-size:12px;color:#555;text-decoration:underline }
+        .link { font-size:12px;text-decoration:underline }
+        .badge { background:#fef9c3;color:#92400e;padding:2px 6px;border-radius:999px;font-size:10px }
+        .modal { position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center }
+        .modal-box { background:white;padding:20px;border-radius:12px;width:300px }
       `}</style>
 
     </div>

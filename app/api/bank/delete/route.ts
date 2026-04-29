@@ -3,11 +3,41 @@ import { createClient } from "@supabase/supabase-js"
 import { logError, logInfo } from "@/lib/logger-api"
 import { logToDB, logErrorToDB } from "@/lib/logToDB"
 import { sendAlert } from "@/lib/alerts/sendAlert"
+import { sendNotification } from "@/lib/notifications/sendNotification" // 🔥 NUEVO
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+/* =========================
+   🧠 VALIDACIÓN RUT CHILE
+========================= */
+function validateRUT(rut: string) {
+  try {
+    const clean = rut.replace(/\./g, "").replace("-", "").toUpperCase()
+    const body = clean.slice(0, -1)
+    const dv = clean.slice(-1)
+
+    let sum = 0
+    let multiplier = 2
+
+    for (let i = body.length - 1; i >= 0; i--) {
+      sum += Number(body[i]) * multiplier
+      multiplier = multiplier === 7 ? 2 : multiplier + 1
+    }
+
+    const expectedDV = 11 - (sum % 11)
+    const dvFinal =
+      expectedDV === 11 ? "0" :
+      expectedDV === 10 ? "K" :
+      expectedDV.toString()
+
+    return dvFinal === dv
+  } catch {
+    return false
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -85,6 +115,19 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       🇨🇱 VALIDACIÓN RUT SI APLICA
+    ========================= */
+    if (bank.document_type === "rut" && bank.rut) {
+      const isValid = validateRUT(bank.rut)
+      if (!isValid) {
+        return NextResponse.json(
+          { error: "RUT inválido (seguridad)" },
+          { status: 400 }
+        )
+      }
+    }
+
+    /* =========================
        🔒 BLOQUEO POR RETIRO
     ========================= */
     const { data: pending } = await supabase
@@ -117,6 +160,26 @@ export async function POST(req: Request) {
     }
 
     /* =========================
+       🧠 SI ERA PRINCIPAL → REASIGNAR
+    ========================= */
+    if (bank.is_default) {
+      const { data: other } = await supabase
+        .from("bank_accounts")
+        .select("id")
+        .eq("user_email", user_email)
+        .neq("id", bank_id)
+        .limit(1)
+        .maybeSingle()
+
+      if (other) {
+        await supabase
+          .from("bank_accounts")
+          .update({ is_default: true })
+          .eq("id", other.id)
+      }
+    }
+
+    /* =========================
        🚫 ELIMINAR
     ========================= */
     const { error } = await supabase
@@ -127,13 +190,30 @@ export async function POST(req: Request) {
     if (error) throw error
 
     /* =========================
+       📧 NOTIFICACIÓN USUARIO
+    ========================= */
+    await sendNotification({
+      user_email,
+      type: "bank_deleted",
+      title: "Cuenta bancaria eliminada",
+      message: "Eliminaste una cuenta bancaria de tu perfil",
+      metadata: {
+        bank_name: bank.bank_name
+      },
+      sendEmail: true
+    })
+
+    /* =========================
        📜 AUDITORÍA
     ========================= */
     await supabase.from("bank_audit_logs").insert({
       user_email,
       bank_id,
       action: "delete",
-      metadata: {}
+      metadata: {
+        bank_name: bank.bank_name,
+        account_last4: bank.account_number?.slice(-4)
+      }
     })
 
     /* =========================
