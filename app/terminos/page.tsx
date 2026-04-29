@@ -88,13 +88,25 @@ export default function TerminosPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             6. Comisiones
           </h2>
+
           <p>
-            La plataforma cobrará una comisión fija de <strong>$300 CLP + IVA</strong> por cada aporte recibido, 
-            además de las comisiones de la pasarela de pago.
+            La plataforma cobrará una comisión fija de <strong>$300 CLP + IVA</strong> por cada aporte recibido,
+            además de una comisión variable de <strong>1,8% + IVA</strong> sobre el monto del aporte.
           </p>
-          <p>
-            Estas comisiones podrán ser modificadas con previo aviso.
+
+          <p className="mt-2">
+            Adicionalmente, podrán aplicarse comisiones propias de los proveedores de pago utilizados para procesar las transacciones.
           </p>
+
+          <p className="mt-2">
+            Todas las comisiones de la plataforma podrán ser modificadas en cualquier momento, 
+            sin previo aviso.
+          </p>
+
+          <p className="mt-2 font-medium">
+            El usuario declara haber leído, comprendido y aceptado estas comisiones antes de realizar cualquier transacción dentro de la plataforma.
+          </p>
+
         </section>
 
         {/* 7 */}
