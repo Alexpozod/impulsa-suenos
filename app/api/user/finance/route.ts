@@ -38,9 +38,10 @@ export async function GET(req: Request) {
     ========================= */
 
     const { data: campaigns } = await supabase
-      .from("campaigns")
-      .select("id, title")
-      .ilike("user_email", user_email)
+  .from("campaigns")
+  .select("*")
+  .eq("user_email", user_email)
+  .neq("status", "deleted") // 🔥 ESTE ES EL FIX
 
     const campaignIds = campaigns?.map(c => c.id) || []
 
