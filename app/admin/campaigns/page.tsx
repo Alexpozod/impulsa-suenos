@@ -34,23 +34,20 @@ export default function AdminCampaigns() {
       const res = await fetch(`/api/admin/campaigns?status=${statusFilter}`)
       const json = await res.json()
 
-      setData(json || [])
+      // 🔥 FIX CRÍTICO (ANTES ESTABA MAL)
+      setData(Array.isArray(json.data) ? json.data : [])
 
-      // 🔢 CONTADORES (simple pero efectivo)
-      const resAll = await fetch(`/api/admin/campaigns?status=all`)
-      const all = await resAll.json()
-
-      const counters = {
-        active: all.filter((c: Campaign) => c.status === "active").length,
-        blocked: all.filter((c: Campaign) => c.status === "blocked").length,
-        deleted: all.filter((c: Campaign) => c.status === "deleted").length,
-        all: all.length
-      }
-
-      setCounts(counters)
+      // 🔥 YA NO HACEMOS DOBLE FETCH
+      setCounts(json.stats || {
+        active: 0,
+        blocked: 0,
+        deleted: 0,
+        all: 0
+      })
 
     } catch (err) {
       console.error("❌ LOAD ERROR:", err)
+      setData([])
     }
   }
 
@@ -83,6 +80,7 @@ export default function AdminCampaigns() {
       const result = await res.json()
 
       if (!res.ok) {
+        console.error("❌ ERROR API:", result)
         alert(result.error || "Error")
         return
       }
@@ -90,7 +88,7 @@ export default function AdminCampaigns() {
       await load()
 
     } catch (err) {
-      console.error(err)
+      console.error("❌ ACTION ERROR:", err)
     } finally {
       setLoadingId(null)
     }
@@ -178,7 +176,6 @@ export default function AdminCampaigns() {
               </button>
             )}
 
-            {/* 🧠 RESTORE */}
             {c.status === "deleted" && (
               <button
                 onClick={() => handleAction(c.id, 'restore')}
