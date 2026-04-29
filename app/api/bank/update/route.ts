@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     /* =========================
        📥 INPUT
     ========================= */
-    const body = await req.json()
+    const reqBody = await req.json()
 
     const {
       bank_id,
@@ -44,14 +44,13 @@ export async function POST(req: Request) {
       bank_name,
       holder_name,
       rut,
-      country,
       swift,
       iban,
       is_default,
       otp_code
-    } = body
+    } = reqBody
 
-    if (!bank_id || !account_number || !account_type || !bank_name || !otp_code) {
+    if (!bank_id || !otp_code) {
       return NextResponse.json({ error: "datos incompletos" }, { status: 400 })
     }
 
@@ -100,7 +99,7 @@ export async function POST(req: Request) {
     /* =========================
        ⭐ SET DEFAULT
     ========================= */
-    if (is_default === true) {
+    if (is_default) {
       await supabase
         .from("bank_accounts")
         .update({ is_default: false })
@@ -108,43 +107,36 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-       💾 UPDATE
+       💾 UPDATE (SIN updated_at)
     ========================= */
+    const updatePayload: any = {}
+
+    if (account_number) updatePayload.account_number = account_number
+    if (account_type) updatePayload.account_type = account_type
+    if (bank_name) updatePayload.bank_name = bank_name
+    if (holder_name) updatePayload.holder_name = holder_name
+    if (rut) updatePayload.rut = rut
+    if (swift !== undefined) updatePayload.swift = swift
+    if (iban !== undefined) updatePayload.iban = iban
+    if (is_default !== undefined) updatePayload.is_default = is_default
+
     const { error } = await supabase
       .from("bank_accounts")
-      .update({
-        holder_name: holder_name ?? bank.holder_name,
-        bank_name,
-        account_number,
-        account_type,
-        country: country ?? bank.country,
-        rut: rut ?? bank.rut,
-        swift: swift ?? bank.swift,
-        iban: iban ?? bank.iban,
-        is_default: is_default ?? bank.is_default,
-        updated_at: new Date().toISOString()
-      })
+      .update(updatePayload)
       .eq("id", bank_id)
 
     if (error) throw error
 
     /* =========================
-       📜 AUDITORÍA
+       🧾 AUDIT LOG
     ========================= */
     await supabase.from("bank_audit_logs").insert({
       user_email,
       bank_id,
       action: "update",
-      metadata: {
-        bank_name,
-        account_type,
-        is_default
-      }
+      metadata: updatePayload
     })
 
-    /* =========================
-       📢 LOGS
-    ========================= */
     await logToDB("info", "bank_updated", {
       user_email,
       bank_id
