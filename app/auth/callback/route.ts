@@ -9,56 +9,43 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
 const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function GET(req: Request) {
   try {
 
     const url = new URL(req.url)
-    const code = url.searchParams.get("code")
 
     console.log("🔥 CALLBACK HIT")
-    console.log("🔑 CODE:", code)
 
-    if (!code) {
-      console.error("❌ NO CODE")
+    // 🔥 AQUÍ ESTÁ EL FIX REAL
+    const access_token = url.searchParams.get("access_token")
+
+    if (!access_token) {
+      console.error("❌ NO ACCESS TOKEN")
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
-    /* =========================
-       🔐 INTERCAMBIO DE SESSION
-    ========================= */
-    let user: any = null
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
 
-    try {
-      const { data, error } =
-        await supabaseAuth.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabaseAuth.auth.getUser(access_token)
 
-      if (error) {
-        console.error("❌ EXCHANGE ERROR:", error)
-        throw error
-      }
-
-      user = data?.user
-
-    } catch (err) {
-      console.error("❌ FALLBACK AUTH ERROR:", err)
+    if (error || !data?.user) {
+      console.error("❌ USER ERROR:", error)
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
-    if (!user || !user.email) {
-      console.error("❌ NO USER")
+    const user = data.user
+    const email = user.email?.toLowerCase()
+
+    if (!email) {
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
-    const email = user.email.toLowerCase()
-
-    console.log("✅ USER:", email)
+    console.log("✅ USER CONFIRMADO:", email)
 
     /* =========================
        🔎 PERFIL
@@ -72,12 +59,12 @@ export async function GET(req: Request) {
     const alreadySent = profile?.welcome_sent === true
 
     /* =========================
-       📧 ENVÍO EMAIL
+       📧 EMAIL
     ========================= */
     if (!alreadySent) {
       try {
 
-        const res = await resend.emails.send({
+        await resend.emails.send({
           from: "ImpulsaSueños <contacto@impulsasuenos.com>",
           to: email,
           subject: "🎉 Bienvenido a ImpulsaSueños",
@@ -85,12 +72,9 @@ export async function GET(req: Request) {
             <div style="font-family: Arial; padding:20px;">
               <h2>🎉 Bienvenido a ImpulsaSueños</h2>
               <p>Tu cuenta ha sido activada correctamente.</p>
-              <p>Ya puedes comenzar 💚</p>
             </div>
           `
         })
-
-        console.log("📧 EMAIL RESPONSE:", res)
 
         await supabaseAdmin
           .from("profiles")
@@ -99,25 +83,19 @@ export async function GET(req: Request) {
             welcome_sent: true
           })
 
-      } catch (emailError) {
-        console.error("❌ EMAIL ERROR:", emailError)
+        console.log("📧 EMAIL ENVIADO")
+
+      } catch (err) {
+        console.error("❌ EMAIL ERROR:", err)
       }
     }
 
-    console.log("🚀 REDIRECTING...")
-
-    return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-      { status: 302 }
-    )
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`)
 
   } catch (err) {
 
-    console.error("❌ CALLBACK CRASH:", err)
+    console.error("❌ CALLBACK ERROR:", err)
 
-    return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/login`,
-      { status: 302 }
-    )
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
   }
 }
