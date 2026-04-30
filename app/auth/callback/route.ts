@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { Resend } from "resend"
 
+export const runtime = "nodejs"
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -18,38 +20,45 @@ export async function GET(req: Request) {
   try {
 
     const url = new URL(req.url)
-
-    /* =========================
-       🔐 EXCHANGE CODE (FIX REAL)
-    ========================= */
     const code = url.searchParams.get("code")
 
+    console.log("🔥 CALLBACK HIT")
+    console.log("🔑 CODE:", code)
+
     if (!code) {
-      console.error("❌ NO CODE IN CALLBACK")
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
-    }
-
-    const { data: sessionData, error: sessionError } =
-      await supabaseAuth.auth.exchangeCodeForSession(code)
-
-    const user = sessionData?.user
-
-    if (sessionError || !user || !user.email) {
-      console.error("❌ SESSION ERROR:", sessionError)
+      console.error("❌ NO CODE")
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
     /* =========================
-       🔐 VALIDACIÓN REAL
+       🔐 INTERCAMBIO DE SESSION
     ========================= */
-    if (!user.email_confirmed_at) {
-      console.warn("⚠️ Usuario no confirmado")
+    let user: any = null
+
+    try {
+      const { data, error } =
+        await supabaseAuth.auth.exchangeCodeForSession(code)
+
+      if (error) {
+        console.error("❌ EXCHANGE ERROR:", error)
+        throw error
+      }
+
+      user = data?.user
+
+    } catch (err) {
+      console.error("❌ FALLBACK AUTH ERROR:", err)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
+    }
+
+    if (!user || !user.email) {
+      console.error("❌ NO USER")
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
     const email = user.email.toLowerCase()
 
-    console.log("🔥 CALLBACK CONFIRMADO:", email)
+    console.log("✅ USER:", email)
 
     /* =========================
        🔎 PERFIL
@@ -63,10 +72,9 @@ export async function GET(req: Request) {
     const alreadySent = profile?.welcome_sent === true
 
     /* =========================
-       🚀 ENVÍO CONTROLADO
+       📧 ENVÍO EMAIL
     ========================= */
     if (!alreadySent) {
-
       try {
 
         const res = await resend.emails.send({
@@ -77,20 +85,13 @@ export async function GET(req: Request) {
             <div style="font-family: Arial; padding:20px;">
               <h2>🎉 Bienvenido a ImpulsaSueños</h2>
               <p>Tu cuenta ha sido activada correctamente.</p>
-              <p>Ya puedes crear campañas y comenzar a recibir apoyo 💚</p>
+              <p>Ya puedes comenzar 💚</p>
             </div>
           `
         })
 
-        if (!res || (res as any).error) {
-          throw new Error((res as any)?.error?.message || "resend_error")
-        }
+        console.log("📧 EMAIL RESPONSE:", res)
 
-        console.log("📧 WELCOME ENVIADO:", email)
-
-        /* =========================
-           🔒 MARCAR COMO ENVIADO
-        ========================= */
         await supabaseAdmin
           .from("profiles")
           .upsert({
@@ -99,18 +100,24 @@ export async function GET(req: Request) {
           })
 
       } catch (emailError) {
-        console.error("❌ ERROR ENVIANDO WELCOME:", emailError)
+        console.error("❌ EMAIL ERROR:", emailError)
       }
-    } else {
-      console.log("ℹ️ Welcome ya enviado:", email)
     }
 
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`)
+    console.log("🚀 REDIRECTING...")
+
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      { status: 302 }
+    )
 
   } catch (err) {
 
-    console.error("❌ CALLBACK ERROR:", err)
+    console.error("❌ CALLBACK CRASH:", err)
 
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL}/login`,
+      { status: 302 }
+    )
   }
 }
