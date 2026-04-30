@@ -12,17 +12,20 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 export async function GET() {
   try {
 
-    const { data: events } = await supabase
+    const { data: events, error } = await supabase
       .from("user_events")
       .select("*")
       .eq("processed", false)
-      .limit(10)
+
+    if (error) {
+      console.error("❌ FETCH EVENTS:", error)
+      return NextResponse.json({ error }, { status: 500 })
+    }
 
     for (const event of events || []) {
 
       if (event.event_type === "USER_CONFIRMED") {
 
-        // 🔎 verificar profile
         const { data: profile } = await supabase
           .from("profiles")
           .select("welcome_sent")
@@ -45,7 +48,6 @@ export async function GET() {
         }
       }
 
-      // ✅ marcar como procesado
       await supabase
         .from("user_events")
         .update({ processed: true })
@@ -55,7 +57,7 @@ export async function GET() {
     return NextResponse.json({ ok: true })
 
   } catch (err) {
-    console.error(err)
+    console.error("❌ WORKER ERROR:", err)
     return NextResponse.json({ error: "error" }, { status: 500 })
   }
 }
