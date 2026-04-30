@@ -11,8 +11,8 @@ export async function POST(req: Request) {
     /* =========================
        🚀 WELCOME EMAIL
     ========================= */
-    if (body.type === "welcome" && body.email) {
-
+    if (body.type === "welcome" && body.email && body.source === "callback") {
+      
       const { email } = body
 
       await resend.emails.send({
