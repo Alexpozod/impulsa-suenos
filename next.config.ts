@@ -1,12 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /supabase\/functions\/.*\.ts$/,
-      use: 'ignore-loader',
-    })
-    return config
-  },
+  turbopack: {},
 }
 
 export default nextConfig
