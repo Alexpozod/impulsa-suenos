@@ -17,18 +17,19 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 export async function GET(req: Request) {
   try {
 
-    const url = new URL(req.url)
+    // 🔥 CLAVE: NO USAMOS exchangeCodeForSession
 
-    // 🔥 ESTE ES EL CAMBIO CLAVE
-    const { data: { user }, error } = await supabaseAuth.auth.getUser()
+    const { data: { session }, error } =
+      await supabaseAuth.auth.getSession()
 
-    if (error || !user || !user.email) {
-      console.error("❌ USER ERROR:", error)
+    if (error || !session?.user) {
+      console.error("❌ NO SESSION:", error)
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
-    if (!user.email_confirmed_at) {
-      console.warn("⚠️ Usuario no confirmado")
+    const user = session.user
+
+    if (!user.email) {
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
@@ -36,6 +37,7 @@ export async function GET(req: Request) {
 
     console.log("🔥 CALLBACK OK:", email)
 
+    // 🔎 REVISAR SI YA SE ENVIÓ
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("welcome_sent")
@@ -43,10 +45,9 @@ export async function GET(req: Request) {
       .maybeSingle()
 
     if (!profile?.welcome_sent) {
-
       try {
 
-        const res = await resend.emails.send({
+        await resend.emails.send({
           from: "ImpulsaSueños <contacto@impulsasuenos.com>",
           to: email,
           subject: "🎉 Bienvenido a ImpulsaSueños",
@@ -58,10 +59,6 @@ export async function GET(req: Request) {
             </div>
           `
         })
-
-        if ((res as any)?.error) {
-          throw new Error((res as any).error.message)
-        }
 
         console.log("📧 WELCOME ENVIADO:", email)
 
@@ -82,9 +79,7 @@ export async function GET(req: Request) {
     )
 
   } catch (err) {
-
     console.error("❌ CALLBACK CRASH:", err)
-
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
   }
 }
