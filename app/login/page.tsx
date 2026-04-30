@@ -127,18 +127,16 @@ export default function Login() {
 
   const { error } = await supabase.auth.signUp({
     email,
-    password,
-    options: {
-      // 🔥 FIX REAL
-      emailRedirectTo: `${location.origin}/auth/callback`
-    }
+    password
+    // ❌ ELIMINADO COMPLETAMENTE:
+    // options: { emailRedirectTo: ... }
   })
 
   if (error) {
     setMessage(error.message)
   } else {
 
-    // 🔐 CONSENTIMIENTO LEGAL (SE MANTIENE)
+    // 🔐 CONSENTIMIENTO LEGAL (se mantiene)
     fetch("/api/legal-consent", {
       method: "POST",
       headers: {
@@ -151,9 +149,6 @@ export default function Login() {
         email
       })
     }).catch(() => {})
-
-    // ❌ ELIMINADO:
-    // fetch("/api/send-email") → esto rompía todo
 
     setMessage("📩 Revisa tu correo para confirmar tu cuenta")
   }
