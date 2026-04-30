@@ -18,25 +18,32 @@ export async function GET(req: Request) {
   try {
 
     const url = new URL(req.url)
-    const token = url.searchParams.get("access_token")
 
-    if (!token) {
+    /* =========================
+       🔐 EXCHANGE CODE (FIX REAL)
+    ========================= */
+    const code = url.searchParams.get("code")
+
+    if (!code) {
+      console.error("❌ NO CODE IN CALLBACK")
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
-    const { data: userData, error: userError } =
-      await supabaseAuth.auth.getUser(token)
+    const { data: sessionData, error: sessionError } =
+      await supabaseAuth.auth.exchangeCodeForSession(code)
 
-    const user = userData?.user
+    const user = sessionData?.user
 
-    if (userError || !user || !user.email) {
-      console.error("❌ USER ERROR:", userError)
+    if (sessionError || !user || !user.email) {
+      console.error("❌ SESSION ERROR:", sessionError)
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
-    // 🔐 VALIDACIÓN REAL: EMAIL CONFIRMADO
+    /* =========================
+       🔐 VALIDACIÓN REAL
+    ========================= */
     if (!user.email_confirmed_at) {
-      console.warn("⚠️ Usuario no confirmado intentó callback")
+      console.warn("⚠️ Usuario no confirmado")
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
@@ -81,7 +88,9 @@ export async function GET(req: Request) {
 
         console.log("📧 WELCOME ENVIADO:", email)
 
-        // 🔒 MARCAR SOLO SI SE ENVIÓ BIEN
+        /* =========================
+           🔒 MARCAR COMO ENVIADO
+        ========================= */
         await supabaseAdmin
           .from("profiles")
           .upsert({
@@ -90,10 +99,7 @@ export async function GET(req: Request) {
           })
 
       } catch (emailError) {
-
         console.error("❌ ERROR ENVIANDO WELCOME:", emailError)
-
-        // ❗ NO bloquea flujo
       }
     } else {
       console.log("ℹ️ Welcome ya enviado:", email)
