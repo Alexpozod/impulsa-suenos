@@ -114,60 +114,52 @@ export default function Login() {
      🆕 REGISTER (PRO + SECURITY)
   ========================= */
   const signUp = async () => {
-    setLoading(true)
-    setMessage('')
+  setLoading(true)
+  setMessage('')
 
-    // 🔐 VALIDACIÓN
-    const passwordError = validatePassword(password)
-    if (passwordError) {
-      setMessage("❌ " + passwordError)
-      setLoading(false)
-      return
-    }
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${location.origin}/dashboard`
-      }
-    })
-
-    if (error) {
-      setMessage(error.message)
-    } else {
-
-      // 🔐 CONSENTIMIENTO LEGAL
-      fetch("/api/legal-consent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          type: "terms",
-          accepted: true,
-          version: "v1.0",
-          email
-        })
-      }).catch(() => {})
-
-      // 📩 EMAIL BIENVENIDA
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          type: "welcome",
-          email
-        })
-      }).catch(() => {})
-
-      setMessage("📩 Revisa tu correo para confirmar tu cuenta")
-    }
-
+  // 🔐 VALIDACIÓN
+  const passwordError = validatePassword(password)
+  if (passwordError) {
+    setMessage("❌ " + passwordError)
     setLoading(false)
+    return
   }
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      // 🔥 FIX REAL
+      emailRedirectTo: `${location.origin}/auth/callback`
+    }
+  })
+
+  if (error) {
+    setMessage(error.message)
+  } else {
+
+    // 🔐 CONSENTIMIENTO LEGAL (SE MANTIENE)
+    fetch("/api/legal-consent", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        type: "terms",
+        accepted: true,
+        version: "v1.0",
+        email
+      })
+    }).catch(() => {})
+
+    // ❌ ELIMINADO:
+    // fetch("/api/send-email") → esto rompía todo
+
+    setMessage("📩 Revisa tu correo para confirmar tu cuenta")
+  }
+
+  setLoading(false)
+}
 
   /* =========================
      🔐 GOOGLE
