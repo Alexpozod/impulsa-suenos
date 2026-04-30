@@ -1,23 +1,11 @@
 import type { Metadata } from "next"
 import type { ReactNode } from "react"
 
-import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
 import CookieBanner from "./components/CookieBanner"
-
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-})
 
 export const metadata: Metadata = {
   title: "ImpulsaSueños",
@@ -31,14 +19,24 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      
+      {/* 🔥 FUENTES PRO */}
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+
       <body
         className={`
-          ${geistSans.variable} 
-          ${geistMono.variable} 
           antialiased 
           bg-white 
           text-gray-900
         `}
+        style={{
+          fontFamily: "Inter, sans-serif",
+        }}
       >
         <Navbar />
 
@@ -50,7 +48,6 @@ export default function RootLayout({
 
         {/* 🍪 COOKIE BANNER GLOBAL */}
         <CookieBanner />
-
       </body>
     </html>
   )
