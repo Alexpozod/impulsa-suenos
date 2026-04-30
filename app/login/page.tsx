@@ -80,14 +80,31 @@ export default function Login() {
   }
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      if (data.session) {
+  let redirected = false
+
+  const checkSession = async () => {
+    const { data } = await supabase.auth.getSession()
+    if (data.session && !redirected) {
+      redirected = true
+      handlePostLoginRedirect()
+    }
+  }
+
+  checkSession()
+
+  const { data: listener } = supabase.auth.onAuthStateChange(
+    (event, session) => {
+      if (event === "SIGNED_IN" && session && !redirected) {
+        redirected = true
         handlePostLoginRedirect()
       }
     }
-    checkSession()
-  }, [redirect])
+  )
+
+  return () => {
+    listener.subscription.unsubscribe()
+  }
+}, [redirect])
 
   /* =========================
      🔐 LOGIN
