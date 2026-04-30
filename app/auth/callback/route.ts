@@ -16,27 +16,19 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function GET(req: Request) {
   try {
+
     const url = new URL(req.url)
-    const code = url.searchParams.get("code")
 
-    if (!code) {
-      console.error("❌ NO CODE")
+    // 🔥 ESTE ES EL CAMBIO CLAVE
+    const { data: { user }, error } = await supabaseAuth.auth.getUser()
+
+    if (error || !user || !user.email) {
+      console.error("❌ USER ERROR:", error)
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
-    // 🔐 INTERCAMBIO REAL DE SESIÓN
-    const { data: sessionData, error: sessionError } =
-      await supabaseAuth.auth.exchangeCodeForSession(code)
-
-    if (sessionError || !sessionData?.user) {
-      console.error("❌ SESSION ERROR:", sessionError)
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
-    }
-
-    const user = sessionData.user
-
-    if (!user.email || !user.email_confirmed_at) {
-      console.warn("⚠️ Usuario sin confirmar correctamente")
+    if (!user.email_confirmed_at) {
+      console.warn("⚠️ Usuario no confirmado")
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
     }
 
@@ -44,7 +36,6 @@ export async function GET(req: Request) {
 
     console.log("🔥 CALLBACK OK:", email)
 
-    // 🔎 VERIFICAR SI YA SE ENVIÓ
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("welcome_sent")
@@ -52,7 +43,9 @@ export async function GET(req: Request) {
       .maybeSingle()
 
     if (!profile?.welcome_sent) {
+
       try {
+
         const res = await resend.emails.send({
           from: "ImpulsaSueños <contacto@impulsasuenos.com>",
           to: email,
@@ -82,17 +75,16 @@ export async function GET(req: Request) {
       } catch (e) {
         console.error("❌ ERROR EMAIL:", e)
       }
-    } else {
-      console.log("ℹ️ YA TENÍA WELCOME:", email)
     }
 
-    // ✅ REDIRECT FINAL LIMPIO
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
     )
 
   } catch (err) {
+
     console.error("❌ CALLBACK CRASH:", err)
+
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
   }
 }
