@@ -1,65 +1,26 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/src/lib/supabase"
+import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 
 export default function CampaignsPage() {
 
-  const [loading, setLoading] = useState(true)
-  const [campaigns, setCampaigns] = useState<any[]>([])
-
-  useEffect(() => {
-    loadCampaigns()
-  }, [])
-
-  const loadCampaigns = async () => {
-
-    try {
-
-      const { data: userData } = await supabase.auth.getUser()
-
-      if (!userData?.user?.email) {
-        setLoading(false)
-        return
-      }
-
-      const email = userData.user.email.toLowerCase()
-
-      /* =========================
-         🔥 USAR FUENTE REAL (ENRICHED)
-      ========================= */
-      const res = await fetch("/api/campaigns/enriched")
-      const allCampaigns = await res.json()
-
-      if (!Array.isArray(allCampaigns)) {
-        setCampaigns([])
-        setLoading(false)
-        return
-      }
-
-      /* =========================
-         🔐 FILTRAR SOLO USUARIO
-      ========================= */
-      const userCampaigns = allCampaigns
-        .filter((c: any) => c.user_email === email)
-        .sort(
-          (a: any, b: any) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
-
-      setCampaigns(userCampaigns)
-
-    } catch (error) {
-      console.error("Error cargando campañas:", error)
-      setCampaigns([])
-    }
-
-    setLoading(false)
-  }
+  const { data, loading } = useFinancialDashboard()
 
   if (loading) {
     return <div className="p-10">Cargando campañas...</div>
   }
+
+  if (!data) {
+    return (
+      <div className="p-10 text-red-500">
+        Error cargando campañas
+      </div>
+    )
+  }
+
+  const campaigns = Array.isArray(data?.campaigns)
+    ? data.campaigns
+    : []
 
   return (
     <main className="space-y-6">
@@ -76,7 +37,7 @@ export default function CampaignsPage() {
 
       <div className="space-y-4">
 
-        {campaigns.map((c) => (
+        {campaigns.map((c: any) => (
 
           <div
             key={c.id}
@@ -86,13 +47,12 @@ export default function CampaignsPage() {
             <div>
               <p className="font-semibold">{c.title}</p>
 
-              {/* 🔥 DATOS REALES DESDE LEDGER */}
               <p className="text-sm text-gray-500">
                 Recaudado: ${Number(c.current_amount || 0).toLocaleString()}
               </p>
 
               <p className="text-sm text-gray-500">
-                Disponible: ${Number(c.current_amount || 0).toLocaleString()}
+                Disponible: ${Number(c.available || 0).toLocaleString()}
               </p>
 
               <p className="text-xs text-gray-400">
