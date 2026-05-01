@@ -20,6 +20,7 @@ export default function DashboardLayout({
     { name: "Notificaciones", href: "/dashboard/notifications" },
     { name: "KYC", href: "/kyc" }, // ya existe en tu proyecto
     { name: "Mi cuenta", href: "/account" }, // no rompemos nada
+    { name: "Donaciones", href: "/dashboard/donations" },
   ]
 
   return (
