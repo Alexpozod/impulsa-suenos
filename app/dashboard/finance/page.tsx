@@ -58,17 +58,15 @@ export default function FinancePage() {
     !invalidAmount &&
     data?.kyc_status === "approved" &&
     data?.has_bank &&
-    otpSent &&
-    otp.length >= 6
+    otp.length === 6
 
   /* =========================
-     📩 ENVIAR OTP (FIX REAL)
+     📩 ENVIAR OTP
   ========================= */
   const sendOtp = async () => {
     if (cooldown > 0) return
 
     try {
-
       const { data: { session } } = await supabase.auth.getSession()
       const { data: userData } = await supabase.auth.getUser()
 
@@ -99,8 +97,7 @@ export default function FinancePage() {
       setCooldown(60)
       setMessage("📩 Código enviado")
 
-    } catch (err) {
-      console.error(err)
+    } catch {
       setMessage("❌ Error enviando OTP")
     }
   }
@@ -152,12 +149,14 @@ export default function FinancePage() {
 
       <h1 className="text-2xl font-bold">💰 Tu dinero</h1>
 
+      {/* BALANCE */}
       <div className="grid grid-cols-3 gap-4">
         <Card title="Disponible" value={data?.totals?.balance} />
         <Card title="En revisión" value={data?.totals?.pending} />
         <Card title="Total generado" value={data?.totals?.raised} />
       </div>
 
+      {/* GRÁFICO */}
       <div className="bg-white p-5 rounded-xl border">
         <h2 className="font-semibold mb-3">Ingresos vs Retiros</h2>
 
@@ -172,6 +171,7 @@ export default function FinancePage() {
         </div>
       </div>
 
+      {/* CAMPAÑAS */}
       <div className="bg-white p-5 rounded-xl border">
         <h2 className="font-semibold mb-3">Breakdown por campaña</h2>
 
@@ -183,6 +183,7 @@ export default function FinancePage() {
         ))}
       </div>
 
+      {/* RETIRO */}
       <div className="bg-white p-5 rounded-xl border space-y-4">
 
         <h2 className="font-semibold">Solicitar retiro</h2>
@@ -195,7 +196,7 @@ export default function FinancePage() {
           <option value="">Selecciona campaña</option>
           {data?.campaigns?.map((c: any) => (
             <option key={c.id} value={c.id}>
-              {c.title} — ${Number(c.available).toLocaleString()}
+              {c.title} — ${Number(c.available || 0).toLocaleString()}
             </option>
           ))}
         </select>
@@ -220,6 +221,7 @@ export default function FinancePage() {
           </p>
         )}
 
+        {/* OTP */}
         <div className="flex gap-2">
           <button
             onClick={sendOtp}
@@ -240,6 +242,18 @@ export default function FinancePage() {
           />
         </div>
 
+        {/* FEEDBACK OTP */}
+        {otp.length > 0 && otp.length < 6 && (
+          <p className="text-sm text-yellow-600">Código incompleto</p>
+        )}
+
+        {otp.length === 6 && (
+          <p className="text-sm text-green-600">
+            Código listo para validar
+          </p>
+        )}
+
+        {/* BOTÓN */}
         <button
           disabled={!canWithdraw}
           onClick={() => setShowConfirm(true)}
@@ -249,12 +263,13 @@ export default function FinancePage() {
               : "bg-gray-300"
           }`}
         >
-          Solicitar retiro
+          {canWithdraw ? "Confirmar retiro" : "Completa los datos"}
         </button>
 
         {message && <p className="text-sm">{message}</p>}
       </div>
 
+      {/* HISTORIAL */}
       <div className="bg-white p-5 rounded-xl border">
 
         <h2 className="font-semibold mb-3">Historial</h2>
@@ -264,11 +279,10 @@ export default function FinancePage() {
 
             <span>
               {m.type === "donation" && "💚 Donación"}
-              {m.type === "withdraw" && (
-                m.status === "pending"
+              {m.type === "withdraw" &&
+                (m.status === "pending"
                   ? "⏳ Retiro en revisión"
-                  : "💸 Retiro aprobado"
-              )}
+                  : "💸 Retiro aprobado")}
             </span>
 
             <span
