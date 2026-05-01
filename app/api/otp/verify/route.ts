@@ -8,35 +8,75 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { email, code } = await req.json()
 
-    const { data } = await supabase
+    const { code } = await req.json()
+
+    if (!code) {
+      return NextResponse.json({ error: "Código requerido" }, { status: 400 })
+    }
+
+    /* =========================
+       🔐 AUTH (USAR TOKEN)
+    ========================= */
+    const authHeader = req.headers.get("authorization")
+
+    if (!authHeader) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.replace("Bearer ", "")
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+
+    if (userError || !user?.email) {
+      return NextResponse.json({ error: "invalid user" }, { status: 401 })
+    }
+
+    const email = user.email.toLowerCase()
+
+    /* =========================
+       🔎 BUSCAR OTP
+    ========================= */
+    const { data: otp } = await supabase
       .from("otp_codes")
       .select("*")
       .eq("user_email", email)
       .eq("code", code)
-      .eq("verified", false)
+      .eq("used", false)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle()
 
-    if (!data) {
-      return NextResponse.json({ error: "Código inválido" })
+    if (!otp) {
+      return NextResponse.json({ error: "Código inválido" }, { status: 400 })
     }
 
-    if (new Date(data.expires_at) < new Date()) {
-      return NextResponse.json({ error: "Código expirado" })
+    /* =========================
+       ⏳ EXPIRACIÓN
+    ========================= */
+    if (new Date(otp.expires_at) < new Date()) {
+      return NextResponse.json({ error: "Código expirado" }, { status: 400 })
     }
 
-    // marcar como usado
+    /* =========================
+       ✅ MARCAR USADO + VERIFIED
+    ========================= */
     await supabase
       .from("otp_codes")
-      .update({ verified: true })
-      .eq("id", data.id)
+      .update({
+        used: true,
+        verified: true
+      })
+      .eq("id", otp.id)
 
     return NextResponse.json({ ok: true })
 
   } catch (err) {
-    return NextResponse.json({ error: "error" }, { status: 500 })
+    console.error("OTP VERIFY ERROR:", err)
+
+    return NextResponse.json(
+      { error: "Error servidor" },
+      { status: 500 }
+    )
   }
 }
