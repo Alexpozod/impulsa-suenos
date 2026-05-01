@@ -14,7 +14,7 @@ export default function DashboardLayout({
 
   const nav = [
     { name: "Resumen", href: "/dashboard" },
-    { name: "Campañas", href: "/dashboard" },
+    { name: "Campañas", href: "/dashboard/campaigns" },
     { name: "Finanzas", href: "/dashboard/finance" },
     { name: "Retiros", href: "/dashboard/payouts" },
     { name: "Notificaciones", href: "/dashboard/notifications" },
