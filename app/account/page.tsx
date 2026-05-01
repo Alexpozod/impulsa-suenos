@@ -168,7 +168,7 @@ export default function AccountPage() {
         <div className="mb-8 grid md:grid-cols-2 gap-4">
 
           <button
-            onClick={() => router.push("/kyc")}
+            onClick={() => router.push("/dashboard/kyc")}
             className="p-4 rounded-xl border bg-white hover:bg-gray-50 text-left"
           >
             <p className="font-semibold">🪪 Verificación KYC</p>

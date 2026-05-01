@@ -17,7 +17,7 @@ export default function DashboardLayout({
     { name: "Campañas", href: "/dashboard/campaigns" },
     { name: "Finanzas", href: "/dashboard/finance" },
     { name: "Notificaciones", href: "/dashboard/notifications" },
-    { name: "KYC", href: "/kyc" }, // ya existe en tu proyecto
+    { name: "KYC", href: "/dashboard/kyc" }
     { name: "Mi cuenta", href: "/account" }, // no rompemos nada
     { name: "Donaciones", href: "/dashboard/donations" },
   ]
