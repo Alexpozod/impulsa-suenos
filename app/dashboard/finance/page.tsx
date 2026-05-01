@@ -62,7 +62,7 @@ export default function FinancePage() {
     otpValid
 
   /* =========================
-     📩 ENVIAR OTP
+     OTP SEND
   ========================= */
   const sendOtp = async () => {
     if (cooldown > 0) return
@@ -103,7 +103,7 @@ export default function FinancePage() {
   }
 
   /* =========================
-     ✅ VALIDAR OTP
+     OTP VERIFY
   ========================= */
   const validateOtp = async () => {
     if (otp.length !== 6) {
@@ -144,6 +144,9 @@ export default function FinancePage() {
     }
   }
 
+  /* =========================
+     REQUEST PAYOUT
+  ========================= */
   const requestPayout = async () => {
     setMessage("")
 
@@ -197,11 +200,11 @@ export default function FinancePage() {
         <Card title="Total generado" value={data?.totals?.raised} />
       </div>
 
-      {/* GRÁFICO */}
+      {/* GRAFICO */}
       <div className="bg-white p-5 rounded-xl border">
         <h2 className="font-semibold mb-3">Ingresos vs Retiros</h2>
 
-        <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden flex">
+        <div className="w-full h-4 bg-gray-200 rounded-full flex overflow-hidden">
           <div className="bg-green-500" style={{ width: `${inPercent}%` }} />
           <div className="bg-red-500" style={{ width: `${outPercent}%` }} />
         </div>
@@ -212,7 +215,7 @@ export default function FinancePage() {
         </div>
       </div>
 
-      {/* CAMPAÑAS */}
+      {/* BREAKDOWN */}
       <div className="bg-white p-5 rounded-xl border">
         <h2 className="font-semibold mb-3">Breakdown por campaña</h2>
 
@@ -292,20 +295,52 @@ export default function FinancePage() {
           </button>
         </div>
 
-        {/* BOTÓN */}
+        {/* BOTON */}
         <button
           disabled={!canWithdraw}
-          onClick={() => setShowConfirm(true)}
+          onClick={requestPayout}
           className={`px-4 py-2 rounded text-white ${
             canWithdraw
               ? "bg-green-600 hover:bg-green-700"
               : "bg-gray-300"
           }`}
         >
-          {canWithdraw ? "Confirmar retiro" : "Completa los datos"}
+          Solicitar retiro
         </button>
 
         {message && <p className="text-sm">{message}</p>}
+      </div>
+
+      {/* HISTORIAL */}
+      <div className="bg-white p-5 rounded-xl border">
+
+        <h2 className="font-semibold mb-3">Historial</h2>
+
+        {data?.movements?.map((m: any, i: number) => (
+          <div key={i} className="flex justify-between text-sm border-b py-2">
+
+            <span>
+              {m.type === "donation" && "💚 Donación"}
+              {m.type === "withdraw" &&
+                (m.status === "pending"
+                  ? "⏳ Retiro en revisión"
+                  : "💸 Retiro aprobado")}
+            </span>
+
+            <span
+              className={
+                m.type === "donation"
+                  ? "text-green-600"
+                  : "text-red-500"
+              }
+            >
+              {m.type === "donation" ? "+" : "-"}$
+              {Math.abs(Number(m.amount)).toLocaleString()}
+            </span>
+
+          </div>
+        ))}
+
       </div>
 
     </main>
