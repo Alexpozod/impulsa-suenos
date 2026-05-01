@@ -20,7 +20,9 @@ export async function GET() {
         title,
         goal_amount,
         image_url,
-        status
+        status,
+        user_email,
+        created_at
       `)
       .eq("status", "active")
 
@@ -31,6 +33,12 @@ export async function GET() {
 
         return {
           ...c,
+
+          // 🔥 UNIFICAMOS NOMBRES CON FRONTEND
+          current_amount: wallet.totalIn,
+          available: wallet.available,
+
+          // 🔁 COMPATIBILIDAD (por si usas otros lados)
           raised: wallet.totalIn,
           balance: wallet.available
         }
@@ -40,6 +48,11 @@ export async function GET() {
     return NextResponse.json(enriched)
 
   } catch (error) {
-    return NextResponse.json({ error: "Error servidor" }, { status: 500 })
+    console.error("ENRICHED ERROR:", error)
+
+    return NextResponse.json(
+      { error: "Error servidor" },
+      { status: 500 }
+    )
   }
 }
