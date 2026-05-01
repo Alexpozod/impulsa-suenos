@@ -23,16 +23,9 @@ export default function FinancePage() {
     load()
   }, [])
 
-  /* =========================
-     ⏳ COOLDOWN TIMER
-  ========================= */
   useEffect(() => {
     if (cooldown <= 0) return
-
-    const timer = setInterval(() => {
-      setCooldown((prev) => prev - 1)
-    }, 1000)
-
+    const timer = setInterval(() => setCooldown(p => p - 1), 1000)
     return () => clearInterval(timer)
   }, [cooldown])
 
@@ -55,13 +48,10 @@ export default function FinancePage() {
   )
 
   const maxAmount = Number(selected?.available || 0)
-
   const numericAmount = Number(amount)
 
   const invalidAmount =
-    !numericAmount ||
-    numericAmount <= 0 ||
-    numericAmount > maxAmount
+    !numericAmount || numericAmount <= 0 || numericAmount > maxAmount
 
   const canWithdraw =
     selected &&
@@ -70,9 +60,6 @@ export default function FinancePage() {
     data?.has_bank &&
     otpSent
 
-  /* =========================
-     📩 ENVIAR OTP
-  ========================= */
   const sendOtp = async () => {
     if (cooldown > 0) return
 
@@ -86,12 +73,9 @@ export default function FinancePage() {
     })
 
     setOtpSent(true)
-    setCooldown(60) // 🔥 60 segundos anti spam
+    setCooldown(60)
   }
 
-  /* =========================
-     💸 SOLICITAR RETIRO
-  ========================= */
   const requestPayout = async () => {
     setMessage("")
 
@@ -126,16 +110,60 @@ export default function FinancePage() {
 
   if (loading) return <div className="p-6">Cargando...</div>
 
+  /* =========================
+     📊 GRÁFICO SIMPLE
+  ========================= */
+  const totalIn = data?.totals?.raised || 0
+  const totalOut = data?.totals?.withdrawn || 0
+
+  const total = totalIn + totalOut || 1
+
+  const inPercent = (totalIn / total) * 100
+  const outPercent = (totalOut / total) * 100
+
   return (
-    <main className="p-6 max-w-4xl mx-auto space-y-6">
+    <main className="p-6 max-w-5xl mx-auto space-y-6">
 
       <h1 className="text-2xl font-bold">💰 Tu dinero</h1>
 
       {/* BALANCE */}
       <div className="grid grid-cols-3 gap-4">
-        <Card title="Disponible" value={data.available} />
-        <Card title="En revisión" value={data.pending} />
-        <Card title="Total generado" value={data.balance} />
+        <Card title="Disponible" value={data?.totals?.balance} />
+        <Card title="En revisión" value={data?.totals?.pending} />
+        <Card title="Total generado" value={data?.totals?.raised} />
+      </div>
+
+      {/* 📊 GRÁFICO */}
+      <div className="bg-white p-5 rounded-xl border">
+        <h2 className="font-semibold mb-3">Ingresos vs Retiros</h2>
+
+        <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden flex">
+          <div
+            className="bg-green-500"
+            style={{ width: `${inPercent}%` }}
+          />
+          <div
+            className="bg-red-500"
+            style={{ width: `${outPercent}%` }}
+          />
+        </div>
+
+        <div className="flex justify-between text-sm mt-2">
+          <span className="text-green-600">Ingresos: ${totalIn}</span>
+          <span className="text-red-500">Retiros: ${totalOut}</span>
+        </div>
+      </div>
+
+      {/* 📊 CAMPAÑAS */}
+      <div className="bg-white p-5 rounded-xl border">
+        <h2 className="font-semibold mb-3">Breakdown por campaña</h2>
+
+        {data?.campaigns?.map((c: any) => (
+          <div key={c.id} className="flex justify-between text-sm py-2 border-b">
+            <span>{c.title}</span>
+            <span>${Number(c.available || 0).toLocaleString()}</span>
+          </div>
+        ))}
       </div>
 
       {/* RETIRO */}
@@ -143,43 +171,19 @@ export default function FinancePage() {
 
         <h2 className="font-semibold">Solicitar retiro</h2>
 
-        {/* CAMPAÑAS */}
         <select
           value={selectedCampaign || ""}
           onChange={(e) => setSelectedCampaign(e.target.value)}
           className="w-full border p-2 rounded"
         >
           <option value="">Selecciona campaña</option>
-
           {data?.campaigns?.map((c: any) => (
             <option key={c.id} value={c.id}>
-              {c.title} — Disponible: $
-              {Number(c.available || 0).toLocaleString()}
+              {c.title} — ${Number(c.available).toLocaleString()}
             </option>
           ))}
         </select>
 
-        {/* INFO */}
-        {selected && (
-          <p className="text-sm text-gray-600">
-            Máximo: <b>${maxAmount.toLocaleString()}</b>
-          </p>
-        )}
-
-        {/* WARNINGS */}
-        {data?.kyc_status !== "approved" && (
-          <div className="text-sm text-yellow-600 bg-yellow-50 p-2 rounded">
-            ⚠️ Debes completar KYC
-          </div>
-        )}
-
-        {!data?.has_bank && (
-          <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded">
-            ℹ️ Agrega cuenta bancaria
-          </div>
-        )}
-
-        {/* MONTO */}
         <input
           type="number"
           placeholder="Monto"
@@ -188,27 +192,15 @@ export default function FinancePage() {
           className="w-full border p-2 rounded"
         />
 
-        {numericAmount > maxAmount && (
-          <p className="text-sm text-red-500">
-            ❌ Supera el saldo disponible
-          </p>
-        )}
-
-        {/* OTP */}
         <div className="flex gap-2">
-
           <button
             onClick={sendOtp}
             disabled={cooldown > 0}
             className={`px-3 py-2 rounded text-sm ${
-              cooldown > 0
-                ? "bg-gray-300"
-                : "bg-blue-600 text-white"
+              cooldown > 0 ? "bg-gray-300" : "bg-blue-600 text-white"
             }`}
           >
-            {cooldown > 0
-              ? `Reenviar en ${cooldown}s`
-              : "Enviar código"}
+            {cooldown > 0 ? `Reenviar en ${cooldown}s` : "Enviar código"}
           </button>
 
           <input
@@ -218,10 +210,8 @@ export default function FinancePage() {
             onChange={(e) => setOtp(e.target.value)}
             className="flex-1 border p-2 rounded"
           />
-
         </div>
 
-        {/* BOTÓN */}
         <button
           disabled={!canWithdraw}
           onClick={() => setShowConfirm(true)}
@@ -237,62 +227,34 @@ export default function FinancePage() {
         {message && <p className="text-sm">{message}</p>}
       </div>
 
-      {/* MODAL */}
-      {showConfirm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-
-          <div className="bg-white p-6 rounded-xl w-full max-w-sm space-y-4">
-
-            <h3 className="font-semibold">Confirmar retiro</h3>
-
-            <p className="text-sm">
-              Retirarás <b>${numericAmount.toLocaleString()}</b>
-            </p>
-
-            <div className="flex gap-2">
-
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="flex-1 border p-2 rounded"
-              >
-                Cancelar
-              </button>
-
-              <button
-                onClick={requestPayout}
-                className="flex-1 bg-green-600 text-white p-2 rounded"
-              >
-                Confirmar
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
       {/* HISTORIAL */}
       <div className="bg-white p-5 rounded-xl border">
 
         <h2 className="font-semibold mb-3">Historial</h2>
 
-        {data.movements.map((m: any, i: number) => (
+        {data?.movements?.map((m: any, i: number) => (
           <div key={i} className="flex justify-between text-sm border-b py-2">
-            <span>
-  {m.type === "payment" && "💚 Donación recibida"}
-  {m.type === "withdraw_pending" && "⏳ Retiro en revisión"}
-  {m.type === "withdraw_completed" && "💸 Retiro aprobado"}
-</span>
 
-<span
-  className={
-    m.amount > 0 ? "text-green-600" : "text-red-500"
-  }
->
-  {m.amount > 0 ? "+" : "-"}$
-  {Math.abs(Number(m.amount)).toLocaleString()}
-</span>
+            <span>
+              {m.type === "donation" && "💚 Donación"}
+              {m.type === "withdraw" && (
+                m.status === "pending"
+                  ? "⏳ Retiro en revisión"
+                  : "💸 Retiro aprobado"
+              )}
+            </span>
+
+            <span
+              className={
+                m.type === "donation"
+                  ? "text-green-600"
+                  : "text-red-500"
+              }
+            >
+              {m.type === "donation" ? "+" : "-"}$
+              {Math.abs(Number(m.amount)).toLocaleString()}
+            </span>
+
           </div>
         ))}
 
