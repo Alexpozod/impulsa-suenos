@@ -62,12 +62,11 @@ export async function POST(req: Request) {
        ✅ MARCAR USADO + VERIFIED
     ========================= */
     await supabase
-      .from("otp_codes")
-      .update({
-        used: true,
-        verified: true
-      })
-      .eq("id", otp.id)
+  .from("otp_codes")
+  .update({
+    verified: true
+  })
+  .eq("id", otp.id)
 
     return NextResponse.json({ ok: true })
 
