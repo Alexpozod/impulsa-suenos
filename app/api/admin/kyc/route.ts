@@ -62,6 +62,18 @@ export async function POST(req: Request) {
        🔔 NOTIFICACIONES USUARIO
     ========================= */
     if (status === "approved") {
+
+      // 🟢 MARCAR USUARIO COMO VERIFIED (SOLO AQUÍ)
+      try {
+        await supabase
+          .from("profiles")
+          .update({ account_status: "verified" })
+          .eq("email", user_email)
+      } catch (e) {
+        console.error("⚠️ Error actualizando account_status:", e)
+        // no rompe flujo
+      }
+
       await sendNotification({
         user_email,
         type: "kyc_approved",

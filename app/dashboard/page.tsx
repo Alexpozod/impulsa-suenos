@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import LedgerTable from "@/app/components/finance/LedgerTable"
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 import FinancialAlerts from "@/app/components/finance/FinancialAlerts"
+import { supabase } from "@/src/lib/supabase"
 
 export default function DashboardPage() {
 
@@ -11,6 +12,7 @@ export default function DashboardPage() {
   console.log("🔥 DATA DASHBOARD:", data)
 
   const [ledger, setLedger] = useState<any[]>([])
+  const [accountStatus, setAccountStatus] = useState<string>("basic")
 
   /* =========================
      🔄 LOAD MOVEMENTS (FIX REAL)
@@ -22,6 +24,30 @@ export default function DashboardPage() {
       setLedger([])
     }
   }, [data])
+
+  /* =========================
+     🟢 GET ACCOUNT STATUS (NUEVO - NO ROMPE)
+  ========================= */
+  useEffect(() => {
+    const loadProfile = async () => {
+
+      const { data: userData } = await supabase.auth.getUser()
+
+      if (!userData?.user) return
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("account_status")
+        .eq("id", userData.user.id)
+        .maybeSingle()
+
+      if (profile?.account_status) {
+        setAccountStatus(profile.account_status)
+      }
+    }
+
+    loadProfile()
+  }, [])
 
   /* =========================
      🧠 STATES
@@ -52,6 +78,13 @@ export default function DashboardPage() {
     <main className="p-6 max-w-6xl mx-auto space-y-8">
 
       <FinancialAlerts data={data} />
+
+      {/* 🔥 AVISO KYC (NUEVO) */}
+      {accountStatus !== "verified" && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-lg text-sm">
+          ⚠️ Puedes recibir donaciones, pero necesitas completar KYC para retirar fondos.
+        </div>
+      )}
 
       <section className="grid md:grid-cols-5 gap-4">
         <Card title="Disponible" value={totals.balance} highlight />
@@ -94,12 +127,22 @@ export default function DashboardPage() {
                     Ver
                   </a>
 
-                  <a
-                    href={`/account/withdraw?campaign=${c.id}`}
-                    className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                  >
-                    Retirar
-                  </a>
+                  {/* 🔥 BOTÓN RETIRO CON CONTROL */}
+                  {accountStatus === "verified" ? (
+                    <a
+                      href={`/account/withdraw?campaign=${c.id}`}
+                      className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                    >
+                      Retirar
+                    </a>
+                  ) : (
+                    <button
+                      disabled
+                      className="text-sm px-3 py-1 bg-gray-300 text-gray-500 rounded cursor-not-allowed"
+                    >
+                      Retirar
+                    </button>
+                  )}
 
                   <a
                     href={`/dashboard/campaigns/${c.id}/updates`}

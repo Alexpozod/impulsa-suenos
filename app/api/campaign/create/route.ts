@@ -56,22 +56,22 @@ export async function POST(req: Request) {
     }
 
     // 🔒 KYC (NO BLOQUEA CREACIÓN - SOLO CONTROL)
-const { data: kyc } = await supabaseAdmin
-  .from("kyc")
-  .select("status")
-  .eq("user_email", user_email)
-  .maybeSingle()
+    const { data: kyc } = await supabaseAdmin
+      .from("kyc")
+      .select("status")
+      .eq("user_email", user_email)
+      .maybeSingle()
 
-// 🔥 PERMITIMOS CREAR CAMPAÑA SIN KYC
-if (!kyc || kyc.status !== "approved") {
+    // 🔥 PERMITIMOS CREAR CAMPAÑA SIN KYC
+    if (!kyc || kyc.status !== "approved") {
 
-  await logToDB("warning", "campaign_created_without_kyc", {
-    user_email,
-    kyc_status: kyc?.status || "none"
-  })
+      await logToDB("warning", "campaign_created_without_kyc", {
+        user_email,
+        kyc_status: kyc?.status || "none"
+      })
 
-  console.warn("⚠️ Usuario creó campaña sin KYC:", user_email)
-}
+      console.warn("⚠️ Usuario creó campaña sin KYC:", user_email)
+    }
 
     // 🧠 NORMALIZAR IMÁGENES
     const safeImages = Array.isArray(images) ? images : []
@@ -88,7 +88,7 @@ if (!kyc || kyc.status !== "approved") {
         images: safeImages,
         category,
         status: "active",
-        type: "crowdfunding", // 🔥 elimina raffle
+        type: "crowdfunding",
         created_at: new Date().toISOString()
       })
       .select()
@@ -99,6 +99,20 @@ if (!kyc || kyc.status !== "approved") {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    /* =========================
+       🟢 NUEVO: ACTUALIZAR ESTADO A CREATOR
+       (NO ROMPE NADA)
+    ========================= */
+    try {
+      await supabaseAdmin
+        .from("profiles")
+        .update({ account_status: "creator" })
+        .eq("email", user_email)
+    } catch (e) {
+      console.error("⚠️ Error actualizando account_status:", e)
+      // no rompe flujo
+    }
+
     await logToDB("info", "campaign_created", {
       campaign_id: campaign.id,
       user_email,
@@ -106,20 +120,20 @@ if (!kyc || kyc.status !== "approved") {
       images_count: safeImages.length
     })
 
-/* =========================
-   📧 NOTIFICACIÓN CREACIÓN CAMPAÑA
-========================= */
-await sendNotification({
-  user_email,
-  type: "campaign_created",
-  title: "Campaña creada con éxito",
-  message: "Tu campaña ya está activa",
-  metadata: {
-    campaign_title: campaign.title,
-    goal_amount: campaign.goal_amount
-  },
-  sendEmail: true
-})
+    /* =========================
+       📧 NOTIFICACIÓN CREACIÓN CAMPAÑA
+    ========================= */
+    await sendNotification({
+      user_email,
+      type: "campaign_created",
+      title: "Campaña creada con éxito",
+      message: "Tu campaña ya está activa",
+      metadata: {
+        campaign_title: campaign.title,
+        goal_amount: campaign.goal_amount
+      },
+      sendEmail: true
+    })
 
     return NextResponse.json({ ok: true, campaign })
 

@@ -39,6 +39,23 @@ export async function POST(req: Request) {
     const user_email = user.email.toLowerCase()
 
     /* =========================
+       🟢 VALIDACIÓN NUEVA (NO ROMPE NADA)
+       account_status debe ser verified
+    ========================= */
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("account_status")
+      .eq("id", user.id)
+      .maybeSingle()
+
+    if (!profile || profile.account_status !== "verified") {
+      return NextResponse.json(
+        { error: "Debes completar KYC para retirar fondos" },
+        { status: 403 }
+      )
+    }
+
+    /* =========================
        📥 INPUT (FIX CRÍTICO)
     ========================= */
     const body = await req.json()
@@ -71,41 +88,39 @@ export async function POST(req: Request) {
     }
 
     /* =========================
-   🔐 VERIFY OTP (FIX FINAL)
-========================= */
-const { data: otp } = await supabase
-  .from("otp_codes")
-  .select("*")
-  .eq("user_email", user_email)
-  .eq("code", otp_code)
-  .eq("used", false)
-  .order("created_at", { ascending: false })
-  .limit(1)
-  .maybeSingle()
+       🔐 VERIFY OTP (FIX FINAL)
+    ========================= */
+    const { data: otp } = await supabase
+      .from("otp_codes")
+      .select("*")
+      .eq("user_email", user_email)
+      .eq("code", otp_code)
+      .eq("used", false)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-if (!otp) {
-  return NextResponse.json(
-    { error: "OTP inválido" },
-    { status: 403 }
-  )
-}
+    if (!otp) {
+      return NextResponse.json(
+        { error: "OTP inválido" },
+        { status: 403 }
+      )
+    }
 
-// 🔥 VALIDAR EXPIRACIÓN DESDE DB
-const now = new Date().getTime()
-const expires = new Date(otp.expires_at).getTime()
+    const now = new Date().getTime()
+    const expires = new Date(otp.expires_at).getTime()
 
-if (now > expires) {
-  return NextResponse.json(
-    { error: "OTP expirado" },
-    { status: 403 }
-  )
-}
+    if (now > expires) {
+      return NextResponse.json(
+        { error: "OTP expirado" },
+        { status: 403 }
+      )
+    }
 
-// 🔥 MARCAR COMO USADO
-await supabase
-  .from("otp_codes")
-  .update({ used: true })
-  .eq("id", otp.id)
+    await supabase
+      .from("otp_codes")
+      .update({ used: true })
+      .eq("id", otp.id)
 
     /* =========================
        🛡️ RATE LIMIT
@@ -147,7 +162,7 @@ await supabase
     }
 
     /* =========================
-       🪪 KYC
+       🪪 KYC (SE MANTIENE)
     ========================= */
     const { data: kyc } = await supabase
       .from("kyc")
