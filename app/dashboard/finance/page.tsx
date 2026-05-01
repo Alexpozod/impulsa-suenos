@@ -55,11 +55,9 @@ export default function FinancePage() {
     !numericAmount || numericAmount <= 0 || numericAmount > maxAmount
 
   const canWithdraw =
-    selected &&
-    !invalidAmount &&
-    data?.kyc_status === "approved" &&
-    data?.has_bank &&
-    otpValid
+  selected &&
+  !invalidAmount &&
+  otpValid
 
   /* =========================
      OTP SEND
