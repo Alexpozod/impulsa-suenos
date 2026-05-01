@@ -4,19 +4,14 @@ import { useEffect, useState } from "react"
 import LedgerTable from "@/app/components/finance/LedgerTable"
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 import FinancialAlerts from "@/app/components/finance/FinancialAlerts"
-import { supabase } from "@/src/lib/supabase"
+import Link from "next/link"
 
 export default function DashboardPage() {
 
   const { data, loading } = useFinancialDashboard()
-  console.log("🔥 DATA DASHBOARD:", data)
 
   const [ledger, setLedger] = useState<any[]>([])
-  const [accountStatus, setAccountStatus] = useState<string>("basic")
 
-  /* =========================
-     🔄 LOAD MOVEMENTS (FIX REAL)
-  ========================= */
   useEffect(() => {
     if (Array.isArray(data?.movements)) {
       setLedger(data.movements)
@@ -25,33 +20,6 @@ export default function DashboardPage() {
     }
   }, [data])
 
-  /* =========================
-     🟢 GET ACCOUNT STATUS (NUEVO - NO ROMPE)
-  ========================= */
-  useEffect(() => {
-    const loadProfile = async () => {
-
-      const { data: userData } = await supabase.auth.getUser()
-
-      if (!userData?.user) return
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("account_status")
-        .eq("id", userData.user.id)
-        .maybeSingle()
-
-      if (profile?.account_status) {
-        setAccountStatus(profile.account_status)
-      }
-    }
-
-    loadProfile()
-  }, [])
-
-  /* =========================
-     🧠 STATES
-  ========================= */
   if (loading) return <div className="p-10">Cargando...</div>
 
   if (!data) {
@@ -71,21 +39,17 @@ export default function DashboardPage() {
   }
 
   const campaigns = Array.isArray(data?.campaigns)
-    ? data.campaigns
+    ? data.campaigns.slice(0, 2) // 🔥 SOLO PREVIEW
     : []
 
   return (
-    <main className="p-6 max-w-6xl mx-auto space-y-8">
+    <main className="space-y-8">
 
       <FinancialAlerts data={data} />
 
-      {/* 🔥 AVISO KYC (NUEVO) */}
-      {accountStatus !== "verified" && (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-lg text-sm">
-          ⚠️ Puedes recibir donaciones, pero necesitas completar KYC para retirar fondos.
-        </div>
-      )}
-
+      {/* =========================
+         💰 RESUMEN
+      ========================= */}
       <section className="grid md:grid-cols-5 gap-4">
         <Card title="Disponible" value={totals.balance} highlight />
         <Card title="Recaudado" value={totals.raised} />
@@ -94,8 +58,20 @@ export default function DashboardPage() {
         <Card title="Pendiente" value={totals.pending} />
       </section>
 
+      {/* =========================
+         📢 PREVIEW CAMPAÑAS
+      ========================= */}
       <section>
-        <h2 className="text-xl font-bold mb-4">Tus campañas</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Tus campañas</h2>
+
+          <Link
+            href="/dashboard/campaigns"
+            className="text-sm text-green-600 hover:underline"
+          >
+            Ver todas →
+          </Link>
+        </div>
 
         {campaigns.length === 0 && (
           <p className="text-gray-500 text-sm">
@@ -127,28 +103,11 @@ export default function DashboardPage() {
                     Ver
                   </a>
 
-                  {/* 🔥 BOTÓN RETIRO CON CONTROL */}
-                  {accountStatus === "verified" ? (
-                    <a
-                      href={`/account/withdraw?campaign=${c.id}`}
-                      className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                    >
-                      Retirar
-                    </a>
-                  ) : (
-                    <button
-                      disabled
-                      className="text-sm px-3 py-1 bg-gray-300 text-gray-500 rounded cursor-not-allowed"
-                    >
-                      Retirar
-                    </button>
-                  )}
-
                   <a
-                    href={`/dashboard/campaigns/${c.id}/updates`}
-                    className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
+                    href={`/account/withdraw?campaign=${c.id}`}
+                    className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
                   >
-                    Updates
+                    Retirar
                   </a>
 
                 </div>
@@ -162,6 +121,9 @@ export default function DashboardPage() {
 
       </section>
 
+      {/* =========================
+         📊 MOVIMIENTOS
+      ========================= */}
       <section>
         <h2 className="text-xl font-bold mb-4">
           Movimientos recientes
