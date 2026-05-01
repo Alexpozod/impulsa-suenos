@@ -49,7 +49,7 @@ export default function CampaignsPage() {
 
               {/* 🔥 RECAUDADO REAL */}
               <p className="text-sm text-gray-500">
-                Recaudado: ${Number(c.current_amount || 0).toLocaleString()}
+               Recaudado: ${Number(c.raised || c.total_raised || 0).toLocaleString()}
               </p>
 
               {/* 🔥 DISPONIBLE REAL */}
