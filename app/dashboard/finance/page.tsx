@@ -280,12 +280,19 @@ export default function FinancePage() {
         {data.movements.map((m: any, i: number) => (
           <div key={i} className="flex justify-between text-sm border-b py-2">
             <span>
-              {m.type === "payment" ? "💚 Donación" : "💸 Retiro"}
-            </span>
-            <span className={m.amount > 0 ? "text-green-600" : "text-red-500"}>
-              {m.amount > 0 ? "+" : "-"}$
-              {Math.abs(m.amount).toLocaleString()}
-            </span>
+  {m.type === "payment" && "💚 Donación recibida"}
+  {m.type === "withdraw_pending" && "⏳ Retiro en revisión"}
+  {m.type === "withdraw_completed" && "💸 Retiro aprobado"}
+</span>
+
+<span
+  className={
+    m.amount > 0 ? "text-green-600" : "text-red-500"
+  }
+>
+  {m.amount > 0 ? "+" : "-"}$
+  {Math.abs(Number(m.amount)).toLocaleString()}
+</span>
           </div>
         ))}
 
