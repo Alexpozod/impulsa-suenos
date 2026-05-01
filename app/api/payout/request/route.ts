@@ -43,17 +43,21 @@ export async function POST(req: Request) {
        account_status debe ser verified
     ========================= */
     const { data: profile } = await supabase
-      .from("profiles")
-      .select("account_status")
-      .eq("id", user.id)
-      .maybeSingle()
+  .from("profiles")
+  .select("account_status")
+  .eq("id", user.id)
+  .maybeSingle()
 
-    // 🔓 SOLO VALIDAR SI EXISTE (NO BLOQUEA SI NO ESTÁ CONFIGURADO)
-if (profile && profile.account_status && profile.account_status !== "verified") {
-  return NextResponse.json(
-    { error: "Debes completar KYC para retirar fondos" },
-    { status: 403 }
-  )
+// 🔓 NO BLOQUEAR SI KYC YA EXISTE (EVITA DOBLE VALIDACIÓN)
+if (
+  profile &&
+  profile.account_status &&
+  profile.account_status !== "verified"
+) {
+  console.warn("⚠️ account_status no es verified pero se continúa por KYC:", {
+    user_email,
+    account_status: profile.account_status
+  })
 }
 
     /* =========================
