@@ -56,8 +56,10 @@ export default function CampaignsPage() {
               </p>
 
               <p className="text-xs text-gray-400">
-                {new Date(c.created_at).toLocaleDateString()}
-              </p>
+  {c.created_at
+    ? new Date(c.created_at).toLocaleDateString()
+    : "Sin fecha"}
+</p>
             </div>
 
             <div className="flex gap-2">
