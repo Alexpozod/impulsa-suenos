@@ -58,22 +58,51 @@ export default function FinancePage() {
     !invalidAmount &&
     data?.kyc_status === "approved" &&
     data?.has_bank &&
-    otpSent
+    otpSent &&
+    otp.length >= 6
 
+  /* =========================
+     📩 ENVIAR OTP (FIX REAL)
+  ========================= */
   const sendOtp = async () => {
     if (cooldown > 0) return
 
-    const { data: { session } } = await supabase.auth.getSession()
+    try {
 
-    await fetch("/api/otp/send", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.access_token}`
+      const { data: { session } } = await supabase.auth.getSession()
+      const { data: userData } = await supabase.auth.getUser()
+
+      if (!session?.access_token || !userData?.user?.email) {
+        setMessage("❌ Error de sesión")
+        return
       }
-    })
 
-    setOtpSent(true)
-    setCooldown(60)
+      const res = await fetch("/api/otp/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          email: userData.user.email
+        })
+      })
+
+      const json = await res.json()
+
+      if (json.error) {
+        setMessage(`❌ ${json.error}`)
+        return
+      }
+
+      setOtpSent(true)
+      setCooldown(60)
+      setMessage("📩 Código enviado")
+
+    } catch (err) {
+      console.error(err)
+      setMessage("❌ Error enviando OTP")
+    }
   }
 
   const requestPayout = async () => {
@@ -110,9 +139,6 @@ export default function FinancePage() {
 
   if (loading) return <div className="p-6">Cargando...</div>
 
-  /* =========================
-     📊 GRÁFICO SIMPLE
-  ========================= */
   const totalIn = data?.totals?.raised || 0
   const totalOut = data?.totals?.withdrawn || 0
 
@@ -126,26 +152,18 @@ export default function FinancePage() {
 
       <h1 className="text-2xl font-bold">💰 Tu dinero</h1>
 
-      {/* BALANCE */}
       <div className="grid grid-cols-3 gap-4">
         <Card title="Disponible" value={data?.totals?.balance} />
         <Card title="En revisión" value={data?.totals?.pending} />
         <Card title="Total generado" value={data?.totals?.raised} />
       </div>
 
-      {/* 📊 GRÁFICO */}
       <div className="bg-white p-5 rounded-xl border">
         <h2 className="font-semibold mb-3">Ingresos vs Retiros</h2>
 
         <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden flex">
-          <div
-            className="bg-green-500"
-            style={{ width: `${inPercent}%` }}
-          />
-          <div
-            className="bg-red-500"
-            style={{ width: `${outPercent}%` }}
-          />
+          <div className="bg-green-500" style={{ width: `${inPercent}%` }} />
+          <div className="bg-red-500" style={{ width: `${outPercent}%` }} />
         </div>
 
         <div className="flex justify-between text-sm mt-2">
@@ -154,7 +172,6 @@ export default function FinancePage() {
         </div>
       </div>
 
-      {/* 📊 CAMPAÑAS */}
       <div className="bg-white p-5 rounded-xl border">
         <h2 className="font-semibold mb-3">Breakdown por campaña</h2>
 
@@ -166,7 +183,6 @@ export default function FinancePage() {
         ))}
       </div>
 
-      {/* RETIRO */}
       <div className="bg-white p-5 rounded-xl border space-y-4">
 
         <h2 className="font-semibold">Solicitar retiro</h2>
@@ -184,6 +200,12 @@ export default function FinancePage() {
           ))}
         </select>
 
+        {selected && (
+          <p className="text-sm text-gray-600">
+            Máximo: <b>${maxAmount.toLocaleString()}</b>
+          </p>
+        )}
+
         <input
           type="number"
           placeholder="Monto"
@@ -191,6 +213,12 @@ export default function FinancePage() {
           onChange={(e) => setAmount(e.target.value)}
           className="w-full border p-2 rounded"
         />
+
+        {numericAmount > maxAmount && (
+          <p className="text-sm text-red-500">
+            ❌ Supera el saldo disponible
+          </p>
+        )}
 
         <div className="flex gap-2">
           <button
@@ -227,7 +255,6 @@ export default function FinancePage() {
         {message && <p className="text-sm">{message}</p>}
       </div>
 
-      {/* HISTORIAL */}
       <div className="bg-white p-5 rounded-xl border">
 
         <h2 className="font-semibold mb-3">Historial</h2>
