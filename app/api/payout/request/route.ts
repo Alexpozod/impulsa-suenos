@@ -48,12 +48,13 @@ export async function POST(req: Request) {
       .eq("id", user.id)
       .maybeSingle()
 
-    if (!profile || profile.account_status !== "verified") {
-      return NextResponse.json(
-        { error: "Debes completar KYC para retirar fondos" },
-        { status: 403 }
-      )
-    }
+    // 🔓 SOLO VALIDAR SI EXISTE (NO BLOQUEA SI NO ESTÁ CONFIGURADO)
+if (profile && profile.account_status && profile.account_status !== "verified") {
+  return NextResponse.json(
+    { error: "Debes completar KYC para retirar fondos" },
+    { status: 403 }
+  )
+}
 
     /* =========================
        📥 INPUT (FIX CRÍTICO)
