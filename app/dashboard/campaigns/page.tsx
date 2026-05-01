@@ -18,7 +18,7 @@ export default function CampaignsPage() {
     )
   }
 
-  const campaigns = Array.isArray(data?.campaigns)
+  const campaigns = Array.isArray(data.campaigns)
     ? data.campaigns
     : []
 
@@ -47,19 +47,21 @@ export default function CampaignsPage() {
             <div>
               <p className="font-semibold">{c.title}</p>
 
+              {/* 🔥 RECAUDADO REAL */}
               <p className="text-sm text-gray-500">
                 Recaudado: ${Number(c.current_amount || 0).toLocaleString()}
               </p>
 
+              {/* 🔥 DISPONIBLE REAL */}
               <p className="text-sm text-gray-500">
                 Disponible: ${Number(c.available || 0).toLocaleString()}
               </p>
 
               <p className="text-xs text-gray-400">
-  {c.created_at
-    ? new Date(c.created_at).toLocaleDateString()
-    : "Sin fecha"}
-</p>
+                {c.created_at
+                  ? new Date(c.created_at).toLocaleDateString()
+                  : "Sin fecha"}
+              </p>
             </div>
 
             <div className="flex gap-2">
