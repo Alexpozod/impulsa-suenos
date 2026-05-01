@@ -12,7 +12,8 @@ export default function FinancePage() {
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null)
 
   const [otp, setOtp] = useState("")
-  const [otpSent, setOtpSent] = useState(false)
+  const [otpValid, setOtpValid] = useState(false)
+  const [validatingOtp, setValidatingOtp] = useState(false)
 
   const [cooldown, setCooldown] = useState(0)
 
@@ -58,7 +59,7 @@ export default function FinancePage() {
     !invalidAmount &&
     data?.kyc_status === "approved" &&
     data?.has_bank &&
-    otp.length === 6
+    otpValid
 
   /* =========================
      📩 ENVIAR OTP
@@ -93,12 +94,53 @@ export default function FinancePage() {
         return
       }
 
-      setOtpSent(true)
       setCooldown(60)
       setMessage("📩 Código enviado")
 
     } catch {
       setMessage("❌ Error enviando OTP")
+    }
+  }
+
+  /* =========================
+     ✅ VALIDAR OTP
+  ========================= */
+  const validateOtp = async () => {
+    if (otp.length !== 6) {
+      setMessage("❌ Código incompleto")
+      return
+    }
+
+    try {
+      setValidatingOtp(true)
+
+      const { data: { session } } = await supabase.auth.getSession()
+
+      const res = await fetch("/api/otp/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({
+          code: otp
+        })
+      })
+
+      const json = await res.json()
+
+      if (json.error) {
+        setOtpValid(false)
+        setMessage("❌ Código inválido")
+      } else {
+        setOtpValid(true)
+        setMessage("✅ Código verificado")
+      }
+
+    } catch {
+      setMessage("❌ Error validando código")
+    } finally {
+      setValidatingOtp(false)
     }
   }
 
@@ -128,7 +170,7 @@ export default function FinancePage() {
       setMessage(`✅ Retiro solicitado correctamente`)
       setAmount("")
       setOtp("")
-      setOtpSent(false)
+      setOtpValid(false)
       setShowConfirm(false)
       load()
     }
@@ -138,7 +180,6 @@ export default function FinancePage() {
 
   const totalIn = data?.totals?.raised || 0
   const totalOut = data?.totals?.withdrawn || 0
-
   const total = totalIn + totalOut || 1
 
   const inPercent = (totalIn / total) * 100
@@ -215,12 +256,6 @@ export default function FinancePage() {
           className="w-full border p-2 rounded"
         />
 
-        {numericAmount > maxAmount && (
-          <p className="text-sm text-red-500">
-            ❌ Supera el saldo disponible
-          </p>
-        )}
-
         {/* OTP */}
         <div className="flex gap-2">
           <button
@@ -237,21 +272,25 @@ export default function FinancePage() {
             type="text"
             placeholder="Código OTP"
             value={otp}
-            onChange={(e) => setOtp(e.target.value)}
+            onChange={(e) => {
+              setOtp(e.target.value)
+              setOtpValid(false)
+            }}
             className="flex-1 border p-2 rounded"
           />
+
+          <button
+            onClick={validateOtp}
+            disabled={otp.length !== 6 || validatingOtp}
+            className={`px-3 py-2 rounded text-sm ${
+              otp.length === 6
+                ? "bg-green-600 text-white"
+                : "bg-gray-300"
+            }`}
+          >
+            {validatingOtp ? "Validando..." : "Validar"}
+          </button>
         </div>
-
-        {/* FEEDBACK OTP */}
-        {otp.length > 0 && otp.length < 6 && (
-          <p className="text-sm text-yellow-600">Código incompleto</p>
-        )}
-
-        {otp.length === 6 && (
-          <p className="text-sm text-green-600">
-            Código listo para validar
-          </p>
-        )}
 
         {/* BOTÓN */}
         <button
@@ -267,38 +306,6 @@ export default function FinancePage() {
         </button>
 
         {message && <p className="text-sm">{message}</p>}
-      </div>
-
-      {/* HISTORIAL */}
-      <div className="bg-white p-5 rounded-xl border">
-
-        <h2 className="font-semibold mb-3">Historial</h2>
-
-        {data?.movements?.map((m: any, i: number) => (
-          <div key={i} className="flex justify-between text-sm border-b py-2">
-
-            <span>
-              {m.type === "donation" && "💚 Donación"}
-              {m.type === "withdraw" &&
-                (m.status === "pending"
-                  ? "⏳ Retiro en revisión"
-                  : "💸 Retiro aprobado")}
-            </span>
-
-            <span
-              className={
-                m.type === "donation"
-                  ? "text-green-600"
-                  : "text-red-500"
-              }
-            >
-              {m.type === "donation" ? "+" : "-"}$
-              {Math.abs(Number(m.amount)).toLocaleString()}
-            </span>
-
-          </div>
-        ))}
-
       </div>
 
     </main>
