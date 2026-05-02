@@ -144,279 +144,191 @@ export default function AccountPage() {
   const needsBank = !bankLoaded
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-6">
+  <div className="min-h-screen bg-gray-50">
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
 
-        <div className="flex items-center gap-4 mb-6">
-
-          <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-            {profile?.avatar_url ? (
-              <img
-                src={profile.avatar_url}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-xl">👤</span>
-            )}
-          </div>
-
-          <div>
-            <h1 className="text-2xl font-bold">
-              {profile?.full_name || user?.email?.split("@")[0] || "Mi Cuenta"}
-            </h1>
-            <p className="text-gray-500 text-sm">
-              {user?.email}
-            </p>
-          </div>
-
-        </div>
-
-        {(needsKyc || needsBank) && (
-          <div className="mb-6 p-4 rounded-xl border bg-yellow-50 border-yellow-300">
-            <p className="font-semibold mb-2">⚠️ Completa tu cuenta</p>
-            <ul className="text-sm space-y-1">
-              {needsKyc && <li>• Verifica tu identidad (KYC)</li>}
-              {needsBank && <li>• Agrega tu cuenta bancaria</li>}
-            </ul>
-          </div>
-        )}
-
-        <div className="mb-6 flex gap-3 flex-wrap">
-
-          <span className={`px-3 py-1 rounded text-sm ${
-            kycStatus === 'approved'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
-          }`}>
-            KYC: {kycStatus || 'no iniciado'}
-          </span>
-
-          <span className={`px-3 py-1 rounded text-sm ${
-            bankLoaded
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
-          }`}>
-            Banco: {bankLoaded ? 'OK' : 'pendiente'}
-          </span>
-
-        </div>
-
-        <div className="mb-8 grid md:grid-cols-2 gap-4">
-
-          <button
-            onClick={() => router.push("/dashboard/kyc")}
-            className="p-4 rounded-xl border bg-white hover:bg-gray-50 text-left"
-          >
-            <p className="font-semibold">🪪 Verificación KYC</p>
-            <p className="text-xs text-gray-500">
-              {kycStatus === "approved" ? "Completado" : "Requerido para retirar"}
-            </p>
-          </button>
-
-          <button
-            onClick={() => router.push("/dashboard/account/bank")}
-            className="p-4 rounded-xl border bg-white hover:bg-gray-50 text-left"
-          >
-            <p className="font-semibold">🏦 Cuenta bancaria</p>
-            <p className="text-xs text-gray-500">
-              {bankLoaded ? "Configurada" : "Agrega tu cuenta"}
-            </p>
-          </button>
-
-        </div>
-
-        <div className="mb-6 text-sm text-gray-500">
-          Consulta tus ingresos y retiros en la sección Finanzas.
-        </div>
-
-        <div className="mb-8 flex flex-wrap gap-3">
-
-          <button
-            onClick={() => router.push("/create")}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            ➕ Crear campaña
-          </button>
-
-          {!needsKyc && !needsBank && finance?.totals?.balance > 0 && (
-            <button
-              onClick={() => router.push("/dashboard/account/withdraw")}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              💸 Retirar fondos
-            </button>
+      {/* HEADER */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-2xl">👤</span>
           )}
-
         </div>
 
-        {/* CONFIGURACIÓN */}
-        <div className="bg-white border rounded-2xl p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4">⚙️ Configuración de cuenta</h2>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold">
+            {profile?.full_name || user?.email?.split("@")[0]}
+          </h1>
+          <p className="text-gray-500 text-sm">{user?.email}</p>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="flex gap-2 mt-2">
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              kycStatus === 'approved'
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}>
+              KYC {kycStatus === "approved" ? "verificado" : "pendiente"}
+            </span>
 
-            <input
-              type="text"
-              placeholder="Nombre completo"
-              value={profile?.full_name ?? ""}
-              onChange={(e) =>
-                setProfile((prev: any) => ({
-                  ...(prev || {}),
-                  full_name: e.target.value
-                }))
-              }
-              className="p-3 border rounded-lg"
-            />
-
-            <input
-              type="text"
-              placeholder="Teléfono"
-              value={profile?.phone ?? ""}
-              onChange={(e) =>
-                setProfile((prev: any) => ({
-                  ...(prev || {}),
-                  phone: e.target.value
-                }))
-              }
-              className="p-3 border rounded-lg"
-            />
-
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              bankLoaded
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}>
+              Banco {bankLoaded ? "conectado" : "pendiente"}
+            </span>
           </div>
-
-          <div className="mt-4">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={async (e) => {
-                const file = e.target.files?.[0]
-                if (!file || !user) return
-
-                const filePath = `${user.id}/${Date.now()}_${file.name}`
-
-                const { error: uploadError } = await supabase.storage
-                  .from("avatars")
-                  .upload(filePath, file, { upsert: true })
-
-                if (uploadError) {
-                  alert("Error subiendo imagen")
-                  return
-                }
-
-                const { data } = supabase.storage
-                  .from("avatars")
-                  .getPublicUrl(filePath)
-
-                setProfile((prev: any) => ({
-                  ...(prev || {}),
-                  avatar_url: data.publicUrl
-                }))
-              }}
-            />
-          </div>
-
-          <button
-            onClick={async () => {
-              if (!user) return
-
-              const { error } = await supabase
-                .from("profiles")
-                .upsert({
-                  id: user.id,
-                  full_name: profile?.full_name || "",
-                  phone: profile?.phone || "",
-                  avatar_url: profile?.avatar_url || null
-                }, { onConflict: "id" })
-
-              if (error) {
-                alert("Error guardando")
-              } else {
-                alert("Perfil actualizado correctamente ✅")
-              }
-            }}
-            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            Guardar cambios
-          </button>
-
-          <div className="mt-6">
-            <button
-              onClick={async () => {
-                const newPassword = window.prompt("Nueva contraseña (mínimo 6 caracteres)")
-                if (!newPassword || newPassword.length < 6) {
-                  alert("Contraseña inválida")
-                  return
-                }
-
-                const { error } = await supabase.auth.updateUser({
-                  password: newPassword
-                })
-
-                if (error) {
-                  alert("Error cambiando contraseña")
-                } else {
-                  alert("Contraseña actualizada")
-                }
-              }}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Cambiar contraseña
-            </button>
-          </div>
-
         </div>
-
-        {/* ANALYTICS */}
-        <div className="bg-white border rounded-2xl p-6 space-y-6">
-
-          <h2 className="text-xl font-bold">
-            🚀 Crecimiento & Viralidad
-          </h2>
-
-          <div className="grid md:grid-cols-4 gap-4">
-            <StatCard label="🔗 Referidos" value={analytics?.refs ?? 0} />
-            <StatCard label="👥 Donaciones" value={analytics?.total_donations ?? 0} />
-            <StatCard label="📈 Conversión" value={`${analytics?.conversion ?? 0}%`} />
-            <StatCard label="💰 Generado" value={`$${Number(analytics?.total_amount || 0).toLocaleString()}`} />
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-gray-600 mb-2">
-              🌐 Fuentes de tráfico
-            </h3>
-
-            <div className="space-y-2">
-
-              {analytics?.sources
-                ? Object.entries(analytics.sources).map(([key, val]: any) => (
-                    <div
-                      key={key}
-                      className="flex justify-between items-center bg-gray-50 px-4 py-2 rounded-lg"
-                    >
-                      <span className="text-sm font-medium capitalize">
-                        {key}
-                      </span>
-
-                      <div className="text-right text-sm">
-                        <p className="font-bold">
-                          ${Number(val.amount || 0).toLocaleString()}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          {val.count} donaciones
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                : <p className="text-gray-400 text-sm">Sin datos aún</p>
-              }
-
-            </div>
-          </div>
-
-        </div>
-
       </div>
+
+      {/* ACCIONES */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <button
+          onClick={() => router.push("/dashboard/kyc")}
+          className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition text-left"
+        >
+          <p className="font-semibold text-lg">🪪 Verificación</p>
+          <p className="text-sm text-gray-500">
+            {kycStatus === "approved" ? "Completado" : "Necesario para retirar"}
+          </p>
+        </button>
+
+        <button
+          onClick={() => router.push("/dashboard/account/bank")}
+          className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition text-left"
+        >
+          <p className="font-semibold text-lg">🏦 Cuenta bancaria</p>
+          <p className="text-sm text-gray-500">
+            {bankLoaded ? "Configurada" : "Agrega tu cuenta"}
+          </p>
+        </button>
+      </div>
+
+      {/* CTA */}
+      <div className="flex gap-3 flex-wrap">
+        <button
+          onClick={() => router.push("/create")}
+          className="px-5 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700"
+        >
+          ➕ Crear campaña
+        </button>
+
+        {!needsKyc && !needsBank && finance?.totals?.balance > 0 && (
+          <button
+            onClick={() => router.push("/dashboard/account/withdraw")}
+            className="px-5 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700"
+          >
+            💸 Retirar fondos
+          </button>
+        )}
+      </div>
+
+      {/* CONFIGURACIÓN */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+        <h2 className="text-lg font-bold">Configuración de cuenta</h2>
+
+        <div className="grid md:grid-cols-2 gap-4">
+
+          <input
+            type="text"
+            placeholder="Nombre completo"
+            value={profile?.full_name ?? ""}
+            onChange={(e) =>
+              setProfile((prev: any) => ({
+                ...(prev || {}),
+                full_name: e.target.value
+              }))
+            }
+            className="p-3 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+          />
+
+          <input
+            type="text"
+            placeholder="Teléfono"
+            value={profile?.phone ?? ""}
+            onChange={(e) =>
+              setProfile((prev: any) => ({
+                ...(prev || {}),
+                phone: e.target.value
+              }))
+            }
+            className="p-3 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+          />
+
+        </div>
+
+        <input
+          type="file"
+          className="text-sm"
+          onChange={async (e) => {
+            const file = e.target.files?.[0]
+            if (!file || !user) return
+
+            const filePath = `${user.id}/${Date.now()}_${file.name}`
+
+            const { error } = await supabase.storage
+              .from("avatars")
+              .upload(filePath, file, { upsert: true })
+
+            if (error) {
+              alert("Error subiendo imagen")
+              return
+            }
+
+            const { data } = supabase.storage
+              .from("avatars")
+              .getPublicUrl(filePath)
+
+            setProfile((prev: any) => ({
+              ...(prev || {}),
+              avatar_url: data.publicUrl
+            }))
+          }}
+        />
+
+        <button
+          onClick={async () => {
+            if (!user) return
+
+            const { error } = await supabase
+              .from("profiles")
+              .upsert({
+                id: user.id,
+                full_name: profile?.full_name || "",
+                phone: profile?.phone || "",
+                avatar_url: profile?.avatar_url || null
+              }, { onConflict: "id" })
+
+            if (error) alert("Error guardando")
+            else alert("Perfil actualizado ✅")
+          }}
+          className="bg-green-600 text-white px-5 py-3 rounded-xl hover:bg-green-700"
+        >
+          Guardar cambios
+        </button>
+
+        <button
+          onClick={async () => {
+            const newPassword = window.prompt("Nueva contraseña (mínimo 6 caracteres)")
+            if (!newPassword || newPassword.length < 6) {
+              alert("Contraseña inválida")
+              return
+            }
+
+            await supabase.auth.updateUser({ password: newPassword })
+            alert("Contraseña actualizada")
+          }}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          Cambiar contraseña
+        </button>
+      </div>
+
     </div>
-  )
+  </div>
+)
 }
 
 /* UI */
