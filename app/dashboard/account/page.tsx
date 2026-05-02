@@ -11,6 +11,7 @@ export default function AccountPage() {
 
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
 
   const [kycStatus, setKycStatus] = useState<string | null>(null)
   const [bankLoaded, setBankLoaded] = useState(false)
@@ -34,6 +35,15 @@ export default function AccountPage() {
         setUser(currentUser)
 
         const email = currentUser.email!.toLowerCase()
+
+        // 🔥 PERFIL (NUEVO - NO ROMPE NADA)
+const { data: profileData } = await supabase
+  .from("profiles")
+  .select("full_name, avatar_url")
+  .eq("id", currentUser.id)
+  .maybeSingle()
+
+setProfile(profileData)
 
         // KYC
         const { data: kyc } = await supabase
@@ -129,8 +139,29 @@ export default function AccountPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto p-6">
 
-        <h1 className="text-3xl font-bold mb-2">Mi Cuenta</h1>
-        <p className="text-gray-600 mb-6">{user?.email}</p>
+        <div className="flex items-center gap-4 mb-6">
+
+  <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+    {profile?.avatar_url ? (
+      <img
+        src={profile.avatar_url}
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <span className="text-xl">👤</span>
+    )}
+  </div>
+
+  <div>
+    <h1 className="text-2xl font-bold">
+      {profile?.full_name || "Mi Cuenta"}
+    </h1>
+    <p className="text-gray-500 text-sm">
+      {user?.email}
+    </p>
+  </div>
+
+</div>
 
         {/* 🔴 ACTIVACIÓN CUENTA */}
         {(needsKyc || needsBank) && (
