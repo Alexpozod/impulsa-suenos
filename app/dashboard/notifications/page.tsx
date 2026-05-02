@@ -151,11 +151,18 @@ export default function NotificationsPage() {
                     )}
 
                     {/* 💰 MONTO */}
-                    {n.metadata?.amount > 0 && !type.includes("withdraw") && (
-                      <p className="text-sm text-green-600 font-semibold mt-1">
-                        +${Number(n.metadata.amount).toLocaleString()}
-                      </p>
-                    )}
+                    {n.metadata?.amount > 0 && (
+  <p
+    className={`text-sm font-semibold mt-1 ${
+      type.includes("withdraw")
+        ? "text-red-500"
+        : "text-green-600"
+    }`}
+  >
+    {type.includes("withdraw") ? "-" : "+"}$
+    {Number(n.metadata.amount).toLocaleString()}
+  </p>
+)}
 
                     {/* 🏷 CAMPAÑA */}
                     {n.metadata?.campaign_title && (
