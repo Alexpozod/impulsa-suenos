@@ -45,7 +45,7 @@ export async function GET(req: Request) {
     ========================= */
     const formatted = (data || []).map((n: any) => {
 
-      const type = n.type || n.event_type
+      const type = (n.type || n.event_type || "").toLowerCase()
       const meta = n.metadata || {}
 
       let title = "🔔 Nueva notificación"
@@ -60,7 +60,7 @@ export async function GET(req: Request) {
         const amount = Number(meta.amount || meta.donation || 0)
         const campaign = meta.campaign_title || "tu campaña"
 
-        const donor = meta.donor_name || "Alguien"
+        const donor = meta.donor_name || "Un usuario"
         message = `${donor} donó $${amount.toLocaleString()} en ${campaign}`
       }
 
@@ -70,20 +70,21 @@ export async function GET(req: Request) {
       if (type === "withdraw") {
 
   const status = n.status || meta.status
+  const amount = Number(meta.amount || 0)
 
   if (status === "pending") {
     title = "⏳ Retiro en revisión"
-    message = "Tu solicitud está siendo revisada"
+    message = `Solicitud de retiro por $${amount.toLocaleString()}`
   }
 
   if (status === "approved") {
     title = "🏦 Retiro aprobado"
-    message = "Tu retiro fue aprobado"
+    message = `Retiro aprobado por $${amount.toLocaleString()}`
   }
 
   if (status === "rejected") {
     title = "❌ Retiro rechazado"
-    message = "Tu retiro fue rechazado"
+    message = `Retiro rechazado por $${amount.toLocaleString()}`
   }
 }
 
