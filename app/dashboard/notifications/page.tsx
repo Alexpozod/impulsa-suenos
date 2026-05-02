@@ -69,10 +69,6 @@ export default function NotificationsPage() {
   return `Solicitud de retiro por $${Number(m.amount || 0).toLocaleString()}`
 }
 
-  if (type.includes("withdraw")) {
-    return `Retiro de $${Number(m.amount || 0).toLocaleString()}`
-  }
-
   if (type.includes("kyc")) {
     return "Actualización de verificación KYC"
   }
@@ -155,7 +151,7 @@ export default function NotificationsPage() {
                     )}
 
                     {/* 💰 MONTO */}
-                    {n.metadata?.amount > 0 && (
+                    {n.metadata?.amount > 0 && !type.includes("withdraw") && (
                       <p className="text-sm text-green-600 font-semibold mt-1">
                         +${Number(n.metadata.amount).toLocaleString()}
                       </p>
