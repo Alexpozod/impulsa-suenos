@@ -190,14 +190,9 @@ export default function AccountPage() {
         </div>
 
         {/* FINANZAS */}
-        {finance && (
-          <div className="grid md:grid-cols-4 gap-4 mb-6">
-            <MiniCard title="Disponible" value={finance.totals.balance} highlight />
-            <MiniCard title="Recaudado" value={finance.totals.raised} />
-            <MiniCard title="Retirado" value={finance.totals.withdrawn} />
-            <MiniCard title="Pendiente" value={finance.totals.pending} />
-          </div>
-        )}
+       <div className="mb-6 text-sm text-gray-500">
+  Consulta tus ingresos y retiros en la sección Finanzas.
+</div>
 
         {/* ACCIONES */}
         <div className="mb-8 flex flex-wrap gap-3">
