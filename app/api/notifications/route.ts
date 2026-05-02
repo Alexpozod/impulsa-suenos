@@ -60,28 +60,32 @@ export async function GET(req: Request) {
         const amount = Number(meta.amount || meta.donation || 0)
         const campaign = meta.campaign_title || "tu campaña"
 
-        message = `Recibiste $${amount.toLocaleString()} en ${campaign}`
+        const donor = meta.donor_name || "Alguien"
+        message = `${donor} donó $${amount.toLocaleString()} en ${campaign}`
       }
 
       /* =========================
          🏦 RETIRO
       ========================= */
       if (type === "withdraw") {
-        if (n.status === "pending") {
-          title = "⏳ Retiro en revisión"
-          message = "Tu solicitud está siendo revisada"
-        }
 
-        if (n.status === "approved") {
-          title = "🏦 Retiro aprobado"
-          message = "Tu retiro fue aprobado"
-        }
+  const status = n.status || meta.status
 
-        if (n.status === "rejected") {
-          title = "❌ Retiro rechazado"
-          message = "Tu retiro fue rechazado"
-        }
-      }
+  if (status === "pending") {
+    title = "⏳ Retiro en revisión"
+    message = "Tu solicitud está siendo revisada"
+  }
+
+  if (status === "approved") {
+    title = "🏦 Retiro aprobado"
+    message = "Tu retiro fue aprobado"
+  }
+
+  if (status === "rejected") {
+    title = "❌ Retiro rechazado"
+    message = "Tu retiro fue rechazado"
+  }
+}
 
       /* =========================
          🛡️ KYC
@@ -110,6 +114,9 @@ export async function GET(req: Request) {
         id: n.id,
         title,
         message,
+        type, // 🔥 NECESARIO
+        metadata: meta, // 🔥 NECESARIO
+        status: n.status || null, // 🔥 para retiros
         created_at: n.created_at,
         read: n.read || false
       }
