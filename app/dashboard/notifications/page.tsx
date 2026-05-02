@@ -151,18 +151,24 @@ export default function NotificationsPage() {
                     )}
 
                     {/* 💰 MONTO */}
-                    {n.metadata?.amount > 0 && (
-  <p
-    className={`text-sm font-semibold mt-1 ${
-      type.includes("withdraw")
-        ? "text-red-500"
-        : "text-green-600"
-    }`}
-  >
-    {type.includes("withdraw") ? "-" : "+"}$
-    {Number(n.metadata.amount).toLocaleString()}
-  </p>
-)}
+                    {n.metadata?.amount > 0 && (() => {
+
+                    const isWithdraw =
+                    type.includes("withdraw") ||
+                    type.includes("payout") ||
+                    type.includes("cashout")
+
+                  return (
+                    <p
+                      className={`text-sm font-semibold mt-1 ${
+                        isWithdraw ? "text-red-500" : "text-green-600"
+                      }`}
+                    >
+                      {isWithdraw ? "-" : "+"}$
+                      {Number(n.metadata.amount).toLocaleString()}
+                    </p>
+                  )
+                })()}
 
                     {/* 🏷 CAMPAÑA */}
                     {n.metadata?.campaign_title && (
