@@ -47,7 +47,7 @@ if (profileError) {
   console.error("PROFILE ERROR:", profileError)
 }
 
-setProfile(profileData)
+setProfile(profileData || {})
 
         // KYC
         const { data: kyc } = await supabase
@@ -260,7 +260,7 @@ setProfile(profileData)
     <input
       type="text"
       placeholder="Nombre completo"
-      value={profile?.full_name || ""}
+      value={profile?.full_name ?? ""}
       onChange={(e) =>
         setProfile((prev: any) => ({ ...prev, full_name: e.target.value }))
       }
@@ -271,7 +271,7 @@ setProfile(profileData)
     <input
       type="text"
       placeholder="Teléfono"
-      value={profile?.phone || ""}
+      value={profile?.phone ?? ""}
       onChange={(e) =>
         setProfile((prev: any) => ({ ...prev, phone: e.target.value }))
       }
@@ -329,7 +329,10 @@ setProfile(profileData)
       if (error) {
         alert("Error guardando")
       } else {
-        alert("Perfil actualizado")
+        setTimeout(() => {
+  alert("Perfil actualizado correctamente ✅")
+  router.refresh()
+}, 100)
       }
     }}
     className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
