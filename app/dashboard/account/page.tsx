@@ -250,70 +250,95 @@ export default function AccountPage() {
 
       </div>
 
-      {/* CONFIGURACIÓN */}
-      <div className="bg-white border rounded-2xl p-6 mb-8 shadow-sm">
-        <h2 className="text-xl font-bold mb-4">⚙️ Configuración de cuenta</h2>
+      {/* ⚙️ CONFIGURACIÓN */}
+<div className="bg-white border rounded-2xl p-6 mb-8 shadow-sm">
+  <h2 className="text-xl font-bold mb-1">⚙️ Configuración de cuenta</h2>
+  <p className="text-sm text-gray-500 mb-6">
+    Actualiza tu información personal y foto de perfil
+  </p>
 
-        <div className="grid md:grid-cols-2 gap-4">
+  <div className="grid md:grid-cols-3 gap-6">
 
-          <input
-            type="text"
-            placeholder="Nombre completo"
-            value={profile?.full_name ?? ""}
-            onChange={(e) =>
-              setProfile((prev: any) => ({
-                ...(prev || {}),
-                full_name: e.target.value
-              }))
-            }
-            className="p-3 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
-          />
+    {/* AVATAR */}
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center border">
+        {profile?.avatar_url ? (
+          <img src={profile.avatar_url} className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-3xl">👤</span>
+        )}
+      </div>
 
-          <input
-            type="text"
-            placeholder="Teléfono"
-            value={profile?.phone ?? ""}
-            onChange={(e) =>
-              setProfile((prev: any) => ({
-                ...(prev || {}),
-                phone: e.target.value
-              }))
-            }
-            className="p-3 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
-          />
+      <input
+        type="file"
+        accept="image/*"
+        className="text-xs"
+        onChange={async (e) => {
+          const file = e.target.files?.[0]
+          if (!file || !user) return
 
-        </div>
+          const filePath = `${user.id}/${Date.now()}_${file.name}`
 
-        <div className="mt-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={async (e) => {
-              const file = e.target.files?.[0]
-              if (!file || !user) return
+          const { error } = await supabase.storage
+            .from("avatars")
+            .upload(filePath, file, { upsert: true })
 
-              const filePath = `${user.id}/${Date.now()}_${file.name}`
+          if (error) {
+            alert("Error subiendo imagen")
+            return
+          }
 
-              const { error: uploadError } = await supabase.storage
-                .from("avatars")
-                .upload(filePath, file, { upsert: true })
+          const { data } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(filePath)
 
-              if (uploadError) {
-                alert("Error subiendo imagen")
-                return
-              }
+          setProfile((prev: any) => ({
+            ...(prev || {}),
+            avatar_url: data.publicUrl
+          }))
+        }}
+      />
 
-              const { data } = supabase.storage
-                .from("avatars")
-                .getPublicUrl(filePath)
+      <p className="text-xs text-gray-400 text-center">
+        JPG o PNG. Máx 2MB
+      </p>
+    </div>
 
-              setProfile((prev: any) => ({
-                ...(prev || {}),
-                avatar_url: data.publicUrl
-              }))
-            }}
-          />
-        </div>
+    {/* DATOS */}
+    <div className="md:col-span-2 space-y-4">
+
+      <div>
+        <label className="text-xs text-gray-500">Nombre completo</label>
+        <input
+          type="text"
+          value={profile?.full_name ?? ""}
+          onChange={(e) =>
+            setProfile((prev: any) => ({
+              ...(prev || {}),
+              full_name: e.target.value
+            }))
+          }
+          className="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
+        />
+      </div>
+
+      <div>
+        <label className="text-xs text-gray-500">Teléfono</label>
+        <input
+          type="text"
+          value={profile?.phone ?? ""}
+          onChange={(e) =>
+            setProfile((prev: any) => ({
+              ...(prev || {}),
+              phone: e.target.value
+            }))
+          }
+          className="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
+        />
+      </div>
+
+      {/* BOTONES */}
+      <div className="flex items-center gap-4 pt-2">
 
         <button
           onClick={async () => {
@@ -334,37 +359,40 @@ export default function AccountPage() {
               alert("Perfil actualizado correctamente ✅")
             }
           }}
-          className="mt-4 px-5 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 font-medium shadow-sm"
+          className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 font-medium shadow-sm"
         >
           Guardar cambios
         </button>
 
-        <div className="mt-4">
-          <button
-            onClick={async () => {
-              const newPassword = window.prompt("Nueva contraseña (mínimo 6 caracteres)")
-              if (!newPassword || newPassword.length < 6) {
-                alert("Contraseña inválida")
-                return
-              }
+        <button
+          onClick={async () => {
+            const newPassword = window.prompt("Nueva contraseña (mínimo 6 caracteres)")
+            if (!newPassword || newPassword.length < 6) {
+              alert("Contraseña inválida")
+              return
+            }
 
-              const { error } = await supabase.auth.updateUser({
-                password: newPassword
-              })
+            const { error } = await supabase.auth.updateUser({
+              password: newPassword
+            })
 
-              if (error) {
-                alert("Error cambiando contraseña")
-              } else {
-                alert("Contraseña actualizada")
-              }
-            }}
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Cambiar contraseña
-          </button>
-        </div>
+            if (error) {
+              alert("Error cambiando contraseña")
+            } else {
+              alert("Contraseña actualizada")
+            }
+          }}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          Cambiar contraseña
+        </button>
 
       </div>
+
+    </div>
+
+  </div>
+</div>
 
       {/* ANALYTICS */}
       <div className="bg-white border rounded-2xl p-6 space-y-6">
