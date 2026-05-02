@@ -178,7 +178,7 @@ export default function AccountPage() {
           </button>
 
           <button
-            onClick={() => router.push("/account/bank")}
+            onClick={() => router.push("/dashboard/account/bank")}
             className="p-4 rounded-xl border bg-white hover:bg-gray-50 text-left"
           >
             <p className="font-semibold">🏦 Cuenta bancaria</p>
@@ -211,7 +211,7 @@ export default function AccountPage() {
 
           {!needsKyc && !needsBank && finance?.totals?.balance > 0 && (
             <button
-              onClick={() => router.push("/account/withdraw")}
+              onClick={() => router.push("/dashboard/account/withdraw")}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               💸 Retirar fondos
