@@ -44,21 +44,41 @@ export default function NotificationsPage() {
   ========================= */
 
   const getIcon = (n: any) => {
-    const type = (n.type || "").toLowerCase()
+  const type = (n.type || "").toLowerCase()
 
-    if (type.includes("payment")) return "💰"
-    if (type.includes("withdraw")) return "🏦"
-    if (type.includes("kyc")) return "🛡️"
-    if (type.includes("update")) return "📢"
+  if (type.includes("donation")) return "💚"
+  if (type.includes("withdraw")) return "💸"
+  if (type.includes("kyc")) return "🛡️"
+  if (type.includes("payment")) return "💰"
+  if (type.includes("update")) return "📢"
 
-    return "🔔"
+  return "🔔"
+}
+
+  const buildMessage = (n: any) => {
+  const type = (n.type || "").toLowerCase()
+  const m = n.metadata || {}
+
+  if (type.includes("withdraw")) {
+  if (type.includes("approved")) {
+    return `Retiro aprobado por $${Number(m.amount || 0).toLocaleString()}`
+  }
+  if (type.includes("pending")) {
+    return `Retiro en revisión por $${Number(m.amount || 0).toLocaleString()}`
+  }
+  return `Solicitud de retiro por $${Number(m.amount || 0).toLocaleString()}`
+}
+
+  if (type.includes("withdraw")) {
+    return `Retiro de $${Number(m.amount || 0).toLocaleString()}`
   }
 
-  const cleanMessage = (msg: string) => {
-    if (!msg) return ""
-    if (msg.includes("$0")) return "Recibiste una donación en tu campaña"
-    return msg
+  if (type.includes("kyc")) {
+    return "Actualización de verificación KYC"
   }
+
+  return n.message || "Actividad en tu cuenta"
+}
 
   if (loading) return <div className="p-10 text-center">Cargando...</div>
 
@@ -80,8 +100,9 @@ export default function NotificationsPage() {
         <div className="space-y-3">
 
           {notifications.map(n => {
-
-            const message = cleanMessage(n.message)
+            
+            const type = (n.type || "").toLowerCase()
+            const message = buildMessage(n)
 
             return (
               <div
@@ -107,7 +128,12 @@ export default function NotificationsPage() {
                     <div className="flex justify-between items-start">
 
                       <p className="font-semibold text-sm text-gray-800">
-                        {n.title || "Nueva notificación"}
+                        {n.title || (
+                        type.includes("donation") ? "💚 Nueva donación" :
+                        type.includes("withdraw") ? "💸 Movimiento de retiro" :
+                        type.includes("kyc") ? "🛡️ Verificación" :
+                        "🔔 Notificación"
+                      )}
                       </p>
 
                       {!n.read && (
@@ -139,6 +165,12 @@ export default function NotificationsPage() {
                     {n.metadata?.campaign_title && (
                       <p className="text-xs text-gray-400 mt-1">
                         Campaña: {n.metadata.campaign_title}
+                      </p>
+                    )}
+
+                    {n.metadata?.donor_name && (
+                      <p className="text-xs text-gray-400">
+                        De: {n.metadata.donor_name}
                       </p>
                     )}
 
