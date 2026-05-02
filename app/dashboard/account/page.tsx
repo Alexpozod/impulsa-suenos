@@ -39,7 +39,7 @@ export default function AccountPage() {
         // 🔥 PERFIL (NUEVO - NO ROMPE NADA)
 const { data: profileData, error: profileError } = await supabase
   .from("profiles")
-  .select("full_name, avatar_url")
+  .select("full_name, avatar_url, phone")
   .eq("id", currentUser.id)
   .maybeSingle()
 
@@ -249,6 +249,118 @@ setProfile(profileData)
           )}
 
         </div>
+
+{/* ⚙️ CONFIGURACIÓN */}
+<div className="bg-white border rounded-2xl p-6 mb-8">
+  <h2 className="text-xl font-bold mb-4">⚙️ Configuración de cuenta</h2>
+
+  <div className="grid md:grid-cols-2 gap-4">
+
+    {/* NOMBRE */}
+    <input
+      type="text"
+      placeholder="Nombre completo"
+      value={profile?.full_name || ""}
+      onChange={(e) =>
+        setProfile((prev: any) => ({ ...prev, full_name: e.target.value }))
+      }
+      className="p-3 border rounded-lg"
+    />
+
+    {/* TELÉFONO */}
+    <input
+      type="text"
+      placeholder="Teléfono"
+      value={profile?.phone || ""}
+      onChange={(e) =>
+        setProfile((prev: any) => ({ ...prev, phone: e.target.value }))
+      }
+      className="p-3 border rounded-lg"
+    />
+
+  </div>
+
+  {/* FOTO */}
+  <div className="mt-4">
+    <input
+      type="file"
+      accept="image/*"
+      onChange={async (e) => {
+        const file = e.target.files?.[0]
+        if (!file || !user) return
+
+        const filePath = `${user.id}/${Date.now()}_${file.name}`
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, file)
+
+        if (uploadError) {
+          alert("Error subiendo imagen")
+          return
+        }
+
+        const { data } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(filePath)
+
+        setProfile((prev: any) => ({
+          ...prev,
+          avatar_url: data.publicUrl
+        }))
+      }}
+    />
+  </div>
+
+  {/* GUARDAR */}
+  <button
+    onClick={async () => {
+      if (!user) return
+
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          full_name: profile?.full_name || "",
+          phone: profile?.phone || "",
+          avatar_url: profile?.avatar_url || null
+        })
+
+      if (error) {
+        alert("Error guardando")
+      } else {
+        alert("Perfil actualizado")
+      }
+    }}
+    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+  >
+    Guardar cambios
+  </button>
+
+{/* 🔒 CAMBIAR PASSWORD */}
+<div className="mt-6">
+  <button
+    onClick={async () => {
+      const newPassword = prompt("Nueva contraseña")
+      if (!newPassword) return
+
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      if (error) {
+        alert("Error cambiando contraseña")
+      } else {
+        alert("Contraseña actualizada")
+      }
+    }}
+    className="text-sm text-blue-600 hover:underline"
+  >
+    Cambiar contraseña
+  </button>
+</div>
+
+</div> {/* ✅ ESTE ES EL CIERRE CORRECTO DE CONFIGURACIÓN */}
 
         {/* ANALYTICS */}
         <div className="bg-white border rounded-2xl p-6 space-y-6">
