@@ -36,18 +36,22 @@ export default function AccountPage() {
 
         const email = currentUser.email!.toLowerCase()
 
-        // 🔥 PERFIL (NUEVO - NO ROMPE NADA)
-const { data: profileData, error: profileError } = await supabase
-  .from("profiles")
-  .select("full_name, avatar_url, phone")
-  .eq("id", currentUser.id)
-  .maybeSingle()
+        // 🔥 PERFIL SEGURO
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("full_name, avatar_url, phone")
+          .eq("id", currentUser.id)
+          .maybeSingle()
 
-if (profileError) {
-  console.error("PROFILE ERROR:", profileError)
-}
+        if (profileError) {
+          console.error("PROFILE ERROR:", profileError)
+        }
 
-setProfile(profileData || {})
+        setProfile(profileData || {
+          full_name: "",
+          phone: "",
+          avatar_url: null
+        })
 
         // KYC
         const { data: kyc } = await supabase
@@ -145,29 +149,28 @@ setProfile(profileData || {})
 
         <div className="flex items-center gap-4 mb-6">
 
-  <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-    {profile?.avatar_url ? (
-      <img
-        src={profile.avatar_url}
-        className="w-full h-full object-cover"
-      />
-    ) : (
-      <span className="text-xl">👤</span>
-    )}
-  </div>
+          <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-xl">👤</span>
+            )}
+          </div>
 
-  <div>
-    <h1 className="text-2xl font-bold">
-      {profile?.full_name || user?.email?.split("@")[0] || "Mi Cuenta"}
-    </h1>
-    <p className="text-gray-500 text-sm">
-      {user?.email}
-    </p>
-  </div>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {profile?.full_name || user?.email?.split("@")[0] || "Mi Cuenta"}
+            </h1>
+            <p className="text-gray-500 text-sm">
+              {user?.email}
+            </p>
+          </div>
 
-</div>
+        </div>
 
-        {/* 🔴 ACTIVACIÓN CUENTA */}
         {(needsKyc || needsBank) && (
           <div className="mb-6 p-4 rounded-xl border bg-yellow-50 border-yellow-300">
             <p className="font-semibold mb-2">⚠️ Completa tu cuenta</p>
@@ -178,7 +181,6 @@ setProfile(profileData || {})
           </div>
         )}
 
-        {/* STATUS */}
         <div className="mb-6 flex gap-3 flex-wrap">
 
           <span className={`px-3 py-1 rounded text-sm ${
@@ -199,7 +201,6 @@ setProfile(profileData || {})
 
         </div>
 
-        {/* 🔥 ACCIONES CRÍTICAS */}
         <div className="mb-8 grid md:grid-cols-2 gap-4">
 
           <button
@@ -224,12 +225,10 @@ setProfile(profileData || {})
 
         </div>
 
-        {/* FINANZAS */}
-       <div className="mb-6 text-sm text-gray-500">
-  Consulta tus ingresos y retiros en la sección Finanzas.
-</div>
+        <div className="mb-6 text-sm text-gray-500">
+          Consulta tus ingresos y retiros en la sección Finanzas.
+        </div>
 
-        {/* ACCIONES */}
         <div className="mb-8 flex flex-wrap gap-3">
 
           <button
@@ -250,120 +249,121 @@ setProfile(profileData || {})
 
         </div>
 
-{/* ⚙️ CONFIGURACIÓN */}
-<div className="bg-white border rounded-2xl p-6 mb-8">
-  <h2 className="text-xl font-bold mb-4">⚙️ Configuración de cuenta</h2>
+        {/* CONFIGURACIÓN */}
+        <div className="bg-white border rounded-2xl p-6 mb-8">
+          <h2 className="text-xl font-bold mb-4">⚙️ Configuración de cuenta</h2>
 
-  <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
 
-    {/* NOMBRE */}
-    <input
-      type="text"
-      placeholder="Nombre completo"
-      value={profile?.full_name ?? ""}
-      onChange={(e) =>
-        setProfile((prev: any) => ({ ...prev, full_name: e.target.value }))
-      }
-      className="p-3 border rounded-lg"
-    />
+            <input
+              type="text"
+              placeholder="Nombre completo"
+              value={profile?.full_name ?? ""}
+              onChange={(e) =>
+                setProfile((prev: any) => ({
+                  ...(prev || {}),
+                  full_name: e.target.value
+                }))
+              }
+              className="p-3 border rounded-lg"
+            />
 
-    {/* TELÉFONO */}
-    <input
-      type="text"
-      placeholder="Teléfono"
-      value={profile?.phone ?? ""}
-      onChange={(e) =>
-        setProfile((prev: any) => ({ ...prev, phone: e.target.value }))
-      }
-      className="p-3 border rounded-lg"
-    />
+            <input
+              type="text"
+              placeholder="Teléfono"
+              value={profile?.phone ?? ""}
+              onChange={(e) =>
+                setProfile((prev: any) => ({
+                  ...(prev || {}),
+                  phone: e.target.value
+                }))
+              }
+              className="p-3 border rounded-lg"
+            />
 
-  </div>
+          </div>
 
-  {/* FOTO */}
-  <div className="mt-4">
-    <input
-      type="file"
-      accept="image/*"
-      onChange={async (e) => {
-        const file = e.target.files?.[0]
-        if (!file || !user) return
+          <div className="mt-4">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file || !user) return
 
-        const filePath = `${user.id}/${Date.now()}_${file.name}`
+                const filePath = `${user.id}/${Date.now()}_${file.name}`
 
-        const { error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(filePath, file)
+                const { error: uploadError } = await supabase.storage
+                  .from("avatars")
+                  .upload(filePath, file, { upsert: true })
 
-        if (uploadError) {
-          alert("Error subiendo imagen")
-          return
-        }
+                if (uploadError) {
+                  alert("Error subiendo imagen")
+                  return
+                }
 
-        const { data } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(filePath)
+                const { data } = supabase.storage
+                  .from("avatars")
+                  .getPublicUrl(filePath)
 
-        setProfile((prev: any) => ({
-          ...prev,
-          avatar_url: data.publicUrl
-        }))
-      }}
-    />
-  </div>
+                setProfile((prev: any) => ({
+                  ...(prev || {}),
+                  avatar_url: data.publicUrl
+                }))
+              }}
+            />
+          </div>
 
-  {/* GUARDAR */}
-  <button
-    onClick={async () => {
-      if (!user) return
+          <button
+            onClick={async () => {
+              if (!user) return
 
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({
-          id: user.id,
-          full_name: profile?.full_name || "",
-          phone: profile?.phone || "",
-          avatar_url: profile?.avatar_url || null
-        })
+              const { error } = await supabase
+                .from("profiles")
+                .upsert({
+                  id: user.id,
+                  full_name: profile?.full_name || "",
+                  phone: profile?.phone || "",
+                  avatar_url: profile?.avatar_url || null
+                }, { onConflict: "id" })
 
-      if (error) {
-        alert("Error guardando")
-      } else {
-        setTimeout(() => {
-  alert("Perfil actualizado correctamente ✅")
-  router.refresh()
-}, 100)
-      }
-    }}
-    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-  >
-    Guardar cambios
-  </button>
+              if (error) {
+                alert("Error guardando")
+              } else {
+                alert("Perfil actualizado correctamente ✅")
+              }
+            }}
+            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
+            Guardar cambios
+          </button>
 
-{/* 🔒 CAMBIAR PASSWORD */}
-<div className="mt-6">
-  <button
-    onClick={async () => {
-      const newPassword = prompt("Nueva contraseña")
-      if (!newPassword) return
+          <div className="mt-6">
+            <button
+              onClick={async () => {
+                const newPassword = window.prompt("Nueva contraseña (mínimo 6 caracteres)")
+                if (!newPassword || newPassword.length < 6) {
+                  alert("Contraseña inválida")
+                  return
+                }
 
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      })
+                const { error } = await supabase.auth.updateUser({
+                  password: newPassword
+                })
 
-      if (error) {
-        alert("Error cambiando contraseña")
-      } else {
-        alert("Contraseña actualizada")
-      }
-    }}
-    className="text-sm text-blue-600 hover:underline"
-  >
-    Cambiar contraseña
-  </button>
-</div>
+                if (error) {
+                  alert("Error cambiando contraseña")
+                } else {
+                  alert("Contraseña actualizada")
+                }
+              }}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Cambiar contraseña
+            </button>
+          </div>
 
-</div> {/* ✅ ESTE ES EL CIERRE CORRECTO DE CONFIGURACIÓN */}
+        </div>
 
         {/* ANALYTICS */}
         <div className="bg-white border rounded-2xl p-6 space-y-6">
@@ -419,20 +419,7 @@ setProfile(profileData || {})
   )
 }
 
-/* ================= UI ================= */
-
-function MiniCard({ title, value, highlight }: any) {
-  return (
-    <div className={`p-4 rounded-xl border ${
-      highlight ? "bg-green-50 border-green-400" : "bg-white"
-    }`}>
-      <p className="text-xs text-gray-500">{title}</p>
-      <p className="text-lg font-bold">
-        ${Number(value || 0).toLocaleString()}
-      </p>
-    </div>
-  )
-}
+/* UI */
 
 function StatCard({ label, value }: any) {
   return (
