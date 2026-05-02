@@ -37,11 +37,15 @@ export default function AccountPage() {
         const email = currentUser.email!.toLowerCase()
 
         // 🔥 PERFIL (NUEVO - NO ROMPE NADA)
-const { data: profileData } = await supabase
+const { data: profileData, error: profileError } = await supabase
   .from("profiles")
   .select("full_name, avatar_url")
   .eq("id", currentUser.id)
   .maybeSingle()
+
+if (profileError) {
+  console.error("PROFILE ERROR:", profileError)
+}
 
 setProfile(profileData)
 
@@ -154,7 +158,7 @@ setProfile(profileData)
 
   <div>
     <h1 className="text-2xl font-bold">
-      {profile?.full_name || "Mi Cuenta"}
+      {profile?.full_name || user?.email?.split("@")[0] || "Mi Cuenta"}
     </h1>
     <p className="text-gray-500 text-sm">
       {user?.email}
