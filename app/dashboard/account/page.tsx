@@ -269,59 +269,62 @@ export default function AccountPage() {
         )}
       </div>
 
-      <input
-        type="file"
-        accept="image/*"
-        className="text-xs"
-        onChange={async (e) => {
-  const file = e.target.files?.[0]
-  if (!file || !user) return
+      <label className="cursor-pointer mt-2 w-full">
 
-  try {
-    const fileExt = file.name.split('.').pop()
-    const filePath = `${user.id}/avatar.${fileExt}`
+  <div className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm text-gray-700 text-center transition">
+    📸 Cambiar foto de perfil
+  </div>
 
-    // 🔥 subir (reemplaza siempre)
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, file, {
-        upsert: true,
-        contentType: file.type
-      })
+  <input
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={async (e) => {
+      const file = e.target.files?.[0]
+      if (!file || !user) return
 
-    if (uploadError) {
-      console.error(uploadError)
-      alert("Error subiendo imagen")
-      return
-    }
+      try {
+        const fileExt = file.name.split('.').pop()
+        const filePath = `${user.id}/avatar.${fileExt}`
 
-    // 🔥 obtener URL pública correcta
-    const { data } = supabase.storage
-      .from("avatars")
-      .getPublicUrl(filePath)
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, file, {
+            upsert: true,
+            contentType: file.type
+          })
 
-    const publicUrl = `${data.publicUrl}?t=${Date.now()}` // 🔥 evita cache
+        if (uploadError) {
+          alert("Error subiendo imagen")
+          return
+        }
 
-    // 🔥 actualizar estado inmediato
-    setProfile((prev: any) => ({
-      ...(prev || {}),
-      avatar_url: publicUrl
-    }))
+        const { data } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(filePath)
 
-    // 🔥 guardar en DB inmediatamente
-    await supabase
-      .from("profiles")
-      .upsert({
-        id: user.id,
-        avatar_url: publicUrl
-      }, { onConflict: "id" })
+        const publicUrl = `${data.publicUrl}?t=${Date.now()}`
 
-  } catch (err) {
-    console.error("UPLOAD ERROR:", err)
-    alert("Error inesperado subiendo imagen")
-  }
-}}
-      />
+        setProfile((prev: any) => ({
+          ...(prev || {}),
+          avatar_url: publicUrl
+        }))
+
+        await supabase
+          .from("profiles")
+          .upsert({
+            id: user.id,
+            avatar_url: publicUrl
+          }, { onConflict: "id" })
+
+      } catch (err) {
+        console.error(err)
+        alert("Error subiendo imagen")
+      }
+    }}
+  />
+
+</label>
 
       <p className="text-xs text-gray-400 text-center">
         JPG o PNG. Máx 2MB
