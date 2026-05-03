@@ -10,6 +10,9 @@ import Footer from "@/app/components/Footer"
 export const metadata: Metadata = {
   title: "ImpulsaSueños",
   description: "Gana premios reales mientras ayudas a otros",
+  icons: {
+    icon: "/favicon.png",
+  },
 }
 
 export default function RootLayout({
