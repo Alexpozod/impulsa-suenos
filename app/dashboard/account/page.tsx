@@ -274,29 +274,53 @@ export default function AccountPage() {
         accept="image/*"
         className="text-xs"
         onChange={async (e) => {
-          const file = e.target.files?.[0]
-          if (!file || !user) return
+  const file = e.target.files?.[0]
+  if (!file || !user) return
 
-          const filePath = `${user.id}/${Date.now()}_${file.name}`
+  try {
+    const fileExt = file.name.split('.').pop()
+    const filePath = `${user.id}/avatar.${fileExt}`
 
-          const { error } = await supabase.storage
-            .from("avatars")
-            .upload(filePath, file, { upsert: true })
+    // 🔥 subir (reemplaza siempre)
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, {
+        upsert: true,
+        contentType: file.type
+      })
 
-          if (error) {
-            alert("Error subiendo imagen")
-            return
-          }
+    if (uploadError) {
+      console.error(uploadError)
+      alert("Error subiendo imagen")
+      return
+    }
 
-          const { data } = supabase.storage
-            .from("avatars")
-            .getPublicUrl(filePath)
+    // 🔥 obtener URL pública correcta
+    const { data } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(filePath)
 
-          setProfile((prev: any) => ({
-            ...(prev || {}),
-            avatar_url: data.publicUrl
-          }))
-        }}
+    const publicUrl = `${data.publicUrl}?t=${Date.now()}` // 🔥 evita cache
+
+    // 🔥 actualizar estado inmediato
+    setProfile((prev: any) => ({
+      ...(prev || {}),
+      avatar_url: publicUrl
+    }))
+
+    // 🔥 guardar en DB inmediatamente
+    await supabase
+      .from("profiles")
+      .upsert({
+        id: user.id,
+        avatar_url: publicUrl
+      }, { onConflict: "id" })
+
+  } catch (err) {
+    console.error("UPLOAD ERROR:", err)
+    alert("Error inesperado subiendo imagen")
+  }
+}}
       />
 
       <p className="text-xs text-gray-400 text-center">
