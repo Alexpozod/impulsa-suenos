@@ -275,6 +275,9 @@ export default function DonationBox({
         <p className="text-sm font-semibold">
           💚 Apoya ImpulsaSueños (opcional)
         </p>
+        <p className="text-xs text-gray-500 mt-1">
+          💡 La mayoría apoya con $1,000
+        </p>
 
         <div className="flex gap-2 mt-2">
           {[0, 500, 1000, 2000].map((t) => (
@@ -285,14 +288,21 @@ export default function DonationBox({
               className={`px-3 py-1 rounded border text-sm ${
                 tip === t
                   ? "border-green-500 bg-green-50"
+                  : t === 2000
+                  ? "border-green-300 bg-green-50 font-semibold"
                   : "border-gray-300"
               }`}
             >
-              {t === 0 ? "Sin tip" : `+$${t}`}
+              {t === 0 ? "Sin tip" : t === 2000 ? `🔥 +$${t}` : `+$${t}`}
             </button>
           ))}
-        </div>
-      </div>
+          </div>
+
+          <p className="text-xs text-gray-400 mt-2 text-center">
+            ❤️ Puedes apoyar con cualquier monto adicional
+          </p>
+
+          </div>
 
       <div className="text-center">
         <p className="text-sm text-gray-500">Total</p>
