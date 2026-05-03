@@ -15,6 +15,7 @@ export default function DonationBox({
   const [amount, setAmount] = useState(5000)
   const [tip, setTip] = useState(0)
   const [customTip, setCustomTip] = useState("")
+  const [tipError, setTipError] = useState("")
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -308,30 +309,39 @@ export default function DonationBox({
             ❤️ Puedes apoyar con cualquier monto adicional
           </p>
           <input
-            type="number"
-            placeholder="Otro monto (mín. $1,500)"
-            value={customTip}
-            className={`w-full mt-2 p-2 border rounded-lg text-sm ${
-              customTip ? "border-green-500 ring-1 ring-green-200" : ""
-            }`}
-            onChange={(e) => {
-              const value = e.target.value
-              setCustomTip(value)
+  type="number"
+  placeholder="Otro monto (mín. $1,500)"
+  value={customTip}
+  className={`w-full mt-2 p-2 border rounded-lg text-sm ${
+    customTip ? "border-green-500 ring-1 ring-green-200" : ""
+  }`}
+  onChange={(e) => {
+    const value = e.target.value
+    setCustomTip(value)
 
-              const num = Number(value)
+    const num = Number(value)
 
-              if (!num) {
-                setTip(0)
-                return
-              }
+    if (!num) {
+      setTip(0)
+      setTipError("")
+      return
+    }
 
-              if (num < 1500) {
-                setTip(1500)
-              } else {
-                setTip(num)
-              }
-            }}
-          />
+    if (num < 1500) {
+      setTipError("El mínimo es $1,500")
+      setTip(num)
+    } else {
+      setTipError("")
+      setTip(num)
+    }
+  }}
+/>
+
+{tipError && (
+  <p className="text-xs text-red-500 mt-1">
+    {tipError}
+  </p>
+)}
 
           </div>
 
