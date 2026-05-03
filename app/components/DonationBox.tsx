@@ -14,6 +14,7 @@ export default function DonationBox({
 
   const [amount, setAmount] = useState(5000)
   const [tip, setTip] = useState(0)
+  const [customTip, setCustomTip] = useState("")
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -284,9 +285,14 @@ export default function DonationBox({
             <button
               key={t}
               type="button"
-              onClick={() => setTip(t)}
+              onClick={() => {
+                setTip(t)
+                setCustomTip("") // limpia input
+              }}
               className={`px-3 py-1 rounded border text-sm ${
-                tip === t
+                customTip
+                  ? "border-gray-300 opacity-50"
+                  : tip === t
                   ? "border-green-500 bg-green-50"
                   : t === 2000
                   ? "border-green-300 bg-green-50 font-semibold"
@@ -302,24 +308,30 @@ export default function DonationBox({
             ❤️ Puedes apoyar con cualquier monto adicional
           </p>
           <input
-  type="number"
-  placeholder="Otro monto (mín. $1,500)"
-  className="w-full mt-2 p-2 border rounded-lg text-sm"
-  onChange={(e) => {
-    const value = Number(e.target.value)
+            type="number"
+            placeholder="Otro monto (mín. $1,500)"
+            value={customTip}
+            className={`w-full mt-2 p-2 border rounded-lg text-sm ${
+              customTip ? "border-green-500 ring-1 ring-green-200" : ""
+            }`}
+            onChange={(e) => {
+              const value = e.target.value
+              setCustomTip(value)
 
-    if (!value) {
-      setTip(0)
-      return
-    }
+              const num = Number(value)
 
-    if (value < 1500) {
-      setTip(1500)
-    } else {
-      setTip(value)
-    }
-  }}
-/>
+              if (!num) {
+                setTip(0)
+                return
+              }
+
+              if (num < 1500) {
+                setTip(1500)
+              } else {
+                setTip(num)
+              }
+            }}
+          />
 
           </div>
 
