@@ -86,7 +86,7 @@ export default function Navbar() {
   <img
     src="/logo.png"
     alt="ImpulsaSueños"
-    className="h-20 w-auto"
+    className="h-26 w-auto"
   />
 </Link>
 
