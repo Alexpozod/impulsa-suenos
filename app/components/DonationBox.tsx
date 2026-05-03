@@ -301,6 +301,25 @@ export default function DonationBox({
           <p className="text-xs text-gray-400 mt-2 text-center">
             ❤️ Puedes apoyar con cualquier monto adicional
           </p>
+          <input
+  type="number"
+  placeholder="Otro monto (mín. $1,500)"
+  className="w-full mt-2 p-2 border rounded-lg text-sm"
+  onChange={(e) => {
+    const value = Number(e.target.value)
+
+    if (!value) {
+      setTip(0)
+      return
+    }
+
+    if (value < 1500) {
+      setTip(1500)
+    } else {
+      setTip(value)
+    }
+  }}
+/>
 
           </div>
 
