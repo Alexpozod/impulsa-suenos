@@ -33,7 +33,7 @@ export default function CampaignCardPro({ c }: { c: Campaign }) {
       whileHover={{ y: -8, scale: 1.02 }}
       transition={{ duration: 0.25 }}
       onClick={() => router.push(`/campaign/${c.id}`)}
-      className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer"
+      className="group bg-white rounded-2xl overflow-hidden border border-borderSoft shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer"
     >
 
       {/* IMAGE */}

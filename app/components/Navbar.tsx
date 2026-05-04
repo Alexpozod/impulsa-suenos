@@ -82,24 +82,24 @@ export default function Navbar() {
       >
 
         {/* LOGO */}
-<Link href="/" className="flex items-center gap-10">
+<Link href="/" className="flex items-center gap-3">
   <img
     src="/logo.png"
     alt="ImpulsaSueños"
-    className="h-26 w-auto"
+    className="h-12 w-auto"
   />
 </Link>
 
         {/* LINKS */}
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-textSoft">
 
-          <Link href="/" className="hover:text-green-600 transition">Inicio</Link>
-          <Link href="/campaigns" className="hover:text-green-600 transition">Campañas</Link>
-          <Link href="/sorteos" className="hover:text-green-600 transition">Sorteos</Link>
-          <Link href="/como-funciona" className="hover:text-green-600 transition">Cómo funciona</Link>
-          <Link href="/faq" className="hover:text-green-600 transition">FAQ</Link>
+  <Link href="/" className="hover:text-secondary transition">Inicio</Link>
+  <Link href="/campaigns" className="hover:text-secondary transition">Campañas</Link>
+  <Link href="/sorteos" className="hover:text-secondary transition">Sorteos</Link>
+  <Link href="/como-funciona" className="hover:text-secondary transition">Cómo funciona</Link>
+  <Link href="/faq" className="hover:text-secondary transition">FAQ</Link>
 
-        </div>
+</div>
 
         {/* USER */}
         <div className="flex items-center gap-4">
@@ -107,7 +107,7 @@ export default function Navbar() {
           {!user ? (
             <Link
               href="/login"
-              className="text-sm font-medium text-gray-700 hover:text-green-600 transition"
+              className="text-sm font-medium text-gray-700 hover:text-secondary transition"
             >
               Iniciar sesión
             </Link>
@@ -126,11 +126,11 @@ export default function Navbar() {
 
               </Link>
 
-              <Link href="/dashboard" className="text-sm font-medium hover:text-green-600 transition">
+              <Link href="/dashboard" className="text-sm font-medium hover:text-secondary transition">
                 Dashboard
               </Link>
 
-              <Link href="/dashboard/account" className="text-sm font-medium hover:text-green-600 transition">
+              <Link href="/dashboard/account" className="text-sm font-medium hover:text-secondary transition">
   Mi cuenta
 </Link>
 

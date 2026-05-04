@@ -75,7 +75,7 @@ export default function Hero({ onCreate }: Props) {
 
             <Link
               href="/campaigns"
-              className="border border-gray-300 px-8 py-4 rounded-2xl font-semibold text-center hover:border-green-600 hover:text-green-600 transition"
+              className="border border-gray-300 px-8 py-4 rounded-2xl font-semibold text-center hover:border-green-600 hover:text-secondary transition"
             >
               Donar ahora
             </Link>
