@@ -65,13 +65,14 @@ export default function Hero({ onCreate }: Props) {
           <div className="flex flex-col sm:flex-row gap-4">
 
             <motion.button
-  whileHover={{ scale: 1.04 }}
-  whileTap={{ scale: 0.96 }}
-  onClick={onCreate}
-  className="bg-white text-green-700 px-8 py-4 rounded-2xl font-semibold shadow-md hover:bg-gray-100 transition-all text-lg"
->
-  Crear campaña →
-</motion.button>
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={onCreate}
+              style={{ color: "#15803d" }} // 👈 FORZAMOS COLOR REAL
+              className="bg-white px-8 py-4 rounded-2xl font-semibold shadow-md hover:bg-gray-100 transition-all text-lg"
+            >
+              Crear campaña →
+            </motion.button>
 
             <Link
               href="/campaigns"
