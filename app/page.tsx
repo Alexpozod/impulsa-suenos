@@ -135,32 +135,39 @@ export default function HomePage() {
                   <motion.div
                     key={c.id}
                     variants={item}
-                    className="w-full max-w-[280px] bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group"
+                    whileHover={{ y: -6 }}
+                    onClick={() => router.push(`/campaign/${c.id}`)}
+                    className="w-full max-w-[280px] cursor-pointer bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group"
                   >
 
                     {/* IMAGE */}
                     <div className="relative h-44 overflow-hidden">
+
                       <img
                         src={
                           c.images?.[0] ||
                           c.image_url ||
                           "https://images.unsplash.com/photo-1593113630400-ea4288922497"
                         }
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+                        className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-out"
                       />
+
+                      {/* 🔥 OVERLAY (AQUÍ VA EXACTAMENTE) */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition duration-300" />
 
                       {nearGoal && (
                         <div className="absolute top-4 left-4 bg-orange-400 text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
                           🔥 ¡Casi lo logra!
                         </div>
                       )}
+
                     </div>
 
                     {/* CONTENT */}
-                    <div className="p-4 flex flex-col gap-4">
+                    <div className="p-4 flex flex-col gap-3">
 
                       <div>
-                        <h3 className="font-semibold text-lg leading-snug tracking-tight">
+                        <h3 className="font-semibold text-base leading-snug text-gray-900">
                           {c.title}
                         </h3>
 
@@ -182,7 +189,7 @@ export default function HomePage() {
                       {/* PROGRESS */}
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-green-600 transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-500"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
@@ -197,7 +204,7 @@ export default function HomePage() {
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           onClick={() => router.push(`/campaign/${c.id}`)}
-                          className="bg-green-600 hover:bg-green-700 hover:scale-105 text-white text-sm px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+                          className="bg-green-600 hover:bg-green-700 hover:scale-105 active:scale-95 text-white text-sm px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
                         >
                           ❤ Donar
                         </motion.button>
