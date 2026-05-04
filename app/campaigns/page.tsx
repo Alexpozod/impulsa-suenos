@@ -58,41 +58,41 @@ export default function CampaignsPage() {
           </div>
 
           {/* 🔍 BUSCADOR + FILTROS */}
-          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+          <div className="flex flex-col gap-4">
 
-            {/* BUSCADOR */}
-            <input
-              type="text"
-              placeholder="Buscar campañas..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full md:w-[300px] px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-            />
+  {/* BUSCADOR */}
+  <input
+    type="text"
+    placeholder="Buscar campañas..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full md:w-[320px] px-4 py-2 rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+  />
 
-            {/* FILTROS */}
-            <div className="flex gap-2 bg-gray-100 rounded-xl p-1">
+  {/* FILTROS (AHORA SIEMPRE VISIBLES) */}
+  <div className="flex gap-2 bg-gray-100 rounded-xl p-1 w-fit">
 
-              {[
-                { key: 'all', label: 'Todas' },
-                { key: 'goal', label: 'Donaciones' },
-                { key: 'tickets', label: 'Sorteos' }
-              ].map((f) => (
-                <button
-                  key={f.key}
-                  onClick={() => setFilter(f.key as any)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    filter === f.key
-                      ? 'bg-green-600 text-white shadow-md'
-                      : 'text-gray-600 hover:bg-white hover:shadow-sm'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
+    {[
+      { key: 'all', label: 'Todas' },
+      { key: 'goal', label: 'Donaciones' },
+      { key: 'tickets', label: 'Sorteos' }
+    ].map((f) => (
+      <button
+        key={f.key}
+        onClick={() => setFilter(f.key as any)}
+        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+          filter === f.key
+            ? 'bg-green-600 text-white shadow-md'
+            : 'text-gray-600 hover:bg-white hover:shadow-sm'
+        }`}
+      >
+        {f.label}
+      </button>
+    ))}
 
-            </div>
+  </div>
 
-          </div>
+</div>
 
         </div>
 
