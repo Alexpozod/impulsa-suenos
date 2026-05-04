@@ -170,7 +170,7 @@ export default function FinanceAdminPage() {
           {topCampaigns.map((c, i) => (
             <Row key={i}>
               <span className="text-blue-400">{c.title}</span>
-              <span className="text-green-400">
+              <span className="text-secondaryDark">
                 ${Number(c.total).toLocaleString()} ({c.percentage?.toFixed(1)}%)
               </span>
             </Row>
@@ -182,7 +182,7 @@ export default function FinanceAdminPage() {
           {profitRanking.map((c, i) => (
             <Row key={i}>
               <span className="text-blue-400">{c.title}</span>
-              <span className="text-green-400">
+              <span className="text-secondaryDark">
                 ${Number(c.profit).toLocaleString()} | {c.margin?.toFixed(1)}%
               </span>
             </Row>
@@ -194,7 +194,7 @@ export default function FinanceAdminPage() {
           {balances.map((c) => (
             <Row key={c.campaign_id}>
               <span className="text-blue-400">{c.title}</span>
-              <span className="text-green-400">
+              <span className="text-secondaryDark">
                 ${Number(c.balance).toLocaleString()}
               </span>
             </Row>
@@ -228,7 +228,7 @@ function RevenueChart({ data }: any) {
           <XAxis dataKey="date" stroke="#94a3b8" />
           <YAxis stroke="#94a3b8" />
           <Tooltip />
-          <Line type="monotone" dataKey="total" stroke="#22c55e" strokeWidth={2} />
+          <Line type="monotone" dataKey="total" stroke="#10b981" strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -241,7 +241,7 @@ function Card({ title, value }: any) {
   return (
     <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
       <p className="text-sm text-gray-400">{title}</p>
-      <p className="text-xl font-bold text-green-400">
+      <p className="text-xl font-bold text-secondaryDark">
         ${parsed.toLocaleString()}
       </p>
     </div>
