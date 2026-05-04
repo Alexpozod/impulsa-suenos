@@ -230,7 +230,7 @@ export default function KYCPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
 
-      <div className="bg-white p-8 rounded-2xl shadow-xl border w-full max-w-md">
+      <div className="bg-white p-8 rounded-2xl shadow-xl border w-full max-w-md space-y-3">
 
         <h1 className="text-2xl font-bold mb-2 text-center text-green-600">
           Verificación de identidad
@@ -240,27 +240,33 @@ export default function KYCPage() {
           Necesaria para crear campañas y retirar fondos
         </p>
 
-        <input disabled={isLocked} placeholder="Nombre completo" className="w-full border p-3 rounded-lg mb-3" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        <input disabled={isLocked} placeholder="Nombre completo" className="w-full border p-3 rounded-lg mb-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition" value={fullName} onChange={(e) => setFullName(e.target.value)} />
 
-        <input disabled={isLocked} placeholder="RUT / DNI / Pasaporte" className="w-full border p-3 rounded-lg mb-3" value={rut} onChange={(e) => setRut(e.target.value)} />
+        <input disabled={isLocked} placeholder="RUT / DNI / Pasaporte" className="w-full border p-3 rounded-lg mb-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition" value={rut} onChange={(e) => setRut(e.target.value)} />
 
-        <select disabled={isLocked} className="w-full border p-3 rounded-lg mb-4" value={documentType} onChange={(e) => setDocumentType(e.target.value)}>
-          <option value="">Tipo de documento</option>
-          <option value="dni">DNI</option>
-          <option value="passport">Pasaporte</option>
-        </select>
+        <select
+  disabled={isLocked}
+  className="w-full border p-3 rounded-lg mb-4 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition"
+  value={documentType}
+  onChange={(e) => setDocumentType(e.target.value)}
+>
+  <option value="">Tipo de documento</option>
+  <option value="rut">RUT</option>
+  <option value="dni">DNI</option>
+  <option value="passport">Pasaporte</option>
+</select>
 
         <label className="text-sm font-medium">Documento (frente)</label>
-        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg" onChange={(e) => handleFile(e.target.files?.[0] || null, 'front')} />
-        {previewFront && <img src={previewFront} className="mb-3 rounded-lg" />}
+        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg bg-gray-50 hover:bg-white transition" onChange={(e) => handleFile(e.target.files?.[0] || null, 'front')} />
+        {previewFront && <img src={previewFront} className="mb-3 rounded-lg border shadow-sm" />}
 
         <label className="text-sm font-medium">Documento (reverso)</label>
-        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg" onChange={(e) => handleFile(e.target.files?.[0] || null, 'back')} />
-        {previewBack && <img src={previewBack} className="mb-3 rounded-lg" />}
+        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg bg-gray-50 hover:bg-white transition" onChange={(e) => handleFile(e.target.files?.[0] || null, 'back')} />
+        {previewBack && <img src={previewBack} className="mb-3 rounded-lg border shadow-sm" />}
 
         <label className="text-sm font-medium">Selfie con documento</label>
-        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg" onChange={(e) => handleFile(e.target.files?.[0] || null, 'selfie')} />
-        {previewSelfie && <img src={previewSelfie} className="mb-3 rounded-lg" />}
+        <input type="file" disabled={isLocked} className="w-full mb-2 border p-2 rounded-lg bg-gray-50 hover:bg-white transition" onChange={(e) => handleFile(e.target.files?.[0] || null, 'selfie')} />
+        {previewSelfie && <img src={previewSelfie} className="mb-3 rounded-lg border shadow-sm" />}
 
         <button
           onClick={handleSubmit}
