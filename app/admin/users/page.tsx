@@ -158,28 +158,40 @@ export default function AdminUsers() {
             <div className="flex gap-2 flex-wrap">
 
               <button
-                onClick={() => updateRole(u.id, "admin")}
-                disabled={loadingId === u.id}
-                className="bg-red-600 px-3 py-1 rounded hover:bg-red-700 disabled:opacity-50"
-              >
-                Admin
-              </button>
+  onClick={() => updateRole(u.id, "admin")}
+  disabled={loadingId === u.id}
+  className={`px-3 py-1 rounded text-sm ${
+    u.role === "admin"
+      ? "bg-primary"
+      : "bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30"
+  } disabled:opacity-50`}
+>
+  Admin
+</button>
 
               <button
-                onClick={() => updateRole(u.id, "contador")}
-                disabled={loadingId === u.id}
-                className="bg-blue-600 px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
-              >
-                Contador
-              </button>
+  onClick={() => updateRole(u.id, "contador")}
+  disabled={loadingId === u.id}
+  className={`px-3 py-1 rounded text-sm ${
+    u.role === "contador"
+      ? "bg-primary"
+      : "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30"
+  } disabled:opacity-50`}
+>
+  Contador
+</button>
 
               <button
-                onClick={() => updateRole(u.id, "user")}
-                disabled={loadingId === u.id}
-                className="bg-gray-600 px-3 py-1 rounded hover:bg-gray-700 disabled:opacity-50"
-              >
-                User
-              </button>
+  onClick={() => updateRole(u.id, "user")}
+  disabled={loadingId === u.id}
+  className={`px-3 py-1 rounded text-sm ${
+    u.role === "user"
+      ? "bg-primary"
+      : "bg-gray-700 hover:bg-gray-600"
+  } disabled:opacity-50`}
+>
+  User
+</button>
 
             </div>
 
