@@ -33,7 +33,7 @@ export default function CampaignCardPro({ c }: { c: Campaign }) {
       whileHover={{ y: -8, scale: 1.02 }}
       transition={{ duration: 0.25 }}
       onClick={() => router.push(`/campaign/${c.id}`)}
-      className="group bg-white rounded-2xl overflow-hidden border border-borderSoft shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer"
+      className="group bg-white rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer"
     >
 
       {/* IMAGE */}
@@ -64,11 +64,11 @@ export default function CampaignCardPro({ c }: { c: Campaign }) {
       <div className="p-5 flex flex-col gap-4">
 
         <div>
-          <h3 className="font-semibold text-gray-900 line-clamp-2 leading-tight">
+          <h3 className="font-semibold text-text line-clamp-2 leading-tight">
             {c.title}
           </h3>
 
-          <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+          <p className="text-sm text-textSoft mt-1 line-clamp-2">
             {c.description}
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function CampaignCardPro({ c }: { c: Campaign }) {
         <div>
 
           <div className="flex justify-between text-sm mb-1">
-            <span className="font-bold text-green-600">
+            <span className="font-bold text-primary">
               ${Number(c.current_amount || 0).toLocaleString()}
             </span>
             <span className="text-gray-400">

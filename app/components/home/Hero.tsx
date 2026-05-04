@@ -16,10 +16,10 @@ export default function Hero({ onCreate }: Props) {
   const y = useTransform(scrollY, [0, 300], [0, 50])
 
   return (
-    <section className="relative pt-28 pb-20 px-6 overflow-hidden bg-gradient-to-b from-white to-gray-50">
+    <section className="relative pt-28 pb-20 px-6 overflow-hidden bg-gradient-to-b from-white to-bg">
 
       {/* BACKGROUND GLOW */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-secondarySoft blur-3xl opacity-40 rounded-full pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primarySoft blur-3xl opacity-40 rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
 
@@ -50,13 +50,13 @@ export default function Hero({ onCreate }: Props) {
           </div>
 
           {/* TITLE */}
-          <h1 className="text-4xl md:text-[56px] font-extrabold leading-[1.05] tracking-tight mb-6 text-gray-900">
+          <h1 className="text-4xl md:text-[56px] font-extrabold leading-[1.05] tracking-tight mb-6 text-text">
             Donde los sueños{" "}
-            <span className="text-green-600">encuentran su impulso</span>
+            <span className="text-primary">encuentran su impulso</span>
           </h1>
 
           {/* TEXT */}
-          <p className="text-gray-600 text-lg leading-relaxed mb-10 max-w-xl">
+          <p className="text-textSoft text-lg leading-relaxed mb-10 max-w-xl">
             Personas reales ayudando a otras personas.
             Crea tu campaña en minutos o dona para cambiar una vida hoy.
           </p>
@@ -83,7 +83,7 @@ export default function Hero({ onCreate }: Props) {
           </div>
 
           {/* ✅ TRUST PRO */}
-          <div className="flex gap-6 mt-8 text-sm text-gray-500 flex-wrap">
+          <div className="flex gap-6 mt-8 text-sm text-textSoft flex-wrap">
             <span>✔ Pagos seguros</span>
             <span>✔ Sin costos ocultos</span>
             <span>✔ Plataforma transparente</span>
@@ -123,10 +123,10 @@ export default function Hero({ onCreate }: Props) {
             transition={{ delay: 0.4 }}
             className="absolute -bottom-6 left-6 bg-white px-6 py-4 rounded-2xl shadow-xl border backdrop-blur"
           >
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm font-semibold text-text">
               🚀 Plataforma en crecimiento
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-textSoft">
               Nuevas campañas activándose
             </p>
           </motion.div>
