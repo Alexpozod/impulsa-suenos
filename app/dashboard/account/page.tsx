@@ -4,14 +4,28 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/src/lib/supabase"
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
+function formatPhone(value: string) {
+  // eliminar todo lo que no sea número
+  const numbers = value.replace(/\D/g, "")
 
+  // FORMATO CHILE: 9 1234 5678
+  if (numbers.length <= 1) return numbers
+  if (numbers.length <= 5) return `${numbers.slice(0, 1)} ${numbers.slice(1)}`
+  if (numbers.length <= 9) return `${numbers.slice(0, 1)} ${numbers.slice(1, 5)} ${numbers.slice(5)}`
+  
+  return `${numbers.slice(0, 1)} ${numbers.slice(1, 5)} ${numbers.slice(5, 9)}`
+}
 export default function AccountPage() {
 
   const router = useRouter()
 
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
+  const [profile, setProfile] = useState<any>({
+  full_name: "",
+  phone: "",
+  avatar_url: null
+})
 
   const [kycStatus, setKycStatus] = useState<string | null>(null)
   const [bankLoaded, setBankLoaded] = useState(false)
@@ -48,11 +62,16 @@ export default function AccountPage() {
           console.error("PROFILE ERROR:", profileError)
         }
 
-        setProfile(profileData || {
-          full_name: "",
-          phone: "",
-          avatar_url: null
-        })
+        const rawPhone = profileData?.phone ?? ""
+
+const cleanedPhone = rawPhone.replace(/^\+\d{1,3}/, '')
+
+setProfile((prev: any) => ({
+  ...(prev || {}),
+  full_name: profileData?.full_name ?? "",
+  avatar_url: profileData?.avatar_url ?? null,
+  phone: cleanedPhone ? formatPhone(cleanedPhone) : ""
+}))
 
 // 🔥 EXTRAER CÓDIGO SI YA EXISTE
 if (profileData?.phone?.startsWith('+')) {
@@ -379,13 +398,16 @@ if (profileData?.phone?.startsWith('+')) {
   {/* TELEFONO */}
   <input
     type="text"
-    value={profile?.phone?.replace(/^\+\d{1,3}/, '') ?? ""}
-    onChange={(e) =>
-      setProfile((prev: any) => ({
-        ...(prev || {}),
-        phone: e.target.value
-      }))
-    }
+    value={profile?.phone ?? ""}
+    onChange={(e) => {
+  const raw = e.target.value.replace(/\D/g, '')
+  const formatted = formatPhone(raw)
+
+  setProfile((prev: any) => ({
+    ...(prev || {}),
+    phone: formatted
+  }))
+}}
     placeholder="912345678"
     className="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-primary outline-none transition"
   />
@@ -406,7 +428,7 @@ if (profileData?.phone?.startsWith('+')) {
                 id: user.id,
                 full_name: profile?.full_name || "",
                 phone: profile?.phone
-  ? `${countryCode}${profile.phone.replace(/^\+\d{1,3}/, '')}`
+  ? `${countryCode}${profile.phone.replace(/\D/g, '')}`
   : "",
                 avatar_url: profile?.avatar_url || null
               }, { onConflict: "id" })
