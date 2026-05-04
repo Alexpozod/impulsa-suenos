@@ -169,7 +169,7 @@ export default function AccountPage() {
 
       {/* ALERTA */}
       {(needsKyc || needsBank) && (
-        <div className="mb-6 p-4 rounded-xl border bg-yellow-50 border-yellow-300">
+        <div className="mb-6 p-4 rounded-xl border bg-yellow-50 border-yellow-200">
           <p className="font-semibold mb-2">⚠️ Completa tu cuenta</p>
           <ul className="text-sm space-y-1">
             {needsKyc && <li>• Verifica tu identidad (KYC)</li>}
@@ -184,7 +184,7 @@ export default function AccountPage() {
         <span className={`px-3 py-1 rounded text-sm ${
           kycStatus === 'approved'
             ? 'bg-secondarySoft text-secondaryDark'
-            : 'bg-red-100 text-red-700'
+            : 'bg-red-50 text-red-600'
         }`}>
           KYC: {kycStatus || 'no iniciado'}
         </span>
@@ -242,7 +242,7 @@ export default function AccountPage() {
         {!needsKyc && !needsBank && finance?.totals?.balance > 0 && (
           <button
             onClick={() => router.push("/dashboard/account/withdraw")}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium"
+            className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primaryHover font-medium"
           >
             💸 Retirar fondos
           </button>

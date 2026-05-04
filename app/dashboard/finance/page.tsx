@@ -204,12 +204,12 @@ export default function FinancePage() {
 
         <div className="w-full h-4 bg-gray-200 rounded-full flex overflow-hidden">
           <div className="bg-primary" style={{ width: `${inPercent}%` }} />
-          <div className="bg-red-500" style={{ width: `${outPercent}%` }} />
+          <div className="bg-red-100" style={{ width: `${outPercent}%` }} />
         </div>
 
         <div className="flex justify-between text-sm mt-2">
           <span className="text-primary">Ingresos: ${totalIn}</span>
-          <span className="text-red-500">Retiros: ${totalOut}</span>
+          <span className="text-red-600">Retiros: ${totalOut}</span>
         </div>
       </div>
 
@@ -233,7 +233,7 @@ export default function FinancePage() {
         <select
           value={selectedCampaign || ""}
           onChange={(e) => setSelectedCampaign(e.target.value)}
-          className="w-full border p-2 rounded"
+          className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-primary outline-none"
         >
           <option value="">Selecciona campaña</option>
           {data?.campaigns?.map((c: any) => (
@@ -263,7 +263,7 @@ export default function FinancePage() {
             onClick={sendOtp}
             disabled={cooldown > 0}
             className={`px-3 py-2 rounded text-sm ${
-              cooldown > 0 ? "bg-gray-300" : "bg-primary text-white"
+              cooldown > 0 ? "bg-gray-200 text-gray-500" : "bg-primary text-white"
             }`}
           >
             {cooldown > 0 ? `Reenviar en ${cooldown}s` : "Enviar código"}
@@ -347,9 +347,9 @@ export default function FinancePage() {
 
 function Card({ title, value }: any) {
   return (
-    <div className="bg-white p-4 rounded-xl border">
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-xl font-bold">
+    <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+      <p className="text-sm text-gray-500 mb-1">{title}</p>
+      <p className="text-2xl font-bold text-gray-900">
         ${Number(value || 0).toLocaleString()}
       </p>
     </div>

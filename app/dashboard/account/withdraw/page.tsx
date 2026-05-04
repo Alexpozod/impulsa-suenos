@@ -230,7 +230,7 @@ export default function WithdrawPage() {
           </p>
 
           {globalPending > 0 && (
-            <p className="text-xs text-yellow-600 mb-2">
+            <p className="text-xs text-yellow-700 mb-2">
               🔒 Retenido total: ${Number(globalPending).toLocaleString()}
             </p>
           )}
@@ -244,7 +244,7 @@ export default function WithdrawPage() {
           {/* 🔐 OTP FLOW */}
           <button
             onClick={sendOtp}
-            className="w-full py-2 bg-gray-200 rounded-lg mb-2"
+            className="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded-lg mb-2"
           >
             Enviar código OTP
           </button>
@@ -279,7 +279,7 @@ export default function WithdrawPage() {
 
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border">
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
 
           <h2 className="font-semibold mb-4">
             Historial de retiros

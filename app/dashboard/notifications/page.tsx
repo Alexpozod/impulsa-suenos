@@ -106,7 +106,7 @@ export default function NotificationsPage() {
                 className={`p-4 rounded-xl border transition hover:shadow-sm ${
                   n.read
                 ? "bg-white"
-                : "bg-secondarySoft border border-secondary/30"
+                : "bg-secondarySoft border-secondary/30"
                 }`}
               >
 
