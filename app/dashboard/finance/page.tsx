@@ -203,12 +203,12 @@ export default function FinancePage() {
         <h2 className="font-semibold mb-3">Ingresos vs Retiros</h2>
 
         <div className="w-full h-4 bg-gray-200 rounded-full flex overflow-hidden">
-          <div className="bg-green-500" style={{ width: `${inPercent}%` }} />
+          <div className="bg-primary" style={{ width: `${inPercent}%` }} />
           <div className="bg-red-500" style={{ width: `${outPercent}%` }} />
         </div>
 
         <div className="flex justify-between text-sm mt-2">
-          <span className="text-green-600">Ingresos: ${totalIn}</span>
+          <span className="text-primary">Ingresos: ${totalIn}</span>
           <span className="text-red-500">Retiros: ${totalOut}</span>
         </div>
       </div>
@@ -263,7 +263,7 @@ export default function FinancePage() {
             onClick={sendOtp}
             disabled={cooldown > 0}
             className={`px-3 py-2 rounded text-sm ${
-              cooldown > 0 ? "bg-gray-300" : "bg-blue-600 text-white"
+              cooldown > 0 ? "bg-gray-300" : "bg-primary text-white"
             }`}
           >
             {cooldown > 0 ? `Reenviar en ${cooldown}s` : "Enviar código"}
@@ -328,7 +328,7 @@ export default function FinancePage() {
             <span
               className={
                 m.type === "donation"
-                  ? "text-green-600"
+                  ? "text-primary"
                   : "text-red-500"
               }
             >

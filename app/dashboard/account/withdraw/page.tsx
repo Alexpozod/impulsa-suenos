@@ -263,7 +263,9 @@ export default function WithdrawPage() {
             onClick={handleWithdraw}
             disabled={disabled}
             className={`w-full py-3 rounded-lg text-white ${
-              disabled ? "bg-gray-400" : "bg-black"
+              disabled
+            ? "bg-gray-300"
+            : "bg-primary hover:bg-primaryHover"
             }`}
           >
             {loading ? "Procesando..." : "Solicitar retiro"}

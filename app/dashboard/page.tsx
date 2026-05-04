@@ -67,7 +67,7 @@ export default function DashboardPage() {
 
           <Link
             href="/dashboard/campaigns"
-            className="text-sm text-green-600 hover:underline"
+            className="text-sm text-primary hover:underline"
           >
             Ver todas →
           </Link>
@@ -140,7 +140,7 @@ function Card({ title, value, highlight }: any) {
   return (
     <div
       className={`p-4 rounded-xl border ${
-        highlight ? "bg-green-50 border-green-400" : ""
+        highlight ? "bg-primarySoft border border-primary/30" : ""
       }`}
     >
       <p className="text-sm text-gray-500">{title}</p>

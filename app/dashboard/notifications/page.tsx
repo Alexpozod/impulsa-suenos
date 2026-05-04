@@ -104,7 +104,9 @@ export default function NotificationsPage() {
               <div
                 key={n.id}
                 className={`p-4 rounded-xl border transition hover:shadow-sm ${
-                  n.read ? "bg-white" : "bg-green-50 border-green-400"
+                  n.read
+                ? "bg-white"
+                : "bg-secondarySoft border border-secondary/30"
                 }`}
               >
 
@@ -135,7 +137,7 @@ export default function NotificationsPage() {
                       {!n.read && (
                         <button
                           onClick={() => markAsRead(n.id)}
-                          className="text-xs text-green-600 hover:underline"
+                          className="text-xs text-primary hover:underline"
                         >
                           Marcar como leído
                         </button>
@@ -161,7 +163,7 @@ export default function NotificationsPage() {
                   return (
                     <p
                       className={`text-sm font-semibold mt-1 ${
-                        isWithdraw ? "text-red-500" : "text-green-600"
+                        isWithdraw ? "text-red-500" : "text-primary"
                       }`}
                     >
                       {isWithdraw ? "-" : "+"}$

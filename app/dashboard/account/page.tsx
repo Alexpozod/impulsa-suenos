@@ -345,7 +345,7 @@ export default function AccountPage() {
               full_name: e.target.value
             }))
           }
-          className="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
+          className="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-primary outline-none transition"
         />
       </div>
 
@@ -360,7 +360,7 @@ export default function AccountPage() {
               phone: e.target.value
             }))
           }
-          className="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition"
+          className="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-primary outline-none transition"
         />
       </div>
 
@@ -409,7 +409,7 @@ export default function AccountPage() {
               alert("Contraseña actualizada")
             }
           }}
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-primary hover:underline"
         >
           Cambiar contraseña
         </button>
