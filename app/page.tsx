@@ -71,7 +71,7 @@ export default function HomePage() {
       <Stats />
 
       {/* ================= CAMPAÑAS ================= */}
-      <section className="py-28 px-6 bg-gray-50">
+      <section className="py-16 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
 
           {/* HEADER */}
@@ -95,7 +95,7 @@ export default function HomePage() {
 
             <button
               onClick={() => router.push("/campaigns")}
-              className="hidden md:flex items-center gap-2 text-green-600 font-semibold hover:gap-3 transition-all"
+              className="hidden md:flex items-center gap-2 text-green-600 font-semibold hover:gap-3 hover:text-green-700 transition-all duration-200"
             >
               Ver todas las campañas →
             </button>
@@ -120,7 +120,7 @@ export default function HomePage() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 justify-items-center"
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"
             >
 
               {topCampaigns.map((c) => {
@@ -135,11 +135,11 @@ export default function HomePage() {
                   <motion.div
                     key={c.id}
                     variants={item}
-                    className="w-full max-w-sm bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group"
+                    className="w-full max-w-[280px] bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group"
                   >
 
                     {/* IMAGE */}
-                    <div className="relative h-60 overflow-hidden">
+                    <div className="relative h-44 overflow-hidden">
                       <img
                         src={
                           c.images?.[0] ||
@@ -157,7 +157,7 @@ export default function HomePage() {
                     </div>
 
                     {/* CONTENT */}
-                    <div className="p-6 flex flex-col gap-5">
+                    <div className="p-4 flex flex-col gap-4">
 
                       <div>
                         <h3 className="font-semibold text-lg leading-snug tracking-tight">
@@ -182,7 +182,7 @@ export default function HomePage() {
                       {/* PROGRESS */}
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-primary transition-all duration-500"
+                          className="h-full bg-green-600 transition-all duration-500"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
@@ -197,7 +197,7 @@ export default function HomePage() {
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           onClick={() => router.push(`/campaign/${c.id}`)}
-                          className="bg-primary hover:bg-primaryHover text-white text-sm px-5 py-2 rounded-full font-medium transition flex items-center gap-2"
+                          className="bg-green-600 hover:bg-green-700 hover:scale-105 text-white text-sm px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
                         >
                           ❤ Donar
                         </motion.button>
