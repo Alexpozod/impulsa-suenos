@@ -19,6 +19,7 @@ export default function AccountPage() {
   const { data: finance } = useFinancialDashboard()
 
   const [analytics, setAnalytics] = useState<any>(null)
+  const [countryCode, setCountryCode] = useState('+56')
 
   useEffect(() => {
     const load = async () => {
@@ -52,6 +53,14 @@ export default function AccountPage() {
           phone: "",
           avatar_url: null
         })
+
+// 🔥 EXTRAER CÓDIGO SI YA EXISTE
+if (profileData?.phone?.startsWith('+')) {
+  const match = profileData.phone.match(/^\+\d{1,3}/)
+  if (match) {
+    setCountryCode(match[0])
+  }
+}
 
         // KYC
         const { data: kyc } = await supabase
@@ -351,17 +360,37 @@ export default function AccountPage() {
 
       <div>
         <label className="text-xs text-gray-500">Teléfono</label>
-        <input
-          type="text"
-          value={profile?.phone ?? ""}
-          onChange={(e) =>
-            setProfile((prev: any) => ({
-              ...(prev || {}),
-              phone: e.target.value
-            }))
-          }
-          className="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-primary outline-none transition"
-        />
+        <div className="flex gap-2 mt-1">
+
+  {/* SELECT PAIS */}
+  <select
+    value={countryCode}
+    onChange={(e) => setCountryCode(e.target.value)}
+    className="px-3 py-3 rounded-xl border bg-gray-50 text-sm w-[120px] hover:bg-white transition"
+  >
+    <option value="+56">🇨🇱 +56</option>
+    <option value="+54">🇦🇷 +54</option>
+    <option value="+51">🇵🇪 +51</option>
+    <option value="+52">🇲🇽 +52</option>
+    <option value="+34">🇪🇸 +34</option>
+    <option value="+1">🇺🇸 +1</option>
+  </select>
+
+  {/* TELEFONO */}
+  <input
+    type="text"
+    value={profile?.phone?.replace(/^\+\d{1,3}/, '') ?? ""}
+    onChange={(e) =>
+      setProfile((prev: any) => ({
+        ...(prev || {}),
+        phone: e.target.value
+      }))
+    }
+    placeholder="912345678"
+    className="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-primary outline-none transition"
+  />
+
+</div>
       </div>
 
       {/* BOTONES */}
@@ -376,7 +405,9 @@ export default function AccountPage() {
               .upsert({
                 id: user.id,
                 full_name: profile?.full_name || "",
-                phone: profile?.phone || "",
+                phone: profile?.phone
+  ? `${countryCode}${profile.phone.replace(/^\+\d{1,3}/, '')}`
+  : "",
                 avatar_url: profile?.avatar_url || null
               }, { onConflict: "id" })
 
