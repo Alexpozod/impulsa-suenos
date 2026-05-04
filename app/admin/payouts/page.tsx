@@ -154,14 +154,14 @@ export default function PayoutAdmin() {
       {/* KPIs */}
       <div className="grid md:grid-cols-2 gap-4">
 
-        <div className="bg-yellow-500/20 border border-yellow-500/30 p-4 rounded-xl">
+        <div className="bg-yellow-500/20 border border-yellow-500/30 p-5 rounded-2xl">
           <p className="text-sm text-yellow-300">Pendiente</p>
           <p className="text-2xl font-bold">
             ${totalPending.toLocaleString()}
           </p>
         </div>
 
-        <div className="bg-primarySoft border border-primary/30 p-4 rounded-xl">
+        <div className="bg-primarySoft border border-primary/30 p-5 rounded-2xl">
           <p className="text-sm text-secondaryDark">Pagado</p>
           <p className="text-2xl font-bold">
             ${totalPaid.toLocaleString()}
@@ -184,7 +184,7 @@ export default function PayoutAdmin() {
           return (
             <div
               key={p.id}
-              className="bg-slate-900 border border-slate-800 p-5 rounded-2xl"
+              className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm"
             >
 
               {/* HEADER */}
