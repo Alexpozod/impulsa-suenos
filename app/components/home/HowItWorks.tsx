@@ -28,17 +28,17 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-18 px-6 bg-gray-50">
+    <section className="py-12 px-6 bg-gray-50">
 
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-12">
           <p className="text-green-600 text-sm font-semibold tracking-wider mb-3">
             SIMPLE Y TRANSPARENTE
           </p>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4">
             ¿Cómo funciona?
           </h2>
 
@@ -48,10 +48,10 @@ export default function HowItWorks() {
         </div>
 
         {/* STEPS */}
-        <div className="grid md:grid-cols-3 gap-10 relative">
+        <div className="grid md:grid-cols-3 gap-8 relative">
 
           {/* LINEA (desktop) */}
-          <div className="hidden md:block absolute top-16 left-[15%] right-[15%] h-[2px] bg-gray-200" />
+          <div className="hidden md:block absolute top-16 left-[15%] right-[15%] h-[2px] bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
 
           {steps.map((step, i) => (
             <motion.div
@@ -66,11 +66,11 @@ export default function HowItWorks() {
               {/* ICON + NUMBER */}
               <div className="relative inline-block mb-6">
 
-                <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-2xl">
+                <div className="w-16 h-16 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center text-2xl">
                   {step.icon}
                 </div>
 
-                <div className="absolute -top-2 -right-2 w-7 h-7 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <div className="absolute -top-2 -right-2 w-7 h-7 bg-green-600 text-white shadow-sm text-xs font-bold rounded-full flex items-center justify-center">
                   {step.number}
                 </div>
 
@@ -81,7 +81,7 @@ export default function HowItWorks() {
                 {step.title}
               </h3>
 
-              <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto">
+              <p className="text-gray-600 text-sm leading-relaxed max-w-xs mx-auto">
                 {step.description}
               </p>
 
