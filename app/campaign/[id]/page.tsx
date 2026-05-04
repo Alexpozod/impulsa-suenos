@@ -151,7 +151,7 @@ export default function CampaignDetail() {
   return (
     <main className="bg-white min-h-screen">
 
-      <section className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-5 gap-10">
+      <section className="max-w-7xl mx-auto px-6 py-6 grid md:grid-cols-5 gap-8">
 
         <div className="md:col-span-3">
 
@@ -165,42 +165,42 @@ export default function CampaignDetail() {
 <div className="flex items-center gap-3 mt-4 flex-wrap">
 
   {/* LINK */}
-  <button onClick={copyLink} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition">
+  <button onClick={copyLink} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200 hover:scale-110 hover:shadow-md">
     <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
       <path fill="currentColor" d="M3.9 12a5 5 0 0 1 5-5h3v2h-3a3 3 0 0 0 0 6h3v2h-3a5 5 0 0 1-5-5zm6-1h4v2h-4v-2zm5-4h-3v2h3a3 3 0 1 1 0 6h-3v2h3a5 5 0 1 0 0-10z"/>
     </svg>
   </button>
 
   {/* FACEBOOK */}
-  <button onClick={shareFacebook} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1877F2]">
+  <button onClick={shareFacebook} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1877F2] transition-all duration-200 hover:scale-110 hover:shadow-md">
     <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
       <path fill="currentColor" d="M22 12a10 10 0 1 0-11.5 9.9v-7H7.9v-2.9h2.6V9.8c0-2.6 1.5-4 3.9-4 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.3 0-1.7.8-1.7 1.6v2h2.9l-.5 2.9h-2.4v7A10 10 0 0 0 22 12"/>
     </svg>
   </button>
 
   {/* WHATSAPP */}
-  <button onClick={shareWhatsApp} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#25D366]">
+  <button onClick={shareWhatsApp} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#25D366] transition-all duration-200 hover:scale-110 hover:shadow-md">
     <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
       <path fill="currentColor" d="M20.5 3.5A11.8 11.8 0 0 0 12 0 11.9 11.9 0 0 0 1.6 17.8L0 24l6.4-1.6A11.9 11.9 0 1 0 20.5 3.5zm-8.5 18a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.8 1 1-3.7-.3-.4a9.8 9.8 0 1 1 8.5 4.7zm5.4-7.3c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-1 1.1-.3.2-.6 0a8 8 0 0 1-2.3-1.4 8.7 8.7 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.5-.6c.2-.2.2-.3.3-.5s0-.3 0-.5-.7-1.8-1-2.5-.5-.6-.7-.6h-.6c-.2 0-.5.1-.7.3s-1 1-1 2.4 1 2.7 1.2 2.9a12 12 0 0 0 4.6 4.1c.6.3 1 .5 1.4.6.6.2 1.1.2 1.5.1.5-.1 1.8-.7 2-1.4s.2-1.2.2-1.3-.2-.2-.5-.4z"/>
     </svg>
   </button>
 
-  {/* X (TWITTER) */}
-  <button onClick={shareX} className="w-10 h-10 flex items-center justify-center rounded-full bg-black">
+  {/* X */}
+  <button onClick={shareX} className="w-10 h-10 flex items-center justify-center rounded-full bg-black transition-all duration-200 hover:scale-110 hover:shadow-md">
     <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
       <path fill="currentColor" d="M18.9 2H22l-7.2 8.3L23 22h-6.8l-5.3-6.9L4.7 22H1.5l7.7-8.8L1 2h7l4.8 6.3L18.9 2z"/>
     </svg>
   </button>
 
   {/* INSTAGRAM */}
-  <button onClick={shareInstagram} className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600">
+  <button onClick={shareInstagram} className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 transition-all duration-200 hover:scale-110 hover:shadow-md">
     <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
       <path fill="currentColor" d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm5 5.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2zm6-1.5a1.2 1.2 0 1 1-1.2 1.2A1.2 1.2 0 0 1 18 5.7zM12 9a3 3 0 1 0 3 3 3 3 0 0 0-3-3z"/>
     </svg>
   </button>
 
   {/* TIKTOK */}
-  <button onClick={shareTikTok} className="w-10 h-10 flex items-center justify-center rounded-full bg-black">
+  <button onClick={shareTikTok} className="w-10 h-10 flex items-center justify-center rounded-full bg-black transition-all duration-200 hover:scale-110 hover:shadow-md">
     <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
       <path fill="currentColor" d="M12.7 2h2.6a4.5 4.5 0 0 0 4.4 4.4v2.7a7.2 7.2 0 0 1-4.4-1.5v6.7a5.8 5.8 0 1 1-5.8-5.8c.2 0 .4 0 .6.1v2.9a2.9 2.9 0 1 0 2.6 2.9z"/>
     </svg>
@@ -208,21 +208,26 @@ export default function CampaignDetail() {
 
 </div>
 
-          {/* PROGRESO */}
-          <div className="mt-6 space-y-3">
-            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-3 bg-primary" style={{ width: `${progress}%` }} />
-            </div>
+          {/* PROGRESO PRO */}
+<div className="mt-6 space-y-4">
 
-            <div className="flex justify-between text-sm">
-              <span className="font-bold text-green-600 text-lg">
-                ${current.toLocaleString()}
-              </span>
-              <span className="text-gray-500">
-                de ${goal.toLocaleString()}
-              </span>
-            </div>
-          </div>
+  <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
+    <div
+      className="h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-700"
+      style={{ width: `${progress}%` }}
+    />
+  </div>
+
+  <div className="flex justify-between items-end">
+    <span className="font-extrabold text-green-600 text-xl">
+      ${current.toLocaleString()}
+    </span>
+    <span className="text-gray-500 text-sm">
+      de ${goal.toLocaleString()}
+    </span>
+  </div>
+
+</div>
 
           <p className="mt-6 whitespace-pre-line">
             {campaign.description}
@@ -248,21 +253,21 @@ export default function CampaignDetail() {
                   ""
 
                 return (
-                  <div key={donation.id} className="flex gap-3 p-3 rounded-xl border">
+                  <div key={donation.id} className="flex gap-3 p-4 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all duration-300">
 
-                    <div className="w-10 h-10 rounded-full bg-secondarySoft flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-sm">
                       {donorName?.[0]?.toUpperCase() || "D"}
                     </div>
 
                     <div className="flex-1">
 
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <span className="font-semibold text-sm">
                           {donorName}
                         </span>
 
                         <div className="flex items-center gap-3">
-                          <span className="text-green-600 font-bold">
+                          <span className="text-green-600 font-bold text-sm">
                             +${amount.toLocaleString()}
                           </span>
                         </div>
@@ -302,7 +307,7 @@ export default function CampaignDetail() {
                   `#${index + 1}`
 
                 return (
-                  <div key={index} className="flex justify-between p-3 border rounded-xl">
+                  <div key={index} className="flex justify-between items-center p-4 border border-gray-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition">
                     <span>{medal} {r.name || "Donador"}</span>
                     <span className="text-green-600 font-bold">
                       ${Number(r.total || 0).toLocaleString()}
@@ -318,7 +323,7 @@ export default function CampaignDetail() {
         {/* RIGHT */}
         <div className="md:col-span-2">
           <div className="sticky top-6">
-            <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4">
+            <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.08)] space-y-4">
               <ViewersCounter campaign_id={campaign.id} />
               <DonationBox campaign_id={campaign.id} refParam={ref} />
             </div>
