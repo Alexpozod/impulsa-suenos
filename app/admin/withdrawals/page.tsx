@@ -91,13 +91,13 @@ export default function AdminWithdrawals() {
 
   const getRiskColor = (score: number) => {
     if (score >= 70) return "bg-red-600"
-    if (score >= 40) return "bg-yellow-500"
-    return "bg-primary"
+    if (score >= 40) return "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300"
+    return "bg-secondarySoft text-secondaryDark"
   }
 
   const getStatusColor = (status: string) => {
-    if (status === "pending") return "bg-yellow-500"
-    if (status === "approved") return "bg-primary"
+    if (status === "pending") return "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300"
+    if (status === "approved") return "bg-secondarySoft text-secondaryDark"
     if (status === "rejected") return "bg-red-600"
     return "bg-gray-500"
   }
@@ -154,7 +154,7 @@ export default function AdminWithdrawals() {
                     </div>
 
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-green-400">
+                      <p className="text-2xl font-bold text-secondaryDark">
                         ${Number(w.amount).toLocaleString()}
                       </p>
 
@@ -202,7 +202,7 @@ export default function AdminWithdrawals() {
 
                       <button
                         onClick={() => update(w.id, 'approve')}
-                        className="bg-primary px-4 py-2 rounded-lg text-sm hover:bg-primaryHover transition"
+                        className="bg-secondarySoft text-secondaryDark px-4 py-2 rounded-lg text-sm hover:bg-primaryHover transition"
                       >
                         ✅ Aprobar
                       </button>
