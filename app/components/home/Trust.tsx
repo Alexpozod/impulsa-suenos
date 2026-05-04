@@ -27,7 +27,7 @@ const features = [
 
 export default function Trust() {
   return (
-    <section className="py-18 px-6 bg-white">
+    <section className="py-20 px-6 bg-gray-50">
 
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
 
@@ -42,7 +42,7 @@ export default function Trust() {
             SEGURIDAD Y CONFIANZA
           </p>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6">
             Tu dinero está protegido en cada paso
           </h2>
 
@@ -52,7 +52,7 @@ export default function Trust() {
           </p>
 
           {/* FEATURES */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             {features.map((f, i) => (
               <motion.div
                 key={i}
@@ -63,7 +63,7 @@ export default function Trust() {
                 className="flex gap-4 items-start"
               >
 
-                <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-xl">
+                <div className="w-12 h-12 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-xl shadow-sm">
                   {f.icon}
                 </div>
 
@@ -91,19 +91,19 @@ export default function Trust() {
         >
 
           <img
-            src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85"
-            className="rounded-3xl w-full h-[420px] object-cover shadow-xl"
+            src="https://images.unsplash.com/photo-1521791136064-7986c2920216"
+            className="rounded-3xl w-full h-[420px] object-cover shadow-xl group-hover:scale-[1.02] transition"
           />
 
           {/* FLOATING TRUST CARD */}
-          <div className="absolute -bottom-6 -left-6 bg-white px-6 py-4 rounded-2xl shadow-xl border w-[240px]">
+          <div className="absolute -bottom-6 -left-6 bg-white px-6 py-4 rounded-2xl shadow-lg border border-gray-100 w-[260px]">
 
             <p className="text-sm font-semibold text-gray-900 mb-1">
-              🔐 Plataforma segura
+              🔒 Seguridad verificada
             </p>
 
             <p className="text-xs text-gray-500">
-              Protección antifraude + verificación de usuarios
+              Sistemas antifraude y validación de campañas activas
             </p>
 
           </div>
