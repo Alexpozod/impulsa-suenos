@@ -90,7 +90,7 @@ export default function AdminEarnings() {
       ========================= */}
       <div className="grid md:grid-cols-3 gap-6 mb-10">
 
-        <div className="bg-green-600 p-6 rounded-xl">
+        <div className="bg-primary p-6 rounded-xl">
           <p className="text-sm">Ganancia (comisiones)</p>
           <p className="text-3xl font-bold">
             ${totalFees.toLocaleString()}

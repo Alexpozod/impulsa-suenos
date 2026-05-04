@@ -70,7 +70,7 @@ export default function HowItWorks() {
                   {step.icon}
                 </div>
 
-                <div className="absolute -top-2 -right-2 w-7 h-7 bg-green-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <div className="absolute -top-2 -right-2 w-7 h-7 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
                   {step.number}
                 </div>
 

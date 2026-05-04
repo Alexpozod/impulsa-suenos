@@ -211,7 +211,7 @@ export default function CampaignDetail() {
           {/* PROGRESO */}
           <div className="mt-6 space-y-3">
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-3 bg-green-600" style={{ width: `${progress}%` }} />
+              <div className="h-3 bg-primary" style={{ width: `${progress}%` }} />
             </div>
 
             <div className="flex justify-between text-sm">
@@ -250,7 +250,7 @@ export default function CampaignDetail() {
                 return (
                   <div key={donation.id} className="flex gap-3 p-3 rounded-xl border">
 
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 rounded-full bg-secondarySoft flex items-center justify-center font-bold">
                       {donorName?.[0]?.toUpperCase() || "D"}
                     </div>
 

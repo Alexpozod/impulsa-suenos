@@ -142,7 +142,7 @@ export default function AuditDashboard() {
           ⚠️ Warnings: {warnings}
         </div>
 
-        <div className="bg-green-100 px-4 py-2 rounded">
+        <div className="bg-secondarySoft px-4 py-2 rounded">
           📊 Eventos: {logs.length}
         </div>
 

@@ -87,7 +87,7 @@ export default function CampaignCardPro({ c }: { c: Campaign }) {
 
           <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-green-600"
+              className="h-full bg-primary"
               initial={{ width: 0 }}
               whileInView={{ width: `${percent}%` }}
               transition={{ duration: 1 }}
@@ -108,7 +108,7 @@ export default function CampaignCardPro({ c }: { c: Campaign }) {
               e.stopPropagation()
               router.push(`/campaign/${c.id}`)
             }}
-            className="bg-green-600 hover:bg-green-700 text-white text-xs px-4 py-2 rounded-full font-medium transition"
+            className="bg-primary hover:bg-primaryHover text-white text-xs px-4 py-2 rounded-full font-medium transition"
           >
             Donar
           </button>

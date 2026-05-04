@@ -16,7 +16,7 @@ export default function ConfirmedPage() {
 
         <button
           onClick={() => window.location.href = "/login"}
-          className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+          className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primaryHover transition"
         >
           Ir a iniciar sesión
         </button>

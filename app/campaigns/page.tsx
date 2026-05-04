@@ -56,7 +56,7 @@ export default function CampaignsPage() {
               onClick={() => setFilter('all')}
               className={`px-4 py-2 rounded-lg text-sm transition ${
                 filter === 'all'
-                  ? 'bg-green-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -67,7 +67,7 @@ export default function CampaignsPage() {
               onClick={() => setFilter('goal')}
               className={`px-4 py-2 rounded-lg text-sm transition ${
                 filter === 'goal'
-                  ? 'bg-green-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -78,7 +78,7 @@ export default function CampaignsPage() {
               onClick={() => setFilter('tickets')}
               className={`px-4 py-2 rounded-lg text-sm transition ${
                 filter === 'tickets'
-                  ? 'bg-green-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -106,7 +106,7 @@ export default function CampaignsPage() {
 
             <button
               onClick={() => router.push('/create')}
-              className="bg-green-600 text-white px-6 py-3 rounded-lg text-sm font-semibold"
+              className="bg-primary text-white px-6 py-3 rounded-lg text-sm font-semibold"
             >
               Crear primera campaña
             </button>
@@ -159,7 +159,7 @@ export default function CampaignsPage() {
                   <div className="mb-2">
                     <div className="h-2 bg-gray-200 rounded-full">
                       <div
-                        className="h-2 bg-green-600 rounded-full"
+                        className="h-2 bg-primary rounded-full"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -180,7 +180,7 @@ export default function CampaignsPage() {
                       e.stopPropagation()
                       router.push(`/campaign/${c.id}`)
                     }}
-                    className="w-full py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+                    className="w-full py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primaryHover transition"
                   >
                     Ver campaña
                   </button>

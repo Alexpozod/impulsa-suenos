@@ -312,7 +312,7 @@ export default function WithdrawPage() {
 
                 <span className={`text-xs px-2 py-1 rounded ${
                   p.status === 'paid'
-                    ? 'bg-green-100 text-green-700'
+                    ? 'bg-secondarySoft text-secondaryDark'
                     : p.status === 'pending'
                     ? 'bg-yellow-100 text-yellow-700'
                     : 'bg-gray-100 text-gray-700'

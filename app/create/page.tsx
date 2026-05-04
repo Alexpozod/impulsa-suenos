@@ -210,7 +210,7 @@ if (!banks || banks.length === 0) {
           <div>
             <div className="w-full h-2 bg-gray-200 rounded-full">
               <div
-                className="h-2 bg-green-600 rounded-full transition-all"
+                className="h-2 bg-primary rounded-full transition-all"
                 style={{ width: `${(step / 4) * 100}%` }}
               />
             </div>
@@ -295,7 +295,7 @@ if (!banks || banks.length === 0) {
                 disabled={!canContinue()}
                 className={`px-6 py-2 rounded-lg text-white ${
                   canContinue()
-                    ? "bg-green-600"
+                    ? "bg-primary"
                     : "bg-gray-300"
                 }`}
               >
@@ -308,7 +308,7 @@ if (!banks || banks.length === 0) {
   className={`px-6 py-2 rounded-lg text-white transition ${
     loading
       ? "bg-gray-400 cursor-not-allowed"
-      : "bg-green-600 hover:bg-green-700 cursor-pointer"
+      : "bg-primary hover:bg-primaryHover cursor-pointer"
   }`}
 >
   {loading ? 'Creando...' : 'Crear campaña'}
@@ -348,7 +348,7 @@ if (!banks || banks.length === 0) {
 
             <div className="mt-4">
               <div className="h-2 bg-gray-200 rounded-full">
-                <div className="h-2 bg-green-600 w-[25%]" />
+                <div className="h-2 bg-primary w-[25%]" />
               </div>
 
               <p className="text-green-600 font-bold mt-2">

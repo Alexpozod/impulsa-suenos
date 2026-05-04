@@ -127,7 +127,7 @@ export default function ImageUploader({
       {progress > 0 && (
         <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
           <div
-            className="bg-green-600 h-2 transition-all"
+            className="bg-primary h-2 transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -148,7 +148,7 @@ export default function ImageUploader({
               />
 
               {i === 0 && (
-                <span className="absolute top-1 left-1 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                <span className="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">
                   Portada
                 </span>
               )}

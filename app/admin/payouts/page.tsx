@@ -230,7 +230,7 @@ export default function PayoutAdmin() {
                   <button
                     onClick={() => approve(p.id)}
                     disabled={processing === p.id}
-                    className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700"
+                    className="bg-primary px-4 py-2 rounded-lg hover:bg-primaryHover"
                   >
                     {processing === p.id ? "Procesando..." : "Aprobar"}
                   </button>

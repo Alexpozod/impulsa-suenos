@@ -183,7 +183,7 @@ export default function AccountPage() {
 
         <span className={`px-3 py-1 rounded text-sm ${
           kycStatus === 'approved'
-            ? 'bg-green-100 text-green-700'
+            ? 'bg-secondarySoft text-secondaryDark'
             : 'bg-red-100 text-red-700'
         }`}>
           KYC: {kycStatus || 'no iniciado'}
@@ -191,7 +191,7 @@ export default function AccountPage() {
 
         <span className={`px-3 py-1 rounded text-sm ${
           bankLoaded
-            ? 'bg-green-100 text-green-700'
+            ? 'bg-secondarySoft text-secondaryDark'
             : 'bg-red-100 text-red-700'
         }`}>
           Banco: {bankLoaded ? 'OK' : 'pendiente'}
@@ -234,7 +234,7 @@ export default function AccountPage() {
 
         <button
           onClick={() => router.push("/create")}
-          className="px-5 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 font-medium"
+          className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primaryHover font-medium"
         >
           ➕ Crear campaña
         </button>
@@ -386,7 +386,7 @@ export default function AccountPage() {
               alert("Perfil actualizado correctamente ✅")
             }
           }}
-          className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 font-medium shadow-sm"
+          className="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primaryHover font-medium shadow-sm"
         >
           Guardar cambios
         </button>

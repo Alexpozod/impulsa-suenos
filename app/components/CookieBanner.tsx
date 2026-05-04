@@ -100,7 +100,7 @@ export default function CookieBanner() {
 
           <button
             onClick={acceptAll}
-            className="text-sm px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold"
+            className="text-sm px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-lg font-semibold"
           >
             Aceptar todo
           </button>
@@ -160,7 +160,7 @@ export default function CookieBanner() {
 
               <button
                 onClick={() => savePreferences(prefs)}
-                className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg"
+                className="px-4 py-2 text-sm bg-primary text-white rounded-lg"
               >
                 Guardar
               </button>

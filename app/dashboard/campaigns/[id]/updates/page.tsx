@@ -77,7 +77,7 @@ export default function CampaignUpdatesPage() {
 
       <button
         onClick={submit}
-        className="bg-green-600 text-white px-4 py-2 rounded"
+        className="bg-primary text-white px-4 py-2 rounded"
       >
         {loading ? "Publicando..." : "Publicar"}
       </button>

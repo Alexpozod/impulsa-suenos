@@ -105,7 +105,7 @@ export default function DashboardPage() {
 
                   <a
                     href={`/account/withdraw?campaign=${c.id}`}
-                    className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                    className="text-sm px-3 py-1 bg-primary text-white rounded hover:bg-primaryHover"
                   >
                     Retirar
                   </a>

@@ -111,7 +111,7 @@ export default function AlertsDashboard() {
             {a.status === "open" && (
               <button
                 onClick={() => resolveAlert(a.id)}
-                className="bg-green-600 px-3 py-1 rounded text-sm"
+                className="bg-primary px-3 py-1 rounded text-sm"
               >
                 ✅ Mark as resolved
               </button>

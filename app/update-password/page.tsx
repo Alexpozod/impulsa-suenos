@@ -110,7 +110,7 @@ export default function UpdatePasswordPage() {
         {/* BUTTON */}
         <button
           onClick={updatePassword}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+          className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primaryHover transition"
           disabled={loading}
         >
           {loading ? "Guardando..." : "Actualizar contraseña"}

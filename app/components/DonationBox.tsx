@@ -250,7 +250,7 @@ export default function DonationBox({
             onClick={() => setAmount(p)}
             className={`py-2 rounded-lg border text-sm ${
               amount === p
-                ? 'bg-green-600 text-white border-green-600'
+                ? 'bg-primary text-white border-green-600'
                 : 'hover:bg-gray-100'
             }`}
           >
@@ -366,7 +366,7 @@ export default function DonationBox({
         onClick={donate}
         disabled={loading}
         type="button"
-        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition"
+        className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryHover transition"
       >
         {loading ? "Procesando..." : "🚀 Donar"}
       </button>

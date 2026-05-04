@@ -46,7 +46,7 @@ export default function CampaignCard({ campaign }: any) {
         {/* PROGRESS BAR */}
         <div className="w-full bg-gray-200 h-2 rounded-full mb-2">
           <div
-            className="bg-green-600 h-2 rounded-full transition-all"
+            className="bg-primary h-2 rounded-full transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>

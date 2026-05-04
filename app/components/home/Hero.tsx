@@ -19,7 +19,7 @@ export default function Hero({ onCreate }: Props) {
     <section className="relative pt-28 pb-20 px-6 overflow-hidden bg-gradient-to-b from-white to-gray-50">
 
       {/* BACKGROUND GLOW */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-green-100 blur-3xl opacity-40 rounded-full pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-secondarySoft blur-3xl opacity-40 rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
 
@@ -35,7 +35,7 @@ export default function Hero({ onCreate }: Props) {
           {/* ✅ BADGES REALES */}
           <div className="flex flex-wrap items-center gap-2 mb-8">
 
-            <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-medium shadow-sm">
+            <span className="bg-secondarySoft text-secondaryDark px-4 py-1 rounded-full text-sm font-medium shadow-sm">
               🟢 Plataforma en lanzamiento
             </span>
 
@@ -68,7 +68,7 @@ export default function Hero({ onCreate }: Props) {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               onClick={onCreate}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-2xl transition-all text-lg"
+              className="bg-primary hover:bg-primaryHover text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-2xl transition-all text-lg"
             >
               Crear campaña →
             </motion.button>

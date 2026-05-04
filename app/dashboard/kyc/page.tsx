@@ -266,7 +266,7 @@ export default function KYCPage() {
           onClick={handleSubmit}
           disabled={loading || isLocked}
           className={`w-full py-3 rounded-lg font-semibold text-white ${
-            isLocked ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'
+            isLocked ? 'bg-gray-400' : 'bg-primary hover:bg-primaryHover'
           }`}
         >
           {kycStatus === 'approved'

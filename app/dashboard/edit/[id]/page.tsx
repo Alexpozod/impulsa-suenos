@@ -125,7 +125,7 @@ export default function EditCampaign() {
         ))}
       </div>
 
-      <button onClick={updateCampaign} className="bg-green-600 text-white px-4 py-2 rounded w-full">
+      <button onClick={updateCampaign} className="bg-primary text-white px-4 py-2 rounded w-full">
         {saving ? "Guardando..." : "Guardar cambios"}
       </button>
 

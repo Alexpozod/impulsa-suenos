@@ -92,7 +92,7 @@ export default function EditCampaign() {
 
       <button
         onClick={save}
-        className="bg-green-600 text-white px-4 py-2 rounded"
+        className="bg-primary text-white px-4 py-2 rounded"
       >
         {loading ? "Guardando..." : "Guardar cambios"}
       </button>

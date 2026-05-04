@@ -162,7 +162,7 @@ export default function AdminKYC() {
                 </div>
 
                 <span className={`text-sm px-3 py-1 rounded-full
-                  ${k.status === 'approved' && 'bg-green-100 text-green-700'}
+                  ${k.status === 'approved' && 'bg-secondarySoft text-secondaryDark'}
                   ${k.status === 'pending' && 'bg-yellow-100 text-yellow-700'}
                   ${k.status === 'rejected' && 'bg-red-100 text-red-700'}
                 `}>
@@ -199,7 +199,7 @@ export default function AdminKYC() {
                 <button
                   disabled={processing === k.user_email}
                   onClick={() => updateStatus(k.user_email, 'approved')}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                  className="bg-primary text-white px-4 py-2 rounded-lg disabled:opacity-50"
                 >
                   Aprobar
                 </button>

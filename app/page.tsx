@@ -182,7 +182,7 @@ export default function HomePage() {
                       {/* PROGRESS */}
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-green-600 transition-all duration-500"
+                          className="h-full bg-primary transition-all duration-500"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
@@ -197,7 +197,7 @@ export default function HomePage() {
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           onClick={() => router.push(`/campaign/${c.id}`)}
-                          className="bg-green-600 hover:bg-green-700 text-white text-sm px-5 py-2 rounded-full font-medium transition flex items-center gap-2"
+                          className="bg-primary hover:bg-primaryHover text-white text-sm px-5 py-2 rounded-full font-medium transition flex items-center gap-2"
                         >
                           ❤ Donar
                         </motion.button>

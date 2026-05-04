@@ -285,7 +285,7 @@ export default function FinancePage() {
             disabled={otp.length !== 6 || validatingOtp}
             className={`px-3 py-2 rounded text-sm ${
               otp.length === 6
-                ? "bg-green-600 text-white"
+                ? "bg-primary text-white"
                 : "bg-gray-300"
             }`}
           >
@@ -299,7 +299,7 @@ export default function FinancePage() {
           onClick={requestPayout}
           className={`px-4 py-2 rounded text-white ${
             canWithdraw
-              ? "bg-green-600 hover:bg-green-700"
+              ? "bg-primary hover:bg-primaryHover"
               : "bg-gray-300"
           }`}
         >

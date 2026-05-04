@@ -205,7 +205,7 @@ export default function AdminSettings() {
             onClick={save}
             disabled={saving}
             className={`w-full py-3 rounded-lg font-semibold ${
-              saving ? "bg-gray-600" : "bg-green-600 hover:bg-green-700"
+              saving ? "bg-gray-600" : "bg-primary hover:bg-primaryHover"
             }`}
           >
             {saving ? "Guardando..." : "Guardar cambios"}

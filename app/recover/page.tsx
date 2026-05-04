@@ -61,7 +61,7 @@ export default function RecoverPage() {
         <button
           onClick={handleRecover}
           disabled={loading}
-          className="w-full bg-green-600 text-white py-3 rounded-lg"
+          className="w-full bg-primary text-white py-3 rounded-lg"
         >
           {loading ? "Enviando..." : "Enviar enlace"}
         </button>

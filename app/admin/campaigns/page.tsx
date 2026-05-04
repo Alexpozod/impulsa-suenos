@@ -113,7 +113,7 @@ export default function AdminCampaigns() {
             onClick={() => setStatusFilter(tab.key)}
             className={`px-4 py-2 rounded-lg text-sm ${
               statusFilter === tab.key
-                ? "bg-green-600"
+                ? "bg-primary"
                 : "bg-slate-800 hover:bg-slate-700"
             }`}
           >
@@ -150,7 +150,7 @@ export default function AdminCampaigns() {
               <button
                 onClick={() => handleAction(c.id, 'activate')}
                 disabled={loadingId === c.id}
-                className="bg-green-600 px-3 py-1 rounded text-sm"
+                className="bg-primary px-3 py-1 rounded text-sm"
               >
                 Activar
               </button>

@@ -92,12 +92,12 @@ export default function AdminWithdrawals() {
   const getRiskColor = (score: number) => {
     if (score >= 70) return "bg-red-600"
     if (score >= 40) return "bg-yellow-500"
-    return "bg-green-600"
+    return "bg-primary"
   }
 
   const getStatusColor = (status: string) => {
     if (status === "pending") return "bg-yellow-500"
-    if (status === "approved") return "bg-green-600"
+    if (status === "approved") return "bg-primary"
     if (status === "rejected") return "bg-red-600"
     return "bg-gray-500"
   }
@@ -202,7 +202,7 @@ export default function AdminWithdrawals() {
 
                       <button
                         onClick={() => update(w.id, 'approve')}
-                        className="bg-green-600 px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
+                        className="bg-primary px-4 py-2 rounded-lg text-sm hover:bg-primaryHover transition"
                       >
                         ✅ Aprobar
                       </button>

@@ -254,7 +254,7 @@ export default function Login() {
         {/* LOGIN */}
         <button
           onClick={signIn}
-          className="w-full bg-green-600 text-white py-3 rounded-lg mb-3 font-semibold hover:bg-green-700 transition"
+          className="w-full bg-primary text-white py-3 rounded-lg mb-3 font-semibold hover:bg-primaryHover transition"
           disabled={loading}
         >
           {loading ? "Ingresando..." : "Entrar"}

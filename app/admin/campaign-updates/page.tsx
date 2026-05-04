@@ -91,7 +91,7 @@ export default function AdminCampaignUpdatesPage() {
 
             <button
               onClick={() => approve(u.id)}
-              className="bg-green-600 px-4 py-1 rounded"
+              className="bg-primary px-4 py-1 rounded"
             >
               Aprobar
             </button>
