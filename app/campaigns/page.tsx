@@ -119,19 +119,18 @@ export default function CampaignsPage() {
 
             {/* CATEGORÍAS */}
             {[
-              { key: 'all', label: 'Todas' },
-              { key: 'salud', label: 'Salud' },
-              { key: 'educacion', label: 'Educación' },
-              { key: 'emergencia', label: 'Urgente' }
-            ].map((cat) => (
+  { key: 'salud', label: 'Salud' },
+  { key: 'educacion', label: 'Educación' },
+  { key: 'emergencia', label: 'Urgente' }
+].map((cat) => (
               <button
                 key={cat.key}
                 onClick={() => setCategory(cat.key as any)}
-                className={`px-4 py-2 rounded-full text-xs font-medium ${
-                  category === cat.key
-                    ? 'bg-black text-white'
-                    : 'bg-white border text-gray-600'
-                }`}
+                className={`px-4 py-2 rounded-full text-xs font-medium transition ${
+  category === cat.key
+    ? 'bg-green-600 text-white'
+    : 'bg-white border text-gray-600 hover:bg-gray-100'
+}`}
               >
                 {cat.label}
               </button>
