@@ -70,7 +70,7 @@ export default function CampaignsPage() {
             />
 
             {/* FILTROS */}
-            <div className="flex gap-2 bg-white border border-gray-100 rounded-xl p-1 shadow-sm">
+            <div className="flex gap-2 bg-gray-100 rounded-xl p-1">
 
               {[
                 { key: 'all', label: 'Todas' },
@@ -80,10 +80,10 @@ export default function CampaignsPage() {
                 <button
                   key={f.key}
                   onClick={() => setFilter(f.key as any)}
-                  className={`px-4 py-2 rounded-lg text-sm transition-all ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     filter === f.key
-                      ? 'bg-green-600 text-white shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-green-600 text-white shadow-md'
+                      : 'text-gray-600 hover:bg-white hover:shadow-sm'
                   }`}
                 >
                   {f.label}
