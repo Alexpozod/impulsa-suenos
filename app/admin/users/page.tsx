@@ -128,7 +128,7 @@ export default function AdminUsers() {
         <button
           onClick={createUser}
           disabled={creating}
-          className="bg-primary px-4 py-2 rounded hover:bg-primaryHover disabled:opacity-50"
+          className="bg-primary text-white text-white px-4 py-2 rounded hover:bg-primaryHover disabled:opacity-50"
         >
           {creating ? "Creando..." : "Crear usuario"}
         </button>
@@ -162,8 +162,8 @@ export default function AdminUsers() {
   disabled={loadingId === u.id}
   className={`px-3 py-1 rounded text-sm ${
     u.role === "admin"
-      ? "bg-primary"
-      : "bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30"
+      ? "bg-primary text-white"
+      : "bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30"
   } disabled:opacity-50`}
 >
   Admin
@@ -174,8 +174,8 @@ export default function AdminUsers() {
   disabled={loadingId === u.id}
   className={`px-3 py-1 rounded text-sm ${
     u.role === "contador"
-      ? "bg-primary"
-      : "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30"
+      ? "bg-primary text-white"
+      : "bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/30"
   } disabled:opacity-50`}
 >
   Contador
@@ -186,8 +186,8 @@ export default function AdminUsers() {
   disabled={loadingId === u.id}
   className={`px-3 py-1 rounded text-sm ${
     u.role === "user"
-      ? "bg-primary"
-      : "bg-gray-700 hover:bg-gray-600"
+      ? "bg-primary text-white"
+      : "bg-slate-700 hover:bg-slate-600 text-white"
   } disabled:opacity-50`}
 >
   User
