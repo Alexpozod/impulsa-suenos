@@ -71,7 +71,7 @@ export default function Hero({ onCreate }: Props) {
               className="bg-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:bg-gray-100 transition-all text-lg"
               style={{ color: "#15803d", WebkitTextFillColor: "#15803d" }}
             >
-              Crear campaña →
+              Boton Funciona →
             </motion.button>
 
             <Link
