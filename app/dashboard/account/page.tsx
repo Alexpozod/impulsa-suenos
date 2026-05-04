@@ -388,12 +388,12 @@ if (profileData?.phone?.startsWith('+')) {
     onChange={(e) => setCountryCode(e.target.value)}
     className="px-3 py-3 rounded-xl border bg-gray-50 text-sm w-[120px] hover:bg-white transition"
   >
-    <option value="+56">🇨🇱 +56</option>
-    <option value="+54">🇦🇷 +54</option>
-    <option value="+51">🇵🇪 +51</option>
-    <option value="+52">🇲🇽 +52</option>
-    <option value="+34">🇪🇸 +34</option>
-    <option value="+1">🇺🇸 +1</option>
+    <option value="+56">🇨🇱 Chile (+56)</option>
+<option value="+54">🇦🇷 Argentina (+54)</option>
+<option value="+51">🇵🇪 Perú (+51)</option>
+<option value="+52">🇲🇽 México (+52)</option>
+<option value="+34">🇪🇸 España (+34)</option>
+<option value="+1">🇺🇸 Estados Unidos (+1)</option>
   </select>
 
   {/* TELEFONO */}
