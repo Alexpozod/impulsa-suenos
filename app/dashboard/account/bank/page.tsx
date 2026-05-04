@@ -324,38 +324,134 @@ export default function BankPage() {
         ))}
 
         {/* FORM */}
-        <div className="card space-y-3">
-          <h2>{editingId ? "Editar cuenta" : "Nueva cuenta"}</h2>
+        <div className="card space-y-6 flex-col items-stretch">
 
-          <input name="holder_name" placeholder="Titular" value={form.holder_name} onChange={handleChange} className="input" />
-          <input name="bank_name" placeholder="Banco" value={form.bank_name} onChange={handleChange} className="input" />
+  <h2 className="text-lg font-semibold">
+    {editingId ? "Editar cuenta" : "Nueva cuenta"}
+  </h2>
 
-          <select name="account_type" value={form.account_type} onChange={handleChange} className="input">
-            <option value="">Tipo de cuenta</option>
-            <option value="corriente">Cuenta corriente</option>
-            <option value="vista">Cuenta vista</option>
-            <option value="ahorro">Cuenta ahorro</option>
-            <option value="checking">Checking (US)</option>
-            <option value="savings">Savings (US)</option>
-          </select>
+  {/* GRID PRINCIPAL */}
+  <div className="grid md:grid-cols-2 gap-4">
 
-          <input name="account_number" placeholder="Número de cuenta" value={form.account_number} onChange={handleChange} className="input" />
+    <div>
+      <label className="text-xs text-gray-500">Titular</label>
+      <input
+        name="holder_name"
+        placeholder="Nombre completo"
+        value={form.holder_name}
+        onChange={handleChange}
+        className="input mt-1"
+      />
+    </div>
 
-          <select name="document_type" value={form.document_type} onChange={handleChange} className="input">
-            <option value="rut">RUT</option>
-            <option value="dni">DNI</option>
-            <option value="passport">Pasaporte</option>
-          </select>
+    <div>
+      <label className="text-xs text-gray-500">Banco</label>
+      <input
+        name="bank_name"
+        placeholder="Ej: Banco de Chile"
+        value={form.bank_name}
+        onChange={handleChange}
+        className="input mt-1"
+      />
+    </div>
 
-          <input name="rut" placeholder="Documento" value={form.rut} onChange={handleChange} className="input" />
+    <div>
+      <label className="text-xs text-gray-500">Tipo de cuenta</label>
+      <select
+        name="account_type"
+        value={form.account_type}
+        onChange={handleChange}
+        className="input mt-1"
+      >
+        <option value="">Seleccionar</option>
+        <option value="corriente">Cuenta corriente</option>
+        <option value="vista">Cuenta vista</option>
+        <option value="ahorro">Cuenta ahorro</option>
+        <option value="checking">Checking (US)</option>
+        <option value="savings">Savings (US)</option>
+      </select>
+    </div>
 
-          <input name="swift" placeholder="SWIFT" value={form.swift} onChange={handleChange} className="input" />
-          <input name="iban" placeholder="IBAN" value={form.iban} onChange={handleChange} className="input" />
+    <div>
+      <label className="text-xs text-gray-500">Número de cuenta</label>
+      <input
+        name="account_number"
+        placeholder="Ej: 12345678"
+        value={form.account_number}
+        onChange={handleChange}
+        className="input mt-1"
+      />
+    </div>
 
-          <button onClick={handleSave} disabled={saving} className="btn-green">
-            {saving ? "Guardando..." : "Guardar"}
-          </button>
-        </div>
+  </div>
+
+  {/* DOCUMENTOS */}
+  <div className="grid md:grid-cols-2 gap-4">
+
+    <div>
+      <label className="text-xs text-gray-500">Tipo documento</label>
+      <select
+        name="document_type"
+        value={form.document_type}
+        onChange={handleChange}
+        className="input mt-1"
+      >
+        <option value="rut">RUT</option>
+        <option value="dni">DNI</option>
+        <option value="passport">Pasaporte</option>
+      </select>
+    </div>
+
+    <div>
+      <label className="text-xs text-gray-500">Documento</label>
+      <input
+        name="rut"
+        placeholder="Ej: 12.345.678-9"
+        value={form.rut}
+        onChange={handleChange}
+        className="input mt-1"
+      />
+    </div>
+
+  </div>
+
+  {/* INTERNACIONAL */}
+  <div className="grid md:grid-cols-2 gap-4">
+
+    <div>
+      <label className="text-xs text-gray-500">SWIFT (opcional)</label>
+      <input
+        name="swift"
+        placeholder="Código SWIFT"
+        value={form.swift}
+        onChange={handleChange}
+        className="input mt-1"
+      />
+    </div>
+
+    <div>
+      <label className="text-xs text-gray-500">IBAN (opcional)</label>
+      <input
+        name="iban"
+        placeholder="IBAN"
+        value={form.iban}
+        onChange={handleChange}
+        className="input mt-1"
+      />
+    </div>
+
+  </div>
+
+  {/* BOTÓN */}
+  <button
+    onClick={handleSave}
+    disabled={saving}
+    className="btn-green mt-2"
+  >
+    {saving ? "Guardando..." : "Guardar cuenta"}
+  </button>
+
+</div>
 
         {error && <p className="text-red-500">{error}</p>}
         {message && <p className="text-green-600">{message}</p>}
