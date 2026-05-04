@@ -34,8 +34,8 @@ export default function RootLayout({
       <body
         className={`
           antialiased 
-          bg-white 
-          text-gray-900
+          bg-bg 
+          text-text
         `}
         style={{
           fontFamily: "Inter, sans-serif",

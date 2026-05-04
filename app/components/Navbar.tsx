@@ -75,8 +75,8 @@ export default function Navbar() {
         className={`
           flex items-center justify-between px-6 py-3 rounded-2xl transition-all duration-300
           ${scrolled
-            ? "bg-white/80 backdrop-blur-xl shadow-lg border border-gray-200"
-            : "bg-white/60 backdrop-blur-md border border-gray-100"
+            ? "bg-white/80 backdrop-blur-xl shadow-lg border border-border"
+            : "bg-white/60 backdrop-blur-md border border-border"
           }
         `}
       >
@@ -86,7 +86,7 @@ export default function Navbar() {
   <img
     src="/logo.png"
     alt="ImpulsaSueños"
-    className="h-12 w-auto"
+    className="h-12 w-auto drop-shadow-sm"
   />
 </Link>
 
@@ -107,7 +107,7 @@ export default function Navbar() {
           {!user ? (
             <Link
               href="/login"
-              className="text-sm font-medium text-gray-700 hover:text-secondary transition"
+              className="text-sm font-medium text-textSoft hover:text-secondary transition"
             >
               Iniciar sesión
             </Link>
