@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 export default function CampaignsPage() {
 
   const [campaigns, setCampaigns] = useState<any[]>([])
-  const [filter, setFilter] = useState<'all' | 'tickets' | 'goal'>('all')
+  const [filter, setFilter] = useState<'all' | 'goal'>('all')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -73,14 +73,13 @@ export default function CampaignsPage() {
   <div className="flex gap-2 bg-gray-100 rounded-xl p-1 w-fit">
 
     {[
-      { key: 'all', label: 'Todas' },
-      { key: 'goal', label: 'Donaciones' },
-      { key: 'tickets', label: 'Sorteos' }
-    ].map((f) => (
+  { key: 'all', label: 'Todas' },
+  { key: 'goal', label: 'Donaciones' }
+].map((f) => (
       <button
         key={f.key}
         onClick={() => setFilter(f.key as any)}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+        className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
           filter === f.key
             ? 'bg-green-600 text-white shadow-md'
             : 'text-gray-600 hover:bg-white hover:shadow-sm'
@@ -147,13 +146,6 @@ export default function CampaignsPage() {
 
                   {/* OVERLAY */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition" />
-
-                  {/* BADGE */}
-                  {c.mode === 'tickets' && (
-                    <div className="absolute top-3 left-3 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">
-                      🎁 Sorteo
-                    </div>
-                  )}
 
                 </div>
 
