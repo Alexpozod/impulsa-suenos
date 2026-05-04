@@ -113,7 +113,7 @@ export default function AdminCampaigns() {
             onClick={() => setStatusFilter(tab.key)}
             className={`px-4 py-2 rounded-lg text-sm ${
               statusFilter === tab.key
-                ? "bg-primary"
+                ? "bg-primary text-white"
                 : "bg-slate-800 hover:bg-slate-700"
             }`}
           >
@@ -150,7 +150,7 @@ export default function AdminCampaigns() {
               <button
                 onClick={() => handleAction(c.id, 'activate')}
                 disabled={loadingId === c.id}
-                className="bg-primary px-3 py-1 rounded text-sm"
+                className="bg-primary text-white px-3 py-1 rounded text-sm hover:bg-primaryHover"
               >
                 Activar
               </button>
@@ -170,7 +170,8 @@ export default function AdminCampaigns() {
               <button
                 onClick={() => handleAction(c.id, 'delete')}
                 disabled={loadingId === c.id}
-                className="bg-red-500/20 border border-red-500/30 text-red-300 px-3 py-1 rounded text-sm"
+                className="bg-red-500/20 border border-red-500/30 text-yellow-300 → text-yellow-400
+text-red-300 → text-red-400 px-3 py-1 rounded text-sm"
               >
                 Eliminar
               </button>
