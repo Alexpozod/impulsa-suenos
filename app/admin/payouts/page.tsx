@@ -161,7 +161,7 @@ export default function PayoutAdmin() {
           </p>
         </div>
 
-        <div className="bg-green-500/20 border border-green-500/30 p-4 rounded-xl">
+        <div className="bg-primarySoft border border-primary/30 p-4 rounded-xl">
           <p className="text-sm text-green-300">Pagado</p>
           <p className="text-2xl font-bold">
             ${totalPaid.toLocaleString()}
@@ -202,7 +202,7 @@ export default function PayoutAdmin() {
 
                 <span className={`px-3 py-1 rounded-full text-xs font-medium
                   ${p.status === "pending" && "bg-yellow-500 text-black"}
-                  ${p.status === "paid" && "bg-green-500 text-black"}
+                  ${p.status === "paid" && "bg-secondarySoft text-secondaryDark"}
                   ${p.status === "rejected" && "bg-red-500 text-white"}
                 `}>
                   {p.status}
