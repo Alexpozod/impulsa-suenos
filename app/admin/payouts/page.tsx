@@ -162,7 +162,7 @@ export default function PayoutAdmin() {
         </div>
 
         <div className="bg-primarySoft border border-primary/30 p-4 rounded-xl">
-          <p className="text-sm text-green-300">Pagado</p>
+          <p className="text-sm text-secondaryDark">Pagado</p>
           <p className="text-2xl font-bold">
             ${totalPaid.toLocaleString()}
           </p>
@@ -201,9 +201,9 @@ export default function PayoutAdmin() {
                 </div>
 
                 <span className={`px-3 py-1 rounded-full text-xs font-medium
-                  ${p.status === "pending" && "bg-yellow-500 text-black"}
+                 ${p.status === "pending" && "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300"}
                   ${p.status === "paid" && "bg-secondarySoft text-secondaryDark"}
-                  ${p.status === "rejected" && "bg-red-500 text-white"}
+                  ${p.status === "rejected" && "bg-red-500/20 border border-red-500/30 text-red-300"}
                 `}>
                   {p.status}
                 </span>
@@ -238,7 +238,7 @@ export default function PayoutAdmin() {
                   <button
                     onClick={() => reject(p.id)}
                     disabled={processing === p.id}
-                    className="bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700"
+                    className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-2 rounded-lg hover:bg-red-500/30"
                   >
                     Rechazar
                   </button>
