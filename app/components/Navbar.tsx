@@ -91,13 +91,13 @@ export default function Navbar() {
 </Link>
 
         {/* LINKS */}
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-textSoft">
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
 
-  <Link href="/" className="hover:text-secondary transition">Inicio</Link>
-  <Link href="/campaigns" className="hover:text-secondary transition">Campañas</Link>
-  <Link href="/sorteos" className="hover:text-secondary transition">Sorteos</Link>
-  <Link href="/como-funciona" className="hover:text-secondary transition">Cómo funciona</Link>
-  <Link href="/faq" className="hover:text-secondary transition">FAQ</Link>
+  <Link href="/" className="transition">Inicio</Link>
+  <Link href="/campaigns" className="transition">Campañas</Link>
+  <Link href="/sorteos" className="transition">Sorteos</Link>
+  <Link href="/como-funciona" className="transition">Cómo funciona</Link>
+  <Link href="/faq" className="transition">FAQ</Link>
 
 </div>
 
@@ -107,7 +107,7 @@ export default function Navbar() {
           {!user ? (
             <Link
               href="/login"
-              className="text-sm font-medium text-textSoft hover:text-secondary transition"
+              className="text-sm font-medium transition"
             >
               Iniciar sesión
             </Link>
@@ -126,11 +126,11 @@ export default function Navbar() {
 
               </Link>
 
-              <Link href="/dashboard" className="text-sm font-medium hover:text-secondary transition">
+              <Link href="/dashboard" className="text-sm font-medium transition">
                 Dashboard
               </Link>
 
-              <Link href="/dashboard/account" className="text-sm font-medium hover:text-secondary transition">
+              <Link href="/dashboard/account" className="text-sm font-medium transition">
   Mi cuenta
 </Link>
 
