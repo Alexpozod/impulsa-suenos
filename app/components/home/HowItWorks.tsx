@@ -8,7 +8,7 @@ const steps = [
     title: "Crea tu campaña",
     description:
       "Cuenta tu historia, establece tu meta y personaliza tu página en minutos. Sin costos iniciales.",
-    icon: "✍️",
+    icon: "🚀",
   },
   {
     number: "02",
@@ -53,40 +53,53 @@ export default function HowItWorks() {
           {/* LINEA (desktop) */}
           <div className="hidden md:block absolute top-16 left-[15%] right-[15%] h-[2px] bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
 
-          {steps.map((step, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.2 }}
-              viewport={{ once: true }}
-              className="text-center relative"
-            >
+          {steps.map((step, i) => {
+            const isFirst = i === 0
 
-              {/* ICON + NUMBER */}
-              <div className="relative inline-block mb-6">
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.2 }}
+                viewport={{ once: true }}
+                className="text-center relative"
+              >
 
-                <div className="w-16 h-16 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center text-2xl">
-                  {step.icon}
+                {/* ICON + NUMBER */}
+                <div className="relative inline-block mb-6">
+
+                  <motion.div
+                    whileHover={{ scale: 1.08 }}
+                    animate={isFirst ? { y: [0, -6, 0] } : {}}
+                    transition={{
+                      duration: 2,
+                      repeat: isFirst ? Infinity : 0,
+                      ease: "easeInOut"
+                    }}
+                    className="w-16 h-16 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center text-2xl"
+                  >
+                    {step.icon}
+                  </motion.div>
+
+                  <div className="absolute -top-2 -right-2 w-7 h-7 bg-green-600 text-white shadow-sm text-xs font-bold rounded-full flex items-center justify-center">
+                    {step.number}
+                  </div>
+
                 </div>
 
-                <div className="absolute -top-2 -right-2 w-7 h-7 bg-green-600 text-white shadow-sm text-xs font-bold rounded-full flex items-center justify-center">
-                  {step.number}
-                </div>
+                {/* TEXT */}
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {step.title}
+                </h3>
 
-              </div>
+                <p className="text-gray-600 text-sm leading-relaxed max-w-xs mx-auto">
+                  {step.description}
+                </p>
 
-              {/* TEXT */}
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {step.title}
-              </h3>
-
-              <p className="text-gray-600 text-sm leading-relaxed max-w-xs mx-auto">
-                {step.description}
-              </p>
-
-            </motion.div>
-          ))}
+              </motion.div>
+            )
+          })}
 
         </div>
 
