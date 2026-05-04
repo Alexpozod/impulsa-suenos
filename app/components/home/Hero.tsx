@@ -35,15 +35,15 @@ export default function Hero({ onCreate }: Props) {
           {/* ✅ BADGES REALES */}
           <div className="flex flex-wrap items-center gap-2 mb-8">
 
-            <span className="bg-secondarySoft text-secondaryDark px-4 py-1 rounded-full text-sm font-medium shadow-sm">
+            <span className="bg-secondarySoft text-primary px-4 py-1 rounded-full text-sm font-medium shadow-sm">
               🟢 Plataforma en lanzamiento
             </span>
 
-            <span className="bg-secondarySoft text-secondaryDark px-3 py-1 rounded-full text-sm">
+            <span className="bg-secondarySoft text-primary px-3 py-1 rounded-full text-sm">
               🔒 Campañas verificadas
             </span>
 
-            <span className="bg-secondarySoft text-secondaryDark px-3 py-1 rounded-full text-sm">
+            <span className="bg-secondarySoft text-primary px-3 py-1 rounded-full text-sm">
               💳 Pagos seguros
             </span>
 
