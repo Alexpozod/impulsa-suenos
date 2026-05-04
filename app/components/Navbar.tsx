@@ -82,7 +82,7 @@ export default function Navbar() {
       >
 
         {/* LOGO */}
-<Link href="/" className="flex items-center gap-5">
+<Link href="/" className="flex items-center gap-10">
   <img
     src="/logo.png"
     alt="ImpulsaSueños"
