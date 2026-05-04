@@ -16,12 +16,12 @@ export default function Hero({ onCreate }: Props) {
   const y = useTransform(scrollY, [0, 300], [0, 50])
 
   return (
-    <section className="relative pt-20 pb-14 px-6 overflow-hidden bg-gradient-to-b from-white to-bg">
+<section className="relative pt-20 pb-16 px-6 overflow-hidden bg-gradient-to-b from-white to-gray-50">
 
       {/* BACKGROUND GLOW */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primarySoft blur-3xl opacity-40 rounded-full pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10 bg-white rounded-3xl px-10 py-12 shadow-sm border border-gray-100">
 
         {/* =========================
             TEXT
@@ -35,28 +35,28 @@ export default function Hero({ onCreate }: Props) {
           {/* ✅ BADGES REALES */}
           <div className="flex flex-wrap items-center gap-2 mb-8">
 
-            <span className="bg-secondarySoft text-primary px-4 py-1 rounded-full text-sm font-medium shadow-sm">
+            <span className="bg-green-50 text-green-700 px-4 py-1 rounded-full text-sm font-medium shadow-sm">
               🟢 Plataforma en lanzamiento
             </span>
 
-            <span className="bg-secondarySoft text-primary px-3 py-1 rounded-full text-sm">
+            <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
               🔒 Campañas verificadas
             </span>
 
-            <span className="bg-secondarySoft text-primary px-3 py-1 rounded-full text-sm">
+            <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
               💳 Pagos seguros
             </span>
 
           </div>
 
           {/* TITLE */}
-          <h1 className="text-4xl md:text-[56px] font-extrabold leading-[1.05] tracking-tight mb-6 text-text">
+          <h1 className="text-4xl md:text-[58px] font-extrabold leading-[1.05] tracking-tight mb-6 text-gray-900">
             Donde los sueños{" "}
-            <span className="text-primary">encuentran su impulso</span>
+            <span className="text-green-700">encuentran su impulso</span>
           </h1>
 
           {/* TEXT */}
-          <p className="text-textSoft text-lg leading-relaxed mb-8 max-w-xl">
+          <p className="text-gray-600 text-lg leading-relaxed mb-8 max-w-xl">
             Personas reales ayudando a otras personas.
             Crea tu campaña en minutos o dona para cambiar una vida hoy.
           </p>
@@ -64,24 +64,23 @@ export default function Hero({ onCreate }: Props) {
           {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4">
 
-            <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={onCreate}
-              className="bg-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:bg-gray-100 transition-all text-lg"
-              style={{ color: "#15803d", WebkitTextFillColor: "#15803d" }}
-            >
-              Boton Funciona →
-            </motion.button>
+  <motion.button
+    whileHover={{ scale: 1.04 }}
+    whileTap={{ scale: 0.96 }}
+    onClick={onCreate}
+    className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl font-semibold shadow-md hover:shadow-xl transition-all text-lg"
+  >
+    Crear campaña →
+  </motion.button>
 
-            <Link
-              href="/campaigns"
-              className="border border-gray-300 px-8 py-4 rounded-2xl font-semibold text-center text-text hover:border-green-600 hover:text-primary transition"
-            >
-              Donar ahora
-            </Link>
+  <Link
+    href="/campaigns"
+    className="border border-gray-300 px-8 py-4 rounded-2xl font-semibold text-center text-gray-700 hover:border-green-600 hover:text-green-700 transition"
+  >
+    Donar ahora
+  </Link>
 
-          </div>
+</div>
 
           {/* ✅ TRUST PRO */}
           <div className="flex gap-6 mt-8 text-sm text-textSoft flex-wrap">
@@ -122,7 +121,7 @@ export default function Hero({ onCreate }: Props) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="absolute -bottom-6 left-6 bg-white px-6 py-4 rounded-2xl shadow-xl border backdrop-blur"
+            className="absolute -bottom-6 left-6 bg-white px-6 py-4 rounded-2xl shadow-lg border border-gray-100"
           >
             <p className="text-sm font-semibold text-text">
               🚀 Plataforma en crecimiento
