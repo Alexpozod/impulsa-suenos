@@ -10,7 +10,7 @@ export default function CampaignsPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [sort, setSort] = useState<'recent' | 'top' | 'progress'>('recent')
-  const [category, setCategory] = useState<'all' | 'salud' | 'educacion' | 'emergencia'>('all')
+  const [category, setCategory] = useState<string>('all')
 
   const router = useRouter()
 
@@ -30,17 +30,7 @@ export default function CampaignsPage() {
     }
   }
 
-  const getCategory = (c: any) => {
-    const text = (c.title + ' ' + c.description).toLowerCase()
-
-    if (text.includes('salud') || text.includes('hospital')) return 'salud'
-    if (text.includes('educación') || text.includes('colegio')) return 'educacion'
-    if (text.includes('urgente') || text.includes('emergencia')) return 'emergencia'
-
-    return 'salud'
-  }
-
-  const filtered = campaigns
+    const filtered = campaigns
     .filter((c) => {
 
       const matchesFilter =
@@ -51,7 +41,7 @@ export default function CampaignsPage() {
         c.description?.toLowerCase().includes(search.toLowerCase())
 
       const matchesCategory =
-        category === 'all' ? true : getCategory(c) === category
+  category === 'all' ? true : c.category === category
 
       return matchesFilter && matchesSearch && matchesCategory
     })
@@ -119,9 +109,13 @@ export default function CampaignsPage() {
 
             {/* CATEGORÍAS */}
             {[
+  { key: 'general', label: 'General' },
   { key: 'salud', label: 'Salud' },
   { key: 'educacion', label: 'Educación' },
-  { key: 'emergencia', label: 'Urgente' }
+  { key: 'emergencia', label: 'Urgente' },
+  { key: 'deportes', label: 'Deportes' },
+  { key: 'negocios', label: 'Negocios' },
+  { key: 'medio-ambiente', label: 'Medio Ambiente' }
 ].map((cat) => (
               <button
                 key={cat.key}
