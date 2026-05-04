@@ -174,10 +174,10 @@ if (profileData?.phone?.startsWith('+')) {
 
   return (
   <div className="min-h-screen bg-gray-50">
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
 
       {/* HEADER */}
-      <div className="flex items-center gap-4 mb-6 bg-white p-4 rounded-xl border">
+      <div className="flex items-center gap-4 mb-6 bg-white p-4 rounded-xl border shadow-sm">
 
         <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
           {profile?.avatar_url ? (
@@ -263,7 +263,7 @@ if (profileData?.phone?.startsWith('+')) {
 
         <button
           onClick={() => router.push("/create")}
-          className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primaryHover font-medium"
+          className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primaryHover font-medium shadow-sm hover:shadow-md transition"
         >
           ➕ Crear campaña
         </button>
@@ -271,7 +271,7 @@ if (profileData?.phone?.startsWith('+')) {
         {!needsKyc && !needsBank && finance?.totals?.balance > 0 && (
           <button
             onClick={() => router.push("/dashboard/account/withdraw")}
-            className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primaryHover font-medium"
+            className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primaryHover font-medium shadow-sm hover:shadow-md transition"
           >
             💸 Retirar fondos
           </button>
@@ -475,7 +475,7 @@ if (profileData?.phone?.startsWith('+')) {
 </div>
 
       {/* ANALYTICS */}
-      <div className="bg-white border rounded-2xl p-6 space-y-6">
+      <div className="bg-white border rounded-2xl p-6 space-y-6 shadow-sm">
 
         <h2 className="text-xl font-bold">
           🚀 Crecimiento & Viralidad
@@ -498,9 +498,9 @@ if (profileData?.phone?.startsWith('+')) {
               ? Object.entries(analytics.sources).map(([key, val]: any) => (
                   <div
                     key={key}
-                    className="flex justify-between items-center bg-gray-50 px-4 py-2 rounded-lg"
+                    className="flex justify-between items-center bg-white px-5 py-4 rounded-xl border hover:shadow-md transition"
                   >
-                    <span className="text-sm font-medium capitalize">
+                    <span className="text-sm font-semibold text-gray-800 capitalize">
                       {key}
                     </span>
 
@@ -530,9 +530,9 @@ if (profileData?.phone?.startsWith('+')) {
 
 function StatCard({ label, value }: any) {
   return (
-    <div className="p-4 bg-gray-50 rounded-xl text-center">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-xl font-bold">
+    <div className="p-5 bg-white rounded-2xl text-center border shadow-sm hover:shadow-md transition">
+      <p className="text-xs text-gray-400 uppercase tracking-wide"></p>
+      <p className="text-2xl font-bold text-gray-900">
         {value}
       </p>
     </div>
