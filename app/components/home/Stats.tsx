@@ -31,51 +31,52 @@ export default function Stats() {
   ]
 
   return (
-    <section className="py-20 px-6 bg-gray-50">
+    <section className="py-16 px-6 bg-gray-50">
 
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <p className="text-green-600 text-sm font-semibold mb-2 tracking-wider">
             IMPACTO REAL
           </p>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">
             Primeras historias que comienzan a cambiar vidas
           </h2>
 
-          <p className="text-gray-500 mt-4 max-w-2xl mx-auto">
+          <p className="text-gray-500 mt-3 max-w-2xl mx-auto">
             Estamos en fase inicial, construyendo una plataforma segura,
             transparente y enfocada en generar impacto real.
           </p>
         </div>
 
         {/* CARDS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
 
           {stats.map((s, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
+              whileHover={{ y: -4 }}
+              transition={{ delay: i * 0.08 }}
               viewport={{ once: true }}
-              className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300"
+              className="group bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 cursor-default"
             >
 
               {/* ICON */}
-              <div className="text-3xl mb-3">
+              <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-lg mb-3 transition group-hover:scale-110">
                 {s.icon}
               </div>
 
               {/* TITLE */}
-              <p className="font-semibold text-gray-800 mb-1">
+              <p className="font-semibold text-gray-900 mb-1 text-sm">
                 {s.title}
               </p>
 
               {/* DESC */}
-              <p className="text-sm text-gray-500">
+              <p className="text-xs text-gray-500 leading-relaxed">
                 {s.desc}
               </p>
 
