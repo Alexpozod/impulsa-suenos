@@ -9,6 +9,8 @@ export default function CampaignsPage() {
   const [filter, setFilter] = useState<'all' | 'goal'>('all')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [sort, setSort] = useState<'recent' | 'top' | 'progress'>('recent')
+  const [category, setCategory] = useState<'all' | 'salud' | 'educacion' | 'emergencia'>('all')
 
   const router = useRouter()
 
@@ -28,17 +30,45 @@ export default function CampaignsPage() {
     }
   }
 
-  const filtered = campaigns.filter((c) => {
+  const getCategory = (c: any) => {
+    const text = (c.title + ' ' + c.description).toLowerCase()
 
-    const matchesFilter =
-      filter === 'all' ? true : c.mode === filter
+    if (text.includes('salud') || text.includes('hospital')) return 'salud'
+    if (text.includes('educación') || text.includes('colegio')) return 'educacion'
+    if (text.includes('urgente') || text.includes('emergencia')) return 'emergencia'
 
-    const matchesSearch =
-      c.title?.toLowerCase().includes(search.toLowerCase()) ||
-      c.description?.toLowerCase().includes(search.toLowerCase())
+    return 'salud'
+  }
 
-    return matchesFilter && matchesSearch
-  })
+  const filtered = campaigns
+    .filter((c) => {
+
+      const matchesFilter =
+        filter === 'all' ? true : c.mode === filter
+
+      const matchesSearch =
+        c.title?.toLowerCase().includes(search.toLowerCase()) ||
+        c.description?.toLowerCase().includes(search.toLowerCase())
+
+      const matchesCategory =
+        category === 'all' ? true : getCategory(c) === category
+
+      return matchesFilter && matchesSearch && matchesCategory
+    })
+    .sort((a, b) => {
+
+      if (sort === 'top') {
+        return (b.current_amount || 0) - (a.current_amount || 0)
+      }
+
+      if (sort === 'progress') {
+        const progA = a.goal_amount ? (a.current_amount / a.goal_amount) : 0
+        const progB = b.goal_amount ? (b.current_amount / b.goal_amount) : 0
+        return progB - progA
+      }
+
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+    })
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-8">
@@ -53,45 +83,72 @@ export default function CampaignsPage() {
               🚀 Explorar campañas
             </h1>
             <p className="text-gray-500 text-sm mt-1">
-              Apoya causas reales o participa en sorteos
+              Apoya causas reales y cambia vidas hoy
             </p>
           </div>
 
-          {/* 🔍 BUSCADOR + FILTROS */}
-          <div className="flex flex-col gap-4">
+          {/* BUSCADOR */}
+          <input
+            type="text"
+            placeholder="Buscar campañas..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full md:w-[320px] px-4 py-2 rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+          />
 
-  {/* BUSCADOR */}
-  <input
-    type="text"
-    placeholder="Buscar campañas..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    className="w-full md:w-[320px] px-4 py-2 rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-  />
+          {/* FILTROS */}
+          <div className="flex flex-wrap gap-3">
 
-  {/* FILTROS (AHORA SIEMPRE VISIBLES) */}
-  <div className="flex gap-2 bg-gray-100 rounded-xl p-1 w-fit">
+            {/* TIPO */}
+            {[
+              { key: 'all', label: 'Todas' },
+              { key: 'goal', label: 'Donaciones' }
+            ].map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key as any)}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                  filter === f.key
+                    ? 'bg-green-600 text-white'
+                    : 'bg-white border text-gray-600'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
 
-    {[
-  { key: 'all', label: 'Todas' },
-  { key: 'goal', label: 'Donaciones' }
-].map((f) => (
-      <button
-        key={f.key}
-        onClick={() => setFilter(f.key as any)}
-        className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-          filter === f.key
-            ? 'bg-green-600 text-white shadow-md'
-            : 'text-gray-600 hover:bg-white hover:shadow-sm'
-        }`}
-      >
-        {f.label}
-      </button>
-    ))}
+            {/* CATEGORÍAS */}
+            {[
+              { key: 'all', label: 'Todas' },
+              { key: 'salud', label: 'Salud' },
+              { key: 'educacion', label: 'Educación' },
+              { key: 'emergencia', label: 'Urgente' }
+            ].map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setCategory(cat.key as any)}
+                className={`px-4 py-2 rounded-full text-xs font-medium ${
+                  category === cat.key
+                    ? 'bg-black text-white'
+                    : 'bg-white border text-gray-600'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
 
-  </div>
+            {/* ORDEN */}
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as any)}
+              className="px-4 py-2 rounded-xl border text-sm bg-white"
+            >
+              <option value="recent">Más recientes</option>
+              <option value="top">Más donadas</option>
+              <option value="progress">Casi completadas</option>
+            </select>
 
-</div>
+          </div>
 
         </div>
 
@@ -99,24 +156,6 @@ export default function CampaignsPage() {
         {loading && (
           <div className="text-center py-20 text-gray-500">
             Cargando campañas...
-          </div>
-        )}
-
-        {/* EMPTY */}
-        {!loading && filtered.length === 0 && (
-          <div className="text-center py-20">
-
-            <p className="text-gray-500 mb-4">
-              No encontramos campañas con esos filtros
-            </p>
-
-            <button
-              onClick={() => router.push('/create')}
-              className="bg-green-600 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-green-700 transition"
-            >
-              Crear campaña
-            </button>
-
           </div>
         )}
 
@@ -129,42 +168,51 @@ export default function CampaignsPage() {
               ? Math.min(((c.current_amount || 0) / c.goal_amount) * 100, 100)
               : 0
 
+            const isTrending = (c.current_amount || 0) > 50000
+            const isUrgent = progress > 80
+
             return (
               <div
                 key={c.id}
                 onClick={() => router.push(`/campaign/${c.id}`)}
-                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                className="group bg-white rounded-2xl border overflow-hidden cursor-pointer hover:shadow-lg transition hover:-translate-y-1"
               >
 
-                {/* IMAGE */}
-                <div className="relative overflow-hidden">
+                <div className="relative">
 
                   <img
                     src={c.image_url || "https://via.placeholder.com/400"}
-                    className="w-full h-44 object-cover group-hover:scale-105 transition duration-500"
+                    className="w-full h-44 object-cover"
                   />
 
-                  {/* OVERLAY */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition" />
+                  {isTrending && (
+                    <div className="absolute top-3 left-3 bg-black text-white text-xs px-2 py-1 rounded-full">
+                      🔥 Trending
+                    </div>
+                  )}
+
+                  {isUrgent && (
+                    <div className="absolute top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                      Urgente
+                    </div>
+                  )}
 
                 </div>
 
-                {/* CONTENT */}
                 <div className="p-4">
 
-                  <h2 className="font-semibold text-sm mb-1 line-clamp-1 text-gray-900">
-                    {c.title || "Campaña"}
+                  <h2 className="font-semibold text-sm mb-1 line-clamp-1">
+                    {c.title}
                   </h2>
 
                   <p className="text-xs text-gray-500 mb-3 line-clamp-2">
-                    {c.description || "Sin descripción"}
+                    {c.description}
                   </p>
 
-                  {/* PROGRESS */}
                   <div className="mb-2">
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-100 rounded-full">
                       <div
-                        className="h-full bg-gradient-to-r from-green-500 to-green-600 transition-all"
+                        className="h-2 bg-green-600"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -179,13 +227,12 @@ export default function CampaignsPage() {
                     </span>
                   </div>
 
-                  {/* CTA */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
                       router.push(`/campaign/${c.id}`)
                     }}
-                    className="w-full py-2 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-all duration-200 hover:scale-[1.02]"
+                    className="w-full py-2 rounded-lg bg-green-600 text-white text-xs font-semibold"
                   >
                     Ver campaña
                   </button>
