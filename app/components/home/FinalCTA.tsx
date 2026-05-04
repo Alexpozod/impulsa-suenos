@@ -46,7 +46,7 @@ export default function FinalCTA({ onCreate }: { onCreate: () => void }) {
             <button
               onClick={onCreate}
               className="
-                bg-white text-secondaryDark
+                bg-white text-green-700
                 px-8 py-4 rounded-xl
                 font-semibold
                 shadow-lg
