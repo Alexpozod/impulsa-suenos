@@ -216,7 +216,7 @@ export default function DonationBox({
         💖 Apoya esta causa
       </h3>
 
-      <p className="text-xs text-orange-600 text-center font-semibold">
+      <p className="text-xs text-secondary text-center font-semibold">
         ⚡ Cada aporte ayuda a lograr la meta más rápido
       </p>
 
@@ -250,7 +250,7 @@ export default function DonationBox({
             onClick={() => setAmount(p)}
             className={`py-2 rounded-lg border text-sm ${
               amount === p
-                ? 'bg-primary text-white border-green-600'
+                ? 'bg-primary text-white border-primary'
                 : 'hover:bg-gray-100'
             }`}
           >
@@ -294,9 +294,9 @@ export default function DonationBox({
                 customTip
                   ? "border-gray-300 opacity-50"
                   : tip === t
-                  ? "border-green-500 bg-green-50"
+                  ? "border-secondary bg-secondarySoft"
                   : t === 2000
-                  ? "border-green-300 bg-green-50 font-semibold"
+                  ? "border-secondarySoft bg-secondarySoft font-semibold"
                   : "border-gray-300"
               }`}
             >
@@ -347,7 +347,7 @@ export default function DonationBox({
 
       <div className="text-center">
         <p className="text-sm text-gray-500">Total</p>
-        <p className="text-2xl font-bold text-green-600">
+        <p className="text-2xl font-bold text-primary">
           ${total.toLocaleString()}
         </p>
       </div>

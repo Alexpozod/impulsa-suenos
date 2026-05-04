@@ -50,7 +50,7 @@ export default function CampaignCardPro({ c }: { c: Campaign }) {
         />
 
         {nearGoal && (
-          <div className="absolute top-3 left-3 bg-orange-400 text-white text-xs px-3 py-1 rounded-full font-semibold shadow">
+          <div className="absolute top-3 left-3 bg-orange-100 text-orange-600 text-xs px-3 py-1 rounded-full font-semibold shadow">
             🔥 Casi completada
           </div>
         )}

@@ -39,11 +39,11 @@ export default function Hero({ onCreate }: Props) {
               🟢 Plataforma en lanzamiento
             </span>
 
-            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            <span className="bg-secondarySoft text-secondaryDark px-3 py-1 rounded-full text-sm">
               🔒 Campañas verificadas
             </span>
 
-            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            <span className="bg-secondarySoft text-secondaryDark px-3 py-1 rounded-full text-sm">
               💳 Pagos seguros
             </span>
 
