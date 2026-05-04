@@ -160,7 +160,7 @@ export default function AdminCampaigns() {
               <button
                 onClick={() => handleAction(c.id, 'block')}
                 disabled={loadingId === c.id}
-                className="bg-yellow-600 px-3 py-1 rounded text-sm"
+                className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 px-3 py-1 rounded text-sm"
               >
                 Bloquear
               </button>
@@ -170,7 +170,7 @@ export default function AdminCampaigns() {
               <button
                 onClick={() => handleAction(c.id, 'delete')}
                 disabled={loadingId === c.id}
-                className="bg-red-600 px-3 py-1 rounded text-sm"
+                className="bg-red-500/20 border border-red-500/30 text-red-300 px-3 py-1 rounded text-sm"
               >
                 Eliminar
               </button>
@@ -180,7 +180,7 @@ export default function AdminCampaigns() {
               <button
                 onClick={() => handleAction(c.id, 'restore')}
                 disabled={loadingId === c.id}
-                className="bg-blue-600 px-3 py-1 rounded text-sm"
+                className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm"
               >
                 Restaurar
               </button>
