@@ -68,8 +68,8 @@ export default function Hero({ onCreate }: Props) {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               onClick={onCreate}
-              className="bg-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all text-lg"
-              style={{ color: "#15803d" }}
+              className="bg-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:bg-gray-100 transition-all text-lg"
+              style={{ color: "#15803d", WebkitTextFillColor: "#15803d" }}
             >
               Crear campaña →
             </motion.button>
