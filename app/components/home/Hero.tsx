@@ -16,7 +16,7 @@ export default function Hero({ onCreate }: Props) {
   const y = useTransform(scrollY, [0, 300], [0, 50])
 
   return (
-    <section className="relative pt-28 pb-20 px-6 overflow-hidden bg-gradient-to-b from-white to-bg">
+    <section className="relative pt-20 pb-14 px-6 overflow-hidden bg-gradient-to-b from-white to-bg">
 
       {/* BACKGROUND GLOW */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primarySoft blur-3xl opacity-40 rounded-full pointer-events-none" />
@@ -56,7 +56,7 @@ export default function Hero({ onCreate }: Props) {
           </h1>
 
           {/* TEXT */}
-          <p className="text-textSoft text-lg leading-relaxed mb-10 max-w-xl">
+          <p className="text-textSoft text-lg leading-relaxed mb-8 max-w-xl">
             Personas reales ayudando a otras personas.
             Crea tu campaña en minutos o dona para cambiar una vida hoy.
           </p>
@@ -75,7 +75,7 @@ export default function Hero({ onCreate }: Props) {
 
             <Link
               href="/campaigns"
-              className="border border-gray-300 px-8 py-4 rounded-2xl font-semibold text-center hover:border-green-600 hover:text-secondary transition"
+              className="border border-gray-300 px-8 py-4 rounded-2xl font-semibold text-center text-text hover:border-green-600 hover:text-primary transition"
             >
               Donar ahora
             </Link>
@@ -107,7 +107,7 @@ export default function Hero({ onCreate }: Props) {
 
             <img
               src="https://images.unsplash.com/photo-1516589091380-5d8e87df6999"
-              className="w-full h-[440px] object-cover"
+              className="w-full h-[360px] md:h-[420px] object-cover"
               alt="Personas ayudando en comunidad"
             />
 
