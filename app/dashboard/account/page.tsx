@@ -4,17 +4,18 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/src/lib/supabase"
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
-function formatPhone(value: string) {
-  // eliminar todo lo que no sea número
+function formatPhone(value: string = "") {
   const numbers = value.replace(/\D/g, "")
 
-  // FORMATO CHILE: 9 1234 5678
+  if (!numbers) return ""
+
   if (numbers.length <= 1) return numbers
   if (numbers.length <= 5) return `${numbers.slice(0, 1)} ${numbers.slice(1)}`
   if (numbers.length <= 9) return `${numbers.slice(0, 1)} ${numbers.slice(1, 5)} ${numbers.slice(5)}`
   
   return `${numbers.slice(0, 1)} ${numbers.slice(1, 5)} ${numbers.slice(5, 9)}`
 }
+
 export default function AccountPage() {
 
   const router = useRouter()
@@ -399,9 +400,8 @@ if (profileData?.phone?.startsWith('+')) {
   <input
     type="text"
     value={profile?.phone ?? ""}
-    onChange={(e) => {
-  const raw = e.target.value.replace(/\D/g, '')
-  const formatted = formatPhone(raw)
+   onChange={(e) => {
+  const formatted = formatPhone(e.target.value)
 
   setProfile((prev: any) => ({
     ...(prev || {}),
