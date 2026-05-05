@@ -99,7 +99,6 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
-    const creator_email = payment.metadata?.user_email
     const donor_email = payment.payer?.email
 
     // 🔥 FIX FINAL COMPLETO (AQUÍ ESTABA EL ERROR REAL)
@@ -130,7 +129,7 @@ export async function POST(req: Request) {
       payment.metadata?.message_text ||
       ""
 
-    if (!campaign_id || !creator_email) {
+    if (!campaign_id || !campaign?.user_email) {
       console.warn("⚠️ metadata incompleta")
       return NextResponse.json({ ok: true })
     }
@@ -250,10 +249,10 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     const { data: campaign } = await supabase
-      .from("campaigns")
-      .select("title")
-      .eq("id", campaign_id)
-      .maybeSingle()
+  .from("campaigns")
+  .select("title, user_email")
+  .eq("id", campaign_id)
+  .maybeSingle()
 
     const campaignTitle = campaign?.title || "Tu campaña"
 
