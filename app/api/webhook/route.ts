@@ -71,7 +71,6 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-    // 🔥 FIX DB FALLBACK
     let dbRef = existingPayment?.ref || null
     let dbSource = existingPayment?.source || null
 
@@ -101,22 +100,21 @@ export async function POST(req: Request) {
     const campaign_id = payment.metadata?.campaign_id
     const donor_email = payment.payer?.email
 
-    // 🔥 OBTENER CAMPAÑA (ANTES DE USAR creator_email)
-const { data: campaign } = await supabase
-  .from("campaigns")
-  .select("title, user_email")
-  .eq("id", campaign_id)
-  .maybeSingle()
+    // 🔥 CAMPAÑA
+    const { data: campaign } = await supabase
+      .from("campaigns")
+      .select("title, user_email")
+      .eq("id", campaign_id)
+      .maybeSingle()
 
-if (!campaign_id || !campaign?.user_email) {
-  console.warn("⚠️ metadata incompleta")
-  return NextResponse.json({ ok: true })
-}
+    if (!campaign_id || !campaign?.user_email) {
+      console.warn("⚠️ metadata incompleta")
+      return NextResponse.json({ ok: true })
+    }
 
-const creator_email = campaign.user_email
-const campaignTitle = campaign.title || "Tu campaña"
+    const creator_email = campaign.user_email
+    const campaignTitle = campaign.title || "Tu campaña"
 
-    // 🔥 FIX FINAL COMPLETO (AQUÍ ESTABA EL ERROR REAL)
     const referrer =
       payment.metadata?.referrer ||
       payment.metadata?.ref ||
@@ -231,45 +229,45 @@ const campaignTitle = campaign.title || "Tu campaña"
     })
 
     if (error) {
-  console.error("❌ RPC ERROR:", error)
+      console.error("❌ RPC ERROR:", error)
 
-  // 🔥 SI ES DUPLICADO → NO DETENER
-  if (error.code === "23505") {
-    console.warn("⚠️ Pago ya procesado, continuar flujo")
-  } else {
-    await supabase
-      .from("payments")
-      .update({ status: "failed" })
-      .eq("payment_id", paymentId)
+      if (error.code !== "23505") {
+        await supabase
+          .from("payments")
+          .update({ status: "failed" })
+          .eq("payment_id", paymentId)
 
-    await sendAlert({
-      title: "Error en RPC",
-      message: "Fallo process_payment_atomic",
-      data: { paymentId, error }
-    })
+        await sendAlert({
+          title: "Error en RPC",
+          message: "Fallo process_payment_atomic",
+          data: { paymentId, error }
+        })
 
-    return NextResponse.json({ ok: true })
-  }
-}
+        return NextResponse.json({ ok: true })
+      }
+    }
 
     await supabase
       .from("payments")
       .update({ status: "approved" })
       .eq("payment_id", paymentId)
 
-    const { data: paymentRow } = await supabase
+    // 🔥 CONTROL ÚNICO DE NOTIFICACIÓN
+    const { data: alreadyNotified } = await supabase
       .from("payments")
       .select("notified")
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-        if (!paymentRow?.notified) {
+    if (!alreadyNotified?.notified) {
 
+      // marcar primero
       await supabase
         .from("payments")
         .update({ notified: true })
         .eq("payment_id", paymentId)
 
+      // 👤 CREADOR
       await sendNotification({
         user_email: creator_email,
         type: "donation_received",
@@ -283,26 +281,24 @@ const campaignTitle = campaign.title || "Tu campaña"
         },
         sendEmail: true
       })
-         }
 
-          /* =========================
-   👤 DONADOR (SIEMPRE)
-========================= */
-if (donor_email && donor_email !== creator_email) {
-  await sendNotification({
-    user_email: donor_email,
-    type: "donation",
-    title: "🙏 Gracias por tu donación",
-    message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
-    metadata: {
-      campaign_id,
-      campaign_title: campaignTitle,
-      amount: donation,
-      share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
-    },
-    sendEmail: true
-  })
-}
+      // 👤 DONADOR
+      if (donor_email && donor_email !== creator_email) {
+        await sendNotification({
+          user_email: donor_email,
+          type: "donation",
+          title: "🙏 Gracias por tu donación",
+          message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
+          metadata: {
+            campaign_id,
+            campaign_title: campaignTitle,
+            amount: donation,
+            share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
+          },
+          sendEmail: true
+        })
+      }
+    }
 
     await syncWallet(creator_email)
 
