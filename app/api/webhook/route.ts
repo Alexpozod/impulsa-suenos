@@ -277,22 +277,28 @@ if (updatedRows && updatedRows.length > 0) {
         sendEmail: true
       })
 
-      // 👤 DONADOR
-      if (donor_email && donor_email !== creator_email) {
-        await sendNotification({
-          user_email: donor_email,
-          type: "donation",
-          title: "🙏 Gracias por tu donación",
-          message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
-          metadata: {
-            campaign_id,
-            campaign_title: campaignTitle,
-            amount: donation,
-            share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
-          },
-          sendEmail: true
-        })
-      }
+      // 👤 DONADOR (FIX REAL)
+const finalDonorEmail =
+  donor_email ||
+  payment.metadata?.donor_email ||
+  existingPayment?.metadata?.donor_email ||
+  null
+
+if (finalDonorEmail) {
+  await sendNotification({
+    user_email: finalDonorEmail,
+    type: "donation",
+    title: "🙏 Gracias por tu donación",
+    message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
+    metadata: {
+      campaign_id,
+      campaign_title: campaignTitle,
+      amount: donation,
+      share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
+    },
+    sendEmail: true
+  })
+}
     }
 
     await syncWallet(creator_email)
