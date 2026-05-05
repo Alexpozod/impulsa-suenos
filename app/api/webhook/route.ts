@@ -101,6 +101,21 @@ export async function POST(req: Request) {
     const campaign_id = payment.metadata?.campaign_id
     const donor_email = payment.payer?.email
 
+    // 🔥 OBTENER CAMPAÑA (ANTES DE USAR creator_email)
+const { data: campaign } = await supabase
+  .from("campaigns")
+  .select("title, user_email")
+  .eq("id", campaign_id)
+  .maybeSingle()
+
+if (!campaign_id || !campaign?.user_email) {
+  console.warn("⚠️ metadata incompleta")
+  return NextResponse.json({ ok: true })
+}
+
+const creator_email = campaign.user_email
+const campaignTitle = campaign.title || "Tu campaña"
+
     // 🔥 FIX FINAL COMPLETO (AQUÍ ESTABA EL ERROR REAL)
     const referrer =
       payment.metadata?.referrer ||
@@ -128,11 +143,6 @@ export async function POST(req: Request) {
       payment.metadata?.message ||
       payment.metadata?.message_text ||
       ""
-
-    if (!campaign_id || !campaign?.user_email) {
-      console.warn("⚠️ metadata incompleta")
-      return NextResponse.json({ ok: true })
-    }
 
     if (existingPayment) {
       await supabase
@@ -248,15 +258,7 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-    const { data: campaign } = await supabase
-  .from("campaigns")
-  .select("title, user_email")
-  .eq("id", campaign_id)
-  .maybeSingle()
-
-    const campaignTitle = campaign?.title || "Tu campaña"
-
-    if (!paymentRow?.notified) {
+        if (!paymentRow?.notified) {
 
       await supabase
         .from("payments")
