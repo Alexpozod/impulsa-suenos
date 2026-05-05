@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function sendDonationEmail({
   to,
@@ -14,8 +14,7 @@ export async function sendDonationEmail({
   try {
 
     if (!process.env.RESEND_API_KEY) {
-      console.log("❌ RESEND_API_KEY NO DEFINIDA")
-      return
+      throw new Error("RESEND_API_KEY NO DEFINIDA")
     }
 
     const response = await resend.emails.send({
@@ -42,7 +41,6 @@ export async function sendDonationEmail({
               Tu aporte está ayudando directamente a cambiar una vida.
             </p>
 
-            <!-- BLOQUE PRO -->
             <div style="background:#ecfdf5; padding:15px; border-radius:10px; margin-top:20px">
               <p style="margin:0; font-weight:bold; color:#065f46;">
                 🌍 No estás solo
@@ -52,7 +50,6 @@ export async function sendDonationEmail({
               </p>
             </div>
 
-            <!-- CTA -->
             <div style="text-align:center; margin-top:25px">
               <a href="https://impulsasuenos.com/campaign"
                 style="background:#16a34a; color:white; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:bold;">
@@ -76,9 +73,16 @@ export async function sendDonationEmail({
       `
     })
 
+    if (!response || response.error) {
+      throw new Error(response?.error?.message || "Error enviando email")
+    }
+
     console.log("📧 EMAIL ENVIADO:", response)
 
   } catch (error) {
-    console.log("❌ ERROR EMAIL:", error)
+
+    console.error("❌ ERROR EMAIL DONATION:", error)
+
+    throw error // 🔥 CLAVE: PROPAGA EL ERROR
   }
 }
