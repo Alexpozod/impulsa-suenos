@@ -104,9 +104,11 @@ useEffect(() => {
   const fetchCategories = async () => {
 
     const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('active', true)
+  .from('categories')
+  .select('*')
+
+console.log("CATEGORIES DATA:", data)
+console.log("CATEGORIES ERROR:", error)
 
     if (error) {
       console.error("Error cargando categorías", error)
