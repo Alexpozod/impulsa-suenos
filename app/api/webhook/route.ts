@@ -283,8 +283,9 @@ const campaignTitle = campaign.title || "Tu campaña"
         },
         sendEmail: true
       })
+         }
 
-      /* =========================
+          /* =========================
    👤 DONADOR (SIEMPRE)
 ========================= */
 if (donor_email && donor_email !== creator_email) {
@@ -302,7 +303,6 @@ if (donor_email && donor_email !== creator_email) {
     sendEmail: true
   })
 }
-    }
 
     await syncWallet(creator_email)
 
