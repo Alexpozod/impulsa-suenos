@@ -150,7 +150,7 @@ export default function EditCampaign() {
           <option value="general">General</option>
         ) : (
           categories.map((cat) => (
-            <option key={cat.id} value={cat.name.toLowerCase()}>
+            <option key={cat.id} value={cat.slug}>
               {cat.name}
             </option>
           ))
