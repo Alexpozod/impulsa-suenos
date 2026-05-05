@@ -107,9 +107,6 @@ useEffect(() => {
   .from('categories')
   .select('*')
 
-console.log("CATEGORIES DATA:", data)
-console.log("CATEGORIES ERROR:", error)
-
     if (error) {
       console.error("Error cargando categorías", error)
       return
