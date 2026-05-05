@@ -284,21 +284,24 @@ const campaignTitle = campaign.title || "Tu campaña"
         sendEmail: true
       })
 
-      if (donor_email && donor_email !== creator_email) {
-        await sendNotification({
-          user_email: donor_email,
-          type: "donation",
-          title: "🙏 Gracias por tu donación",
-          message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
-          metadata: {
-            campaign_id,
-            campaign_title: campaignTitle, // 🔥 ESTO FALTABA
-            amount: donation,              // 🔥 IMPORTANTE
-            share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
-          },
-          sendEmail: true
-        })
-      }
+      /* =========================
+   👤 DONADOR (SIEMPRE)
+========================= */
+if (donor_email && donor_email !== creator_email) {
+  await sendNotification({
+    user_email: donor_email,
+    type: "donation",
+    title: "🙏 Gracias por tu donación",
+    message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
+    metadata: {
+      campaign_id,
+      campaign_title: campaignTitle,
+      amount: donation,
+      share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
+    },
+    sendEmail: true
+  })
+}
     }
 
     await syncWallet(creator_email)
