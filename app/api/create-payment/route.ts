@@ -107,12 +107,14 @@ export async function POST(req: Request) {
       donor_name: safeDonorName,
 
       metadata: {
-        source: finalSource,
-        created_at: new Date().toISOString(),
-        ref: referrer,
-        referrer: referrer,
-        traffic_source: finalSource
-      }
+  source: finalSource,
+  created_at: new Date().toISOString(),
+  ref: referrer,
+  referrer: referrer,
+  traffic_source: finalSource,
+
+  donor_email: user_email // 👈 ESTE ES EL FIX
+}
     })
 
     console.log("PAYMENT RESULT:", result)
