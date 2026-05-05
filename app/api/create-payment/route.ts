@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { createPayment } from "@/lib/payments/provider"
 import { createClient } from "@supabase/supabase-js"
+import { sendNotification } from "@/lib/notifications/sendNotification"
 
 export const runtime = "nodejs"
 
@@ -118,24 +119,36 @@ export async function POST(req: Request) {
     console.log("PAYMENT RESULT:", result)
 
     /* =========================
-       🔔 NOTIFICACIONES (FIX)
+       🔔 NOTIFICACIONES + EMAILS CORRECTOS
     ========================= */
 
     const ownerEmail = campaign.user_email
     const donorEmail = user_email
 
-    // 🔔 NOTIFICACIÓN PARA EL DUEÑO DE LA CAMPAÑA
-    await supabase.from("notifications").insert({
+    // 🔔 + 📩 DUEÑO DE LA CAMPAÑA
+    await sendNotification({
       user_email: ownerEmail,
       type: "donation_received",
-      message: `Has recibido una donación de ${safeDonorName}`
+      title: "💸 Nueva donación",
+      message: `Has recibido una donación de ${safeDonorName}`,
+      metadata: {
+        amount,
+        campaign_title: campaign_id // seguro por ahora
+      },
+      sendEmail: true
     })
 
-    // 🔔 NOTIFICACIÓN PARA EL DONADOR
-    await supabase.from("notifications").insert({
+    // 🔔 + 📩 DONADOR (usa template sendDonationEmail)
+    await sendNotification({
       user_email: donorEmail,
-      type: "donation_sent",
-      message: `Donaste $${amount} correctamente`
+      type: "donation",
+      title: "💚 Gracias por tu apoyo",
+      message: `Tu donación fue realizada correctamente`,
+      metadata: {
+        amount,
+        campaign_title: campaign_id
+      },
+      sendEmail: true
     })
 
     return NextResponse.json(result)
