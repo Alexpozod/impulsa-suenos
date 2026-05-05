@@ -289,7 +289,7 @@ const campaignTitle = campaign.title || "Tu campaña"
       campaign_id,
       share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
     },
-    sendEmail: false // 🔥 evita duplicado
+    sendEmail: true // 🔥 evita duplicado
   })
 }
     }
