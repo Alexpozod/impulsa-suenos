@@ -278,19 +278,19 @@ export async function POST(req: Request) {
         sendEmail: true
       })
 
-      if (donor_email) {
-        await sendNotification({
-          user_email: donor_email,
-          type: "donation_thanks",
-          title: "🙏 Gracias por tu donación",
-          message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
-          metadata: {
-            campaign_id,
-            share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
-          },
-          sendEmail: true
-        })
-      }
+      if (donor_email && donor_email !== creator_email) {
+  await sendNotification({
+    user_email: donor_email,
+    type: "donation", // 🔥 corregido
+    title: "🙏 Gracias por tu donación",
+    message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
+    metadata: {
+      campaign_id,
+      share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
+    },
+    sendEmail: false // 🔥 evita duplicado
+  })
+}
     }
 
     await syncWallet(creator_email)

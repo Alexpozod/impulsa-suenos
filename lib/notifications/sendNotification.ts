@@ -127,17 +127,19 @@ export async function sendNotification({
       ========================= */
 
       if (type === "donation_received") {
-        response = await send(
-          "💸 Recibiste una donación",
-          baseTemplate(`
-            <h3>🎉 Nueva donación</h3>
-            <p>Recibiste un aporte en tu campaña.</p>
-            <div style="background:#f9fafb;padding:15px;border-radius:10px;">
-              <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
-            </div>
-          `)
-        )
-      }
+  response = await send(
+    "💸 Recibiste una donación",
+    baseTemplate(`
+      <h3>🎉 Nueva donación</h3>
+      <p>Recibiste un aporte en tu campaña.</p>
+
+      <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+        <p><b>Campaña:</b> ${metadata?.campaign_title || "Sin nombre"}</p>
+        <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
+      </div>
+    `)
+  )
+}
 
       else if (type === "kyc_approved") {
         response = await send(
