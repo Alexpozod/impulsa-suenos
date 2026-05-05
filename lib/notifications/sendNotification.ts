@@ -99,17 +99,46 @@ export async function sendNotification({
       ========================= */
       if (type === "donation") {
 
-        const campaignName = metadata?.campaign_title || "Tu campaña"
-        const amount = Number(metadata?.amount || 0)
+  console.log("🔥 DONATION EMAIL TRIGGER")
 
-        await sendDonationEmail({
-          to: email,
-          campaign: campaignName,
-          amount
-        })
+  const campaignName = metadata?.campaign_title || "Tu campaña"
+  const amount = Number(metadata?.amount || 0)
 
-        return
-      }
+  try {
+
+    await sendDonationEmail({
+      to: email,
+      campaign: campaignName,
+      amount
+    })
+
+    console.log("✅ DONATION EMAIL ENVIADO")
+
+  } catch (err) {
+
+    console.error("❌ ERROR sendDonationEmail:", err)
+
+    // 🔥 FALLBACK DIRECTO (CRÍTICO PARA LANZAMIENTO)
+    await resend.emails.send({
+      from: process.env.RESEND_FROM || "no-reply@impulsasuenos.com",
+      to: email,
+      subject: "🙏 Gracias por tu donación",
+      html: `
+        <div style="font-family: Arial; padding:20px;">
+          <h2>🙏 Gracias por tu donación</h2>
+          <p>Has donado <b>$${amount.toLocaleString()}</b></p>
+          <p>A la campaña: <b>${campaignName}</b></p>
+          <br/>
+          <p>💚 Gracias por apoyar esta causa</p>
+        </div>
+      `
+    })
+
+    console.log("⚠️ FALLBACK EMAIL ENVIADO")
+  }
+
+  return
+}
 
       /* =========================
          EMAIL HELPER
