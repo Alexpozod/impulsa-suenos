@@ -252,20 +252,15 @@ export async function POST(req: Request) {
       .update({ status: "approved" })
       .eq("payment_id", paymentId)
 
-    // 🔥 CONTROL ÚNICO DE NOTIFICACIÓN
-    const { data: alreadyNotified } = await supabase
-      .from("payments")
-      .select("notified")
-      .eq("payment_id", paymentId)
-      .maybeSingle()
+    // 🔥 CONTROL ATÓMICO REAL (ANTI DUPLICADOS)
+const { data: updatedRows } = await supabase
+  .from("payments")
+  .update({ notified: true })
+  .eq("payment_id", paymentId)
+  .eq("notified", false)
+  .select()
 
-    if (!alreadyNotified?.notified) {
-
-      // marcar primero
-      await supabase
-        .from("payments")
-        .update({ notified: true })
-        .eq("payment_id", paymentId)
+if (updatedRows && updatedRows.length > 0) {
 
       // 👤 CREADOR
       await sendNotification({
