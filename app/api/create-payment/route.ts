@@ -23,9 +23,8 @@ const paymentSchema = z.object({
   donor_name: z.string().optional(),
   provider: z.string().optional(),
 
-  // 🔥 TRACKING
   ref: z.string().optional(),
-  source: z.string().optional() // ✅ NUEVO
+  source: z.string().optional()
 })
 
 export async function POST(req: Request) {
@@ -52,7 +51,7 @@ export async function POST(req: Request) {
       message = "",
       donor_name,
       ref,
-      source // ✅ NUEVO
+      source
     } = parsed.data
 
     /* =========================
@@ -78,7 +77,7 @@ export async function POST(req: Request) {
       )
     }
 
-        /* =========================
+    /* =========================
        🧠 NORMALIZACIÓN DONADOR
     ========================= */
     let safeDonorName = "Donador"
@@ -90,13 +89,13 @@ export async function POST(req: Request) {
     const provider = "mercadopago"
 
     /* =========================
-       🔥 TRACKING REAL (FIX)
+       🔥 TRACKING REAL
     ========================= */
     const referrer = ref || null
     const finalSource = source || "web"
 
     /* =========================
-       🚀 CREATE PAYMENT PRO
+       🚀 CREATE PAYMENT
     ========================= */
     const result = await createPayment({
       amount,
@@ -110,17 +109,34 @@ export async function POST(req: Request) {
       metadata: {
         source: finalSource,
         created_at: new Date().toISOString(),
-
-        // 🔥 CLAVE
         ref: referrer,
         referrer: referrer,
-
-        // 🔥 CLAVE PARA WEBHOOK
         traffic_source: finalSource
       }
     })
 
     console.log("PAYMENT RESULT:", result)
+
+    /* =========================
+       🔔 NOTIFICACIONES (FIX)
+    ========================= */
+
+    const ownerEmail = campaign.user_email
+    const donorEmail = user_email
+
+    // 🔔 NOTIFICACIÓN PARA EL DUEÑO DE LA CAMPAÑA
+    await supabase.from("notifications").insert({
+      user_email: ownerEmail,
+      type: "donation_received",
+      message: `Has recibido una donación de ${safeDonorName}`
+    })
+
+    // 🔔 NOTIFICACIÓN PARA EL DONADOR
+    await supabase.from("notifications").insert({
+      user_email: donorEmail,
+      type: "donation_sent",
+      message: `Donaste $${amount} correctamente`
+    })
 
     return NextResponse.json(result)
 
