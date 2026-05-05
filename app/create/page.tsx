@@ -19,6 +19,7 @@ export default function CreateCampaign() {
   const [description, setDescription] = useState('')
   const [goal, setGoal] = useState('')
   const [category, setCategory] = useState('general')
+  const [categories, setCategories] = useState<any[]>([])
   const [images, setImages] = useState<File[]>([])
 
   const [loading, setLoading] = useState(false)
@@ -99,6 +100,24 @@ if (!banks || banks.length === 0) {
 
     checkAccess()
   }, [router])
+useEffect(() => {
+  const fetchCategories = async () => {
+
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('active', true)
+
+    if (error) {
+      console.error("Error cargando categorías", error)
+      return
+    }
+
+    setCategories(data || [])
+  }
+
+  fetchCategories()
+}, [])
 
   /* =========================
      🚀 CREATE (IGUAL)
@@ -251,16 +270,20 @@ if (!banks || banks.length === 0) {
               <h2 className="font-bold text-lg">Meta</h2>
 
               <select
-                className="w-full border p-3 rounded-lg mb-3"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="general">General</option>
-                <option value="salud">Salud</option>
-                <option value="educacion">Educación</option>
-                <option value="emergencia">Emergencia</option>
-                <option value="animales">Animales</option>
-              </select>
+  className="w-full border p-3 rounded-lg mb-3"
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+>
+  {categories.length === 0 ? (
+  <option value="general">General</option>
+) : (
+  categories.map((cat) => (
+      <option key={cat.id} value={cat.name.toLowerCase()}>
+        {cat.name}
+      </option>
+    ))
+  )}
+</select>
 
               <input
                 type="number"

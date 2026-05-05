@@ -17,10 +17,12 @@ export default function EditCampaign() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("general")
+  const [categories, setCategories] = useState<any[]>([])
 
   const [images, setImages] = useState<File[]>([])
   const [preview, setPreview] = useState<string[]>([])
 
+  // 🔹 Cargar campaña
   useEffect(() => {
     loadCampaign()
   }, [])
@@ -43,12 +45,31 @@ export default function EditCampaign() {
     setCampaign(data)
     setTitle(data.title)
     setDescription(data.description)
-    setCategory(data.category)
+    setCategory(data.category || "general")
 
     setPreview(data.images?.length ? data.images : [data.image_url])
 
     setLoading(false)
   }
+
+  // 🔹 Cargar categorías (SIN FILTRO para no romper)
+  useEffect(() => {
+    const fetchCategories = async () => {
+
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+
+      if (error) {
+        console.error("Error cargando categorías", error)
+        return
+      }
+
+      setCategories(data || [])
+    }
+
+    fetchCategories()
+  }, [])
 
   const handleImages = (files: FileList | null) => {
     if (!files) return
@@ -107,14 +128,33 @@ export default function EditCampaign() {
 
       <h1 className="text-2xl font-bold">Editar campaña</h1>
 
-      <input value={title} onChange={e => setTitle(e.target.value)} className="border p-2 w-full rounded" />
+      <input
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+        className="border p-2 w-full rounded"
+      />
 
-      <textarea value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full rounded" />
+      <textarea
+        value={description}
+        onChange={e => setDescription(e.target.value)}
+        className="border p-2 w-full rounded"
+      />
 
-      <select value={category} onChange={e => setCategory(e.target.value)} className="border p-2 w-full rounded">
-        <option value="general">General</option>
-        <option value="salud">Salud</option>
-        <option value="educacion">Educación</option>
+      {/* 🔥 SELECT DINÁMICO SEGURO */}
+      <select
+        value={category}
+        onChange={e => setCategory(e.target.value)}
+        className="border p-2 w-full rounded"
+      >
+        {categories.length === 0 ? (
+          <option value="general">General</option>
+        ) : (
+          categories.map((cat) => (
+            <option key={cat.id} value={cat.name.toLowerCase()}>
+              {cat.name}
+            </option>
+          ))
+        )}
       </select>
 
       <input type="file" multiple onChange={(e) => handleImages(e.target.files)} />
@@ -125,7 +165,10 @@ export default function EditCampaign() {
         ))}
       </div>
 
-      <button onClick={updateCampaign} className="bg-primary text-white px-4 py-2 rounded w-full">
+      <button
+        onClick={updateCampaign}
+        className="bg-primary text-white px-4 py-2 rounded w-full"
+      >
         {saving ? "Guardando..." : "Guardar cambios"}
       </button>
 
