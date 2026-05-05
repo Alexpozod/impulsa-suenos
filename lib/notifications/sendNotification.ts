@@ -55,6 +55,12 @@ export async function sendNotification({
 
     const email = user_email?.toLowerCase()
 
+    console.log("📨 SEND NOTIFICATION:", {
+      email,
+      type,
+      sendEmail
+    })
+
     if (!email) {
       console.error("❌ Email inválido en sendNotification")
       return
@@ -77,6 +83,7 @@ export async function sendNotification({
 
     if (insertError) {
       console.error("❌ Notification insert error:", insertError)
+      throw insertError
     }
 
     if (!sendEmail) return
@@ -127,19 +134,19 @@ export async function sendNotification({
       ========================= */
 
       if (type === "donation_received") {
-  response = await send(
-    "💸 Recibiste una donación",
-    baseTemplate(`
-      <h3>🎉 Nueva donación</h3>
-      <p>Recibiste un aporte en tu campaña.</p>
+        response = await send(
+          "💸 Recibiste una donación",
+          baseTemplate(`
+            <h3>🎉 Nueva donación</h3>
+            <p>Recibiste un aporte en tu campaña.</p>
 
-      <div style="background:#f9fafb;padding:15px;border-radius:10px;">
-        <p><b>Campaña:</b> ${metadata?.campaign_title || "Sin nombre"}</p>
-        <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
-      </div>
-    `)
-  )
-}
+            <div style="background:#f9fafb;padding:15px;border-radius:10px;">
+              <p><b>Campaña:</b> ${metadata?.campaign_title || "Sin nombre"}</p>
+              <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
+            </div>
+          `)
+        )
+      }
 
       else if (type === "kyc_approved") {
         response = await send(
@@ -285,6 +292,7 @@ export async function sendNotification({
         }
       })
 
+      throw err
     }
 
   } catch (error: any) {
@@ -297,5 +305,7 @@ export async function sendNotification({
         error_message: error?.message || "unknown"
       }
     })
+
+    throw error
   }
 }
