@@ -78,14 +78,7 @@ export async function POST(req: Request) {
       )
     }
 
-    if (campaign.user_email !== user_email) {
-      return NextResponse.json(
-        { error: "invalid_campaign_owner" },
-        { status: 403 }
-      )
-    }
-
-    /* =========================
+        /* =========================
        🧠 NORMALIZACIÓN DONADOR
     ========================= */
     let safeDonorName = "Donador"
