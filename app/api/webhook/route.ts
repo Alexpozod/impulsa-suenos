@@ -99,7 +99,11 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
-    const donor_email = payment.payer?.email
+    const donor_email =
+  payment.metadata?.donor_email ||
+  payment.payer?.email ||
+  null
+  console.log("📩 donor_email FINAL:", donor_email)
 
     // 🔥 OBTENER CAMPAÑA (ANTES DE USAR creator_email)
 const { data: campaign } = await supabase
