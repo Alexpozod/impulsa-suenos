@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     ========================= */
     const { data: campaign } = await supabase
       .from("campaigns")
-      .select("id, status, user_email")
+      .select("id, status, user_email, title")
       .eq("id", campaign_id)
       .maybeSingle()
 
@@ -125,31 +125,33 @@ export async function POST(req: Request) {
     const ownerEmail = campaign.user_email
     const donorEmail = user_email
 
-    // 🔔 + 📩 DUEÑO DE LA CAMPAÑA
-    await sendNotification({
-      user_email: ownerEmail,
-      type: "donation_received",
-      title: "💸 Nueva donación",
-      message: `Has recibido una donación de ${safeDonorName}`,
-      metadata: {
-        amount,
-        campaign_title: campaign_id // seguro por ahora
-      },
-      sendEmail: true
-    })
+    // 🔔 + 📩 DUEÑO DE LA CAMPAÑA (SOLO SI NO ES EL MISMO)
+if (ownerEmail !== donorEmail) {
+  await sendNotification({
+    user_email: ownerEmail,
+    type: "donation_received",
+    title: "💸 Nueva donación",
+    message: `Has recibido una donación de ${safeDonorName}`,
+    metadata: {
+      amount,
+      campaign_title: campaign.title
+    },
+    sendEmail: true
+  })
+}
 
-    // 🔔 + 📩 DONADOR (usa template sendDonationEmail)
-    await sendNotification({
-      user_email: donorEmail,
-      type: "donation",
-      title: "💚 Gracias por tu apoyo",
-      message: `Tu donación fue realizada correctamente`,
-      metadata: {
-        amount,
-        campaign_title: campaign_id
-      },
-      sendEmail: true
-    })
+// 🔔 + 📩 DONADOR
+await sendNotification({
+  user_email: donorEmail,
+  type: "donation",
+  title: "💚 Gracias por tu apoyo",
+  message: `Tu donación fue realizada correctamente`,
+  metadata: {
+    amount,
+    campaign_title: campaign.title
+  },
+  sendEmail: true
+})
 
     return NextResponse.json(result)
 
