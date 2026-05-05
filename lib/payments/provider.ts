@@ -119,21 +119,22 @@ async function createMercadoPagoPayment({
         },
 
         metadata: {
-          campaign_id,
-          user_email,
-          amount: safeAmount,
-          tip: safeTip,
+  campaign_id,
 
-          donor_name: finalDonorName,
-          message: finalMessage,
-          message_text: finalMessage,
+  donor_email: user_email, // 👈 ESTE ES EL FIX
 
-          // 🔥 AQUÍ ESTÁ EL FIX REAL
-          ref: referrer,
-          referrer: referrer,
-          source: source,
-          traffic_source: source
-        },
+  amount: safeAmount,
+  tip: safeTip,
+
+  donor_name: finalDonorName,
+  message: finalMessage,
+  message_text: finalMessage,
+
+  ref: referrer,
+  referrer: referrer,
+  source: source,
+  traffic_source: source
+},
 
         external_reference: campaign_id,
 

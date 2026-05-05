@@ -191,9 +191,12 @@ export async function POST(req: Request) {
 
     if (!existingPayment) {
       await supabase.from("payments").insert({
-        payment_id: paymentId,
-        campaign_id,
-        user_email: donor_email, // 👈 ESTE ES EL FIX CLAVE
+  payment_id: paymentId,
+  campaign_id,
+
+  user_email: creator_email, // ✅ CORRECTO
+  donor_email: payment.metadata?.donor_email || payment.payer?.email,
+
         amount: donation,
         tip,
         status: "processing",
@@ -279,7 +282,7 @@ if (updatedRows && updatedRows.length > 0) {
 
       // 👤 DONADOR (FIX REAL)
 const finalDonorEmail =
-  existingPayment?.user_email || // 🔥 ESTE ES EL FIX REAL
+  existingPayment?.donor_email ||
   payment.metadata?.donor_email ||
   donor_email ||
   null
