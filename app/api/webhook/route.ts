@@ -260,12 +260,7 @@ const campaignTitle = campaign.title || "Tu campaña"
 
         if (!paymentRow?.notified) {
 
-      await supabase
-        .from("payments")
-        .update({ notified: true })
-        .eq("payment_id", paymentId)
-
-      await sendNotification({
+            await sendNotification({
         user_email: creator_email,
         type: "donation_received",
         title: "💰 Nueva donación recibida",
@@ -292,6 +287,12 @@ const campaignTitle = campaign.title || "Tu campaña"
     sendEmail: true // 🔥 evita duplicado
   })
 }
+
+// 🔥 AQUÍ RECIÉN MARCAS notified
+  await supabase
+    .from("payments")
+    .update({ notified: true })
+    .eq("payment_id", paymentId)
     }
 
     await syncWallet(creator_email)
