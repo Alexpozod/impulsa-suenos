@@ -99,8 +99,22 @@ export async function POST(req: Request) {
     }
 
     const campaign_id = payment.metadata?.campaign_id
-    const creator_email = payment.metadata?.user_email
     const donor_email = payment.payer?.email
+
+    // 🔥 OBTENER CAMPAÑA (ANTES DE USAR creator_email)
+const { data: campaign } = await supabase
+  .from("campaigns")
+  .select("title, user_email")
+  .eq("id", campaign_id)
+  .maybeSingle()
+
+if (!campaign_id || !campaign?.user_email) {
+  console.warn("⚠️ metadata incompleta")
+  return NextResponse.json({ ok: true })
+}
+
+const creator_email = campaign.user_email
+const campaignTitle = campaign.title || "Tu campaña"
 
     // 🔥 FIX FINAL COMPLETO (AQUÍ ESTABA EL ERROR REAL)
     const referrer =
@@ -129,11 +143,6 @@ export async function POST(req: Request) {
       payment.metadata?.message ||
       payment.metadata?.message_text ||
       ""
-
-    if (!campaign_id || !creator_email) {
-      console.warn("⚠️ metadata incompleta")
-      return NextResponse.json({ ok: true })
-    }
 
     if (existingPayment) {
       await supabase
@@ -249,15 +258,7 @@ export async function POST(req: Request) {
       .eq("payment_id", paymentId)
       .maybeSingle()
 
-    const { data: campaign } = await supabase
-      .from("campaigns")
-      .select("title")
-      .eq("id", campaign_id)
-      .maybeSingle()
-
-    const campaignTitle = campaign?.title || "Tu campaña"
-
-    if (!paymentRow?.notified) {
+        if (!paymentRow?.notified) {
 
       await supabase
         .from("payments")
@@ -278,19 +279,19 @@ export async function POST(req: Request) {
         sendEmail: true
       })
 
-      if (donor_email) {
-        await sendNotification({
-          user_email: donor_email,
-          type: "donation_thanks",
-          title: "🙏 Gracias por tu donación",
-          message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
-          metadata: {
-            campaign_id,
-            share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
-          },
-          sendEmail: true
-        })
-      }
+      if (donor_email && donor_email !== creator_email) {
+  await sendNotification({
+    user_email: donor_email,
+    type: "donation", // 🔥 corregido
+    title: "🙏 Gracias por tu donación",
+    message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
+    metadata: {
+      campaign_id,
+      share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
+    },
+    sendEmail: false // 🔥 evita duplicado
+  })
+}
     }
 
     await syncWallet(creator_email)
