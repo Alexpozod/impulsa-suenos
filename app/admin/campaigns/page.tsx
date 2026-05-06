@@ -15,7 +15,9 @@ export default function AdminCampaigns() {
 
   const [data, setData] = useState<Campaign[]>([])
   const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const [statusFilter, setStatusFilter] = useState("active")
+  const [search, setSearch] = useState("")
 
   const [counts, setCounts] = useState({
     active: 0,
@@ -30,6 +32,7 @@ export default function AdminCampaigns() {
 
   const load = async () => {
     try {
+      setLoading(true)
 
       const res = await fetch(`/api/admin/campaigns?status=${statusFilter}`)
       const json = await res.json()
@@ -45,9 +48,11 @@ export default function AdminCampaigns() {
         all: 0
       })
 
+      setLoading(false)
     } catch (err) {
       console.error("❌ LOAD ERROR:", err)
       setData([])
+      setLoading(false)
     }
   }
 
@@ -99,6 +104,38 @@ export default function AdminCampaigns() {
 
       <h1 className="text-2xl font-bold mb-6">🚀 Campañas (Admin)</h1>
 
+<div className="grid md:grid-cols-4 gap-4 mb-6">
+
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <p className="text-sm text-slate-400">Activas</p>
+    <p className="text-2xl font-bold text-green-400">
+      {counts.active}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <p className="text-sm text-slate-400">Bloqueadas</p>
+    <p className="text-2xl font-bold text-yellow-300">
+      {counts.blocked}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <p className="text-sm text-slate-400">Eliminadas</p>
+    <p className="text-2xl font-bold text-red-400">
+      {counts.deleted}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <p className="text-sm text-slate-400">Total</p>
+    <p className="text-2xl font-bold text-primary">
+      {counts.all}
+    </p>
+  </div>
+
+</div>
+
       {/* TABS */}
       <div className="flex gap-2 mb-6 flex-wrap">
 
@@ -123,8 +160,43 @@ export default function AdminCampaigns() {
 
       </div>
 
+<div className="mb-6">
+
+  <input
+    type="text"
+    placeholder="Buscar campaña..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="
+      w-full
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-xl
+      px-4
+      py-3
+      text-sm
+      text-white
+      outline-none
+      focus:border-primary
+    "
+  />
+
+</div>
+
+{loading && (
+  <p className="text-sm text-slate-400 mb-4">
+    Cargando campañas...
+  </p>
+)}
+
       {/* LISTADO */}
-      {data.map(c => (
+      {data
+  .filter((c) =>
+    (c.title || "").toLowerCase().includes(search.toLowerCase()) ||
+    (c.description || "").toLowerCase().includes(search.toLowerCase())
+  )
+  .map(c => (
         <div
           key={c.id}
           className="border border-slate-800 p-4 rounded-xl mb-4 bg-slate-900"
@@ -136,9 +208,27 @@ export default function AdminCampaigns() {
             {c.description}
           </p>
 
-          <p className="text-sm">
-            Estado: <b>{c.status}</b>
-          </p>
+          <div className="mb-2">
+
+  <span
+    className={`px-2 py-1 rounded-full text-xs font-medium border
+
+      ${
+        c.status === "active"
+          ? "bg-green-500/10 border-green-500/30 text-green-300"
+
+        : c.status === "blocked"
+          ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-300"
+
+        : "bg-red-500/10 border-red-500/30 text-red-300"
+      }
+
+    `}
+  >
+    {c.status}
+  </span>
+
+</div>
 
           <p className="text-sm mb-3">
             Recaudado: ${Number(c.total_raised || 0).toLocaleString()}
@@ -170,8 +260,7 @@ export default function AdminCampaigns() {
               <button
                 onClick={() => handleAction(c.id, 'delete')}
                 disabled={loadingId === c.id}
-                className="bg-red-500/20 border border-red-500/30 text-yellow-300 → text-yellow-400
-text-red-300 → text-red-400 px-3 py-1 rounded text-sm"
+                className="bg-red-500/20 border border-red-500/30 text-red-400 px-3 py-1 rounded text-sm hover:bg-red-500/30"
               >
                 Eliminar
               </button>
