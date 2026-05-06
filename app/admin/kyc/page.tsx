@@ -141,7 +141,7 @@ export default function AdminKYC() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
+    <main className="min-h-screen bg-slate-950 text-white px-6 py-10">
 
       <div className="max-w-5xl mx-auto">
 
@@ -152,13 +152,27 @@ export default function AdminKYC() {
         <div className="space-y-6">
 
           {kycList.map((k) => (
-            <div key={k.id} className="bg-white border rounded-xl p-6 shadow-sm">
+            <div
+              key={k.id}
+              className="
+                bg-slate-900
+                border
+                border-slate-800
+                rounded-2xl
+                p-6
+              "
+            >
 
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-bold text-lg">{k.full_name}</p>
-                  <p className="text-sm text-gray-500">{k.user_email}</p>
-                  <p className="text-sm text-gray-500">RUT: {k.rut}</p>
+                  <p className="text-sm text-slate-400">
+                    {k.user_email}
+                  </p>
+
+                  <p className="text-sm text-slate-400">
+                    RUT: {k.rut}
+                  </p>
                 </div>
 
                 <span className={`text-sm px-3 py-1 rounded-full
