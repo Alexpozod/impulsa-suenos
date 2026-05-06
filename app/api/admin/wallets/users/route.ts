@@ -80,7 +80,7 @@ export async function GET() {
           map[userEmail] = { income: 0, withdrawn: 0, balance: 0 }
         }
 
-        map[userEmail].balance -= Math.abs(amount)
+        map[userEmail].balance += amount
         map[userEmail].withdrawn += Math.abs(amount)
       }
 
@@ -115,7 +115,7 @@ export async function GET() {
         balance: 0
       }
 
-      const walletBalance = ledgerData.balance
+      const walletBalance = Number(w.balance || 0)
       const ledgerBalance = ledgerData.balance
 
       const diff = Math.abs(walletBalance - ledgerBalance)

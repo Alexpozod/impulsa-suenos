@@ -82,11 +82,8 @@ export async function GET() {
            💸 RETIROS
         ========================= */
         case "withdraw":
-          add(userEmail, -Math.abs(amount))
-          break
-
         case "withdraw_pending":
-          add(userEmail, -Math.abs(amount))
+          add(userEmail, amount)
           break
 
         /* =========================

@@ -40,7 +40,7 @@ export async function GET() {
           break
 
         case "withdraw":
-          campaignFunds -= Math.abs(amount)
+          campaignFunds += amount
           break
 
         /* =========================
