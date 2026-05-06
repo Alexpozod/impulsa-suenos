@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { supabase } from "@/src/lib/supabase"
 
 export default function LedgerPage() {
 
@@ -11,14 +12,28 @@ export default function LedgerPage() {
   }, [])
 
   const load = async () => {
-    try {
-      const res = await fetch('/api/ledger')
-      const json = await res.json()
-      setData(json || [])
-    } catch (err) {
-      console.error('Error cargando ledger', err)
-    }
+  try {
+
+    const { data: sessionData } =
+      await supabase.auth.getSession()
+
+    const token =
+      sessionData?.session?.access_token
+
+    const res = await fetch('/api/ledger', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    const json = await res.json()
+
+    setData(Array.isArray(json) ? json : [])
+
+  } catch (err) {
+    console.error('Error cargando ledger', err)
   }
+}
 
   return (
     <main className="min-h-screen bg-slate-950 text-white p-10">
