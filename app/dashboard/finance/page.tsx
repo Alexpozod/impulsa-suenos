@@ -320,9 +320,13 @@ export default function FinancePage() {
             <span>
               {m.type === "donation" && "💚 Donación"}
               {m.type === "withdraw" &&
-                (m.status === "pending"
-                  ? "⏳ Retiro en revisión"
-                  : "💸 Retiro aprobado")}
+  (
+    m.status === "pending"
+      ? "⏳ Retiro en revisión"
+      : m.status === "rejected"
+      ? "❌ Retiro rechazado"
+      : "💸 Retiro aprobado"
+  )}
             </span>
 
             <span
