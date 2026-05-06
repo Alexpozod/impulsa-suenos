@@ -85,7 +85,7 @@ export default function WithdrawPage() {
           )
 
           const available = campaignLedger.reduce(
-            (acc: number, tx: any) => acc + Number(tx.amount || 0),
+            (acc: number, tx: any) => acc + Number(tx.net_amount ?? tx.amount ?? 0),
             0
           )
 
