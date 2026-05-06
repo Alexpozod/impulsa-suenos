@@ -5,6 +5,7 @@ import LedgerTable from "@/app/components/finance/LedgerTable"
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
 import FinancialAlerts from "@/app/components/finance/FinancialAlerts"
 import Link from "next/link"
+import { formatMoney } from "@/src/lib/formatMoney"
 
 export default function DashboardPage() {
 
@@ -90,7 +91,7 @@ export default function DashboardPage() {
                   <h3 className="font-semibold">{c.title}</h3>
 
                   <p className="text-sm text-gray-500">
-                    Disponible: ${Number(c.available || 0).toLocaleString()}
+                    Disponible: {formatMoney(c.available)}
                   </p>
                 </div>
 
@@ -148,7 +149,7 @@ function Card({ title, value, highlight }: any) {
       <p className="text-sm text-gray-500 mb-1">{title}</p>
 
       <p className="text-2xl font-bold text-gray-900">
-        ${Number(value || 0).toLocaleString()}
+        {formatMoney(value)}
       </p>
     </div>
   )
