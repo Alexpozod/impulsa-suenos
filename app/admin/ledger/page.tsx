@@ -154,6 +154,34 @@ const matchesFilter =
 return matchesSearch && matchesFilter
 
   })
+
+  .sort((a, b) => {
+
+  const priority: Record<string, number> = {
+    withdraw: 1,
+    creator_net: 2,
+    payment: 3,
+    fee_mp: 4,
+    fee_platform: 4,
+    fee_platform_iva: 4,
+    tip: 5
+  }
+
+  const aPriority = priority[a.type] || 99
+  const bPriority = priority[b.type] || 99
+
+  // prioridad primero
+  if (aPriority !== bPriority) {
+    return aPriority - bPriority
+  }
+
+  // más reciente primero
+  return (
+    new Date(b.created_at).getTime() -
+    new Date(a.created_at).getTime()
+  )
+})
+
   .map((l) => (
 
     <tr key={l.id} className="border-t border-slate-800">
