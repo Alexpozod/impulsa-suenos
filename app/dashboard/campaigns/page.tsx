@@ -74,7 +74,7 @@ export default function CampaignsPage() {
               </a>
 
               <a
-                href={`/account/withdraw?campaign=${c.id}`}
+                href={`/dashboard/account/withdraw?campaign=${c.id}`}
                 className="text-sm px-3 py-1 bg-primary text-white rounded hover:bg-primaryHover"
               >
                 Retirar
