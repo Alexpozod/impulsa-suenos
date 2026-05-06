@@ -9,6 +9,7 @@ export default function PayoutAdmin() {
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
   const [error, setError] = useState("")
+  const [filter, setFilter] = useState("all")
 
   useEffect(() => {
     load()
@@ -125,6 +126,32 @@ export default function PayoutAdmin() {
     setProcessing(null)
   }
 
+  const timeAgo = (date: string) => {
+
+  const seconds = Math.floor(
+    (Date.now() - new Date(date).getTime()) / 1000
+  )
+
+  const intervals = [
+    { label: "año", seconds: 31536000 },
+    { label: "mes", seconds: 2592000 },
+    { label: "día", seconds: 86400 },
+    { label: "hora", seconds: 3600 },
+    { label: "min", seconds: 60 }
+  ]
+
+  for (const i of intervals) {
+
+    const count = Math.floor(seconds / i.seconds)
+
+    if (count >= 1) {
+      return `Hace ${count} ${i.label}${count > 1 ? "s" : ""}`
+    }
+  }
+
+  return "Ahora"
+}
+
   /* =========================
      📊 KPIs
   ========================= */
@@ -170,6 +197,34 @@ export default function PayoutAdmin() {
 
       </div>
 
+<div className="flex gap-2 flex-wrap">
+
+  {["all", "pending", "paid", "rejected"].map((s) => (
+
+    <button
+      key={s}
+      onClick={() => setFilter(s)}
+      className={`px-4 py-2 rounded-xl text-sm border transition
+        ${
+          filter === s
+            ? "bg-primary border-primary text-white"
+            : "bg-slate-900 border-slate-700 text-slate-300"
+        }
+      `}
+    >
+      {s === "all"
+        ? "Todos"
+        : s === "pending"
+        ? "Pendientes"
+        : s === "paid"
+        ? "Pagados"
+        : "Rechazados"}
+    </button>
+
+  ))}
+
+</div>
+
       {/* LISTA */}
       <div className="space-y-5">
 
@@ -177,7 +232,13 @@ export default function PayoutAdmin() {
           <p className="text-slate-400">No hay payouts</p>
         )}
 
-        {payouts.map((p) => {
+        {payouts
+  .filter((p) =>
+    filter === "all"
+      ? true
+      : p.status === filter
+  )
+  .map((p) => {
 
           const isPending = p.status === "pending"
 
@@ -196,15 +257,23 @@ export default function PayoutAdmin() {
                   </p>
 
                   <p className="text-sm text-slate-400">
-                    {p.owner}
-                  </p>
+  {p.owner}
+</p>
+
+<p className="text-xs text-slate-500 mt-1">
+  ID: {p.id?.slice(0, 8)}
+</p>
                 </div>
 
-                <span className={`px-3 py-1 rounded-full text-xs font-medium
-                 ${p.status === "pending" && "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300"}
-                  ${p.status === "paid" && "bg-secondarySoft text-secondaryDark"}
-                  ${p.status === "rejected" && "bg-red-500/20 border border-red-500/30 text-red-300"}
-                `}>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold border
+  ${
+    p.status === "pending"
+      ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-300"
+      : p.status === "paid"
+      ? "bg-green-500/10 border-green-500/30 text-green-300"
+      : "bg-red-500/10 border-red-500/30 text-red-300"
+  }
+`}>
                   {p.status}
                 </span>
 
@@ -217,6 +286,9 @@ export default function PayoutAdmin() {
 
                 <p className="text-slate-400">
                   🕒 {new Date(p.created_at).toLocaleString()}
+<span className="ml-2 text-slate-500">
+  ({timeAgo(p.created_at)})
+</span>
                 </p>
 
               </div>
