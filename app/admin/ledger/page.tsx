@@ -207,8 +207,35 @@ return matchesSearch && matchesFilter
 </td>
 
       <td className="p-3">
-        {l.payment_id}
-      </td>
+
+  <span
+    className={`px-2 py-1 rounded-full text-xs font-medium border
+
+      ${
+        l.type === "payment"
+          ? "bg-blue-500/10 border-blue-500/30 text-blue-300"
+
+        : l.type === "creator_net"
+          ? "bg-green-500/10 border-green-500/30 text-green-300"
+
+        : l.type === "withdraw"
+          ? "bg-red-500/10 border-red-500/30 text-red-300"
+
+        : l.type?.includes("fee")
+          ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-300"
+
+        : l.type === "tip"
+          ? "bg-purple-500/10 border-purple-500/30 text-purple-300"
+
+        : "bg-slate-700 border-slate-600 text-slate-300"
+      }
+
+    `}
+  >
+    {l.type}
+  </span>
+
+</td>
 
     </tr>
 
