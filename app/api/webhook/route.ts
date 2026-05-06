@@ -281,7 +281,7 @@ const campaignTitle = campaign.title || "Tu campaña"
       if (donor_email && donor_email !== creator_email) {
   await sendNotification({
     user_email: donor_email,
-    type: "donation", // 🔥 corregido
+    type: "donation_sent", // 🔥 corregido
     title: "🙏 Gracias por tu donación",
     message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
     metadata: {

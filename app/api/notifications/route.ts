@@ -65,6 +65,18 @@ export async function GET(req: Request) {
       }
 
       /* =========================
+   🙌 DONACIÓN REALIZADA (DONADOR)
+========================= */
+if (type === "donation_sent") {
+  title = "🙏 Donación realizada"
+
+  const amount = Number(meta.amount || 0)
+  const campaign = meta.campaign_title || "la campaña"
+
+  message = `Donaste $${amount.toLocaleString()} a ${campaign}`
+}
+
+      /* =========================
          🏦 RETIRO
       ========================= */
       if (type === "withdraw") {
