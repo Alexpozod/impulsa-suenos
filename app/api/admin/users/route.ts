@@ -53,6 +53,37 @@ export async function POST(req: Request) {
       )
     }
 
+    /* 🚨 NO PERMITIR QUEDARSE SIN ADMINS */
+
+const { data: currentUser } = await supabase
+  .from("profiles")
+  .select("role")
+  .eq("id", user_id)
+  .single()
+
+if (
+  currentUser?.role === "admin" &&
+  role !== "admin"
+) {
+
+  const { count } = await supabase
+    .from("profiles")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("role", "admin")
+
+  if ((count || 0) <= 1) {
+    return NextResponse.json(
+      {
+        error: "No puedes eliminar el último admin"
+      },
+      { status: 400 }
+    )
+  }
+}
+
     await supabase
       .from("profiles")
       .update({ role })
