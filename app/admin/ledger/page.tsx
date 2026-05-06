@@ -185,16 +185,26 @@ return matchesSearch && matchesFilter
             {l.campaigns?.title || "Sin nombre"}
           </span>
 
-          <span className="text-xs text-gray-400">
-            {l.campaign_id}
-          </span>
+          <button
+  onClick={() => navigator.clipboard.writeText(l.campaign_id)}
+  className="text-xs text-gray-400 hover:text-white text-left"
+>
+  {l.campaign_id}
+</button>
 
         </div>
       </td>
 
       <td className="p-3">
-        {l.user_email}
-      </td>
+
+  <button
+    onClick={() => navigator.clipboard.writeText(l.payment_id)}
+    className="hover:text-primary transition"
+  >
+    {l.payment_id}
+  </button>
+
+</td>
 
       <td className="p-3">
         {l.payment_id}
