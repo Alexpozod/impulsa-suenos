@@ -20,6 +20,11 @@ export default function LedgerPage() {
     const token =
       sessionData?.session?.access_token
 
+    if (!token) {
+      console.error("No session token")
+      return
+    }
+
     const res = await fetch('/api/ledger', {
       headers: {
         Authorization: `Bearer ${token}`
