@@ -246,14 +246,15 @@ if (
        🧾 LEDGER (PENDING)
     ========================= */
     await supabase.from("financial_ledger").insert({
-      campaign_id,
-      user_email,
-      amount: -Math.abs(numericAmount),
-      type: "withdraw_pending",
-      flow_type: "out",
-      payment_id: `pending_${data.id}`,
-      created_at: new Date().toISOString()
-    })
+  campaign_id,
+  user_email,
+  amount: -Math.abs(numericAmount),
+  type: "withdraw_pending",
+  status: "confirmed",
+  flow_type: "out",
+  payment_id: `pending_${data.id}`,
+  created_at: new Date().toISOString()
+})
 
     /* =========================
        📢 LOGS + NOTIFICACIÓN
