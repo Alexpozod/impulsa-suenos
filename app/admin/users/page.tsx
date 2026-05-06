@@ -7,6 +7,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<any[]>([])
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [search, setSearch] = useState("")
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -38,29 +39,29 @@ export default function AdminUsers() {
     setCreating(true)
 
     try {
-      const res = await fetch('/api/admin/users/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role })
-      })
+  const res = await fetch('/api/admin/users/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, role })
+  })
 
-      const json = await res.json()
+  const json = await res.json()
 
-      if (json.error) {
-        alert(json.error)
-      } else {
-        alert("✅ Usuario creado")
-        setEmail('')
-        setPassword('')
-        setRole('user')
-        load()
-      }
+  if (json.error) {
+    alert(json.error)
+  } else {
+    alert("✅ Usuario creado")
+    setEmail('')
+    setPassword('')
+    setRole('user')
+    load()
+  }
 
-    } catch {
-      alert("Error creando usuario")
-    }
-
-    setCreating(false)
+} catch {
+  alert("Error creando usuario")
+} finally {
+  setCreating(false)
+}
   }
 
   /* =========================
@@ -73,11 +74,21 @@ export default function AdminUsers() {
     setLoadingId(user_id)
 
     try {
-      await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id, role })
-      })
+      const res = await fetch('/api/admin/users', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ user_id, role })
+})
+
+const json = await res.json()
+
+if (!res.ok) {
+  alert(json.error || "Error actualizando rol")
+  return
+}
+
+alert("✅ Rol actualizado")
+
     } catch {
       alert("Error actualizando rol")
     }
@@ -92,6 +103,38 @@ export default function AdminUsers() {
       <h1 className="text-2xl font-bold">
         👥 Gestión de Usuarios
       </h1>
+
+<div className="grid md:grid-cols-4 gap-4">
+
+  <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+    <p className="text-sm text-slate-400">Total</p>
+    <p className="text-2xl font-bold">
+      {users.length}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+    <p className="text-sm text-slate-400">Admins</p>
+    <p className="text-2xl font-bold text-red-400">
+      {users.filter(u => u.role === "admin").length}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+    <p className="text-sm text-slate-400">Contadores</p>
+    <p className="text-2xl font-bold text-yellow-300">
+      {users.filter(u => u.role === "contador").length}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+    <p className="text-sm text-slate-400">Users</p>
+    <p className="text-2xl font-bold text-green-400">
+      {users.filter(u => !u.role || u.role === "user").length}
+    </p>
+  </div>
+
+</div>
 
       {/* =========================
           CREAR USUARIO
@@ -128,12 +171,36 @@ export default function AdminUsers() {
         <button
           onClick={createUser}
           disabled={creating}
-          className="bg-primary text-white text-white px-4 py-2 rounded hover:bg-primaryHover disabled:opacity-50"
+          className="bg-primary text-white px-4 py-2 rounded hover:bg-primaryHover disabled:opacity-50"
         >
           {creating ? "Creando..." : "Crear usuario"}
         </button>
 
       </div>
+
+<div>
+
+  <input
+    type="text"
+    placeholder="Buscar usuario..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="
+      w-full
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-xl
+      px-4
+      py-3
+      text-sm
+      text-white
+      outline-none
+      focus:border-primary
+    "
+  />
+
+</div>
 
       {/* =========================
           LISTA USUARIOS
@@ -146,14 +213,46 @@ export default function AdminUsers() {
           </p>
         )}
 
-        {users.map(u => (
+        {users
+  .filter((u) =>
+
+    (u.email || "")
+      .toLowerCase()
+      .includes(search.toLowerCase())
+
+    ||
+
+    (u.role || "user")
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  )
+
+  .map(u => (
           <div key={u.id} className="bg-slate-900 p-4 rounded-xl">
 
             <p className="font-bold">{u.email}</p>
 
-            <p className="text-sm text-slate-400 mb-2">
-              Rol actual: {u.role || "user"}
-            </p>
+            <div className="mb-3">
+
+  <span
+    className={`px-2 py-1 rounded-full text-xs font-medium border
+
+      ${
+        u.role === "admin"
+          ? "bg-red-500/10 border-red-500/30 text-red-300"
+
+        : u.role === "contador"
+          ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-300"
+
+        : "bg-green-500/10 border-green-500/30 text-green-300"
+      }
+
+    `}
+  >
+    {u.role || "user"}
+  </span>
+
+</div>
 
             <div className="flex gap-2 flex-wrap">
 
