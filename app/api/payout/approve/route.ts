@@ -102,22 +102,7 @@ export async function POST(req: Request) {
     /* =========================
        🔍 BALANCE REAL DESDE LEDGER
     ========================= */
-    const { data: ledger } = await supabase
-      .from("financial_ledger")
-      .select("amount")
-      .eq("campaign_id", payout.campaign_id)
-      .eq("user_email", payout.user_email)
-      .eq("status", "confirmed")
-
-    const realBalance = (ledger || []).reduce(
-      (acc: number, tx: any) => acc + Number(tx.amount || 0),
-      0
-    )
-
-    if (payout.amount > realBalance) {
-      return NextResponse.json({ error: "insufficient_balance" }, { status: 400 })
-    }
-
+    
     const { data: campaign } = await supabase
       .from("campaigns")
       .select("*")
