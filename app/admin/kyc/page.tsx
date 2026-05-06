@@ -13,6 +13,8 @@ export default function AdminKYC() {
   const [loading, setLoading] = useState(true)
   const [authorized, setAuthorized] = useState(false)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [search, setSearch] = useState("")
+  const [filter, setFilter] = useState("all")
 
   /* =========================
      🔐 AUTH + ROLE CHECK
@@ -149,9 +151,103 @@ export default function AdminKYC() {
           🛡️ Panel Admin KYC
         </h1>
 
+<div className="mb-6">
+
+  <input
+    type="text"
+    placeholder="Buscar email, nombre o RUT..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="
+      w-full
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-xl
+      px-4
+      py-3
+      text-sm
+      text-white
+      outline-none
+      focus:border-primary
+    "
+  />
+
+</div>
+
+<div className="flex gap-2 flex-wrap mb-6">
+
+  {[
+    "all",
+    "pending",
+    "approved",
+    "rejected"
+  ].map((f) => (
+
+    <button
+      key={f}
+      onClick={() => setFilter(f)}
+      className={`px-4 py-2 rounded-xl text-sm border transition
+
+        ${
+          filter === f
+            ? "bg-primary border-primary text-white"
+            : "bg-slate-900 border-slate-700 text-slate-300"
+        }
+
+      `}
+    >
+      {
+        f === "all"
+          ? "Todos"
+          : f === "pending"
+          ? "Pendientes"
+          : f === "approved"
+          ? "Aprobados"
+          : "Rechazados"
+      }
+    </button>
+
+  ))}
+
+</div>
+
         <div className="space-y-6">
 
-          {kycList.map((k) => (
+          {kycList
+  .filter((k) => {
+
+    const q = search.toLowerCase()
+
+    const matchesSearch =
+
+      (k.full_name || "")
+        .toLowerCase()
+        .includes(q)
+
+      ||
+
+      (k.user_email || "")
+        .toLowerCase()
+        .includes(q)
+
+      ||
+
+      (k.rut || "")
+        .toLowerCase()
+        .includes(q)
+
+    const matchesFilter =
+      filter === "all"
+        ? true
+        : k.status === filter
+
+    return matchesSearch && matchesFilter
+
+  })
+
+  .map((k) => (
+
             <div
               key={k.id}
               className="
@@ -176,7 +272,7 @@ export default function AdminKYC() {
                 </div>
 
                 <span className={`text-sm px-3 py-1 rounded-full
-                  ${k.status === 'approved' && 'bg-secondarySoft text-secondaryDark'}
+                  ${k.status === 'approved' && 'bg-green-500/10 text-green-300 border border-green-500/30'}
                   ${k.status === 'pending' && 'bg-yellow-100 text-yellow-700'}
                   ${k.status === 'rejected' && 'bg-red-100 text-red-700'}
                 `}>
@@ -188,19 +284,19 @@ export default function AdminKYC() {
               <div className="flex gap-4 mt-4 flex-wrap">
 
                 {k.document_url && (
-                  <a href={k.document_url} target="_blank" className="text-blue-600 underline">
+                  <a href={k.document_url} target="_blank" className="text-primary hover:underline">
                     📄 Frente
                   </a>
                 )}
 
                 {k.document_back_url && (
-                  <a href={k.document_back_url} target="_blank" className="text-blue-600 underline">
+                  <a href={k.document_back_url} target="_blank" className="text-primary hover:underline">
                     📄 Reverso
                   </a>
                 )}
 
                 {k.selfie_url && (
-                  <a href={k.selfie_url} target="_blank" className="text-blue-600 underline">
+                  <a href={k.selfie_url} target="_blank" className="text-primary hover:underline">
                     🤳 Selfie
                   </a>
                 )}
