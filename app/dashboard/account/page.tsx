@@ -270,7 +270,7 @@ if (profileData?.phone?.startsWith('+')) {
 
         {!needsKyc && !needsBank && finance?.totals?.balance > 0 && (
           <button
-            onClick={() => router.push("/dashboard/account/withdraw")}
+            onClick={() => router.push("/dashboard/finance")}
             className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primaryHover font-medium shadow-sm hover:shadow-md transition"
           >
             💸 Retirar fondos
