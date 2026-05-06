@@ -50,7 +50,7 @@ export default function LedgerPage() {
       <div className="overflow-auto border border-slate-800 rounded-xl">
 
         <table className="w-full text-sm">
-          <thead className="bg-slate-900 text-slate-400">
+          <thead className="bg-slate-900 text-slate-400 sticky top-0 z-10">
             <tr>
               <th className="p-3 text-left">Fecha</th>
               <th className="p-3 text-left">Tipo</th>
