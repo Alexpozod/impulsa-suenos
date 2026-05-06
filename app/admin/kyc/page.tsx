@@ -16,6 +16,9 @@ export default function AdminKYC() {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState("all")
   const [preview, setPreview] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+
+  const ITEMS_PER_PAGE = 10
 
   /* =========================
      🔐 AUTH + ROLE CHECK
@@ -152,13 +155,48 @@ export default function AdminKYC() {
           🛡️ Panel Admin KYC
         </h1>
 
+<div className="grid md:grid-cols-4 gap-4 mb-6">
+
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <p className="text-sm text-slate-400">Total</p>
+    <p className="text-2xl font-bold">
+      {kycList.length}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <p className="text-sm text-slate-400">Pendientes</p>
+    <p className="text-2xl font-bold text-yellow-300">
+      {kycList.filter(k => k.status === "pending").length}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <p className="text-sm text-slate-400">Aprobados</p>
+    <p className="text-2xl font-bold text-green-400">
+      {kycList.filter(k => k.status === "approved").length}
+    </p>
+  </div>
+
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+    <p className="text-sm text-slate-400">Rechazados</p>
+    <p className="text-2xl font-bold text-red-400">
+      {kycList.filter(k => k.status === "rejected").length}
+    </p>
+  </div>
+
+</div>
+
 <div className="mb-6">
 
   <input
     type="text"
     placeholder="Buscar email, nombre o RUT..."
     value={search}
-    onChange={(e) => setSearch(e.target.value)}
+    onChange={(e) => {
+  setSearch(e.target.value)
+  setPage(1)
+}}
     className="
       w-full
       bg-slate-900
@@ -187,7 +225,10 @@ export default function AdminKYC() {
 
     <button
       key={f}
-      onClick={() => setFilter(f)}
+      onClick={() => {
+  setFilter(f)
+  setPage(1)
+}}
       className={`px-4 py-2 rounded-xl text-sm border transition
 
         ${
@@ -247,7 +288,12 @@ export default function AdminKYC() {
 
   })
 
-  .map((k) => (
+  .slice(
+  (page - 1) * ITEMS_PER_PAGE,
+  page * ITEMS_PER_PAGE
+)
+
+.map((k) => (
 
             <div
               key={k.id}
@@ -430,6 +476,80 @@ export default function AdminKYC() {
 
         </div>
 
+<div className="flex justify-center gap-3 mt-8">
+
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="
+      px-4
+      py-2
+      rounded-xl
+      bg-slate-800
+      border
+      border-slate-700
+      disabled:opacity-40
+    "
+  >
+    Anterior
+  </button>
+
+  <div className="flex items-center text-sm text-slate-400">
+    Página {page}
+  </div>
+
+  <button
+    disabled={
+      page * ITEMS_PER_PAGE >=
+      kycList.filter((k) => {
+
+        const q = search.toLowerCase()
+
+        const matchesSearch =
+
+          (k.full_name || "")
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          (k.user_email || "")
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          (k.rut || "")
+            .toLowerCase()
+            .includes(q)
+
+        const matchesFilter =
+          filter === "all"
+            ? true
+            : k.status === filter
+
+        return matchesSearch && matchesFilter
+
+      }).length
+    }
+
+    onClick={() => setPage(page + 1)}
+
+    className="
+      px-4
+      py-2
+      rounded-xl
+      bg-slate-800
+      border
+      border-slate-700
+      disabled:opacity-40
+    "
+  >
+    Siguiente
+  </button>
+
+</div>
+
       </div>
 
 {/* =========================
@@ -452,8 +572,9 @@ export default function AdminKYC() {
   >
 
     <div
-      className="
-        max-w-4xl
+  onClick={(e) => e.stopPropagation()}
+  className="
+    max-w-4xl
         max-h-[90vh]
         overflow-hidden
         rounded-2xl
