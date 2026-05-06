@@ -84,10 +84,22 @@ export default function WithdrawPage() {
             ["confirmed", "paid"].includes(tx.status)
           )
 
-          const available = campaignLedger.reduce(
-            (acc: number, tx: any) => acc + Number(tx.net_amount ?? tx.amount ?? 0),
-            0
-          )
+          const available = campaignLedger
+  .filter((tx: any) =>
+    [
+      "payment",
+      "fee_mp",
+      "fee_platform",
+      "fee_platform_iva",
+      "withdraw",
+      "withdraw_pending"
+    ].includes(tx.type)
+  )
+  .reduce(
+    (acc: number, tx: any) =>
+      acc + Number(tx.amount || 0),
+    0
+  )
 
           balancesMap[c.id] = { available }
         }
