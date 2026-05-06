@@ -285,9 +285,12 @@ const campaignTitle = campaign.title || "Tu campaña"
     title: "🙏 Gracias por tu donación",
     message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
     metadata: {
-      campaign_id,
-      share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
-    },
+  campaign_id,
+  campaign_title: campaignTitle,
+  amount: donation,
+  donor_name,
+  share_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign_id}`
+},
     sendEmail: true // 🔥 evita duplicado
   })
 }
