@@ -6,6 +6,7 @@ import { supabase } from "@/src/lib/supabase"
 export default function LedgerPage() {
 
   const [data, setData] = useState<any[]>([])
+  const [search, setSearch] = useState("")
 
   useEffect(() => {
     load()
@@ -47,6 +48,30 @@ export default function LedgerPage() {
         📒 Ledger (Contabilidad)
       </h1>
 
+<div className="mb-4">
+
+  <input
+    type="text"
+    placeholder="Buscar email, payment ID, campaña o tipo..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="
+      w-full
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-xl
+      px-4
+      py-3
+      text-sm
+      text-white
+      outline-none
+      focus:border-primary
+    "
+  />
+
+</div>
+
       <div className="overflow-auto border border-slate-800 rounded-xl">
 
         <table className="w-full text-sm">
@@ -63,26 +88,68 @@ export default function LedgerPage() {
           </thead>
 
           <tbody>
-            {data.map((l) => (
-              <tr key={l.id} className="border-t border-slate-800">
-                <td className="p-3">{new Date(l.created_at).toLocaleString()}</td>
-                <td className="p-3">{l.type}</td>
-                <td className={`p-3 ${l.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  ${Number(l.amount).toLocaleString()}
-                </td>
-                <td className="p-3">{l.flow_type}</td>
-                <td className="p-3">
-  <div className="flex flex-col">
-    <span>{l.campaigns?.title || "Sin nombre"}</span>
-    <span className="text-xs text-gray-400">
-      {l.campaign_id}
-    </span>
-  </div>
-</td>
-                <td className="p-3">{l.user_email}</td>
-                <td className="p-3">{l.payment_id}</td>
-              </tr>
-            ))}
+            {data
+  .filter((l) => {
+
+    const q = search.toLowerCase()
+
+    return (
+      l.type?.toLowerCase().includes(q) ||
+      l.user_email?.toLowerCase().includes(q) ||
+      l.payment_id?.toLowerCase().includes(q) ||
+      l.campaign_id?.toLowerCase().includes(q) ||
+      l.campaigns?.title?.toLowerCase().includes(q)
+    )
+  })
+  .map((l) => (
+
+    <tr key={l.id} className="border-t border-slate-800">
+
+      <td className="p-3">
+        {new Date(l.created_at).toLocaleString()}
+      </td>
+
+      <td className="p-3">
+        {l.type}
+      </td>
+
+      <td className={`p-3 ${
+        l.amount > 0
+          ? 'text-green-400'
+          : 'text-red-400'
+      }`}>
+        ${Number(l.amount).toLocaleString()}
+      </td>
+
+      <td className="p-3">
+        {l.flow_type}
+      </td>
+
+      <td className="p-3">
+        <div className="flex flex-col">
+
+          <span>
+            {l.campaigns?.title || "Sin nombre"}
+          </span>
+
+          <span className="text-xs text-gray-400">
+            {l.campaign_id}
+          </span>
+
+        </div>
+      </td>
+
+      <td className="p-3">
+        {l.user_email}
+      </td>
+
+      <td className="p-3">
+        {l.payment_id}
+      </td>
+
+    </tr>
+
+))}
           </tbody>
 
         </table>
