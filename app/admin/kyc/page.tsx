@@ -15,6 +15,7 @@ export default function AdminKYC() {
   const [processing, setProcessing] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState("all")
+  const [preview, setPreview] = useState<string | null>(null)
 
   /* =========================
      🔐 AUTH + ROLE CHECK
@@ -310,27 +311,79 @@ export default function AdminKYC() {
               </div>
 
               {/* DOCUMENTOS */}
-              <div className="flex gap-4 mt-4 flex-wrap">
+<div className="flex gap-4 mt-5 flex-wrap">
 
-                {k.document_url && (
-                  <a href={k.document_url} target="_blank" className="text-primary hover:underline">
-                    📄 Frente
-                  </a>
-                )}
+  {[
+    {
+      label: "Frente",
+      url: k.document_url
+    },
+    {
+      label: "Reverso",
+      url: k.document_back_url
+    },
+    {
+      label: "Selfie",
+      url: k.selfie_url
+    }
+  ]
 
-                {k.document_back_url && (
-                  <a href={k.document_back_url} target="_blank" className="text-primary hover:underline">
-                    📄 Reverso
-                  </a>
-                )}
+    .filter((d) => d.url)
 
-                {k.selfie_url && (
-                  <a href={k.selfie_url} target="_blank" className="text-primary hover:underline">
-                    🤳 Selfie
-                  </a>
-                )}
+    .map((d, i) => (
 
-              </div>
+      <button
+        key={i}
+        onClick={() => setPreview(d.url)}
+        className="
+          group
+          relative
+          w-28
+          h-28
+          overflow-hidden
+          rounded-xl
+          border
+          border-slate-700
+          bg-slate-800
+        "
+      >
+
+        <img
+          src={d.url}
+          alt={d.label}
+          className="
+            w-full
+            h-full
+            object-cover
+            transition
+            group-hover:scale-105
+          "
+        />
+
+        <div
+          className="
+            absolute
+            inset-0
+            bg-black/40
+            opacity-0
+            group-hover:opacity-100
+            transition
+            flex
+            items-center
+            justify-center
+            text-xs
+            text-white
+            font-medium
+          "
+        >
+          Ver {d.label}
+        </div>
+
+      </button>
+
+    ))}
+
+</div>
 
               {/* ACCIONES */}
               <div className="flex gap-3 mt-5">
@@ -378,6 +431,51 @@ export default function AdminKYC() {
         </div>
 
       </div>
+
+{/* =========================
+   🖼️ MODAL PREVIEW
+========================= */}
+{preview && (
+
+  <div
+    className="
+      fixed
+      inset-0
+      bg-black/80
+      z-50
+      flex
+      items-center
+      justify-center
+      p-6
+    "
+    onClick={() => setPreview(null)}
+  >
+
+    <div
+      className="
+        max-w-4xl
+        max-h-[90vh]
+        overflow-hidden
+        rounded-2xl
+        border
+        border-slate-700
+      "
+    >
+
+      <img
+        src={preview}
+        alt="Preview"
+        className="
+          max-h-[90vh]
+          object-contain
+        "
+      />
+
+    </div>
+
+  </div>
+
+)}
 
     </main>
   )
