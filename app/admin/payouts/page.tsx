@@ -10,6 +10,7 @@ export default function PayoutAdmin() {
   const [processing, setProcessing] = useState<string | null>(null)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState("all")
+  const [search, setSearch] = useState("")
 
   useEffect(() => {
     load()
@@ -225,6 +226,18 @@ export default function PayoutAdmin() {
 
 </div>
 
+<div className="bg-slate-900 border border-slate-800 rounded-2xl p-3">
+
+  <input
+    type="text"
+    placeholder="Buscar por email, campaña o ID..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full bg-transparent outline-none text-white placeholder:text-slate-500"
+  />
+
+</div>
+
       {/* LISTA */}
       <div className="space-y-5">
 
@@ -232,12 +245,37 @@ export default function PayoutAdmin() {
           <p className="text-slate-400">No hay payouts</p>
         )}
 
-        {payouts
+        {[...payouts]
+  .sort((a, b) => {
+
+    const order = {
+      pending: 0,
+      paid: 1,
+      rejected: 2
+    }
+
+    return (
+      (order[a.status as keyof typeof order] ?? 99) -
+      (order[b.status as keyof typeof order] ?? 99)
+    )
+  })
   .filter((p) =>
     filter === "all"
       ? true
       : p.status === filter
   )
+  .filter((p) => {
+
+    if (!search.trim()) return true
+
+    const q = search.toLowerCase()
+
+    return (
+      p.owner?.toLowerCase().includes(q) ||
+      p.campaign_title?.toLowerCase().includes(q) ||
+      p.id?.toLowerCase().includes(q)
+    )
+  })
   .map((p) => {
 
           const isPending = p.status === "pending"
