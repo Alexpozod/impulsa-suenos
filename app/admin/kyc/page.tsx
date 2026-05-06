@@ -70,19 +70,53 @@ export default function AdminKYC() {
     }
 
     const withSignedUrls = await Promise.all(
-      data.map(async (k) => ({
-        ...k,
-        document_url: k.document_url
-          ? await getSignedUrl('kyc-documents', k.document_url)
-          : null,
-        document_back_url: k.document_back_url
-          ? await getSignedUrl('kyc-documents', k.document_back_url)
-          : null,
-        selfie_url: k.selfie_url
-          ? await getSignedUrl('kyc-documents', k.selfie_url)
-          : null,
-      }))
-    )
+      data.map(async (k) => {
+
+  console.log("KYC ORIGINAL:", {
+    front: k.document_url,
+    back: k.document_back_url,
+    selfie: k.selfie_url
+  })
+
+  const front =
+    k.document_url
+      ? await getSignedUrl(
+          'kyc-documents',
+          k.document_url
+        )
+      : null
+
+  const back =
+    k.document_back_url
+      ? await getSignedUrl(
+          'kyc-documents',
+          k.document_back_url
+        )
+      : null
+
+  const selfie =
+    k.selfie_url
+      ? await getSignedUrl(
+          'kyc-documents',
+          k.selfie_url
+        )
+      : null
+
+  console.log("KYC SIGNED:", {
+    front,
+    back,
+    selfie
+  })
+
+  return {
+    ...k,
+    document_url: front,
+    document_back_url: back,
+    selfie_url: selfie,
+  }
+
+})
+     )
 
     setKycList(withSignedUrls)
     setLoading(false)
