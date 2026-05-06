@@ -59,8 +59,7 @@ export default function WithdrawPage() {
 
         const totalPending = (ledger || [])
           .filter((tx: any) =>
-            tx.user_email === email &&
-            tx.type === "withdraw" && tx.status === "pending" &&
+            tx.type === "withdraw_pending" &&
             tx.status === "confirmed"
           )
           .reduce((acc: number, tx: any) =>
@@ -71,10 +70,9 @@ export default function WithdrawPage() {
         for (const c of campaignsData || []) {
 
           const campaignLedger = (ledger || []).filter((tx: any) =>
-            tx.campaign_id === c.id &&
-            tx.user_email === email &&
-            tx.status === "confirmed"
-          )
+          tx.campaign_id === c.id &&
+          tx.status === "confirmed"
+        )
 
           const available = campaignLedger.reduce(
             (acc: number, tx: any) => acc + Number(tx.amount || 0),
