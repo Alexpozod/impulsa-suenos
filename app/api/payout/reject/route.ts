@@ -128,12 +128,13 @@ const role = profile?.role || "user"
     /* =========================
        🔔 NOTIFICACIÓN
     ========================= */
-    await sendNotification({
+   await sendNotification({
       user_email,
       type: "payout_rejected",
       title: "Retiro rechazado",
       message: `Tu retiro de $${amount} fue rechazado`,
-      metadata: { payout_id }
+      metadata: { payout_id },
+      sendEmail: true
     })
 
     logInfo("Payout rechazado", { payout_id })
