@@ -58,9 +58,7 @@ export async function GET() {
     for (const row of ledger) {
 
       const campaignUser =
-        Array.isArray(row.campaigns) && row.campaigns.length > 0
-          ? row.campaigns[0]?.user_email
-          : null
+       (row.campaigns as any)?.user_email || null
 
       const userEmail =
         campaignUser ||
