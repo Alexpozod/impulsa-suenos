@@ -191,50 +191,6 @@ return matchesSearch && matchesFilter
       </td>
 
       <td className="p-3">
-        {l.type}
-      </td>
-
-      <td className={`p-3 ${
-        l.amount > 0
-          ? 'text-green-400'
-          : 'text-red-400'
-      }`}>
-        ${Number(l.amount).toLocaleString()}
-      </td>
-
-      <td className="p-3">
-        {l.flow_type}
-      </td>
-
-      <td className="p-3">
-        <div className="flex flex-col">
-
-          <span>
-            {l.campaigns?.title || "Sin nombre"}
-          </span>
-
-          <button
-  onClick={() => navigator.clipboard.writeText(l.campaign_id)}
-  className="text-xs text-gray-400 hover:text-white text-left"
->
-  {l.campaign_id}
-</button>
-
-        </div>
-      </td>
-
-      <td className="p-3">
-
-  <button
-    onClick={() => navigator.clipboard.writeText(l.payment_id)}
-    className="hover:text-primary transition"
-  >
-    {l.payment_id}
-  </button>
-
-</td>
-
-      <td className="p-3">
 
   <span
     className={`px-2 py-1 rounded-full text-xs font-medium border
@@ -265,6 +221,50 @@ return matchesSearch && matchesFilter
 
 </td>
 
+      <td className={`p-3 ${
+        l.amount > 0
+          ? 'text-green-400'
+          : 'text-red-400'
+      }`}>
+        ${Number(l.amount).toLocaleString()}
+      </td>
+
+      <td className="p-3">
+        {l.flow_type}
+      </td>
+
+      <td className="p-3">
+        <div className="flex flex-col">
+
+          <span>
+            {l.campaigns?.title || "Sin nombre"}
+          </span>
+
+          <button
+  onClick={() => navigator.clipboard.writeText(l.campaign_id)}
+  className="text-xs text-gray-400 hover:text-white text-left"
+>
+  {l.campaign_id}
+</button>
+
+        </div>
+      </td>
+
+<td className="p-3">
+  {l.user_email}
+</td>
+
+      <td className="p-3">
+
+  <button
+    onClick={() => navigator.clipboard.writeText(l.payment_id)}
+    className="hover:text-primary transition"
+  >
+    {l.payment_id}
+  </button>
+
+</td>
+      
     </tr>
 
 ))}
