@@ -55,6 +55,7 @@ export default function WithdrawPage() {
       try {
         const res = await fetch("/api/ledger")
         const ledger = await res.json()
+        console.log("LEDGER DATA:", ledger)
 
         const totalPending = (ledger || [])
           .filter((tx: any) =>
