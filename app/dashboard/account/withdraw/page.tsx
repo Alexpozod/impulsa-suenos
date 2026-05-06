@@ -59,7 +59,7 @@ export default function WithdrawPage() {
         const totalPending = (ledger || [])
           .filter((tx: any) =>
             tx.user_email === email &&
-            tx.type === "withdraw_pending" &&
+            tx.type === "withdraw" && tx.status === "pending" &&
             tx.status === "confirmed"
           )
           .reduce((acc: number, tx: any) =>
