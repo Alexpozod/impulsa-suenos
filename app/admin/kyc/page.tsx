@@ -269,15 +269,44 @@ export default function AdminKYC() {
                   <p className="text-sm text-slate-400">
                     RUT: {k.rut}
                   </p>
+                  <p className="text-xs text-slate-500 mt-1">
+  Enviado:
+  {" "}
+  {new Date(k.created_at).toLocaleString()}
+</p>
                 </div>
 
-                <span className={`text-sm px-3 py-1 rounded-full
-                  ${k.status === 'approved' && 'bg-green-500/10 text-green-300 border border-green-500/30'}
-                  ${k.status === 'pending' && 'bg-yellow-100 text-yellow-700'}
-                  ${k.status === 'rejected' && 'bg-red-100 text-red-700'}
-                `}>
-                  {k.status}
-                </span>
+                <span
+  className={`px-3 py-1 rounded-full text-xs font-medium border
+
+    ${
+      k.status === "approved"
+        ? "bg-green-500/10 border-green-500/30 text-green-300"
+
+      : k.status === "pending"
+        ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-300"
+
+      : k.status === "rejected"
+        ? "bg-red-500/10 border-red-500/30 text-red-300"
+
+      : "bg-slate-700 border-slate-600 text-slate-300"
+    }
+
+  `}
+>
+  {
+    k.status === "approved"
+      ? "Aprobado"
+
+      : k.status === "pending"
+        ? "Pendiente"
+
+      : k.status === "rejected"
+        ? "Rechazado"
+
+      : k.status
+  }
+</span>
               </div>
 
               {/* DOCUMENTOS */}
@@ -307,12 +336,23 @@ export default function AdminKYC() {
               <div className="flex gap-3 mt-5">
 
                 <button
-                  disabled={processing === k.user_email}
-                  onClick={() => updateStatus(k.user_email, 'approved')}
-                  className="bg-primary text-white px-4 py-2 rounded-lg disabled:opacity-50"
-                >
-                  Aprobar
-                </button>
+  disabled={processing === k.user_email}
+  onClick={() => updateStatus(k.user_email, 'approved')}
+  className="
+    bg-primary
+    text-white
+    px-4
+    py-2
+    rounded-lg
+    disabled:opacity-50
+  "
+>
+  {
+    processing === k.user_email
+      ? "Procesando..."
+      : "Aprobar"
+  }
+</button>
 
                 <button
                   disabled={processing === k.user_email}
