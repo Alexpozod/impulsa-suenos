@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { formatMoney } from "@/src/lib/formatMoney"
 
 export default function CampaignsPage() {
 
@@ -213,10 +214,10 @@ export default function CampaignsPage() {
 
                   <div className="flex justify-between text-xs mb-3">
                     <span className="text-green-600 font-bold">
-                      ${Number(c.current_amount || 0).toLocaleString()}
+                      {formatMoney(c.current_amount || 0)}
                     </span>
                     <span className="text-gray-400">
-                      ${Number(c.goal_amount || 0).toLocaleString()}
+                      {formatMoney(c.goal_amount || 0)}
                     </span>
                   </div>
 

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import DonationBox from '@/app/components/DonationBox'
 import ViewersCounter from '@/app/components/ViewersCounter'
 import CampaignCarousel from '@/app/components/CampaignCarousel'
+import { formatMoney } from "@/src/lib/formatMoney"
 
 export default function CampaignDetail() {
 
@@ -128,7 +129,7 @@ export default function CampaignDetail() {
   }
 
   const shareDonation = (amount: number) => {
-    const text = `Doné $${amount.toLocaleString()} a esta campaña 🙌`
+    const text = `Doné ${formatMoney(amount)} a esta campaña 🙌`
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + getCampaignUrl())}`
     window.open(url, "_blank")
   }
@@ -220,10 +221,10 @@ export default function CampaignDetail() {
 
   <div className="flex justify-between items-end">
     <span className="font-extrabold text-green-600 text-xl">
-      ${current.toLocaleString()}
+      {formatMoney(current)}
     </span>
     <span className="text-gray-500 text-sm">
-      de ${goal.toLocaleString()}
+     de {formatMoney(goal)}
     </span>
   </div>
 
@@ -268,7 +269,7 @@ export default function CampaignDetail() {
 
                         <div className="flex items-center gap-3">
                           <span className="text-green-600 font-bold text-sm">
-                            +${amount.toLocaleString()}
+                            +{formatMoney(amount)}
                           </span>
                         </div>
                       </div>
@@ -310,7 +311,7 @@ export default function CampaignDetail() {
                   <div key={index} className="flex justify-between items-center p-4 border border-gray-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition">
                     <span>{medal} {r.name || "Donador"}</span>
                     <span className="text-green-600 font-bold">
-                      ${Number(r.total || 0).toLocaleString()}
+                      {formatMoney(r.total || 0)}
                     </span>
                   </div>
                 )

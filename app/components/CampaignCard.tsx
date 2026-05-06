@@ -1,6 +1,7 @@
 'use client'
 
 import Link from "next/link"
+import { formatMoney } from "@/src/lib/formatMoney"
 
 export default function CampaignCard({ campaign }: any) {
 
@@ -55,11 +56,11 @@ export default function CampaignCard({ campaign }: any) {
         <div className="flex justify-between text-sm font-medium mb-2">
 
           <span className="text-green-600">
-            ${current.toLocaleString()}
+            {formatMoney(current)}
           </span>
 
           <span className="text-gray-500">
-            de ${goal.toLocaleString()}
+            de {formatMoney(goal)}
           </span>
 
         </div>
@@ -72,7 +73,7 @@ export default function CampaignCard({ campaign }: any) {
         {/* REMAINING */}
         {remaining > 0 && (
           <p className="text-xs text-orange-600 font-semibold">
-            💰 Faltan ${remaining.toLocaleString()}
+            💰 Faltan {formatMoney(remaining)}
           </p>
         )}
 

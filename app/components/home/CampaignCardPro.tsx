@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
+import { formatMoney } from "@/src/lib/formatMoney"
 
 /* =========================
    🧠 TYPE SAFE
@@ -78,7 +79,7 @@ export default function CampaignCardPro({ c }: { c: Campaign }) {
 
           <div className="flex justify-between text-sm mb-1">
             <span className="font-bold text-primary">
-              ${Number(c.current_amount || 0).toLocaleString()}
+              {formatMoney(c.current_amount || 0)}
             </span>
             <span className="text-gray-400">
               {percent.toFixed(0)}%

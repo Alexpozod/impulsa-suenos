@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { formatMoney } from "@/src/lib/formatMoney"
 
 export default function DonationBox({
   campaign_id,
@@ -254,7 +255,7 @@ export default function DonationBox({
                 : 'hover:bg-gray-100'
             }`}
           >
-            ${p.toLocaleString()}
+            {formatMoney(p)}
           </button>
         ))}
       </div>
@@ -348,7 +349,7 @@ export default function DonationBox({
       <div className="text-center">
         <p className="text-sm text-gray-500">Total</p>
         <p className="text-2xl font-bold text-primary">
-          ${total.toLocaleString()}
+          {formatMoney(total)}
         </p>
       </div>
 

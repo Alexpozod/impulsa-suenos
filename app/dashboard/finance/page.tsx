@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/src/lib/supabase"
+import { formatMoney } from "@/src/lib/formatMoney"
 
 export default function FinancePage() {
 
@@ -220,7 +221,7 @@ export default function FinancePage() {
         {data?.campaigns?.map((c: any) => (
           <div key={c.id} className="flex justify-between text-sm py-2 border-b">
             <span>{c.title}</span>
-            <span>${Number(c.available || 0).toLocaleString()}</span>
+            <span>{formatMoney(c.available)}</span>
           </div>
         ))}
       </div>
@@ -238,14 +239,14 @@ export default function FinancePage() {
           <option value="">Selecciona campaña</option>
           {data?.campaigns?.map((c: any) => (
             <option key={c.id} value={c.id}>
-              {c.title} — ${Number(c.available || 0).toLocaleString()}
+              {c.title} — {formatMoney(c.available)}
             </option>
           ))}
         </select>
 
         {selected && (
           <p className="text-sm text-gray-600">
-            Máximo: <b>${maxAmount.toLocaleString()}</b>
+            Máximo: <b>{formatMoney(maxAmount)}</b>
           </p>
         )}
 
@@ -337,7 +338,7 @@ export default function FinancePage() {
               }
             >
               {m.type === "donation" ? "+" : "-"}$
-              {Math.abs(Number(m.amount)).toLocaleString()}
+              {formatMoney(Math.abs(Number(m.amount)))}
             </span>
 
           </div>
@@ -354,7 +355,7 @@ function Card({ title, value }: any) {
     <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
       <p className="text-sm text-gray-500 mb-1">{title}</p>
       <p className="text-2xl font-bold text-gray-900">
-        ${Number(value || 0).toLocaleString()}
+        {formatMoney(value)}
       </p>
     </div>
   )

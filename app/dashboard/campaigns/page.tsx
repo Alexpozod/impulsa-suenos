@@ -1,6 +1,7 @@
 "use client"
 
 import { useFinancialDashboard } from "@/app/hooks/useFinancialDashboard"
+import { formatMoney } from "@/src/lib/formatMoney"
 
 export default function CampaignsPage() {
 
@@ -49,12 +50,12 @@ export default function CampaignsPage() {
 
               {/* 🔥 RECAUDADO REAL */}
               <p className="text-sm text-gray-500">
-               Recaudado: ${Number(c.raised || c.total_raised || 0).toLocaleString()}
+               Recaudado: {formatMoney(c.raised || c.total_raised || 0)}
               </p>
 
               {/* 🔥 DISPONIBLE REAL */}
               <p className="text-sm text-gray-500">
-                Disponible: ${Number(c.available || 0).toLocaleString()}
+                Disponible: {formatMoney(c.available || 0)}
               </p>
 
               <p className="text-xs text-gray-400">

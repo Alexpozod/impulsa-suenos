@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/src/lib/supabase"
+import { formatMoney } from "@/src/lib/formatMoney"
 
 export default function DonationsPage() {
 
@@ -82,7 +83,7 @@ export default function DonationsPage() {
             </div>
 
             <div className="text-green-600 font-bold">
-              ${Number(d.amount).toLocaleString()}
+              {formatMoney(d.amount)}
             </div>
 
           </div>
