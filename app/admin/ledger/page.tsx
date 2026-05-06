@@ -7,6 +7,7 @@ export default function LedgerPage() {
 
   const [data, setData] = useState<any[]>([])
   const [search, setSearch] = useState("")
+  const [filter, setFilter] = useState("all")
 
   useEffect(() => {
     load()
@@ -72,6 +73,44 @@ export default function LedgerPage() {
 
 </div>
 
+<div className="flex gap-2 flex-wrap mb-4">
+
+  {[
+    "all",
+    "payment",
+    "creator_net",
+    "withdraw",
+    "fees"
+  ].map((f) => (
+
+    <button
+      key={f}
+      onClick={() => setFilter(f)}
+      className={`px-4 py-2 rounded-xl text-sm border transition
+        ${
+          filter === f
+            ? "bg-primary border-primary text-white"
+            : "bg-slate-900 border-slate-700 text-slate-300"
+        }
+      `}
+    >
+      {
+        f === "all"
+          ? "Todos"
+          : f === "payment"
+          ? "Payments"
+          : f === "creator_net"
+          ? "Creator Net"
+          : f === "withdraw"
+          ? "Withdraws"
+          : "Fees"
+      }
+    </button>
+
+  ))}
+
+</div>
+
       <div className="overflow-auto border border-slate-800 rounded-xl">
 
         <table className="w-full text-sm">
@@ -93,13 +132,27 @@ export default function LedgerPage() {
 
     const q = search.toLowerCase()
 
-    return (
-      l.type?.toLowerCase().includes(q) ||
-      l.user_email?.toLowerCase().includes(q) ||
-      l.payment_id?.toLowerCase().includes(q) ||
-      l.campaign_id?.toLowerCase().includes(q) ||
-      l.campaigns?.title?.toLowerCase().includes(q)
-    )
+    const matchesSearch = (
+  l.type?.toLowerCase().includes(q) ||
+  l.user_email?.toLowerCase().includes(q) ||
+  l.payment_id?.toLowerCase().includes(q) ||
+  l.campaign_id?.toLowerCase().includes(q) ||
+  l.campaigns?.title?.toLowerCase().includes(q)
+)
+
+const matchesFilter =
+  filter === "all"
+    ? true
+    : filter === "fees"
+    ? [
+        "fee_mp",
+        "fee_platform",
+        "fee_platform_iva"
+      ].includes(l.type)
+    : l.type === filter
+
+return matchesSearch && matchesFilter
+
   })
   .map((l) => (
 
