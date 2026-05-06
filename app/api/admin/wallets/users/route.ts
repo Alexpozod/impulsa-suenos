@@ -103,42 +103,49 @@ export async function GET() {
     /* =========================
        🔍 RESULTADO FINAL
     ========================= */
-    const result = wallets.map(w => {
+    const allEmails = new Set([
+  ...wallets.map(w => w.user_email || "platform"),
+  ...Object.keys(map)
+])
 
-      const email = w.user_email || "platform"
+const result = Array.from(allEmails).map(email => {
 
-      const ledgerData = map[email] || {
-        income: 0,
-        withdrawn: 0,
-        balance: 0
-      }
+  const walletRow = wallets.find(
+    w => (w.user_email || "platform") === email
+  )
 
-      const walletBalance = Number(w.balance || 0)
-      const ledgerBalance = ledgerData.balance
+  const ledgerData = map[email] || {
+    income: 0,
+    withdrawn: 0,
+    balance: 0
+  }
 
-      const diff = Math.abs(walletBalance - ledgerBalance)
+  const walletBalance = Number(walletRow?.balance || 0)
+  const ledgerBalance = ledgerData.balance
 
-      let status = "ok"
-      if (diff > 1) status = "mismatch"
-      if (diff > 10) status = "critical"
+  const diff = Math.abs(walletBalance - ledgerBalance)
 
-      return {
-        user_email: email,
+  let status = "ok"
 
-        wallet_balance: walletBalance,
-        ledger_balance: ledgerBalance,
-        difference: diff,
+  if (diff > 1) status = "mismatch"
+  if (diff > 10) status = "critical"
 
-        total_received: ledgerData.income,
-        total_withdrawn: ledgerData.withdrawn,
+  return {
+    user_email: email,
 
-        // informativo (no usado en cálculo)
-        available: Number(w.available_balance || 0),
-        pending: Number(w.pending_balance || 0),
+    wallet_balance: walletBalance,
+    ledger_balance: ledgerBalance,
+    difference: diff,
 
-        status
-      }
-    })
+    total_received: ledgerData.income,
+    total_withdrawn: ledgerData.withdrawn,
+
+    available: Number(walletRow?.available_balance || 0),
+    pending: Number(walletRow?.pending_balance || 0),
+
+    status
+  }
+})
 
     const issues = result.filter(r => r.status !== "ok")
 
