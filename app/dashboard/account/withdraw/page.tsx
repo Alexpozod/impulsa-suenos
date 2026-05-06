@@ -21,7 +21,6 @@ export default function WithdrawPage() {
 
   const [history, setHistory] = useState<any[]>([])
 
-  // 🔐 OTP
   const [otp, setOtp] = useState("")
   const [otpSent, setOtpSent] = useState(false)
 
@@ -53,26 +52,37 @@ export default function WithdrawPage() {
       const balancesMap: any = {}
 
       try {
-        const res = await fetch("/api/ledger")
-        const ledger = await res.json()
-        console.log("LEDGER DATA:", ledger)
+        const { data: sessionData } = await supabase.auth.getSession()
+        const token = sessionData?.session?.access_token
 
+        if (!token) {
+          console.error("❌ No token")
+          return
+        }
+
+        const res = await fetch("/api/ledger", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const ledger = await res.json()
+
+        // 🔒 retiros pendientes (restan del disponible)
         const totalPending = (ledger || [])
-          .filter((tx: any) =>
-            tx.type === "withdraw_pending" &&
-            tx.status === "confirmed"
-          )
+          .filter((tx: any) => tx.type === "withdraw_pending")
           .reduce((acc: number, tx: any) =>
             acc + Math.abs(Number(tx.amount || 0)), 0)
 
         setGlobalPending(totalPending)
 
+        // 💰 balance por campaña
         for (const c of campaignsData || []) {
 
           const campaignLedger = (ledger || []).filter((tx: any) =>
-          tx.campaign_id === c.id &&
-          tx.status === "confirmed"
-        )
+            String(tx.campaign_id) === String(c.id) &&
+            ["confirmed", "paid"].includes(tx.status)
+          )
 
           const available = campaignLedger.reduce(
             (acc: number, tx: any) => acc + Number(tx.amount || 0),
@@ -83,7 +93,7 @@ export default function WithdrawPage() {
         }
 
       } catch (err) {
-        console.error("Error calculando balances:", err)
+        console.error("❌ Error calculando balances:", err)
 
         for (const c of campaignsData || []) {
           balancesMap[c.id] = { available: 0 }
@@ -92,25 +102,28 @@ export default function WithdrawPage() {
 
       setBalances(balancesMap)
 
-      const { data: sessionData } = await supabase.auth.getSession()
-      const token = sessionData?.session?.access_token
+      // 📜 historial retiros
+      try {
+        const { data: sessionData } = await supabase.auth.getSession()
+        const token = sessionData?.session?.access_token
 
-      const res = await fetch("/api/payout/list", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+        const res = await fetch("/api/payout/list", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
 
-      const all = await res.json()
-      setHistory(all || [])
+        const all = await res.json()
+        setHistory(all || [])
+
+      } catch (err) {
+        console.error("❌ Error cargando historial:", err)
+      }
     }
 
     load()
   }, [router])
 
-  /* =========================
-     🔐 ENVIAR OTP
-  ========================= */
   const sendOtp = async () => {
     const { data } = await supabase.auth.getUser()
 
@@ -129,9 +142,6 @@ export default function WithdrawPage() {
     alert("Código enviado a tu email")
   }
 
-  /* =========================
-     💸 RETIRO
-  ========================= */
   const handleWithdraw = async () => {
 
     if (!otp) {
@@ -143,7 +153,6 @@ export default function WithdrawPage() {
     setMessage("")
 
     try {
-
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData?.session?.access_token
 
@@ -156,7 +165,7 @@ export default function WithdrawPage() {
         body: JSON.stringify({
           campaign_id: selectedCampaign,
           amount: Number(amount),
-          otp_code: otp // 🔥 CLAVE
+          otp_code: otp
         })
       })
 
@@ -240,7 +249,6 @@ export default function WithdrawPage() {
             </p>
           )}
 
-          {/* 🔐 OTP FLOW */}
           <button
             onClick={sendOtp}
             className="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded-lg mb-2"
@@ -263,8 +271,8 @@ export default function WithdrawPage() {
             disabled={disabled}
             className={`w-full py-3 rounded-lg text-white ${
               disabled
-            ? "bg-gray-300"
-            : "bg-primary hover:bg-primaryHover"
+                ? "bg-gray-300"
+                : "bg-primary hover:bg-primaryHover"
             }`}
           >
             {loading ? "Procesando..." : "Solicitar retiro"}
