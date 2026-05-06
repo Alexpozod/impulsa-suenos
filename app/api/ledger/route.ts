@@ -30,29 +30,77 @@ export async function GET(req: Request) {
 
     const email = userData.user.email
 
-    // 🔥 obtener campañas del usuario
-    const { data: campaigns, error: campaignsError } = await supabase
-      .from("campaigns")
-      .select("id")
-      .eq("user_email", email)
+    /* =========================
+   🔐 VALIDAR ADMIN
+========================= */
+const { data: profile } = await supabase
+  .from("profiles")
+  .select("role")
+  .eq("id", userData.user.id)
+  .maybeSingle()
 
-    if (campaignsError) {
-      console.error("❌ campaigns error:", campaignsError)
-      return NextResponse.json([])
-    }
+const isAdmin = profile?.role === "admin"
 
-    const campaignIds = (campaigns || []).map(c => c.id)
+/* =========================
+   👑 ADMIN → VER TODO
+========================= */
+if (isAdmin) {
 
-    if (campaignIds.length === 0) {
-      console.warn("⚠️ usuario sin campañas")
-      return NextResponse.json([])
-    }
+  const { data, error } = await supabase
+    .from("financial_ledger")
+    .select(`
+      *,
+      campaigns (
+        title
+      )
+    `)
+    .order("created_at", { ascending: false })
+    .limit(500)
 
-    // 🔥 traer ledger SOLO de sus campañas (SIN LIMIT)
-    const { data, error } = await supabase
-      .from("financial_ledger")
-      .select("*")
-      .in("campaign_id", campaignIds)
+  if (error) {
+    console.error("❌ admin ledger error:", error)
+    return NextResponse.json([])
+  }
+
+  return NextResponse.json(data || [])
+}
+
+/* =========================
+   👤 USER → SOLO SUS CAMPAÑAS
+========================= */
+const { data: campaigns, error: campaignsError } = await supabase
+  .from("campaigns")
+  .select("id")
+  .eq("user_email", email)
+
+if (campaignsError) {
+  console.error("❌ campaigns error:", campaignsError)
+  return NextResponse.json([])
+}
+
+const campaignIds = (campaigns || []).map(c => c.id)
+
+if (campaignIds.length === 0) {
+  return NextResponse.json([])
+}
+
+const { data, error } = await supabase
+  .from("financial_ledger")
+  .select(`
+    *,
+    campaigns (
+      title
+    )
+  `)
+  .in("campaign_id", campaignIds)
+  .order("created_at", { ascending: false })
+
+if (error) {
+  console.error("❌ ledger error:", error)
+  return NextResponse.json([])
+}
+
+return NextResponse.json(data || [])
 
     if (error) {
       console.error("❌ ledger error:", error)
