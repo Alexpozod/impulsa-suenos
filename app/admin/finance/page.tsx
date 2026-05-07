@@ -231,7 +231,10 @@ export default function FinanceAdminPage() {
         <Section title="🏆 Top campañas">
           {topCampaigns.length === 0 && <Empty />}
           {topCampaigns.map((c, i) => (
-            <Row key={i}>
+  <Row
+    key={i}
+    index={i}
+  >
               <span className="text-blue-400">{c.title}</span>
               <span className="text-secondaryDark">
                 ${Number(c.total).toLocaleString()} ({c.percentage?.toFixed(1)}%)
@@ -243,7 +246,10 @@ export default function FinanceAdminPage() {
         <Section title="💰 Campañas más rentables">
           {profitRanking.length === 0 && <Empty />}
           {profitRanking.map((c, i) => (
-            <Row key={i}>
+  <Row
+    key={i}
+    index={i}
+  >
               <span className="text-blue-400">{c.title}</span>
               <span className="text-secondaryDark">
                 ${Number(c.profit).toLocaleString()} | {c.margin?.toFixed(1)}%
@@ -254,8 +260,11 @@ export default function FinanceAdminPage() {
 
         <Section title="💰 Balance por campaña">
           {balances.length === 0 && <Empty />}
-          {balances.map((c) => (
-            <Row key={c.campaign_id}>
+          {balances.map((c, i) => (
+  <Row
+    key={c.campaign_id}
+    index={i}
+  >
               <span className="text-blue-400">{c.title}</span>
               <span className="text-secondaryDark">
                 ${Number(c.balance).toLocaleString()}
@@ -475,10 +484,69 @@ function Section({ title, children }: any) {
   )
 }
 
-function Row({ children }: any) {
+function Row({
+  children,
+  index
+}: any) {
+
+  const medals: any = {
+    0: "🥇",
+    1: "🥈",
+    2: "🥉"
+  }
+
   return (
-    <div className="flex justify-between text-sm border-b border-slate-800 py-2">
-      {children}
+
+    <div
+      className="
+        flex
+        items-center
+        justify-between
+        gap-4
+        py-3
+        px-3
+        rounded-xl
+        border
+        border-slate-800
+        bg-slate-950/40
+        hover:bg-slate-800/60
+        transition-all
+        duration-200
+      "
+    >
+
+      <div className="flex items-center gap-3">
+
+        <div
+          className="
+            w-8
+            h-8
+            rounded-full
+            bg-slate-800
+            border
+            border-slate-700
+            flex
+            items-center
+            justify-center
+            text-sm
+          "
+        >
+          {medals[index] || `#${index + 1}`}
+        </div>
+
+        <div>
+          {children[0]}
+        </div>
+
+      </div>
+
+      <div className="
+        font-semibold
+        text-white
+      ">
+        {children[1]}
+      </div>
+
     </div>
   )
 }
