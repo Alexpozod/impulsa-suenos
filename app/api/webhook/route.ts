@@ -317,8 +317,11 @@ await supabase
   .eq("payment_id", String(paymentId))
 
 }
+console.log("🔥 ANTES SYNC WALLET")
 
 await syncWallet(creator_email)
+
+console.log("🔥 ANTES WEBHOOK LOG")
 
 await supabase.from("webhook_logs").insert({
   payment_id: paymentId,
@@ -326,6 +329,7 @@ await supabase.from("webhook_logs").insert({
   status: "approved"
 })
 
+console.log("🔥 FINAL WEBHOOK")
 console.log("✅ PAYMENT PROCESADO")
 
 return NextResponse.json({ ok: true })
