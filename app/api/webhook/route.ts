@@ -261,18 +261,13 @@ const campaignTitle = campaign.title || "Tu campaña"
 
   console.error("❌ RPC ERROR:", error)
 
-  // 🔥 WEBHOOK DUPLICADO → YA PROCESADO
+  // 🔥 YA EXISTE EN LEDGER = YA FUE PROCESADO
   if (
     error.code === "23505" ||
     error.message?.includes("unique_payment_once")
   ) {
 
-    console.log("✅ PAYMENT YA PROCESADO")
-
-    await supabase
-      .from("payments")
-      .update({ status: "approved" })
-      .eq("payment_id", String(paymentId))
+    console.log("✅ PAYMENT DUPLICADO IGNORADO")
 
     return NextResponse.json({ ok: true })
   }
@@ -282,7 +277,7 @@ const campaignTitle = campaign.title || "Tu campaña"
     .from("payments")
     .update({ status: "failed" })
     .eq("payment_id", String(paymentId))
-
+  
   await sendAlert({
     title: "Error en RPC",
     message: "Fallo process_payment_atomic",
