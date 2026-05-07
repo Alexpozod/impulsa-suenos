@@ -117,11 +117,10 @@ export default function DonationsPage() {
 
   return (
 
-    <main className="
-      max-w-5xl
-      mx-auto
-      space-y-6
-    ">
+        <main className="
+          max-w-6xl
+          space-y-6
+        ">
 
       {/* HEADER */}
       <div className="
@@ -232,9 +231,10 @@ export default function DonationsPage() {
           <div
             key={d.id}
             className="
-              bg-white
+              bg-white/90
+              backdrop-blur-sm
               border
-              border-gray-200
+              border-gray-300
               rounded-2xl
               p-4
               flex
@@ -322,15 +322,7 @@ export default function DonationsPage() {
                 {formatMoney(d.amount)}
               </p>
 
-              <p className="
-                text-xs
-                text-gray-400
-                mt-1
-              ">
-                Donación
-              </p>
-
-            </div>
+              </div>
 
           </div>
 
