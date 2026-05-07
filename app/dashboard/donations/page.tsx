@@ -4,10 +4,21 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/src/lib/supabase"
 import { formatMoney } from "@/src/lib/formatMoney"
 
+type Donation = {
+  id: string
+  amount: number
+  created_at: string
+  status: string
+  campaign: {
+    title: string
+    image_url?: string
+  } | null
+}
+
 export default function DonationsPage() {
 
   const [loading, setLoading] = useState(true)
-  const [donations, setDonations] = useState<any[]>([])
+  const [donations, setDonations] = useState<Donation[]>([])
 
   useEffect(() => {
     loadDonations()
@@ -17,7 +28,8 @@ export default function DonationsPage() {
 
     try {
 
-      const { data: userData } = await supabase.auth.getUser()
+      const { data: userData } =
+        await supabase.auth.getUser()
 
       if (!userData?.user?.email) {
         setLoading(false)
@@ -27,24 +39,34 @@ export default function DonationsPage() {
       const email =
         userData.user.email.toLowerCase()
 
-      console.log("USER EMAIL:", email)
-
       const { data, error } = await supabase
         .from("payments")
         .select(`
           id,
           amount,
-          campaign_id,
           created_at,
-          status
+          status,
+          campaign:campaign_id (
+            title,
+            image_url
+          )
         `)
         .eq("user_email", email)
-        .order("created_at", { ascending: false })
+        .in("status", ["processing", "approved"])
+        .order("created_at", {
+          ascending: false
+        })
 
-      console.log("SUPABASE ERROR:", error)
-      console.log("PAYMENTS:", data)
+      if (error) {
+        console.error(
+          "SUPABASE DONATIONS ERROR:",
+          error
+        )
+      }
 
-      setDonations(data || [])
+      setDonations(
+        (data as Donation[]) || []
+      )
 
     } catch (err) {
 
@@ -62,26 +84,150 @@ export default function DonationsPage() {
   }
 
   if (loading) {
+
     return (
-      <div className="p-10">
-        Cargando donaciones...
+
+      <div className="
+        flex
+        items-center
+        justify-center
+        py-20
+      ">
+
+        <div className="text-center">
+
+          <div className="
+            w-12
+            h-12
+            border-4
+            border-green-200
+            border-t-green-600
+            rounded-full
+            animate-spin
+            mx-auto
+            mb-4
+          " />
+
+          <p className="
+            text-gray-500
+            text-sm
+          ">
+            Cargando donaciones...
+          </p>
+
+        </div>
+
       </div>
+
     )
+
   }
 
   return (
-    <main className="space-y-6">
 
-      <h1 className="text-2xl font-bold">
-        🎁 Donaciones realizadas
-      </h1>
+    <main className="
+      max-w-5xl
+      mx-auto
+      space-y-6
+    ">
 
+      {/* HEADER */}
+      <div className="
+        flex
+        items-center
+        justify-between
+        gap-4
+        flex-wrap
+      ">
+
+        <div>
+
+          <h1 className="
+            text-3xl
+            font-black
+            tracking-tight
+            text-gray-900
+          ">
+            🎁 Donaciones realizadas
+          </h1>
+
+          <p className="
+            text-gray-500
+            mt-1
+          ">
+            Historial de aportes realizados
+          </p>
+
+        </div>
+
+        <div className="
+          bg-green-50
+          border
+          border-green-200
+          px-4
+          py-2
+          rounded-xl
+        ">
+
+          <p className="
+            text-xs
+            text-green-700
+            font-medium
+          ">
+            Total donaciones
+          </p>
+
+          <p className="
+            text-xl
+            font-black
+            text-green-600
+          ">
+            {donations.length}
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* EMPTY */}
       {donations.length === 0 && (
-        <p className="text-gray-500 text-sm">
-          Aún no has realizado donaciones
-        </p>
+
+        <div className="
+          bg-white
+          border
+          rounded-2xl
+          p-14
+          text-center
+          shadow-sm
+        ">
+
+          <div className="
+            text-6xl
+            mb-5
+          ">
+            🎁
+          </div>
+
+          <h2 className="
+            text-2xl
+            font-bold
+            text-gray-900
+            mb-2
+          ">
+            No hay donaciones aún
+          </h2>
+
+          <p className="
+            text-gray-500
+          ">
+            Tus futuras donaciones aparecerán aquí
+          </p>
+
+        </div>
+
       )}
 
+      {/* LIST */}
       <div className="space-y-4">
 
         {donations.map((d) => (
@@ -91,38 +237,157 @@ export default function DonationsPage() {
             className="
               bg-white
               border
-              rounded-xl
-              p-4
+              border-gray-200
+              rounded-2xl
+              p-5
               flex
-              justify-between
               items-center
+              justify-between
+              gap-4
+              hover:shadow-md
+              transition-all
+              duration-200
             "
           >
 
-            <div>
+            {/* LEFT */}
+            <div className="
+              flex
+              items-center
+              gap-4
+              min-w-0
+            ">
 
-              <p className="font-semibold">
-                Donación realizada
-              </p>
+              {/* IMAGE */}
+              <div className="
+                w-16
+                h-16
+                rounded-xl
+                overflow-hidden
+                bg-gray-100
+                flex-shrink-0
+                border
+              ">
 
-              <p className="text-sm text-gray-500">
-                Campaña: {d.campaign_id}
-              </p>
+                {d.campaign?.image_url ? (
 
-              <p className="text-xs text-gray-400">
-                Estado: {d.status}
-              </p>
+                  <img
+                    src={d.campaign.image_url}
+                    alt="campaign"
+                    className="
+                      w-full
+                      h-full
+                      object-cover
+                    "
+                  />
 
-              <p className="text-xs text-gray-400">
-                {new Date(
-                  d.created_at
-                ).toLocaleDateString()}
-              </p>
+                ) : (
+
+                  <div className="
+                    w-full
+                    h-full
+                    flex
+                    items-center
+                    justify-center
+                    text-2xl
+                  ">
+                    🎯
+                  </div>
+
+                )}
+
+              </div>
+
+              {/* INFO */}
+              <div className="min-w-0">
+
+                <h3 className="
+                  font-bold
+                  text-gray-900
+                  truncate
+                ">
+                  {d.campaign?.title || "Campaña"}
+                </h3>
+
+                <div className="
+                  flex
+                  items-center
+                  gap-2
+                  mt-2
+                  flex-wrap
+                ">
+
+                  <span
+                    className={`
+                      text-xs
+                      px-2
+                      py-1
+                      rounded-full
+                      font-medium
+                      border
+
+                      ${
+                        d.status === "approved"
+
+                          ? `
+                            bg-green-100
+                            text-green-700
+                            border-green-200
+                          `
+
+                          : `
+                            bg-yellow-100
+                            text-yellow-700
+                            border-yellow-200
+                          `
+                      }
+                    `}
+                  >
+
+                    {d.status === "approved"
+                      ? "Aprobado"
+                      : "Procesando"}
+
+                  </span>
+
+                  <span className="
+                    text-xs
+                    text-gray-400
+                  ">
+                    {new Date(
+                      d.created_at
+                    ).toLocaleDateString("es-CL", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric"
+                    })}
+                  </span>
+
+                </div>
+
+              </div>
 
             </div>
 
-            <div className="text-green-600 font-bold">
-              {formatMoney(d.amount)}
+            {/* RIGHT */}
+            <div className="text-right">
+
+              <p className="
+                text-2xl
+                font-black
+                text-green-600
+              ">
+                {formatMoney(d.amount)}
+              </p>
+
+              <p className="
+                text-xs
+                text-gray-400
+                mt-1
+              ">
+                Donación
+              </p>
+
             </div>
 
           </div>
@@ -132,5 +397,7 @@ export default function DonationsPage() {
       </div>
 
     </main>
+
   )
+
 }
