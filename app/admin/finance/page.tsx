@@ -578,56 +578,95 @@ function Row({
     2: "🥉"
   }
 
+  const widths = [
+    "w-full",
+    "w-[92%]",
+    "w-[84%]",
+    "w-[76%]",
+    "w-[68%]",
+    "w-[60%]"
+  ]
+
   return (
 
-    <div
-      className="
-        flex
-        items-center
-        justify-between
-        gap-4
-        py-3
-        px-3
-        rounded-xl
-        border
-        border-slate-800
-        bg-slate-950/40
-        hover:bg-slate-800/60
-        transition-all
-        duration-200
-      "
-    >
+    <div className="relative">
 
-      <div className="flex items-center gap-3">
+      {/* BARRA FONDO */}
+      <div
+        className={`
+          absolute
+          inset-y-0
+          left-0
+          ${widths[index] || "w-[50%]"}
+          rounded-xl
+          bg-gradient-to-r
+          from-emerald-500/10
+          to-transparent
+        `}
+      />
 
+      {/* CONTENIDO */}
+      <div
+        className="
+          relative
+          flex
+          items-center
+          justify-between
+          gap-4
+          py-4
+          px-4
+          rounded-xl
+          border
+          border-slate-800
+          bg-slate-950/70
+          hover:bg-slate-800/70
+          transition-all
+          duration-300
+          hover:scale-[1.01]
+        "
+      >
+
+        <div className="flex items-center gap-4">
+
+          {/* POSICIÓN */}
+          <div
+            className="
+              w-10
+              h-10
+              rounded-full
+              bg-slate-800
+              border
+              border-slate-700
+              flex
+              items-center
+              justify-center
+              text-sm
+              font-bold
+              shrink-0
+            "
+          >
+            {medals[index] || `#${index + 1}`}
+          </div>
+
+          {/* TEXTO */}
+          <div className="min-w-0">
+            {children[0]}
+          </div>
+
+        </div>
+
+        {/* VALUE */}
         <div
           className="
-            w-8
-            h-8
-            rounded-full
-            bg-slate-800
-            border
-            border-slate-700
-            flex
-            items-center
-            justify-center
-            text-sm
+            text-right
+            shrink-0
+            font-semibold
+            text-white
           "
         >
-          {medals[index] || `#${index + 1}`}
+          {children[1]}
         </div>
 
-        <div>
-          {children[0]}
-        </div>
-
-      </div>
-
-      <div className="
-        font-semibold
-        text-white
-      ">
-        {children[1]}
       </div>
 
     </div>
