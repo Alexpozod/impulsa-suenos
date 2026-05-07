@@ -7,13 +7,9 @@ import { formatMoney } from "@/src/lib/formatMoney"
 type Donation = {
   id: string
   amount: number
+  campaign_id: string
   created_at: string
   status: string
-
-  campaign: {
-    title: string
-    image_url?: string
-  }[]
 }
 
 export default function DonationsPage() {
@@ -45,12 +41,9 @@ export default function DonationsPage() {
         .select(`
           id,
           amount,
+          campaign_id,
           created_at,
-          status,
-          campaign:campaign_id (
-            title,
-            image_url
-          )
+          status
         `)
         .eq("user_email", email)
         .in("status", ["processing", "approved"])
@@ -65,9 +58,7 @@ export default function DonationsPage() {
         )
       }
 
-      setDonations(
-        (data as Donation[]) || []
-      )
+      setDonations(data || [])
 
     } catch (err) {
 
@@ -252,63 +243,39 @@ export default function DonationsPage() {
           >
 
             {/* LEFT */}
-            <div className="
-              flex
-              items-center
-              gap-4
-              min-w-0
-            ">
+<div className="
+  flex
+  items-center
+  gap-4
+  min-w-0
+">
 
-              {/* IMAGE */}
-              <div className="
-                w-16
-                h-16
-                rounded-xl
-                overflow-hidden
-                bg-gray-100
-                flex-shrink-0
-                border
-              ">
+  {/* IMAGE */}
+  <div className="
+    w-16
+    h-16
+    rounded-xl
+    bg-green-100
+    flex
+    items-center
+    justify-center
+    text-2xl
+    flex-shrink-0
+    border
+  ">
+    🎁
+  </div>
 
-                {d.campaign?.[0]?.image_url ? (
+  {/* INFO */}
+  <div className="min-w-0">
 
-                  <img
-                    src={d.campaign?.[0]?.image_url}
-                    alt="campaign"
-                    className="
-                      w-full
-                      h-full
-                      object-cover
-                    "
-                  />
-
-                ) : (
-
-                  <div className="
-                    w-full
-                    h-full
-                    flex
-                    items-center
-                    justify-center
-                    text-2xl
-                  ">
-                    🎯
-                  </div>
-
-                )}
-
-              </div>
-
-              {/* INFO */}
-              <div className="min-w-0">
-
-                <h3 className="
-                  font-bold
-                  text-gray-900
-                  truncate
-                ">
-                  {d.campaign?.[0]?.title || "Campaña"}
-                </h3>
+    <h3 className="
+      font-bold
+      text-gray-900
+      truncate
+    ">
+      Campaña #{d.campaign_id?.slice(0, 8)}
+    </h3>
 
                 <div className="
                   flex
