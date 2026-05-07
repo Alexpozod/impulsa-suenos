@@ -9,10 +9,11 @@ type Donation = {
   amount: number
   created_at: string
   status: string
+
   campaign: {
     title: string
     image_url?: string
-  } | null
+  }[]
 }
 
 export default function DonationsPage() {
@@ -269,10 +270,10 @@ export default function DonationsPage() {
                 border
               ">
 
-                {d.campaign?.image_url ? (
+                {d.campaign?.[0]?.image_url ? (
 
                   <img
-                    src={d.campaign.image_url}
+                    src={d.campaign?.[0]?.image_url}
                     alt="campaign"
                     className="
                       w-full
@@ -306,7 +307,7 @@ export default function DonationsPage() {
                   text-gray-900
                   truncate
                 ">
-                  {d.campaign?.title || "Campaña"}
+                  {d.campaign?.[0]?.title || "Campaña"}
                 </h3>
 
                 <div className="
