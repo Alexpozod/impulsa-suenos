@@ -6,6 +6,7 @@ import { sendAlert } from "@/lib/alerts/sendAlert"
 import { sendNotification } from "@/lib/notifications/sendNotification"
 import { syncWallet } from "@/lib/wallet/syncWallet"
 
+
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 })
@@ -200,6 +201,7 @@ const campaignTitle = campaign.title || "Tu campaña"
         payment_id: paymentId,
         campaign_id,
         user_email: creator_email,
+        donor_email: donor_email,
         amount: donation,
         tip,
         status: "processing",
