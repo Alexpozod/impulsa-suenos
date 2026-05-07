@@ -90,6 +90,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
+// 🔥 SI YA EXISTE EL PAYMENT, FORZAR APPROVED
+await supabase
+  .from("payments")
+  .update({
+    status: "approved"
+  })
+  .eq("payment_id", String(paymentId))
+
     const total = Number(payment.transaction_amount || 0)
     const tip = Number(payment.metadata?.tip || 0)
     const donation = total - tip
@@ -150,22 +158,22 @@ const campaignTitle = campaign.title || "Tu campaña"
       ""
 
     if (existingPayment) {
-      await supabase
-        .from("payments")
-        .update({
-          ref: referrer,
-          source: source,
-          metadata: {
-            ...existingPayment.metadata,
-            donor_name,
-            message,
-            donation,
-            referrer,
-            source
-          }
-        })
-        .eq("payment_id", paymentId)
-    }
+  await supabase
+    .from("payments")
+    .update({
+      ref: referrer,
+      source: source,
+      metadata: {
+        ...existingPayment.metadata,
+        donor_name,
+        message,
+        donation,
+        referrer,
+        source
+      }
+    })
+    .eq("payment_id", String(paymentId))
+}
 
     let fee_mp = Number(payment.fee_details?.[0]?.amount || 0)
 
