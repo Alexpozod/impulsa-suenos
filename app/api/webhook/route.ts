@@ -256,47 +256,33 @@ const campaignTitle = campaign.title || "Tu campaña"
       p_provider: "mercadopago"
     })
 
-    if (error) {
+   if (error) {
 
-  console.error("❌ RPC ERROR:", error)
-
-  // 🔥 YA EXISTE EN LEDGER = YA FUE PROCESADO
+  // 🔥 DUPLICADO = YA PROCESADO
   if (
-  error.code === "23505" ||
-  error.message?.includes("unique_payment_once")
-) {
+    error.code === "23505" ||
+    error.message?.includes("unique_payment_once")
+  ) {
 
-  console.log("✅ PAYMENT YA EXISTÍA")
+    console.log("✅ PAYMENT YA EXISTÍA")
 
-} else {
+  } else {
 
-  await supabase
-    .from("payments")
-    .update({ status: "failed" })
-    .eq("payment_id", String(paymentId))
+    console.error("❌ RPC ERROR:", error)
 
-  await sendAlert({
-    title: "Error en RPC",
-    message: "Fallo process_payment_atomic",
-    data: { paymentId, error }
-  })
+    await supabase
+      .from("payments")
+      .update({ status: "failed" })
+      .eq("payment_id", String(paymentId))
 
-  return NextResponse.json({ ok: true })
-}
+    await sendAlert({
+      title: "Error en RPC",
+      message: "Fallo process_payment_atomic",
+      data: { paymentId, error }
+    })
 
-  // 🔥 ERROR REAL
-  await supabase
-    .from("payments")
-    .update({ status: "failed" })
-    .eq("payment_id", String(paymentId))
-  
-  await sendAlert({
-    title: "Error en RPC",
-    message: "Fallo process_payment_atomic",
-    data: { paymentId, error }
-  })
-
-  return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true })
+  }
 }
    
    const { data: paymentRow } = await supabase
