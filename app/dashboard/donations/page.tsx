@@ -126,9 +126,10 @@ export default function DonationsPage() {
   return (
 
         <main className="
-          max-w-6xl
-          space-y-6
-        ">
+  max-w-6xl
+  space-y-6
+  pb-20
+">
 
       {/* HEADER */}
       <div className="
@@ -232,13 +233,18 @@ export default function DonationsPage() {
       )}
 
       {/* LIST */}
-      <div className="space-y-4">
+      <div className="
+  space-y-4
+  flex
+  flex-col
+">
 
         {donations.map((d) => (
 
           <div
             key={`${d.id}-${d.created_at}`}
             className="
+              w-full
               bg-white/90
               backdrop-blur-sm
               border
