@@ -53,13 +53,7 @@ export async function POST(req: Request) {
       console.log("⚠️ EVENT DUPLICADO")
       return NextResponse.json({ ok: true })
     }
-
-    await supabase.from("webhook_events").insert({
-      event_id: eventId,
-      payload: body,
-      created_at: new Date().toISOString()
-    })
-
+   
     await supabase.from("webhook_logs").insert({
       payment_id: paymentId,
       payload: { received: true },
@@ -339,6 +333,12 @@ await supabase.from("webhook_logs").insert({
   payment_id: paymentId,
   payload: { success: true },
   status: "approved"
+})
+
+await supabase.from("webhook_events").insert({
+  event_id: eventId,
+  payload: body,
+  created_at: new Date().toISOString()
 })
 
 console.log("🔥 FINAL WEBHOOK")
