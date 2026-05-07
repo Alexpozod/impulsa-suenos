@@ -73,11 +73,24 @@ export async function POST(req: Request) {
     let payment
 
     try {
-      payment = await paymentClient.get({ id: paymentId })
-    } catch {
-      console.warn("⚠️ MP no disponible aún")
-      return NextResponse.json({ ok: true })
+
+  payment = await paymentClient.get({
+    id: paymentId
+  })
+
+} catch (error) {
+
+  console.warn("⚠️ MP no disponible aún")
+
+  return NextResponse.json(
+    {
+      error: "payment_not_ready"
+    },
+    {
+      status: 500
     }
+  )
+}
 
     if (!payment || payment.status !== "approved") {
       console.log("⏳ PAYMENT NO APROBADO")
