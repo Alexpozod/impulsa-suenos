@@ -31,12 +31,13 @@ export default function DonationsPage() {
     amount,
     campaign_id,
     created_at,
-    status
+    status,
+    metadata
   `)
-  .eq("payer_email", email)
-  .eq("status", "approved")
+  .eq("user_email", email)
+  .neq("status", "failed")
   .order("created_at", { ascending: false })
-  
+
 console.log(data)
 
     setDonations(data || [])
