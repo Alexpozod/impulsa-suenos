@@ -10,6 +10,7 @@ type Donation = {
   campaign_id: string
   created_at?: string | null
   status: string
+  campaign_title?: string
 }
 
 export default function DonationsPage() {
@@ -19,59 +20,90 @@ export default function DonationsPage() {
 
   const loadDonations = useCallback(async () => {
 
-    try {
+  try {
 
-      const { data: userData } =
-        await supabase.auth.getUser()
+    const { data: userData } =
+      await supabase.auth.getUser()
 
-      if (!userData?.user?.email) {
-        setLoading(false)
-        return
-      }
-
-      const email =
-        userData.user.email.toLowerCase()
-
-      const { data, error } = await supabase
-        .from("payments")
-       .select(`
-        id,
-        amount,
-        created_at,
-        status,
-        campaign_id
-      `)
-        .eq("donor_email", email)
-        .eq("status", "approved")
-        .order("created_at", {
-          ascending: false
-        })
-
-         if (error) {
-        console.error(
-          "SUPABASE DONATIONS ERROR:",
-          error
-        )
-      }
-
-      setDonations(data || [])
-
-        } catch (err) {
-
-      console.error(
-        "LOAD DONATIONS ERROR:",
-        err
-      )
-
-    } finally {
-
+    if (!userData?.user?.email) {
       setLoading(false)
-
+      return
     }
 
-  }, [])
+    const email =
+      userData.user.email.toLowerCase()
 
-  useEffect(() => {
+    // DONACIONES
+    const { data, error } = await supabase
+      .from("payments")
+      .select(`
+        id,
+        amount,
+        campaign_id,
+        created_at,
+        status
+      `)
+      .eq("donor_email", email)
+      .eq("status", "approved")
+      .order("created_at", {
+        ascending: false
+      })
+
+    if (error) {
+      console.error(
+        "SUPABASE DONATIONS ERROR:",
+        error
+      )
+    }
+
+    // IDS CAMPAÑAS
+    const campaignIds =
+      [...new Set(
+        (data || []).map(d => d.campaign_id)
+      )]
+
+    // CAMPAÑAS
+    const { data: campaigns } = await supabase
+      .from("campaigns")
+      .select("id, title")
+      .in("id", campaignIds)
+
+    // MAPA
+    const campaignMap =
+      Object.fromEntries(
+        (campaigns || []).map(c => [
+          c.id,
+          c.title
+        ])
+      )
+
+    // COMBINAR
+    const donationsWithTitles =
+      (data || []).map(d => ({
+        ...d,
+        campaign_title:
+          campaignMap[d.campaign_id] ||
+          "Campaña sin título"
+      }))
+
+    setDonations(donationsWithTitles)
+
+  } catch (err) {
+
+    console.error(
+      "LOAD DONATIONS ERROR:",
+      err
+    )
+
+  } finally {
+
+    setLoading(false)
+
+  }
+
+}, [])
+
+      useEffect(() => {
 
   loadDonations()
 
@@ -295,7 +327,7 @@ export default function DonationsPage() {
   text-gray-900
   truncate
 ">
-  Campaña #{d.campaign_id.slice(0, 8)}
+  {d.campaign_title}
 </h3>
 
                 <div className="
