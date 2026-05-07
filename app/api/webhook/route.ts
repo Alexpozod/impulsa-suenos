@@ -292,6 +292,10 @@ const campaignTitle = campaign.title || "Tu campaña"
   .maybeSingle()
 
         if (!paymentRow?.notified) {
+          await supabase
+  .from("payments")
+  .update({ notified: true })
+  .eq("payment_id", String(paymentId))
 
             await sendNotification({
         user_email: creator_email,
@@ -314,7 +318,7 @@ console.log("🔥 ENTRANDO EMAIL DONADOR")
       if (donor_email && donor_email !== creator_email) {
   await sendNotification({
     user_email: donor_email,
-    type: "donation_sent", // 🔥 corregido
+    type: "donation",
     title: "🙏 Gracias por tu donación",
     message: `Gracias por donar $${Number(donation).toLocaleString()} a "${campaignTitle}"`,
     metadata: {
@@ -327,12 +331,6 @@ console.log("🔥 ENTRANDO EMAIL DONADOR")
     sendEmail: true // 🔥 evita duplicado
   })
 }
-
-// 🔥 AQUÍ RECIÉN MARCAS notified
-await supabase
-  .from("payments")
-  .update({ notified: true })
-  .eq("payment_id", String(paymentId))
 
 }
 console.log("🔥 ANTES SYNC WALLET")
