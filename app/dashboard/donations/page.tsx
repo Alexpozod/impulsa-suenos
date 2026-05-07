@@ -34,9 +34,10 @@ export default function DonationsPage() {
         type
       `)
       .eq("user_email", email)
-      .eq("type", "payment")
       .eq("status", "confirmed")
       .order("created_at", { ascending: false })
+
+      console.log(data)
 
     setDonations(data || [])
     setLoading(false)
