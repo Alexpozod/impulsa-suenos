@@ -214,18 +214,56 @@ export default function FinanceAdminPage() {
         {/* GRÁFICO */}
         <RevenueChart data={stats.daily || {}} />
 
-        {/* ALERTAS */}
-        {stats.totalWithdrawals > stats.totalIncome * 0.8 && (
-          <Alert type="red" text="Retiros altos respecto a ingresos" />
-        )}
+        {/* HEALTH CENTER */}
+<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-        {stats.margin < 5 && (
-          <Alert type="yellow" text="Margen bajo (menos del 5%)" />
-        )}
+  <HealthCard
+    title="MercadoPago"
+    status="online"
+    text="Operativo"
+  />
 
-        {stats.margin > 20 && (
-          <Alert type="green" text="Excelente margen de negocio" />
-        )}
+  <HealthCard
+    title="Wallet Sync"
+    status="online"
+    text="Sincronización OK"
+  />
+
+  <HealthCard
+    title="Retiros"
+    status={
+      stats.totalWithdrawals > stats.totalIncome * 0.8
+        ? "warning"
+        : "online"
+    }
+    text={
+      stats.totalWithdrawals > stats.totalIncome * 0.8
+        ? "Retiros altos"
+        : "Estables"
+    }
+  />
+
+  <HealthCard
+    title="Margen"
+    status={
+      stats.margin < 5
+        ? "danger"
+        : stats.margin > 20
+        ? "online"
+        : "warning"
+    }
+    text={
+      stats.margin < 5
+        ? "Margen bajo"
+
+        : stats.margin > 20
+        ? "Excelente"
+
+        : "Normal"
+    }
+  />
+
+</div>
 
         {/* SECCIONES */}
         <Section title="🏆 Top campañas">
@@ -555,16 +593,88 @@ function Empty() {
   return <p className="text-gray-400 text-sm">Sin datos</p>
 }
 
-function Alert({ type, text }: any) {
+function HealthCard({
+  title,
+  status,
+  text
+}: any) {
+
   const styles: any = {
-    red: "bg-red-900 border-red-700",
-    yellow: "bg-yellow-900 border-yellow-700",
-    green: "bg-green-900 border-green-700"
+
+    online: {
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/30",
+      text: "text-emerald-300",
+      dot: "bg-emerald-400",
+      label: "ONLINE"
+    },
+
+    warning: {
+      bg: "bg-yellow-500/10",
+      border: "border-yellow-500/30",
+      text: "text-yellow-300",
+      dot: "bg-yellow-400",
+      label: "WARNING"
+    },
+
+    danger: {
+      bg: "bg-red-500/10",
+      border: "border-red-500/30",
+      text: "text-red-300",
+      dot: "bg-red-400",
+      label: "RISK"
+    }
+
   }
 
+  const s = styles[status]
+
   return (
-    <div className={`${styles[type]} p-3 rounded-xl border`}>
-      ⚠️ {text}
+
+    <div
+      className={`
+        ${s.bg}
+        ${s.border}
+        border
+        rounded-2xl
+        p-5
+        backdrop-blur-sm
+        hover:scale-[1.02]
+        transition-all
+        duration-300
+      `}
+    >
+
+      <div className="flex items-center justify-between mb-4">
+
+        <p className="text-sm text-slate-300">
+          {title}
+        </p>
+
+        <div className="flex items-center gap-2">
+
+          <div
+            className={`
+              ${s.dot}
+              w-2
+              h-2
+              rounded-full
+              animate-pulse
+            `}
+          />
+
+          <span className={`text-xs font-medium ${s.text}`}>
+            {s.label}
+          </span>
+
+        </div>
+
+      </div>
+
+      <p className={`text-lg font-semibold ${s.text}`}>
+        {text}
+      </p>
+
     </div>
   )
 }
