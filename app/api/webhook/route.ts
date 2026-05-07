@@ -209,7 +209,7 @@ const campaignTitle = campaign.title || "Tu campaña"
 
   amount: donation,
   tip,
-  status: "processing",
+  status: "approved",
   ref: referrer,
   source: source,
 
@@ -278,17 +278,7 @@ const campaignTitle = campaign.title || "Tu campaña"
 
   return NextResponse.json({ ok: true })
 }
-
-   const { data: updatedPayment, error: updateError } =
-  await supabase
-    .from("payments")
-    .update({ status: "approved" })
-    .eq("payment_id", String(paymentId))
-    .select()
-
-    console.log("✅ PAYMENT UPDATED:", updatedPayment)
-    console.log("❌ UPDATE ERROR:", updateError)
-
+   
    const { data: paymentRow } = await supabase
   .from("payments")
   .select("notified")
