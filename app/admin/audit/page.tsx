@@ -658,3 +658,147 @@ if (loading) {
   </main>
 )
 }
+
+function StatusBadge({
+  color,
+  text
+}: any) {
+
+  const styles: any = {
+
+    red:
+      "bg-red-500/10 border-red-500/20 text-red-300",
+
+    yellow:
+      "bg-yellow-500/10 border-yellow-500/20 text-yellow-300",
+
+    blue:
+      "bg-blue-500/10 border-blue-500/20 text-blue-300",
+
+    green:
+      "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
+
+  }
+
+  return (
+
+    <div
+      className={`
+        px-4
+        py-2
+        rounded-xl
+        border
+        text-sm
+        font-medium
+        ${styles[color]}
+      `}
+    >
+      {text}
+    </div>
+  )
+}
+
+function SummaryCard({
+  title,
+  value,
+  color
+}: any) {
+
+  const styles: any = {
+
+    red:
+      "from-red-500/20 border-red-500/20 text-red-300",
+
+    yellow:
+      "from-yellow-500/20 border-yellow-500/20 text-yellow-300",
+
+    blue:
+      "from-blue-500/20 border-blue-500/20 text-blue-300",
+
+    green:
+      "from-emerald-500/20 border-emerald-500/20 text-emerald-300"
+
+  }
+
+  return (
+
+    <div
+      className={`
+        bg-gradient-to-br
+        to-slate-900
+        ${styles[color]}
+        border
+        rounded-2xl
+        p-5
+        shadow-xl
+      `}
+    >
+
+      <p className="text-sm text-slate-400">
+        {title}
+      </p>
+
+      <p className="
+        text-3xl
+        font-black
+        mt-2
+      ">
+        {value}
+      </p>
+
+    </div>
+  )
+}
+
+function LiveIndicator({
+  color,
+  text
+}: any) {
+
+  const styles: any = {
+
+    green:
+      "bg-emerald-400",
+
+    blue:
+      "bg-blue-400",
+
+    yellow:
+      "bg-yellow-400"
+
+  }
+
+  return (
+
+    <div className="
+      flex
+      items-center
+      gap-3
+      px-4
+      py-2
+      rounded-xl
+      border
+      border-slate-800
+      bg-slate-900/80
+    ">
+
+      <div
+        className={`
+          w-2
+          h-2
+          rounded-full
+          animate-pulse
+          ${styles[color]}
+        `}
+      />
+
+      <span className="
+        text-sm
+        text-slate-300
+      ">
+        {text}
+      </span>
+
+    </div>
+  )
+}
