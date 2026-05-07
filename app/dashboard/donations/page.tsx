@@ -33,19 +33,19 @@ export default function DonationsPage() {
         userData.user.email.toLowerCase()
 
       const { data, error } = await supabase
-  .from("payments")
-  .select(`
-    id,
-    amount,
-    campaign_id,
-    created_at,
-    status,
-    donor_email
-  `)
-  .eq("donor_email", email)
-  .order("created_at", {
-    ascending: false
-  })
+        .from("payments")
+        .select(`
+          id,
+          amount,
+          campaign_id,
+          created_at,
+          status
+        `)
+        .eq("donor_email", email)
+        .eq("status", "approved")
+        .order("created_at", {
+          ascending: false
+        })
 
          if (error) {
         console.error(
