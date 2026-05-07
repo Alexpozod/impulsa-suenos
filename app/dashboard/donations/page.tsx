@@ -45,7 +45,8 @@ export default function DonationsPage() {
           created_at,
           status
         `)
-        .eq("user_email", email)
+        .eq("donor_email", email)
+        .eq("status", "approved")
         .order("created_at", {
           ascending: false
         })
