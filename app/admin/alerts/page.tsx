@@ -134,6 +134,31 @@ export default function AlertsDashboard() {
 
 </div>
 
+<div className="
+  flex
+  flex-wrap
+  items-center
+  gap-3
+  mb-6
+">
+
+  <LiveIndicator
+    color="green"
+    text="Detection Engine Active"
+  />
+
+  <LiveIndicator
+    color="blue"
+    text="Realtime Monitoring"
+  />
+
+  <LiveIndicator
+    color="yellow"
+    text={`${alerts.filter(a => a.status === "open").length} incidents pending`}
+  />
+
+</div>
+
       {/* FILTROS */}
       <div className="
   bg-slate-900/80
@@ -262,13 +287,28 @@ export default function AlertsDashboard() {
   gap-4
   mb-4
 ">
-              <div className="
-  font-bold
-  text-lg
-  text-white
-">
-                {a.type}
-              </div>
+  <div className="
+  h-px
+  bg-gradient-to-r
+  from-white/10
+  to-transparent
+  mb-4
+"/>
+             <div className="flex items-center gap-3">
+
+  <div className="text-xl">
+
+    {a.severity === "critical"
+      ? "🔴"
+      : "🟠"}
+
+  </div>
+
+  <div>
+    {a.type?.replaceAll("_", " ").toUpperCase()}
+  </div>
+
+</div>
 
               <div
   className={`
@@ -357,7 +397,7 @@ export default function AlertsDashboard() {
   text-slate-500
   mb-4
 ">
-              {new Date(a.created_at).toLocaleString()}
+              🕒 {new Date(a.created_at).toLocaleString()}
             </div>
 
             {a.status === "open" && (
@@ -378,7 +418,7 @@ export default function AlertsDashboard() {
   shadow-emerald-500/20
 "
               >
-                ✅ Mark as resolved
+                Resolve Incident
               </button>
             )}
 
@@ -474,6 +514,59 @@ function SummaryCard({
       ">
         {value}
       </p>
+
+    </div>
+  )
+}
+
+function LiveIndicator({
+  color,
+  text
+}: any) {
+
+  const styles: any = {
+
+    green:
+      "bg-emerald-400",
+
+    blue:
+      "bg-blue-400",
+
+    yellow:
+      "bg-yellow-400"
+
+  }
+
+  return (
+
+    <div className="
+      flex
+      items-center
+      gap-3
+      px-4
+      py-2
+      rounded-xl
+      border
+      border-slate-800
+      bg-slate-900/80
+    ">
+
+      <div
+        className={`
+          w-2
+          h-2
+          rounded-full
+          animate-pulse
+          ${styles[color]}
+        `}
+      />
+
+      <span className="
+        text-sm
+        text-slate-300
+      ">
+        {text}
+      </span>
 
     </div>
   )
