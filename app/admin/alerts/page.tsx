@@ -135,6 +135,15 @@ export default function AlertsDashboard() {
 </div>
 
 <div className="
+  h-px
+  w-full
+  bg-gradient-to-r
+  from-white/10
+  to-transparent
+  mb-4
+"/>
+
+<div className="
   flex
   flex-wrap
   items-center
@@ -280,20 +289,13 @@ export default function AlertsDashboard() {
 `}
           >
 
-            <div className="
+           <div className="
   flex
   items-center
   justify-between
   gap-4
   mb-4
 ">
-  <div className="
-  h-px
-  bg-gradient-to-r
-  from-white/10
-  to-transparent
-  mb-4
-"/>
              <div className="flex items-center gap-3">
 
   <div className="text-xl">
@@ -304,9 +306,13 @@ export default function AlertsDashboard() {
 
   </div>
 
-  <div>
-    {a.type?.replaceAll("_", " ").toUpperCase()}
-  </div>
+ <div className="
+  font-bold
+  text-lg
+  text-white
+">
+  {a.type?.replaceAll("_", " ").toUpperCase()}
+</div>
 
 </div>
 
@@ -369,13 +375,7 @@ export default function AlertsDashboard() {
   )}
 
 </div>
-
-            {a.score && (
-              <div className="text-sm mb-2">
-                Risk score: {a.score}
-              </div>
-            )}
-
+            
             {a.flags && (
               <div className="
   bg-black/30
