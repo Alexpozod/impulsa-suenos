@@ -10,6 +10,9 @@ type Donation = {
   campaign_id: string
   created_at?: string | null
   status: string
+  campaigns?: {
+    title?: string | null
+  } | null
 }
 
 export default function DonationsPage() {
@@ -34,12 +37,15 @@ export default function DonationsPage() {
 
       const { data, error } = await supabase
         .from("payments")
-        .select(`
+       .select(`
           id,
           amount,
-          campaign_id,
           created_at,
-          status
+          status,
+          campaign_id,
+          campaigns!payments_campaign_id_fkey (
+            title
+          )
         `)
         .eq("donor_email", email)
         .eq("status", "approved")
@@ -291,12 +297,12 @@ export default function DonationsPage() {
   <div className="min-w-0">
 
     <h3 className="
-      font-bold
-      text-gray-900
-      truncate
-    ">
-      Campaña #{d.campaign_id?.slice(0, 8)}
-    </h3>
+  font-bold
+  text-gray-900
+  truncate
+">
+  {d.campaigns?.title || "Campaña sin título"}
+</h3>
 
                 <div className="
                   flex
