@@ -94,6 +94,46 @@ export default function AlertsDashboard() {
 
 </div>
 
+<div className="
+  grid
+  md:grid-cols-2
+  xl:grid-cols-4
+  gap-4
+  mb-8
+">
+
+  <SummaryCard
+    title="Alertas totales"
+    value={alerts.length}
+    color="blue"
+  />
+
+  <SummaryCard
+    title="Críticas"
+    value={
+      alerts.filter(a => a.severity === "critical").length
+    }
+    color="red"
+  />
+
+  <SummaryCard
+    title="Abiertas"
+    value={
+      alerts.filter(a => a.status === "open").length
+    }
+    color="yellow"
+  />
+
+  <SummaryCard
+    title="Resueltas"
+    value={
+      alerts.filter(a => a.status === "resolved").length
+    }
+    color="green"
+  />
+
+</div>
+
       {/* FILTROS */}
       <div className="
   bg-slate-900/80
@@ -156,6 +196,44 @@ export default function AlertsDashboard() {
       {/* LISTA */}
       <div className="space-y-4">
 
+{alerts.length === 0 && (
+
+  <div
+    className="
+      bg-slate-900/80
+      border
+      border-slate-800
+      rounded-2xl
+      p-12
+      text-center
+      shadow-xl
+    "
+  >
+
+    <div className="
+      text-6xl
+      mb-6
+    ">
+      🛡️
+    </div>
+
+    <h3 className="
+      text-2xl
+      font-bold
+      text-white
+      mb-2
+    ">
+      No existen incidentes activos
+    </h3>
+
+    <p className="text-slate-400">
+      El sistema antifraude no detectó amenazas recientes
+    </p>
+
+  </div>
+
+)}
+
         {alerts.map((a) => (
           <div
             key={a.id}
@@ -213,9 +291,44 @@ export default function AlertsDashboard() {
               </div>
             </div>
 
-            <div className="text-sm text-gray-300 mb-2">
-              Campaign: {a.campaign_id}
-            </div>
+            <div className="
+  flex
+  flex-wrap
+  gap-3
+  mb-4
+">
+
+  <div className="
+    px-3
+    py-1
+    rounded-lg
+    bg-slate-950/80
+    border
+    border-slate-700
+    text-xs
+    text-slate-300
+  ">
+    Campaign: {a.campaign_id}
+  </div>
+
+  {a.score && (
+
+    <div className="
+      px-3
+      py-1
+      rounded-lg
+      bg-red-500/10
+      border
+      border-red-500/20
+      text-xs
+      text-red-300
+    ">
+      Risk Score: {a.score}
+    </div>
+
+  )}
+
+</div>
 
             {a.score && (
               <div className="text-sm mb-2">
@@ -224,12 +337,26 @@ export default function AlertsDashboard() {
             )}
 
             {a.flags && (
-              <div className="text-xs text-red-300 mb-2">
-                Flags: {JSON.stringify(a.flags)}
-              </div>
+              <div className="
+  bg-black/30
+  border
+  border-red-500/10
+  rounded-xl
+  p-3
+  text-xs
+  text-red-200
+  mb-4
+  overflow-x-auto
+">
+  {JSON.stringify(a.flags, null, 2)}
+</div>
             )}
 
-            <div className="text-xs text-gray-500 mb-3">
+            <div className="
+  text-xs
+  text-slate-500
+  mb-4
+">
               {new Date(a.created_at).toLocaleString()}
             </div>
 
@@ -296,6 +423,58 @@ function StatusBadge({
       `}
     >
       {text}
+    </div>
+  )
+}
+
+function SummaryCard({
+  title,
+  value,
+  color
+}: any) {
+
+  const styles: any = {
+
+    red:
+      "from-red-500/20 border-red-500/20 text-red-300",
+
+    yellow:
+      "from-yellow-500/20 border-yellow-500/20 text-yellow-300",
+
+    blue:
+      "from-blue-500/20 border-blue-500/20 text-blue-300",
+
+    green:
+      "from-emerald-500/20 border-emerald-500/20 text-emerald-300"
+
+  }
+
+  return (
+
+    <div
+      className={`
+        bg-gradient-to-br
+        to-slate-900
+        ${styles[color]}
+        border
+        rounded-2xl
+        p-5
+        shadow-xl
+      `}
+    >
+
+      <p className="text-sm text-slate-400">
+        {title}
+      </p>
+
+      <p className="
+        text-3xl
+        font-black
+        mt-2
+      ">
+        {value}
+      </p>
+
     </div>
   )
 }
