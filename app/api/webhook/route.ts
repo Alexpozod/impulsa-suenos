@@ -198,26 +198,34 @@ const campaignTitle = campaign.title || "Tu campaña"
 
     if (!existingPayment) {
       await supabase.from("payments").insert({
-        payment_id: paymentId,
-        campaign_id,
-        user_email: creator_email,
-        donor_email: donor_email,
-        amount: donation,
-        tip,
-        status: "processing",
-        ref: referrer,
-        source: source,
-        metadata: {
-          total,
-          donation,
-          tip,
-          donor_name,
-          message,
-          referrer,
-          source
-        },
-        notified: false
-      })
+  payment_id: paymentId,
+  campaign_id,
+
+  // dueño campaña
+  user_email: creator_email,
+
+  // quien donó
+  donor_email: donor_email,
+
+  amount: donation,
+  tip,
+  status: "processing",
+  ref: referrer,
+  source: source,
+
+  metadata: {
+    total,
+    donation,
+    tip,
+    donor_name,
+    donor_email,
+    message,
+    referrer,
+    source
+  },
+
+  notified: false
+})
     }
 
     await supabase.rpc("advisory_lock", {
