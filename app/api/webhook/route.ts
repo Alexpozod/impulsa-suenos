@@ -69,7 +69,7 @@ export async function POST(req: Request) {
     const { data: existingPayment } = await supabase
       .from("payments")
       .select("*")
-      .eq("payment_id", paymentId)
+      .eq("payment_id", String(paymentId))
       .maybeSingle()
 
     // 🔥 FIX DB FALLBACK
@@ -250,7 +250,7 @@ const campaignTitle = campaign.title || "Tu campaña"
       await supabase
         .from("payments")
         .update({ status: "failed" })
-        .eq("payment_id", paymentId)
+        .eq("payment_id", String(paymentId))
 
       await sendAlert({
         title: "Error en RPC",
@@ -261,16 +261,21 @@ const campaignTitle = campaign.title || "Tu campaña"
       return NextResponse.json({ ok: true })
     }
 
-    await supabase
-      .from("payments")
-      .update({ status: "approved" })
-      .eq("payment_id", paymentId)
+   const { data: updatedPayment, error: updateError } =
+  await supabase
+    .from("payments")
+    .update({ status: "approved" })
+    .eq("payment_id", String(paymentId))
+    .select()
 
-    const { data: paymentRow } = await supabase
-      .from("payments")
-      .select("notified")
-      .eq("payment_id", paymentId)
-      .maybeSingle()
+    console.log("✅ PAYMENT UPDATED:", updatedPayment)
+    console.log("❌ UPDATE ERROR:", updateError)
+
+   const { data: paymentRow } = await supabase
+  .from("payments")
+  .select("notified")
+  .eq("payment_id", String(paymentId))
+  .maybeSingle()
 
         if (!paymentRow?.notified) {
 
@@ -306,25 +311,26 @@ const campaignTitle = campaign.title || "Tu campaña"
 }
 
 // 🔥 AQUÍ RECIÉN MARCAS notified
-  await supabase
-    .from("payments")
-    .update({ notified: true })
-    .eq("payment_id", paymentId)
-    }
+await supabase
+  .from("payments")
+  .update({ notified: true })
+  .eq("payment_id", String(paymentId))
 
-    await syncWallet(creator_email)
+}
 
-    await supabase.from("webhook_logs").insert({
-      payment_id: paymentId,
-      payload: { success: true },
-      status: "approved"
-    })
+await syncWallet(creator_email)
 
-    console.log("✅ PAYMENT PROCESADO")
+await supabase.from("webhook_logs").insert({
+  payment_id: paymentId,
+  payload: { success: true },
+  status: "approved"
+})
 
-    return NextResponse.json({ ok: true })
+console.log("✅ PAYMENT PROCESADO")
 
-  } catch (error) {
+return NextResponse.json({ ok: true })
+
+} catch (error) {
 
     console.error("🔥 WEBHOOK ERROR:", error)
 
