@@ -39,7 +39,9 @@ export default function DonationsPage() {
   .order("created_at", { ascending: false })
 
 console.log(data)
+console.log("USER EMAIL:", email)
 
+console.log("PAYMENTS:", data)
     setDonations(data || [])
     setLoading(false)
   }
