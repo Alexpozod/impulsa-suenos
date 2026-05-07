@@ -249,14 +249,27 @@ const campaignTitle = campaign.title || "Tu campaña"
 
   // 🔥 YA EXISTE EN LEDGER = YA FUE PROCESADO
   if (
-    error.code === "23505" ||
-    error.message?.includes("unique_payment_once")
-  ) {
+  error.code === "23505" ||
+  error.message?.includes("unique_payment_once")
+) {
 
-    console.log("✅ PAYMENT DUPLICADO IGNORADO")
+  console.log("✅ PAYMENT YA EXISTÍA")
 
-    return NextResponse.json({ ok: true })
-  }
+} else {
+
+  await supabase
+    .from("payments")
+    .update({ status: "failed" })
+    .eq("payment_id", String(paymentId))
+
+  await sendAlert({
+    title: "Error en RPC",
+    message: "Fallo process_payment_atomic",
+    data: { paymentId, error }
+  })
+
+  return NextResponse.json({ ok: true })
+}
 
   // 🔥 ERROR REAL
   await supabase
