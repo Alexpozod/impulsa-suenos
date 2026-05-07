@@ -188,7 +188,7 @@ if (loading) {
     overflow-x-hidden
   ">
 
-    <div className="space-y-8">
+    <div className="space-y-5">
 
       {/* HEADER */}
 <div className="
@@ -204,7 +204,7 @@ if (loading) {
   <div>
 
     <h1 className="
-      text-4xl
+      text-3xl
       font-black
       tracking-tight
       text-white
@@ -275,7 +275,7 @@ if (loading) {
   grid
   md:grid-cols-2
   xl:grid-cols-4
-  gap-4
+  gap-3
 ">
 
   <SummaryCard
@@ -318,8 +318,8 @@ if (loading) {
   bg-slate-900/80
   border
   border-slate-800
-  rounded-2xl
-  p-5
+  rounded-xl
+  p-4
   shadow-xl
 ">
 
@@ -327,7 +327,7 @@ if (loading) {
     flex
     items-center
     justify-between
-    mb-5
+    mb-3
   ">
 
     <div>
@@ -513,8 +513,8 @@ if (loading) {
           ${severityStyles.bg}
           ${severityStyles.border}
           border
-          rounded-2xl
-          p-5
+          rounded-xl
+          p-4
           shadow-xl
           transition-all
           duration-300
@@ -529,8 +529,8 @@ if (loading) {
           lg:flex-row
           lg:items-center
           lg:justify-between
-          gap-4
-          mb-4
+          gap-3
+          mb-3
         ">
 
           <div className="flex items-center gap-3">
@@ -728,8 +728,8 @@ function SummaryCard({
         to-slate-900
         ${styles[color]}
         border
-        rounded-2xl
-        p-5
+        rounded-xl
+        p-4
         shadow-xl
       `}
     >
@@ -739,9 +739,9 @@ function SummaryCard({
       </p>
 
       <p className="
-        text-3xl
+        text-2xl
         font-black
-        mt-2
+        mt-1
       ">
         {value}
       </p>
