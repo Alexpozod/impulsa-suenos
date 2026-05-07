@@ -237,7 +237,7 @@ export default function DonationsPage() {
         {donations.map((d) => (
 
           <div
-            key={d.id}
+            key={`${d.id}-${d.created_at}`}
             className="
               bg-white/90
               backdrop-blur-sm
