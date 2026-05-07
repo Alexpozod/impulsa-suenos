@@ -514,10 +514,55 @@ function Card({ title, value }: any) {
 }
 
 function Section({ title, children }: any) {
+
   return (
-    <div className="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-3">
-      <h2 className="font-semibold text-gray-200">{title}</h2>
-      {children}
+
+    <div
+      className="
+        bg-slate-900/80
+        backdrop-blur-sm
+        border
+        border-slate-800
+        rounded-2xl
+        p-6
+        shadow-lg
+        space-y-4
+      "
+    >
+
+      <div className="
+        flex
+        items-center
+        justify-between
+      ">
+
+        <h2 className="
+          text-lg
+          font-semibold
+          text-white
+        ">
+          {title}
+        </h2>
+
+        <div className="
+          text-xs
+          px-3
+          py-1
+          rounded-full
+          bg-slate-800
+          border
+          border-slate-700
+          text-slate-400
+        ">
+          LIVE
+        </div>
+
+      </div>
+
+      <div className="space-y-3">
+        {children}
+      </div>
+
     </div>
   )
 }
