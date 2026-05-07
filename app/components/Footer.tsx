@@ -25,17 +25,17 @@ export default function Footer() {
 
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/" className="hover:text-white transition">
+              <Link href="/" className="text-gray-300 hover:text-white transition">
                 Inicio
               </Link>
             </li>
             <li>
-              <Link href="/campaigns" className="hover:text-white transition">
+              <Link href="/campaigns" className="text-gray-300 hover:text-white transition">
                 Campañas
               </Link>
             </li>
             <li>
-              <Link href="/sorteos" className="hover:text-white transition">
+              <Link href="/sorteos" className="text-gray-300 hover:text-white transition">
                 Sorteos
               </Link>
             </li>
@@ -50,27 +50,27 @@ export default function Footer() {
 
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/terminos" className="hover:text-white transition">
+              <Link href="/terminos" className="text-gray-300 hover:text-white transition">
                 Términos y condiciones
               </Link>
             </li>
             <li>
-              <Link href="/privacidad" className="hover:text-white transition">
+              <Link href="/privacidad" className="text-gray-300 hover:text-white transition">
                 Política de privacidad
               </Link>
             </li>
             <li>
-              <Link href="/cookies" className="hover:text-white transition">
+              <Link href="/cookies" className="text-gray-300 hover:text-white transition">
                 Política de cookies
               </Link>
             </li>
             <li>
-              <Link href="/aml-kyc" className="hover:text-white transition">
+              <Link href="/aml-kyc" className="text-gray-300 hover:text-white transition">
                 AML / KYC
               </Link>
             </li>
             <li>
-              <Link href="/pagos-retiros" className="hover:text-white transition">
+              <Link href="/pagos-retiros" className="text-gray-300 hover:text-white transition">
                 Pagos y Retiros
               </Link>
             </li>
