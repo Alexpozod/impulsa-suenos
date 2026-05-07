@@ -151,8 +151,64 @@ export default function RiskAdminPage() {
 
         {data.risk_users.map((u: any) => (
           <Card key={u.id}>
-            {u.user_id} → score: {u.score} ({u.status})
-          </Card>
+
+  <div className="
+    flex
+    flex-col
+    lg:flex-row
+    lg:items-center
+    lg:justify-between
+    gap-4
+  ">
+
+    {/* LEFT */}
+    <div>
+
+      <p className="
+        text-white
+        font-semibold
+        break-all
+      ">
+        {u.user_id}
+      </p>
+
+      <div className="
+        flex
+        flex-wrap
+        gap-2
+        mt-3
+      ">
+
+        <RiskBadge
+          color={
+            u.score >= 80
+              ? "red"
+              : u.score >= 50
+              ? "yellow"
+              : "green"
+          }
+          text={`Risk Score: ${u.score}`}
+        />
+
+        <RiskBadge
+          color={
+            u.status === "blocked"
+              ? "red"
+              : "blue"
+          }
+          text={u.status}
+        />
+
+      </div>
+
+    </div>
+
+    {/* RIGHT */}
+    <RiskLevel score={u.score} />
+
+  </div>
+
+</Card>
         ))}
       </Section>
 
@@ -162,8 +218,52 @@ export default function RiskAdminPage() {
 
         {data.pending_withdrawals.map((w: any) => (
           <Card key={w.id}>
-            {w.user_email} → ${Number(w.amount).toLocaleString()}
-          </Card>
+
+  <div className="
+    flex
+    flex-col
+    lg:flex-row
+    lg:items-center
+    lg:justify-between
+    gap-4
+  ">
+
+    <div>
+
+      <p className="
+        text-white
+        font-semibold
+        break-all
+      ">
+        {w.user_email}
+      </p>
+
+      <p className="
+        text-slate-400
+        text-sm
+        mt-1
+      ">
+        Retiro marcado como sospechoso
+      </p>
+
+    </div>
+
+    <div className="
+      px-4
+      py-2
+      rounded-xl
+      bg-red-500/10
+      border
+      border-red-500/20
+      text-red-300
+      font-bold
+    ">
+      ${Number(w.amount).toLocaleString()}
+    </div>
+
+  </div>
+
+</Card>
         ))}
       </Section>
 
@@ -172,9 +272,54 @@ export default function RiskAdminPage() {
         {data.fraud_logs.length === 0 && <Empty text="Sin alertas" />}
 
         {data.fraud_logs.map((l: any) => (
-          <div key={l.id} className="bg-red-900 p-3 rounded mb-2">
-            {l.user_id || "Sistema"} → {l.type || l.reason}
-          </div>
+          <div
+  key={l.id}
+  className="
+    bg-red-950/20
+    border
+    border-red-500/20
+    rounded-xl
+    p-4
+  "
+>
+
+  <div className="
+    flex
+    flex-col
+    lg:flex-row
+    lg:items-center
+    lg:justify-between
+    gap-4
+  ">
+
+    <div>
+
+      <p className="
+        text-red-300
+        font-semibold
+      ">
+        {l.type || l.reason}
+      </p>
+
+      <p className="
+        text-slate-400
+        text-sm
+        mt-1
+        break-all
+      ">
+        {l.user_id || "Sistema"}
+      </p>
+
+    </div>
+
+    <RiskBadge
+      color="red"
+      text="Threat Detected"
+    />
+
+  </div>
+
+</div>
         ))}
       </Section>
 
@@ -186,8 +331,50 @@ export default function RiskAdminPage() {
 
         {data.payment_events.slice(0, 20).map((p: any) => (
           <Card key={p.id}>
-            {p.payment_id} → {p.status}
-          </Card>
+
+  <div className="
+    flex
+    flex-col
+    lg:flex-row
+    lg:items-center
+    lg:justify-between
+    gap-4
+  ">
+
+    <div>
+
+      <p className="
+        text-white
+        font-semibold
+        break-all
+      ">
+        Payment: {p.payment_id}
+      </p>
+
+      <p className="
+        text-slate-400
+        text-sm
+        mt-1
+      ">
+        Evento monitoreado por motor antifraude
+      </p>
+
+    </div>
+
+    <RiskBadge
+      color={
+        p.status === "approved"
+          ? "green"
+          : p.status === "pending"
+          ? "yellow"
+          : "red"
+      }
+      text={p.status}
+    />
+
+  </div>
+
+</Card>
         ))}
       </Section>
 
@@ -397,6 +584,99 @@ function SummaryCard({
       ">
         {value}
       </p>
+
+    </div>
+  )
+}
+
+function RiskBadge({
+  color,
+  text
+}: any) {
+
+  const styles: any = {
+
+    red:
+      "bg-red-500/10 border-red-500/20 text-red-300",
+
+    yellow:
+      "bg-yellow-500/10 border-yellow-500/20 text-yellow-300",
+
+    green:
+      "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
+
+    blue:
+      "bg-blue-500/10 border-blue-500/20 text-blue-300"
+
+  }
+
+  return (
+
+    <div
+      className={`
+        px-3
+        py-1
+        rounded-lg
+        border
+        text-xs
+        font-medium
+        ${styles[color]}
+      `}
+    >
+      {text}
+    </div>
+  )
+}
+
+function RiskLevel({
+  score
+}: any) {
+
+  const color =
+    score >= 80
+      ? "bg-red-500"
+
+      : score >= 50
+      ? "bg-yellow-500"
+
+      : "bg-emerald-500"
+
+  return (
+
+    <div className="
+      flex
+      flex-col
+      items-end
+      gap-2
+      min-w-[140px]
+    ">
+
+      <div className="
+        text-xs
+        text-slate-400
+      ">
+        Threat Level
+      </div>
+
+      <div className="
+        w-full
+        h-2
+        rounded-full
+        bg-slate-800
+        overflow-hidden
+      ">
+
+        <div
+          className={`
+            h-full
+            ${color}
+          `}
+          style={{
+            width: `${Math.min(score, 100)}%`
+          }}
+        />
+
+      </div>
 
     </div>
   )
