@@ -8,7 +8,7 @@ type Donation = {
   id: string
   amount: number
   campaign_id: string
-  created_at: string
+  created_at?: string | null
   status: string
 }
 
@@ -304,13 +304,16 @@ export default function DonationsPage() {
                     text-xs
                     text-gray-400
                   ">
-                    {new Date(
-                      d.created_at
-                    ).toLocaleDateString("es-CL", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric"
-                    })}
+                    {d.created_at
+                      ? new Date(d.created_at).toLocaleDateString(
+                          "es-CL",
+                          {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric"
+                          }
+                        )
+                      : "Sin fecha"}
                   </span>
 
                 </div>
