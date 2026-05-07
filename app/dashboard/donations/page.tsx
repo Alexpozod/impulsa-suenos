@@ -25,20 +25,19 @@ export default function DonationsPage() {
     const email = userData.user.email.toLowerCase()
 
     const { data } = await supabase
-      .from("financial_ledger")
-      .select(`
-        id,
-        amount,
-        campaign_id,
-        created_at,
-        type
-      `)
-      .eq("user_email", email)
-      .eq("status", "confirmed")
-      .eq("type", "donation")
-      .order("created_at", { ascending: false })
+  .from("financial_ledger")
+  .select(`
+    id,
+    amount,
+    campaign_id,
+    created_at,
+    type
+  `)
+  .eq("user_email", email)
+  .eq("status", "confirmed")
+  .order("created_at", { ascending: false })
 
-      console.log(data)
+console.log(data)
 
     setDonations(data || [])
     setLoading(false)
