@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useAdminFinancialDashboard } from "@/app/hooks/useAdminFinancialDashboard"
 import {
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -21,7 +20,7 @@ export default function FinanceAdminPage() {
   const [topCampaigns, setTopCampaigns] = useState<any[]>([])
   const [balances, setBalances] = useState<any[]>([])
   const [profitRanking, setProfitRanking] = useState<any[]>([])
-  const [unhealthyCampaigns, setUnhealthyCampaigns] = useState<any[]>([])
+  const [, setUnhealthyCampaigns] = useState<any[]>([])
 
   useEffect(() => {
     loadTop()
@@ -65,23 +64,51 @@ export default function FinanceAdminPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-gray-100 p-6">
-        Cargando panel financiero...
-      </div>
-    )
-  }
+  return (
+    <div
+      className="
+        min-h-screen
+        bg-slate-950
+        flex
+        items-center
+        justify-center
+      "
+    >
 
-  if (!stats) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-red-400 p-6">
-        Error cargando datos
+      <div className="text-center">
+
+        <div
+          className="
+            w-16
+            h-16
+            border-4
+            border-emerald-500/20
+            border-t-emerald-400
+            rounded-full
+            animate-spin
+            mx-auto
+            mb-6
+          "
+        />
+
+        <p className="text-slate-300 text-lg font-medium">
+          Cargando panel financiero...
+        </p>
+
       </div>
-    )
-  }
+
+    </div>
+  )
+}
 
   return (
-    <main className="min-h-screen bg-slate-950 text-gray-100 p-6">
+    <main className="
+  min-h-screen
+  bg-slate-950
+  text-gray-100
+  p-6
+  overflow-x-hidden
+">
 
       <div className="max-w-7xl mx-auto space-y-8">
 
@@ -157,14 +184,40 @@ export default function FinanceAdminPage() {
               const to = new Date().toISOString()
               window.open(`/api/admin/export?from=${from}&to=${to}`)
             }}
-            className="bg-black text-white px-4 py-2 rounded-lg"
+            className="
+  bg-emerald-500
+  hover:bg-emerald-400
+  text-white
+  px-5
+  py-2.5
+  rounded-xl
+  font-medium
+  transition-all
+  duration-300
+  hover:scale-[1.02]
+  shadow-lg
+  shadow-emerald-500/20
+"
           >
             📥 Exportar mes actual
           </button>
 
           <button
             onClick={() => window.open(`/api/admin/export`)}
-            className="bg-gray-700 text-white px-4 py-2 rounded-lg"
+            className="
+  bg-slate-800
+  hover:bg-slate-700
+  text-white
+  px-5
+  py-2.5
+  rounded-xl
+  font-medium
+  border
+  border-slate-700
+  transition-all
+  duration-300
+  hover:scale-[1.02]
+"
           >
             📥 Exportar todo
           </button>
@@ -478,9 +531,13 @@ function Card({ title, value }: any) {
         rounded-2xl
         border
         shadow-lg
-        hover:scale-[1.02]
-        transition-all
-        duration-300
+shadow-black/30
+hover:shadow-2xl
+hover:shadow-emerald-500/10
+hover:-translate-y-1
+hover:scale-[1.02]
+transition-all
+duration-300
       `}
     >
 
@@ -573,108 +630,147 @@ function Row({
 }: any) {
 
   const medals: any = {
-    0: "🥇",
-    1: "🥈",
-    2: "🥉"
-  }
+  0: "🥇",
+  1: "🥈",
+  2: "🥉"
+}
 
-  const widths = [
-    "w-full",
-    "w-[92%]",
-    "w-[84%]",
-    "w-[76%]",
-    "w-[68%]",
-    "w-[60%]"
-  ]
+const widths = [
+  "w-full",
+  "w-[92%]",
+  "w-[84%]",
+  "w-[76%]",
+  "w-[68%]",
+  "w-[60%]"
+]
 
   return (
 
-    <div className="relative">
+  <div className="relative">
 
-      {/* BARRA FONDO */}
-      <div
-        className={`
-          absolute
-          inset-y-0
-          left-0
-          ${widths[index] || "w-[50%]"}
-          rounded-xl
-          bg-gradient-to-r
-          from-emerald-500/10
-          to-transparent
-        `}
-      />
+    {/* BARRA FONDO */}
+    <div
+      className={`
+        absolute
+        inset-y-0
+        left-0
+        ${widths[index] || "w-[50%]"}
+        rounded-xl
+        bg-gradient-to-r
+        from-emerald-500/10
+        to-transparent
+      `}
+    />
 
-      {/* CONTENIDO */}
-      <div
-        className="
-          relative
-          flex
-          items-center
-          justify-between
-          gap-4
-          py-4
-          px-4
-          rounded-xl
-          border
-          border-slate-800
-          bg-slate-950/70
-          hover:bg-slate-800/70
-          transition-all
-          duration-300
-          hover:scale-[1.01]
-        "
-      >
+    {/* CONTENIDO */}
+    <div
+      className="
+        relative
+        flex
+        items-center
+        justify-between
+        gap-4
+        py-4
+        px-4
+        rounded-xl
+        border
+        border-slate-800
+        bg-slate-950/70
+        hover:bg-slate-800/70
+        transition-all
+        duration-300
+        hover:scale-[1.01]
+      "
+    >
 
-        <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4">
 
-          {/* POSICIÓN */}
-          <div
-            className="
-              w-10
-              h-10
-              rounded-full
-              bg-slate-800
-              border
-              border-slate-700
-              flex
-              items-center
-              justify-center
-              text-sm
-              font-bold
-              shrink-0
-            "
-          >
-            {medals[index] || `#${index + 1}`}
-          </div>
-
-          {/* TEXTO */}
-          <div className="min-w-0">
-            {children[0]}
-          </div>
-
-        </div>
-
-        {/* VALUE */}
+        {/* POSICIÓN */}
         <div
           className="
-            text-right
+            w-10
+            h-10
+            rounded-full
+            bg-slate-800
+            border
+            border-slate-700
+            flex
+            items-center
+            justify-center
+            text-sm
+            font-bold
             shrink-0
-            font-semibold
-            text-white
           "
         >
-          {children[1]}
+          {medals[index] || `#${index + 1}`}
+        </div>
+
+        {/* TEXTO */}
+        <div className="min-w-0">
+          {children[0]}
         </div>
 
       </div>
 
+      {/* VALUE */}
+      <div
+        className="
+          text-right
+          shrink-0
+          font-semibold
+          text-white
+        "
+      >
+        {children[1]}
+      </div>
+
     </div>
-  )
+
+  </div>
+)
 }
 
 function Empty() {
-  return <p className="text-gray-400 text-sm">Sin datos</p>
+
+  return (
+
+    <div
+      className="
+        flex
+        flex-col
+        items-center
+        justify-center
+        py-10
+        text-center
+      "
+    >
+
+      <div className="
+        w-14
+        h-14
+        rounded-full
+        bg-slate-800
+        border
+        border-slate-700
+        flex
+        items-center
+        justify-center
+        text-2xl
+        mb-4
+      ">
+        📭
+      </div>
+
+      <p className="text-slate-300 font-medium">
+        Sin datos disponibles
+      </p>
+
+      <p className="text-sm text-slate-500 mt-1">
+        Aún no existen registros para esta sección
+      </p>
+
+    </div>
+  )
 }
 
 function HealthCard({
