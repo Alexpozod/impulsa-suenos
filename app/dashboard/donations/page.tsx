@@ -15,38 +15,58 @@ export default function DonationsPage() {
 
   const loadDonations = async () => {
 
-    const { data: userData } = await supabase.auth.getUser()
+    try {
 
-    if (!userData?.user?.email) {
+      const { data: userData } = await supabase.auth.getUser()
+
+      if (!userData?.user?.email) {
+        setLoading(false)
+        return
+      }
+
+      const email =
+        userData.user.email.toLowerCase()
+
+      console.log("USER EMAIL:", email)
+
+      const { data, error } = await supabase
+        .from("payments")
+        .select(`
+          id,
+          amount,
+          campaign_id,
+          created_at,
+          status
+        `)
+        .eq("user_email", email)
+        .order("created_at", { ascending: false })
+
+      console.log("SUPABASE ERROR:", error)
+      console.log("PAYMENTS:", data)
+
+      setDonations(data || [])
+
+    } catch (err) {
+
+      console.error(
+        "LOAD DONATIONS ERROR:",
+        err
+      )
+
+    } finally {
+
       setLoading(false)
-      return
+
     }
 
-    const email = userData.user.email.toLowerCase()
-
-    const { data, error } = await supabase
-  .from("payments")
-  .select(`
-    id,
-    amount,
-    campaign_id,
-    created_at,
-    status
-  `)
-  .eq("user_email", email)
-  .in("status", ["processing", "approved"])
-  .order("created_at", { ascending: false })
-
-console.log(data)
-console.log("USER EMAIL:", email)
-
-console.log("PAYMENTS:", data)
-    setDonations(data || [])
-    setLoading(false)
   }
 
   if (loading) {
-    return <div className="p-10">Cargando donaciones...</div>
+    return (
+      <div className="p-10">
+        Cargando donaciones...
+      </div>
+    )
   }
 
   return (
@@ -68,21 +88,37 @@ console.log("PAYMENTS:", data)
 
           <div
             key={d.id}
-            className="bg-white border rounded-xl p-4 flex justify-between items-center"
+            className="
+              bg-white
+              border
+              rounded-xl
+              p-4
+              flex
+              justify-between
+              items-center
+            "
           >
 
             <div>
+
               <p className="font-semibold">
-                Donación a campaña
+                Donación realizada
               </p>
 
               <p className="text-sm text-gray-500">
-                ID campaña: {d.campaign_id}
+                Campaña: {d.campaign_id}
               </p>
 
               <p className="text-xs text-gray-400">
-                {new Date(d.created_at).toLocaleDateString()}
+                Estado: {d.status}
               </p>
+
+              <p className="text-xs text-gray-400">
+                {new Date(
+                  d.created_at
+                ).toLocaleDateString()}
+              </p>
+
             </div>
 
             <div className="text-green-600 font-bold">
