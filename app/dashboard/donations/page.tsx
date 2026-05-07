@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { supabase } from "@/src/lib/supabase"
 import { formatMoney } from "@/src/lib/formatMoney"
 
@@ -17,11 +17,7 @@ export default function DonationsPage() {
   const [loading, setLoading] = useState(true)
   const [donations, setDonations] = useState<Donation[]>([])
 
-  useEffect(() => {
-    loadDonations()
-  }, [])
-
-  const loadDonations = async () => {
+  const loadDonations = useCallback(async () => {
 
     try {
 
@@ -60,7 +56,7 @@ export default function DonationsPage() {
 
       setDonations(data || [])
 
-    } catch (err) {
+        } catch (err) {
 
       console.error(
         "LOAD DONATIONS ERROR:",
@@ -73,7 +69,19 @@ export default function DonationsPage() {
 
     }
 
-  }
+  }, [])
+
+  useEffect(() => {
+
+  loadDonations()
+
+  const interval = setInterval(() => {
+    loadDonations()
+  }, 5000)
+
+  return () => clearInterval(interval)
+
+}, [loadDonations])
 
   if (loading) {
 
