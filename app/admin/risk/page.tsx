@@ -12,14 +12,26 @@ export default function RiskAdminPage() {
   })
 
   const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState("")
   const [error, setError] = useState("")
 
   useEffect(() => {
+
+  load()
+
+  const interval = setInterval(() => {
     load()
-  }, [])
+  }, 30000)
+
+  return () => clearInterval(interval)
+
+}, [])
 
   const load = async () => {
-    try {
+
+  try {
+
+    setError("")
 
       const res = await fetch("/api/admin/risk")
 
@@ -30,11 +42,16 @@ export default function RiskAdminPage() {
       const json = await res.json()
 
       setData({
+        
         risk_users: json.risk_users || [],
         pending_withdrawals: json.pending_withdrawals || [],
         fraud_logs: json.fraud_logs || [],
         payment_events: json.payment_events || []
       })
+
+setLastUpdate(
+  new Date().toLocaleTimeString()
+)
 
     } catch (err) {
       console.error("❌ FRONT RISK ERROR:", err)
@@ -44,9 +61,48 @@ export default function RiskAdminPage() {
     setLoading(false)
   }
 
-  if (loading) {
-    return <div className="p-6 text-white">Cargando panel antifraude...</div>
-  }
+ if (loading) {
+
+  return (
+
+    <div className="
+      min-h-screen
+      bg-[#020617]
+      flex
+      items-center
+      justify-center
+    ">
+
+      <div className="text-center">
+
+        <div
+          className="
+            w-16
+            h-16
+            border-4
+            border-red-500/20
+            border-t-red-400
+            rounded-full
+            animate-spin
+            mx-auto
+            mb-6
+          "
+        />
+
+        <p className="
+          text-slate-300
+          text-lg
+          font-medium
+        ">
+          Cargando Threat Intelligence Center...
+        </p>
+
+      </div>
+
+    </div>
+
+  )
+}
 
   if (error) {
     return <div className="p-6 text-red-400">{error}</div>
@@ -87,6 +143,16 @@ export default function RiskAdminPage() {
     <p className="text-slate-400 mt-2">
       Monitoreo preventivo y análisis avanzado de riesgo
     </p>
+
+<p className="
+  text-slate-500
+  text-sm
+  mt-2
+">
+  Última actualización:
+  {" "}
+  {lastUpdate || "--:--"}
+</p>
 
   </div>
 
@@ -271,7 +337,7 @@ export default function RiskAdminPage() {
       <Section title="Alertas de fraude">
         {data.fraud_logs.length === 0 && <Empty text="Sin alertas" />}
 
-        {data.fraud_logs.map((l: any) => (
+        {data.fraud_logs.slice(0, 20).map((l: any) => (
           <div
   key={l.id}
   className="
@@ -295,11 +361,13 @@ export default function RiskAdminPage() {
     <div>
 
       <p className="
-        text-red-300
-        font-semibold
-      ">
-        {l.type || l.reason}
-      </p>
+  text-red-300
+  font-semibold
+  uppercase
+  tracking-wide
+">
+  {(l.type || l.reason)?.replaceAll("_", " ")}
+</p>
 
       <p className="
         text-slate-400
@@ -369,7 +437,15 @@ export default function RiskAdminPage() {
           ? "yellow"
           : "red"
       }
-      text={p.status}
+      text={
+  p.status === "approved"
+    ? "Approved"
+
+    : p.status === "pending"
+    ? "Pending Review"
+
+    : "Rejected"
+}
     />
 
   </div>
@@ -432,7 +508,16 @@ function Section({ title, children }: any) {
 
       </div>
 
-      <div className="space-y-3">
+      <div className="
+  space-y-3
+  max-h-[500px]
+  overflow-y-auto
+  pr-2
+  scrollbar-thin
+  scrollbar-thumb-slate-700
+  scrollbar-track-transparent
+">
+
         {children}
       </div>
 
@@ -672,7 +757,7 @@ function RiskLevel({
             ${color}
           `}
           style={{
-            width: `${Math.min(score, 100)}%`
+           width: `${Math.max(0, Math.min(Number(score || 0), 100))}%`
           }}
         />
 
