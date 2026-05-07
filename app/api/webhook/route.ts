@@ -245,21 +245,39 @@ const campaignTitle = campaign.title || "Tu campaña"
     })
 
     if (error) {
-      console.error("❌ RPC ERROR:", error)
 
-      await supabase
-        .from("payments")
-        .update({ status: "failed" })
-        .eq("payment_id", String(paymentId))
+  console.error("❌ RPC ERROR:", error)
 
-      await sendAlert({
-        title: "Error en RPC",
-        message: "Fallo process_payment_atomic",
-        data: { paymentId, error }
-      })
+  // 🔥 WEBHOOK DUPLICADO → YA PROCESADO
+  if (
+    error.code === "23505" ||
+    error.message?.includes("unique_payment_once")
+  ) {
 
-      return NextResponse.json({ ok: true })
-    }
+    console.log("✅ PAYMENT YA PROCESADO")
+
+    await supabase
+      .from("payments")
+      .update({ status: "approved" })
+      .eq("payment_id", String(paymentId))
+
+    return NextResponse.json({ ok: true })
+  }
+
+  // 🔥 ERROR REAL
+  await supabase
+    .from("payments")
+    .update({ status: "failed" })
+    .eq("payment_id", String(paymentId))
+
+  await sendAlert({
+    title: "Error en RPC",
+    message: "Fallo process_payment_atomic",
+    data: { paymentId, error }
+  })
+
+  return NextResponse.json({ ok: true })
+}
 
    const { data: updatedPayment, error: updateError } =
   await supabase
