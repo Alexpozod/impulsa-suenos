@@ -14,16 +14,28 @@ export default function AdminEventsPage() {
 
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState("")
 
   useEffect(() => {
+
+  load()
+
+  const interval = setInterval(() => {
     load()
-  }, [])
+  }, 30000)
+
+  return () => clearInterval(interval)
+
+}, [])
 
   const load = async () => {
     try {
       const res = await fetch("/api/admin/events")
       const data = await res.json()
       setEvents(data || [])
+      setLastUpdate(
+  new Date().toLocaleTimeString()
+)
     } catch (err) {
       console.error("Error cargando eventos", err)
     } finally {
@@ -129,7 +141,37 @@ export default function AdminEventsPage() {
       text={`${events.filter(e => e.severity === "critical").length} críticos`}
     />
 
+<StatusBadge
+  color="green"
+  text={`Sync ${lastUpdate || "--:--"}`}
+/>
+
   </div>
+
+</div>
+
+<div className="
+  flex
+  flex-wrap
+  items-center
+  gap-3
+  mb-8
+">
+
+  <LiveIndicator
+    color="green"
+    text="Realtime Monitoring"
+  />
+
+  <LiveIndicator
+    color="blue"
+    text="System Stream Active"
+  />
+
+  <LiveIndicator
+    color="yellow"
+    text={`${events.length} events loaded`}
+  />
 
 </div>
 
@@ -174,13 +216,7 @@ export default function AdminEventsPage() {
 
 </div>
 
-      {events.length === 0 && (
-        <p className="text-slate-400">
-          No hay eventos registrados
-        </p>
-      )}
-
-      {/* EMPTY */}
+            {/* EMPTY */}
 {events.length === 0 && (
 
   <div
@@ -297,7 +333,9 @@ export default function AdminEventsPage() {
                 uppercase
                 tracking-wide
               ">
-                {e.type?.replaceAll("_", " ")}
+                {e.type
+                  ?.replaceAll("_", " ")
+                  ?.replace(/\b\w/g, (l) => l.toUpperCase())}
               </p>
 
               <p className="
@@ -351,8 +389,11 @@ export default function AdminEventsPage() {
         {/* FOOTER */}
         <div className="
           flex
-          items-center
-          justify-between
+          flex-col
+          lg:flex-row
+          lg:items-center
+          lg:justify-between
+          gap-2
           text-xs
           text-slate-500
         ">
@@ -462,6 +503,58 @@ function SummaryCard({
       ">
         {value}
       </p>
+
+    </div>
+  )
+}
+function LiveIndicator({
+  color,
+  text
+}: any) {
+
+  const styles: any = {
+
+    green:
+      "bg-emerald-400",
+
+    blue:
+      "bg-blue-400",
+
+    yellow:
+      "bg-yellow-400"
+
+  }
+
+  return (
+
+    <div className="
+      flex
+      items-center
+      gap-3
+      px-4
+      py-2
+      rounded-xl
+      border
+      border-slate-800
+      bg-slate-900/80
+    ">
+
+      <div
+        className={`
+          w-2
+          h-2
+          rounded-full
+          animate-pulse
+          ${styles[color]}
+        `}
+      />
+
+      <span className="
+        text-sm
+        text-slate-300
+      ">
+        {text}
+      </span>
 
     </div>
   )
