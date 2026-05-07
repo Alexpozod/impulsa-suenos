@@ -10,9 +10,9 @@ type Donation = {
   campaign_id: string
   created_at?: string | null
   status: string
-  campaigns?: {
-    title?: string | null
-  } | null
+ campaigns?: {
+  title?: string | null
+}[]
 }
 
 export default function DonationsPage() {
@@ -301,7 +301,7 @@ export default function DonationsPage() {
   text-gray-900
   truncate
 ">
-  {d.campaigns?.title || "Campaña sin título"}
+  {d.campaigns?.[0]?.title || "Campaña sin título"}
 </h3>
 
                 <div className="
