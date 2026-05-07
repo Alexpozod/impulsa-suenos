@@ -174,7 +174,12 @@ export default function DonationsPage() {
             font-black
             text-green-600
           ">
-            {donations.length}
+           {formatMoney(
+  donations.reduce(
+    (acc, d) => acc + d.amount,
+    0
+  )
+)}
           </p>
 
         </div>
@@ -231,12 +236,14 @@ export default function DonationsPage() {
               border
               border-gray-200
               rounded-2xl
-              p-5
+              p-4
               flex
               items-center
               justify-between
               gap-4
               hover:shadow-md
+              hover:border-green-200
+              hover:-translate-y-0.5
               transition-all
               duration-200
             "
@@ -252,8 +259,8 @@ export default function DonationsPage() {
 
   {/* IMAGE */}
   <div className="
-    w-16
-    h-16
+    w-14
+    h-14
     rounded-xl
     bg-green-100
     flex
@@ -285,40 +292,7 @@ export default function DonationsPage() {
                   flex-wrap
                 ">
 
-                  <span
-                    className={`
-                      text-xs
-                      px-2
-                      py-1
-                      rounded-full
-                      font-medium
-                      border
-
-                      ${
-                        d.status === "approved"
-
-                          ? `
-                            bg-green-100
-                            text-green-700
-                            border-green-200
-                          `
-
-                          : `
-                            bg-yellow-100
-                            text-yellow-700
-                            border-yellow-200
-                          `
-                      }
-                    `}
-                  >
-
-                    {d.status === "approved"
-                      ? "Aprobado"
-                      : "Procesando"}
-
-                  </span>
-
-                  <span className="
+                 <span className="
                     text-xs
                     text-gray-400
                   ">
@@ -343,7 +317,7 @@ export default function DonationsPage() {
               <p className="
                 text-2xl
                 font-black
-                text-green-600
+                text-[#0F9D58]
               ">
                 {formatMoney(d.amount)}
               </p>
