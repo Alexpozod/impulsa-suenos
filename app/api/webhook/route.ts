@@ -162,15 +162,7 @@ const campaignTitle = campaign.title || "Tu campaña"
     .from("payments")
     .update({
       ref: referrer,
-      source: source,
-      metadata: {
-        ...existingPayment.metadata,
-        donor_name,
-        message,
-        donation,
-        referrer,
-        source
-      }
+      source: source
     })
     .eq("payment_id", String(paymentId))
 }
