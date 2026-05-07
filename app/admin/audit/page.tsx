@@ -21,12 +21,15 @@ type AuditLog = {
 export default function AuditDashboard() {
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [filter, setFilter] = useState("all")
+  const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState("")
 
   /* =========================
      🔥 LOAD INICIAL
   ========================= */
   async function loadInitial() {
     try {
+      setLoading(true)
       const [auditRes, systemRes] = await Promise.all([
         fetch("/api/audit-log/list"),
         fetch("/api/system-events/list")
@@ -52,17 +55,24 @@ export default function AuditDashboard() {
       const combined = [...auditLogs, ...systemLogs]
 
       setLogs(
-        combined.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() -
-            new Date(a.created_at).getTime()
-        )
-      )
+  combined.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() -
+      new Date(a.created_at).getTime()
+  )
+)
 
-    } catch (err) {
-      console.error("❌ audit load error:", err)
-    }
-  }
+setLastUpdate(
+  new Date().toLocaleTimeString()
+)
+
+  } catch (err) {
+  console.error("❌ audit load error:", err)
+} finally {
+  setLoading(false)
+}
+
+}
 
   /* =========================
      ⚡ REALTIME
@@ -70,6 +80,9 @@ export default function AuditDashboard() {
   useEffect(() => {
 
     loadInitial()
+    const interval = setInterval(() => {
+      loadInitial()
+    }, 30000)
 
     const channel = supabase
       .channel("audit-live")
@@ -82,14 +95,20 @@ export default function AuditDashboard() {
         },
         (payload) => {
           const newLog = payload.new as AuditLog
+
           setLogs((prev) => [newLog, ...prev])
+
+          setLastUpdate(
+            new Date().toLocaleTimeString()
+          )
         }
       )
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
-    }
+  clearInterval(interval)
+  supabase.removeChannel(channel)
+}
 
   }, [])
 
@@ -116,13 +135,176 @@ export default function AuditDashboard() {
   const errors = logs.filter(l => l.action?.includes("error")).length
   const warnings = logs.filter(l => l.action?.includes("warning")).length
 
+if (loading) {
+
   return (
-    <div className="p-6 space-y-6 text-white">
+
+    <div className="
+      min-h-screen
+      bg-[#020617]
+      flex
+      items-center
+      justify-center
+    ">
+
+      <div className="text-center">
+
+        <div
+          className="
+            w-16
+            h-16
+            border-4
+            border-blue-500/20
+            border-t-blue-400
+            rounded-full
+            animate-spin
+            mx-auto
+            mb-6
+          "
+        />
+
+        <p className="
+          text-slate-300
+          text-lg
+          font-medium
+        ">
+          Cargando auditoría avanzada...
+        </p>
+
+      </div>
+
+    </div>
+  )
+}
+
+  return (
+
+  <main className="
+    min-h-screen
+    bg-[#020617]
+    text-white
+    p-6
+    lg:p-10
+    overflow-x-hidden
+  ">
+
+    <div className="space-y-8">
 
       {/* HEADER */}
-      <h1 className="text-2xl font-bold">
-        🚀 Audit Dashboard (LIVE)
-      </h1>
+<div className="
+  flex
+  flex-col
+  lg:flex-row
+  lg:items-center
+  lg:justify-between
+  gap-6
+">
+
+  {/* LEFT */}
+  <div>
+
+    <h1 className="
+      text-4xl
+      font-black
+      tracking-tight
+      text-white
+    ">
+      🧾 Governance & Audit Center
+    </h1>
+
+    <p className="text-slate-400 mt-2">
+      Auditoría avanzada, trazabilidad y monitoreo de acciones críticas
+    </p>
+
+  </div>
+
+  {/* RIGHT */}
+<div className="flex flex-wrap gap-3">
+
+  <StatusBadge
+    color="green"
+    text="Realtime Audit Active"
+  />
+
+  <StatusBadge
+    color="yellow"
+    text={`${warnings} warnings`}
+  />
+
+  <StatusBadge
+    color="red"
+    text={`${errors} errores`}
+  />
+
+  <StatusBadge
+    color="green"
+    text={`Sync ${lastUpdate || "--:--"}`}
+  />
+
+</div>
+
+</div>
+
+{/* LIVE INDICATORS */}
+<div className="
+  flex
+  flex-wrap
+  items-center
+  gap-3
+">
+
+  <LiveIndicator
+    color="green"
+    text="Supabase Realtime Connected"
+  />
+
+  <LiveIndicator
+    color="blue"
+    text="Audit Stream Active"
+  />
+
+  <LiveIndicator
+    color="yellow"
+    text={`${logs.length} eventos cargados`}
+  />
+
+</div>
+
+{/* SUMMARY */}
+<div className="
+  grid
+  md:grid-cols-2
+  xl:grid-cols-4
+  gap-4
+">
+
+  <SummaryCard
+    title="Eventos auditados"
+    value={logs.length}
+    color="blue"
+  />
+
+  <SummaryCard
+    title="Errores"
+    value={errors}
+    color="red"
+  />
+
+  <SummaryCard
+    title="Warnings"
+    value={warnings}
+    color="yellow"
+  />
+
+  <SummaryCard
+    title="Eventos sistema"
+    value={
+      logs.filter(l => l.actor_id === "system").length
+    }
+    color="green"
+  />
+
+</div>
 
       {/* ALERTA GLOBAL */}
       {errors > 0 && (
@@ -131,89 +313,348 @@ export default function AuditDashboard() {
         </div>
       )}
 
-      {/* MÉTRICAS */}
-      <div className="flex gap-4 flex-wrap">
+            {/* FILTER CENTER */}
+<div className="
+  bg-slate-900/80
+  border
+  border-slate-800
+  rounded-2xl
+  p-5
+  shadow-xl
+">
 
-        <div className="bg-red-100 px-4 py-2 rounded">
-          ❌ Errores: {errors}
-        </div>
+  <div className="
+    flex
+    items-center
+    justify-between
+    mb-5
+  ">
 
-        <div className="bg-yellow-100 px-4 py-2 rounded">
-          ⚠️ Warnings: {warnings}
-        </div>
+    <div>
 
-        <div className="bg-secondarySoft px-4 py-2 rounded">
-          📊 Eventos: {logs.length}
-        </div>
+      <h2 className="
+        text-lg
+        font-bold
+        text-white
+      ">
+        🎯 Audit Filters
+      </h2>
 
-      </div>
-
-      {/* FILTROS */}
-      <div className="flex gap-2 flex-wrap">
-        {filters.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-3 py-1 border rounded ${
-              filter === f ? "bg-black text-white" : ""
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      {/* STREAM */}
-      <div className="space-y-3">
-        {filtered.map((log) => {
-
-          const isError = log.action?.includes("error")
-          const isWarning = log.action?.includes("warning")
-
-          return (
-            <div
-              key={log.id}
-              className={`border p-4 rounded shadow-sm text-black ${
-  isError
-    ? "bg-red-50 border-red-300"
-    : isWarning
-    ? "bg-yellow-50 border-yellow-300"
-    : "bg-white"
-}`}
-            >
-
-              {/* HEADER LOG */}
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2 items-center">
-                  <span className="font-semibold text-black">
-                    {log.action}
-                  </span>
-
-                  <span className="text-xs px-2 py-0.5 rounded bg-gray-200">
-                    {log.actor_id === "system" ? "SYSTEM" : "AUDIT"}
-                  </span>
-                </div>
-
-                <span className="text-xs text-gray-500">
-                  {new Date(log.created_at).toLocaleTimeString()}
-                </span>
-              </div>
-
-              {/* ENTITY */}
-              <div className="text-sm text-gray-700 mt-1">
-                {log.entity} → {log.entity_id || "-"}
-              </div>
-
-              {/* METADATA */}
-              <pre className="text-xs bg-gray-100 text-black p-2 mt-2 rounded overflow-auto">
-                {JSON.stringify(log.metadata, null, 2)}
-              </pre>
-
-            </div>
-          )
-        })}
-      </div>
+      <p className="
+        text-sm
+        text-slate-400
+        mt-1
+      ">
+        Filtrado avanzado de eventos auditados
+      </p>
 
     </div>
-  )
+
+    <div className="
+      px-3
+      py-1
+      rounded-full
+      bg-blue-500/10
+      border
+      border-blue-500/20
+      text-blue-300
+      text-xs
+      font-medium
+    ">
+      {filtered.length} resultados
+    </div>
+
+  </div>
+
+  <div className="
+    flex
+    flex-wrap
+    gap-3
+  ">
+
+    {filters.map((f) => {
+
+      const active =
+        filter === f
+
+      return (
+
+        <button
+          key={f}
+          onClick={() => setFilter(f)}
+          className={`
+            px-4
+            py-2
+            rounded-xl
+            border
+            text-sm
+            font-medium
+            transition-all
+            duration-300
+
+            ${
+              active
+
+                ? `
+                  bg-blue-500/20
+                  border-blue-500/30
+                  text-blue-300
+                  shadow-lg
+                  shadow-blue-500/10
+                `
+
+                : `
+                  bg-slate-950
+                  border-slate-700
+                  text-slate-400
+                  hover:border-slate-500
+                  hover:text-white
+                `
+            }
+          `}
+        >
+
+          {f.replaceAll("_", " ")}
+
+        </button>
+      )
+    })}
+
+  </div>
+
+</div>
+
+{/* EMPTY */}
+{filtered.length === 0 && (
+
+  <div
+    className="
+      bg-slate-900/80
+      border
+      border-slate-800
+      rounded-2xl
+      p-12
+      text-center
+      shadow-xl
+    "
+  >
+
+    <div className="
+      text-6xl
+      mb-6
+    ">
+      🧾
+    </div>
+
+    <h3 className="
+      text-2xl
+      font-bold
+      text-white
+      mb-2
+    ">
+      No existen eventos auditados
+    </h3>
+
+    <p className="text-slate-400">
+      No hay registros para el filtro seleccionado
+    </p>
+
+  </div>
+
+)}
+
+     {/* AUDIT STREAM */}
+<div className="
+  space-y-4
+  max-h-[950px]
+  overflow-y-auto
+  pr-2
+">
+
+  {filtered.map((log) => {
+
+    const isError =
+      log.action?.includes("error")
+
+    const isWarning =
+      log.action?.includes("warning")
+
+    const severityStyles =
+      isError
+
+        ? {
+            border: "border-red-500/30",
+            bg: "bg-red-500/10",
+            badge: "bg-red-500/10 border-red-500/20 text-red-300",
+            icon: "🔴"
+          }
+
+        : isWarning
+
+        ? {
+            border: "border-yellow-500/30",
+            bg: "bg-yellow-500/10",
+            badge: "bg-yellow-500/10 border-yellow-500/20 text-yellow-300",
+            icon: "🟠"
+          }
+
+        : {
+            border: "border-blue-500/20",
+            bg: "bg-blue-500/10",
+            badge: "bg-blue-500/10 border-blue-500/20 text-blue-300",
+            icon: "🔵"
+          }
+
+    return (
+
+      <div
+        key={log.id}
+        className={`
+          ${severityStyles.bg}
+          ${severityStyles.border}
+          border
+          rounded-2xl
+          p-5
+          shadow-xl
+          transition-all
+          duration-300
+          hover:scale-[1.01]
+        `}
+      >
+
+        {/* TOP */}
+        <div className="
+          flex
+          flex-col
+          lg:flex-row
+          lg:items-center
+          lg:justify-between
+          gap-4
+          mb-4
+        ">
+
+          <div className="flex items-center gap-3">
+
+            <div className="text-2xl">
+              {severityStyles.icon}
+            </div>
+
+            <div>
+
+              <p className="
+                text-white
+                font-bold
+                uppercase
+                tracking-wide
+              ">
+                {log.action?.replaceAll("_", " ")}
+              </p>
+
+              <p className="
+                text-slate-400
+                text-sm
+                mt-1
+              ">
+                {log.entity} → {log.entity_id || "N/A"}
+              </p>
+
+            </div>
+
+          </div>
+
+          <div
+            className={`
+              ${severityStyles.badge}
+              px-3
+              py-1
+              rounded-xl
+              border
+              text-xs
+              font-semibold
+            `}
+          >
+
+            {isError
+              ? "ERROR"
+
+              : isWarning
+              ? "WARNING"
+
+              : "INFO"}
+
+          </div>
+
+        </div>
+
+        {/* METADATA */}
+        <div className="
+          bg-black/20
+          border
+          border-white/5
+          rounded-xl
+          p-4
+          mb-4
+          overflow-x-auto
+        ">
+
+          <pre className="
+            text-xs
+            text-slate-300
+            whitespace-pre-wrap
+          ">
+{JSON.stringify(log.metadata, null, 2)}
+          </pre>
+
+        </div>
+
+        {/* FOOTER */}
+        <div className="
+          flex
+          flex-col
+          lg:flex-row
+          lg:items-center
+          lg:justify-between
+          gap-3
+          text-xs
+          text-slate-500
+        ">
+
+          <div className="flex items-center gap-2">
+
+            <span className="
+              px-2
+              py-1
+              rounded-lg
+              bg-slate-900
+              border
+              border-slate-700
+            ">
+              {log.actor_id === "system"
+                ? "SYSTEM"
+
+                : "AUDIT"}
+            </span>
+
+            <span>
+              ID: {log.id}
+            </span>
+
+          </div>
+
+          <span>
+            🕒 {new Date(log.created_at).toLocaleString()}
+          </span>
+
+        </div>
+
+      </div>
+    )
+  })}
+
+</div>
+
+    </div>
+
+  </main>
+)
 }
