@@ -301,6 +301,10 @@ const campaignTitle = campaign.title || "Tu campaña"
         sendEmail: true
       })
 
+console.log("🔥 DONOR EMAIL:", donor_email)
+console.log("🔥 CREATOR EMAIL:", creator_email)
+console.log("🔥 ENTRANDO EMAIL DONADOR")
+
       if (donor_email && donor_email !== creator_email) {
   await sendNotification({
     user_email: donor_email,
