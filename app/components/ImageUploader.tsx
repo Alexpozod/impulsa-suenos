@@ -62,6 +62,25 @@ export default function ImageUploader({
 
     const newFiles = Array.from(files)
 
+    const allowedTypes = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png"
+]
+
+const invalidFiles = newFiles.filter(
+  file => !allowedTypes.includes(file.type)
+)
+
+if (invalidFiles.length > 0) {
+
+  alert(
+    "Solo se permiten imágenes JPG, JPEG o PNG"
+  )
+
+  return
+}
+
     // 🔒 límite inteligente
     if (images.length + newFiles.length > 6) {
       alert("Máximo 6 imágenes")
@@ -117,7 +136,7 @@ export default function ImageUploader({
         <input
           type="file"
           multiple
-          accept="image/*"
+          accept=".jpg,.jpeg,.png"
           onChange={(e) => handleFiles(e.target.files)}
           className="hidden"
         />

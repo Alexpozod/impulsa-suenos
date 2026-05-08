@@ -11,7 +11,8 @@ export default function EditCampaign() {
   const router = useRouter()
 
   const [campaign, setCampaign] = useState<any>(null)
-  const [images, setImages] = useState<File[]>([])
+  const [existingImages, setExistingImages] = useState<string[]>([])
+  const [newImages, setNewImages] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -22,7 +23,16 @@ export default function EditCampaign() {
     try {
       const res = await fetch(`/api/campaign/${id}`)
       const data = await res.json()
+
       setCampaign(data)
+
+      setExistingImages(
+  Array.isArray(data.images)
+    ? data.images
+    : data.image_url
+      ? [data.image_url]
+      : []
+)
     } catch (err) {
       console.error(err)
     }
@@ -35,13 +45,9 @@ export default function EditCampaign() {
     try {
 
       // 🧠 mantener imágenes existentes sin duplicar
-      let imageUrls: string[] = Array.isArray(campaign.images)
-        ? [...campaign.images]
-        : campaign.image_url
-          ? [campaign.image_url]
-          : []
+      let imageUrls: string[] = [...existingImages]
 
-      for (const img of images) {
+      for (const img of newImages) {
 
         const cleanName = img.name.replace(/\s/g, "_")
         const fileName = `campaigns/${Date.now()}-${cleanName}`
@@ -88,7 +94,10 @@ export default function EditCampaign() {
 
       <h1 className="text-xl font-bold">Editar campaña</h1>
 
-      <ImageUploader images={images} setImages={setImages} />
+      <ImageUploader
+        images={newImages}
+        setImages={setNewImages}
+      />
 
       <button
         onClick={save}
