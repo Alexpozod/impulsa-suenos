@@ -33,6 +33,21 @@ export async function POST() {
 
       await syncWallet(user.user_email)
 
+      // 🔥 FORZAR BALANCE = AVAILABLE
+      const { data: wallet } = await supabase
+        .from("wallets")
+        .select("available_balance")
+        .eq("user_email", user.user_email)
+        .maybeSingle()
+
+      await supabase
+        .from("wallets")
+        .update({
+          balance: Number(wallet?.available_balance || 0),
+          updated_at: new Date().toISOString()
+        })
+        .eq("user_email", user.user_email)
+
       updated++
     }
 
