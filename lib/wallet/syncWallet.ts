@@ -12,6 +12,53 @@ export async function syncWallet(user_email: string) {
     if (!user_email) return
 
     /* =========================
+       🏦 PLATFORM
+    ========================= */
+    if (user_email === "platform") {
+
+      const { data: ledger } = await supabase
+        .from("financial_ledger")
+        .select("type, amount")
+        .eq("status", "confirmed")
+
+      if (!ledger) return
+
+      let balance = 0
+
+      for (const row of ledger) {
+
+        const amount = Number(row.amount || 0)
+
+        switch (row.type) {
+
+          case "tip":
+          case "fee_platform":
+          case "fee_platform_iva":
+            balance += Math.abs(amount)
+            break
+
+          default:
+            break
+        }
+      }
+
+      await supabase
+        .from("wallets")
+        .upsert({
+          user_email: "platform",
+          balance,
+          available_balance: balance,
+          pending_balance: 0,
+          total_earned: balance,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: "user_email"
+        })
+
+      return
+    }
+
+    /* =========================
        📥 CAMPAÑAS DEL USUARIO
     ========================= */
     const { data: campaigns } = await supabase
@@ -35,42 +82,28 @@ export async function syncWallet(user_email: string) {
     if (!ledger) return
 
     let balance = 0
-let availableBalance = 0
-let pendingBalance = 0
-let totalEarned = 0
+    let totalEarned = 0
 
-for (const row of ledger) {
+    for (const row of ledger) {
 
-  const amount = Number(row.amount || 0)
+      const amount = Number(row.amount || 0)
 
-  switch (row.type) {
+      switch (row.type) {
 
-    case "creator_net":
+        case "creator_net":
+          balance += amount
+          totalEarned += amount
+          break
 
-      balance += amount
-      availableBalance += amount
-      totalEarned += amount
+        case "withdraw":
+        case "withdraw_pending":
+          balance -= Math.abs(amount)
+          break
 
-      break
-
-    case "withdraw":
-
-      balance -= Math.abs(amount)
-      availableBalance -= Math.abs(amount)
-
-      break
-
-    case "withdraw_pending":
-
-      pendingBalance += Math.abs(amount)
-      availableBalance -= Math.abs(amount)
-
-      break
-
-    default:
-      break
-  }
-}
+        default:
+          break
+      }
+    }
 
     /* =========================
        💾 UPSERT WALLET
@@ -80,8 +113,8 @@ for (const row of ledger) {
       .upsert({
         user_email,
         balance,
-        available_balance: availableBalance,
-        pending_balance: pendingBalance,
+        available_balance: balance,
+        pending_balance: 0,
         total_earned: totalEarned,
         updated_at: new Date().toISOString()
       }, {
