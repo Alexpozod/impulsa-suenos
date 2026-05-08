@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 /* =========================
-   🔥 GENERATE METADATA (OG PRO FIX)
+   🔥 GENERATE METADATA
 ========================= */
 export async function generateMetadata(
   { params }: { params: { id: string } }
@@ -33,6 +33,9 @@ export async function generateMetadata(
     console.error("OG fetch error:", error)
   }
 
+  /* =========================
+     🧠 CONTENIDO
+  ========================= */
   const title =
     campaign?.title ||
     "ImpulsaSueños"
@@ -52,7 +55,7 @@ export async function generateMetadata(
   let image =
     campaign?.image_url ||
     campaign?.images?.[0] ||
-    `${baseUrl}/default-og.jpg`
+    `${baseUrl}/default-og.png`
 
   // 🔥 FIX URL RELATIVA
   if (image?.startsWith("/")) {
@@ -64,11 +67,11 @@ export async function generateMetadata(
 
   return {
 
+    metadataBase: new URL(baseUrl),
+
     title,
 
     description,
-
-    metadataBase: new URL(baseUrl),
 
     openGraph: {
 
@@ -80,18 +83,19 @@ export async function generateMetadata(
 
       siteName: "ImpulsaSueños",
 
+      locale: "es_CL",
+
+      type: "website",
+
       images: [
         {
           url: image,
           width: 1200,
           height: 630,
-          alt: title
+          alt: title,
+          type: "image/png"
         }
-      ],
-
-      locale: "es_CL",
-
-      type: "website"
+      ]
     },
 
     twitter: {
@@ -108,7 +112,7 @@ export async function generateMetadata(
 }
 
 /* =========================
-   LAYOUT (NO TOCAR)
+   LAYOUT
 ========================= */
 export default function CampaignLayout({
   children
