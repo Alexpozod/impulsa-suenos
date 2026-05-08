@@ -97,14 +97,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-// 🔥 SI YA EXISTE EL PAYMENT, FORZAR APPROVED
-await supabase
-  .from("payments")
-  .update({
-    status: "approved"
-  })
-  .eq("payment_id", String(paymentId))
-
     const total = Number(payment.transaction_amount || 0)
     const tip = Number(payment.metadata?.tip || 0)
     const donation = total - tip
@@ -258,6 +250,13 @@ const campaignTitle = campaign.title || "Tu campaña"
 
    if (error) {
 
+    await supabase
+  .from("payments")
+  .update({
+    status: "approved"
+  })
+  .eq("payment_id", String(paymentId))
+  
   // 🔥 DUPLICADO = YA PROCESADO
   if (
     error.code === "23505" ||
@@ -265,6 +264,8 @@ const campaignTitle = campaign.title || "Tu campaña"
   ) {
 
     console.log("✅ PAYMENT YA EXISTÍA")
+
+    await syncWallet(creator_email)
 
   } else {
 
