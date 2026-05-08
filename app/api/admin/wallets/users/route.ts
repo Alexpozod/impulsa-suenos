@@ -56,7 +56,7 @@ export async function GET() {
     campaignOwner ||
     row.user_email
 
-  const amount = Number(row.amount || 0)
+  const amount = Math.abs(Number(row.amount || 0))
 
   /* =========================
      👤 INICIALIZAR
