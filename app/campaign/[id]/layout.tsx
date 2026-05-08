@@ -12,7 +12,8 @@ export async function generateMetadata(
   const params = await props.params
   const id = params.id
 
-  const baseUrl = "https://www.impulsasuenos.com"
+  const baseUrl =
+    "https://www.impulsasuenos.com"
 
   let campaign: any = null
 
@@ -52,6 +53,7 @@ export async function generateMetadata(
     campaign?.images?.[0] ||
     `${baseUrl}/default-og.png`
 
+  // 🔥 FIX URL RELATIVA
   if (image?.startsWith("/")) {
     image = `${baseUrl}${image}`
   }
@@ -82,8 +84,7 @@ export async function generateMetadata(
           url: image,
           width: 1200,
           height: 630,
-          alt: title,
-          type: "image/png"
+          alt: title
         }
       ],
 
