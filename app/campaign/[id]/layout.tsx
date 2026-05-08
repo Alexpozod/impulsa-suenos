@@ -4,14 +4,17 @@ import type { Metadata } from "next"
    🔥 GENERATE METADATA
 ========================= */
 export async function generateMetadata(
-  { params }: { params: { id: string } }
+  props: {
+    params: Promise<{ id: string }>
+  }
 ): Promise<Metadata> {
 
-  const id = params?.id
+  const params = await props.params
+  const id = params.id
 
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
-    "https://impulsasuenos.com"
+    "https://www.impulsasuenos.com"
 
   let campaign: any = null
 
@@ -33,9 +36,6 @@ export async function generateMetadata(
     console.error("OG fetch error:", error)
   }
 
-  /* =========================
-     🧠 CONTENIDO
-  ========================= */
   const title =
     campaign?.title ||
     "ImpulsaSueños"
@@ -49,15 +49,11 @@ export async function generateMetadata(
       ? rawDescription.slice(0, 177) + "..."
       : rawDescription
 
-  /* =========================
-     🖼️ IMAGEN
-  ========================= */
   let image =
     campaign?.image_url ||
     campaign?.images?.[0] ||
     `${baseUrl}/default-og.png`
 
-  // 🔥 FIX URL RELATIVA
   if (image?.startsWith("/")) {
     image = `${baseUrl}${image}`
   }
@@ -67,11 +63,11 @@ export async function generateMetadata(
 
   return {
 
-    metadataBase: new URL(baseUrl),
-
     title,
 
     description,
+
+    metadataBase: new URL(baseUrl),
 
     openGraph: {
 
@@ -83,10 +79,6 @@ export async function generateMetadata(
 
       siteName: "ImpulsaSueños",
 
-      locale: "es_CL",
-
-      type: "website",
-
       images: [
         {
           url: image,
@@ -95,7 +87,11 @@ export async function generateMetadata(
           alt: title,
           type: "image/png"
         }
-      ]
+      ],
+
+      locale: "es_CL",
+
+      type: "website"
     },
 
     twitter: {
