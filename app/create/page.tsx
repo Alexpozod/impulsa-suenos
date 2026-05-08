@@ -20,7 +20,7 @@ export default function CreateCampaign() {
   const [goal, setGoal] = useState('')
   const [category, setCategory] = useState('general')
   const [categories, setCategories] = useState<any[]>([])
-  const [images, setImages] = useState<File[]>([])
+  const [newImages, setNewImages] = useState<File[]>([])
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -139,7 +139,24 @@ useEffect(() => {
 
       let imageUrls: string[] = []
 
-      for (const img of images) {
+      for (const img of newImages){
+
+const allowedTypes = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png"
+]
+
+if (!allowedTypes.includes(img.type)) {
+
+  setMessage(
+    "Solo se permiten imágenes JPG, JPEG o PNG"
+  )
+
+  setLoading(false)
+
+  return
+}
 
         const cleanName = img.name.replace(/\s/g, "_")
         const fileName = `campaigns/${Date.now()}-${cleanName}`
@@ -298,7 +315,10 @@ useEffect(() => {
           {step === 4 && (
             <>
               <h2 className="font-bold text-lg">Imágenes</h2>
-              <ImageUploader images={images} setImages={setImages} />
+              <ImageUploader
+                images={newImages}
+                setImages={setNewImages}
+              />
             </>
           )}
 
@@ -352,10 +372,10 @@ useEffect(() => {
 
           <img
             src={
-              images[0]
-                ? URL.createObjectURL(images[0])
-                : "https://images.unsplash.com/photo-1593113630400-ea4288922497"
-            }
+  newImages[0]
+    ? URL.createObjectURL(newImages[0])
+    : "https://images.unsplash.com/photo-1593113630400-ea4288922497"
+}
             className="w-full h-56 object-cover"
           />
 
