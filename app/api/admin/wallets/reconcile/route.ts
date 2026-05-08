@@ -14,42 +14,47 @@ export async function POST() {
 
   try {
 
-    const { data: users, error } = await supabase
-      .from("wallets")
+    /* =========================
+       👤 TODOS LOS USERS REALES
+    ========================= */
+    const { data: campaigns, error } = await supabase
+      .from("campaigns")
       .select("user_email")
 
     if (error) {
       return NextResponse.json(
-        { error: "wallet users error" },
+        { error: "campaign users error" },
         { status: 500 }
       )
     }
 
+    /* =========================
+       🧠 EMAILS ÚNICOS
+    ========================= */
+    const uniqueEmails = Array.from(
+      new Set(
+        (campaigns || [])
+          .map(c => c.user_email)
+          .filter(Boolean)
+      )
+    )
+
+    /* =========================
+       🔄 SYNC USERS
+    ========================= */
     let updated = 0
 
-    for (const user of users || []) {
+    for (const email of uniqueEmails) {
 
-      if (!user.user_email) continue
-
-      await syncWallet(user.user_email)
-
-      // 🔥 FORZAR BALANCE = AVAILABLE
-      const { data: wallet } = await supabase
-        .from("wallets")
-        .select("available_balance")
-        .eq("user_email", user.user_email)
-        .maybeSingle()
-
-      await supabase
-        .from("wallets")
-        .update({
-          balance: Number(wallet?.available_balance || 0),
-          updated_at: new Date().toISOString()
-        })
-        .eq("user_email", user.user_email)
+      await syncWallet(email)
 
       updated++
     }
+
+    /* =========================
+       🏦 PLATFORM
+    ========================= */
+    await syncWallet("platform")
 
     return NextResponse.json({
       ok: true,
