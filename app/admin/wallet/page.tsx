@@ -30,6 +30,28 @@ export default function WalletAdminPage() {
     loadWalletUsers()
   }, [])
 
+  const rebuildWallets = async () => {
+
+  try {
+
+    const res = await fetch("/api/admin/wallets/rebuild", {
+      method: "POST"
+    })
+
+    const data = await res.json()
+
+    console.log("REBUILD:", data)
+
+    await loadWallets()
+    await loadWalletUsers()
+
+  } catch (e) {
+
+    console.error(e)
+
+  }
+}
+
   /* =========================
      📊 WALLETS BASE
   ========================= */
@@ -129,9 +151,28 @@ export default function WalletAdminPage() {
 
       <div className="max-w-6xl mx-auto space-y-6">
 
-        <h1 className="text-2xl font-bold">
-          🧠 Wallets (Admin)
-        </h1>
+        <div className="flex items-center justify-between">
+
+  <h1 className="text-2xl font-bold">
+    🧠 Wallets (Admin)
+  </h1>
+
+  <button
+    onClick={rebuildWallets}
+    className="
+      bg-blue-600
+      hover:bg-blue-700
+      px-4
+      py-2
+      rounded-lg
+      text-sm
+      font-medium
+    "
+  >
+    Recalcular wallets
+  </button>
+
+</div>
 
         {/* =========================
            💰 DISTRIBUCIÓN
