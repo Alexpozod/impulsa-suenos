@@ -9,48 +9,77 @@ export async function generateMetadata(
 
   const id = params?.id
 
-  // 🔥 fallback si algo falla
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
-    "http://localhost:3000"
+    "https://impulsasuenos.com"
 
   let campaign: any = null
 
   try {
+
     const res = await fetch(
       `${baseUrl}/api/campaign/${id}`,
-      { cache: "no-store" }
+      {
+        cache: "no-store"
+      }
     )
 
     if (res.ok) {
       campaign = await res.json()
     }
+
   } catch (error) {
+
     console.error("OG fetch error:", error)
   }
 
-  const title = campaign?.title || "ImpulsaSueños"
+  const title =
+    campaign?.title ||
+    "ImpulsaSueños"
 
-  const description =
-    campaign?.description?.slice(0, 150) ||
+  const rawDescription =
+    campaign?.description ||
     "Apoya esta campaña en ImpulsaSueños"
 
-  const image =
+  const description =
+    rawDescription.length > 180
+      ? rawDescription.slice(0, 177) + "..."
+      : rawDescription
+
+  /* =========================
+     🖼️ IMAGEN
+  ========================= */
+  let image =
     campaign?.image_url ||
     campaign?.images?.[0] ||
     `${baseUrl}/default-og.jpg`
 
-  const url = `${baseUrl}/campaign/${id}`
+  // 🔥 FIX URL RELATIVA
+  if (image?.startsWith("/")) {
+    image = `${baseUrl}${image}`
+  }
+
+  const url =
+    `${baseUrl}/campaign/${id}`
 
   return {
+
     title,
+
     description,
 
+    metadataBase: new URL(baseUrl),
+
     openGraph: {
+
       title,
+
       description,
+
       url,
+
       siteName: "ImpulsaSueños",
+
       images: [
         {
           url: image,
@@ -59,14 +88,20 @@ export async function generateMetadata(
           alt: title
         }
       ],
+
       locale: "es_CL",
+
       type: "website"
     },
 
     twitter: {
+
       card: "summary_large_image",
+
       title,
+
       description,
+
       images: [image]
     }
   }
