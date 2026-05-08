@@ -12,9 +12,7 @@ export async function generateMetadata(
   const params = await props.params
   const id = params.id
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "https://www.impulsasuenos.com"
+  const baseUrl = "https://www.impulsasuenos.com"
 
   let campaign: any = null
 
