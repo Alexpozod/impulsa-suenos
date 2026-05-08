@@ -294,6 +294,12 @@ export default function FinancePage() {
           </button>
         </div>
 
+<div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl p-3">
+  ⏳ Los retiros son revisados manualmente por seguridad y validación financiera.
+  <br />
+  La aprobación puede tardar entre <b>24 y 72 horas hábiles</b>.
+</div>
+
         {/* BOTON */}
         <button
           disabled={!canWithdraw}

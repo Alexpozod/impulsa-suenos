@@ -202,7 +202,15 @@ export async function sendNotification({
           "⏳ Retiro en revisión",
           baseTemplate(`
             <h3>⏳ Retiro en revisión</h3>
-            <p>Tu solicitud fue recibida.</p>
+            <p>
+              Tu solicitud fue recibida correctamente y ahora se encuentra en proceso de revisión.
+            </p>
+
+            <p style="margin-top:10px;">
+              Por seguridad y validación financiera, los retiros pueden tardar entre
+              <b> 24 y 72 horas hábiles </b>
+              en ser aprobados.
+            </p>
             <div style="background:#f9fafb;padding:15px;border-radius:10px;">
               <p><b>Monto:</b> $${Number(metadata?.amount || 0).toLocaleString()}</p>
             </div>
