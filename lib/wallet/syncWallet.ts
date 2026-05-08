@@ -35,28 +35,42 @@ export async function syncWallet(user_email: string) {
     if (!ledger) return
 
     let balance = 0
-    let totalEarned = 0
+let availableBalance = 0
+let pendingBalance = 0
+let totalEarned = 0
 
-    for (const row of ledger) {
+for (const row of ledger) {
 
-      const amount = Number(row.amount || 0)
+  const amount = Number(row.amount || 0)
 
-      switch (row.type) {
+  switch (row.type) {
 
-        case "creator_net":
-          balance += amount
-          totalEarned += amount
-          break
+    case "creator_net":
 
-        case "withdraw":
-        case "withdraw_pending":
-          balance -= Math.abs(amount)
-          break
+      balance += amount
+      availableBalance += amount
+      totalEarned += amount
 
-        default:
-          break
-      }
-    }
+      break
+
+    case "withdraw":
+
+      balance -= Math.abs(amount)
+      availableBalance -= Math.abs(amount)
+
+      break
+
+    case "withdraw_pending":
+
+      pendingBalance += Math.abs(amount)
+      availableBalance -= Math.abs(amount)
+
+      break
+
+    default:
+      break
+  }
+}
 
     /* =========================
        💾 UPSERT WALLET
@@ -66,8 +80,8 @@ export async function syncWallet(user_email: string) {
       .upsert({
         user_email,
         balance,
-        available_balance: balance,
-        pending_balance: 0,
+        available_balance: availableBalance,
+        pending_balance: pendingBalance,
         total_earned: totalEarned,
         updated_at: new Date().toISOString()
       }, {
