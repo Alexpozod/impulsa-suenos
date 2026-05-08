@@ -73,12 +73,36 @@ export async function middleware(req: NextRequest) {
 
     const userAgent = req.headers.get("user-agent") || "unknown"
 
-    if (userAgent.includes("bot") || userAgent.includes("curl")) {
-      return NextResponse.json(
-        { error: "Acceso bloqueado" },
-        { status: 403 }
-      )
-    }
+    /* =========================
+   🤖 SOCIAL CRAWLERS
+========================= */
+const allowedBots = [
+  "facebookexternalhit",
+  "Facebot",
+  "Twitterbot",
+  "LinkedInBot",
+  "WhatsApp",
+  "TelegramBot",
+  "Discordbot"
+]
+
+const isAllowedBot = allowedBots.some(bot =>
+  userAgent.includes(bot)
+)
+
+/* =========================
+   🛡️ ANTIBOT
+========================= */
+if (
+  (userAgent.includes("bot") ||
+   userAgent.includes("curl")) &&
+  !isAllowedBot
+) {
+  return NextResponse.json(
+    { error: "Acceso bloqueado" },
+    { status: 403 }
+  )
+}
 
     /* =========================
        👑 ADMIN CHECK
