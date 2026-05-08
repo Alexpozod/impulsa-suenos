@@ -47,59 +47,86 @@ export async function GET() {
       balance: number
     }> = {}
 
-    for (const row of ledger) {
+    for (const row of ledger as any[]) {
 
-      const campaignOwner =
-      (row.campaigns as any)?.user_email || null
+  const campaignOwner =
+    row.campaigns?.user_email || null
 
-      const userEmail = campaignOwner || row.user_email
+  const userEmail =
+    campaignOwner ||
+    row.user_email
 
-      const amount = Number(row.amount || 0)
+  const amount = Number(row.amount || 0)
 
-      /* =========================
-         👤 USUARIO → SOLO creator_net
-      ========================= */
-      if (row.type === "creator_net" && userEmail) {
+  /* =========================
+     👤 INICIALIZAR
+  ========================= */
+  if (userEmail && !map[userEmail]) {
+    map[userEmail] = {
+      income: 0,
+      withdrawn: 0,
+      balance: 0
+    }
+  }
 
-        if (!map[userEmail]) {
-          map[userEmail] = { income: 0, withdrawn: 0, balance: 0 }
-        }
+  /* =========================
+     💰 GANANCIA CREADOR
+  ========================= */
+  if (
+    row.type === "creator_net" &&
+    userEmail
+  ) {
 
-        map[userEmail].balance += amount
-        map[userEmail].income += amount
-      }
+    map[userEmail].balance += amount
+    map[userEmail].income += amount
+  }
 
-      /* =========================
-         💸 RETIROS USUARIO
-      ========================= */
-      if (row.type === "withdraw" && userEmail) {
+  /* =========================
+     💸 RETIROS
+  ========================= */
+  if (
+    (
+      row.type === "withdraw" ||
+      row.type === "withdraw_pending"
+    ) &&
+    userEmail
+  ) {
 
-        if (!map[userEmail]) {
-          map[userEmail] = { income: 0, withdrawn: 0, balance: 0 }
-        }
+    map[userEmail].balance -=
+      Math.abs(amount)
 
-        map[userEmail].balance += amount
-        map[userEmail].withdrawn += Math.abs(amount)
-      }
+    map[userEmail].withdrawn +=
+      Math.abs(amount)
+  }
 
-      /* =========================
-         🏦 PLATFORM → SOLO FEES + TIPS
-      ========================= */
-      if (
-        row.type === "fee_platform" ||
-        row.type === "fee_platform_iva" ||
-        row.type === "fee_mp" ||
-        row.type === "tip"
-      ) {
+  /* =========================
+     🏦 PLATFORM
+  ========================= */
+  if (
+    row.type === "tip" ||
+    row.type === "fee_platform" ||
+    row.type === "fee_platform_iva"
+  ) {
 
-        if (!map["platform"]) {
-          map["platform"] = { income: 0, withdrawn: 0, balance: 0 }
-        }
-
-        map["platform"].balance += Math.abs(amount)
+    if (!map["platform"]) {
+      map["platform"] = {
+        income: 0,
+        withdrawn: 0,
+        balance: 0
       }
     }
 
+    map["platform"].balance +=
+      Math.abs(amount)
+  }
+
+  /* =========================
+     💳 MP EXTERNO
+  ========================= */
+  if (row.type === "fee_mp") {
+    continue
+  }
+}
     /* =========================
        🔍 RESULTADO FINAL
     ========================= */
