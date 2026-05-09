@@ -20,72 +20,123 @@ export default function EditCampaign() {
   }, [id])
 
   const load = async () => {
-    try {
-      const res = await fetch(`/api/campaign/${id}`)
-      const data = await res.json()
+  try {
 
-      setCampaign(data)
+    const res = await fetch(`/api/campaign/${id}`)
+    const data = await res.json()
 
-      setExistingImages(
-  Array.isArray(data.images)
-    ? data.images
-    : data.image_url
-      ? [data.image_url]
-      : []
-)
-    } catch (err) {
-      console.error(err)
-    }
+    setCampaign(data)
+
+    setExistingImages(
+      Array.isArray(data.images)
+        ? data.images
+        : data.image_url
+          ? [data.image_url]
+          : []
+    )
+
+  } catch (err) {
+    console.error(err)
   }
+}
 
   const save = async () => {
 
-    setLoading(true)
+  setLoading(true)
 
-    try {
+  try {
 
-      // 🧠 mantener imágenes existentes sin duplicar
-      let imageUrls: string[] = [...existingImages]
+    const { data: sessionData } =
+      await supabase.auth.getSession()
 
-      for (const img of newImages) {
+    const token =
+      sessionData?.session?.access_token
 
-        const cleanName = img.name.replace(/\s/g, "_")
-        const fileName = `campaigns/${Date.now()}-${cleanName}`
+    if (!token) {
 
-        const upload = await supabase.storage
-          .from('campaign-images')
-          .upload(fileName, img)
+      alert("Debes iniciar sesión")
 
-        if (!upload.error) {
+      setLoading(false)
 
-          const { data } = supabase.storage
-            .from('campaign-images')
-            .getPublicUrl(fileName)
+      return
+    }
 
-          if (data.publicUrl && !imageUrls.includes(data.publicUrl)) {
-            imageUrls.push(data.publicUrl)
-          }
-        }
+    // 🧠 mantener imágenes existentes
+    let imageUrls: string[] = [...existingImages]
+
+    // 📸 subir nuevas imágenes
+    for (const img of newImages) {
+
+      const cleanName =
+        img.name.replace(/\s/g, "_")
+
+      const fileName =
+        `campaigns/${Date.now()}-${cleanName}`
+
+      const upload = await supabase.storage
+        .from('campaign-images')
+        .upload(fileName, img)
+
+      if (upload.error) {
+
+        console.error(upload.error)
+
+        continue
       }
 
-      await fetch(`/api/campaign/update`, {
+      const { data } = supabase.storage
+        .from('campaign-images')
+        .getPublicUrl(fileName)
+
+      if (
+        data.publicUrl &&
+        !imageUrls.includes(data.publicUrl)
+      ) {
+        imageUrls.push(data.publicUrl)
+      }
+    }
+
+    // 💾 guardar campaña
+    const res = await fetch(
+      `/api/campaign/update`,
+      {
         method: 'POST',
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({
           id,
           images: imageUrls,
           image_url: imageUrls[0] || null
         })
-      })
+      }
+    )
 
-      router.push(`/campaign/${id}`)
+    const result = await res.json()
 
-    } catch (error) {
-      console.error(error)
+    console.log(result)
+
+    if (!res.ok) {
+
+      alert(result.error || "Error guardando")
+
+      setLoading(false)
+
+      return
     }
 
-    setLoading(false)
+    router.push(`/campaign/${id}`)
+
+  } catch (error) {
+
+    console.error(error)
+
+    alert("Error inesperado")
   }
+
+  setLoading(false)
+}
 
   if (!campaign) return <div className="p-10">Cargando...</div>
 
