@@ -95,9 +95,11 @@ export default function EditCampaign() {
       <h1 className="text-xl font-bold">Editar campaña</h1>
 
       <ImageUploader
-        images={newImages}
-        setImages={setNewImages}
-      />
+  images={newImages}
+  setImages={setNewImages}
+  existingImages={existingImages}
+  setExistingImages={setExistingImages}
+/>
 
       <button
         onClick={save}
