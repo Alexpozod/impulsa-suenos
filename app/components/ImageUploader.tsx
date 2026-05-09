@@ -157,78 +157,78 @@ if (invalidFiles.length > 0) {
         </div>
       )}
 
-      {/* GRID */}
-<div className="grid grid-cols-3 gap-3">
+            {/* GRID */}
+      <div className="grid grid-cols-3 gap-3">
 
-  {/* EXISTENTES */}
-  {existingImages.map((img, i) => (
+        {/* EXISTENTES */}
+        {existingImages.map((img, i) => (
 
-    <div key={`existing-${i}`} className="relative group">
+          <div key={`existing-${i}`} className="relative group">
 
-      <img
-        src={img}
-        className="h-28 w-full object-cover rounded-lg"
-      />
+            <img
+              src={img}
+              className="h-28 w-full object-cover rounded-lg"
+            />
 
-      {i === 0 && (
-        <span className="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">
-          Portada
-        </span>
-      )}
+            {i === 0 && (
+              <span className="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-1 rounded">
+                Portada
+              </span>
+            )}
 
-      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex justify-center items-center transition">
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex justify-center items-center transition">
 
-        <button
-          onClick={() => {
+              <button
+                onClick={() => {
 
-            if (!setExistingImages) return
+                  if (!setExistingImages) return
 
-            const updated = [...existingImages]
+                  const updated = [...existingImages]
 
-            updated.splice(i, 1)
+                  updated.splice(i, 1)
 
-            setExistingImages(updated)
-          }}
-          className="bg-red-600 text-white px-2 py-1 text-xs rounded"
-        >
-          Eliminar
-        </button>
+                  setExistingImages(updated)
+                }}
+                className="bg-red-600 text-white px-2 py-1 text-xs rounded"
+              >
+                Eliminar
+              </button>
+
+            </div>
+
+          </div>
+        ))}
+
+        {/* NUEVAS */}
+        {images.map((img, i) => {
+
+          const preview = URL.createObjectURL(img)
+
+          return (
+            <div key={`new-${i}`} className="relative group">
+
+              <img
+                src={preview}
+                className="h-28 w-full object-cover rounded-lg"
+              />
+
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex justify-center items-center transition">
+
+                <button
+                  onClick={() => removeImage(i)}
+                  className="bg-red-600 text-white px-2 py-1 text-xs rounded"
+                >
+                  Eliminar
+                </button>
+
+              </div>
+
+            </div>
+          )
+        })}
 
       </div>
 
-    </div>
-  ))}
-
-  {/* NUEVAS */}
-  {images.map((img, i) => {
-
-    const preview = URL.createObjectURL(img)
-
-    return (
-      <div key={`new-${i}`} className="relative group">
-
-        <img
-          src={preview}
-          className="h-28 w-full object-cover rounded-lg"
-        />
-
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex justify-center items-center transition">
-
-          <button
-            onClick={() => removeImage(i)}
-            className="bg-red-600 text-white px-2 py-1 text-xs rounded"
-          >
-            Eliminar
-          </button>
-
-        </div>
-
-      </div>
-    )
-  })}
-
-</div>
-
-    </div>
+          </div>
   )
 }
