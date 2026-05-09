@@ -49,7 +49,9 @@ export async function POST(req: Request) {
     /* =========================
        🔐 AUTH
     ========================= */
-    const authHeader = req.headers.get("authorization")
+    const authHeader =
+  req.headers.get("authorization") ||
+  req.headers.get("Authorization")
 
     if (!authHeader) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 })
