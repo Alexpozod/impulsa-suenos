@@ -295,23 +295,19 @@ export async function sendNotification({
       }
 
       else if (type === "campaign_created") {
-        response = await send(
-          "🚀 Tu campaña está activa",
-          baseTemplate(`
-            <h3>🚀 Campaña creada con éxito</h3>
-            <p>Tu campaña ya está disponible para recibir donaciones.</p>
 
-            <div style="background:#f9fafb;padding:15px;border-radius:10px;">
-              <p><b>Título:</b> ${metadata?.campaign_title || "Sin título"}</p>
-              <p><b>Meta:</b> $${Number(metadata?.goal_amount || 0).toLocaleString()}</p>
-            </div>
+  const campaignUrl =
+    metadata?.campaign_id
+      ? `https://impulsasuenos.com/campaign/${metadata.campaign_id}`
+      : "https://impulsasuenos.com/dashboard"
 
-            <p style="margin-top:10px;">
-              Comparte tu campaña y comienza a recibir apoyo 💚
-            </p>
-          `)
-        )
-      }
+  response = await send(
+    "🚀 Tu campaña ya está activa",
+    baseTemplate(`
+      ...
+    `)
+  )
+}
 
     } catch (err: any) {
 
