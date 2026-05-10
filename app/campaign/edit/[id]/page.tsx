@@ -105,8 +105,12 @@ export default function EditCampaign() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({
+       body: JSON.stringify({
           id,
+
+          title: campaign.title,
+          description: campaign.description,
+
           images: imageUrls,
           image_url: imageUrls[0] || null
         })
