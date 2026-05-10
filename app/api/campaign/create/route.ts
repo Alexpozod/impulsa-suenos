@@ -129,9 +129,10 @@ export async function POST(req: Request) {
       title: "Campaña creada con éxito",
       message: "Tu campaña ya está activa",
       metadata: {
-        campaign_title: campaign.title,
-        goal_amount: campaign.goal_amount
-      },
+      campaign_id: campaign.id,
+      campaign_title: campaign.title,
+      goal_amount: campaign.goal_amount
+    },
       sendEmail: true
     })
 
