@@ -304,7 +304,53 @@ export async function sendNotification({
   response = await send(
     "🚀 Tu campaña ya está activa",
     baseTemplate(`
-      ...
+      <h3>🚀 Campaña creada con éxito</h3>
+
+      <p>
+        Tu campaña ya está activa y lista para recibir donaciones.
+      </p>
+
+      <div style="background:#f9fafb;padding:15px;border-radius:10px; margin-top:20px;">
+        <p>
+          <b>Título:</b>
+          ${metadata?.campaign_title || "Sin título"}
+        </p>
+
+        <p>
+          <b>Meta:</b>
+          $${Number(metadata?.goal_amount || 0).toLocaleString()}
+        </p>
+      </div>
+
+      <p style="margin-top:20px;">
+        Ahora comienza la parte más importante:
+        compartir tu campaña con amigos, familia y redes sociales 💚
+      </p>
+
+      <div style="text-align:center;margin:35px 0;">
+
+        <a
+          href="${campaignUrl}"
+          style="
+            display:inline-block;
+            background:#16a34a;
+            color:white;
+            text-decoration:none;
+            padding:14px 28px;
+            border-radius:10px;
+            font-weight:bold;
+            font-size:16px;
+          "
+        >
+          🚀 Empezar a compartir mi campaña
+        </a>
+
+      </div>
+
+      <p style="font-size:14px;color:#666;text-align:center;">
+        Las campañas que comienzan a compartirse desde el primer día
+        suelen conseguir sus primeras donaciones mucho más rápido.
+      </p>
     `)
   )
 }
