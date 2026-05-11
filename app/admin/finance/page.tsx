@@ -313,19 +313,7 @@ export default function FinanceAdminPage() {
 
         {/* HEALTH CENTER */}
 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-
-  <HealthCard
-    title="MercadoPago"
-    status="online"
-    text="Operativo"
-  />
-
-  <HealthCard
-    title="Wallet Sync"
-    status="online"
-    text="Sincronización OK"
-  />
-
+  
   <HealthCard
     title="Retiros"
     status={
