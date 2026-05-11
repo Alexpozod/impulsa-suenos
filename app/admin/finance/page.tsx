@@ -230,6 +230,7 @@ export default function FinanceAdminPage() {
           <Card title="Retiros" value={stats.totalWithdrawals} />
           <Card title="Balance" value={stats.balance} />
           <Card title="Comisiones" value={stats.totalFees} />
+          <Card title="Costos MP" value={stats.totalMpFees} />
           <Card title="Tips" value={stats.totalTips} />
 
           <Card

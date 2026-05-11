@@ -96,14 +96,15 @@ export async function GET() {
     )
 
     const totalPlatformFees =
-  feePlatformBase +
-  feePlatformIVATotal +
-  totalTips
+    feePlatformBase +
+    feePlatformIVATotal
 
     const totalProviderFees = feeMP.reduce(
       (acc, f) => acc + Math.abs(Number(f.amount || 0)),
       0
     )
+
+    const totalMpFees = totalProviderFees
 
     const totalFees = totalPlatformFees + totalProviderFees
 
@@ -217,6 +218,7 @@ export async function GET() {
       totalFees,
       totalPlatformFees,
       totalProviderFees,
+      totalMpFees,
       netIncome,
       balance,
 
@@ -243,7 +245,9 @@ export async function GET() {
         pending: totalPendingWithdrawals
       },
 
-      profit: totalPlatformFees,
+      profit:
+        totalPlatformFees +
+        totalTips,
 
       margin:
         totalIncome > 0
@@ -251,9 +255,14 @@ export async function GET() {
           : 0,
 
       takeRate:
-        totalIncome > 0
-          ? ((totalPlatformFees + totalProviderFees) / totalIncome) * 100
-          : 0,
+  totalIncome > 0
+    ? (
+        (
+          totalPlatformFees +
+          totalTips
+        ) / totalIncome
+      ) * 100
+    : 0,
 
       avgFeePerPayment:
         payments.length > 0
