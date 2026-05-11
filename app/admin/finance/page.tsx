@@ -598,30 +598,30 @@ duration-300
         }
       </p>
 
-      <div className="mt-3">
+      {
+  growth !== undefined && (
+    <div className="mt-3">
 
-        <span
-  className={`
-    text-xs
-    px-2
-    py-1
-    rounded-full
-    border
-    ${
-      growth >= 0
-        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
-        : "bg-red-500/10 border-red-500/20 text-red-300"
-    }
-  `}
->
-  {
-    growth !== undefined
-      ? `${growth >= 0 ? "↑" : "↓"} ${Math.abs(growth).toFixed(1)}%`
-      : "—"
-  }
-</span>
+      <span
+        className={`
+          text-xs
+          px-2
+          py-1
+          rounded-full
+          border
+          ${
+            growth >= 0
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
+              : "bg-red-500/10 border-red-500/20 text-red-300"
+          }
+        `}
+      >
+        {growth >= 0 ? "↑" : "↓"} {Math.abs(growth).toFixed(1)}%
+      </span>
 
-      </div>
+    </div>
+  )
+}
 
     </div>
   )
