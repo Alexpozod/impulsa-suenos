@@ -103,22 +103,23 @@ export async function GET() {
      🏦 PLATFORM
   ========================= */
   if (
-    row.type === "tip" ||
-    row.type === "fee_platform" ||
-    row.type === "fee_platform_iva"
-  ) {
+  row.type === "tip" ||
+  row.type === "fee_platform" ||
+  row.type === "fee_platform_iva" ||
+  row.type === "fee_mp"
+) {
 
-    if (!map["platform"]) {
-      map["platform"] = {
-        income: 0,
-        withdrawn: 0,
-        balance: 0
-      }
+  if (!map["platform"]) {
+    map["platform"] = {
+      income: 0,
+      withdrawn: 0,
+      balance: 0
     }
-
-    map["platform"].balance +=
-      Math.abs(amount)
   }
+
+  map["platform"].balance +=
+    Math.abs(amount)
+}
 
   /* =========================
      💳 MP EXTERNO

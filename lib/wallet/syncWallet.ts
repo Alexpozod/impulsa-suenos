@@ -34,6 +34,7 @@ export async function syncWallet(user_email: string) {
           case "tip":
           case "fee_platform":
           case "fee_platform_iva":
+          case "fee_mp":
             balance += Math.abs(amount)
             break
 
