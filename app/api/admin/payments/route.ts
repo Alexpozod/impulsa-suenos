@@ -62,10 +62,10 @@ export async function GET(req: Request) {
     ========================= */
     if (!data) {
       const ledger = await supabase
-        .from("financial_ledger")
-        .select("*")
-        .eq("reference_id", id)
-        .maybeSingle()
+  .from("financial_ledger")
+  .select("*")
+  .eq("payment_id", id)
+  .maybeSingle()
 
       if (ledger.data) {
         data = {
