@@ -581,7 +581,7 @@ duration-300
       </p>
 
       <p className="text-2xl font-bold text-white mt-2">
-        ${parsed.toLocaleString()}
+        ${Math.round(parsed).toLocaleString("es-CL")}
       </p>
 
       <div className="mt-3">
