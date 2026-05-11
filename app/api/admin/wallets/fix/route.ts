@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { syncWallet } from "@/lib/wallet/syncWallet"
 
 export async function POST() {
   try {
@@ -59,20 +60,7 @@ export async function POST() {
         balances[email] += amount
       }
     }
-
-    /* =========================
-       🏦 PLATFORM (COMISIONES)
-    ========================= */
-    const platformBalance = (ledger as any[])
-      .filter((l) =>
-        l.type === "fee_platform" ||
-        l.type === "fee_platform_iva" ||
-        l.type === "fee_mp"
-      )
-      .reduce((acc, l) => acc + Math.abs(Number(l.amount || 0)), 0)
-
-    balances["platform"] = platformBalance
-
+    
     /* =========================
        📊 TOTAL EARNED (solo payments)
     ========================= */
@@ -132,11 +120,13 @@ export async function POST() {
       updated++
     }
 
-    return NextResponse.json({
-      ok: true,
-      updated,
-      users: Object.keys(balances).length
-    })
+    await syncWallet("platform")
+
+return NextResponse.json({
+  ok: true,
+  updated,
+  users: Object.keys(balances).length
+})
 
   } catch (error) {
     console.error("WALLET FIX ERROR:", error)
