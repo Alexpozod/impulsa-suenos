@@ -281,6 +281,10 @@ const balance =
     : 0,
 
       totalPayments: payments.length,
+
+      confirmedPayments: payments.length,
+      processedWithdrawals: withdrawals.length,
+
       providers,
       daily,
       recentPayments,

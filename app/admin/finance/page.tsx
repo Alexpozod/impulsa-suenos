@@ -129,32 +129,36 @@ export default function FinanceAdminPage() {
   <div className="flex flex-wrap gap-3">
 
     <div className="
-      bg-emerald-500/10
-      border
-      border-emerald-500/30
-      text-emerald-300
-      px-4
-      py-2
-      rounded-xl
-      text-sm
-      font-medium
-    ">
-      🟢 MercadoPago operativo
-    </div>
+  bg-emerald-500/10
+  border
+  border-emerald-500/30
+  text-emerald-300
+  px-4
+  py-2
+  rounded-xl
+  text-sm
+  font-medium
+">
+  💳 Pagos confirmados:
+  {" "}
+  {stats.confirmedPayments || 0}
+</div>
 
-    <div className="
-      bg-blue-500/10
-      border
-      border-blue-500/30
-      text-blue-300
-      px-4
-      py-2
-      rounded-xl
-      text-sm
-      font-medium
-    ">
-      🟢 Wallet Sync OK
-    </div>
+<div className="
+  bg-blue-500/10
+  border
+  border-blue-500/30
+  text-blue-300
+  px-4
+  py-2
+  rounded-xl
+  text-sm
+  font-medium
+">
+  🏦 Retiros procesados:
+  {" "}
+  {stats.processedWithdrawals || 0}
+</div>
 
     <div className="
       bg-yellow-500/10
