@@ -276,8 +276,17 @@ export default function FinanceAdminPage() {
         {/* KPIs PRO */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card title="Profit" value={stats.profit} />
-          <Card title="Margen %" value={Number(stats.margin || 0).toFixed(2)} />
-          <Card title="Take Rate %" value={Number(stats.takeRate || 0).toFixed(2)} />
+          <Card
+            title="Margen %"
+            value={Number(stats.margin || 0)}
+            isPercent
+          />
+
+          <Card
+            title="Take Rate %"
+            value={Number(stats.takeRate || 0)}
+            isPercent
+          />
           <Card title="Fee Promedio" value={stats.avgFeePerPayment} />
         </div>
 
@@ -521,7 +530,8 @@ function RevenueChart({ data }: any) {
 function Card({
   title,
   value,
-  growth
+  growth,
+  isPercent = false
 }: any) {
 
   const parsed =
@@ -581,7 +591,11 @@ duration-300
       </p>
 
       <p className="text-2xl font-bold text-white mt-2">
-        ${Math.round(parsed).toLocaleString("es-CL")}
+        {
+          isPercent
+            ? `${parsed.toFixed(2)}%`
+            : `$${Math.round(parsed).toLocaleString("es-CL")}`
+        }
       </p>
 
       <div className="mt-3">
