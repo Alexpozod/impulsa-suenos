@@ -106,9 +106,7 @@ export async function GET() {
 
     const totalMpFees = totalProviderFees
 
-    const totalFees =
-  totalPlatformFees +
-  totalProviderFees
+    const totalFees = totalPlatformFees
 
 const netIncome =
   totalIncome -
@@ -116,10 +114,7 @@ const netIncome =
   totalProviderFees
 
 const balance =
-  (
-    totalPlatformFees +
-    totalTips
-  ) - totalWithdrawals
+  netIncome - totalWithdrawals
 
     /* =========================
        💰 NETO A CREADORES
@@ -271,6 +266,7 @@ const balance =
     ? (
         (
           totalPlatformFees +
+          totalProviderFees +
           totalTips
         ) / totalIncome
       ) * 100
