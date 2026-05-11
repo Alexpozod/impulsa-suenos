@@ -88,11 +88,10 @@ export async function GET() {
            🏦 PLATAFORMA (GANANCIA)
         ========================= */
         case "fee_platform":
-        case "fee_platform_iva":
-        case "fee_mp":
-          add("platform", Math.abs(amount))
-          break
-
+case "fee_platform_iva":
+  add("platform", Math.abs(amount))
+  break
+  
         case "tip":
           add("platform", amount)
           break
