@@ -105,8 +105,7 @@ export async function GET() {
   if (
   row.type === "tip" ||
   row.type === "fee_platform" ||
-  row.type === "fee_platform_iva" ||
-  row.type === "fee_mp"
+  row.type === "fee_platform_iva"
 ) {
 
   if (!map["platform"]) {
