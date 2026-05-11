@@ -256,7 +256,7 @@ const campaignTitle = campaign.title || "Tu campaña"
     status: "approved"
   })
   .eq("payment_id", String(paymentId))
-  
+
   // 🔥 DUPLICADO = YA PROCESADO
   if (
     error.code === "23505" ||
@@ -337,6 +337,7 @@ console.log("🔥 ENTRANDO EMAIL DONADOR")
 console.log("🔥 ANTES SYNC WALLET")
 
 await syncWallet(creator_email)
+await syncWallet("platform")
 
 console.log("🔥 ANTES WEBHOOK LOG")
 
