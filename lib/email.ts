@@ -5,13 +5,19 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 export async function sendDonationEmail({
   to,
   campaign,
-  amount
+  amount,
+  campaign_id
 }: {
   to: string
   campaign: string
   amount: number
+  campaign_id?: string
 }) {
   try {
+
+    const campaignUrl = campaign_id
+  ? `https://impulsasuenos.com/campaign/${campaign_id}`
+  : "https://impulsasuenos.com/campaigns"
 
     if (!process.env.RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY NO DEFINIDA")
@@ -51,7 +57,7 @@ export async function sendDonationEmail({
             </div>
 
             <div style="text-align:center; margin-top:25px">
-              <a href="https://impulsasuenos.com/campaign"
+              <a href="${campaignUrl}"
                 style="background:#16a34a; color:white; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:bold;">
                 Compartir campaña
               </a>
