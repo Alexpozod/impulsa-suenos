@@ -106,13 +106,20 @@ export async function GET() {
 
     const totalMpFees = totalProviderFees
 
-    const totalFees = totalPlatformFees
+    const totalFees =
+  totalPlatformFees +
+  totalProviderFees
 
-    const netIncome =
-      totalIncome - totalPlatformFees - totalProviderFees
+const netIncome =
+  totalIncome -
+  totalPlatformFees -
+  totalProviderFees
 
-    const balance =
-      netIncome - totalWithdrawals
+const balance =
+  (
+    totalPlatformFees +
+    totalTips
+  ) - totalWithdrawals
 
     /* =========================
        💰 NETO A CREADORES
@@ -250,9 +257,14 @@ export async function GET() {
         totalTips,
 
       margin:
-        totalIncome > 0
-          ? (totalPlatformFees / totalIncome) * 100
-          : 0,
+  totalIncome > 0
+    ? (
+        (
+          totalPlatformFees +
+          totalTips
+        ) / totalIncome
+      ) * 100
+    : 0,
 
       takeRate:
   totalIncome > 0
@@ -265,9 +277,12 @@ export async function GET() {
     : 0,
 
       avgFeePerPayment:
-        payments.length > 0
-          ? totalPlatformFees / payments.length
-          : 0,
+  payments.length > 0
+    ? (
+        totalPlatformFees +
+        totalTips
+      ) / payments.length
+    : 0,
 
       totalPayments: payments.length,
       providers,
