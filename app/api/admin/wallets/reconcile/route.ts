@@ -52,14 +52,24 @@ export async function POST() {
     }
 
     /* =========================
-       🏦 PLATFORM
-    ========================= */
-    await syncWallet("platform")
+   🏦 PLATFORM
+========================= */
+await syncWallet("platform")
 
-    return NextResponse.json({
-      ok: true,
-      updated
-    })
+/* =========================
+   🔥 VALIDAR UPDATE REAL
+========================= */
+const { data: platformWallet } = await supabase
+  .from("wallets")
+  .select("*")
+  .eq("user_email", "platform")
+  .maybeSingle()
+
+return NextResponse.json({
+  ok: true,
+  updated,
+  platformWallet
+})
 
   } catch (error) {
 
