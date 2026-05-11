@@ -107,10 +107,11 @@ export async function sendNotification({
   try {
 
     await sendDonationEmail({
-      to: email,
-      campaign: campaignName,
-      amount
-    })
+        to: email,
+        campaign: campaignName,
+        amount,
+        campaign_id: metadata?.campaign_id
+      })
 
     console.log("✅ DONATION EMAIL ENVIADO")
 
