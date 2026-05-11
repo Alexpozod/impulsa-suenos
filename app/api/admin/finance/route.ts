@@ -106,7 +106,7 @@ export async function GET() {
 
     const totalMpFees = totalProviderFees
 
-    const totalFees = totalPlatformFees + totalProviderFees
+    const totalFees = totalPlatformFees
 
     const netIncome =
       totalIncome - totalPlatformFees - totalProviderFees
