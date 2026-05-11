@@ -15,6 +15,7 @@ export async function GET() {
     const { data: ledger } = await supabase
       .from("financial_ledger")
       .select("campaign_id, amount, type")
+      .eq("status", "confirmed")
 
     if (!ledger) return NextResponse.json([])
 

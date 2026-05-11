@@ -14,6 +14,7 @@ export async function GET() {
       .from("financial_ledger")
       .select("campaign_id, amount")
       .eq("type", "payment")
+      .eq("status", "confirmed")
 
     if (!ledger || ledger.length === 0) {
       return NextResponse.json([])

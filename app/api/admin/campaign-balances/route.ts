@@ -56,15 +56,7 @@ export async function GET() {
 ) {
   map[l.campaign_id].fees += Math.abs(Number(l.amount || 0))
 }
-
-      /* 🔥 FIX REAL: TODAS LAS FEES */
-      if (
-        l.type === "fee_platform" ||
-        l.type === "fee_platform_iva" ||
-        l.type === "fee_mp"
-      ) {
-        map[l.campaign_id].fees += Math.abs(Number(l.amount || 0))
-      }
+      
     }
 
     /* =========================
