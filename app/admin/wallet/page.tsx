@@ -34,9 +34,9 @@ export default function WalletAdminPage() {
 
   try {
 
-    const res = await fetch("/api/admin/wallets/rebuild", {
-      method: "POST"
-    })
+    const res = await fetch("/api/admin/wallets/reconcile", {
+  method: "POST"
+})
 
     const data = await res.json()
 
