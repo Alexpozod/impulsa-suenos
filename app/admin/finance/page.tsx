@@ -225,13 +225,43 @@ export default function FinanceAdminPage() {
 
         {/* KPIs */}
         <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card title="Ingresos" value={stats.totalIncome} />
-          <Card title="USD" value={stats.totalUSD} />
-          <Card title="Retiros" value={stats.totalWithdrawals} />
-          <Card title="Balance" value={stats.balance} />
-          <Card title="Comisiones" value={stats.totalFees} />
-          <Card title="Costos MP" value={stats.totalMpFees} />
-          <Card title="Tips" value={stats.totalTips} />
+         <Card
+  title="Ingresos"
+  value={stats.totalIncome}
+  growth={stats?.growth?.income}
+/>
+
+<Card
+  title="USD"
+  value={stats.totalUSD}
+/>
+
+<Card
+  title="Retiros"
+  value={stats.totalWithdrawals}
+/>
+
+<Card
+  title="Balance"
+  value={stats.balance}
+/>
+
+<Card
+  title="Comisiones"
+  value={stats.totalFees}
+  growth={stats?.growth?.profit}
+/>
+
+<Card
+  title="Costos MP"
+  value={stats.totalMpFees}
+/>
+
+<Card
+  title="Tips"
+  value={stats.totalTips}
+  growth={stats?.growth?.tips}
+/>
 
           <Card
             title="Ticket promedio"
@@ -488,7 +518,11 @@ function RevenueChart({ data }: any) {
   )
 }
 
-function Card({ title, value }: any) {
+function Card({
+  title,
+  value,
+  growth
+}: any) {
 
   const parsed =
     value !== null && value !== undefined
@@ -552,18 +586,26 @@ duration-300
 
       <div className="mt-3">
 
-        <span className="
-          text-xs
-          px-2
-          py-1
-          rounded-full
-          bg-emerald-500/10
-          border
-          border-emerald-500/20
-          text-emerald-300
-        ">
-          ↑ +12.4%
-        </span>
+        <span
+  className={`
+    text-xs
+    px-2
+    py-1
+    rounded-full
+    border
+    ${
+      growth >= 0
+        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
+        : "bg-red-500/10 border-red-500/20 text-red-300"
+    }
+  `}
+>
+  {
+    growth !== undefined
+      ? `${growth >= 0 ? "↑" : "↓"} ${Math.abs(growth).toFixed(1)}%`
+      : "—"
+  }
+</span>
 
       </div>
 
