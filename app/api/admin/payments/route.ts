@@ -82,7 +82,7 @@ export async function GET(req: Request) {
       const payments = await supabase
         .from("payments")
         .select("*")
-        .or(`id.eq.${id},external_id.eq.${id},mp_payment_id.eq.${id}`)
+        .or(`id.eq.${id},payment_id.eq.${id}`)
         .maybeSingle()
 
       if (payments.data) {
