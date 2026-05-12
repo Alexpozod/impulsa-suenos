@@ -65,7 +65,19 @@ export async function GET(req: Request) {
   .from("financial_ledger")
   .select("*")
   .eq("payment_id", id)
-  .maybeSingle()
+
+if (ledger.data && ledger.data.length > 0) {
+
+  const paymentRow =
+    ledger.data.find(l => l.type === "payment")
+    || ledger.data[0]
+
+  data = {
+    ...paymentRow,
+    ledger_entries: ledger.data,
+    source: "ledger"
+  }
+}
 
       if (ledger.data) {
         data = {
