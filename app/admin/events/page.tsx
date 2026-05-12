@@ -89,8 +89,8 @@ export default function AdminEventsPage() {
       min-h-screen
       bg-[#020617]
       text-white
-      p-6
-      lg:p-10
+      p-5
+      lg:p-7
       overflow-x-hidden
     ">
 
@@ -109,7 +109,7 @@ export default function AdminEventsPage() {
   <div>
 
     <h1 className="
-      text-4xl
+      text-3xl
       font-black
       tracking-tight
       text-white
@@ -258,7 +258,7 @@ export default function AdminEventsPage() {
 {/* EVENTS STREAM */}
 <div className="
   space-y-4
-  max-h-[900px]
+  max-h-[650px]
   overflow-y-auto
   pr-2
 ">
