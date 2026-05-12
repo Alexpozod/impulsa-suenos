@@ -14,8 +14,8 @@ const supabase = createClient(
    🔥 SCHEMA PRO (EXTENDIDO)
 ========================= */
 const paymentSchema = z.object({
-  amount: z.number().positive().min(100),
-  tip: z.number().min(0).optional(),
+  amount: z.number().positive().min(100).max(10000000),
+  tip: z.number().min(0).max(1000000).optional(),
   campaign_id: z.string().min(1),
 
   user_email: z.string().email(),
@@ -86,6 +86,10 @@ export async function POST(req: Request) {
       safeDonorName = donor_name.trim()
     }
 
+const safeMessage = message
+  .trim()
+  .slice(0, 500)
+
     const provider = "mercadopago"
 
     /* =========================
@@ -103,7 +107,7 @@ export async function POST(req: Request) {
       campaign_id,
       user_email,
       provider,
-      message,
+      message: safeMessage,
       donor_name: safeDonorName,
 
       metadata: {

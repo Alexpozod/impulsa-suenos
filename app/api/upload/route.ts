@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const formData = await req.formData()
 
     const file = formData.get("file") as File
-    const bucket = formData.get("bucket") as string
+    const bucket = String(formData.get("bucket") || "")
     const path = formData.get("path") as string
 
     if (!file) {
@@ -26,6 +26,28 @@ export async function POST(req: Request) {
     if (!path) {
       return NextResponse.json({ error: "path requerido" }, { status: 400 })
     }
+
+const allowedBuckets = [
+  "campaign-images",
+  "avatars"
+]
+
+if (!allowedBuckets.includes(bucket)) {
+  return NextResponse.json(
+    { error: "bucket inválido" },
+    { status: 403 }
+  )
+}
+
+if (
+  path.includes("..") ||
+  path.includes("//")
+) {
+  return NextResponse.json(
+    { error: "path inválido" },
+    { status: 400 }
+  )
+}
 
     /* =========================
        VALIDACIONES
@@ -51,7 +73,7 @@ export async function POST(req: Request) {
       .from(bucket)
       .upload(path, buffer, {
         contentType: file.type,
-        upsert: true
+        upsert: false
       })
 
     if (error) {
