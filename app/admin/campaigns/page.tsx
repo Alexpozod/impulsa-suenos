@@ -290,7 +290,9 @@ export default function AdminCampaigns() {
   <p className="text-slate-300">
     📅 Creada:
     <span className="text-white font-medium ml-1">
-      {new Date(c.created_at).toLocaleDateString()}
+      {c.created_at
+  ? new Date(c.created_at).toLocaleDateString()
+  : "Sin fecha"}
     </span>
   </p>
 
