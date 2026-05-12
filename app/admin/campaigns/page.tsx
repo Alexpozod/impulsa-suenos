@@ -267,9 +267,69 @@ export default function AdminCampaigns() {
 
 </div>
 
-          <p className="text-sm mb-3">
-            Recaudado: ${Number(c.total_raised || 0).toLocaleString()}
-          </p>
+          <div className="mb-4">
+
+  <div className="
+    flex
+    justify-between
+    text-sm
+    mb-2
+  ">
+
+    <span className="text-slate-300">
+      Recaudado
+    </span>
+
+    <span className="text-white font-medium">
+      ${Number(c.total_raised || 0).toLocaleString()}
+    </span>
+
+  </div>
+
+  <div className="
+    w-full
+    h-3
+    bg-slate-800
+    rounded-full
+    overflow-hidden
+  ">
+
+    <div
+      className="
+        h-full
+        bg-emerald-500
+        rounded-full
+      "
+      style={{
+        width: `${Math.min(
+          (
+            (Number(c.total_raised || 0) /
+              Number(c.goal_amount || 1)
+            ) * 100
+          ),
+          100
+        )}%`
+      }}
+    />
+
+  </div>
+
+  <p className="
+    text-xs
+    text-slate-400
+    mt-2
+  ">
+    {c.goal_amount
+  ? Math.round(
+      (
+        (Number(c.total_raised || 0) /
+          Number(c.goal_amount)
+        ) * 100
+    )
+  : 0}% completado
+  </p>
+
+</div>
 
 <div className="space-y-1 mb-4 text-sm">
 
@@ -298,7 +358,31 @@ export default function AdminCampaigns() {
 
 </div>
 
-          <div className="flex flex-wrap gap-2">
+<div className="
+  flex
+  flex-wrap
+  items-center
+  gap-3
+  mb-4
+">
+
+  <a
+    href={`/campaign/${c.id}`}
+    target="_blank"
+    className="
+      inline-flex
+      items-center
+      text-sm
+      text-blue-400
+      hover:text-blue-300
+    "
+  >
+    🔍 Ver campaña pública
+  </a>
+
+</div>
+
+<div className="flex flex-wrap gap-2">
 
             {c.status !== "active" && (
               <button
