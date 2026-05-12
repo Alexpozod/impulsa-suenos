@@ -25,6 +25,13 @@ export async function POST(req: Request) {
 
     const rawBody = await req.text()
 
+    const signature = req.headers.get("x-signature")
+
+if (!signature) {
+  console.warn("❌ Missing webhook signature")
+  return NextResponse.json({ error: "invalid signature" }, { status: 401 })
+}
+
     let body: any = {}
     try { body = JSON.parse(rawBody) } catch {}
 
@@ -38,6 +45,11 @@ export async function POST(req: Request) {
       null
 
     if (!paymentId) return NextResponse.json({ ok: true })
+      
+      if (!/^\d+$/.test(String(paymentId))) {
+  console.warn("❌ Invalid payment id")
+  return NextResponse.json({ ok: true })
+}
 
     console.log("🆔 PAYMENT ID:", paymentId)
 

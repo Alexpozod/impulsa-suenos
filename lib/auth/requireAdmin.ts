@@ -15,6 +15,10 @@ export async function requireAdmin(req: Request) {
 
   const token = authHeader.replace("Bearer ", "")
 
+  if (!token) {
+  throw new Error("invalid token")
+}
+
   const { data: { user }, error } = await supabase.auth.getUser(token)
 
   if (error || !user?.email) {
