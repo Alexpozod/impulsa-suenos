@@ -114,11 +114,22 @@ export async function POST(req: Request) {
     }
 
     await logToDB("info", "campaign_created", {
-      campaign_id: campaign.id,
-      user_email,
-      category,
-      images_count: safeImages.length
-    })
+  campaign_id: campaign.id,
+
+  campaign_title: campaign.title,
+
+  user_email,
+
+  goal_amount: campaign.goal_amount,
+
+  category,
+
+  status: campaign.status,
+
+  images_count: safeImages.length,
+
+  created_at: campaign.created_at
+})
 
     /* =========================
        📧 NOTIFICACIÓN CREACIÓN CAMPAÑA
@@ -135,6 +146,43 @@ export async function POST(req: Request) {
     },
       sendEmail: true
     })
+
+/* =========================
+   📧 AVISO ADMIN
+========================= */
+
+try {
+
+  await sendNotification({
+    user_email: "soporte@impulsasuenos.com",
+
+    type: "admin_new_campaign",
+
+    title: "Nueva campaña creada",
+
+    message:
+      `El usuario ${user_email} creó una nueva campaña`,
+
+    metadata: {
+      campaign_id: campaign.id,
+      title: campaign.title,
+      goal_amount: campaign.goal_amount,
+      category,
+      creator: user_email,
+      created_at: campaign.created_at
+    },
+
+    sendEmail: true
+  })
+
+} catch (e) {
+
+  console.error(
+    "⚠️ Error enviando email admin campaña:",
+    e
+  )
+
+}
 
     return NextResponse.json({ ok: true, campaign })
 
