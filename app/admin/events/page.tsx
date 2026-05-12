@@ -304,7 +304,7 @@ export default function AdminEventsPage() {
           shadow-xl
           transition-all
           duration-300
-          hover:scale-[1.01]
+          hover:scale-[1.005]
         `}
       >
 
