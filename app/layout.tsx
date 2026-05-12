@@ -8,8 +8,9 @@ import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 
 export const metadata: Metadata = {
-  title: "ImpulsaSueños",
-  description: "Gana premios reales mientras ayudas a otros",
+  title: "ImpulsaSueños | Crowdfunding Solidario",
+description:
+  "Plataforma de crowdfunding solidario donde personas reales ayudan a cumplir sueños y necesidades reales.",
   icons: {
     icon: "/favicon.png",
   },
