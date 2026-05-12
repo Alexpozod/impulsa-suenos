@@ -111,44 +111,7 @@ export async function GET() {
         })
       }
     }
-
-    /* =========================
-       🟣 BALANCE REAL
-    ========================= */
-
-    const balanceMap: Record<string, number> = {}
-
-    for (const l of ledger || []) {
-
-      if (!l.user_email) continue
-
-      if (!balanceMap[l.user_email]) {
-        balanceMap[l.user_email] = 0
-      }
-
-      const amount = Number(l.amount || 0)
-
-balanceMap[l.user_email] += amount
-    }
-
-    for (const w of wallets || []) {
-
-      const ledgerBalance = balanceMap[w.user_email] || 0
-      const walletBalance = Number(w.balance || 0)
-
-      const diff = ledgerBalance - walletBalance
-
-      if (Math.abs(diff) > 1) {
-        issues.push({
-          user_email: w.user_email,
-          issue_type: "wallet_mismatch",
-          ledger_balance: ledgerBalance,
-          wallet_balance: walletBalance,
-          diff
-        })
-      }
-    }
-
+   
     /* =========================
        🚨 ALERTAS
     ========================= */
