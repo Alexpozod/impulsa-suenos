@@ -91,7 +91,7 @@ export default function TerminosPage() {
 
           <p>
             La plataforma cobrará una comisión fija de <strong>$300 CLP + IVA</strong> por cada aporte recibido,
-            además de una comisión variable de <strong>1,8% + IVA</strong> sobre el monto del aporte.
+            además de una comisión variable de <strong>2% + IVA</strong> sobre el monto del aporte.
           </p>
 
           <p className="mt-2">
