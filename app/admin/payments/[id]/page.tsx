@@ -65,32 +65,32 @@ export default function PaymentDetailPage() {
       typeof v === "object"
     )
 
-  const payment =
-    rows.find(
-      (r: any) => r.type === "payment"
-    )
+  const payment: any =
+  rows.find(
+    (r: any) => r.type === "payment"
+  )
 
-  const creatorNet =
+  const creatorNet: any =
     rows.find(
       (r: any) => r.type === "creator_net"
     )
 
-  const tip =
+  const tip: any =
     rows.find(
       (r: any) => r.type === "tip"
     )
 
-  const feeMp =
+  const feeMp: any =
     rows.find(
       (r: any) => r.type === "fee_mp"
     )
 
-  const feePlatform =
+  const feePlatform: any =
     rows.find(
       (r: any) => r.type === "fee_platform"
     )
 
-  const iva =
+  const iva: any =
     rows.find(
       (r: any) => r.type === "fee_platform_iva"
     )
