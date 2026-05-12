@@ -439,24 +439,7 @@ export default function ReconcilePage() {
                     gap-2
                     mt-3
                   ">
-
-                    <button
-                      onClick={() => reprocessPayment(i.payment_id)}
-                     className="
-                      bg-yellow-500
-                      hover:bg-yellow-400
-                      text-black
-                      px-4
-                      py-2
-                      rounded-xl
-                      font-medium
-                      transition-all
-                      duration-300
-                    "
-                    >
-                      🔁 Reprocesar
-                    </button>
-
+                    
                     <a
                       href={`/admin/payments/${i.payment_id}`}
                       className="
