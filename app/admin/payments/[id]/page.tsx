@@ -219,9 +219,15 @@ export default function PaymentDetailPage() {
                 </div>
 
                 <div>
-                  ${Number(
-                    row.amount || 0
-                  ).toLocaleString()}
+                  {
+                    Number(row.amount || 0) < 0
+                      ? `-$${Math.abs(
+                          Number(row.amount)
+                        ).toLocaleString()}`
+                      : `$${Number(
+                          row.amount || 0
+                        ).toLocaleString()}`
+                  }
                 </div>
 
                 <div className="
@@ -253,25 +259,43 @@ export default function PaymentDetailPage() {
 
         </div>
 
-        {/* RAW JSON */}
+        <details
+  className="
+    bg-black
+    rounded-2xl
+    border
+    border-slate-800
+    overflow-hidden
+  "
+>
 
-        <div className="
-          bg-black
-          rounded-2xl
-          p-6
-          overflow-auto
-          border
-          border-slate-800
-        ">
+  <summary
+    className="
+      cursor-pointer
+      px-6
+      py-4
+      font-semibold
+      text-slate-300
+      hover:bg-slate-900
+    "
+  >
+    Ver RAW JSON
+  </summary>
 
-          <pre className="
-            text-xs
-            text-emerald-400
-          ">
-            {JSON.stringify(data, null, 2)}
-          </pre>
+  <div className="p-6 overflow-auto">
 
-        </div>
+    <pre
+      className="
+        text-xs
+        text-emerald-400
+      "
+    >
+      {JSON.stringify(data, null, 2)}
+    </pre>
+
+  </div>
+
+</details>
 
       </div>
 
@@ -306,9 +330,15 @@ function Card({
         font-bold
         mt-2
       ">
-        ${Number(
-          value || 0
-        ).toLocaleString()}
+        {
+          Number(value || 0) < 0
+            ? `-$${Math.abs(
+                Number(value)
+              ).toLocaleString()}`
+            : `$${Number(
+                value || 0
+              ).toLocaleString()}`
+        }
       </p>
 
     </div>
