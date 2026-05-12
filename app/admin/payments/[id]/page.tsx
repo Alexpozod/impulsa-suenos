@@ -36,13 +36,22 @@ export default function PaymentDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white p-10">
+    <main className="min-h-screen bg-slate-950 text-white p-10">
 
-      <h1 className="text-2xl font-bold mb-6">
+      <h1 className="text-3xl font-bold mb-6 text-white">
         💳 Detalle del pago
       </h1>
 
-      <div className="border p-6 rounded space-y-3">
+      <div
+  className="
+    border
+    border-slate-800
+    bg-slate-900
+    p-6
+    rounded-2xl
+    space-y-3
+  "
+>
 
         <p><b>ID:</b> {id}</p>
 
@@ -58,7 +67,18 @@ export default function PaymentDetailPage() {
 
       </div>
 
-      <pre className="mt-6 bg-gray-100 p-4 rounded text-xs">
+      <pre
+  className="
+    mt-6
+    bg-slate-900
+    border
+    border-slate-800
+    p-4
+    rounded-2xl
+    text-xs
+    overflow-auto
+  "
+>
         {JSON.stringify(data, null, 2)}
       </pre>
 
