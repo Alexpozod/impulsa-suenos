@@ -217,17 +217,20 @@ export default function AdminCampaigns() {
   {(c.image_url || c.images?.[0]) && (
 
     <img
-      src={c.image_url || c.images?.[0]}
-      alt={c.title}
-      className="
-        w-28
-        h-28
-        rounded-xl
-        object-cover
-        border
-        border-slate-800
-      "
-    />
+  src={c.image_url || c.images?.[0]}
+  alt={c.title}
+  onError={(e) => {
+    e.currentTarget.style.display = "none"
+  }}
+  className="
+    w-28
+    h-28
+    rounded-xl
+    object-cover
+    border
+    border-slate-800
+  "
+/>
 
   )}
 
