@@ -50,7 +50,8 @@ export default function AuditDashboard() {
         entity_id: "",
         metadata: l.metadata,
         actor_id: "system",
-        created_at: l.created_at
+        created_at: l.created_at,
+        severity: l.severity || "info"
       }))
 
       const combined = [...auditLogs, ...systemLogs]
@@ -475,7 +476,7 @@ if (loading) {
      {/* AUDIT STREAM */}
 <div className="
   space-y-4
-  max-h-[950px]
+  max-h-[650px]
   overflow-y-auto
   pr-2
 ">
@@ -528,7 +529,7 @@ if (loading) {
           shadow-xl
           transition-all
           duration-300
-          hover:scale-[1.01]
+          hover:scale-[1.003]
         `}
       >
 
