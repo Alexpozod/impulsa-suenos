@@ -128,11 +128,7 @@ export async function GET() {
 
       const amount = Number(l.amount || 0)
 
-      if (l.flow_type === "in") {
-        balanceMap[l.user_email] += amount
-      } else {
-        balanceMap[l.user_email] -= Math.abs(amount)
-      }
+balanceMap[l.user_email] += amount
     }
 
     for (const w of wallets || []) {
