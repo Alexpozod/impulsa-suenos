@@ -14,6 +14,10 @@ export async function GET() {
     const { data, error } = await supabase
       .from("system_events")
       .select("*")
+      .gte(
+        "created_at",
+        new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString()
+      )
       .order("created_at", { ascending: false })
       .limit(100)
 
