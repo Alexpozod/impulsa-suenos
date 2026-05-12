@@ -319,14 +319,17 @@ export default function AdminCampaigns() {
     text-slate-400
     mt-2
   ">
-    {c.goal_amount
-  ? Math.round(
-      (
-        (Number(c.total_raised || 0) /
-          Number(c.goal_amount)
-        ) * 100
-    )
-  : 0}% completado
+   {
+  c.goal_amount
+    ? Math.round(
+        (
+          (Number(c.total_raised || 0) /
+            Number(c.goal_amount)
+          ) * 100
+        )
+      )
+    : 0
+}% completado
   </p>
 
 </div>
