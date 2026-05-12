@@ -9,7 +9,14 @@ const supabase = createClient(
 export async function GET() {
   const { data, error } = await supabase
     .from("audit_logs")
-    .select("*")
+    .select(`
+  *,
+  campaigns (
+    title,
+    slug,
+    status
+  )
+`)
     .order("created_at", { ascending: false })
     .limit(100)
 

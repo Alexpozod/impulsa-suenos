@@ -16,7 +16,8 @@ export async function POST(req: Request) {
       entity_id,
       metadata,
       actor_id,
-      organization_id
+      organization_id,
+      severity
     } = body
 
     const { error } = await supabase.from("audit_logs").insert({
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
       entity_id,
       metadata,
       actor_id,
+      severity: severity || "info",
       organization_id: organization_id || null,
       created_at: new Date().toISOString()
     })

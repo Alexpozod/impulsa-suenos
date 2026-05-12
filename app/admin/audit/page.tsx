@@ -16,6 +16,7 @@ type AuditLog = {
   metadata: any
   actor_id: string
   created_at: string
+  severity?: "info" | "warning" | "error" | "critical"
 }
 
 export default function AuditDashboard() {
@@ -132,8 +133,16 @@ setLastUpdate(
   /* =========================
      📊 MÉTRICAS
   ========================= */
-  const errors = logs.filter(l => l.action?.includes("error")).length
-  const warnings = logs.filter(l => l.action?.includes("warning")).length
+    const errors =
+    logs.filter(
+      l =>
+        l.severity === "error" ||
+        l.severity === "critical"
+    ).length
+    const warnings =
+    logs.filter(
+      l => l.severity === "warning"
+    ).length
 
 if (loading) {
 
@@ -474,10 +483,11 @@ if (loading) {
   {filtered.map((log) => {
 
     const isError =
-      log.action?.includes("error")
+  log.severity === "error" ||
+  log.severity === "critical"
 
     const isWarning =
-      log.action?.includes("warning")
+      log.severity === "warning"
 
     const severityStyles =
       isError
