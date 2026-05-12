@@ -73,15 +73,28 @@ export default function ImageUploader({
   "image/png"
 ]
 
-const invalidFiles = newFiles.filter(
-  file => !allowedTypes.includes(file.type)
-)
+const invalidFiles = newFiles.filter((file) => {
+
+  const type = file.type.toLowerCase()
+
+  const name = file.name.toLowerCase()
+
+  const validMime =
+    allowedTypes.includes(type)
+
+  const validExtension =
+    name.endsWith(".jpg") ||
+    name.endsWith(".jpeg") ||
+    name.endsWith(".png")
+
+  return !validMime || !validExtension
+})
 
 if (invalidFiles.length > 0) {
 
   alert(
-    "Solo se permiten imágenes JPG, JPEG o PNG"
-  )
+  "Formato no permitido. Solo se aceptan imágenes JPG, JPEG y PNG."
+)
 
   return
 }
@@ -135,8 +148,12 @@ if (invalidFiles.length > 0) {
       {/* DROPZONE */}
       <label className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:border-green-500 transition block">
         <p className="text-gray-500">
-          📸 Subir imágenes (máx 6)
-        </p>
+      📸 Subir imágenes (máx 6)
+    </p>
+
+    <p className="text-xs text-gray-400 mt-2">
+      Formatos permitidos: JPG, JPEG y PNG
+    </p>
 
         <input
           type="file"
