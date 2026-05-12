@@ -15,8 +15,8 @@ export async function GET() {
       .select("*")
 
     const { data: processed } = await supabase
-      .from("processed_payments")
-      .select("*")
+      .from("payments")
+      .select("payment_id")
 
     const { data: payouts } = await supabase
       .from("payouts")

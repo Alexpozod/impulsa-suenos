@@ -10,7 +10,7 @@ const supabase = createClient(
 export async function GET() {
   try {
     const { data: ledger } = await supabase.from("financial_ledger").select("*")
-    const { data: processed } = await supabase.from("processed_payments").select("*")
+    const { data: processed } = await supabase.from("payments").select("*")
 
     const issues: any[] = []
     let critical = 0
