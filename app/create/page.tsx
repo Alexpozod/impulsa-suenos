@@ -315,10 +315,43 @@ if (!allowedTypes.includes(img.type)) {
           {step === 4 && (
             <>
               <h2 className="font-bold text-lg">Imágenes</h2>
+              <p className="
+                text-sm
+                text-gray-500
+                mb-4
+              ">
+                Formatos permitidos:
+                JPG, JPEG y PNG
+              </p>
               <ImageUploader
-                images={newImages}
-                setImages={setNewImages}
-              />
+  images={newImages}
+
+  setImages={(files: File[]) => {
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png"
+    ]
+
+    const invalid = files.find(
+      file => !allowedTypes.includes(file.type)
+    )
+
+    if (invalid) {
+
+      setMessage(
+        "Solo se permiten imágenes JPG, JPEG o PNG"
+      )
+
+      return
+    }
+
+    setMessage("")
+
+    setNewImages(files)
+  }}
+/>
             </>
           )}
 
