@@ -9,6 +9,16 @@ type Campaign = {
   description: string
   status: string
   total_raised: number
+
+  goal_amount?: number
+
+  user_email?: string
+
+  created_at?: string
+
+  image_url?: string
+
+  images?: string[]
 }
 
 export default function AdminCampaigns() {
@@ -202,11 +212,38 @@ export default function AdminCampaigns() {
           className="border border-slate-800 p-4 rounded-xl mb-4 bg-slate-900"
         >
 
-          <p className="font-bold text-lg">{c.title}</p>
+          <div className="flex gap-4">
 
-          <p className="text-sm text-slate-400 mb-2">
-            {c.description}
-          </p>
+  {(c.image_url || c.images?.[0]) && (
+
+    <img
+      src={c.image_url || c.images?.[0]}
+      alt={c.title}
+      className="
+        w-28
+        h-28
+        rounded-xl
+        object-cover
+        border
+        border-slate-800
+      "
+    />
+
+  )}
+
+  <div className="flex-1">
+
+    <p className="font-bold text-lg">
+      {c.title}
+    </p>
+
+    <p className="text-sm text-slate-400 mb-2">
+      {c.description}
+    </p>
+
+  </div>
+
+</div>
 
           <div className="mb-2">
 
@@ -233,6 +270,31 @@ export default function AdminCampaigns() {
           <p className="text-sm mb-3">
             Recaudado: ${Number(c.total_raised || 0).toLocaleString()}
           </p>
+
+<div className="space-y-1 mb-4 text-sm">
+
+  <p className="text-slate-300">
+    🎯 Meta:
+    <span className="text-white font-medium ml-1">
+      ${Number(c.goal_amount || 0).toLocaleString()}
+    </span>
+  </p>
+
+  <p className="text-slate-300 break-all">
+    👤 Creador:
+    <span className="text-white font-medium ml-1">
+      {c.user_email || "No disponible"}
+    </span>
+  </p>
+
+  <p className="text-slate-300">
+    📅 Creada:
+    <span className="text-white font-medium ml-1">
+      {new Date(c.created_at).toLocaleDateString()}
+    </span>
+  </p>
+
+</div>
 
           <div className="flex flex-wrap gap-2">
 
