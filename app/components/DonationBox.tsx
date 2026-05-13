@@ -20,6 +20,7 @@ export default function DonationBox({
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [guestEmail, setGuestEmail] = useState("")
 
   const [acceptedLegal, setAcceptedLegal] = useState(false)
 
@@ -79,9 +80,14 @@ export default function DonationBox({
       return
     }
 
+    if (!userEmail && !guestEmail.trim()) {
+      alert("Ingresa tu correo para continuar")
+      return
+    }
+
     const finalUserEmail =
   userEmail ||
-  `guest_${Date.now()}@impulsasuenos.com`
+  guestEmail.trim().toLowerCase()
     
     try {
 
@@ -210,6 +216,16 @@ export default function DonationBox({
       </p>
 
       <div className="space-y-2">
+
+        {!userEmail && (
+          <input
+            type="email"
+            placeholder="Tu correo electrónico"
+            value={guestEmail}
+            onChange={(e) => setGuestEmail(e.target.value)}
+            className="w-full border p-2 rounded-lg text-sm"
+          />
+        )}
 
         <input
           type="text"
