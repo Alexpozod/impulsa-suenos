@@ -356,6 +356,50 @@ export async function sendNotification({
   )
 }
 
+else if (type === "admin_new_campaign") {
+
+  response = await send(
+    "🚨 Nueva campaña creada",
+    baseTemplate(`
+      <h3>🚨 Nueva campaña creada</h3>
+
+      <p>
+        Se creó una nueva campaña en ImpulsaSueños.
+      </p>
+
+      <div style="
+        background:#f9fafb;
+        padding:18px;
+        border-radius:12px;
+        margin-top:20px;
+      ">
+
+        <p>
+          <b>Título:</b>
+          ${metadata?.title || "Sin título"}
+        </p>
+
+        <p>
+          <b>Creador:</b>
+          ${metadata?.creator || "-"}
+        </p>
+
+        <p>
+          <b>Categoría:</b>
+          ${metadata?.category || "-"}
+        </p>
+
+        <p>
+          <b>Meta:</b>
+          $${Number(metadata?.goal_amount || 0).toLocaleString()}
+        </p>
+
+      </div>
+
+    `)
+  )
+}
+
     } catch (err: any) {
 
       console.error("❌ EMAIL ERROR REAL:", err)
