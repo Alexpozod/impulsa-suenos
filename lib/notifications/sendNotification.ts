@@ -198,6 +198,41 @@ export async function sendNotification({
         )
       }
 
+else if (type === "kyc_needs_info") {
+
+  response = await send(
+    "📄 Información adicional requerida",
+    baseTemplate(`
+      <h3>📄 Necesitamos más información</h3>
+
+      <p>
+        Nuestro equipo revisó tu verificación y necesitamos información adicional para continuar.
+      </p>
+
+      <div style="
+        background:#f9fafb;
+        padding:15px;
+        border-radius:10px;
+        margin-top:20px;
+      ">
+
+        <p>
+          <b>Detalle solicitado:</b>
+        </p>
+
+        <p>
+          ${metadata?.admin_note || "Revisa tu documentación y vuelve a subirla."}
+        </p>
+
+      </div>
+
+      <p style="margin-top:20px;">
+        Ya puedes volver a ingresar al panel KYC y subir los documentos corregidos.
+      </p>
+    `)
+  )
+}
+
       else if (type === "payout_requested") {
         response = await send(
           "⏳ Retiro en revisión",
