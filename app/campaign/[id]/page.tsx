@@ -165,9 +165,9 @@ const organizerName =
   return (
     <main className="bg-white min-h-screen">
 
-      <section className="max-w-7xl mx-auto px-6 py-6 grid md:grid-cols-5 gap-8">
+      <section className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 md:grid-cols-5 gap-8 overflow-hidden">
 
-        <div className="md:col-span-3">
+        <div className="md:col-span-3 min-w-0">
 
           <CampaignCarousel images={images} />
 
@@ -198,7 +198,7 @@ const organizerName =
 </div>
 
          {/* SHARE */}
-<div className="flex items-center gap-3 mt-4 flex-wrap">
+<div className="flex items-center gap-3 mt-4 flex-wrap overflow-x-auto pb-2">
 
   {/* LINK */}
   <button onClick={copyLink} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200 hover:scale-110 hover:shadow-md">
@@ -357,8 +357,8 @@ const organizerName =
         </div>
 
         {/* RIGHT */}
-        <div className="md:col-span-2">
-          <div className="sticky top-6">
+        <div className="md:col-span-2 min-w-0">
+          <div className="md:sticky md:top-6">
             <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.08)] space-y-4">
               <ViewersCounter campaign_id={campaign.id} />
               <DonationBox campaign_id={campaign.id} refParam={ref} />
