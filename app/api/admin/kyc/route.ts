@@ -95,23 +95,41 @@ export async function POST(req: Request) {
       })
     }
 
-      if (status === "needs_info") {
+if (status === "needs_info") {
 
-        await sendNotification({
-          user_email,
-          type: "kyc_needs_info",
-          title: "Necesitamos más información",
-          message:
-            admin_note ||
-            "Necesitamos información adicional para completar tu verificación.",
-          metadata: {
-            status,
-            admin_note
-          },
-          sendEmail: true
-        })
+  try {
 
-      }
+    await supabase
+      .from("profiles")
+      .update({
+        account_status: "unverified"
+      })
+      .eq("email", user_email)
+
+  } catch (e) {
+
+    console.error(
+      "⚠️ Error desbloqueando KYC:",
+      e
+    )
+
+  }
+
+  await sendNotification({
+    user_email,
+    type: "kyc_needs_info",
+    title: "Información adicional requerida",
+    message:
+      admin_note ||
+      "Necesitamos información adicional para continuar tu verificación.",
+    metadata: {
+      status,
+      admin_note
+    },
+    sendEmail: true
+  })
+
+}
 
     if (status === "rejected") {
       await sendNotification({
