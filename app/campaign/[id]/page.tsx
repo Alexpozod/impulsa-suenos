@@ -144,6 +144,13 @@ export default function CampaignDetail() {
     ? Math.min((current / goal) * 100, 100)
     : 0
 
+const organizerName =
+  campaign.user_email
+    ?.split("@")[0]
+    ?.replace(/[._-]/g, " ")
+    ?.replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
+  "Organizador"
+
   const images = (campaign.images?.length
     ? campaign.images
     : [campaign.image_url]
@@ -161,6 +168,28 @@ export default function CampaignDetail() {
           <h1 className="text-3xl font-bold mt-6">
             {campaign.title}
           </h1>
+
+          <div className="mt-4 flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl p-4">
+
+  <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg">
+    {organizerName?.[0] || "O"}
+  </div>
+
+  <div>
+    <p className="text-xs text-gray-500">
+      Organizada por
+    </p>
+
+    <p className="font-semibold text-gray-900">
+      {organizerName}
+    </p>
+
+    <p className="text-xs text-green-600 font-medium mt-1">
+      🔒 Pagos protegidos por MercadoPago
+    </p>
+  </div>
+
+</div>
 
          {/* SHARE */}
 <div className="flex items-center gap-3 mt-4 flex-wrap">
