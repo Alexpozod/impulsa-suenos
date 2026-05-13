@@ -79,22 +79,10 @@ export default function DonationBox({
       return
     }
 
-    if (!userEmail) {
-
-      /* =========================
-         🔥 GUARDAR INTENTO + REF
-      ========================= */
-      localStorage.setItem('donation_intent', JSON.stringify({
-        campaign_id,
-        amount,
-        tip,
-        message
-      }))
-
-      router.push(`/login?redirect=/campaign/${campaign_id}`)
-      return
-    }
-
+    const finalUserEmail =
+  userEmail ||
+  `guest_${Date.now()}@impulsasuenos.com`
+    
     try {
 
       setLoading(true)
@@ -109,7 +97,7 @@ export default function DonationBox({
             type: "donation_ack",
             accepted: true,
             version: "v1.0",
-            email: userEmail
+            email: finalUserEmail
           })
         })
       } catch (err) {
@@ -162,7 +150,7 @@ export default function DonationBox({
           amount,
           tip,
           campaign_id,
-          user_email: userEmail,
+          user_email: finalUserEmail,
           message,
           donor_name: finalDonorName,
           provider: "mercadopago",
