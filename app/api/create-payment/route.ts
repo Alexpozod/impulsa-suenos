@@ -23,8 +23,8 @@ const paymentSchema = z.object({
   donor_name: z.string().optional(),
   provider: z.string().optional(),
 
-  ref: z.string().optional(),
-  source: z.string().optional()
+  ref: z.string().nullable().optional(),
+  source: z.string().nullable().optional()
 })
 
 export async function POST(req: Request) {
