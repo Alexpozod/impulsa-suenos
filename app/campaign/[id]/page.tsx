@@ -144,12 +144,18 @@ export default function CampaignDetail() {
     ? Math.min((current / goal) * 100, 100)
     : 0
 
+const rawOrganizer =
+  campaign.user_email?.split("@")[0] || "organizador"
+
+const cleanOrganizer = rawOrganizer
+  .replace(/[0-9]/g, "")
+  .replace(/[._-]/g, " ")
+  .trim()
+
 const organizerName =
-  campaign.user_email
-    ?.split("@")[0]
-    ?.replace(/[._-]/g, " ")
-    ?.replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
-  "Organizador"
+  cleanOrganizer.length >= 3
+    ? cleanOrganizer.replace(/\b\w/g, (l: string) => l.toUpperCase())
+    : "Miembro de ImpulsaSueños"
 
   const images = (campaign.images?.length
     ? campaign.images
