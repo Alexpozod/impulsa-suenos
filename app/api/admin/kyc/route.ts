@@ -34,13 +34,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
     }
 
-    const { user_email, status } = await req.json()
+    const {
+      user_email,
+      status,
+      admin_note
+    } = await req.json()
 
     if (!user_email || !status) {
       return NextResponse.json({ error: "missing data" }, { status: 400 })
     }
 
-    const allowedStatus = ["pending", "approved", "rejected"]
+    const allowedStatus = [
+      "pending",
+      "approved",
+      "rejected",
+      "needs_info"
+    ]
 
     if (!allowedStatus.includes(status)) {
       return NextResponse.json({ error: "invalid status" }, { status: 400 })
@@ -48,9 +57,11 @@ export async function POST(req: Request) {
 
     const { error } = await supabase
       .from("kyc")
-      .update({
+     .update({
         status,
-        reviewed_at: new Date().toISOString()
+        admin_note: admin_note || null,
+        reviewed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
       .eq("user_email", user_email)
 
@@ -83,6 +94,24 @@ export async function POST(req: Request) {
         sendEmail: true
       })
     }
+
+      if (status === "needs_info") {
+
+        await sendNotification({
+          user_email,
+          type: "kyc_needs_info",
+          title: "Necesitamos más información",
+          message:
+            admin_note ||
+            "Necesitamos información adicional para completar tu verificación.",
+          metadata: {
+            status,
+            admin_note
+          },
+          sendEmail: true
+        })
+
+      }
 
     if (status === "rejected") {
       await sendNotification({

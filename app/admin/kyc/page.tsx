@@ -16,6 +16,9 @@ export default function AdminKYC() {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState("all")
   const [preview, setPreview] = useState<string | null>(null)
+  const [showInfoModal, setShowInfoModal] = useState(false)
+  const [selectedEmail, setSelectedEmail] = useState("")
+  const [adminNote, setAdminNote] = useState("")
   const [page, setPage] = useState(1)
 
   const ITEMS_PER_PAGE = 10
@@ -125,7 +128,11 @@ export default function AdminKYC() {
   /* =========================
      🔁 UPDATE STATUS (FIX PRO)
   ========================= */
-  const updateStatus = async (user_email: string, status: string) => {
+      const updateStatus = async (
+      user_email: string,
+      status: string,
+      admin_note?: string
+    ) => {
     try {
 
       setProcessing(user_email)
@@ -145,7 +152,8 @@ export default function AdminKYC() {
         },
         body: JSON.stringify({
           user_email,
-          status
+          status,
+          admin_note
         })
       })
 
@@ -253,6 +261,7 @@ export default function AdminKYC() {
   {[
     "all",
     "pending",
+    "needs_info",
     "approved",
     "rejected"
   ].map((f) => (
@@ -278,9 +287,13 @@ export default function AdminKYC() {
           ? "Todos"
           : f === "pending"
           ? "Pendientes"
-          : f === "approved"
-          ? "Aprobados"
-          : "Rechazados"
+          : f === "needs_info"
+    ? "Info solicitada"
+
+    : f === "approved"
+    ? "Aprobados"
+
+    : "Rechazados"
       }
     </button>
 
@@ -367,6 +380,9 @@ export default function AdminKYC() {
       : k.status === "pending"
         ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-300"
 
+      : k.status === "needs_info"
+        ? "bg-orange-500/10 border-orange-500/30 text-orange-300"
+
       : k.status === "rejected"
         ? "bg-red-500/10 border-red-500/30 text-red-300"
 
@@ -377,16 +393,19 @@ export default function AdminKYC() {
 >
   {
     k.status === "approved"
-      ? "Aprobado"
+    ? "Aprobado"
 
-      : k.status === "pending"
-        ? "Pendiente"
+  : k.status === "pending"
+    ? "Pendiente"
 
-      : k.status === "rejected"
-        ? "Rechazado"
+  : k.status === "needs_info"
+    ? "Info solicitada"
 
-      : k.status
-  }
+  : k.status === "rejected"
+    ? "Rechazado"
+
+  : k.status
+    }
 </span>
               </div>
 
@@ -497,7 +516,11 @@ export default function AdminKYC() {
 
                 <button
                   disabled={processing === k.user_email}
-                  onClick={() => updateStatus(k.user_email, 'pending')}
+                  onClick={() => {
+                    setSelectedEmail(k.user_email)
+                    setAdminNote("")
+                    setShowInfoModal(true)
+                  }}
                   className="bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                 >
                   Solicitar info
@@ -625,6 +648,117 @@ export default function AdminKYC() {
           object-contain
         "
       />
+
+    </div>
+
+  </div>
+
+)}
+
+{showInfoModal && (
+
+  <div className="
+    fixed
+    inset-0
+    bg-black/70
+    z-50
+    flex
+    items-center
+    justify-center
+    p-6
+  ">
+
+    <div className="
+      w-full
+      max-w-lg
+      bg-slate-900
+      border
+      border-slate-700
+      rounded-2xl
+      p-6
+      space-y-4
+    ">
+
+      <h2 className="text-xl font-bold">
+        Solicitar información adicional
+      </h2>
+
+      <p className="text-sm text-slate-400">
+        Explica claramente qué documento o dato falta.
+      </p>
+
+      <textarea
+        value={adminNote}
+        onChange={(e) =>
+          setAdminNote(e.target.value)
+        }
+        placeholder="
+Ejemplo:
+- Falta foto frontal del carnet
+- Documento borroso
+- Falta comprobante bancario
+"
+        className="
+          w-full
+          h-40
+          rounded-xl
+          bg-slate-800
+          border
+          border-slate-700
+          p-4
+          text-white
+          outline-none
+        "
+      />
+
+      <div className="flex justify-end gap-3">
+
+        <button
+          onClick={() => {
+            setShowInfoModal(false)
+            setSelectedEmail("")
+            setAdminNote("")
+          }}
+          className="
+            px-4
+            py-2
+            rounded-xl
+            bg-slate-700
+          "
+        >
+          Cancelar
+        </button>
+
+        <button
+          onClick={async () => {
+
+            if (!adminNote.trim()) {
+              alert("Debes escribir qué falta")
+              return
+            }
+
+            setShowInfoModal(false)
+
+            await updateStatus(
+              selectedEmail,
+              "needs_info",
+              adminNote
+            )
+
+          }}
+          className="
+            px-4
+            py-2
+            rounded-xl
+            bg-yellow-500
+            text-black
+            font-semibold
+          "
+        >
+          Enviar solicitud
+        </button>
+
+      </div>
 
     </div>
 
