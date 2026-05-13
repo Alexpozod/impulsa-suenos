@@ -8,6 +8,7 @@ export default function AdminUsers() {
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [search, setSearch] = useState("")
+  const [expandedBank, setExpandedBank] = useState<string | null>(null)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -292,6 +293,29 @@ alert("✅ Rol actualizado")
   User
 </button>
 
+<button
+  onClick={() =>
+    setExpandedBank(
+      expandedBank === u.id ? null : u.id
+    )
+  }
+  className="
+    px-3
+    py-1
+    rounded
+    text-sm
+    bg-blue-500/20
+    border
+    border-blue-500/30
+    text-blue-300
+    hover:bg-blue-500/30
+  "
+>
+  {expandedBank === u.id
+    ? "Ocultar banco"
+    : "Ver banco"}
+</button>
+
             </div>
 
             {loadingId === u.id && (
@@ -299,6 +323,80 @@ alert("✅ Rol actualizado")
                 Actualizando...
               </p>
             )}
+
+{expandedBank === u.id && (
+
+  <div className="
+    mt-4
+    border
+    border-slate-700
+    rounded-xl
+    p-4
+    bg-slate-950/50
+    space-y-2
+  ">
+
+    <h3 className="font-semibold text-sm text-white">
+      🏦 Datos bancarios
+    </h3>
+
+    <div className="grid md:grid-cols-2 gap-3 text-sm">
+
+      <div>
+        <p className="text-slate-400">
+          Banco
+        </p>
+
+        <p className="text-white">
+          {u.bank_name || "No registrado"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">
+          Tipo cuenta
+        </p>
+
+        <p className="text-white">
+          {u.account_type || "No registrado"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">
+          Número cuenta
+        </p>
+
+        <p className="text-white break-all">
+          {u.account_number || "No registrado"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">
+          Titular
+        </p>
+
+        <p className="text-white">
+          {u.holder_name || "No registrado"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">
+          RUT
+        </p>
+
+        <p className="text-white">
+          {u.rut || "No registrado"}
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+)}
 
           </div>
         ))}

@@ -14,23 +14,86 @@ const supabase = createClient(
 export async function GET() {
   try {
 
-    const { data, error } = await supabase
+    /* =========================
+       👥 USERS
+    ========================= */
+    const { data: users, error } = await supabase
       .from("profiles")
-      .select("id, email, role, created_at")
-      .order("created_at", { ascending: false })
+      .select(`
+        id,
+        email,
+        role,
+        created_at,
+        full_name,
+        phone,
+        kyc_status
+      `)
+      .order("created_at", {
+        ascending: false
+      })
 
     if (error) throw error
 
-    return NextResponse.json(data)
+    /* =========================
+       🏦 BANK ACCOUNTS
+    ========================= */
+    const { data: bankAccounts } = await supabase
+      .from("bank_accounts")
+      .select(`
+        user_email,
+        bank_name,
+        account_number,
+        account_type,
+        holder_name,
+        rut,
+        is_default
+      `)
+
+    /* =========================
+       🧠 MAP CUENTAS
+    ========================= */
+    const bankMap = Object.fromEntries(
+      (bankAccounts || []).map((b) => [
+        b.user_email?.toLowerCase(),
+        {
+          bank_name: b.bank_name,
+          account_number: b.account_number,
+          account_type: b.account_type,
+          holder_name: b.holder_name,
+          rut: b.rut
+        }
+      ])
+    )
+
+    /* =========================
+       🔥 COMBINAR
+    ========================= */
+    const finalUsers = (users || []).map((u) => {
+
+      const bank =
+        bankMap[u.email?.toLowerCase()] || {}
+
+      return {
+        ...u,
+        ...bank
+      }
+
+    })
+
+    return NextResponse.json(finalUsers)
 
   } catch (error) {
+
+    console.error(error)
+
     return NextResponse.json(
       { error: "error fetching users" },
       { status: 500 }
     )
+
   }
 }
-
+  
 /* =========================
    🔄 UPDATE ROLE
 ========================= */
