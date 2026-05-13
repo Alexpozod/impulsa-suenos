@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
+import Link from "next/link"
 import { supabase } from "@/src/lib/supabase"
 import { formatMoney } from "@/src/lib/formatMoney"
 
@@ -361,7 +362,13 @@ export default function DonationsPage() {
             </div>
 
             {/* RIGHT */}
-            <div className="text-right">
+            <div className="
+              text-right
+              flex
+              flex-col
+              items-end
+              gap-2
+            ">
 
               <p className="
                 text-2xl
@@ -371,7 +378,21 @@ export default function DonationsPage() {
                 {formatMoney(d.amount)}
               </p>
 
-              </div>
+              <Link
+                href={`/campaign/${d.campaign_id}`}
+                className="
+                  text-sm
+                  font-semibold
+                  text-green-700
+                  hover:text-green-800
+                  hover:underline
+                  transition
+                "
+              >
+                Ver campaña →
+              </Link>
+
+            </div>
 
           </div>
 
