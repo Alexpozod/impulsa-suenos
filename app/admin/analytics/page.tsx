@@ -6,6 +6,7 @@ export default function AdminAnalyticsPage() {
 
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [range, setRange] = useState("7d")
 
   useEffect(() => {
 
@@ -17,13 +18,15 @@ export default function AdminAnalyticsPage() {
 
   return () => clearInterval(interval)
 
-}, [])
+}, [range])
 
   const load = async () => {
 
     try {
 
-      const res = await fetch("/api/admin/analytics")
+      const res = await fetch(
+  `/api/admin/analytics?range=${range}`
+)
 
       const json = await res.json()
 
@@ -59,6 +62,27 @@ export default function AdminAnalyticsPage() {
   return (
 
    <main className="min-h-screen bg-[#020617] p-6 space-y-6 text-white">
+
+{/* RANGE FILTERS */}
+<section className="flex items-center gap-3">
+
+  {["24h", "7d", "30d"].map((item) => (
+
+    <button
+      key={item}
+      onClick={() => setRange(item)}
+      className={`px-4 py-2 rounded-xl text-sm transition-all duration-200 ${
+        range === item
+          ? "bg-emerald-500 text-white"
+          : "bg-slate-900 border border-white/10 text-slate-400 hover:bg-slate-800"
+      }`}
+    >
+      {item}
+    </button>
+
+  ))}
+
+</section>
 
   {/* HEADER */}
   <div>
