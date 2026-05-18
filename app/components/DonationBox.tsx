@@ -87,7 +87,7 @@ export default function DonationBox({
     localStorage.getItem("referrer") ||
     null
 
-  fetch("/api/track-event", {
+  await fetch("/api/track-event", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
