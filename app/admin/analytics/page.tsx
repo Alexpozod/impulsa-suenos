@@ -95,6 +95,71 @@ export default function AdminAnalyticsPage() {
 
 </section>
 
+{/* =========================
+    📈 REVENUE CHART
+========================= */}
+
+<section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
+
+  <div className="flex items-center justify-between mb-6">
+
+    <div>
+
+      <h2 className="text-lg font-semibold text-white">
+        📈 Revenue últimos 14 días
+      </h2>
+
+      <p className="text-xs text-slate-400 mt-1">
+        Evolución de ingresos
+      </p>
+
+    </div>
+
+  </div>
+
+  <div className="flex items-end gap-2 h-56">
+
+    {data.revenueChart?.map((item: any) => {
+
+      const maxRevenue = Math.max(
+        ...data.revenueChart.map(
+          (d: any) => d.revenue
+        ),
+        1
+      )
+
+      const height =
+        (item.revenue / maxRevenue) * 100
+
+      return (
+
+        <div
+          key={item.date}
+          className="flex-1 flex flex-col items-center justify-end h-full"
+        >
+
+          <div
+            className="w-full rounded-t-xl bg-gradient-to-t from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 transition-all duration-300"
+            style={{
+              height: `${height}%`
+            }}
+            title={`$${Number(
+              item.revenue
+            ).toLocaleString()}`}
+          />
+
+          <p className="text-[10px] text-slate-500 mt-2">
+            {item.date.slice(5)}
+          </p>
+
+        </div>
+      )
+    })}
+
+  </div>
+
+</section>
+
   {/* FUNNEL */}
   <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
 
