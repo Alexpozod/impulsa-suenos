@@ -34,10 +34,26 @@ export default function AdminLayout({ children }: any) {
         </h2>
 
         {/* DASHBOARD */}
-        <div>
-          <p className="text-xs text-slate-500 mb-2">Dashboard</p>
-          <Item href="/admin" label="📊 Overview" />
-        </div>
+          <div>
+            <p className="text-xs text-slate-500 mb-2">
+              Dashboard
+            </p>
+
+            <div className="space-y-1">
+
+              <Item
+                href="/admin"
+                label="📊 Overview"
+              />
+
+              <Item
+                href="/admin/analytics"
+                label="📈 Analytics"
+              />
+
+            </div>
+
+          </div>
 
         {/* FINANZAS */}
         <div>
