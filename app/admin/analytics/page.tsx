@@ -229,6 +229,38 @@ export default function AdminAnalyticsPage() {
 
 </section>
 
+{/* =========================
+    💸 LOST REVENUE
+========================= */}
+
+<section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+  <RevenueCard
+    title="Revenue perdido"
+    value={`$${Number(
+      data.lostRevenue || 0
+    ).toLocaleString()}`}
+    subtitle="Checkout abandonados"
+  />
+
+  <RevenueCard
+    title="Donadores recurrentes"
+    value={String(
+      data.cohorts?.recurrentDonors || 0
+    )}
+    subtitle="Usuarios con múltiples pagos"
+  />
+
+  <RevenueCard
+    title="Retention"
+    value={`${Number(
+      data.cohorts?.retentionRate || 0
+    )}%`}
+    subtitle="Retención donadores"
+  />
+
+</section>
+
   {/* FUNNEL */}
   <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
 
@@ -466,6 +498,90 @@ export default function AdminAnalyticsPage() {
 </div>
 
   </section>
+
+{/* =========================
+    🌍 SOURCE CONVERSION
+========================= */}
+
+<section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5">
+
+  <h2 className="text-lg font-semibold text-white mb-5">
+    🌍 Conversion por fuente
+  </h2>
+
+  <div className="space-y-4">
+
+    {data.sourceConversions?.map((source: any) => (
+
+      <div
+        key={source.source}
+        className="rounded-xl border border-white/10 bg-black/20 p-4"
+      >
+
+        <div className="flex items-center justify-between">
+
+          <div>
+
+            <p className="font-semibold text-white capitalize">
+              {source.source}
+            </p>
+
+            <p className="text-xs text-slate-400 mt-1">
+              {source.views} views · {source.payments} pagos
+            </p>
+
+          </div>
+
+          <div className="text-cyan-400 font-bold">
+            {source.conversion}%
+          </div>
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</section>
+
+{/* =========================
+    🔥 HEATMAP
+========================= */}
+
+<section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5">
+
+  <h2 className="text-lg font-semibold text-white mb-5">
+    🔥 Horarios con más revenue
+  </h2>
+
+  <div className="grid grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-3">
+
+    {data.heatmap?.map((item: any) => (
+
+      <div
+        key={item.hour}
+        className="rounded-xl border border-white/10 bg-black/20 p-4 text-center"
+      >
+
+        <p className="text-xs text-slate-400">
+          {item.hour}:00
+        </p>
+
+        <p className="text-sm font-bold text-emerald-400 mt-2">
+          $
+          {Number(item.revenue)
+            .toLocaleString()}
+        </p>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</section>
 
   {/* =========================
     ⚠️ ABANDONADOS PRO
