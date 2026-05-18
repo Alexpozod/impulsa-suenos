@@ -771,15 +771,48 @@ https://impulsasuenos.com`
       {data.realtime?.map((event: any) => (
 
         <div
-          key={event.id}
-          className="border border-white/10 rounded-xl px-4 py-3"
-        >
+            key={event.id}
+            className={`
+                rounded-xl px-4 py-3 border
+                ${
+                event.event_type === "payment_success"
+                    ? "border-emerald-500/20 bg-emerald-500/5"
+
+                : event.event_type === "begin_checkout"
+                    ? "border-amber-500/20 bg-amber-500/5"
+
+                : event.event_type === "donate_click"
+                    ? "border-cyan-500/20 bg-cyan-500/5"
+
+                : event.event_type === "campaign_view"
+                    ? "border-blue-500/20 bg-blue-500/5"
+
+                : "border-white/10 bg-black/20"
+                }
+            `}
+            >
 
           <div className="flex items-center justify-between gap-3">
 
             <p className="font-medium text-sm">
-              {event.event_type}
-            </p>
+
+                {
+                    event.event_type === "payment_success"
+                    ? "💰 Pago completado"
+
+                    : event.event_type === "begin_checkout"
+                    ? "🛒 Checkout iniciado"
+
+                    : event.event_type === "donate_click"
+                    ? "❤️ Click en donar"
+
+                    : event.event_type === "campaign_view"
+                    ? "👁️ Vista campaña"
+
+                    : event.event_type
+                }
+
+                </p>
 
             <p className="text-xs text-gray-400 whitespace-nowrap">
               {new Date(event.created_at)
