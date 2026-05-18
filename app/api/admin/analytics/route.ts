@@ -355,6 +355,65 @@ const topCampaigns = topCampaignsRaw.map(
   })
   .limit(20)
 
+    /* =========================
+   💎 TOP DONADORES
+========================= */
+
+const { data: topDonorsRaw } = await supabase
+  .from("payments")
+  .select(`
+    donor_email,
+    amount,
+    donor_name,
+    created_at
+  `)
+  .eq("status", "approved")
+  .gte("created_at", fromISOString)
+
+const donorsMap: Record<string, any> = {}
+
+;(topDonorsRaw || []).forEach((payment: any) => {
+
+  const email =
+    payment.donor_email ||
+    "unknown"
+
+  if (!donorsMap[email]) {
+
+    donorsMap[email] = {
+      donor_email: email,
+      donor_name:
+        payment.donor_name ||
+        email.split("@")[0],
+      total: 0,
+      payments: 0
+    }
+  }
+
+  donorsMap[email].total +=
+    Number(payment.amount || 0)
+
+  donorsMap[email].payments += 1
+})
+
+const topDonors =
+  Object.values(donorsMap)
+    .map((donor: any) => ({
+      ...donor,
+
+      average_ticket:
+        donor.payments > 0
+          ? Math.round(
+              donor.total /
+              donor.payments
+            )
+          : 0
+    }))
+    .sort((a: any, b: any) =>
+      b.total - a.total
+    )
+    .slice(0, 10)
+
     return NextResponse.json({
 
         revenue: {
@@ -379,7 +438,9 @@ const topCampaigns = topCampaignsRaw.map(
 
       abandoned,
 
-      realtime: realtime || []
+      realtime: realtime || [],
+
+    topDonors
 
     })
 

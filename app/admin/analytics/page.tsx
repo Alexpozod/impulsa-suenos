@@ -476,6 +476,118 @@ export default function AdminAnalyticsPage() {
 
   </section>
 
+{/* =========================
+    💎 TOP DONADORES
+========================= */}
+
+<section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
+
+  <div className="flex items-center justify-between mb-5">
+
+    <div>
+
+      <h2 className="text-lg font-semibold text-white">
+        💎 Top Donadores
+      </h2>
+
+      <p className="text-xs text-slate-400 mt-1">
+        Usuarios con mayor aporte
+      </p>
+
+    </div>
+
+  </div>
+
+  <div className="space-y-4">
+
+    {data.topDonors?.map((donor: any, index: number) => (
+
+      <div
+        key={donor.donor_email}
+        className="rounded-2xl border border-white/10 bg-black/20 p-4"
+      >
+
+        <div className="flex items-center justify-between gap-4">
+
+          {/* LEFT */}
+          <div className="flex items-center gap-4 min-w-0">
+
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
+
+              #{index + 1}
+
+            </div>
+
+            <div className="min-w-0">
+
+              <p className="font-semibold text-white truncate">
+                {donor.donor_name}
+              </p>
+
+              <p className="text-xs text-slate-400 truncate mt-1">
+                {donor.donor_email}
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* RIGHT */}
+          <div className="text-right">
+
+            <p className="text-green-400 font-bold text-lg">
+              $
+              {Number(donor.total || 0)
+                .toLocaleString()}
+            </p>
+
+            <p className="text-xs text-slate-500 mt-1">
+              total donado
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* STATS */}
+        <div className="grid grid-cols-2 gap-3 mt-4">
+
+          <div className="rounded-xl bg-white/5 p-3">
+
+            <p className="text-xs text-slate-400">
+              Pagos
+            </p>
+
+            <p className="font-bold mt-1 text-white">
+              {donor.payments}
+            </p>
+
+          </div>
+
+          <div className="rounded-xl bg-white/5 p-3">
+
+            <p className="text-xs text-slate-400">
+              Ticket promedio
+            </p>
+
+            <p className="font-bold mt-1 text-cyan-400">
+              $
+              {Number(donor.average_ticket || 0)
+                .toLocaleString()}
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</section>
+
   {/* REALTIME */}
   <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
 
