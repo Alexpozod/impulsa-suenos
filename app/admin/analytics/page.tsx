@@ -50,223 +50,219 @@ export default function AdminAnalyticsPage() {
 
   return (
 
-    <main className="p-6 space-y-8">
+   <main className="p-4 md:p-6 bg-gray-50 min-h-screen space-y-6">
 
-      <div>
-        <h1 className="text-3xl font-bold">
-          📊 Analytics
-        </h1>
+  {/* HEADER */}
+  <div>
+    <h1 className="text-2xl font-bold text-gray-900">
+      📊 Analytics
+    </h1>
 
-        <p className="text-gray-500 mt-1">
-          Funnel y métricas globales
-        </p>
+    <p className="text-sm text-gray-500 mt-1">
+      Funnel y métricas globales
+    </p>
+  </div>
+
+  {/* FUNNEL */}
+  <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+
+    <Card
+      title="Visitas"
+      value={data.funnel.views}
+    />
+
+    <Card
+      title="Clicks"
+      value={data.funnel.donate_clicks}
+    />
+
+    <Card
+      title="Checkouts"
+      value={data.funnel.checkouts}
+    />
+
+    <Card
+      title="Pagos"
+      value={data.funnel.payments}
+    />
+
+    <Card
+      title="Conversión"
+      value={`${data.funnel.conversion}%`}
+    />
+
+  </section>
+
+  {/* GRID */}
+  <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+    {/* TOP CAMPAÑAS */}
+    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+
+      <h2 className="text-lg font-semibold mb-4">
+        🏆 Top campañas
+      </h2>
+
+      <div className="space-y-3">
+
+        {data.topCampaigns?.map((campaign: any) => (
+
+          <div
+            key={campaign.campaign_id}
+            className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3"
+          >
+
+            <div className="min-w-0">
+
+              <p className="font-medium text-sm truncate">
+                {campaign.campaign_id}
+              </p>
+
+              <p className="text-xs text-gray-500 mt-1">
+                {campaign.views} visitas
+              </p>
+
+            </div>
+
+            <div className="text-sm font-bold text-green-600">
+              {campaign.payments} pagos
+            </div>
+
+          </div>
+
+        ))}
+
       </div>
 
-      {/* =========================
-          FUNNEL
-      ========================= */}
+    </div>
 
-      <section className="grid grid-cols-1 md:grid-cols-5 gap-4">
+    {/* TOP SOURCES */}
+    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
 
-        <Card
-          title="Visitas"
-          value={data.funnel.views}
-        />
+      <h2 className="text-lg font-semibold mb-4">
+        🌍 Top fuentes
+      </h2>
 
-        <Card
-          title="Clicks Donar"
-          value={data.funnel.donate_clicks}
-        />
+      <div className="space-y-3">
 
-        <Card
-          title="Checkouts"
-          value={data.funnel.checkouts}
-        />
+        {data.topSources?.map((source: any) => (
 
-        <Card
-          title="Pagos"
-          value={data.funnel.payments}
-        />
+          <div
+            key={source.source}
+            className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3"
+          >
 
-        <Card
-          title="Conversión"
-          value={`${data.funnel.conversion}%`}
-        />
+            <div>
 
-      </section>
+              <p className="font-medium text-sm">
+                {source.source}
+              </p>
 
-      {/* =========================
-          TOP CAMPAÑAS
-      ========================= */}
-
-      <section className="bg-white border rounded-2xl p-6">
-
-        <h2 className="text-xl font-bold mb-4">
-          🏆 Top campañas
-        </h2>
-
-        <div className="space-y-3">
-
-          {data.topCampaigns?.map((campaign: any) => (
-
-            <div
-              key={campaign.campaign_id}
-              className="flex justify-between border rounded-xl p-3"
-            >
-
-              <div>
-                <p className="font-semibold">
-                  {campaign.campaign_id}
-                </p>
-
-                <p className="text-sm text-gray-500">
-                  {campaign.views} visitas
-                </p>
-              </div>
-
-              <div className="font-bold text-green-600">
-                {campaign.payments} pagos
-              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {source.payments} pagos
+              </p>
 
             </div>
 
-          ))}
-
-        </div>
-
-      </section>
-
-      {/* =========================
-          TOP SOURCES
-      ========================= */}
-
-      <section className="bg-white border rounded-2xl p-6">
-
-        <h2 className="text-xl font-bold mb-4">
-          🌍 Top fuentes
-        </h2>
-
-        <div className="space-y-3">
-
-          {data.topSources?.map((source: any) => (
-
-            <div
-              key={source.source}
-              className="flex justify-between border rounded-xl p-3"
-            >
-
-              <div>
-                <p className="font-semibold">
-                  {source.source}
-                </p>
-
-                <p className="text-sm text-gray-500">
-                  {source.payments} pagos
-                </p>
-              </div>
-
-              <div className="font-bold text-green-600">
-                $
-                {Number(source.revenue || 0)
-                  .toLocaleString()}
-              </div>
-
+            <div className="text-sm font-bold text-green-600">
+              $
+              {Number(source.revenue || 0)
+                .toLocaleString()}
             </div>
 
-          ))}
+          </div>
+
+        ))}
+
+      </div>
+
+    </div>
+
+  </section>
+
+  {/* ABANDONADOS */}
+  <section className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+
+    <h2 className="text-lg font-semibold mb-4">
+      ⚠️ Checkout abandonados
+    </h2>
+
+    <div className="space-y-3">
+
+      {data.abandoned?.length === 0 && (
+        <p className="text-sm text-gray-500">
+          No hay abandonos
+        </p>
+      )}
+
+      {data.abandoned?.map((item: any) => (
+
+        <div
+          key={item.id}
+          className="border border-gray-100 rounded-xl px-4 py-3"
+        >
+
+          <p className="font-medium text-sm">
+            {item.user_email}
+          </p>
+
+          <p className="text-xs text-gray-500 mt-1">
+            Intentó donar $
+            {Number(item.metadata?.amount || 0)
+              .toLocaleString()}
+          </p>
 
         </div>
 
-      </section>
+      ))}
 
-      {/* =========================
-          ABANDONADOS
-      ========================= */}
+    </div>
 
-      <section className="bg-white border rounded-2xl p-6">
+  </section>
 
-        <h2 className="text-xl font-bold mb-4">
-          ⚠️ Checkout abandonados
-        </h2>
+  {/* REALTIME */}
+  <section className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
 
-        <div className="space-y-3">
+    <h2 className="text-lg font-semibold mb-4">
+      ⚡ Actividad reciente
+    </h2>
 
-          {data.abandoned?.length === 0 && (
-            <p className="text-gray-500">
-              No hay abandonos
+    <div className="space-y-3">
+
+      {data.realtime?.map((event: any) => (
+
+        <div
+          key={event.id}
+          className="border border-gray-100 rounded-xl px-4 py-3"
+        >
+
+          <div className="flex items-center justify-between gap-3">
+
+            <p className="font-medium text-sm">
+              {event.event_type}
             </p>
-          )}
 
-          {data.abandoned?.map((item: any) => (
+            <p className="text-xs text-gray-400 whitespace-nowrap">
+              {new Date(event.created_at)
+                .toLocaleString()}
+            </p>
 
-            <div
-              key={item.id}
-              className="border rounded-xl p-3"
-            >
+          </div>
 
-              <p className="font-semibold">
-                {item.user_email}
-              </p>
-
-              <p className="text-sm text-gray-500">
-                Intentó donar $
-                {Number(item.metadata?.amount || 0)
-                  .toLocaleString()}
-              </p>
-
-            </div>
-
-          ))}
+          <p className="text-xs text-gray-500 mt-1">
+            {event.user_email || "visitante"}
+          </p>
 
         </div>
 
-      </section>
+      ))}
 
-      {/* =========================
-          REALTIME
-      ========================= */}
+    </div>
 
-      <section className="bg-white border rounded-2xl p-6">
+  </section>
 
-        <h2 className="text-xl font-bold mb-4">
-          ⚡ Actividad reciente
-        </h2>
+</main>
 
-        <div className="space-y-3">
-
-          {data.realtime?.map((event: any) => (
-
-            <div
-              key={event.id}
-              className="border rounded-xl p-3"
-            >
-
-              <div className="flex justify-between">
-
-                <p className="font-semibold">
-                  {event.event_type}
-                </p>
-
-                <p className="text-xs text-gray-400">
-                  {new Date(event.created_at)
-                    .toLocaleString()}
-                </p>
-
-              </div>
-
-              <p className="text-sm text-gray-500 mt-1">
-                {event.user_email || "visitante"}
-              </p>
-
-            </div>
-
-          ))}
-
-        </div>
-
-      </section>
-
-    </main>
   )
 }
 
@@ -280,13 +276,13 @@ function Card({
 
   return (
 
-    <div className="bg-white border rounded-2xl p-5">
+    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
 
-      <p className="text-sm text-gray-500">
+      <p className="text-xs text-gray-500">
         {title}
       </p>
 
-      <p className="text-3xl font-bold mt-2">
+      <p className="text-2xl font-bold text-gray-900 mt-2">
         {value}
       </p>
 
