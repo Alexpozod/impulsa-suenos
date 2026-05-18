@@ -47,6 +47,62 @@ export async function GET() {
           )
         : 0
 
+/* =========================
+   💰 REVENUE GLOBAL
+========================= */
+
+const { data: paymentSuccessEvents } = await supabase
+  .from("campaign_events")
+  .select(`
+    metadata,
+    created_at
+  `)
+  .eq("event_type", "payment_success")
+
+const successfulPayments =
+  paymentSuccessEvents || []
+
+const revenueTotal =
+  successfulPayments.reduce(
+    (acc, event) =>
+      acc +
+      Number(event.metadata?.amount || 0),
+    0
+  )
+
+const paymentsToday =
+  successfulPayments.filter(event => {
+
+    const eventDate =
+      new Date(event.created_at)
+        .toISOString()
+        .slice(0, 10)
+
+    const today =
+      new Date()
+        .toISOString()
+        .slice(0, 10)
+
+    return eventDate === today
+
+  })
+
+const revenueToday =
+  paymentsToday.reduce(
+    (acc, event) =>
+      acc +
+      Number(event.metadata?.amount || 0),
+    0
+  )
+
+const averageTicket =
+  payments > 0
+    ? Number(
+        (revenueTotal / payments)
+          .toFixed(0)
+      )
+    : 0
+
     /* =========================
        🏆 TOP CAMPAÑAS
     ========================= */
@@ -233,6 +289,12 @@ const topCampaigns = topCampaignsRaw.map(
       .limit(20)
 
     return NextResponse.json({
+
+        revenue: {
+            total: revenueTotal,
+            today: revenueToday,
+            average_ticket: averageTicket
+            },
 
       funnel: {
         views,
