@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { createPayment } from "@/lib/payments/provider"
 import { createClient } from "@supabase/supabase-js"
+import { trackEvent } from "@/lib/analytics/trackEvent"
 
 export const runtime = "nodejs"
 
@@ -122,6 +123,32 @@ const safeMessage = message
     })
 
     console.log("PAYMENT RESULT:", result)
+
+try {
+
+  await trackEvent({
+    event_type: "begin_checkout",
+
+    campaign_id,
+
+    user_email,
+
+    source: finalSource,
+    referrer: referrer,
+
+    metadata: {
+      amount,
+      tip,
+      provider,
+      has_message: safeMessage.length > 0
+    }
+  })
+
+} catch (err) {
+
+  console.error("begin_checkout tracking error:", err)
+
+}
 
     // 🚨 IMPORTANTE:
     // NO enviar notificaciones ni emails aquí.
