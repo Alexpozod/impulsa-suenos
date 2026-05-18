@@ -436,45 +436,136 @@ export default function AdminAnalyticsPage() {
 
   </section>
 
-  {/* ABANDONADOS */}
-  <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
+  {/* =========================
+    ⚠️ ABANDONADOS PRO
+========================= */}
 
-    <h2 className="text-lg font-semibold mb-4">
-      ⚠️ Checkout abandonados
-    </h2>
+<section className="rounded-2xl border border-amber-500/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(251,191,36,0.06)]">
 
-    <div className="space-y-3">
+  <div className="flex items-center justify-between mb-5">
 
-      {data.abandoned?.length === 0 && (
-        <p className="text-sm text-slate-400">
-          No hay abandonos
-        </p>
-      )}
+    <div>
 
-      {data.abandoned?.map((item: any) => (
+      <h2 className="text-lg font-semibold text-white">
+        ⚠️ Checkout abandonados
+      </h2>
 
-        <div
-          key={item.id}
-          className="border border-white/10 rounded-xl px-4 py-3"
-        >
-
-          <p className="font-medium text-sm">
-            {item.user_email}
-          </p>
-
-          <p className="text-xs text-slate-400 mt-1">
-            Intentó donar $
-            {Number(item.metadata?.amount || 0)
-              .toLocaleString()}
-          </p>
-
-        </div>
-
-      ))}
+      <p className="text-xs text-slate-400 mt-1">
+        Usuarios que iniciaron pago pero no completaron
+      </p>
 
     </div>
 
-  </section>
+    <div className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
+
+      {data.abandoned?.length || 0} abandonos
+
+    </div>
+
+  </div>
+
+  <div className="space-y-4">
+
+    {data.abandoned?.length === 0 && (
+
+      <div className="rounded-2xl border border-white/10 bg-black/20 p-6 text-center">
+
+        <p className="text-slate-400 text-sm">
+          No hay abandonos detectados
+        </p>
+
+      </div>
+
+    )}
+
+    {data.abandoned?.map((item: any) => {
+
+      const amount =
+        Number(item.metadata?.amount || 0)
+
+      const minutes =
+        Number(item.abandoned_minutes || 0)
+
+      const source =
+        item.source || "direct"
+
+      let severity =
+        "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+
+      if (minutes >= 60) {
+
+        severity =
+          "text-red-400 bg-red-500/10 border-red-500/20"
+
+      } else if (minutes >= 30) {
+
+        severity =
+          "text-amber-400 bg-amber-500/10 border-amber-500/20"
+      }
+
+      return (
+
+        <div
+          key={item.id}
+          className="rounded-2xl border border-white/10 bg-black/20 p-4"
+        >
+
+          <div className="flex items-start justify-between gap-4">
+
+            {/* LEFT */}
+            <div className="min-w-0 flex-1">
+
+              <div className="flex items-center gap-2 flex-wrap">
+
+                <p className="font-semibold text-white truncate">
+                  {item.user_email}
+                </p>
+
+                <span className={`px-2 py-1 rounded-full text-[10px] border ${severity}`}>
+
+                  {minutes} min
+
+                </span>
+
+              </div>
+
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
+
+                <span className="text-xs text-slate-400">
+                  🌍 {source}
+                </span>
+
+                <span className="text-xs text-slate-400">
+                  💰 $
+                  {amount.toLocaleString()}
+                </span>
+
+              </div>
+
+            </div>
+
+            {/* RIGHT */}
+            <div className="text-right">
+
+              <p className="text-xs text-slate-500">
+                abandono
+              </p>
+
+              <p className="text-sm font-bold text-amber-400 mt-1">
+                pendiente
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+      )
+    })}
+
+  </div>
+
+</section>
 
 {/* =========================
     💎 TOP DONADORES
