@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js"
 import { sendAlert } from "@/lib/alerts/sendAlert"
 import { sendNotification } from "@/lib/notifications/sendNotification"
 import { syncWallet } from "@/lib/wallet/syncWallet"
+import { trackEvent } from "@/lib/analytics/trackEvent"
 
 
 const client = new MercadoPagoConfig({
@@ -45,7 +46,7 @@ if (!signature) {
       null
 
     if (!paymentId) return NextResponse.json({ ok: true })
-      
+
       if (!/^\d+$/.test(String(paymentId))) {
   console.warn("❌ Invalid payment id")
   return NextResponse.json({ ok: true })
@@ -352,6 +353,39 @@ await syncWallet(creator_email)
 await syncWallet("platform")
 
 console.log("🔥 ANTES WEBHOOK LOG")
+
+try {
+
+  await trackEvent({
+    event_type: "payment_success",
+
+    campaign_id,
+
+    payment_id: String(paymentId),
+
+    user_email: donor_email,
+
+    source,
+    referrer,
+
+    metadata: {
+      amount: donation,
+      tip,
+      total,
+
+      provider: "mercadopago",
+
+      donor_name,
+
+      has_message: !!message
+    }
+  })
+
+} catch (err) {
+
+  console.error("payment_success tracking error:", err)
+
+}
 
 await supabase.from("webhook_logs").insert({
   payment_id: paymentId,
