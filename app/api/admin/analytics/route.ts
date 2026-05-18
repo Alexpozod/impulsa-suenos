@@ -103,6 +103,39 @@ const averageTicket =
       )
     : 0
 
+/* =========================
+   📈 REVENUE DIARIO
+========================= */
+
+const revenueByDayMap: Record<string, number> = {}
+
+successfulPayments.forEach(event => {
+
+  const day =
+    new Date(event.created_at)
+      .toISOString()
+      .slice(0, 10)
+
+  if (!revenueByDayMap[day]) {
+    revenueByDayMap[day] = 0
+  }
+
+  revenueByDayMap[day] +=
+    Number(event.metadata?.amount || 0)
+
+})
+
+const revenueChart =
+  Object.entries(revenueByDayMap)
+    .map(([date, revenue]) => ({
+      date,
+      revenue
+    }))
+    .sort((a, b) =>
+      a.date.localeCompare(b.date)
+    )
+    .slice(-14)
+
     /* =========================
        🏆 TOP CAMPAÑAS
     ========================= */
@@ -295,6 +328,8 @@ const topCampaigns = topCampaignsRaw.map(
             today: revenueToday,
             average_ticket: averageTicket
             },
+
+               revenueChart, 
 
       funnel: {
         views,
