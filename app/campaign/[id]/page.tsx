@@ -6,6 +6,7 @@ import DonationBox from '@/app/components/DonationBox'
 import ViewersCounter from '@/app/components/ViewersCounter'
 import CampaignCarousel from '@/app/components/CampaignCarousel'
 import { formatMoney } from "@/src/lib/formatMoney"
+import { getSessionId } from "@/lib/session/getSessionId"
 
 export default function CampaignDetail() {
 
@@ -22,16 +23,63 @@ export default function CampaignDetail() {
   const [ref, setRef] = useState<string | null>(null)
 
   useEffect(() => {
-    if (id) {
-      load()
-      loadDonations()
-      loadUpdates()
-      loadRanking()
 
-      const urlRef = new URLSearchParams(window.location.search).get("ref")
-      if (urlRef) setRef(urlRef)
+  if (id) {
+
+    load()
+    loadDonations()
+    loadUpdates()
+    loadRanking()
+
+    const params = new URLSearchParams(window.location.search)
+
+    const urlRef = params.get("ref")
+    const source = params.get("source")
+
+    if (urlRef) {
+      setRef(urlRef)
     }
-  }, [id])
+
+    try {
+
+      const session_id = getSessionId()
+
+      fetch("/api/track-event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          event_type: "campaign_view",
+
+          campaign_id: id,
+
+          session_id,
+
+          source:
+            source ||
+            localStorage.getItem("traffic_source") ||
+            "direct",
+
+          referrer:
+            urlRef ||
+            localStorage.getItem("referrer") ||
+            null,
+
+          metadata: {
+            page: window.location.pathname
+          }
+        })
+      })
+
+    } catch (err) {
+
+      console.error("campaign_view tracking error:", err)
+
+    }
+  }
+
+}, [id])
 
   const load = async () => {
     try {
