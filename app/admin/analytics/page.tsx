@@ -8,8 +8,16 @@ export default function AdminAnalyticsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+
+  load()
+
+  const interval = setInterval(() => {
     load()
-  }, [])
+  }, 15000)
+
+  return () => clearInterval(interval)
+
+}, [])
 
   const load = async () => {
 
@@ -117,46 +125,52 @@ export default function AdminAnalyticsPage() {
 
   </div>
 
-  <div className="flex items-end gap-2 h-56">
+  <div className="flex items-end gap-3 h-56 overflow-hidden">
 
-    {data.revenueChart?.map((item: any) => {
+  {data.revenueChart?.map((item: any) => {
 
-      const maxRevenue = Math.max(
-        ...data.revenueChart.map(
-          (d: any) => d.revenue
-        ),
-        1
+    const maxRevenue = Math.max(
+      ...data.revenueChart.map(
+        (d: any) => d.revenue
+      ),
+      1
+    )
+
+    const height =
+      Math.max(
+        (item.revenue / maxRevenue) * 100,
+        8
       )
 
-      const height =
-        (item.revenue / maxRevenue) * 100
+    return (
 
-      return (
+      <div
+        key={item.date}
+        className="flex flex-col items-center justify-end h-full w-16"
+      >
+
+        <div className="text-[11px] text-emerald-400 mb-2 font-medium">
+          $
+          {Number(item.revenue)
+            .toLocaleString()}
+        </div>
 
         <div
-          key={item.date}
-          className="flex-1 flex flex-col items-center justify-end h-full"
-        >
+          className="w-10 rounded-t-2xl bg-gradient-to-t from-emerald-600 to-emerald-400 hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.35)]"
+          style={{
+            height: `${height}%`
+          }}
+        />
 
-          <div
-            className="w-full rounded-t-xl bg-gradient-to-t from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 transition-all duration-300"
-            style={{
-              height: `${height}%`
-            }}
-            title={`$${Number(
-              item.revenue
-            ).toLocaleString()}`}
-          />
+        <p className="text-[10px] text-slate-500 mt-3">
+          {item.date.slice(5)}
+        </p>
 
-          <p className="text-[10px] text-slate-500 mt-2">
-            {item.date.slice(5)}
-          </p>
+      </div>
+    )
+  })}
 
-        </div>
-      )
-    })}
-
-  </div>
+</div>
 
 </section>
 
