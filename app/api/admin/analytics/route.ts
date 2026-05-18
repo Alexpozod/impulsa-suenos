@@ -6,17 +6,46 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+export async function GET(req: Request) {
 
   try {
+
+const url = new URL(req.url)
+
+const range =
+  url.searchParams.get("range") || "7d"
+
+let fromDate = new Date()
+
+if (range === "24h") {
+
+  fromDate.setDate(fromDate.getDate() - 1)
+
+} else if (range === "7d") {
+
+  fromDate.setDate(fromDate.getDate() - 7)
+
+} else if (range === "30d") {
+
+  fromDate.setDate(fromDate.getDate() - 30)
+
+} else {
+
+  fromDate.setDate(fromDate.getDate() - 7)
+
+}
+
+const fromISOString =
+  fromDate.toISOString()
 
     /* =========================
        🔥 FUNNEL
     ========================= */
 
     const { data: events } = await supabase
-      .from("campaign_events")
-      .select("event_type")
+        .from("campaign_events")
+        .select("event_type")
+        .gte("created_at", fromISOString)
 
     const allEvents = events || []
 
@@ -141,11 +170,12 @@ const revenueChart =
     ========================= */
 
     const { data: campaignEvents } = await supabase
-      .from("campaign_events")
-      .select(`
-        campaign_id,
-        event_type
-      `)
+  .from("campaign_events")
+  .select(`
+    campaign_id,
+    event_type
+  `)
+  .gte("created_at", fromISOString)
 
     const campaignsMap: Record<string, any> = {}
 
@@ -247,12 +277,13 @@ const topCampaigns = topCampaignsRaw.map(
     ========================= */
 
     const { data: sourceEvents } = await supabase
-      .from("campaign_events")
-      .select(`
-        source,
-        event_type,
-        metadata
-      `)
+  .from("campaign_events")
+  .select(`
+    source,
+    event_type,
+    metadata
+  `)
+  .gte("created_at", fromISOString)
 
     const sourcesMap: Record<string, any> = {}
 
@@ -286,14 +317,16 @@ const topCampaigns = topCampaignsRaw.map(
     ========================= */
 
     const { data: checkoutEvents } = await supabase
-      .from("campaign_events")
-      .select("*")
-      .eq("event_type", "begin_checkout")
+  .from("campaign_events")
+  .select("*")
+  .eq("event_type", "begin_checkout")
+  .gte("created_at", fromISOString)
 
     const { data: paymentEvents } = await supabase
-      .from("campaign_events")
-      .select("user_email")
-      .eq("event_type", "payment_success")
+  .from("campaign_events")
+  .select("user_email")
+  .eq("event_type", "payment_success")
+  .gte("created_at", fromISOString)
 
     const paidEmails = new Set(
       (paymentEvents || [])
@@ -314,12 +347,13 @@ const topCampaigns = topCampaignsRaw.map(
     ========================= */
 
     const { data: realtime } = await supabase
-      .from("campaign_events")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      })
-      .limit(20)
+  .from("campaign_events")
+  .select("*")
+  .gte("created_at", fromISOString)
+  .order("created_at", {
+    ascending: false
+  })
+  .limit(20)
 
     return NextResponse.json({
 
