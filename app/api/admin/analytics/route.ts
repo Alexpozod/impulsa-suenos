@@ -324,23 +324,65 @@ const topCampaigns = topCampaignsRaw.map(
 
     const { data: paymentEvents } = await supabase
   .from("campaign_events")
-  .select("user_email")
+  .select(`
+    session_id,
+    created_at
+  `)
   .eq("event_type", "payment_success")
   .gte("created_at", fromISOString)
 
-    const paidEmails = new Set(
-      (paymentEvents || [])
-        .map(e => e.user_email)
-        .filter(Boolean)
-    )
+const paidSessions = new Set(
+  (paymentEvents || [])
+    .map(e => e.session_id)
+    .filter(Boolean)
+)
 
-    const abandoned =
-      (checkoutEvents || [])
-        .filter(event =>
-          event.user_email &&
-          !paidEmails.has(event.user_email)
+const abandoned =
+  (checkoutEvents || [])
+    .filter(event => {
+
+      if (!event.session_id) return false
+
+      if (paidSessions.has(event.session_id)) {
+        return false
+      }
+
+      const created =
+        new Date(event.created_at).getTime()
+
+      const now = Date.now()
+
+      const minutes =
+        (now - created) / 1000 / 60
+
+      // mínimo 15 min abandono real
+      return minutes >= 15
+    })
+    .map((event: any) => {
+
+      const created =
+        new Date(event.created_at).getTime()
+
+      const now = Date.now()
+
+      const minutesAgo =
+        Math.floor(
+          (now - created) / 1000 / 60
         )
-        .slice(0, 20)
+
+      return {
+
+        ...event,
+
+        abandoned_minutes:
+          minutesAgo
+      }
+    })
+    .sort((a: any, b: any) =>
+      b.abandoned_minutes -
+      a.abandoned_minutes
+    )
+    .slice(0, 20)
 
     /* =========================
        ⚡ REALTIME
