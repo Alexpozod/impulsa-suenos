@@ -97,44 +97,109 @@ export default function AdminAnalyticsPage() {
   <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
     {/* TOP CAMPAÑAS */}
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
+<div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
 
-      <h2 className="text-lg font-semibold mb-4">
-        🏆 Top campañas
-      </h2>
+  <div className="flex items-center justify-between mb-4">
 
-      <div className="space-y-3">
+    <h2 className="text-lg font-semibold">
+      🏆 Top campañas
+    </h2>
 
-        {data.topCampaigns?.map((campaign: any) => (
+    <span className="text-xs text-slate-400">
+      Más conversiones
+    </span>
 
-          <div
-            key={campaign.campaign_id}
-            className="flex items-center justify-between border border-white/10 rounded-xl px-4 py-3"
-          >
+  </div>
 
-            <div className="min-w-0">
+  <div className="space-y-4">
 
-              <p className="font-medium text-sm truncate">
-                {campaign.campaign_id}
-              </p>
+    {data.topCampaigns?.map((campaign: any) => (
 
-              <p className="text-xs text-slate-400 mt-1">
-                {campaign.views} visitas
-              </p>
+      <div
+        key={campaign.campaign_id}
+        className="rounded-2xl border border-white/10 bg-black/20 p-4"
+      >
 
-            </div>
+        <div className="flex items-start justify-between gap-4">
 
-            <div className="text-sm font-bold text-green-600">
-              {campaign.payments} pagos
-            </div>
+          {/* LEFT */}
+          <div className="min-w-0 flex-1">
+
+            <p className="font-semibold text-white truncate">
+              {campaign.title}
+            </p>
+
+            <p className="text-xs text-slate-400 mt-1">
+              por {campaign.organizer}
+            </p>
 
           </div>
 
-        ))}
+          {/* RIGHT */}
+          <div className="text-right">
+
+            <p className="text-green-400 font-bold text-sm">
+              $
+              {Number(campaign.revenue || 0)
+                .toLocaleString()}
+            </p>
+
+            <p className="text-xs text-slate-500 mt-1">
+              revenue
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* STATS */}
+        <div className="grid grid-cols-3 gap-3 mt-4">
+
+          <div className="rounded-xl bg-white/5 p-3">
+
+            <p className="text-xs text-slate-400">
+              Visitas
+            </p>
+
+            <p className="font-bold mt-1">
+              {campaign.views}
+            </p>
+
+          </div>
+
+          <div className="rounded-xl bg-white/5 p-3">
+
+            <p className="text-xs text-slate-400">
+              Pagos
+            </p>
+
+            <p className="font-bold mt-1 text-green-400">
+              {campaign.payments}
+            </p>
+
+          </div>
+
+          <div className="rounded-xl bg-white/5 p-3">
+
+            <p className="text-xs text-slate-400">
+              Conversión
+            </p>
+
+            <p className="font-bold mt-1 text-cyan-400">
+              {campaign.conversion}%
+            </p>
+
+          </div>
+
+        </div>
 
       </div>
 
-    </div>
+    ))}
+
+  </div>
+
+</div>
 
     {/* TOP SOURCES */}
     <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
