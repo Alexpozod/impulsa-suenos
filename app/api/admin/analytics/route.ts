@@ -81,10 +81,77 @@ export async function GET() {
       }
     })
 
-    const topCampaigns =
-      Object.values(campaignsMap)
-        .sort((a: any, b: any) => b.payments - a.payments)
-        .slice(0, 10)
+    const topCampaignsRaw =
+  Object.values(campaignsMap)
+    .sort((a: any, b: any) => b.payments - a.payments)
+    .slice(0, 10)
+
+/* =========================
+   🔥 ENRIQUECER CAMPAÑAS
+========================= */
+
+const campaignIds = topCampaignsRaw.map(
+  (c: any) => c.campaign_id
+)
+
+const { data: campaignsData } = await supabase
+  .from("campaigns")
+  .select(`
+    id,
+    title,
+    user_email,
+    current_amount
+  `)
+  .in("id", campaignIds)
+
+const campaignsInfoMap: Record<string, any> = {}
+
+;(campaignsData || []).forEach(campaign => {
+
+  campaignsInfoMap[campaign.id] = campaign
+
+})
+
+const topCampaigns = topCampaignsRaw.map(
+  (campaign: any) => {
+
+    const info =
+      campaignsInfoMap[campaign.campaign_id]
+
+    const views = Number(campaign.views || 0)
+
+    const payments = Number(campaign.payments || 0)
+
+    const conversion =
+      views > 0
+        ? Number(
+            ((payments / views) * 100).toFixed(2)
+          )
+        : 0
+
+    return {
+
+      ...campaign,
+
+      title:
+        info?.title ||
+        "Campaña",
+
+      organizer:
+        info?.user_email
+          ?.split("@")[0]
+          ?.replace(/[0-9]/g, "")
+          ?.replace(/[._-]/g, " ")
+          ?.trim() ||
+        "Usuario",
+
+      revenue:
+        Number(info?.current_amount || 0),
+
+      conversion
+    }
+  }
+)
 
     /* =========================
        🌍 TOP SOURCES
