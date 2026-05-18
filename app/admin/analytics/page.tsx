@@ -50,15 +50,15 @@ export default function AdminAnalyticsPage() {
 
   return (
 
-   <main className="p-4 md:p-6 bg-gray-50 min-h-screen space-y-6">
+   <main className="min-h-screen bg-[#020617] p-6 space-y-6 text-white">
 
   {/* HEADER */}
   <div>
-    <h1 className="text-2xl font-bold text-gray-900">
+    <h1 className="text-2xl font-bold text-white">
       📊 Analytics
     </h1>
 
-    <p className="text-sm text-gray-500 mt-1">
+    <p className="text-sm text-slate-400 mt-1">
       Funnel y métricas globales
     </p>
   </div>
@@ -97,7 +97,7 @@ export default function AdminAnalyticsPage() {
   <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
     {/* TOP CAMPAÑAS */}
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
 
       <h2 className="text-lg font-semibold mb-4">
         🏆 Top campañas
@@ -109,7 +109,7 @@ export default function AdminAnalyticsPage() {
 
           <div
             key={campaign.campaign_id}
-            className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3"
+            className="flex items-center justify-between border border-white/10 rounded-xl px-4 py-3"
           >
 
             <div className="min-w-0">
@@ -118,7 +118,7 @@ export default function AdminAnalyticsPage() {
                 {campaign.campaign_id}
               </p>
 
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 {campaign.views} visitas
               </p>
 
@@ -137,7 +137,7 @@ export default function AdminAnalyticsPage() {
     </div>
 
     {/* TOP SOURCES */}
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
 
       <h2 className="text-lg font-semibold mb-4">
         🌍 Top fuentes
@@ -149,7 +149,7 @@ export default function AdminAnalyticsPage() {
 
           <div
             key={source.source}
-            className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3"
+            className="flex items-center justify-between border border-white/10 rounded-xl px-4 py-3"
           >
 
             <div>
@@ -158,7 +158,7 @@ export default function AdminAnalyticsPage() {
                 {source.source}
               </p>
 
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 {source.payments} pagos
               </p>
 
@@ -181,7 +181,7 @@ export default function AdminAnalyticsPage() {
   </section>
 
   {/* ABANDONADOS */}
-  <section className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+  <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
 
     <h2 className="text-lg font-semibold mb-4">
       ⚠️ Checkout abandonados
@@ -190,7 +190,7 @@ export default function AdminAnalyticsPage() {
     <div className="space-y-3">
 
       {data.abandoned?.length === 0 && (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-slate-400">
           No hay abandonos
         </p>
       )}
@@ -199,14 +199,14 @@ export default function AdminAnalyticsPage() {
 
         <div
           key={item.id}
-          className="border border-gray-100 rounded-xl px-4 py-3"
+          className="border border-white/10 rounded-xl px-4 py-3"
         >
 
           <p className="font-medium text-sm">
             {item.user_email}
           </p>
 
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Intentó donar $
             {Number(item.metadata?.amount || 0)
               .toLocaleString()}
@@ -221,7 +221,7 @@ export default function AdminAnalyticsPage() {
   </section>
 
   {/* REALTIME */}
-  <section className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+  <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
 
     <h2 className="text-lg font-semibold mb-4">
       ⚡ Actividad reciente
@@ -233,7 +233,7 @@ export default function AdminAnalyticsPage() {
 
         <div
           key={event.id}
-          className="border border-gray-100 rounded-xl px-4 py-3"
+          className="border border-white/10 rounded-xl px-4 py-3"
         >
 
           <div className="flex items-center justify-between gap-3">
@@ -249,7 +249,7 @@ export default function AdminAnalyticsPage() {
 
           </div>
 
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             {event.user_email || "visitante"}
           </p>
 
@@ -276,13 +276,13 @@ function Card({
 
   return (
 
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
 
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-slate-400">
         {title}
       </p>
 
-      <p className="text-2xl font-bold text-gray-900 mt-2">
+      <p className="text-2xl font-bold text-white mt-2">
         {value}
       </p>
 
