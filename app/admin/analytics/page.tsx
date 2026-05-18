@@ -96,6 +96,37 @@ export default function AdminAnalyticsPage() {
   </div>
 
 {/* =========================
+    🔥 INSIGHTS
+========================= */}
+
+{data.insights?.length > 0 && (
+
+  <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+    {data.insights.map(
+      (insight: string, index: number) => (
+
+        <div
+          key={index}
+          className="rounded-2xl border border-cyan-500/10 bg-gradient-to-br from-cyan-950/20 to-slate-950 p-4 shadow-[0_0_25px_rgba(6,182,212,0.08)]"
+        >
+
+          <p className="text-sm text-cyan-100 leading-relaxed">
+
+            {insight}
+
+          </p>
+
+        </div>
+
+      )
+    )}
+
+  </section>
+
+)}
+
+{/* =========================
     💰 REVENUE
 ========================= */}
 
