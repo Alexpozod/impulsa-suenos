@@ -48,8 +48,14 @@ export async function trackEvent(data: TrackEventInput) {
       })
 
     if (error) {
-      console.error("trackEvent insert error:", error)
-    }
+
+  // ✅ ignorar duplicados idempotentes
+  if (error.code === "23505") {
+    return
+  }
+
+  console.error("trackEvent insert error:", error)
+}
 
   } catch (err) {
 
