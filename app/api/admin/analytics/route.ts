@@ -456,6 +456,84 @@ const topDonors =
     )
     .slice(0, 10)
 
+/* =========================
+   🔥 INSIGHTS
+========================= */
+
+const insights: string[] = []
+
+/* =========================
+   🔥 CONVERSIÓN ALTA
+========================= */
+
+if (conversion >= 15) {
+
+  insights.push(
+    `🔥 Conversión muy alta (${conversion}%)`
+  )
+}
+
+/* =========================
+   💰 REVENUE FUERTE
+========================= */
+
+const revenueTodayValue =
+  Number(revenueToday || 0)
+
+if (revenueTodayValue >= 100000) {
+
+  insights.push(
+    `💰 Revenue hoy supera $${revenueTodayValue.toLocaleString()}`
+  )
+}
+
+/* =========================
+   ⚠️ MUCHOS ABANDONOS
+========================= */
+
+if ((abandoned?.length || 0) >= 5) {
+
+  insights.push(
+    `⚠️ Hay ${abandoned.length} checkouts abandonados`
+  )
+}
+
+/* =========================
+   🚀 TOP SOURCE
+========================= */
+
+const bestSource =
+  topSources?.[0]
+
+if (
+  bestSource &&
+  bestSource.revenue > 0
+) {
+
+  insights.push(
+    `🚀 ${bestSource.source} lidera con $${Number(
+      bestSource.revenue
+    ).toLocaleString()}`
+  )
+}
+
+/* =========================
+   💎 WHALE
+========================= */
+
+const topDonor =
+  topDonors?.[0]
+
+if (
+  topDonor &&
+  topDonor.total >= 50000
+) {
+
+  insights.push(
+    `💎 Whale detectado: ${topDonor.donor_name}`
+  )
+}
+
     return NextResponse.json({
 
         revenue: {
@@ -482,7 +560,9 @@ const topDonors =
 
       realtime: realtime || [],
 
-    topDonors
+        topDonors,
+
+        insights
 
     })
 
