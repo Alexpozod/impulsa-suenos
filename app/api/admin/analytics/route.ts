@@ -457,6 +457,128 @@ const topDonors =
     .slice(0, 10)
 
 /* =========================
+   💸 REVENUE PERDIDO
+========================= */
+
+const lostRevenue =
+  abandoned.reduce(
+    (acc: number, item: any) =>
+      acc +
+      Number(item.metadata?.amount || 0),
+    0
+  )
+
+/* =========================
+   🌍 SOURCE CONVERSION
+========================= */
+
+const sourceStatsMap: Record<string, any> = {}
+
+;(sourceEvents || []).forEach((event: any) => {
+
+  const source =
+    event.source || "direct"
+
+  if (!sourceStatsMap[source]) {
+
+    sourceStatsMap[source] = {
+      source,
+      views: 0,
+      payments: 0
+    }
+  }
+
+  if (event.event_type === "campaign_view") {
+    sourceStatsMap[source].views += 1
+  }
+
+  if (event.event_type === "payment_success") {
+    sourceStatsMap[source].payments += 1
+  }
+
+})
+
+const sourceConversions =
+  Object.values(sourceStatsMap)
+    .map((source: any) => {
+
+      const conversion =
+        source.views > 0
+          ? Number(
+              (
+                (source.payments / source.views) * 100
+              ).toFixed(2)
+            )
+          : 0
+
+      return {
+        ...source,
+        conversion
+      }
+    })
+    .sort((a: any, b: any) =>
+      b.conversion - a.conversion
+    )
+
+/* =========================
+   🔥 HEATMAP
+========================= */
+
+const heatmapMap: Record<string, number> = {}
+
+successfulPayments.forEach((payment: any) => {
+
+  const date =
+    new Date(payment.created_at)
+
+  const hour =
+    date.getHours()
+
+  if (!heatmapMap[hour]) {
+    heatmapMap[hour] = 0
+  }
+
+  heatmapMap[hour] +=
+    Number(payment.metadata?.amount || 0)
+
+})
+
+const heatmap =
+  Object.entries(heatmapMap)
+    .map(([hour, revenue]) => ({
+      hour,
+      revenue
+    }))
+    .sort((a: any, b: any) =>
+      Number(a.hour) - Number(b.hour)
+    )
+
+/* =========================
+   👥 COHORTS
+========================= */
+
+const recurrentDonors =
+  topDonors.filter(
+    (donor: any) =>
+      donor.payments >= 2
+  ).length
+
+const whales =
+  topDonors.filter(
+    (donor: any) =>
+      donor.total >= 50000
+  ).length
+
+const retentionRate =
+  topDonors.length > 0
+    ? Number(
+        (
+          (recurrentDonors / topDonors.length) * 100
+        ).toFixed(2)
+      )
+    : 0
+
+/* =========================
    🔥 INSIGHTS
 ========================= */
 
@@ -562,7 +684,19 @@ if (
 
         topDonors,
 
-        insights
+        insights,
+
+        lostRevenue,
+
+        sourceConversions,
+
+        heatmap,
+
+        cohorts: {
+        recurrentDonors,
+        whales,
+        retentionRate
+        }
 
     })
 
