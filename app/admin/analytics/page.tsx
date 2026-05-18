@@ -63,6 +63,38 @@ export default function AdminAnalyticsPage() {
     </p>
   </div>
 
+{/* =========================
+    💰 REVENUE
+========================= */}
+
+<section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+  <RevenueCard
+    title="Revenue Total"
+    value={`$${Number(
+      data.revenue?.total || 0
+    ).toLocaleString()}`}
+    subtitle="Ingresos históricos"
+  />
+
+  <RevenueCard
+    title="Revenue Hoy"
+    value={`$${Number(
+      data.revenue?.today || 0
+    ).toLocaleString()}`}
+    subtitle="Ingresos del día"
+  />
+
+  <RevenueCard
+    title="Ticket Promedio"
+    value={`$${Number(
+      data.revenue?.average_ticket || 0
+    ).toLocaleString()}`}
+    subtitle="Promedio por donación"
+  />
+
+</section>
+
   {/* FUNNEL */}
   <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
 
@@ -328,6 +360,36 @@ export default function AdminAnalyticsPage() {
 
 </main>
 
+  )
+}
+
+function RevenueCard({
+  title,
+  value,
+  subtitle
+}: {
+  title: string
+  value: string
+  subtitle: string
+}) {
+
+  return (
+
+    <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/40 to-slate-950 p-5 shadow-[0_0_30px_rgba(16,185,129,0.08)]">
+
+      <p className="text-xs uppercase tracking-wide text-emerald-400">
+        {title}
+      </p>
+
+      <p className="text-3xl font-bold text-white mt-3">
+        {value}
+      </p>
+
+      <p className="text-xs text-slate-400 mt-2">
+        {subtitle}
+      </p>
+
+    </div>
   )
 }
 
