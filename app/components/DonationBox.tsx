@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { formatMoney } from "@/src/lib/formatMoney"
+import { getSessionId } from "@/lib/session/getSessionId"
 
 export default function DonationBox({
   campaign_id,
@@ -69,6 +70,55 @@ export default function DonationBox({
   const donate = async () => {
 
     console.log("CLICK DONAR")
+
+    try {
+
+  const session_id = getSessionId()
+
+  const params = new URLSearchParams(window.location.search)
+
+  const source =
+    params.get("source") ||
+    localStorage.getItem("traffic_source") ||
+    "direct"
+
+  const referrer =
+    params.get("ref") ||
+    localStorage.getItem("referrer") ||
+    null
+
+  fetch("/api/track-event", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      event_type: "donate_click",
+
+      campaign_id,
+
+      session_id,
+
+      user_email:
+        userEmail ||
+        guestEmail ||
+        null,
+
+      source,
+      referrer,
+
+      metadata: {
+        amount,
+        tip
+      }
+    })
+  })
+
+} catch (err) {
+
+  console.error("donate_click tracking error:", err)
+
+}
 
     if (!acceptedLegal) {
       alert("Debes aceptar los términos antes de continuar")
