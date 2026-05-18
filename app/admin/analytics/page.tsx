@@ -313,46 +313,102 @@ export default function AdminAnalyticsPage() {
 </div>
 
     {/* TOP SOURCES */}
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
+<div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-[0_0_30px_rgba(0,0,0,0.25)]">
 
-      <h2 className="text-lg font-semibold mb-4">
-        🌍 Top fuentes
-      </h2>
+  <div className="flex items-center justify-between mb-4">
 
-      <div className="space-y-3">
+    <h2 className="text-lg font-semibold">
+      🌍 Top fuentes
+    </h2>
 
-        {data.topSources?.map((source: any) => (
+    <span className="text-xs text-slate-400">
+      Tráfico con más revenue
+    </span>
 
-          <div
-            key={source.source}
-            className="flex items-center justify-between border border-white/10 rounded-xl px-4 py-3"
-          >
+  </div>
 
-            <div>
+  <div className="space-y-4">
 
-              <p className="font-medium text-sm">
-                {source.source}
-              </p>
+    {data.topSources?.map((source: any, index: number) => {
 
-              <p className="text-xs text-slate-400 mt-1">
-                {source.payments} pagos
-              </p>
+      const maxRevenue = Math.max(
+        ...data.topSources.map(
+          (s: any) => s.revenue || 0
+        ),
+        1
+      )
+
+      const percent =
+        ((source.revenue || 0) / maxRevenue) * 100
+
+      return (
+
+        <div
+          key={source.source}
+          className="rounded-2xl border border-white/10 bg-black/20 p-4"
+        >
+
+          <div className="flex items-center justify-between gap-4">
+
+            <div className="flex items-center gap-3">
+
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold">
+                #{index + 1}
+              </div>
+
+              <div>
+
+                <p className="font-semibold text-white capitalize">
+                  {source.source}
+                </p>
+
+                <p className="text-xs text-slate-400 mt-1">
+                  {source.payments} pagos registrados
+                </p>
+
+              </div>
 
             </div>
 
-            <div className="text-sm font-bold text-green-600">
-              $
-              {Number(source.revenue || 0)
-                .toLocaleString()}
+            <div className="text-right">
+
+              <p className="text-green-400 font-bold">
+                $
+                {Number(source.revenue || 0)
+                  .toLocaleString()}
+              </p>
+
+              <p className="text-xs text-slate-500 mt-1">
+                revenue
+              </p>
+
             </div>
 
           </div>
 
-        ))}
+          {/* PROGRESS */}
+          <div className="mt-4">
 
-      </div>
+            <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
 
-    </div>
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500"
+                style={{
+                  width: `${percent}%`
+                }}
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+      )
+    })}
+
+  </div>
+
+</div>
 
   </section>
 
