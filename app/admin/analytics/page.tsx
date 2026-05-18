@@ -545,17 +545,66 @@ export default function AdminAnalyticsPage() {
             </div>
 
             {/* RIGHT */}
-            <div className="text-right">
+<div className="text-right">
 
-              <p className="text-xs text-slate-500">
-                abandono
-              </p>
+  <p className="text-xs text-slate-500">
+    abandono
+  </p>
 
-              <p className="text-sm font-bold text-amber-400 mt-1">
-                pendiente
-              </p>
+  <p className="text-sm font-bold text-amber-400 mt-1">
+    pendiente
+  </p>
 
-            </div>
+  {/* ACTIONS */}
+  <div className="flex items-center justify-end gap-2 mt-3">
+
+    {/* COPY EMAIL */}
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(
+          item.user_email || ""
+        )
+
+        alert("📋 Email copiado")
+      }}
+      className="px-2 py-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-all"
+    >
+      📋
+    </button>
+
+    {/* OPEN GMAIL */}
+    <button
+      onClick={() => {
+
+        const subject =
+          encodeURIComponent(
+            "Tu aporte sigue pendiente ❤️"
+          )
+
+        const body =
+          encodeURIComponent(
+`Hola,
+
+Vimos que intentaste apoyar una campaña en ImpulsaSueños pero tu aporte quedó pendiente.
+
+Puedes completar tu aporte cuando quieras ❤️
+
+https://impulsasuenos.com`
+          )
+
+        window.open(
+          `https://mail.google.com/mail/?view=cm&fs=1&to=${item.user_email}&su=${subject}&body=${body}`,
+          "_blank"
+        )
+      }}
+      className="px-2 py-1 rounded-lg border border-cyan-500/20 bg-cyan-500/10 hover:bg-cyan-500/20 text-xs text-cyan-400 transition-all"
+    >
+      ✉️
+    </button>
+
+  </div>
+
+</div>
 
           </div>
 
