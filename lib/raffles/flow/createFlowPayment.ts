@@ -1,5 +1,5 @@
 import axios from "axios"
-import CryptoJS from "crypto-js"
+const CryptoJS = require("crypto-js")
 
 function signParams(params: Record<string, any>) {
 
