@@ -17,13 +17,15 @@ export async function generateTickets({
 
   order_id,
   raffle_id,
-  quantity
+  quantity,
+  user_email
 
 }: {
 
   order_id: string
-  raffle_id: string
-  quantity: number
+raffle_id: string
+quantity: number
+user_email: string
 
 }) {
 
@@ -47,48 +49,51 @@ export async function generateTickets({
 
     while (exists) {
 
-      ticketNumber =
-        String(
-          randomNumber(
-            raffle.ticket_min_number,
-            raffle.ticket_max_number
-          )
-        )
+  ticketNumber =
+    String(
+      randomNumber(
+        raffle.ticket_min_number,
+        raffle.ticket_max_number
+      )
+    )
 
-      const { data } = await supabase
-        .schema("raffles")
-        .from("tickets")
-        .select("id")
-        .eq("raffle_id", raffle_id)
-        .eq("ticket_number", ticketNumber)
-        .maybeSingle()
+  const { data } = await supabase
+    .schema("raffles")
+    .from("tickets")
+    .select("id")
+    .eq("raffle_id", raffle_id)
+    .eq("ticket_number", ticketNumber)
+    .maybeSingle()
 
-      exists = !!data
-    }
+  exists = !!data
+}
 
-    const code =
-      `${raffle.ticket_prefix}-${ticketNumber}`
+const code =
+  `${raffle.ticket_prefix}-${ticketNumber}`
 
-    const { data: ticket } = await supabase
-      .schema("raffles")
-      .from("tickets")
-      .insert({
+const { data: ticket } = await supabase
+  .schema("raffles")
+  .from("tickets")
+  .insert({
 
-        raffle_id,
-        order_id,
+    raffle_id,
 
-        ticket_number: ticketNumber,
+    order_id,
 
-        ticket_code: code,
+    user_email,
 
-        status: "active"
+    ticket_number: ticketNumber,
 
-      })
-      .select()
-      .single()
+    ticket_code: code,
 
-    generated.push(ticket)
-  }
+    status: "active"
+
+  })
+  .select()
+  .single()
+
+generated.push(ticket)
+ }
 
   return generated
 }

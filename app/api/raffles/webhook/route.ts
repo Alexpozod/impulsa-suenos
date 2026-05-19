@@ -164,13 +164,15 @@ export async function POST(req: Request) {
       })
     }
 
-    await generateTickets({
+   await generateTickets({
 
   order_id: order.id,
 
   raffle_id: order.raffle_id,
 
-  quantity: order.quantity
+  quantity: order.quantity,
+
+  user_email: order.user_email
 
 })
 
