@@ -15,6 +15,9 @@ from "@/lib/raffles/tickets/generateTickets"
 import { processRafflePayment }
 from "@/lib/raffles/ledger/processRafflePayment"
 
+import { sendRaffleConfirmationEmail }
+from "@/lib/raffles/emails/sendRaffleConfirmationEmail"
+
 export const runtime = "nodejs"
 
 const supabase = createClient(
@@ -190,6 +193,10 @@ await processRafflePayment({
     Number(payment.fee || 0)
 
 })
+
+await sendRaffleConfirmationEmail(
+  order.id
+)
 
     return NextResponse.json({
       ok: true
