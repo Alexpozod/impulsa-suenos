@@ -171,7 +171,7 @@ export async function POST(
         .from("payments")
         .insert({
 
-          order_id: order.id,
+          orderId: order.id,
 
           raffle_id,
 
