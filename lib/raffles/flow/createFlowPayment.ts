@@ -56,9 +56,26 @@ export async function createFlowPayment({
   const s = signParams(params)
 
   const body = new URLSearchParams({
-    ...params,
-    s
-  })
+
+  apiKey: String(params.apiKey),
+
+  commerceOrder: String(params.commerceOrder),
+
+  subject: String(params.subject),
+
+  currency: String(params.currency),
+
+  amount: String(params.amount),
+
+  email: String(params.email),
+
+  urlConfirmation: String(params.urlConfirmation),
+
+  urlReturn: String(params.urlReturn),
+
+  s: String(s)
+
+})
 
   const response = await axios.post(
 
