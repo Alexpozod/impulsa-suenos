@@ -12,6 +12,9 @@ from "@/lib/raffles/flow/validateFlowSignature"
 import { generateTickets }
 from "@/lib/raffles/tickets/generateTickets"
 
+import { processRafflePayment }
+from "@/lib/raffles/ledger/processRafflePayment"
+
 export const runtime = "nodejs"
 
 const supabase = createClient(
@@ -163,13 +166,28 @@ export async function POST(req: Request) {
 
     await generateTickets({
 
-      order_id: order.id,
+  order_id: order.id,
 
-      raffle_id: order.raffle_id,
+  raffle_id: order.raffle_id,
 
-      quantity: order.quantity
+  quantity: order.quantity
 
-    })
+})
+
+await processRafflePayment({
+
+  payment_id: dbPayment.id,
+
+  raffle_id: order.raffle_id,
+
+  order_id: order.id,
+
+  amount: Number(dbPayment.amount),
+
+  provider_fee:
+    Number(payment.fee || 0)
+
+})
 
     return NextResponse.json({
       ok: true
