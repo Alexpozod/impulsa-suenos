@@ -31,7 +31,22 @@ const schema = z.object({
     z.number().min(1),
 
   user_email:
-    z.string().email()
+    z.string().email(),
+
+  source:
+    z.string().optional(),
+
+  referrer:
+    z.string().optional(),
+
+  utm_source:
+    z.string().optional(),
+
+  utm_medium:
+    z.string().optional(),
+
+  utm_campaign:
+    z.string().optional()
 
 })
 
@@ -43,6 +58,17 @@ export async function POST(
 
     const body =
       await req.json()
+
+    const headers = req.headers
+
+    const ip =
+    headers.get("x-forwarded-for") ||
+    headers.get("x-real-ip") ||
+    "unknown"
+
+    const userAgent =
+    headers.get("user-agent") ||
+    "unknown"
 
     const parsed =
       schema.safeParse(body)
@@ -61,11 +87,18 @@ export async function POST(
 
     const {
 
-      raffle_id,
-      quantity,
-      user_email
+        raffle_id,
+        quantity,
+        user_email,
 
-    } = parsed.data
+        source,
+        referrer,
+
+        utm_source,
+        utm_medium,
+        utm_campaign
+
+        } = parsed.data
 
     const { data: raffle } =
       await supabase
@@ -119,9 +152,29 @@ export async function POST(
           amount,
 
           currency:
-            raffle.currency || "CLP",
+  raffle.currency || "CLP",
 
-          status: "pending"
+status: "pending",
+
+source:
+  source || "direct",
+
+referrer:
+  referrer || null,
+
+utm_source:
+  utm_source || null,
+
+utm_medium:
+  utm_medium || null,
+
+utm_campaign:
+  utm_campaign || null,
+
+ip,
+
+user_agent:
+  userAgent
 
         })
         .select()
