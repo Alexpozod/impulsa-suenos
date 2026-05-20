@@ -10,6 +10,9 @@ from "@supabase/supabase-js"
 import { createFlowPayment }
 from "@/lib/raffles/flow/createFlowPayment"
 
+import { trackEvent }
+from "@/lib/raffles/analytics/trackEvent"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -217,6 +220,43 @@ user_agent:
         }
       )
     }
+
+await trackEvent({
+
+  event_type:
+    "begin_checkout",
+
+  raffle_id,
+
+  order_id:
+    order.id,
+
+  user_email,
+
+  source,
+  referrer,
+
+  utm_source,
+  utm_medium,
+  utm_campaign,
+
+  ip,
+
+  user_agent:
+    userAgent,
+
+  metadata: {
+
+    quantity,
+
+    amount,
+
+    currency:
+      raffle.currency || "CLP"
+
+  }
+
+})
 
     const { data: payment } =
       await supabase
