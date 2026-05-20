@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
+import { requireRaffleAdmin }
+from "@/lib/raffles/auth/requireRaffleAdmin"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -11,6 +14,35 @@ export async function GET(req: NextRequest) {
     // =========================
     // QUERY PARAMS
     // =========================
+/* =========================================
+   RAFFLE ADMIN AUTH
+========================================= */
+
+const user_id =
+  req.headers.get("x-user-id")
+
+if (!user_id) {
+
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
+    }
+  )
+}
+
+await requireRaffleAdmin({
+
+  user_id,
+
+  allowed_roles: [
+    "raffle_admin",
+    "raffle_operator",
+    "raffle_accountant"
+  ]
+})
 
     const { searchParams } = new URL(req.url)
 
@@ -98,27 +130,29 @@ export async function GET(req: NextRequest) {
     // =========================
 
     const { data: payments } = await supabase
-      .schema("raffles")
-      .from("payments")
-      .select(`
-        raffle_id,
-        amount,
-        status
-      `)
-      .in("raffle_id", raffleIds)
-      .eq("status", "paid")
+  .schema("raffles")
+  .from("payments")
+  .select(`
+    raffle_id,
+    amount_clp,
+    status
+  `)
+  .in("raffle_id", raffleIds)
+  .eq("status", "approved")
 
     // =========================
     // TICKETS
     // =========================
 
     const { data: tickets } = await supabase
-      .schema("raffles")
-      .from("tickets")
-      .select(`
-        raffle_id
-      `)
-      .in("raffle_id", raffleIds)
+  .schema("raffles")
+  .from("ticket_inventory")
+  .select(`
+    raffle_id,
+    status
+  `)
+  .in("raffle_id", raffleIds)
+  .eq("status", "paid")
 
     // =========================
     // ORDERS
@@ -154,7 +188,7 @@ export async function GET(req: NextRequest) {
 
       const revenue = rafflePayments.reduce(
         (sum, payment) =>
-          sum + Number(payment.amount || 0),
+          sum + Number(payment.amount_clp || 0),
         0
       )
 
