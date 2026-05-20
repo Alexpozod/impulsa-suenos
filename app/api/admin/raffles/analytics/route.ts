@@ -113,6 +113,8 @@ export async function GET() {
     
     const sources: any = {}
 
+    const campaigns: any = {}
+
     for (const event of events || []) {
 
       if (
@@ -140,6 +142,27 @@ export async function GET() {
         )
 
       sources[source].conversions += 1
+
+      const campaign =
+  event.utm_campaign ||
+  "organic"
+
+if (!campaigns[campaign]) {
+
+  campaigns[campaign] = {
+
+    revenue: 0,
+
+    conversions: 0
+  }
+}
+
+campaigns[campaign].revenue +=
+  Number(
+    event.metadata?.amount || 0
+  )
+
+campaigns[campaign].conversions += 1
 
 const raffleId =
   event.raffle_id || "unknown"
@@ -216,7 +239,9 @@ dailyRevenue[day] +=
 
         dailyRevenue,
 
-        sources
+        sources,
+
+        campaigns
 
     })
 
