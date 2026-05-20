@@ -1,0 +1,181 @@
+import { NextResponse }
+from "next/server"
+
+import { z }
+from "zod"
+
+import { createClient }
+from "@supabase/supabase-js"
+
+import { requireRaffleAdmin }
+from "@/lib/raffles/auth/requireRaffleAdmin"
+
+export const runtime = "nodejs"
+
+const supabase =
+  createClient(
+
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env
+      .SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+const schema = z.object({
+
+  raffle_id:
+    z.string().uuid()
+
+})
+
+export async function POST(
+  req: Request
+) {
+
+  try {
+
+    /* =========================================
+       RAFFLE ADMIN AUTH
+    ========================================= */
+
+    const user_id =
+      req.headers.get("x-user-id")
+
+    if (!user_id) {
+
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
+    }
+
+    await requireRaffleAdmin({
+
+      user_id,
+
+      allowed_roles: [
+        "raffle_admin"
+      ]
+    })
+
+    /* =========================================
+       BODY
+    ========================================= */
+
+    const body =
+      await req.json()
+
+    const parsed =
+      schema.safeParse(body)
+
+    if (!parsed.success) {
+
+      return NextResponse.json(
+        {
+          error: "invalid_input"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    const {
+      raffle_id
+    } = parsed.data
+
+    /* =========================================
+       LOAD RAFFLE
+    ========================================= */
+
+    const { data: raffle } =
+      await supabase
+        .schema("raffles")
+        .from("raffles")
+        .select(`
+          id,
+          status
+        `)
+        .eq("id", raffle_id)
+        .maybeSingle()
+
+    if (!raffle) {
+
+      return NextResponse.json(
+        {
+          error: "raffle_not_found"
+        },
+        {
+          status: 404
+        }
+      )
+    }
+
+    /* =========================================
+       VALIDATE STATE
+    ========================================= */
+
+    if (raffle.status !== "active") {
+
+      return NextResponse.json(
+        {
+          error:
+            "raffle_not_active"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    /* =========================================
+       PAUSE RAFFLE
+    ========================================= */
+
+    await supabase
+      .schema("raffles")
+      .from("raffles")
+      .update({
+
+        status: "paused",
+
+        updated_at:
+          new Date().toISOString()
+
+      })
+      .eq("id", raffle_id)
+
+    return NextResponse.json({
+
+      ok: true,
+
+      raffle_id,
+
+      status:
+        "paused"
+
+    })
+
+  } catch (error) {
+
+    console.error(
+      "pause raffle error",
+      error
+    )
+
+    return NextResponse.json(
+      {
+        error:
+          "server_error"
+      },
+      {
+        status: 500
+      }
+    )
+  }
+}
