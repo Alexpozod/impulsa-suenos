@@ -140,6 +140,48 @@ export async function POST(
         raffle.ticket_price
       ) * quantity
 
+/* =========================
+   🔒 EXISTING PENDING ORDER
+========================= */
+
+const { data: existingOrder } =
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .select("*")
+    .eq(
+      "raffle_id",
+      raffle_id
+    )
+    .eq(
+      "user_email",
+      user_email
+    )
+    .eq(
+      "status",
+      "pending"
+    )
+    .gte(
+      "created_at",
+      new Date(
+        Date.now() - 15 * 60 * 1000
+      ).toISOString()
+    )
+    .maybeSingle()
+
+if (existingOrder) {
+
+  return NextResponse.json(
+    {
+      error:
+        "pending_order_exists"
+    },
+    {
+      status: 409
+    }
+  )
+}
+
     const { data: order } =
       await supabase
         .schema("raffles")
