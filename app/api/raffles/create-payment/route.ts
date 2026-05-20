@@ -13,6 +13,12 @@ from "@/lib/raffles/flow/createFlowPayment"
 import { trackEvent }
 from "@/lib/raffles/analytics/trackEvent"
 
+import { reserveTickets }
+from "@/lib/raffles/tickets/reserveTickets"
+
+import { releaseExpiredReservations }
+from "@/lib/raffles/tickets/releaseExpiredReservations"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -31,12 +37,18 @@ const schema = z.object({
     z.string().uuid(),
 
   quantity:
-  z.number()
-    .min(1)
-    .max(100),
+    z.number()
+      .min(1)
+      .max(100),
 
-  user_email:
+  buyer_email:
     z.string().email(),
+
+  buyer_name:
+    z.string().min(2),
+
+  buyer_phone:
+    z.string().optional(),
 
   source:
     z.string().optional(),
@@ -51,8 +63,13 @@ const schema = z.object({
     z.string().optional(),
 
   utm_campaign:
-    z.string().optional()
+    z.string().optional(),
 
+  utm_content:
+    z.string().optional(),
+
+  utm_term:
+    z.string().optional()
 })
 
 export async function POST(
@@ -61,19 +78,18 @@ export async function POST(
 
   try {
 
+    /* =========================================
+       CLEANUP EXPIRED RESERVATIONS
+    ========================================= */
+
+    await releaseExpiredReservations()
+
+    /* =========================================
+       PARSE BODY
+    ========================================= */
+
     const body =
       await req.json()
-
-    const headers = req.headers
-
-    const ip =
-    headers.get("x-forwarded-for") ||
-    headers.get("x-real-ip") ||
-    "unknown"
-
-    const userAgent =
-    headers.get("user-agent") ||
-    "unknown"
 
     const parsed =
       schema.safeParse(body)
@@ -92,18 +108,43 @@ export async function POST(
 
     const {
 
-        raffle_id,
-        quantity,
-        user_email,
+      raffle_id,
+      quantity,
 
-        source,
-        referrer,
+      buyer_email,
+      buyer_name,
+      buyer_phone,
 
-        utm_source,
-        utm_medium,
-        utm_campaign
+      source,
+      referrer,
 
-        } = parsed.data
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      utm_content,
+      utm_term
+
+    } = parsed.data
+
+    /* =========================================
+       REQUEST METADATA
+    ========================================= */
+
+    const headers =
+      req.headers
+
+    const ip_address =
+      headers.get("x-forwarded-for") ||
+      headers.get("x-real-ip") ||
+      "unknown"
+
+    const user_agent =
+      headers.get("user-agent") ||
+      "unknown"
+
+    /* =========================================
+       LOAD RAFFLE
+    ========================================= */
 
     const { data: raffle } =
       await supabase
@@ -137,52 +178,54 @@ export async function POST(
       )
     }
 
-    const amount =
-      Number(
-        raffle.ticket_price
-      ) * quantity
+    /* =========================================
+       EXISTING PENDING ORDER
+    ========================================= */
 
-/* =========================
-   🔒 EXISTING PENDING ORDER
-========================= */
+    const { data: existingOrder } =
+      await supabase
+        .schema("raffles")
+        .from("orders")
+        .select("id")
+        .eq("raffle_id", raffle_id)
+        .eq("buyer_email", buyer_email)
+        .eq("status", "pending")
+        .gte(
+          "created_at",
+          new Date(
+            Date.now() - 15 * 60 * 1000
+          ).toISOString()
+        )
+        .maybeSingle()
 
-const { data: existingOrder } =
-  await supabase
-    .schema("raffles")
-    .from("orders")
-    .select("*")
-    .eq(
-      "raffle_id",
-      raffle_id
-    )
-    .eq(
-      "user_email",
-      user_email
-    )
-    .eq(
-      "status",
-      "pending"
-    )
-    .gte(
-      "created_at",
-      new Date(
-        Date.now() - 15 * 60 * 1000
-      ).toISOString()
-    )
-    .maybeSingle()
+    if (existingOrder) {
 
-if (existingOrder) {
-
-  return NextResponse.json(
-    {
-      error:
-        "pending_order_exists"
-    },
-    {
-      status: 409
+      return NextResponse.json(
+        {
+          error:
+            "pending_order_exists"
+        },
+        {
+          status: 409
+        }
+      )
     }
-  )
-}
+
+    /* =========================================
+       CALCULATE TOTALS
+    ========================================= */
+
+    const ticketPriceCLP =
+      Number(
+        raffle.ticket_price_clp
+      )
+
+    const totalCLP =
+      ticketPriceCLP * quantity
+
+    /* =========================================
+       CREATE ORDER
+    ========================================= */
 
     const { data: order } =
       await supabase
@@ -192,36 +235,50 @@ if (existingOrder) {
 
           raffle_id,
 
-          user_email,
+          buyer_name,
+
+          buyer_email,
+
+          buyer_phone,
 
           quantity,
 
-          amount,
+          subtotal_clp:
+            totalCLP,
+
+          total_clp:
+            totalCLP,
 
           currency:
-  raffle.currency || "CLP",
+            "CLP",
 
-status: "pending",
+          status:
+            "pending",
 
-source:
-  source || "direct",
+          source:
+            source || "direct",
 
-referrer:
-  referrer || null,
+          referrer:
+            referrer || null,
 
-utm_source:
-  utm_source || null,
+          utm_source:
+            utm_source || null,
 
-utm_medium:
-  utm_medium || null,
+          utm_medium:
+            utm_medium || null,
 
-utm_campaign:
-  utm_campaign || null,
+          utm_campaign:
+            utm_campaign || null,
 
-ip,
+          utm_content:
+            utm_content || null,
 
-user_agent:
-  userAgent
+          utm_term:
+            utm_term || null,
+
+          ip_address,
+
+          user_agent
 
         })
         .select()
@@ -239,14 +296,38 @@ user_agent:
       )
     }
 
+    /* =========================================
+       RESERVE TICKETS
+    ========================================= */
+
+    await reserveTickets({
+
+      raffle_id,
+
+      order_id:
+        order.id,
+
+      buyer_email,
+
+      quantity
+
+    })
+
+    /* =========================================
+       CREATE FLOW PAYMENT
+    ========================================= */
+
     const flow =
       await createFlowPayment({
 
-        orderId: order.id,
+        orderId:
+          order.id,
 
-        amount,
+        amount:
+          totalCLP,
 
-        email: user_email,
+        email:
+          buyer_email,
 
         subject:
           `Compra tickets ${raffle.title}`
@@ -265,42 +346,9 @@ user_agent:
       )
     }
 
-await trackEvent({
-
-  event_type:
-    "begin_checkout",
-
-  raffle_id,
-
-  order_id:
-    order.id,
-
-  user_email,
-
-  source,
-  referrer,
-
-  utm_source,
-  utm_medium,
-  utm_campaign,
-
-  ip,
-
-  user_agent:
-    userAgent,
-
-  metadata: {
-
-    quantity,
-
-    amount,
-
-    currency:
-      raffle.currency || "CLP"
-
-  }
-
-})
+    /* =========================================
+       CREATE PAYMENT ROW
+    ========================================= */
 
     const { data: payment } =
       await supabase
@@ -308,32 +356,90 @@ await trackEvent({
         .from("payments")
         .insert({
 
-          orderId: order.id,
-
           raffle_id,
 
-          user_email,
+          order_id:
+            order.id,
 
-          amount,
-
-          currency:
-            raffle.currency || "CLP",
-
-          provider: "flow",
+          provider:
+            "flow",
 
           provider_payment_id:
             flow.token,
 
-          status: "pending"
+          status:
+            "pending",
+
+          amount_clp:
+            totalCLP,
+
+          metadata: {
+
+            flow_payment_url:
+              flow.url
+
+          }
 
         })
         .select()
         .single()
 
+    /* =========================================
+       ANALYTICS
+    ========================================= */
+
+    await trackEvent({
+
+      event_type:
+        "begin_checkout",
+
+      raffle_id,
+
+      order_id:
+        order.id,
+
+      payment_id:
+        payment?.id,
+
+      user_email:
+        buyer_email,
+
+      source,
+      referrer,
+
+      utm_source,
+      utm_medium,
+      utm_campaign,
+
+      ip:
+        ip_address,
+
+      user_agent,
+
+      metadata: {
+
+        quantity,
+
+        amount_clp:
+          totalCLP,
+
+        currency:
+          "CLP",
+
+        provider:
+          "flow"
+
+      }
+
+    })
+
     return NextResponse.json({
 
       payment_id:
         payment?.id,
+
+      order_id:
+        order.id,
 
       url:
         flow.url,
@@ -345,7 +451,10 @@ await trackEvent({
 
   } catch (error) {
 
-    console.error(error)
+    console.error(
+      "create-payment error",
+      error
+    )
 
     return NextResponse.json(
       {
