@@ -31,7 +31,9 @@ const schema = z.object({
     z.string().uuid(),
 
   quantity:
-    z.number().min(1),
+  z.number()
+    .min(1)
+    .max(100),
 
   user_email:
     z.string().email(),
