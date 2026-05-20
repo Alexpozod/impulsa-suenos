@@ -108,6 +108,8 @@ export async function GET() {
     ========================= */
 
     const topRaffles: any = {}
+
+    const dailyRevenue: any = {}
     
     const sources: any = {}
 
@@ -172,6 +174,23 @@ topRaffles[raffleId].revenue +=
 
 topRaffles[raffleId].conversions += 1
 
+const day =
+  new Date(
+    event.created_at
+  )
+    .toISOString()
+    .split("T")[0]
+
+if (!dailyRevenue[day]) {
+
+  dailyRevenue[day] = 0
+}
+
+dailyRevenue[day] +=
+  Number(
+    event.metadata?.amount || 0
+  )
+
     }
 
     return NextResponse.json({
@@ -194,8 +213,10 @@ topRaffles[raffleId].conversions += 1
       conversionRate,
 
       topRaffles,
-      
-      sources
+
+        dailyRevenue,
+
+        sources
 
     })
 

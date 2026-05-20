@@ -1,13 +1,39 @@
 "use client"
 
-import { useEffect, useState }
-
+import {
+  useEffect,
+  useState
+}
 from "react"
+
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer
+}
+from "recharts"
 
 export default function AdminRafflesPage() {
 
   const [data, setData] =
     useState<any>(null)
+
+const revenueChart =
+  Object.entries(
+    data?.dailyRevenue || {}
+  ).map(
+
+    ([date, value]) => ({
+
+      date,
+
+      revenue: value
+
+    })
+  )
 
   const [loading, setLoading] =
     useState(true)
@@ -133,7 +159,7 @@ export default function AdminRafflesPage() {
 
       </div>
 
-      {/* SOURCES */}
+      {/* TOP RAFFLES */}
 
 <div
   className="
@@ -204,20 +230,67 @@ export default function AdminRafflesPage() {
 
 </div>
 
-      <div
-        className="
-          bg-white
-          rounded-2xl
-          border
-          p-5
-        "
+{/* REVENUE CHART */}
+
+<div
+  className="
+    bg-white
+    rounded-2xl
+    border
+    p-5
+  "
+>
+
+  <h2 className="font-semibold text-lg mb-4">
+    📈 Revenue Diario
+  </h2>
+
+  <div className="h-80">
+
+    <ResponsiveContainer
+      width="100%"
+      height="100%"
+    >
+
+      <LineChart
+        data={revenueChart}
       >
 
-        <h2 className="font-semibold text-lg mb-4">
-          📊 Sources
-        </h2>
+        <XAxis dataKey="date" />
 
-        <div className="space-y-3">
+        <YAxis />
+
+        <Tooltip />
+
+        <Line
+          type="monotone"
+          dataKey="revenue"
+        />
+
+      </LineChart>
+
+    </ResponsiveContainer>
+
+  </div>
+
+</div>
+
+{/* SOURCES */}
+
+<div
+  className="
+    bg-white
+    rounded-2xl
+    border
+    p-5
+  "
+>
+
+  <h2 className="font-semibold text-lg mb-4">
+    📊 Sources
+  </h2>
+
+  <div className="space-y-3">
 
           {Object.entries(
             data?.sources || {}
