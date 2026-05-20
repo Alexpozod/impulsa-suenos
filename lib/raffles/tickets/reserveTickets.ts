@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js"
 import { recalculateRaffleCounters }
 from "./recalculateRaffleCounters"
 
+import { ensureTicketInventory }
+from "./ensureTicketInventory"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -32,6 +35,10 @@ export async function reserveTickets({
     Date.now() +
     RESERVATION_MINUTES * 60 * 1000
   ).toISOString()
+
+await ensureTicketInventory(
+  raffle_id
+)
 
   /* =========================================
      LOAD AVAILABLE TICKETS
