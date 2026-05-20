@@ -1,5 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 
+import { recalculateRaffleCounters }
+from "./recalculateRaffleCounters"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -31,7 +34,7 @@ export async function reserveTickets({
   ).toISOString()
 
   /* =========================================
-     LOAD RANDOM AVAILABLE TICKETS
+     LOAD AVAILABLE TICKETS
   ========================================= */
 
   const { data: availableTickets, error } =
@@ -110,21 +113,12 @@ export async function reserveTickets({
   }
 
   /* =========================================
-     UPDATE COUNTERS
+     RECALCULATE COUNTERS
   ========================================= */
 
-  await supabase
-    .schema("raffles")
-    .rpc(
-      "increment_reserved_ticket_count",
-      {
-        raffle_id_input:
-          raffle_id,
-
-        increment_by:
-          quantity
-      }
-    )
+  await recalculateRaffleCounters({
+    raffle_id
+  })
 
   return availableTickets
 }

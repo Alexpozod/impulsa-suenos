@@ -1,5 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 
+import { recalculateRaffleCounters }
+from "./recalculateRaffleCounters"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -87,38 +90,21 @@ export async function releaseExpiredReservations() {
   }
 
   /* =========================================
-     GROUP COUNTERS BY RAFFLE
+     RECALCULATE COUNTERS
   ========================================= */
 
-  const grouped: Record<
-    string,
-    number
-  > = {}
-
-  for (const ticket of expiredTickets) {
-
-    grouped[ticket.raffle_id] =
-      (grouped[ticket.raffle_id] || 0) + 1
-  }
-
-  /* =========================================
-     UPDATE RESERVED COUNTERS
-  ========================================= */
-
-  for (const raffleId of Object.keys(grouped)) {
-
-    await supabase
-      .schema("raffles")
-      .rpc(
-        "decrement_reserved_ticket_count",
-        {
-          raffle_id_input:
-            raffleId,
-
-          decrement_by:
-            grouped[raffleId]
-        }
+  const raffleIds =
+    [...new Set(
+      expiredTickets.map(
+        t => t.raffle_id
       )
+    )]
+
+  for (const raffleId of raffleIds) {
+
+    await recalculateRaffleCounters({
+      raffle_id: raffleId
+    })
   }
 
   return {
