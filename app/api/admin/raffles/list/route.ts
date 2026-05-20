@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
     const { data, error, count } = await query
 
     if (error) {
-      console.error("raffles list error", error)
+      console.error("raffles list error FULL =>", JSON.stringify(error, null, 2))
 
       return NextResponse.json(
         {
@@ -184,7 +184,7 @@ export async function GET(req: NextRequest) {
       }
     })
   } catch (error) {
-    console.error("raffles admin list fatal", error)
+    console.error("raffles admin list fatal FULL =>", error)
 
     return NextResponse.json(
       {
