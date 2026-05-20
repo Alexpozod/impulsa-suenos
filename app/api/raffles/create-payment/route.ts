@@ -19,6 +19,9 @@ from "@/lib/raffles/tickets/reserveTickets"
 import { releaseExpiredReservations }
 from "@/lib/raffles/tickets/releaseExpiredReservations"
 
+import { releaseOrderReservations }
+from "@/lib/raffles/tickets/releaseOrderReservations"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -336,15 +339,29 @@ export async function POST(
 
     if (!flow?.token) {
 
-      return NextResponse.json(
-        {
-          error: "flow_error"
-        },
-        {
-          status: 500
-        }
-      )
+  await releaseOrderReservations(
+    order.id
+  )
+
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .update({
+
+      status: "cancelled"
+
+    })
+    .eq("id", order.id)
+
+  return NextResponse.json(
+    {
+      error: "flow_error"
+    },
+    {
+      status: 500
     }
+  )
+}
 
     /* =========================================
        CREATE PAYMENT ROW
