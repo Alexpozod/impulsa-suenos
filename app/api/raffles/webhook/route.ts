@@ -15,6 +15,9 @@ from "@/lib/raffles/tickets/generateTickets"
 import { processRafflePayment }
 from "@/lib/raffles/ledger/processRafflePayment"
 
+import { trackEvent }
+from "@/lib/raffles/analytics/trackEvent"
+
 import { sendRaffleConfirmationEmail }
 from "@/lib/raffles/emails/sendRaffleConfirmationEmail"
 
@@ -166,6 +169,62 @@ export async function POST(req: Request) {
         ok: true
       })
     }
+
+    await trackEvent({
+
+  event_type:
+    "payment_success",
+
+  raffle_id:
+    order.raffle_id,
+
+  order_id:
+    order.id,
+
+  payment_id:
+    dbPayment.id,
+
+  user_email:
+    order.user_email,
+
+  source:
+    order.source,
+
+  referrer:
+    order.referrer,
+
+  utm_source:
+    order.utm_source,
+
+  utm_medium:
+    order.utm_medium,
+
+  utm_campaign:
+    order.utm_campaign,
+
+  ip:
+    order.ip,
+
+  user_agent:
+    order.user_agent,
+
+  metadata: {
+
+    quantity:
+      order.quantity,
+
+    amount:
+      order.amount,
+
+    currency:
+      order.currency,
+
+    provider:
+      "flow"
+
+  }
+
+})
 
    await generateTickets({
 
