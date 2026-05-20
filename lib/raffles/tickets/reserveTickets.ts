@@ -1,3 +1,5 @@
+import crypto from "crypto"
+
 import { createClient } from "@supabase/supabase-js"
 
 import { recalculateRaffleCounters }
@@ -28,6 +30,21 @@ export async function reserveTickets({
 }: ReserveTicketsParams) {
 
   /* =========================================
+     ENSURE INVENTORY
+  ========================================= */
+
+  await ensureTicketInventory(
+    raffle_id
+  )
+
+  /* =========================================
+     RESERVATION TOKEN
+  ========================================= */
+
+  const reservationToken =
+    crypto.randomUUID()
+
+  /* =========================================
      RESERVATION EXPIRATION
   ========================================= */
 
@@ -35,10 +52,6 @@ export async function reserveTickets({
     Date.now() +
     RESERVATION_MINUTES * 60 * 1000
   ).toISOString()
-
-await ensureTicketInventory(
-  raffle_id
-)
 
   /* =========================================
      LOAD AVAILABLE TICKETS
@@ -49,9 +62,7 @@ await ensureTicketInventory(
       .schema("raffles")
       .from("ticket_inventory")
       .select(`
-        id,
-        ticket_code,
-        ticket_number
+        id
       `)
       .eq("raffle_id", raffle_id)
       .eq("status", "available")
@@ -85,7 +96,7 @@ await ensureTicketInventory(
     )
 
   /* =========================================
-     RESERVE TICKETS
+     RESERVE INVENTORY
   ========================================= */
 
   const { error: updateError } =
@@ -101,7 +112,10 @@ await ensureTicketInventory(
         buyer_email,
 
         reserved_until:
-          reservedUntil
+          reservedUntil,
+
+        reservation_token:
+          reservationToken
 
       })
       .in("id", ticketIds)
@@ -120,6 +134,34 @@ await ensureTicketInventory(
   }
 
   /* =========================================
+     VERIFY OWNERSHIP
+  ========================================= */
+
+  const { data: reservedTickets } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select(`
+        id,
+        ticket_code,
+        ticket_number
+      `)
+      .eq(
+        "reservation_token",
+        reservationToken
+      )
+
+  if (
+    !reservedTickets ||
+    reservedTickets.length !== quantity
+  ) {
+
+    throw new Error(
+      "reservation_conflict"
+    )
+  }
+
+  /* =========================================
      RECALCULATE COUNTERS
   ========================================= */
 
@@ -127,5 +169,5 @@ await ensureTicketInventory(
     raffle_id
   })
 
-  return availableTickets
+  return reservedTickets
 }
