@@ -102,10 +102,78 @@ export async function POST(req: Request) {
 
     if (payment.status !== 2) {
 
-      return NextResponse.json({
-        ok: true
-      })
-    }
+  const { data: dbPayment } =
+    await supabase
+      .schema("raffles")
+      .from("payments")
+      .select(`
+        *,
+        orders (*)
+      `)
+      .eq(
+        "provider_payment_id",
+        token
+      )
+      .maybeSingle()
+
+  if (dbPayment?.orders) {
+
+    await trackEvent({
+
+      event_type:
+        "payment_failed",
+
+      raffle_id:
+        dbPayment.orders.raffle_id,
+
+      order_id:
+        dbPayment.orders.id,
+
+      payment_id:
+        dbPayment.id,
+
+      user_email:
+        dbPayment.orders.user_email,
+
+      source:
+        dbPayment.orders.source,
+
+      referrer:
+        dbPayment.orders.referrer,
+
+      utm_source:
+        dbPayment.orders.utm_source,
+
+      utm_medium:
+        dbPayment.orders.utm_medium,
+
+      utm_campaign:
+        dbPayment.orders.utm_campaign,
+
+      ip:
+        dbPayment.orders.ip,
+
+      user_agent:
+        dbPayment.orders.user_agent,
+
+      metadata: {
+
+        provider:
+          "flow",
+
+        flow_status:
+          payment.status
+
+      }
+
+    })
+
+  }
+
+  return NextResponse.json({
+    ok: true
+  })
+}
 
     const { data: dbPayment } =
       await supabase
