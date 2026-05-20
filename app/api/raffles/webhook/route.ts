@@ -238,6 +238,55 @@ export async function POST(req: Request) {
       })
     }
 
+/* =========================
+   🚨 FRAUD CHECK
+========================= */
+
+const suspiciousIps = [
+
+  "unknown",
+  "::1"
+
+]
+
+const suspicious =
+  suspiciousIps.includes(
+    order.ip || ""
+  )
+
+if (suspicious) {
+
+  await supabase
+    .schema("raffles")
+    .from("fraud_logs")
+    .insert({
+
+      payment_id:
+        dbPayment.id,
+
+      order_id:
+        order.id,
+
+      raffle_id:
+        order.raffle_id,
+
+      user_email:
+        order.user_email,
+
+      ip:
+        order.ip,
+
+      user_agent:
+        order.user_agent,
+
+      reason:
+        "suspicious_ip",
+
+      risk_level:
+        "medium"
+    })
+}
+
     await trackEvent({
 
   event_type:
