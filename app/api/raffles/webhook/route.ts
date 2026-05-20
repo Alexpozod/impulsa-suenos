@@ -198,12 +198,36 @@ export async function POST(req: Request) {
       })
     }
 
-    if (dbPayment.status === "approved") {
+    if (
+  dbPayment.status === "approved" ||
+  dbPayment.status === "processing"
+) {
 
-      return NextResponse.json({
-        ok: true
-      })
-    }
+  return NextResponse.json({
+    ok: true
+  })
+}
+
+const { data: lockedPayment } =
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .update({
+
+      status: "processing"
+
+    })
+    .eq("id", dbPayment.id)
+    .eq("status", "pending")
+    .select()
+    .maybeSingle()
+
+if (!lockedPayment) {
+
+  return NextResponse.json({
+    ok: true
+  })
+}
 
     await supabase
       .schema("raffles")
