@@ -25,11 +25,17 @@ export async function GET() {
     ========================= */
 
     const { data: payments } =
-      await supabase
-        .schema("raffles")
-        .from("payments")
-        .select("*")
-        .eq("status", "approved")
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .select(`
+      *,
+      raffles (
+        id,
+        title
+      )
+    `)
+    .eq("status", "approved")
 
     /* =========================
        🎟️ TICKETS
@@ -101,6 +107,8 @@ export async function GET() {
        📊 SOURCE BREAKDOWN
     ========================= */
 
+    const topRaffles: any = {}
+    
     const sources: any = {}
 
     for (const event of events || []) {
@@ -130,6 +138,40 @@ export async function GET() {
         )
 
       sources[source].conversions += 1
+
+const raffleId =
+  event.raffle_id || "unknown"
+
+const rafflePayment =
+  payments?.find(
+    p =>
+      p.raffle_id === raffleId
+  )
+
+const raffleTitle =
+  rafflePayment?.raffles?.title ||
+  "Sin título"
+
+if (!topRaffles[raffleId]) {
+
+  topRaffles[raffleId] = {
+
+    title:
+      raffleTitle,
+
+    revenue: 0,
+
+    conversions: 0
+  }
+}
+
+topRaffles[raffleId].revenue +=
+  Number(
+    event.metadata?.amount || 0
+  )
+
+topRaffles[raffleId].conversions += 1
+
     }
 
     return NextResponse.json({
@@ -151,6 +193,8 @@ export async function GET() {
 
       conversionRate,
 
+      topRaffles,
+      
       sources
 
     })
