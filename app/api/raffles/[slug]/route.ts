@@ -18,16 +18,17 @@ const supabase =
 
 export async function GET(
   req: Request,
-  {
-    params
-  }: {
-    params: {
+  context: {
+    params: Promise<{
       slug: string
-    }
+    }>
   }
 ) {
 
   try {
+
+const params =
+  await context.params
 
     const { data: raffle } =
       await supabase
