@@ -7,6 +7,12 @@ from "zod"
 import { createClient }
 from "@supabase/supabase-js"
 
+import { requireRaffleAdmin }
+from "@/lib/raffles/auth/requireRaffleAdmin"
+
+import { createTicketInventory }
+from "@/lib/raffles/tickets/createTicketInventory"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -58,6 +64,34 @@ export async function POST(
 ) {
 
   try {
+
+/* =========================================
+   RAFFLE ADMIN AUTH
+========================================= */
+
+const user_id =
+  req.headers.get("x-user-id")
+
+if (!user_id) {
+
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
+    }
+  )
+}
+
+await requireRaffleAdmin({
+
+  user_id,
+
+  allowed_roles: [
+    "raffle_admin"
+  ]
+})
 
     const body =
       await req.json()
@@ -131,7 +165,7 @@ export async function POST(
           cover_image:
             data.cover_image,
 
-          ticket_price:
+          ticket_price_clp:
             data.ticket_price,
 
           ticket_prefix:
@@ -149,12 +183,26 @@ export async function POST(
           currency:
             data.currency,
 
+            created_by:
+                user_id,
+
           status:
-            "active"
+            "draft"
 
         })
         .select()
         .single()
+
+/* =========================================
+   INITIAL INVENTORY
+========================================= */
+
+await createTicketInventory({
+
+  raffle_id:
+    raffle.id
+
+})
 
     return NextResponse.json({
 
