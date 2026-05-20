@@ -135,6 +135,75 @@ export default function AdminRafflesPage() {
 
       {/* SOURCES */}
 
+<div
+  className="
+    bg-white
+    rounded-2xl
+    border
+    p-5
+  "
+>
+
+  <h2 className="font-semibold text-lg mb-4">
+    🏆 Top Sorteos
+  </h2>
+
+  <div className="space-y-3">
+
+    {Object.entries(
+      data?.topRaffles || {}
+    ).map(
+
+      ([key, value]: any) => (
+
+        <div
+          key={key}
+          className="
+            flex
+            items-center
+            justify-between
+            border-b
+            pb-2
+          "
+        >
+
+          <div>
+
+            <p className="font-medium">
+              {value.title}
+            </p>
+
+          </div>
+
+          <div className="text-right">
+
+            <p className="font-semibold">
+
+              $
+              {Number(
+                value.revenue || 0
+              ).toLocaleString()}
+
+            </p>
+
+            <p className="text-sm text-slate-500">
+
+              {value.conversions}
+              {" "}
+              conversiones
+
+            </p>
+
+          </div>
+
+        </div>
+      )
+    )}
+
+  </div>
+
+</div>
+
       <div
         className="
           bg-white
