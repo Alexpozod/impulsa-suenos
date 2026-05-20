@@ -69,6 +69,10 @@ export default function AdminLayout({ children }: any) {
         <div>
           <p className="text-xs text-slate-500 mb-2">Gestión</p>
           <Item href="/admin/campaigns" label="🚀 Campañas" />
+          <Item
+  href="/admin/raffles"
+  label="🎟️ Sorteos"
+/>
           <Item href="/admin/users" label="👥 Usuarios" />
           <Item href="/admin/kyc" label="🪪 KYC" />
         </div>
