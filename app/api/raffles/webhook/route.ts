@@ -21,6 +21,9 @@ from "@/lib/raffles/analytics/trackEvent"
 import { sendRaffleConfirmationEmail }
 from "@/lib/raffles/emails/sendRaffleConfirmationEmail"
 
+import { sendTicketsEmail }
+from "@/lib/raffles/emails/sendTicketsEmail"
+
 export const runtime = "nodejs"
 
 const supabase = createClient(
@@ -343,17 +346,19 @@ if (suspicious) {
 
 })
 
-   await generateTickets({
+   const tickets =
+  await generateTickets({
 
-  order_id: order.id,
+    order_id: order.id,
 
-  raffle_id: order.raffle_id,
+    raffle_id: order.raffle_id,
 
-  quantity: order.quantity,
+    quantity: order.quantity,
 
-  user_email: order.user_email
+    user_email:
+      order.user_email
 
-})
+  })
 
 await processRafflePayment({
 
@@ -373,6 +378,30 @@ await processRafflePayment({
 await sendRaffleConfirmationEmail(
   order.id
 )
+
+const { data: raffle } =
+  await supabase
+    .schema("raffles")
+    .from("raffles")
+    .select("title")
+    .eq(
+      "id",
+      order.raffle_id
+    )
+    .maybeSingle()
+
+await sendTicketsEmail({
+
+  email:
+    order.user_email,
+
+  raffleTitle:
+    raffle?.title ||
+    "Sorteo",
+
+  tickets
+
+})
 
     return NextResponse.json({
       ok: true
