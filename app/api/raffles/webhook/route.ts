@@ -9,8 +9,8 @@ from "@supabase/supabase-js"
 import { validateFlowSignature }
 from "@/lib/raffles/flow/validateFlowSignature"
 
-import { generateTickets }
-from "@/lib/raffles/tickets/generateTickets"
+import { assignReservedTickets }
+from "@/lib/raffles/tickets/assignReservedTickets"
 
 import { processRafflePayment }
 from "@/lib/raffles/ledger/processRafflePayment"
@@ -25,6 +25,8 @@ import { sendTicketsEmail }
 from "@/lib/raffles/emails/sendTicketsEmail"
 
 export const runtime = "nodejs"
+
+const FLOW_STATUS_APPROVED = 2
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -103,7 +105,7 @@ export async function POST(req: Request) {
 
       })
 
-    if (payment.status !== 2) {
+    if (payment.status !== FLOW_STATUS_APPROVED) {
 
   const { data: dbPayment } =
     await supabase
@@ -136,7 +138,7 @@ export async function POST(req: Request) {
         dbPayment.id,
 
       user_email:
-        dbPayment.orders.user_email,
+        dbPayment.orders.buyer_email,
 
       source:
         dbPayment.orders.source,
@@ -154,7 +156,7 @@ export async function POST(req: Request) {
         dbPayment.orders.utm_campaign,
 
       ip:
-        dbPayment.orders.ip,
+  dbPayment.orders.ip_address,
 
       user_agent:
         dbPayment.orders.user_agent,
@@ -254,7 +256,7 @@ const suspiciousIps = [
 
 const suspicious =
   suspiciousIps.includes(
-    order.ip || ""
+    order.ip_address || ""
   )
 
 if (suspicious) {
@@ -274,10 +276,10 @@ if (suspicious) {
         order.raffle_id,
 
       user_email:
-        order.user_email,
+  order.buyer_email,
 
       ip:
-        order.ip,
+        order.ip_address,
 
       user_agent:
         order.user_agent,
@@ -305,7 +307,7 @@ if (suspicious) {
     dbPayment.id,
 
   user_email:
-    order.user_email,
+  order.buyer_email,
 
   source:
     order.source,
@@ -323,7 +325,7 @@ if (suspicious) {
     order.utm_campaign,
 
   ip:
-    order.ip,
+    order.ip_address,
 
   user_agent:
     order.user_agent,
@@ -334,7 +336,7 @@ if (suspicious) {
       order.quantity,
 
     amount:
-      order.amount,
+      order.total_clp,
 
     currency:
       order.currency,
@@ -347,16 +349,16 @@ if (suspicious) {
 })
 
    const tickets =
-  await generateTickets({
+  await assignReservedTickets({
 
-    order_id: order.id,
+    raffle_id:
+      order.raffle_id,
 
-    raffle_id: order.raffle_id,
+    order_id:
+      order.id,
 
-    quantity: order.quantity,
-
-    user_email:
-      order.user_email
+    payment_id:
+      dbPayment.id
 
   })
 
@@ -368,7 +370,7 @@ await processRafflePayment({
 
   order_id: order.id,
 
-  amount: Number(dbPayment.amount),
+  amount: Number(dbPayment.amount_clp),
 
   provider_fee:
     Number(payment.fee || 0)
@@ -393,7 +395,7 @@ const { data: raffle } =
 await sendTicketsEmail({
 
   email:
-    order.user_email,
+  order.buyer_email,
 
   raffleTitle:
     raffle?.title ||
