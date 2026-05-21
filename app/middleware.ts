@@ -111,7 +111,12 @@ if (
     ========================= */
     let isAdmin = false
 
-    if (url.startsWith("/api/admin") || url.startsWith("/admin")) {
+    if (
+  (url.startsWith("/api/admin") ||
+   url.startsWith("/admin")) &&
+
+  !url.startsWith("/api/admin/raffles")
+) {
 
       const adminCheck = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/is_admin_email`,
