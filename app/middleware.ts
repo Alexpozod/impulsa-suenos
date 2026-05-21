@@ -27,6 +27,8 @@ export async function middleware(req: NextRequest) {
     ========================= */
     const token = req.headers.get("authorization")?.replace("Bearer ", "")
 
+    console.log("ADMIN TOKEN =>", token)
+
     if (!token) {
       return NextResponse.json(
         { error: "No autorizado (sin token)" },
