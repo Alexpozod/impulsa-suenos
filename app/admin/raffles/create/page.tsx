@@ -5,13 +5,20 @@ import {
 }
 from "react"
 
-import { createClientComponentClient }
-from "@supabase/auth-helpers-nextjs"
+import { createClient }
+from "@supabase/supabase-js"
 
 export default function CreateRafflePage() {
 
 const supabase =
-  createClientComponentClient<any>()
+  createClient(
+
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env
+      .NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
   const [loading, setLoading] =
     useState(false)
@@ -52,15 +59,19 @@ const supabase =
       ========================= */
 
       const {
-        data: { session }
-      } = await supabase.auth.getSession()
+  data: { user }
+} = await supabase.auth.getUser()
 
-      if (!session?.access_token) {
+if (!user) {
 
-        alert("Sesión inválida")
+  alert("Sesión inválida")
 
-        return
-      }
+  return
+}
+
+const {
+  data: { session }
+} = await supabase.auth.getSession()
 
       /* =========================
          CREATE RAFFLE
