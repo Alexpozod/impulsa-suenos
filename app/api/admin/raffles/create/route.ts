@@ -132,16 +132,21 @@ await requireRaffleAdmin({
 
     if (!parsed.success) {
 
-      return NextResponse.json(
-        {
-          error:
-            "invalid_input"
-        },
-        {
-          status: 400
-        }
-      )
+  console.log(
+    parsed.error.flatten()
+  )
+
+  return NextResponse.json(
+    {
+      error: "invalid_input",
+      details:
+        parsed.error.flatten()
+    },
+    {
+      status: 400
     }
+  )
+}
 
     const data =
       parsed.data
