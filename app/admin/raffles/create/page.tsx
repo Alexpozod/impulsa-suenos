@@ -58,20 +58,20 @@ const supabase =
          AUTH SESSION
       ========================= */
 
-      const {
-  data: { user }
-} = await supabase.auth.getUser()
+      const authData =
+  localStorage.getItem(
+    "sb-access-token"
+  )
 
-if (!user) {
+if (!authData) {
 
   alert("Sesión inválida")
 
   return
 }
 
-const {
-  data: { session }
-} = await supabase.auth.getSession()
+const accessToken =
+  authData
 
       /* =========================
          CREATE RAFFLE
@@ -90,7 +90,7 @@ const {
                 "application/json",
 
              Authorization:
-  `Bearer ${session?.access_token || ""}`
+  `Bearer ${accessToken}`
             },
 
             body:
