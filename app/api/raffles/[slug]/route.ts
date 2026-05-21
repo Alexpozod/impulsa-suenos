@@ -27,25 +27,57 @@ export async function GET(
 
   try {
 
-const params =
-  await context.params
+    const params =
+      await context.params
 
-    const { data: raffle } =
+    /* =========================
+       LOAD RAFFLE
+    ========================= */
+
+    const {
+      data: raffle,
+      error
+    } =
       await supabase
         .schema("raffles")
         .from("raffles")
-        .select("*")
+        .select(`
+          id,
+          slug,
+          title,
+          description,
+          short_description,
+          prize_title,
+          prize_description,
+          cover_image,
+          gallery,
+          ticket_price_clp,
+          currency,
+          generated_ticket_count,
+          sold_ticket_count,
+          reserved_ticket_count,
+          min_tickets_goal,
+          ticket_min_number,
+          ticket_max_number,
+          status,
+          end_date,
+          created_at
+        `)
         .eq(
           "slug",
           params.slug
         )
-        .eq(
+        .in(
           "status",
-          "active"
+          [
+            "active",
+            "paused",
+            "ended"
+          ]
         )
         .maybeSingle()
 
-    if (!raffle) {
+    if (error || !raffle) {
 
       return NextResponse.json(
         {
@@ -58,9 +90,108 @@ const params =
       )
     }
 
-    return NextResponse.json(
-      raffle
-    )
+    /* =========================
+       METRICS
+    ========================= */
+
+    const totalTickets =
+      Number(
+        raffle.ticket_max_number || 0
+      )
+
+    const soldTickets =
+      Number(
+        raffle.sold_ticket_count || 0
+      )
+
+    const reservedTickets =
+      Number(
+        raffle.reserved_ticket_count || 0
+      )
+
+    const availableTickets =
+      totalTickets -
+      soldTickets -
+      reservedTickets
+
+    const progress =
+      totalTickets > 0
+
+        ? Math.min(
+            100,
+            (
+              soldTickets /
+              totalTickets
+            ) * 100
+          )
+
+        : 0
+
+    const revenue =
+      soldTickets *
+      Number(
+        raffle.ticket_price_clp || 0
+      )
+
+    /* =========================
+       INVENTORY PREVIEW
+    ========================= */
+
+    const {
+      data: previewTickets
+    } =
+      await supabase
+        .schema("raffles")
+        .from("ticket_inventory")
+        .select(`
+          ticket_code,
+          status
+        `)
+        .eq(
+          "raffle_id",
+          raffle.id
+        )
+        .order(
+          "ticket_number",
+          {
+            ascending: true
+          }
+        )
+        .limit(30)
+
+    return NextResponse.json({
+
+      ok: true,
+
+      raffle: {
+
+        ...raffle,
+
+        total_tickets:
+          totalTickets,
+
+        available_tickets:
+          availableTickets,
+
+        sold_tickets:
+          soldTickets,
+
+        reserved_tickets:
+          reservedTickets,
+
+        progress:
+          Number(
+            progress.toFixed(2)
+          ),
+
+        revenue
+
+      },
+
+      preview_tickets:
+        previewTickets || []
+
+    })
 
   } catch (error) {
 
