@@ -36,6 +36,12 @@ const schema = z.object({
   description:
     z.string().min(10),
 
+prize_title:
+  z.string().min(3),
+
+prize_description:
+  z.string().optional(),
+
   cover_image:
     z.string().url(),
 
@@ -189,6 +195,12 @@ await requireRaffleAdmin({
 
           description:
             data.description,
+
+            prize_title:
+            data.prize_title,
+
+            prize_description:
+            data.prize_description,
 
           cover_image:
             data.cover_image,

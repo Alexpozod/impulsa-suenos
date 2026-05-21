@@ -22,6 +22,10 @@ export default function CreateRafflePage() {
 
       description: "",
 
+      prize_title: "",
+
+      prize_description: "",
+
       cover_image: "",
 
       ticket_price: "",
@@ -172,6 +176,28 @@ const res =
             })
           }
         />
+
+        <Input
+  label="Título premio"
+  value={form.prize_title}
+  onChange={(v: string) =>
+    setForm({
+      ...form,
+      prize_title: v
+    })
+  }
+/>
+
+<Textarea
+  label="Descripción premio"
+  value={form.prize_description}
+  onChange={(v: string) =>
+    setForm({
+      ...form,
+      prize_description: v
+    })
+  }
+/>
 
         <Input
           label="Imagen URL"
