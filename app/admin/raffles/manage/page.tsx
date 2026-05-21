@@ -104,21 +104,28 @@ export default function RafflesManagePage() {
         return
       }
 
-      const res =
-        await fetch(endpoint, {
+      const {
+  data: { session }
+} = await supabase.auth.getSession()
 
-          method: "POST",
+const res =
+  await fetch(endpoint, {
 
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
+    method: "POST",
 
-          body: JSON.stringify({
-            raffle_id
-          })
+    headers: {
+      "Content-Type":
+        "application/json",
 
-        })
+      Authorization:
+        `Bearer ${session?.access_token}`
+    },
+
+    body: JSON.stringify({
+      raffle_id
+    })
+
+  })
 
       if (!res.ok) {
 
