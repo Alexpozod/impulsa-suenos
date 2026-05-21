@@ -5,9 +5,6 @@ import {
 }
 from "react"
 
-import { supabase }
-from "@/src/lib/supabase"
-
 export default function CreateRafflePage() {
 
   const [loading, setLoading] =
@@ -38,33 +35,11 @@ export default function CreateRafflePage() {
 
     })
 
-    async function submit() {
+  async function submit() {
 
     try {
 
       setLoading(true)
-
-      /* =========================
-         AUTH SESSION
-      ========================= */
-
-      const {
-  data: { session }
-} = await supabase.auth.getSession()
-
-if (!session?.access_token) {
-
-  alert("Sesión inválida")
-
-  return
-}
-
-const accessToken =
-  session.access_token
-
-      /* =========================
-         CREATE RAFFLE
-      ========================= */
 
       const res =
         await fetch(
@@ -73,13 +48,13 @@ const accessToken =
 
             method: "POST",
 
+            credentials: "include",
+
             headers: {
 
               "Content-Type":
-                "application/json",
+                "application/json"
 
-             Authorization:
-  `Bearer ${accessToken}`
             },
 
             body:
