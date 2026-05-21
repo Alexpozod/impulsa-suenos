@@ -5,6 +5,9 @@ import {
 }
 from "react"
 
+import { supabase }
+from "@/src/lib/supabase"
+
 export default function CreateRafflePage() {
 
   const [loading, setLoading] =
@@ -41,27 +44,47 @@ export default function CreateRafflePage() {
 
       setLoading(true)
 
-      const res =
-        await fetch(
-          "/api/admin/raffles/create",
-          {
+      /* =========================
+   SESSION
+========================= */
 
-            method: "POST",
+const {
+  data: { session }
+} = await supabase.auth.getSession()
 
-            credentials: "include",
+if (!session?.access_token) {
 
-            headers: {
+  alert("Sesión inválida")
 
-              "Content-Type":
-                "application/json"
+  return
+}
 
-            },
+/* =========================
+   CREATE
+========================= */
 
-            body:
-              JSON.stringify(form)
+const res =
+  await fetch(
+    "/api/admin/raffles/create",
+    {
 
-          }
-        )
+      method: "POST",
+
+      headers: {
+
+        "Content-Type":
+          "application/json",
+
+        Authorization:
+          `Bearer ${session.access_token}`
+
+      },
+
+      body:
+        JSON.stringify(form)
+
+    }
+  )
 
       const json =
         await res.json()
