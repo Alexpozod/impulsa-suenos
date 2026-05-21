@@ -5,20 +5,10 @@ import {
 }
 from "react"
 
-import { createClient }
-from "@supabase/supabase-js"
+import { supabase }
+from "@/src/lib/supabase"
 
 export default function CreateRafflePage() {
-
-const supabase =
-  createClient(
-
-    process.env
-      .NEXT_PUBLIC_SUPABASE_URL!,
-
-    process.env
-      .NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
 
   const [loading, setLoading] =
     useState(false)
@@ -58,30 +48,19 @@ const supabase =
          AUTH SESSION
       ========================= */
 
-      const authData =
-  localStorage.getItem(
-    "sb-sifnwcguzultacptmagp-auth-token"
-  )
+      const {
+  data: { session }
+} = await supabase.auth.getSession()
 
-if (!authData) {
+if (!session?.access_token) {
 
   alert("Sesión inválida")
 
   return
 }
 
-const parsedAuth =
-  JSON.parse(authData)
-
 const accessToken =
-  parsedAuth?.access_token
-
-  if (!accessToken) {
-
-  alert("Token inválido")
-
-  return
-}
+  session.access_token
 
       /* =========================
          CREATE RAFFLE
