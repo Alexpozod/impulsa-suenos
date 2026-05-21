@@ -21,20 +21,35 @@ type RaffleData = {
   title: string
   description: string
   short_description?: string
+
   prize_title: string
   prize_description?: string
+
   cover_image: string
+
   gallery?: string[]
+
   ticket_price_clp: number
+
   currency: string
+
   generated_ticket_count: number
+
   sold_ticket_count: number
   reserved_ticket_count: number
+
+  sold_tickets: number
+  reserved_tickets: number
   available_tickets: number
+
   total_tickets: number
+
   progress: number
+
   revenue: number
+
   end_date?: string
+
   status: string
 }
 
