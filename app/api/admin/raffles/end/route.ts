@@ -39,29 +39,54 @@ export async function POST(
        RAFFLE ADMIN AUTH
     ========================================= */
 
-    const user_id =
-      req.headers.get("x-user-id")
+    const authHeader =
+  req.headers.get("authorization")
 
-    if (!user_id) {
+if (!authHeader) {
 
-      return NextResponse.json(
-        {
-          error: "unauthorized"
-        },
-        {
-          status: 401
-        }
-      )
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
     }
+  )
+}
 
-    await requireRaffleAdmin({
+const token =
+  authHeader.replace(
+    "Bearer ",
+    ""
+  )
 
-      user_id,
+const {
+  data: { user },
+  error: userError
+} = await supabase.auth.getUser(
+  token
+)
 
-      allowed_roles: [
-        "raffle_admin"
-      ]
-    })
+if (userError || !user) {
+
+  return NextResponse.json(
+    {
+      error: "invalid_user"
+    },
+    {
+      status: 401
+    }
+  )
+}
+
+await requireRaffleAdmin({
+
+  user_id: user.id,
+
+  allowed_roles: [
+    "raffle_admin"
+  ]
+})
 
     /* =========================================
        BODY
