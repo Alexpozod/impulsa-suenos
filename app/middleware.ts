@@ -203,7 +203,13 @@ export const config = {
   matcher: [
     "/api/withdraw",
     "/api/campaign/create",
-    "/api/admin/:path*",
+
+    /*
+      EXCLUIR RAFFLES
+      usa auth propia
+    */
+    "/api/admin/((?!raffles).*)",
+
     "/admin/:path*",
     "/contador/:path*",
   ],
