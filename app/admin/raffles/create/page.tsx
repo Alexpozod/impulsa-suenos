@@ -60,7 +60,7 @@ const supabase =
 
       const authData =
   localStorage.getItem(
-    "sb-access-token"
+    "sb-sifnwcguzultacptmagp-auth-token"
   )
 
 if (!authData) {
@@ -70,8 +70,18 @@ if (!authData) {
   return
 }
 
+const parsedAuth =
+  JSON.parse(authData)
+
 const accessToken =
-  authData
+  parsedAuth?.access_token
+
+  if (!accessToken) {
+
+  alert("Token inválido")
+
+  return
+}
 
       /* =========================
          CREATE RAFFLE
