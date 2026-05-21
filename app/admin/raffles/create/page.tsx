@@ -5,7 +5,13 @@ import {
 }
 from "react"
 
+import { createClientComponentClient }
+from "@supabase/auth-helpers-nextjs"
+
 export default function CreateRafflePage() {
+
+const supabase =
+  createClientComponentClient<any>()
 
   const [loading, setLoading] =
     useState(false)
@@ -35,41 +41,79 @@ export default function CreateRafflePage() {
 
     })
 
-  async function submit() {
+    async function submit() {
 
     try {
 
       setLoading(true)
 
+      /* =========================
+         AUTH SESSION
+      ========================= */
+
+      const {
+        data: { session }
+      } = await supabase.auth.getSession()
+
+      if (!session?.access_token) {
+
+        alert("Sesión inválida")
+
+        return
+      }
+
+      /* =========================
+         CREATE RAFFLE
+      ========================= */
+
       const res =
         await fetch(
           "/api/admin/raffles/create",
           {
+
             method: "POST",
 
             headers: {
+
               "Content-Type":
-                "application/json"
+                "application/json",
+
+              Authorization:
+                `Bearer ${session.access_token}`
             },
 
-            body: JSON.stringify(form)
+            body:
+              JSON.stringify(form)
+
           }
         )
 
       const json =
         await res.json()
 
+      if (!res.ok) {
+
+        alert(
+          json?.error ||
+          "Error creando sorteo"
+        )
+
+        return
+      }
+
       if (json?.ok) {
 
         alert("Sorteo creado")
 
         window.location.href =
-          "/admin/raffles"
+          "/admin/raffles/manage"
       }
 
     } catch (error) {
 
       console.error(error)
+
+      alert("Error inesperado")
 
     } finally {
 
@@ -132,7 +176,7 @@ export default function CreateRafflePage() {
         />
 
         <Input
-          label="Imagen"
+          label="Imagen URL"
           value={form.cover_image}
           onChange={(v: string) =>
             setForm({
