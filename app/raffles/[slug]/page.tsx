@@ -2,28 +2,54 @@
 
 import {
   useEffect,
+  useMemo,
   useState
-}
-from "react"
+} from "react"
 
 import {
   useParams
+} from "next/navigation"
+
+type TicketPreview = {
+  ticket_code: string
+  status: "available" | "reserved" | "paid"
 }
-from "next/navigation"
+
+type RaffleData = {
+  id: string
+  slug: string
+  title: string
+  description: string
+  short_description?: string
+  prize_title: string
+  prize_description?: string
+  cover_image: string
+  gallery?: string[]
+  ticket_price_clp: number
+  currency: string
+  generated_ticket_count: number
+  sold_ticket_count: number
+  reserved_ticket_count: number
+  available_tickets: number
+  total_tickets: number
+  progress: number
+  revenue: number
+  end_date?: string
+  status: string
+}
+
+type ApiResponse = {
+  ok: boolean
+  raffle: RaffleData
+  preview_tickets: TicketPreview[]
+}
 
 export default function RafflePage() {
 
-  const params =
-    useParams()
+  const params = useParams()
 
-  const [raffle, setRaffle] =
-    useState<any>(null)
-
-  const [quantity, setQuantity] =
-    useState(1)
-
-  const [email, setEmail] =
-    useState("")
+  const [data, setData] =
+    useState<ApiResponse | null>(null)
 
   const [loading, setLoading] =
     useState(true)
@@ -31,13 +57,22 @@ export default function RafflePage() {
   const [processing, setProcessing] =
     useState(false)
 
+  const [quantity, setQuantity] =
+    useState(1)
+
+  const [buyerName, setBuyerName] =
+    useState("")
+
+  const [buyerEmail, setBuyerEmail] =
+    useState("")
+
   useEffect(() => {
 
-    load()
+    loadRaffle()
 
   }, [])
 
-  async function load() {
+  async function loadRaffle() {
 
     try {
 
@@ -49,7 +84,7 @@ export default function RafflePage() {
       const json =
         await res.json()
 
-      setRaffle(json)
+      setData(json)
 
     } catch (error) {
 
@@ -62,6 +97,24 @@ export default function RafflePage() {
   }
 
   async function buyTickets() {
+
+    if (!data?.raffle?.id) {
+      return
+    }
+
+    if (!buyerName.trim()) {
+
+      alert("Ingresa tu nombre")
+
+      return
+    }
+
+    if (!buyerEmail.trim()) {
+
+      alert("Ingresa tu correo")
+
+      return
+    }
 
     try {
 
@@ -81,12 +134,15 @@ export default function RafflePage() {
             body: JSON.stringify({
 
               raffle_id:
-                raffle.id,
+                data.raffle.id,
 
               quantity,
 
-              user_email:
-                email,
+              buyer_name:
+                buyerName,
+
+              buyer_email:
+                buyerEmail,
 
               source:
                 "web"
@@ -98,6 +154,18 @@ export default function RafflePage() {
       const json =
         await res.json()
 
+      if (!res.ok) {
+
+        console.error(json)
+
+        alert(
+          json?.error ||
+          "Error creando pago"
+        )
+
+        return
+      }
+
       if (json?.url) {
 
         window.location.href =
@@ -108,17 +176,96 @@ export default function RafflePage() {
 
       console.error(error)
 
+      alert(
+        "Error procesando pago"
+      )
+
     } finally {
 
       setProcessing(false)
     }
   }
 
+  const raffle =
+    data?.raffle
+
+  const previewTickets =
+    data?.preview_tickets || []
+
+  const totalPrice =
+    useMemo(() => {
+
+      return (
+        Number(
+          raffle?.ticket_price_clp || 0
+        ) * quantity
+      )
+
+    }, [
+      raffle,
+      quantity
+    ])
+
+  const countdown =
+    useMemo(() => {
+
+      if (!raffle?.end_date) {
+        return null
+      }
+
+      const end =
+        new Date(
+          raffle.end_date
+        ).getTime()
+
+      const now =
+        Date.now()
+
+      const diff =
+        end - now
+
+      if (diff <= 0) {
+
+        return "Finalizado"
+      }
+
+      const days =
+        Math.floor(
+          diff / (
+            1000 * 60 * 60 * 24
+          )
+        )
+
+      const hours =
+        Math.floor(
+          (
+            diff % (
+              1000 * 60 * 60 * 24
+            )
+          ) / (
+            1000 * 60 * 60
+          )
+        )
+
+      return `${days}d ${hours}h`
+
+    }, [raffle])
+
   if (loading) {
 
     return (
-      <div className="p-10">
-        Cargando...
+
+      <div
+        className="
+          min-h-screen
+          bg-slate-950
+          text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+        Cargando sorteo...
       </div>
     )
   }
@@ -126,7 +273,17 @@ export default function RafflePage() {
   if (!raffle) {
 
     return (
-      <div className="p-10">
+
+      <div
+        className="
+          min-h-screen
+          bg-slate-950
+          text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
         Sorteo no encontrado
       </div>
     )
@@ -136,114 +293,587 @@ export default function RafflePage() {
 
     <div
       className="
-        max-w-5xl
-        mx-auto
-        p-6
-        space-y-6
+        min-h-screen
+        bg-slate-950
+        text-white
       "
     >
 
-      <img
-        src={raffle.cover_image}
-        alt={raffle.title}
-        className="
-          w-full
-          rounded-2xl
-        "
-      />
-
-      <div>
-
-        <h1 className="text-4xl font-bold">
-          {raffle.title}
-        </h1>
-
-        <p className="mt-4 text-slate-600">
-          {raffle.description}
-        </p>
-
-      </div>
-
       <div
         className="
-          bg-white
-          border
-          rounded-2xl
-          p-6
-          space-y-4
+          max-w-7xl
+          mx-auto
+          px-4
+          py-10
         "
       >
 
-        <div>
-
-          <p className="text-sm text-slate-500">
-            Valor ticket
-          </p>
-
-          <h2 className="text-3xl font-bold">
-
-            $
-            {Number(
-              raffle.ticket_price
-            ).toLocaleString()}
-
-          </h2>
-
-        </div>
-
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) =>
-            setEmail(
-              e.target.value
-            )
-          }
+        <div
           className="
-            w-full
-            border
-            rounded-xl
-            px-4
-            py-3
-          "
-        />
-
-        <input
-          type="number"
-          min={1}
-          value={quantity}
-          onChange={(e) =>
-            setQuantity(
-              Number(e.target.value)
-            )
-          }
-          className="
-            w-full
-            border
-            rounded-xl
-            px-4
-            py-3
-          "
-        />
-
-        <button
-          onClick={buyTickets}
-          disabled={processing}
-          className="
-            w-full
-            bg-black
-            text-white
-            py-4
-            rounded-xl
+            grid
+            grid-cols-1
+            lg:grid-cols-2
+            gap-10
           "
         >
 
-          {processing
-            ? "Procesando..."
-            : "Comprar tickets"}
+          <div>
 
-        </button>
+            <img
+              src={raffle.cover_image}
+              alt={raffle.title}
+              className="
+                w-full
+                rounded-3xl
+                border
+                border-slate-800
+              "
+            />
+
+          </div>
+
+          <div
+            className="
+              space-y-6
+            "
+          >
+
+            <div>
+
+              <div
+                className="
+                  inline-flex
+                  items-center
+                  px-4
+                  py-2
+                  rounded-full
+                  bg-blue-500/20
+                  text-blue-300
+                  text-sm
+                  border
+                  border-blue-500/30
+                  mb-4
+                "
+              >
+                Sorteo activo
+              </div>
+
+              <h1
+                className="
+                  text-4xl
+                  lg:text-5xl
+                  font-black
+                  leading-tight
+                "
+              >
+                {raffle.title}
+              </h1>
+
+              <p
+                className="
+                  mt-5
+                  text-slate-300
+                  text-lg
+                  leading-relaxed
+                "
+              >
+                {raffle.description}
+              </p>
+
+            </div>
+
+            <div
+              className="
+                grid
+                grid-cols-2
+                gap-4
+              "
+            >
+
+              <div
+                className="
+                  bg-slate-900
+                  border
+                  border-slate-800
+                  rounded-3xl
+                  p-5
+                "
+              >
+
+                <p
+                  className="
+                    text-sm
+                    text-slate-400
+                  "
+                >
+                  Tickets vendidos
+                </p>
+
+                <h3
+                  className="
+                    text-3xl
+                    font-black
+                    mt-2
+                  "
+                >
+                  {raffle.sold_tickets}
+                </h3>
+
+              </div>
+
+              <div
+                className="
+                  bg-slate-900
+                  border
+                  border-slate-800
+                  rounded-3xl
+                  p-5
+                "
+              >
+
+                <p
+                  className="
+                    text-sm
+                    text-slate-400
+                  "
+                >
+                  Disponibles
+                </p>
+
+                <h3
+                  className="
+                    text-3xl
+                    font-black
+                    mt-2
+                  "
+                >
+                  {raffle.available_tickets}
+                </h3>
+
+              </div>
+
+              <div
+                className="
+                  bg-slate-900
+                  border
+                  border-slate-800
+                  rounded-3xl
+                  p-5
+                "
+              >
+
+                <p
+                  className="
+                    text-sm
+                    text-slate-400
+                  "
+                >
+                  Recaudado
+                </p>
+
+                <h3
+                  className="
+                    text-2xl
+                    font-black
+                    mt-2
+                  "
+                >
+                  $
+                  {Number(
+                    raffle.revenue || 0
+                  ).toLocaleString("es-CL")}
+                </h3>
+
+              </div>
+
+              <div
+                className="
+                  bg-slate-900
+                  border
+                  border-slate-800
+                  rounded-3xl
+                  p-5
+                "
+              >
+
+                <p
+                  className="
+                    text-sm
+                    text-slate-400
+                  "
+                >
+                  Finaliza
+                </p>
+
+                <h3
+                  className="
+                    text-2xl
+                    font-black
+                    mt-2
+                  "
+                >
+                  {countdown || "--"}
+                </h3>
+
+              </div>
+
+            </div>
+
+            <div
+              className="
+                bg-slate-900
+                border
+                border-slate-800
+                rounded-3xl
+                p-6
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  mb-3
+                "
+              >
+
+                <span
+                  className="
+                    text-sm
+                    text-slate-400
+                  "
+                >
+                  Progreso
+                </span>
+
+                <span
+                  className="
+                    text-sm
+                    font-semibold
+                  "
+                >
+                  {raffle.progress}%
+                </span>
+
+              </div>
+
+              <div
+                className="
+                  w-full
+                  h-4
+                  bg-slate-800
+                  rounded-full
+                  overflow-hidden
+                "
+              >
+
+                <div
+                  className="
+                    h-full
+                    bg-blue-500
+                    rounded-full
+                  "
+                  style={{
+                    width:
+                      `${raffle.progress}%`
+                  }}
+                />
+
+              </div>
+
+            </div>
+
+            <div
+              className="
+                bg-slate-900
+                border
+                border-slate-800
+                rounded-3xl
+                p-6
+                space-y-4
+              "
+            >
+
+              <div>
+
+                <p
+                  className="
+                    text-sm
+                    text-slate-400
+                  "
+                >
+                  Valor ticket
+                </p>
+
+                <h2
+                  className="
+                    text-4xl
+                    font-black
+                    mt-2
+                  "
+                >
+                  $
+                  {Number(
+                    raffle.ticket_price_clp
+                  ).toLocaleString("es-CL")}
+                </h2>
+
+              </div>
+
+              <input
+                type="text"
+                placeholder="Tu nombre"
+                value={buyerName}
+                onChange={(e) =>
+                  setBuyerName(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  bg-slate-950
+                  border
+                  border-slate-700
+                  rounded-2xl
+                  px-4
+                  py-4
+                  outline-none
+                "
+              />
+
+              <input
+                type="email"
+                placeholder="Correo electrónico"
+                value={buyerEmail}
+                onChange={(e) =>
+                  setBuyerEmail(
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  bg-slate-950
+                  border
+                  border-slate-700
+                  rounded-2xl
+                  px-4
+                  py-4
+                  outline-none
+                "
+              />
+
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={quantity}
+                onChange={(e) =>
+                  setQuantity(
+                    Number(e.target.value)
+                  )
+                }
+                className="
+                  w-full
+                  bg-slate-950
+                  border
+                  border-slate-700
+                  rounded-2xl
+                  px-4
+                  py-4
+                  outline-none
+                "
+              />
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  text-lg
+                  font-bold
+                "
+              >
+
+                <span>
+                  Total
+                </span>
+
+                <span>
+
+                  $
+                  {Number(
+                    totalPrice
+                  ).toLocaleString("es-CL")}
+
+                </span>
+
+              </div>
+
+              <button
+                onClick={buyTickets}
+                disabled={processing}
+                className="
+                  w-full
+                  py-5
+                  rounded-2xl
+                  bg-blue-600
+                  hover:bg-blue-500
+                  transition
+                  font-black
+                  text-lg
+                "
+              >
+
+                {processing
+                  ? "Procesando..."
+                  : "Comprar tickets"}
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div
+          className="
+            mt-14
+          "
+        >
+
+          <div
+            className="
+              flex
+              items-center
+              justify-between
+              mb-6
+            "
+          >
+
+            <h2
+              className="
+                text-2xl
+                font-black
+              "
+            >
+              Tickets
+            </h2>
+
+            <div
+              className="
+                flex
+                gap-4
+                text-sm
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
+                <div
+                  className="
+                    w-3
+                    h-3
+                    rounded-full
+                    bg-emerald-500
+                  "
+                />
+                Disponible
+              </div>
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
+                <div
+                  className="
+                    w-3
+                    h-3
+                    rounded-full
+                    bg-yellow-500
+                  "
+                />
+                Reservado
+              </div>
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
+                <div
+                  className="
+                    w-3
+                    h-3
+                    rounded-full
+                    bg-red-500
+                  "
+                />
+                Pagado
+              </div>
+
+            </div>
+
+          </div>
+
+          <div
+            className="
+              grid
+              grid-cols-2
+              sm:grid-cols-3
+              md:grid-cols-5
+              lg:grid-cols-6
+              gap-3
+            "
+          >
+
+            {previewTickets.map(
+              (ticket) => {
+
+                const color =
+                  ticket.status === "paid"
+                    ? "bg-red-500/20 border-red-500/40 text-red-300"
+                    : ticket.status === "reserved"
+                    ? "bg-yellow-500/20 border-yellow-500/40 text-yellow-300"
+                    : "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+
+                return (
+
+                  <div
+                    key={
+                      ticket.ticket_code
+                    }
+                    className={`
+                      border
+                      rounded-2xl
+                      p-4
+                      text-center
+                      font-bold
+                      ${color}
+                    `}
+                  >
+
+                    {ticket.ticket_code}
+
+                  </div>
+                )
+              }
+            )}
+
+          </div>
+
+        </div>
 
       </div>
 
