@@ -18,10 +18,10 @@ export async function GET(req: NextRequest) {
    RAFFLE ADMIN AUTH
 ========================================= */
 
-const user_id =
-  req.headers.get("x-user-id")
+const authHeader =
+  req.headers.get("authorization")
 
-if (!user_id) {
+if (!authHeader) {
 
   return NextResponse.json(
     {
@@ -33,9 +33,34 @@ if (!user_id) {
   )
 }
 
+const token =
+  authHeader.replace(
+    "Bearer ",
+    ""
+  )
+
+const {
+  data: { user },
+  error: userError
+} = await supabase.auth.getUser(
+  token
+)
+
+if (userError || !user) {
+
+  return NextResponse.json(
+    {
+      error: "invalid_user"
+    },
+    {
+      status: 401
+    }
+  )
+}
+
 await requireRaffleAdmin({
 
-  user_id,
+  user_id: user.id,
 
   allowed_roles: [
     "raffle_admin",

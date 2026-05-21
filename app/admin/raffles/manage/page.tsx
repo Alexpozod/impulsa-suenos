@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 
+import { supabase }
+from "@/src/lib/supabase"
+
 export default function RafflesManagePage() {
 
   const [loading, setLoading] =
@@ -48,9 +51,19 @@ export default function RafflesManagePage() {
 
         })
 
-      const res =
+      const {
+        data: { session }
+        } = await supabase.auth.getSession()
+
+        const res =
         await fetch(
-          `/api/admin/raffles/list?${params}`
+            `/api/admin/raffles/list?${params}`,
+            {
+            headers: {
+                Authorization:
+                `Bearer ${session?.access_token}`
+            }
+            }
         )
 
       const json =
