@@ -172,7 +172,10 @@ await requireRaffleAdmin({
        🎟️ CREATE RAFFLE
     ========================= */
 
-    const { data: raffle } =
+    const {
+  data: raffle,
+  error: raffleError
+} =
       await supabase
         .schema("raffles")
         .from("raffles")
@@ -221,6 +224,22 @@ await requireRaffleAdmin({
 /* =========================================
    INITIAL INVENTORY
 ========================================= */
+
+if (raffleError || !raffle) {
+
+  console.error(
+    raffleError
+  )
+
+  return NextResponse.json(
+    {
+      error: raffleError
+    },
+    {
+      status: 500
+    }
+  )
+}
 
 await createTicketInventory({
 
