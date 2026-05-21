@@ -179,7 +179,7 @@ await requireRaffleAdmin({
     ========================= */
 
     const {
-  data: raffle,
+  data: insertedRaffle,
   error: raffleError
 } =
       await supabase
@@ -196,10 +196,10 @@ await requireRaffleAdmin({
           description:
             data.description,
 
-            prize_title:
+          prize_title:
             data.prize_title,
 
-            prize_description:
+          prize_description:
             data.prize_description,
 
           cover_image:
@@ -223,21 +223,24 @@ await requireRaffleAdmin({
           currency:
             data.currency,
 
-            created_by:
+          created_by:
             user.id,
 
           status:
             "draft"
 
         })
-        .select()
+        .select("id")
         .single()
 
 /* =========================================
    INITIAL INVENTORY
 ========================================= */
 
-if (raffleError || !raffle) {
+if (
+  raffleError ||
+  !insertedRaffle
+) {
 
   console.error(
     raffleError
@@ -256,17 +259,18 @@ if (raffleError || !raffle) {
 await createTicketInventory({
 
   raffle_id:
-    raffle.id
+    insertedRaffle.id
 
 })
 
     return NextResponse.json({
 
-      ok: true,
+  ok: true,
 
-      raffle
+  raffle:
+    insertedRaffle
 
-    })
+})
 
   } catch (error) {
 
