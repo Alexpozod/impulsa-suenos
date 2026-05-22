@@ -8,6 +8,18 @@ import {
 import { supabase }
 from "@/src/lib/supabase"
 
+import MetricCard
+from "@/app/components/raffles/admin/MetricCard"
+
+import StatusBadge
+from "@/app/components/raffles/admin/StatusBadge"
+
+import TableContainer
+from "@/app/components/raffles/admin/TableContainer"
+
+import PageHeader
+from "@/app/components/raffles/admin/PageHeader"
+
 export default function RaffleTicketsPage() {
 
   const [loading, setLoading] =
@@ -97,24 +109,10 @@ export default function RaffleTicketsPage() {
 
     <div className="space-y-5">
 
-      {/* HEADER */}
-
-      <div>
-
-        <h1
-          className="
-            text-3xl
-            font-bold
-          "
-        >
-          🎟️ Tickets
-        </h1>
-
-        <p className="text-slate-400 mt-1">
-          Inventario y estado de tickets
-        </p>
-
-      </div>
+      <PageHeader
+  title="🎟️ Tickets"
+  description="Inventario y estado de tickets"
+/>
 
       {/* KPI */}
 
@@ -260,16 +258,7 @@ export default function RaffleTicketsPage() {
 
       {/* TABLE */}
 
-      <div
-        className="
-          bg-slate-900
-          border border-slate-800
-          rounded-xl
-          overflow-hidden
-        "
-      >
-
-        <div className="overflow-x-auto">
+<TableContainer>
 
           <table className="w-full">
 
@@ -419,9 +408,7 @@ export default function RaffleTicketsPage() {
 
           </table>
 
-        </div>
-
-      </div>
+              </TableContainer>
 
       {/* PAGINATION */}
 
@@ -482,75 +469,6 @@ export default function RaffleTicketsPage() {
 
       )}
 
-    </div>
-  )
-}
-
-function MetricCard({
-  title,
-  value
-}: any) {
-
-  return (
-
-    <div
-      className="
-        bg-slate-900
-        border border-slate-800
-        rounded-xl
-        p-4
-      "
-    >
-
-      <p className="text-slate-400 text-sm">
-        {title}
-      </p>
-
-      <h3
-        className="
-          text-2xl
-          font-bold
-          mt-2
-        "
-      >
-        {value}
-      </h3>
-
-    </div>
-  )
-}
-
-function StatusBadge({
-  status
-}: any) {
-
-  const colors: any = {
-
-    available:
-      "bg-green-900/30 text-green-300",
-
-    reserved:
-      "bg-yellow-900/30 text-yellow-300",
-
-    paid:
-      "bg-blue-900/30 text-blue-300"
-
-  }
-
-  return (
-
-    <div
-      className={`
-        inline-flex
-        px-3 py-1
-        rounded-full
-        text-xs
-        border border-white/10
-
-        ${colors[status]}
-      `}
-    >
-      {status}
     </div>
   )
 }
