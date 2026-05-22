@@ -244,9 +244,8 @@ export default function AdminLayout({ children }: any) {
                   />
 
                   <SubItem
-                    href="#"
+                    href="/admin/raffles/tickets"
                     label="🎟️ Tickets"
-                    disabled
                   />
 
                   <SubItem
