@@ -234,9 +234,8 @@ export default function AdminLayout({ children }: any) {
                   />
 
                   <SubItem
-                    href="#"
+                    href="/admin/raffles/orders"
                     label="📦 Orders"
-                    disabled
                   />
 
                   <SubItem
