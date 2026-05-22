@@ -249,15 +249,13 @@ export default function AdminLayout({ children }: any) {
                   />
 
                   <SubItem
-                    href="#"
+                    href="/admin/raffles/fraud"
                     label="🚨 Fraud"
-                    disabled
                   />
 
                   <SubItem
-                    href="#"
+                    href="/admin/raffles/exports"
                     label="📤 Exports"
-                    disabled
                   />
 
                 </div>
