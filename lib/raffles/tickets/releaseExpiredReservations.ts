@@ -65,15 +65,17 @@ export async function releaseExpiredReservations() {
       .from("ticket_inventory")
       .update({
 
-        status: "available",
+  status: "available",
 
-        reserved_until: null,
+  reserved_until: null,
 
-        order_id: null,
+  order_id: null,
 
-        buyer_email: null
+  buyer_email: null,
 
-      })
+  reservation_token: null
+
+})
       .in("id", ticketIds)
       .eq("status", "reserved")
 
