@@ -2,15 +2,15 @@ export default function RafflePaymentSuccessPage() {
 
   return (
 
-    <main className="min-h-screen flex items-center justify-center bg-black text-white p-6">
+    <main className="min-h-screen bg-white flex items-center justify-center px-6">
 
-      <div className="max-w-lg w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center">
+      <div className="max-w-lg w-full border border-zinc-200 rounded-2xl bg-white shadow-sm p-10 text-center">
 
-        <h1 className="text-3xl font-bold mb-4">
+        <h1 className="text-4xl font-bold text-zinc-900 mb-4">
           Pago recibido
         </h1>
 
-        <p className="text-zinc-300 mb-6">
+        <p className="text-zinc-600 text-lg mb-6">
           Estamos validando tu pago y asignando tus tickets.
         </p>
 
