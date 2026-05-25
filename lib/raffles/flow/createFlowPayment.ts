@@ -71,21 +71,6 @@ export async function createFlowPayment({
   const s =
     signParams(params)
 
-  console.log(
-    "FLOW PARAMS",
-    params
-  )
-
-  console.log(
-    "FLOW SIGNATURE",
-    s
-  )
-
-  console.log(
-    "FLOW URL",
-    `${process.env.FLOW_BASE_URL}/payment/create`
-  )
-
   const body =
     new URLSearchParams({
 
@@ -118,6 +103,26 @@ export async function createFlowPayment({
 
     })
 
+  console.log(
+    "FLOW PARAMS",
+    params
+  )
+
+  console.log(
+    "FLOW SIGNATURE",
+    s
+  )
+
+  console.log(
+    "FLOW BODY",
+    body.toString()
+  )
+
+  console.log(
+    "FLOW URL",
+    `${process.env.FLOW_BASE_URL}/payment/create`
+  )
+
   let response
 
   try {
@@ -137,19 +142,41 @@ export async function createFlowPayment({
         }
       )
 
+    console.log(
+      "FLOW SUCCESS RESPONSE",
+      response.data
+    )
+
   } catch (error: any) {
 
     console.error(
-      "FLOW AXIOS ERROR",
-      error?.response?.data ||
+      "FLOW AXIOS ERROR DATA",
+      error?.response?.data
+    )
+
+    console.error(
+      "FLOW AXIOS ERROR STATUS",
+      error?.response?.status
+    )
+
+    console.error(
+      "FLOW AXIOS ERROR HEADERS",
+      error?.response?.headers
+    )
+
+    console.error(
+      "FLOW AXIOS FULL ERROR",
       error
     )
 
     throw new Error(
-      JSON.stringify(
-        error?.response?.data ||
-        error
-      )
+      JSON.stringify({
+        data:
+          error?.response?.data,
+
+        status:
+          error?.response?.status
+      })
     )
   }
 
