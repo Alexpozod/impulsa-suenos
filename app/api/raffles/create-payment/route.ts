@@ -230,7 +230,10 @@ export async function POST(
        CREATE ORDER
     ========================================= */
 
-    const { data: order } =
+    const {
+  data: order,
+  error: orderError
+} =
       await supabase
         .schema("raffles")
         .from("orders")
@@ -287,17 +290,23 @@ export async function POST(
         .select()
         .single()
 
-    if (!order) {
+    if (orderError || !order) {
 
-      return NextResponse.json(
-        {
-          error: "order_error"
-        },
-        {
-          status: 500
-        }
-      )
+  console.error(
+    "ORDER INSERT ERROR",
+    orderError
+  )
+
+  return NextResponse.json(
+    {
+      error: "order_error",
+      details: orderError
+    },
+    {
+      status: 500
     }
+  )
+}
 
     /* =========================================
        RESERVE TICKETS
