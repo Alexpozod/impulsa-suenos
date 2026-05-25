@@ -1,24 +1,56 @@
-const CryptoJS = require("crypto-js")
+import CryptoJS from "crypto-js"
 
 export function validateFlowSignature(
-  params: Record<string, any>
+  rawParams: Record<string, any>
 ) {
 
-  const receivedSignature = params.s
+  const params = {
+    ...rawParams
+  }
+
+  const receivedSignature =
+    String(params.s || "")
 
   delete params.s
 
-  const keys = Object.keys(params).sort()
+  const keys =
+    Object.keys(params)
+      .filter(
+        key =>
+          params[key] !== undefined &&
+          params[key] !== null
+      )
+      .sort()
 
-  const toSign = keys
-    .map(k => `${k}${params[k]}`)
-    .join("")
+  const toSign =
+    keys
+      .map(
+        key =>
+          `${key}${String(params[key])}`
+      )
+      .join("")
 
   const expectedSignature =
     CryptoJS.HmacSHA256(
+
       toSign,
-      process.env.FLOW_SECRET_KEY!
+
+      process.env
+        .FLOW_SECRET_KEY!
+
     ).toString()
 
-  return expectedSignature === receivedSignature
+  console.log(
+    "FLOW WEBHOOK SIGN VALIDATION",
+    {
+      receivedSignature,
+      expectedSignature,
+      toSign
+    }
+  )
+
+  return (
+    expectedSignature ===
+    receivedSignature
+  )
 }
