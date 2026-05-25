@@ -466,24 +466,25 @@ export async function POST(
 
     })
 
-  } catch (error: any) {
+   } catch (error: any) {
 
-  console.error(
-    "create-payment error",
-    error
-  )
+    console.error(
+      "create-payment error",
+      error
+    )
 
-  return NextResponse.json(
-    {
-      error:
-        error?.message ||
-        "server_error",
+    return NextResponse.json(
+      {
+        error:
+          error?.message ||
+          "server_error",
 
-      details:
-        JSON.stringify(error)
-    },
-    {
-      status: 500
-    }
-  )
+        details:
+          JSON.stringify(error)
+      },
+      {
+        status: 500
+      }
+    )
+  }
 }
