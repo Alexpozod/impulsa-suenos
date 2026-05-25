@@ -8,6 +8,16 @@ from "react"
 import { supabase }
 from "@/src/lib/supabase"
 
+function slugify(text: string) {
+
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+}
+
 export default function CreateRafflePage() {
 
   const [loading, setLoading] =
@@ -149,10 +159,11 @@ const res =
           value={form.title}
           onChange={(v: string) =>
             setForm({
-              ...form,
-              title: v
+                ...form,
+                title: v,
+                slug: slugify(v)
             })
-          }
+            }
         />
 
         <Input
