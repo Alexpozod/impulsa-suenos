@@ -178,7 +178,8 @@ export default function RafflePage() {
       if (json?.url) {
 
         window.location.href =
-          json.url
+              `${json.url}?token=${json.token}`
+
       }
 
     } catch (error) {
