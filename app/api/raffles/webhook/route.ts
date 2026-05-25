@@ -72,18 +72,55 @@ export async function POST(req: Request) {
       })
     }
 
-    const response = await axios.get(
+    const statusParams = {
 
-      `${process.env.FLOW_BASE_URL}/payment/getStatus`,
+  apiKey:
+    process.env.FLOW_API_KEY,
 
-      {
-        params: {
-          apiKey:
-            process.env.FLOW_API_KEY,
-          token
-        }
-      }
+  token
+
+}
+
+const keys =
+  Object.keys(statusParams).sort()
+
+const toSign =
+  keys
+    .map(
+      key =>
+        `${key}${statusParams[key as keyof typeof statusParams]}`
     )
+    .join("")
+
+const s =
+  require("crypto-js")
+    .HmacSHA256(
+
+      toSign,
+
+      process.env
+        .FLOW_SECRET_KEY!
+
+    )
+    .toString()
+
+const response =
+  await axios.get(
+
+    `${process.env.FLOW_BASE_URL}/payment/getStatus`,
+
+    {
+      params: {
+
+        apiKey:
+          process.env.FLOW_API_KEY,
+
+        token,
+
+        s
+      }
+    }
+  )
 
     const payment =
       response.data
