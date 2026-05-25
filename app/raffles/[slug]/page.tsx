@@ -10,11 +10,6 @@ import {
   useParams
 } from "next/navigation"
 
-type TicketPreview = {
-  ticket_code: string
-  status: "available" | "reserved" | "paid"
-}
-
 type RaffleData = {
   id: string
   slug: string
@@ -56,8 +51,7 @@ type RaffleData = {
 type ApiResponse = {
   ok: boolean
   raffle: RaffleData
-  preview_tickets: TicketPreview[]
-}
+  }
 
 export default function RafflePage() {
 
@@ -203,10 +197,7 @@ export default function RafflePage() {
 
   const raffle =
     data?.raffle
-
-  const previewTickets =
-    data?.preview_tickets || []
-
+  
   const totalPrice =
     useMemo(() => {
 
@@ -334,8 +325,11 @@ export default function RafflePage() {
 
           <div>
 
-            <img
-              src={raffle.cover_image}
+           <img
+            src={
+                raffle.cover_image ||
+                "/placeholder.jpg"
+            }
               alt={raffle.title}
               className="
                 w-full
@@ -483,7 +477,7 @@ export default function RafflePage() {
                     text-slate-400
                   "
                 >
-                  Recaudado
+                  
                 </p>
 
                 <h3
@@ -517,7 +511,7 @@ export default function RafflePage() {
                     text-slate-400
                   "
                 >
-                  Finaliza
+                  
                 </p>
 
                 <h3
@@ -678,28 +672,44 @@ export default function RafflePage() {
                 "
               />
 
-              <input
-                type="number"
-                min={1}
-                max={100}
-                value={quantity}
-                onChange={(e) =>
-                  setQuantity(
-                    Number(e.target.value)
-                  )
-                }
-                className="
-                  w-full
-                  bg-slate-950
-                  border
-                  border-slate-700
-                  rounded-2xl
-                  px-4
-                  py-4
-                  outline-none
-                "
-              />
+              <div className="grid grid-cols-4 gap-3">
 
+  {[1, 3, 5, 10].map((value) => {
+
+    const active =
+      quantity === value
+
+    return (
+
+      <button
+        key={value}
+        type="button"
+        onClick={() =>
+          setQuantity(value)
+        }
+        className={`
+          py-4
+          rounded-2xl
+          font-bold
+          border
+          transition
+
+          ${
+            active
+              ? "bg-blue-600 border-blue-500 text-white"
+              : "bg-slate-950 border-slate-700 text-slate-300"
+          }
+        `}
+      >
+
+        {value} ticket{value > 1 ? "s" : ""}
+
+      </button>
+    )
+  })}
+
+</div>
+      
               <div
                 className="
                   flex
@@ -750,145 +760,7 @@ export default function RafflePage() {
 
           </div>
 
-        </div>
-
-        <div
-          className="
-            mt-14
-          "
-        >
-
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              mb-6
-            "
-          >
-
-            <h2
-              className="
-                text-2xl
-                font-black
-              "
-            >
-              Tickets
-            </h2>
-
-            <div
-              className="
-                flex
-                gap-4
-                text-sm
-              "
-            >
-
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-2
-                "
-              >
-                <div
-                  className="
-                    w-3
-                    h-3
-                    rounded-full
-                    bg-emerald-500
-                  "
-                />
-                Disponible
-              </div>
-
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-2
-                "
-              >
-                <div
-                  className="
-                    w-3
-                    h-3
-                    rounded-full
-                    bg-yellow-500
-                  "
-                />
-                Reservado
-              </div>
-
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-2
-                "
-              >
-                <div
-                  className="
-                    w-3
-                    h-3
-                    rounded-full
-                    bg-red-500
-                  "
-                />
-                Pagado
-              </div>
-
-            </div>
-
-          </div>
-
-          <div
-            className="
-              grid
-              grid-cols-2
-              sm:grid-cols-3
-              md:grid-cols-5
-              lg:grid-cols-6
-              gap-3
-            "
-          >
-
-            {previewTickets.map(
-              (ticket) => {
-
-                const color =
-                  ticket.status === "paid"
-                    ? "bg-red-500/20 border-red-500/40 text-red-300"
-                    : ticket.status === "reserved"
-                    ? "bg-yellow-500/20 border-yellow-500/40 text-yellow-300"
-                    : "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
-
-                return (
-
-                  <div
-                    key={
-                      ticket.ticket_code
-                    }
-                    className={`
-                      border
-                      rounded-2xl
-                      p-4
-                      text-center
-                      font-bold
-                      ${color}
-                    `}
-                  >
-
-                    {ticket.ticket_code}
-
-                  </div>
-                )
-              }
-            )}
-
-          </div>
-
-        </div>
+                </div>
 
       </div>
 
