@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useMemo,
   useState
 }
 from "react"
@@ -14,6 +15,18 @@ from "next/navigation"
 import { supabase }
 from "@/src/lib/supabase"
 
+import MetricCard
+from "@/app/components/raffles/admin/MetricCard"
+
+import StatusBadge
+from "@/app/components/raffles/admin/StatusBadge"
+
+import TableContainer
+from "@/app/components/raffles/admin/TableContainer"
+
+import PageHeader
+from "@/app/components/raffles/admin/PageHeader"
+
 export default function AdminRaffleDetailPage() {
 
   const params =
@@ -25,17 +38,11 @@ export default function AdminRaffleDetailPage() {
   const [loading, setLoading] =
     useState(true)
 
-  const [orders, setOrders] =
-    useState<any[]>([])
+  const [tab, setTab] =
+    useState("overview")
 
-  const [payments, setPayments] =
-    useState<any[]>([])
-
-  const [tickets, setTickets] =
-    useState<any[]>([])
-
-  const [fraud, setFraud] =
-    useState<any[]>([])
+  const [data, setData] =
+    useState<any>(null)
 
   useEffect(() => {
 
@@ -45,84 +52,32 @@ export default function AdminRaffleDetailPage() {
 
   }, [raffleId])
 
-  async function authHeaders() {
-
-    const {
-      data: { session }
-    } =
-      await supabase.auth.getSession()
-
-    return {
-      Authorization:
-        `Bearer ${session?.access_token}`
-    }
-  }
-
   async function load() {
 
     try {
 
       setLoading(true)
 
-      const headers =
-        await authHeaders()
+      const {
+        data: { session }
+      } =
+        await supabase.auth.getSession()
 
-      const [
-        ordersRes,
-        paymentsRes,
-        ticketsRes,
-        fraudRes
-      ] = await Promise.all([
-
-        fetch(
-          `/api/admin/raffles/orders?raffle_id=${raffleId}`,
-          { headers }
-        ),
-
-        fetch(
-          `/api/admin/raffles/payments?raffle_id=${raffleId}`,
-          { headers }
-        ),
-
-        fetch(
-          `/api/admin/raffles/tickets?raffle_id=${raffleId}`,
-          { headers }
-        ),
-
-        fetch(
-          `/api/admin/raffles/fraud?raffle_id=${raffleId}`,
-          { headers }
+      const res =
+        await fetch(
+          `/api/admin/raffles/${raffleId}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${session?.access_token}`
+            }
+          }
         )
 
-      ])
+      const json =
+        await res.json()
 
-      const ordersJson =
-        await ordersRes.json()
-
-      const paymentsJson =
-        await paymentsRes.json()
-
-      const ticketsJson =
-        await ticketsRes.json()
-
-      const fraudJson =
-        await fraudRes.json()
-
-      setOrders(
-        ordersJson.orders || []
-      )
-
-      setPayments(
-        paymentsJson.payments || []
-      )
-
-      setTickets(
-        ticketsJson.tickets || []
-      )
-
-      setFraud(
-        fraudJson.orders || []
-      )
+      setData(json)
 
     } catch (error) {
 
@@ -134,96 +89,702 @@ export default function AdminRaffleDetailPage() {
     }
   }
 
+  const metrics =
+    data?.metrics || {}
+
+  const raffle =
+    data?.raffle || {}
+
+  const orders =
+    data?.orders || []
+
+  const payments =
+    data?.payments || []
+
+  const tickets =
+    data?.tickets || []
+
+  const ledger =
+    data?.ledger || []
+
+  const fraud =
+    data?.fraud || []
+
+  const conversionRate =
+    useMemo(() => {
+
+      if (
+        metrics.orders <= 0
+      ) return 0
+
+      return (
+        (
+          metrics.payments /
+          metrics.orders
+        ) * 100
+      ).toFixed(2)
+
+    }, [metrics])
+
   if (loading) {
 
     return (
-      <div className="p-6">
+
+      <div className="p-6 text-white">
         Cargando...
       </div>
+
     )
   }
 
   return (
 
-    <div className="p-6 space-y-8">
+    <div className="space-y-6">
 
-      <div>
+      {/* HEADER */}
 
-        <h1 className="text-3xl font-bold">
-          🎟️ Sorteo Detail
-        </h1>
+      <PageHeader
+        title={`🎟️ ${raffle.title || "Raffle"}`}
+        description={raffle.slug}
+      />
 
-        <p className="text-slate-500 mt-2">
-          {raffleId}
-        </p>
-
-      </div>
+      {/* KPI */}
 
       <div
         className="
           grid
           grid-cols-1
-          md:grid-cols-4
+          md:grid-cols-2
+          xl:grid-cols-5
           gap-4
         "
       >
 
-        <Card
+        <MetricCard
+          title="Revenue"
+          value={`$${Number(
+            metrics.revenue || 0
+          ).toLocaleString()}`}
+        />
+
+        <MetricCard
           title="Orders"
-          value={orders.length}
+          value={metrics.orders || 0}
         />
 
-        <Card
+        <MetricCard
           title="Payments"
-          value={payments.length}
+          value={metrics.payments || 0}
         />
 
-        <Card
-          title="Tickets"
-          value={tickets.length}
+        <MetricCard
+          title="Paid Tickets"
+          value={metrics.paidTickets || 0}
         />
 
-        <Card
-          title="Fraud Flags"
-          value={
-            fraud.filter(
-              f =>
-                f.risk_level !== "low"
-            ).length
-          }
+        <MetricCard
+          title="Conversion"
+          value={`${conversionRate}%`}
         />
 
       </div>
 
+      {/* TABS */}
+
+      <div
+        className="
+          flex flex-wrap
+          gap-2
+        "
+      >
+
+        <Tab
+          active={tab === "overview"}
+          onClick={() =>
+            setTab("overview")
+          }
+        >
+          Overview
+        </Tab>
+
+        <Tab
+          active={tab === "orders"}
+          onClick={() =>
+            setTab("orders")
+          }
+        >
+          Orders
+        </Tab>
+
+        <Tab
+          active={tab === "payments"}
+          onClick={() =>
+            setTab("payments")
+          }
+        >
+          Payments
+        </Tab>
+
+        <Tab
+          active={tab === "tickets"}
+          onClick={() =>
+            setTab("tickets")
+          }
+        >
+          Tickets
+        </Tab>
+
+        <Tab
+          active={tab === "ledger"}
+          onClick={() =>
+            setTab("ledger")
+          }
+        >
+          Ledger
+        </Tab>
+
+        <Tab
+          active={tab === "fraud"}
+          onClick={() =>
+            setTab("fraud")
+          }
+        >
+          Fraud
+        </Tab>
+
+      </div>
+
+      {/* OVERVIEW */}
+
+      {tab === "overview" && (
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            xl:grid-cols-4
+            gap-4
+          "
+        >
+
+          <MetricCard
+            title="Available"
+            value={
+              metrics.availableTickets || 0
+            }
+          />
+
+          <MetricCard
+            title="Reserved"
+            value={
+              metrics.reservedTickets || 0
+            }
+          />
+
+          <MetricCard
+            title="Fraud High"
+            value={
+              metrics.fraudHigh || 0
+            }
+          />
+
+          <MetricCard
+            title="Status"
+            value={
+              raffle.status || "-"
+            }
+          />
+
+        </div>
+
+      )}
+
+      {/* ORDERS */}
+
+      {tab === "orders" && (
+
+        <TableContainer>
+
+          <table className="w-full">
+
+            <thead
+              className="
+                bg-slate-950
+                border-b border-slate-800
+              "
+            >
+
+              <tr>
+
+                <th className="p-4 text-left">
+                  Buyer
+                </th>
+
+                <th className="p-4 text-left">
+                  Qty
+                </th>
+
+                <th className="p-4 text-left">
+                  Total
+                </th>
+
+                <th className="p-4 text-left">
+                  Status
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {orders.map((order: any) => (
+
+                <tr
+                  key={order.id}
+                  className="
+                    border-b border-slate-800
+                  "
+                >
+
+                  <td className="p-4">
+
+                    <div>
+
+                      <p>
+                        {order.buyer_name}
+                      </p>
+
+                      <p className="text-sm text-slate-500">
+                        {order.buyer_email}
+                      </p>
+
+                    </div>
+
+                  </td>
+
+                  <td className="p-4">
+                    {order.quantity}
+                  </td>
+
+                  <td className="p-4">
+
+                    $
+                    {Number(
+                      order.total_clp || 0
+                    ).toLocaleString()}
+
+                  </td>
+
+                  <td className="p-4">
+
+                    <StatusBadge
+                      status={order.status}
+                    />
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </TableContainer>
+
+      )}
+
+      {/* PAYMENTS */}
+
+      {tab === "payments" && (
+
+        <TableContainer>
+
+          <table className="w-full">
+
+            <thead
+              className="
+                bg-slate-950
+                border-b border-slate-800
+              "
+            >
+
+              <tr>
+
+                <th className="p-4 text-left">
+                  Provider
+                </th>
+
+                <th className="p-4 text-left">
+                  Amount
+                </th>
+
+                <th className="p-4 text-left">
+                  Fee
+                </th>
+
+                <th className="p-4 text-left">
+                  Status
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {payments.map((payment: any) => (
+
+                <tr
+                  key={payment.id}
+                  className="
+                    border-b border-slate-800
+                  "
+                >
+
+                  <td className="p-4">
+                    {payment.provider}
+                  </td>
+
+                  <td className="p-4">
+
+                    $
+                    {Number(
+                      payment.amount_clp || 0
+                    ).toLocaleString()}
+
+                  </td>
+
+                  <td className="p-4">
+
+                    $
+                    {Number(
+                      payment.provider_fee || 0
+                    ).toLocaleString()}
+
+                  </td>
+
+                  <td className="p-4">
+
+                    <StatusBadge
+                      status={payment.status}
+                    />
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </TableContainer>
+
+      )}
+
+      {/* TICKETS */}
+
+      {tab === "tickets" && (
+
+        <TableContainer>
+
+          <table className="w-full">
+
+            <thead
+              className="
+                bg-slate-950
+                border-b border-slate-800
+              "
+            >
+
+              <tr>
+
+                <th className="p-4 text-left">
+                  Ticket
+                </th>
+
+                <th className="p-4 text-left">
+                  Buyer
+                </th>
+
+                <th className="p-4 text-left">
+                  Status
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {tickets.map((ticket: any) => (
+
+                <tr
+                  key={ticket.id}
+                  className="
+                    border-b border-slate-800
+                  "
+                >
+
+                  <td className="p-4">
+                    {ticket.ticket_code}
+                  </td>
+
+                  <td className="p-4">
+                    {ticket.buyer_email || "-"}
+                  </td>
+
+                  <td className="p-4">
+
+                    <StatusBadge
+                      status={ticket.status}
+                    />
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </TableContainer>
+
+      )}
+
+      {/* LEDGER */}
+
+      {tab === "ledger" && (
+
+        <TableContainer>
+
+          <table className="w-full">
+
+            <thead
+              className="
+                bg-slate-950
+                border-b border-slate-800
+              "
+            >
+
+              <tr>
+
+                <th className="p-4 text-left">
+                  Type
+                </th>
+
+                <th className="p-4 text-left">
+                  Flow
+                </th>
+
+                <th className="p-4 text-left">
+                  Amount
+                </th>
+
+                <th className="p-4 text-left">
+                  Status
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {ledger.map((item: any) => (
+
+                <tr
+                  key={item.id}
+                  className="
+                    border-b border-slate-800
+                  "
+                >
+
+                  <td className="p-4">
+                    {item.type}
+                  </td>
+
+                  <td className="p-4">
+                    {item.flow_type}
+                  </td>
+
+                  <td className="p-4">
+
+                    $
+                    {Number(
+                      item.amount_clp || 0
+                    ).toLocaleString()}
+
+                  </td>
+
+                  <td className="p-4">
+
+                    <StatusBadge
+                      status={item.status}
+                    />
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </TableContainer>
+
+      )}
+
+      {/* FRAUD */}
+
+      {tab === "fraud" && (
+
+        <TableContainer>
+
+          <table className="w-full">
+
+            <thead
+              className="
+                bg-slate-950
+                border-b border-slate-800
+              "
+            >
+
+              <tr>
+
+                <th className="p-4 text-left">
+                  Buyer
+                </th>
+
+                <th className="p-4 text-left">
+                  Risk
+                </th>
+
+                <th className="p-4 text-left">
+                  Flags
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {fraud.map((item: any) => (
+
+                <tr
+                  key={item.id}
+                  className="
+                    border-b border-slate-800
+                  "
+                >
+
+                  <td className="p-4">
+
+                    {item.buyer_email}
+
+                  </td>
+
+                  <td className="p-4">
+
+                    <StatusBadge
+                      status={item.risk_level}
+                    />
+
+                  </td>
+
+                  <td className="p-4">
+
+                    <div className="flex gap-2 flex-wrap">
+
+                      {(item.risk_flags || [])
+                        .map((flag: string) => (
+
+                        <div
+                          key={flag}
+                          className="
+                            px-2 py-1
+                            rounded-lg
+                            text-xs
+                            bg-red-900/30
+                            border
+                            border-red-500/20
+                            text-red-300
+                          "
+                        >
+                          {flag}
+                        </div>
+
+                      ))}
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </TableContainer>
+
+      )}
+
     </div>
+
   )
 }
 
-function Card({
-  title,
-  value
+function Tab({
+  children,
+  active,
+  onClick
 }: any) {
 
   return (
 
-    <div
-      className="
-        bg-slate-900
+    <button
+      onClick={onClick}
+      className={`
+        px-4 py-2
+        rounded-xl
+        transition
         border
-        border-slate-800
-        rounded-2xl
-        p-5
-      "
+
+        ${
+          active
+
+            ? `
+              bg-blue-600
+              border-blue-500
+              text-white
+            `
+
+            : `
+              bg-slate-900
+              border-slate-800
+              text-slate-400
+              hover:bg-slate-800
+            `
+        }
+      `}
     >
 
-      <p className="text-slate-400 text-sm">
-        {title}
-      </p>
+      {children}
 
-      <h3 className="text-3xl font-bold mt-2 text-white">
-        {value}
-      </h3>
+    </button>
 
-    </div>
   )
 }

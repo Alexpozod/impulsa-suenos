@@ -14,12 +14,10 @@ const supabase =
 
 export async function GET(
   req: Request,
-  {
-    params
-  }: {
-    params: {
+  context: {
+    params: Promise<{
       id: string
-    }
+    }>
   }
 ) {
 
@@ -70,8 +68,8 @@ export async function GET(
       )
     }
 
-    const raffle_id =
-      params.id
+    const { id: raffle_id } =
+  await context.params
 
     /* =========================
        RAFFLE
