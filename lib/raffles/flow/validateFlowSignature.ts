@@ -49,8 +49,20 @@ export function validateFlowSignature(
     }
   )
 
-  return (
-    expectedSignature ===
-    receivedSignature
-  )
+  const valid =
+  expectedSignature ===
+  receivedSignature
+
+console.log(
+  "FLOW SIGNATURE DEBUG",
+  {
+    valid,
+    receivedSignature,
+    expectedSignature,
+    toSign,
+    params
+  }
+)
+
+return valid
 }

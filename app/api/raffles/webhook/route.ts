@@ -43,6 +43,11 @@ export async function POST(req: Request) {
     const data =
       Object.fromEntries(body.entries())
 
+      console.log(
+  "FLOW WEBHOOK RAW DATA",
+  data
+)
+
     const valid =
       validateFlowSignature(data)
 
