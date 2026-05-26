@@ -259,44 +259,86 @@ export default function AdminRaffleDetailPage() {
       {tab === "overview" && (
 
         <div
-          className="
-            grid
-            grid-cols-1
-            md:grid-cols-2
-            xl:grid-cols-4
-            gap-4
-          "
-        >
+  className="
+    grid
+    grid-cols-1
+    md:grid-cols-2
+    xl:grid-cols-4
+    gap-4
+  "
+>
 
-          <MetricCard
-            title="Available"
-            value={
-              metrics.availableTickets || 0
-            }
-          />
+  <MetricCard
+    title="Available"
+    value={
+      metrics.availableTickets || 0
+    }
+  />
 
-          <MetricCard
-            title="Reserved"
-            value={
-              metrics.reservedTickets || 0
-            }
-          />
+  <MetricCard
+    title="Reserved"
+    value={
+      metrics.reservedTickets || 0
+    }
+  />
 
-          <MetricCard
-            title="Fraud High"
-            value={
-              metrics.fraudHigh || 0
-            }
-          />
+  <MetricCard
+    title="Fraud High"
+    value={
+      metrics.fraudHigh || 0
+    }
+  />
 
-          <MetricCard
-            title="Status"
-            value={
-              raffle.status || "-"
-            }
-          />
+  <MetricCard
+    title="Status"
+    value={
+      raffle.status || "-"
+    }
+  />
 
-        </div>
+  <MetricCard
+    title="Gross Revenue"
+    value={`$${Number(
+      metrics.grossRevenue || 0
+    ).toLocaleString()}`}
+  />
+
+  <MetricCard
+    title="Provider Fees"
+    value={`$${Number(
+      metrics.providerFees || 0
+    ).toLocaleString()}`}
+  />
+
+  <MetricCard
+    title="Platform Fees"
+    value={`$${Number(
+      metrics.platformFees || 0
+    ).toLocaleString()}`}
+  />
+
+  <MetricCard
+    title="IVA"
+    value={`$${Number(
+      metrics.ivaFees || 0
+    ).toLocaleString()}`}
+  />
+
+  <MetricCard
+    title="Creator Net"
+    value={`$${Number(
+      metrics.creatorNet || 0
+    ).toLocaleString()}`}
+  />
+
+  <MetricCard
+    title="Platform Net"
+    value={`$${Number(
+      metrics.platformNet || 0
+    ).toLocaleString()}`}
+  />
+
+</div>
 
       )}
 
