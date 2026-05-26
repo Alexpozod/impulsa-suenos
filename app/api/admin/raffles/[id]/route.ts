@@ -203,6 +203,98 @@ export async function GET(
           0
         )
 
+        /* =========================
+   LEDGER BREAKDOWN
+========================= */
+
+const grossRevenue =
+  (ledger || [])
+    .filter(
+      l =>
+        l.type === "payment"
+    )
+    .reduce(
+      (sum, l) =>
+        sum +
+        Math.abs(
+          Number(
+            l.amount_clp || 0
+          )
+        ),
+      0
+    )
+
+const providerFees =
+  (ledger || [])
+    .filter(
+      l =>
+        l.type === "fee_provider"
+    )
+    .reduce(
+      (sum, l) =>
+        sum +
+        Math.abs(
+          Number(
+            l.amount_clp || 0
+          )
+        ),
+      0
+    )
+
+const platformFees =
+  (ledger || [])
+    .filter(
+      l =>
+        l.type === "platform_fee"
+    )
+    .reduce(
+      (sum, l) =>
+        sum +
+        Math.abs(
+          Number(
+            l.amount_clp || 0
+          )
+        ),
+      0
+    )
+
+const ivaFees =
+  (ledger || [])
+    .filter(
+      l =>
+        l.type === "platform_fee_iva"
+    )
+    .reduce(
+      (sum, l) =>
+        sum +
+        Math.abs(
+          Number(
+            l.amount_clp || 0
+          )
+        ),
+      0
+    )
+
+const creatorNet =
+  (ledger || [])
+    .filter(
+      l =>
+        l.type === "creator_net"
+    )
+    .reduce(
+      (sum, l) =>
+        sum +
+        Math.abs(
+          Number(
+            l.amount_clp || 0
+          )
+        ),
+      0
+    )
+
+const platformNet =
+  platformFees - ivaFees
+
     return NextResponse.json({
 
       ok: true,
@@ -212,6 +304,13 @@ export async function GET(
       metrics: {
 
         revenue,
+
+        grossRevenue,
+        providerFees,
+        platformFees,
+        ivaFees,
+        creatorNet,
+        platformNet,
 
         orders:
           orders?.length || 0,
