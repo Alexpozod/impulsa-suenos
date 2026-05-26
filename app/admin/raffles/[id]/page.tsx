@@ -110,21 +110,23 @@ export default function AdminRaffleDetailPage() {
   const fraud =
     data?.fraud || []
 
-  const conversionRate =
-    useMemo(() => {
+ const conversionRate =
+  useMemo(() => {
 
-      if (
-        metrics.orders <= 0
-      ) return 0
+    if (
+      metrics.orders <= 0
+    ) {
+      return "0.00"
+    }
 
-      return (
-        (
-          metrics.payments /
-          metrics.orders
-        ) * 100
-      ).toFixed(2)
+    return (
+      (
+        metrics.payments /
+        metrics.orders
+      ) * 100
+    ).toFixed(2)
 
-    }, [metrics])
+  }, [metrics])
 
   if (loading) {
 
@@ -336,49 +338,34 @@ export default function AdminRaffleDetailPage() {
   value={`$${Number(
     metrics.platformNet || 0
   ).toLocaleString()}`}
+/>  
+
+<MetricCard
+  title="Visits"
+  value={metrics.visits || 0}
 />
 
-  <MetricCard
-    title="Gross Revenue"
-    value={`$${Number(
-      metrics.grossRevenue || 0
-    ).toLocaleString()}`}
-  />
+<MetricCard
+  title="Begin Checkout"
+  value={metrics.beginCheckout || 0}
+/>
 
-  <MetricCard
-    title="Provider Fees"
-    value={`$${Number(
-      metrics.providerFees || 0
-    ).toLocaleString()}`}
-  />
+<MetricCard
+  title="Payment Success"
+  value={metrics.paymentSuccess || 0}
+/>
 
-  <MetricCard
-    title="Platform Fees"
-    value={`$${Number(
-      metrics.platformFees || 0
-    ).toLocaleString()}`}
-  />
+<MetricCard
+  title="Payment Failed"
+  value={metrics.paymentFailed || 0}
+/>
 
-  <MetricCard
-    title="IVA"
-    value={`$${Number(
-      metrics.ivaFees || 0
-    ).toLocaleString()}`}
-  />
-
-  <MetricCard
-    title="Creator Net"
-    value={`$${Number(
-      metrics.creatorNet || 0
-    ).toLocaleString()}`}
-  />
-
-  <MetricCard
-    title="Platform Net"
-    value={`$${Number(
-      metrics.platformNet || 0
-    ).toLocaleString()}`}
-  />
+<MetricCard
+  title="Revenue / Visit"
+  value={`$${Number(
+    metrics.revenuePerVisit || 0
+  ).toFixed(0)}`}
+/>
 
 </div>
 

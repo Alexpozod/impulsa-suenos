@@ -124,6 +124,32 @@ export async function GET(
         .select("*")
         .eq("raffle_id", raffle_id)
 
+/* =========================
+   ANALYTICS EVENTS
+========================= */
+
+const {
+  data: analyticsEvents
+} =
+  await supabase
+    .schema("raffles")
+    .from("analytics_events")
+    .select("*")
+    .eq("raffle_id", raffle_id)
+
+/* =========================
+   TRACKING EVENTS
+========================= */
+
+const {
+  data: trackingEvents
+} =
+  await supabase
+    .schema("raffles")
+    .from("tracking_events")
+    .select("*")
+    .eq("raffle_id", raffle_id)
+
     /* =========================
        LEDGER
     ========================= */
@@ -295,6 +321,55 @@ const creatorNet =
 const platformNet =
   platformFees - ivaFees
 
+  /* =========================
+   FUNNEL
+========================= */
+
+const visits =
+  (trackingEvents || [])
+    .filter(
+      e =>
+        e.event_type ===
+        "page_view"
+    ).length
+
+const beginCheckout =
+  (analyticsEvents || [])
+    .filter(
+      e =>
+        e.event_type ===
+        "begin_checkout"
+    ).length
+
+const paymentSuccess =
+  (analyticsEvents || [])
+    .filter(
+      e =>
+        e.event_type ===
+        "payment_success"
+    ).length
+
+const paymentFailed =
+  (analyticsEvents || [])
+    .filter(
+      e =>
+        e.event_type ===
+        "payment_failed"
+    ).length
+
+const conversionRate =
+  beginCheckout > 0
+    ? (
+        paymentSuccess /
+        beginCheckout
+      ) * 100
+    : 0
+
+const revenuePerVisit =
+  visits > 0
+    ? revenue / visits
+    : 0
+
     return NextResponse.json({
 
       ok: true,
@@ -311,6 +386,12 @@ const platformNet =
         ivaFees,
         creatorNet,
         platformNet,
+        visits,
+        beginCheckout,
+        paymentSuccess,
+        paymentFailed,
+        conversionRate,
+        revenuePerVisit,
 
         orders:
           orders?.length || 0,
