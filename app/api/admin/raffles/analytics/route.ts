@@ -16,9 +16,56 @@ const supabase =
       .SUPABASE_SERVICE_ROLE_KEY!
   )
 
-export async function GET() {
+export async function GET(
+  req: Request
+) {
 
   try {
+
+/* =========================
+   AUTH
+========================= */
+
+const authHeader =
+  req.headers.get(
+    "authorization"
+  )
+
+const token =
+  authHeader?.replace(
+    "Bearer ",
+    ""
+  )
+
+if (!token) {
+
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
+    }
+  )
+}
+
+const {
+  data: { user }
+} =
+  await supabase.auth
+    .getUser(token)
+
+if (!user) {
+
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
+    }
+  )
+}
 
     /* =========================
        💰 PAGOS APROBADOS
@@ -44,7 +91,7 @@ export async function GET() {
     const { data: tickets } =
       await supabase
         .schema("raffles")
-        .from("tickets")
+        .from("ticket_inventory")
         .select("*")
 
     /* =========================
@@ -61,7 +108,7 @@ export async function GET() {
       (payments || [])
         .reduce(
           (acc, p) =>
-            acc + Number(p.amount || 0),
+            acc + Number(p.amount_clp || 0),
           0
         )
 

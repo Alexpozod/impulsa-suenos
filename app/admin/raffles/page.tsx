@@ -13,8 +13,10 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer
-}
-from "recharts"
+} from "recharts"
+
+import { supabase }
+from "@/src/lib/supabase"
 
 export default function AdminRafflesPage() {
 
@@ -48,10 +50,20 @@ const revenueChart =
 
     try {
 
-      const res =
-        await fetch(
-          "/api/admin/raffles/analytics"
-        )
+      const {
+  data: { session }
+} = await supabase.auth.getSession()
+
+const res =
+  await fetch(
+    "/api/admin/raffles/analytics",
+    {
+      headers: {
+        Authorization:
+          `Bearer ${session?.access_token}`
+      }
+    }
+  )
 
       const json =
         await res.json()
