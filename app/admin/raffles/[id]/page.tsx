@@ -208,18 +208,19 @@ function Card({
 
     <div
       className="
-        bg-white
+        bg-slate-900
         border
+        border-slate-800
         rounded-2xl
         p-5
       "
     >
 
-      <p className="text-slate-500 text-sm">
+      <p className="text-slate-400 text-sm">
         {title}
       </p>
 
-      <h3 className="text-3xl font-bold mt-2">
+      <h3 className="text-3xl font-bold mt-2 text-white">
         {value}
       </h3>
 
