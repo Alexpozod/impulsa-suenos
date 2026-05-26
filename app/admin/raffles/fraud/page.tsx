@@ -8,6 +8,18 @@ import {
 import { supabase }
 from "@/src/lib/supabase"
 
+import MetricCard
+from "@/app/components/raffles/admin/MetricCard"
+
+import StatusBadge
+from "@/app/components/raffles/admin/StatusBadge"
+
+import TableContainer
+from "@/app/components/raffles/admin/TableContainer"
+
+import PageHeader
+from "@/app/components/raffles/admin/PageHeader"
+
 export default function RaffleFraudPage() {
 
   const [loading, setLoading] =
@@ -70,22 +82,10 @@ export default function RaffleFraudPage() {
 
       {/* HEADER */}
 
-      <div>
-
-        <h1
-          className="
-            text-3xl
-            font-bold
-          "
-        >
-          🚨 Fraud Monitoring
-        </h1>
-
-        <p className="text-slate-400 mt-1">
-          Monitoreo operacional y señales de riesgo
-        </p>
-
-      </div>
+      <PageHeader
+  title="🚨 Fraud Monitoring"
+  description="Monitoreo operacional y señales de riesgo"
+/>
 
       {/* KPI */}
 
@@ -131,16 +131,7 @@ export default function RaffleFraudPage() {
 
       {/* TABLE */}
 
-      <div
-        className="
-          bg-slate-900
-          border border-slate-800
-          rounded-xl
-          overflow-hidden
-        "
-      >
-
-        <div className="overflow-x-auto">
+     <TableContainer>
 
           <table className="w-full">
 
@@ -269,8 +260,8 @@ export default function RaffleFraudPage() {
 
                   <td className="p-4">
 
-                    <RiskBadge
-                      level={order.risk_level}
+                   <StatusBadge
+                    status={order.risk_level}
                     />
 
                   </td>
@@ -311,83 +302,12 @@ export default function RaffleFraudPage() {
 
               ))}
 
-            </tbody>
+                        </tbody>
 
           </table>
 
-        </div>
+      </TableContainer>
 
-      </div>
-
-    </div>
-  )
-}
-
-function MetricCard({
-  title,
-  value
-}: any) {
-
-  return (
-
-    <div
-      className="
-        bg-slate-900
-        border border-slate-800
-        rounded-xl
-        p-4
-      "
-    >
-
-      <p className="text-slate-400 text-sm">
-        {title}
-      </p>
-
-      <h3
-        className="
-          text-2xl
-          font-bold
-          mt-2
-        "
-      >
-        {value}
-      </h3>
-
-    </div>
-  )
-}
-
-function RiskBadge({
-  level
-}: any) {
-
-  const colors: any = {
-
-    low:
-      "bg-green-900/30 text-green-300",
-
-    medium:
-      "bg-yellow-900/30 text-yellow-300",
-
-    high:
-      "bg-red-900/30 text-red-300"
-
-  }
-
-  return (
-
-    <div
-      className={`
-        inline-flex
-        px-3 py-1
-        rounded-full
-        text-xs
-        border border-white/10
-
-        ${colors[level]}
-      `}
-    >
-      {level}
     </div>
   )
 }
