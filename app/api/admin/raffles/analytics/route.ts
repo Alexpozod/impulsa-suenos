@@ -104,6 +104,18 @@ if (!user) {
         .from("analytics_events")
         .select("*")
 
+    /* =========================
+    👁️ TRACKING EVENTS
+    ========================= */
+
+    const {
+    data: tracking
+    } =
+    await supabase
+        .schema("raffles")
+        .from("tracking_events")
+        .select("*")
+
     const totalRevenue =
       (payments || [])
         .reduce(
@@ -117,6 +129,14 @@ if (!user) {
 
     const totalTickets =
       (tickets || []).length
+
+      const totalVisits =
+  (tracking || [])
+    .filter(
+      e =>
+        e.event_type ===
+        "page_view"
+    ).length
 
     const beginCheckout =
       (events || [])
@@ -149,6 +169,18 @@ if (!user) {
             beginCheckout
           ) * 100
         : 0
+
+const avgOrderValue =
+  totalPayments > 0
+    ? totalRevenue /
+      totalPayments
+    : 0
+
+const revenuePerVisit =
+  totalVisits > 0
+    ? totalRevenue /
+      totalVisits
+    : 0
 
     /* =========================
        📊 SOURCE BREAKDOWN
@@ -281,6 +313,13 @@ dailyRevenue[day] +=
       paymentFailed,
 
       conversionRate,
+
+      visits:
+  totalVisits,
+
+avgOrderValue,
+
+revenuePerVisit,
 
       topRaffles,
 
