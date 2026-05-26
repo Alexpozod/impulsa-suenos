@@ -66,33 +66,54 @@ export async function GET(
       )
     }
 
+const { searchParams } =
+  new URL(req.url)
+
+const raffle_id =
+  searchParams.get("raffle_id")
+
     /* =========================
        LOAD RECENT ORDERS
     ========================= */
 
-    const { data: orders, error } =
-      await supabase
+    let fraudQuery =
+  supabase
         .schema("raffles")
         .from("orders")
-        .select(`
-          id,
-          buyer_name,
-          buyer_email,
-          quantity,
-          total_clp,
-          status,
-          ip_address,
-          source,
-          user_agent,
-          created_at
-        `)
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
-        )
-        .limit(100)
+.select(`
+  id,
+  raffle_id,
+  buyer_name,
+  buyer_email,
+  quantity,
+  total_clp,
+  status,
+  ip_address,
+  source,
+  user_agent,
+  created_at
+`)
+.order(
+  "created_at",
+  {
+    ascending: false
+  }
+)
+.limit(100)
+
+if (raffle_id) {
+
+  fraudQuery =
+    fraudQuery.eq(
+      "raffle_id",
+      raffle_id
+    )
+}
+
+const {
+  data: orders,
+  error
+} = await fraudQuery
 
     if (error) {
 

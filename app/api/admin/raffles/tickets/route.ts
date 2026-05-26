@@ -84,10 +84,13 @@ export async function GET(
       )
 
     const status =
-      searchParams.get("status")
+  searchParams.get("status")
 
-    const search =
-      searchParams.get("search")
+const search =
+  searchParams.get("search")
+
+const raffle_id =
+  searchParams.get("raffle_id")
 
     const from =
       (page - 1) * limit
@@ -137,6 +140,15 @@ export async function GET(
           status
         )
     }
+
+if (raffle_id) {
+
+  query =
+    query.eq(
+      "raffle_id",
+      raffle_id
+    )
+}
 
     if (search) {
 
