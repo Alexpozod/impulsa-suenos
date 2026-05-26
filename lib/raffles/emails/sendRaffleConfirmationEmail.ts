@@ -19,6 +19,10 @@ export async function sendRaffleConfirmationEmail(
 
   try {
 
+    /* =========================================
+       LOAD ORDER + RAFFLE
+    ========================================= */
+
     const { data: order } =
       await supabase
         .schema("raffles")
@@ -34,26 +38,41 @@ export async function sendRaffleConfirmationEmail(
         .eq("id", order_id)
         .maybeSingle()
 
-    if (!order) return
+    if (!order) {
+      return
+    }
+
+    /* =========================================
+       LOAD PAID TICKETS
+    ========================================= */
 
     const { data: tickets } =
       await supabase
         .schema("raffles")
-        .from("tickets")
+        .from("ticket_inventory")
         .select(`
-          ticket_code
+          ticket_code,
+          ticket_number
         `)
         .eq("order_id", order_id)
+        .eq("status", "paid")
 
     console.log(
       "EMAIL RAFFLE",
       {
-        to: order.user_email,
+        to:
+          order.buyer_email,
+
         raffle:
           order.raffles?.title,
+
         tickets
       }
     )
+
+    /* =========================================
+       MARK EMAIL SENT
+    ========================================= */
 
     await supabase
       .schema("raffles")
