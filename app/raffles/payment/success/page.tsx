@@ -1,11 +1,15 @@
 "use client"
 
 import {
+  Suspense
+} from "react"
+
+import {
   useSearchParams,
   useRouter
 } from "next/navigation"
 
-export default function RafflePaymentSuccessPage() {
+function SuccessContent() {
 
   const searchParams =
     useSearchParams()
@@ -155,5 +159,26 @@ export default function RafflePaymentSuccessPage() {
       </div>
 
     </main>
+  )
+}
+
+export default function Page() {
+
+  return (
+
+    <Suspense
+      fallback={
+        <div
+          className="
+            min-h-screen
+            bg-slate-950
+          "
+        />
+      }
+    >
+
+      <SuccessContent />
+
+    </Suspense>
   )
 }
