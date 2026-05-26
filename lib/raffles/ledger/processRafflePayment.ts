@@ -57,92 +57,103 @@ export async function processRafflePayment({
       platformFee -
       iva
 
-    await supabase
-      .schema("raffles")
-      .from("ledger")
-      .insert([
+    const { error } =
+      await supabase
+        .schema("raffles")
+        .from("ledger")
+        .insert([
 
-        {
-          raffle_id,
+          {
+            raffle_id,
 
-          order_id,
+            order_id,
 
-          payment_id,
+            payment_id,
 
-          type: "payment",
+            type: "payment",
 
-          flow_type: "in",
+            flow_type: "in",
 
-          amount,
+            amount_clp: amount,
 
-          status: "confirmed"
-        },
+            status: "confirmed"
+          },
 
-        {
-          raffle_id,
+          {
+            raffle_id,
 
-          order_id,
+            order_id,
 
-          payment_id,
+            payment_id,
 
-          type: "fee_provider",
+            type: "fee_provider",
 
-          flow_type: "out",
+            flow_type: "out",
 
-          amount: -provider_fee,
+            amount_clp: -provider_fee,
 
-          status: "confirmed"
-        },
+            status: "confirmed"
+          },
 
-        {
-          raffle_id,
+          {
+            raffle_id,
 
-          order_id,
+            order_id,
 
-          payment_id,
+            payment_id,
 
-          type: "platform_fee",
+            type: "platform_fee",
 
-          flow_type: "out",
+            flow_type: "out",
 
-          amount: -platformFee,
+            amount_clp: -platformFee,
 
-          status: "confirmed"
-        },
+            status: "confirmed"
+          },
 
-        {
-          raffle_id,
+          {
+            raffle_id,
 
-          order_id,
+            order_id,
 
-          payment_id,
+            payment_id,
 
-          type: "platform_fee_iva",
+            type: "platform_fee_iva",
 
-          flow_type: "out",
+            flow_type: "out",
 
-          amount: -iva,
+            amount_clp: -iva,
 
-          status: "confirmed"
-        },
+            status: "confirmed"
+          },
 
-        {
-          raffle_id,
+          {
+            raffle_id,
 
-          order_id,
+            order_id,
 
-          payment_id,
+            payment_id,
 
-          type: "creator_net",
+            type: "creator_net",
 
-          flow_type: "out",
+            flow_type: "out",
 
-          amount: -creatorNet,
+            amount_clp: -creatorNet,
 
-          status: "confirmed"
-        }
+            status: "confirmed"
+          }
 
-      ])
+        ])
+
+    if (error) {
+
+      console.error(
+        "LEDGER INSERT ERROR",
+        error
+      )
+
+      throw error
+    }
 
   } catch (error) {
 
