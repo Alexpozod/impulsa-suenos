@@ -654,17 +654,57 @@ export default function AdminRaffleDetailPage() {
                   </td>
 
                   <td className="p-4">
-                    {item.flow_type}
-                  </td>
 
-                  <td className="p-4">
+                        <span
+                            className={`
+                            px-2 py-1
+                            rounded-lg
+                            text-xs
+                            border
 
-                    $
-                    {Number(
-                      item.amount_clp || 0
-                    ).toLocaleString()}
+                            ${
+                                item.flow_type === "in"
 
-                  </td>
+                                ? `
+                                    bg-emerald-500/10
+                                    border-emerald-500/20
+                                    text-emerald-300
+                                `
+
+                                : `
+                                    bg-red-500/10
+                                    border-red-500/20
+                                    text-red-300
+                                `
+                            }
+                            `}
+                        >
+
+                            {item.flow_type}
+
+                        </span>
+
+                        </td>
+
+                                        <td
+                        className={`
+                            p-4
+                            font-semibold
+
+                            ${
+                            item.flow_type === "in"
+                                ? "text-emerald-400"
+                                : "text-red-400"
+                            }
+                        `}
+                        >
+
+                        $
+                        {Number(
+                            item.amount_clp || 0
+                        ).toLocaleString()}
+
+                        </td>
 
                   <td className="p-4">
 
@@ -678,9 +718,95 @@ export default function AdminRaffleDetailPage() {
 
               ))}
 
-            </tbody>
+                        </tbody>
 
           </table>
+
+          <div
+            className="
+              border-t
+              border-slate-800
+              p-5
+              grid
+              grid-cols-1
+              md:grid-cols-3
+              gap-4
+            "
+          >
+
+            <div
+              className="
+                bg-slate-950
+                border border-slate-800
+                rounded-xl
+                p-4
+              "
+            >
+
+              <p className="text-slate-400 text-sm">
+                Gross Revenue
+              </p>
+
+              <p className="text-2xl font-bold text-emerald-400 mt-2">
+
+                $
+                {Number(
+                  metrics.grossRevenue || 0
+                ).toLocaleString()}
+
+              </p>
+
+            </div>
+
+            <div
+              className="
+                bg-slate-950
+                border border-slate-800
+                rounded-xl
+                p-4
+              "
+            >
+
+              <p className="text-slate-400 text-sm">
+                Creator Net
+              </p>
+
+              <p className="text-2xl font-bold text-blue-400 mt-2">
+
+                $
+                {Number(
+                  metrics.creatorNet || 0
+                ).toLocaleString()}
+
+              </p>
+
+            </div>
+
+            <div
+              className="
+                bg-slate-950
+                border border-slate-800
+                rounded-xl
+                p-4
+              "
+            >
+
+              <p className="text-slate-400 text-sm">
+                Platform Net
+              </p>
+
+              <p className="text-2xl font-bold text-purple-400 mt-2">
+
+                $
+                {Number(
+                  metrics.platformNet || 0
+                ).toLocaleString()}
+
+              </p>
+
+            </div>
+
+          </div>
 
         </TableContainer>
 
