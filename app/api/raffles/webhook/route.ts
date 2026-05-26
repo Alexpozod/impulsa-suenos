@@ -6,9 +6,6 @@ import axios from "axios"
 import { createClient }
 from "@supabase/supabase-js"
 
-import { validateFlowSignature }
-from "@/lib/raffles/flow/validateFlowSignature"
-
 import { assignReservedTickets }
 from "@/lib/raffles/tickets/assignReservedTickets"
 
@@ -46,18 +43,7 @@ export async function POST(req: Request) {
       console.log(
   "FLOW WEBHOOK RAW DATA",
   data
-)
-
-    const valid =
-      validateFlowSignature(data)
-
-    if (!valid) {
-
-      return NextResponse.json(
-        { error: "invalid_signature" },
-        { status: 401 }
-      )
-    }
+)  
 
     const token =
       String(data.token)
