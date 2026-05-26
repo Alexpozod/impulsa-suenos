@@ -263,7 +263,7 @@ export default function AdminRaffleDetailPage() {
     grid
     grid-cols-1
     md:grid-cols-2
-    xl:grid-cols-4
+    xl:grid-cols-5
     gap-4
   "
 >
@@ -295,6 +295,48 @@ export default function AdminRaffleDetailPage() {
       raffle.status || "-"
     }
   />
+
+<MetricCard
+  title="Gross Revenue"
+  value={`$${Number(
+    metrics.grossRevenue || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="Provider Fees"
+  value={`$${Number(
+    metrics.providerFees || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="Platform Fees"
+  value={`$${Number(
+    metrics.platformFees || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="IVA Fees"
+  value={`$${Number(
+    metrics.ivaFees || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="Creator Net"
+  value={`$${Number(
+    metrics.creatorNet || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="Platform Net"
+  value={`$${Number(
+    metrics.platformNet || 0
+  ).toLocaleString()}`}
+/>
 
   <MetricCard
     title="Gross Revenue"
