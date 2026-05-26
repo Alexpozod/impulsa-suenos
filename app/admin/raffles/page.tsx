@@ -112,7 +112,7 @@ const res =
           grid
           grid-cols-1
           md:grid-cols-2
-          xl:grid-cols-4
+          xl:grid-cols-7
           gap-4
         "
       >
@@ -140,6 +140,29 @@ const res =
             data?.conversionRate || 0
           ).toFixed(2)}%`}
         />
+
+            <Card
+            title="Visits"
+            value={
+                Number(
+                data?.visits || 0
+                ).toLocaleString()
+            }
+            />
+
+            <Card
+            title="AOV"
+            value={`$${Number(
+                data?.avgOrderValue || 0
+            ).toLocaleString()}`}
+            />
+
+            <Card
+            title="Revenue / Visit"
+            value={`$${Number(
+                data?.revenuePerVisit || 0
+            ).toFixed(0)}`}
+            />
 
       </div>
 
