@@ -1,0 +1,287 @@
+import { NextResponse }
+from "next/server"
+
+import { createClient }
+from "@supabase/supabase-js"
+
+export const runtime = "nodejs"
+
+const supabase =
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+export async function GET(
+  req: Request,
+  {
+    params
+  }: {
+    params: {
+      id: string
+    }
+  }
+) {
+
+  try {
+
+    /* =========================
+       AUTH
+    ========================= */
+
+    const authHeader =
+      req.headers.get(
+        "authorization"
+      )
+
+    const token =
+      authHeader?.replace(
+        "Bearer ",
+        ""
+      )
+
+    if (!token) {
+
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
+    }
+
+    const {
+      data: { user }
+    } =
+      await supabase.auth
+        .getUser(token)
+
+    if (!user) {
+
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
+    }
+
+    const raffle_id =
+      params.id
+
+    /* =========================
+       RAFFLE
+    ========================= */
+
+    const {
+      data: raffle
+    } =
+      await supabase
+        .schema("raffles")
+        .from("raffles")
+        .select("*")
+        .eq("id", raffle_id)
+        .single()
+
+    /* =========================
+       ORDERS
+    ========================= */
+
+    const {
+      data: orders
+    } =
+      await supabase
+        .schema("raffles")
+        .from("orders")
+        .select("*")
+        .eq("raffle_id", raffle_id)
+
+    /* =========================
+       PAYMENTS
+    ========================= */
+
+    const {
+      data: payments
+    } =
+      await supabase
+        .schema("raffles")
+        .from("payments")
+        .select("*")
+        .eq("raffle_id", raffle_id)
+
+    /* =========================
+       TICKETS
+    ========================= */
+
+    const {
+      data: tickets
+    } =
+      await supabase
+        .schema("raffles")
+        .from("ticket_inventory")
+        .select("*")
+        .eq("raffle_id", raffle_id)
+
+    /* =========================
+       LEDGER
+    ========================= */
+
+    const {
+      data: ledger
+    } =
+      await supabase
+        .schema("raffles")
+        .from("ledger")
+        .select("*")
+        .eq("raffle_id", raffle_id)
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        )
+        .limit(50)
+
+    /* =========================
+       FRAUD
+    ========================= */
+
+    const fraudOrders =
+      (orders || []).map(order => {
+
+        const flags: string[] = []
+
+        if (
+          Number(order.quantity) >= 20
+        ) {
+          flags.push(
+            "high_ticket_volume"
+          )
+        }
+
+        if (
+          !order.ip_address
+        ) {
+          flags.push(
+            "missing_ip"
+          )
+        }
+
+        return {
+
+          ...order,
+
+          risk_flags: flags,
+
+          risk_level:
+            flags.length >= 2
+              ? "high"
+              : flags.length === 1
+              ? "medium"
+              : "low"
+        }
+      })
+
+    /* =========================
+       METRICS
+    ========================= */
+
+    const revenue =
+      (payments || [])
+        .filter(
+          p =>
+            p.status === "approved"
+        )
+        .reduce(
+          (sum, p) =>
+            sum +
+            Number(
+              p.amount_clp || 0
+            ),
+          0
+        )
+
+    return NextResponse.json({
+
+      ok: true,
+
+      raffle,
+
+      metrics: {
+
+        revenue,
+
+        orders:
+          orders?.length || 0,
+
+        payments:
+          payments?.length || 0,
+
+        tickets:
+          tickets?.length || 0,
+
+        paidTickets:
+
+          tickets?.filter(
+            t =>
+              t.status === "paid"
+          ).length || 0,
+
+        reservedTickets:
+
+          tickets?.filter(
+            t =>
+              t.status === "reserved"
+          ).length || 0,
+
+        availableTickets:
+
+          tickets?.filter(
+            t =>
+              t.status === "available"
+          ).length || 0,
+
+        fraudHigh:
+
+          fraudOrders.filter(
+            o =>
+              o.risk_level === "high"
+          ).length
+
+      },
+
+      orders:
+        orders || [],
+
+      payments:
+        payments || [],
+
+      tickets:
+        tickets || [],
+
+      ledger:
+        ledger || [],
+
+      fraud:
+        fraudOrders
+
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    return NextResponse.json(
+      {
+        error: "server_error"
+      },
+      {
+        status: 500
+      }
+    )
+  }
+}
