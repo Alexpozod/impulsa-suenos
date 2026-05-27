@@ -121,17 +121,68 @@ export async function GET(
         .eq("raffle_id", raffle_id)
 
     /* =========================
-       TICKETS
-    ========================= */
+   TICKET COUNTS
+========================= */
 
-    const {
-      data: tickets
-    } =
-      await supabase
-        .schema("raffles")
-        .from("ticket_inventory")
-        .select("*")
-        .eq("raffle_id", raffle_id)
+const [
+  paidTicketsResult,
+  reservedTicketsResult,
+  availableTicketsResult,
+  totalTicketsResult
+] = await Promise.all([
+
+  supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq("status", "paid"),
+
+  supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq("status", "reserved"),
+
+  supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq("status", "available"),
+
+  supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+
+])
+
+const paidTickets =
+  paidTicketsResult.count || 0
+
+const reservedTickets =
+  reservedTicketsResult.count || 0
+
+const availableTickets =
+  availableTicketsResult.count || 0
+
+const totalTickets =
+  totalTicketsResult.count || 0
 
 /* =========================
    ANALYTICS EVENTS
@@ -446,28 +497,16 @@ const revenuePerVisit =
           payments?.length || 0,
 
         tickets:
-          tickets?.length || 0,
+  totalTickets,
 
-        paidTickets:
+paidTickets:
+  paidTickets,
 
-          tickets?.filter(
-            t =>
-              t.status === "paid"
-          ).length || 0,
+reservedTickets:
+  reservedTickets,
 
-        reservedTickets:
-
-          tickets?.filter(
-            t =>
-              t.status === "reserved"
-          ).length || 0,
-
-        availableTickets:
-
-          tickets?.filter(
-            t =>
-              t.status === "available"
-          ).length || 0,
+availableTickets:
+  availableTickets,
 
         fraudHigh:
 
@@ -484,8 +523,7 @@ const revenuePerVisit =
       payments:
         payments || [],
 
-      tickets:
-        tickets || [],
+      tickets: [],
 
       ledger:
         ledger || [],
