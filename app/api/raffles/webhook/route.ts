@@ -412,6 +412,36 @@ if (suspicious) {
 
 }
 
+/* =========================
+   PREVENT DUPLICATE SUCCESS
+========================= */
+
+const {
+  data: existingSuccessEvent
+} =
+  await supabase
+    .schema("raffles")
+    .from("analytics_events")
+    .select("id")
+    .eq(
+      "payment_id",
+      dbPayment.id
+    )
+    .eq(
+      "event_type",
+      "payment_success"
+    )
+    .maybeSingle()
+
+if (
+  existingSuccessEvent
+) {
+
+  return NextResponse.json({
+    ok: true
+  })
+}
+
     await trackEvent({
 
   event_type:
