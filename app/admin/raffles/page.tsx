@@ -166,6 +166,75 @@ const res =
 
       </div>
 
+      {/* SYSTEM */}
+
+<div
+  className="
+    grid
+    grid-cols-1
+    md:grid-cols-2
+    gap-4
+  "
+>
+
+  <a
+    href="/admin/raffles/system"
+    className="
+      bg-white
+      border
+      rounded-2xl
+      p-4
+      hover:border-slate-400
+      transition
+    "
+  >
+
+    <div
+      className="
+        flex
+        items-center
+        justify-between
+      "
+    >
+
+      <div>
+
+        <p
+          className="
+            text-xs
+            text-slate-500
+          "
+        >
+          System Health
+        </p>
+
+        <h3
+          className="
+            text-lg
+            font-semibold
+            mt-1
+          "
+        >
+          🛡️ Monitor
+        </h3>
+
+      </div>
+
+      <div
+        className="
+          text-xs
+          text-slate-400
+        "
+      >
+        View →
+      </div>
+
+    </div>
+
+  </a>
+
+</div>
+
       {/* CHECKOUT */}
 
       <div
