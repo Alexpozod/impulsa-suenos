@@ -9,6 +9,9 @@ from "@supabase/supabase-js"
 import { assignReservedTickets }
 from "@/lib/raffles/tickets/assignReservedTickets"
 
+import { releaseOrderReservations }
+from "@/lib/raffles/tickets/releaseOrderReservations"
+
 import { processRafflePayment }
 from "@/lib/raffles/ledger/processRafflePayment"
 
@@ -418,19 +421,69 @@ if (suspicious) {
 
 })
 
-   const tickets =
-  await assignReservedTickets({
+   let tickets
 
-    raffle_id:
-      order.raffle_id,
+try {
 
-    order_id:
-      order.id,
+  tickets =
+    await assignReservedTickets({
 
-    payment_id:
-      dbPayment.id
+      raffle_id:
+        order.raffle_id,
 
-  })
+      order_id:
+        order.id,
+
+      payment_id:
+        dbPayment.id
+
+    })
+
+} catch (ticketError) {
+
+  console.error(
+    "ASSIGN RESERVED TICKETS ERROR",
+    ticketError
+  )
+
+  /* =========================
+     ROLLBACK PAYMENT
+  ========================= */
+
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .update({
+
+      status: "failed"
+
+    })
+    .eq("id", dbPayment.id)
+
+  /* =========================
+     ROLLBACK ORDER
+  ========================= */
+
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .update({
+
+      status: "cancelled"
+
+    })
+    .eq("id", order.id)
+
+  /* =========================
+     RELEASE RESERVATIONS
+  ========================= */
+
+  await releaseOrderReservations(
+    order.id
+  )
+
+  throw ticketError
+}
 
 await processRafflePayment({
 
@@ -447,9 +500,29 @@ await processRafflePayment({
 
 })
 
-await sendRaffleConfirmationEmail(
-  order.id
-)
+if (
+  !order.confirmation_email_sent
+) {
+
+  await sendRaffleConfirmationEmail(
+    order.id
+  )
+
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .update({
+
+      confirmation_email_sent:
+        true,
+
+      confirmation_email_sent_at:
+        new Date().toISOString()
+
+    })
+    .eq("id", order.id)
+
+}
 
 const { data: raffle } =
   await supabase
@@ -462,18 +535,24 @@ const { data: raffle } =
     )
     .maybeSingle()
 
-await sendTicketsEmail({
+if (
+  !order.confirmation_email_sent
+) {
 
-  email:
-  order.buyer_email,
+  await sendTicketsEmail({
 
-  raffleTitle:
-    raffle?.title ||
-    "Sorteo",
+    email:
+    order.buyer_email,
 
-  tickets
+    raffleTitle:
+      raffle?.title ||
+      "Sorteo",
 
-})
+    tickets
+
+  })
+
+}
 
     return NextResponse.json({
       ok: true
