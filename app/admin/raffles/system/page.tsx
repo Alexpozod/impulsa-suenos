@@ -35,9 +35,24 @@ AdminRafflesSystemPage() {
 
   useEffect(() => {
 
-    load()
+  load()
 
-  }, [])
+  const interval = setInterval(
+    () => {
+
+      load()
+
+    },
+    30000
+  )
+
+  return () => {
+
+    clearInterval(interval)
+
+  }
+
+}, [])
 
   async function load() {
 
@@ -118,30 +133,30 @@ AdminRafflesSystemPage() {
       />
 
       <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          gap-4
-        "
-      >
+  className="
+    grid
+    grid-cols-2
+    md:grid-cols-4
+    gap-3
+  "
+>
 
         <div
-          className="
-            rounded-2xl
-            border border-slate-800
-            bg-slate-900
-            p-6
-          "
-        >
+  className="
+    rounded-xl
+    border border-slate-800
+    bg-slate-900
+    p-4
+  "
+>
 
-          <p className="text-sm text-slate-400">
+          <p className="text-xs text-slate-400">
             System Issues
           </p>
 
           <p
             className="
-              text-4xl
+              text-2xl
               font-bold
               mt-2
             "
@@ -170,7 +185,7 @@ AdminRafflesSystemPage() {
 
           <p
             className="
-              text-4xl
+              text-2xl
               font-bold
               mt-2
             "
@@ -259,9 +274,43 @@ AdminRafflesSystemPage() {
 
                   <td className="p-4">
 
-                    {issue.severity}
+  <span
+    className={`
 
-                  </td>
+      inline-flex
+      items-center
+      rounded-full
+      px-2
+      py-1
+      text-xs
+      font-medium
+
+      ${
+
+        issue.severity === "critical"
+
+          ? "bg-red-100 text-red-700"
+
+          : issue.severity === "high"
+
+            ? "bg-orange-100 text-orange-700"
+
+            : issue.severity === "medium"
+
+              ? "bg-yellow-100 text-yellow-700"
+
+              : "bg-slate-100 text-slate-700"
+
+      }
+
+    `}
+  >
+
+    {issue.severity}
+
+  </span>
+
+</td>
 
                   <td className="p-4 text-xs">
 
@@ -334,9 +383,43 @@ AdminRafflesSystemPage() {
 
                   <td className="p-4">
 
-                    {anomaly.severity}
+  <span
+    className={`
 
-                  </td>
+      inline-flex
+      items-center
+      rounded-full
+      px-2
+      py-1
+      text-xs
+      font-medium
+
+      ${
+
+        anomaly.severity === "critical"
+
+          ? "bg-red-100 text-red-700"
+
+          : anomaly.severity === "high"
+
+            ? "bg-orange-100 text-orange-700"
+
+            : anomaly.severity === "medium"
+
+              ? "bg-yellow-100 text-yellow-700"
+
+              : "bg-slate-100 text-slate-700"
+
+      }
+
+    `}
+  >
+
+    {anomaly.severity}
+
+  </span>
+
+</td>
 
                   <td className="p-4 text-xs">
 
