@@ -95,7 +95,16 @@ export async function GET(
     }
 
     /* =========================
-       SAFE RESPONSE
+       SAFE RELATION
+    ========================= */
+
+    const raffleData =
+      Array.isArray(data.raffles)
+        ? data.raffles[0]
+        : data.raffles
+
+    /* =========================
+       RESPONSE
     ========================= */
 
     return NextResponse.json({
@@ -116,13 +125,13 @@ export async function GET(
         raffle: {
 
           title:
-            data.raffles?.title,
+            raffleData?.title,
 
           slug:
-            data.raffles?.slug,
+            raffleData?.slug,
 
           status:
-            data.raffles?.status
+            raffleData?.status
 
         }
 
