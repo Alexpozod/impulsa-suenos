@@ -345,6 +345,12 @@ if (!lockedPayment) {
    🚨 FRAUD CHECK
 ========================= */
 
+const fraudReasons: string[] = []
+
+/* =========================
+   SUSPICIOUS IP
+========================= */
+
 const suspiciousIps = [
 
   "unknown",
@@ -352,12 +358,72 @@ const suspiciousIps = [
 
 ]
 
-const suspicious =
+if (
   suspiciousIps.includes(
     order.ip_address || ""
   )
+) {
 
-if (suspicious) {
+  fraudReasons.push(
+    "suspicious_ip"
+  )
+}
+
+/* =========================
+   HIGH TICKET VOLUME
+========================= */
+
+if (
+  Number(order.quantity) >= 10
+) {
+
+  fraudReasons.push(
+    "high_ticket_volume"
+  )
+}
+
+/* =========================
+   SAME IP RECENT PAYMENTS
+========================= */
+
+const recentWindow =
+  new Date(
+    Date.now() -
+    60 * 60 * 1000
+  ).toISOString()
+
+const {
+  data: recentOrders
+} =
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .select("id")
+    .eq(
+      "ip_address",
+      order.ip_address
+    )
+    .gte(
+      "created_at",
+      recentWindow
+    )
+
+if (
+  (recentOrders?.length || 0) >= 5
+) {
+
+  fraudReasons.push(
+    "multiple_orders_same_ip"
+  )
+}
+
+/* =========================
+   SAVE FRAUD LOGS
+========================= */
+
+for (
+  const reason of fraudReasons
+) {
 
   const {
     data: existingFraud
@@ -372,7 +438,7 @@ if (suspicious) {
       )
       .eq(
         "reason",
-        "suspicious_ip"
+        reason
       )
       .maybeSingle()
 
@@ -401,17 +467,25 @@ if (suspicious) {
         user_agent:
           order.user_agent,
 
-        reason:
-          "suspicious_ip",
+        reason,
 
         risk_level:
-          "medium"
+
+          fraudReasons.length >= 3
+
+            ? "high"
+
+            : fraudReasons.length >= 2
+
+              ? "medium"
+
+              : "low"
       })
 
   }
 
 }
-
+  
 /* =========================
    PREVENT DUPLICATE SUCCESS
 ========================= */
