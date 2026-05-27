@@ -205,7 +205,7 @@ const response =
         dbPayment.orders.utm_campaign,
 
       ip:
-  dbPayment.orders.ip_address,
+        dbPayment.orders.ip_address,
 
       user_agent:
         dbPayment.orders.user_agent,
@@ -221,6 +221,31 @@ const response =
       }
 
     })
+
+    /* =========================
+       CANCEL FAILED ORDER
+    ========================= */
+
+    await supabase
+      .schema("raffles")
+      .from("orders")
+      .update({
+
+        status: "cancelled"
+
+      })
+      .eq(
+        "id",
+        dbPayment.orders.id
+      )
+
+    /* =========================
+       RELEASE RESERVED TICKETS
+    ========================= */
+
+    await releaseOrderReservations(
+      dbPayment.orders.id
+    )
 
   }
 
