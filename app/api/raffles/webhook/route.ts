@@ -22,7 +22,7 @@ import { sendTicketsEmail }
 from "@/lib/raffles/emails/sendTicketsEmail"
 
 import { validateFlowSignature }
-from "@/lib/flow/validateFlowSignature"
+from "@/lib/raffles/flow/validateFlowSignature"
 
 export const runtime = "nodejs"
 
