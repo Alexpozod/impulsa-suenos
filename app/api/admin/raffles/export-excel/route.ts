@@ -231,37 +231,40 @@ if (
 ) {
 
   const {
-    data: ordersData
-  } =
-    await supabase
-      .schema("raffles")
-      .from("orders")
-      .select("*")
-      .eq("raffle_id", raffle_id)
+  data: ordersData
+} =
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .select("*")
+    .eq("raffle_id", raffle_id)
+    .limit(5000)
 
   orders =
     ordersData || []
 
   const {
-    data: paymentsData
-  } =
-    await supabase
-      .schema("raffles")
-      .from("payments")
-      .select("*")
-      .eq("raffle_id", raffle_id)
+  data: paymentsData
+} =
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .select("*")
+    .eq("raffle_id", raffle_id)
+    .limit(5000)
 
   payments =
     paymentsData || []
 
   const {
-    data: ledgerData
-  } =
-    await supabase
-      .schema("raffles")
-      .from("ledger")
-      .select("*")
-      .eq("raffle_id", raffle_id)
+  data: ledgerData
+} =
+  await supabase
+    .schema("raffles")
+    .from("ledger")
+    .select("*")
+    .eq("raffle_id", raffle_id)
+    .limit(5000)
 
   ledger =
     ledgerData || []
