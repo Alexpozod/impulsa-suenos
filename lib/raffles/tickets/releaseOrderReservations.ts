@@ -52,6 +52,7 @@ export async function releaseOrderReservations(
      RELEASE INVENTORY
   ========================================= */
 
+  const { error: releaseError } =
   await supabase
     .schema("raffles")
     .from("ticket_inventory")
@@ -69,6 +70,19 @@ export async function releaseOrderReservations(
 
     })
     .in("id", ticketIds)
+    .eq("status", "reserved")
+
+if (releaseError) {
+
+  console.error(
+    "releaseOrderReservations update error",
+    releaseError
+  )
+
+  throw new Error(
+    "release_order_inventory_failed"
+  )
+}
 
   /* =========================================
      RECALCULATE COUNTERS
