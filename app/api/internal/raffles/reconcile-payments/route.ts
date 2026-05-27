@@ -31,10 +31,20 @@ export async function GET(
         "authorization"
       )
 
-    if (
-      authHeader !==
-      `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`
-    ) {
+    console.log(
+  "AUTH DEBUG",
+  {
+    authHeader,
+    envKey:
+      process.env
+        .RAFFLES_INTERNAL_API_KEY
+  }
+)
+
+if (
+  authHeader !==
+  `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`
+) {
 
       return NextResponse.json(
 
