@@ -65,24 +65,24 @@ export async function assignReservedTickets({
     )
 
   /* =========================================
-     MARK AS PAID
-  ========================================= */
+   MARK AS PAID
+========================================= */
 
-  const { error: updateError } =
-    await supabase
-      .schema("raffles")
-      .from("ticket_inventory")
-      .update({
+const { error: updateError } =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .update({
 
-        status: "paid",
+      status: "paid",
 
-        payment_id,
+      payment_id,
 
-        reserved_until: null
+      reserved_until: null
 
-      })
-      .in("id", ticketIds)
-      .eq("status", "reserved")
+    })
+    .in("id", ticketIds)
+    .eq("status", "reserved")
 
   if (updateError) {
 
@@ -97,23 +97,29 @@ export async function assignReservedTickets({
   }
 
   /* =========================================
-     CREATE OWNERSHIP RECORDS
-  ========================================= */
+   CREATE OWNERSHIP RECORDS
+========================================= */
 
-  const ownershipRows =
-    ticketIds.map(ticket_id => ({
+const ownershipRows =
+  ticketIds.map(ticket_id => ({
 
-      order_id,
+    order_id,
 
-      ticket_id
+    ticket_id
 
-    }))
+  }))
 
-  const { error: ownershipError } =
-    await supabase
-      .schema("raffles")
-      .from("order_tickets")
-      .insert(ownershipRows)
+const { error: ownershipError } =
+  await supabase
+    .schema("raffles")
+    .from("order_tickets")
+    .upsert(
+      ownershipRows,
+      {
+        onConflict:
+          "ticket_id"
+      }
+    )
 
   if (ownershipError) {
 
