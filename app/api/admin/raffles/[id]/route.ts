@@ -95,30 +95,64 @@ export async function GET(
         .single()
 
     /* =========================
-       ORDERS
-    ========================= */
+   ORDERS
+========================= */
 
-    const {
-      data: orders
-    } =
-      await supabase
-        .schema("raffles")
-        .from("orders")
-        .select("*")
-        .eq("raffle_id", raffle_id)
+const {
+  data: orders
+} =
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .select(`
+      id,
+      buyer_name,
+      buyer_email,
+      quantity,
+      total_clp,
+      status,
+      created_at,
+      source,
+      utm_campaign,
+      ip_address
+    `)
+    .eq("raffle_id", raffle_id)
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    )
+    .limit(100)
 
     /* =========================
-       PAYMENTS
-    ========================= */
+   PAYMENTS
+========================= */
 
-    const {
-      data: payments
-    } =
-      await supabase
-        .schema("raffles")
-        .from("payments")
-        .select("*")
-        .eq("raffle_id", raffle_id)
+const {
+  data: payments
+} =
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .select(`
+      id,
+      order_id,
+      provider,
+      provider_payment_id,
+      status,
+      amount_clp,
+      paid_at,
+      created_at
+    `)
+    .eq("raffle_id", raffle_id)
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    )
+    .limit(100)
 
     /* =========================
    TICKET COUNTS
@@ -266,7 +300,7 @@ const {
 
     const visits =
   visitsCount || 0
-  
+
     /* =========================
        LEDGER
     ========================= */
