@@ -526,9 +526,20 @@ if (
   !order.confirmation_email_sent
 ) {
 
+  try {
+
   await sendRaffleConfirmationEmail(
     order.id
   )
+
+} catch (emailError) {
+
+  console.error(
+    "CONFIRMATION EMAIL ERROR",
+    emailError
+  )
+
+}
 
   await supabase
     .schema("raffles")
@@ -557,22 +568,33 @@ const { data: raffle } =
     )
     .maybeSingle()
 
-if (
-  !order.confirmation_email_sent
-) {
+try {
 
-  await sendTicketsEmail({
+  if (
+    !order.confirmation_email_sent
+  ) {
 
-    email:
-    order.buyer_email,
+    await sendTicketsEmail({
 
-    raffleTitle:
-      raffle?.title ||
-      "Sorteo",
+      email:
+        order.buyer_email,
 
-    tickets
+      raffleTitle:
+        raffle?.title ||
+        "Sorteo",
 
-  })
+      tickets
+
+    })
+
+  }
+
+} catch (emailError) {
+
+  console.error(
+    "SEND TICKETS EMAIL ERROR",
+    emailError
+  )
 
 }
 
