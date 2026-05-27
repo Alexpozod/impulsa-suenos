@@ -29,7 +29,15 @@ const supabase =
 const schema = z.object({
 
   raffle_id:
-    z.string().uuid()
+    z.string().uuid(),
+
+  export_type:
+    z.enum([
+      "tickets",
+      "financial",
+      "full"
+    ])
+    .optional()
 
 })
 
@@ -115,8 +123,9 @@ await requireRaffleAdmin({
     }
 
     const {
-      raffle_id
-    } = parsed.data
+  raffle_id,
+  export_type = "tickets"
+} = parsed.data
 
     /* =========================================
        LOAD RAFFLE
@@ -205,6 +214,59 @@ await requireRaffleAdmin({
         }
       )
     }
+
+/* =========================================
+   LOAD FINANCIAL DATA
+========================================= */
+
+let orders: any[] = []
+
+let payments: any[] = []
+
+let ledger: any[] = []
+
+if (
+  export_type === "financial" ||
+  export_type === "full"
+) {
+
+  const {
+    data: ordersData
+  } =
+    await supabase
+      .schema("raffles")
+      .from("orders")
+      .select("*")
+      .eq("raffle_id", raffle_id)
+
+  orders =
+    ordersData || []
+
+  const {
+    data: paymentsData
+  } =
+    await supabase
+      .schema("raffles")
+      .from("payments")
+      .select("*")
+      .eq("raffle_id", raffle_id)
+
+  payments =
+    paymentsData || []
+
+  const {
+    data: ledgerData
+  } =
+    await supabase
+      .schema("raffles")
+      .from("ledger")
+      .select("*")
+      .eq("raffle_id", raffle_id)
+
+  ledger =
+    ledgerData || []
+
+}
 
     /* =========================================
        EXPORT HASH
@@ -315,6 +377,50 @@ await requireRaffleAdmin({
       ticketsSheet,
       "tickets"
     )
+
+/* =========================================
+   FINANCIAL SHEETS
+========================================= */
+
+if (
+  export_type === "financial" ||
+  export_type === "full"
+) {
+
+  const ordersSheet =
+    XLSX.utils.json_to_sheet(
+      orders
+    )
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    ordersSheet,
+    "orders"
+  )
+
+  const paymentsSheet =
+    XLSX.utils.json_to_sheet(
+      payments
+    )
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    paymentsSheet,
+    "payments"
+  )
+
+  const ledgerSheet =
+    XLSX.utils.json_to_sheet(
+      ledger
+    )
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    ledgerSheet,
+    "ledger"
+  )
+
+}
 
     /* =========================================
        GENERATE BUFFER

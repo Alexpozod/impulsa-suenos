@@ -322,6 +322,38 @@ const platformNet =
   platformFees - ivaFees
 
   /* =========================
+   SETTLEMENT STATUS
+========================= */
+
+const creatorPending =
+  creatorNet
+
+const creatorPaid =
+  0
+
+const creatorAvailable =
+  Math.max(
+    creatorPending -
+    creatorPaid,
+    0
+  )
+
+const platformPending =
+  platformNet
+
+const payoutStatus =
+
+  creatorAvailable <= 0
+
+    ? "paid"
+
+    : raffle.status === "ended"
+
+      ? "pending_payout"
+
+      : "locked"
+
+  /* =========================
    FUNNEL
 ========================= */
 
@@ -386,6 +418,11 @@ const revenuePerVisit =
         ivaFees,
         creatorNet,
         platformNet,
+        creatorPending,
+        creatorPaid,
+        creatorAvailable,
+        platformPending,
+        payoutStatus,
         visits,
         beginCheckout,
         paymentSuccess,

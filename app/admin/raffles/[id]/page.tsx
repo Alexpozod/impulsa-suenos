@@ -367,6 +367,41 @@ export default function AdminRaffleDetailPage() {
   ).toFixed(0)}`}
 />
 
+<MetricCard
+  title="Creator Pending"
+  value={`$${Number(
+    metrics.creatorPending || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="Creator Paid"
+  value={`$${Number(
+    metrics.creatorPaid || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="Creator Available"
+  value={`$${Number(
+    metrics.creatorAvailable || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="Platform Pending"
+  value={`$${Number(
+    metrics.platformPending || 0
+  ).toLocaleString()}`}
+/>
+
+<MetricCard
+  title="Payout Status"
+  value={
+    metrics.payoutStatus || "-"
+  }
+/>
+
 </div>
 
       )}
