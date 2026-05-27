@@ -185,30 +185,84 @@ const totalTickets =
   totalTicketsResult.count || 0
 
 /* =========================
-   ANALYTICS EVENTS
+   ANALYTICS COUNTS
 ========================= */
 
-const {
-  data: analyticsEvents
-} =
-  await supabase
+const [
+  beginCheckoutResult,
+  paymentSuccessResult,
+  paymentFailedResult
+] = await Promise.all([
+
+  supabase
     .schema("raffles")
     .from("analytics_events")
-    .select("*")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
     .eq("raffle_id", raffle_id)
+    .eq(
+      "event_type",
+      "begin_checkout"
+    ),
+
+  supabase
+    .schema("raffles")
+    .from("analytics_events")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq(
+      "event_type",
+      "payment_success"
+    ),
+
+  supabase
+    .schema("raffles")
+    .from("analytics_events")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq(
+      "event_type",
+      "payment_failed"
+    )
+
+])
+
+const beginCheckout =
+  beginCheckoutResult.count || 0
+
+const paymentSuccess =
+  paymentSuccessResult.count || 0
+
+const paymentFailed =
+  paymentFailedResult.count || 0
 
 /* =========================
-   TRACKING EVENTS
+   PAGE VIEW COUNTS
 ========================= */
 
 const {
-  data: trackingEvents
+  count: visits
 } =
   await supabase
     .schema("raffles")
     .from("tracking_events")
-    .select("*")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
     .eq("raffle_id", raffle_id)
+    .eq(
+      "event_type",
+      "page_view"
+    )
 
     /* =========================
        LEDGER
@@ -416,38 +470,6 @@ const payoutStatus =
   /* =========================
    FUNNEL
 ========================= */
-
-const visits =
-  (trackingEvents || [])
-    .filter(
-      e =>
-        e.event_type ===
-        "page_view"
-    ).length
-
-const beginCheckout =
-  (analyticsEvents || [])
-    .filter(
-      e =>
-        e.event_type ===
-        "begin_checkout"
-    ).length
-
-const paymentSuccess =
-  (analyticsEvents || [])
-    .filter(
-      e =>
-        e.event_type ===
-        "payment_success"
-    ).length
-
-const paymentFailed =
-  (analyticsEvents || [])
-    .filter(
-      e =>
-        e.event_type ===
-        "payment_failed"
-    ).length
 
 const conversionRate =
   beginCheckout > 0
