@@ -334,35 +334,57 @@ const suspicious =
 
 if (suspicious) {
 
-  await supabase
-    .schema("raffles")
-    .from("fraud_logs")
-    .insert({
+  const {
+    data: existingFraud
+  } =
+    await supabase
+      .schema("raffles")
+      .from("fraud_logs")
+      .select("id")
+      .eq(
+        "payment_id",
+        dbPayment.id
+      )
+      .eq(
+        "reason",
+        "suspicious_ip"
+      )
+      .maybeSingle()
 
-      payment_id:
-        dbPayment.id,
+  if (!existingFraud) {
 
-      order_id:
-        order.id,
+    await supabase
+      .schema("raffles")
+      .from("fraud_logs")
+      .insert({
 
-      raffle_id:
-        order.raffle_id,
+        payment_id:
+          dbPayment.id,
 
-      user_email:
-  order.buyer_email,
+        order_id:
+          order.id,
 
-      ip:
-        order.ip_address,
+        raffle_id:
+          order.raffle_id,
 
-      user_agent:
-        order.user_agent,
+        user_email:
+          order.buyer_email,
 
-      reason:
-        "suspicious_ip",
+        ip:
+          order.ip_address,
 
-      risk_level:
-        "medium"
-    })
+        user_agent:
+          order.user_agent,
+
+        reason:
+          "suspicious_ip",
+
+        risk_level:
+          "medium"
+      })
+
+  }
+
 }
 
     await trackEvent({
