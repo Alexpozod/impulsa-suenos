@@ -99,39 +99,66 @@ export async function reserveTickets({
      RESERVE INVENTORY
   ========================================= */
 
-  const { error: updateError } =
-    await supabase
-      .schema("raffles")
-      .from("ticket_inventory")
-      .update({
+  const {
+  data: reservedUpdate,
+  error: updateError
+} =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .update({
 
-        status: "reserved",
+      status: "reserved",
 
-        order_id,
+      order_id,
 
-        buyer_email,
+      buyer_email,
 
-        reserved_until:
-          reservedUntil,
+      reserved_until:
+        reservedUntil,
 
-        reservation_token:
-          reservationToken
+      reservation_token:
+        reservationToken
 
-      })
-      .in("id", ticketIds)
-      .eq("status", "available")
+    })
+    .in("id", ticketIds)
+    .eq("status", "available")
+    .select("id")
 
-  if (updateError) {
+if (updateError) {
 
-    console.error(
-      "reserveTickets update error",
-      updateError
-    )
+  console.error(
+    "reserveTickets update error",
+    updateError
+  )
 
-    throw new Error(
-      "inventory_reservation_failed"
-    )
-  }
+  throw new Error(
+    "inventory_reservation_failed"
+  )
+}
+
+/* =========================================
+   VERIFY ATOMIC RESERVATION
+========================================= */
+
+if (
+  !reservedUpdate ||
+  reservedUpdate.length !== quantity
+) {
+
+  console.error(
+    "reserveTickets partial reservation",
+    {
+      expected: quantity,
+      reserved:
+        reservedUpdate?.length || 0
+    }
+  )
+
+  throw new Error(
+    "inventory_race_condition"
+  )
+}
 
   /* =========================================
      VERIFY OWNERSHIP

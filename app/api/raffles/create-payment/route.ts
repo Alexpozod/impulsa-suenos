@@ -312,18 +312,40 @@ export async function POST(
        RESERVE TICKETS
     ========================================= */
 
-    await reserveTickets({
+    try {
 
-      raffle_id,
+  await reserveTickets({
 
-      order_id:
-        order.id,
+    raffle_id,
 
-      buyer_email,
+    order_id:
+      order.id,
 
-      quantity
+    buyer_email,
+
+    quantity
+
+  })
+
+} catch (reservationError) {
+
+  console.error(
+    "RESERVATION ERROR",
+    reservationError
+  )
+
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .update({
+
+      status: "cancelled"
 
     })
+    .eq("id", order.id)
+
+  throw reservationError
+}
 
     /* =========================================
        CREATE FLOW PAYMENT
@@ -376,39 +398,74 @@ export async function POST(
        CREATE PAYMENT ROW
     ========================================= */
 
-    const { data: payment } =
-      await supabase
-        .schema("raffles")
-        .from("payments")
-        .insert({
+    const {
+  data: payment,
+  error: paymentError
+} =
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .insert({
 
-          raffle_id,
+      raffle_id,
 
-          order_id:
-            order.id,
+      order_id:
+        order.id,
 
-          provider:
-            "flow",
+      provider:
+        "flow",
 
-          provider_payment_id:
-            flow.token,
+      provider_payment_id:
+        flow.token,
 
-          status:
-            "pending",
+      status:
+        "pending",
 
-          amount_clp:
-            totalCLP,
+      amount_clp:
+        totalCLP,
 
-          metadata: {
+      metadata: {
 
-            flow_payment_url:
-              flow.url
+        flow_payment_url:
+          flow.url
 
-          }
+      }
 
-        })
-        .select()
-        .single()
+    })
+    .select()
+    .single()
+
+if (paymentError || !payment) {
+
+  console.error(
+    "PAYMENT INSERT ERROR",
+    paymentError
+  )
+
+  await releaseOrderReservations(
+    order.id
+  )
+
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .update({
+
+      status: "cancelled"
+
+    })
+    .eq("id", order.id)
+
+  return NextResponse.json(
+    {
+      error:
+        "payment_insert_failed"
+    },
+    {
+      status: 500
+    }
+  )
+}
 
     /* =========================================
        ANALYTICS
