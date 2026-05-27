@@ -54,46 +54,52 @@ export async function reserveTickets({
   ).toISOString()
 
   /* =========================================
-     LOAD AVAILABLE TICKETS
-  ========================================= */
+   LOAD AVAILABLE TICKETS
+========================================= */
 
-  const { data: availableTickets, error } =
-    await supabase
-      .schema("raffles")
-      .from("ticket_inventory")
-      .select(`
-        id
-      `)
-      .eq("raffle_id", raffle_id)
-      .eq("status", "available")
-      .limit(quantity)
-
-  if (error) {
-
-    console.error(
-      "reserveTickets select error",
-      error
+const { data: availableTickets, error } =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select(`
+      id
+    `)
+    .eq("raffle_id", raffle_id)
+    .eq("status", "available")
+    .order(
+      "ticket_number",
+      {
+        ascending: true
+      }
     )
+    .limit(quantity)
 
-    throw new Error(
-      "inventory_select_failed"
-    )
-  }
+if (error) {
 
-  if (
-    !availableTickets ||
-    availableTickets.length < quantity
-  ) {
+  console.error(
+    "reserveTickets select error",
+    error
+  )
 
-    throw new Error(
-      "not_enough_tickets_available"
-    )
-  }
+  throw new Error(
+    "inventory_select_failed"
+  )
+}
 
-  const ticketIds =
-    availableTickets.map(
-      t => t.id
-    )
+if (
+  !availableTickets ||
+  availableTickets.length < quantity
+) {
+
+  throw new Error(
+    "not_enough_tickets_available"
+  )
+}
+
+const ticketIds =
+  availableTickets.map(
+    t => t.id
+  )
 
   /* =========================================
      RESERVE INVENTORY
@@ -134,6 +140,53 @@ if (updateError) {
 
   throw new Error(
     "inventory_reservation_failed"
+  )
+}
+
+/* =========================================
+   VERIFY UPDATED ROWS
+========================================= */
+
+const { count: reservedCount } =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq(
+      "reservation_token",
+      reservationToken
+    )
+
+if (
+  (reservedCount || 0) !== quantity
+) {
+
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .update({
+
+      status: "available",
+
+      order_id: null,
+
+      buyer_email: null,
+
+      reserved_until: null,
+
+      reservation_token: null
+
+    })
+    .eq(
+      "reservation_token",
+      reservationToken
+    )
+
+  throw new Error(
+    "reservation_race_condition"
   )
 }
 
