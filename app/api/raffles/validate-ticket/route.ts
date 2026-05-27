@@ -25,31 +25,48 @@ export async function GET(
     const { searchParams } =
       new URL(req.url)
 
-    const ticket =
+    const rawTicket =
       searchParams.get("ticket")
 
-    if (!ticket) {
+    const ticket =
+      rawTicket
+        ?.trim()
+        ?.toUpperCase()
 
-      return NextResponse.json({
+    /* =========================
+       INPUT VALIDATION
+    ========================= */
 
-        valid: false
+    if (
+      !ticket ||
+      ticket.length < 3 ||
+      ticket.length > 50
+    ) {
 
-      })
+      return NextResponse.json(
+        {
+          valid: false
+        },
+        {
+          status: 400
+        }
+      )
     }
+
+    /* =========================
+       LOAD TICKET
+    ========================= */
 
     const { data, error } =
       await supabase
         .schema("raffles")
-        .from("tickets")
+        .from("ticket_inventory")
         .select(`
-          id,
           ticket_code,
           ticket_number,
           status,
-          created_at,
 
           raffles (
-            id,
             title,
             slug,
             status
@@ -59,6 +76,13 @@ export async function GET(
           ticket_code.eq.${ticket},
           ticket_number.eq.${ticket}
         `)
+        .in(
+          "status",
+          [
+            "paid",
+            "winner"
+          ]
+        )
         .maybeSingle()
 
     if (error || !data) {
@@ -70,22 +94,58 @@ export async function GET(
       })
     }
 
+    /* =========================
+       SAFE RESPONSE
+    ========================= */
+
     return NextResponse.json({
 
       valid: true,
 
-      ticket: data
+      ticket: {
+
+        ticket_code:
+          data.ticket_code,
+
+        ticket_number:
+          data.ticket_number,
+
+        status:
+          data.status,
+
+        raffle: {
+
+          title:
+            data.raffles?.title,
+
+          slug:
+            data.raffles?.slug,
+
+          status:
+            data.raffles?.status
+
+        }
+
+      }
 
     })
 
   } catch (error) {
 
-    console.error(error)
+    console.error(
+      "validate-ticket error",
+      error
+    )
 
-    return NextResponse.json({
+    return NextResponse.json(
 
-      valid: false
+      {
+        valid: false
+      },
 
-    })
+      {
+        status: 500
+      }
+    )
   }
 }
