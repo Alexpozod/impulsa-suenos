@@ -75,11 +75,77 @@ const schema = z.object({
     z.string().optional()
 })
 
+const checkoutRequests = new Map<
+  string,
+  {
+    count: number
+    timestamp: number
+  }
+>()
+
 export async function POST(
   req: Request
 ) {
 
   try {
+
+    /* =========================================
+   BASIC RATE LIMIT
+========================================= */
+
+const forwardedFor =
+  req.headers.get(
+    "x-forwarded-for"
+  )
+
+const ip =
+  forwardedFor
+    ?.split(",")[0]
+    ?.trim() || "unknown"
+
+const now = Date.now()
+
+const current =
+  checkoutRequests.get(ip)
+
+if (
+  current &&
+  now - current.timestamp <
+    60_000
+) {
+
+  if (current.count >= 10) {
+
+    return NextResponse.json(
+
+      {
+        error:
+          "rate_limit"
+      },
+
+      {
+        status: 429
+      }
+    )
+  }
+
+  current.count += 1
+
+  checkoutRequests.set(
+    ip,
+    current
+  )
+
+} else {
+
+  checkoutRequests.set(ip, {
+
+    count: 1,
+
+    timestamp: now
+  })
+
+}
 
     /* =========================================
        CLEANUP EXPIRED RESERVATIONS
