@@ -464,17 +464,20 @@ const healthScore =
 
 </TableContainer>
 
-<h2
-  className="
-    text-sm
-    font-semibold
-    text-slate-500
-  "
->
-  Revenue Anomalies
-</h2>
+<div className="pt-2">
 
-<TableContainer>
+  <h2
+    className="
+      text-sm
+      font-semibold
+      text-slate-500
+      mb-2
+    "
+  >
+    Revenue Anomalies
+  </h2>
+
+  <TableContainer>
 
         <table className="w-full">
 
@@ -581,6 +584,8 @@ const healthScore =
 
       </TableContainer>
 
-    </div>
+</div>
+
+</div>
   )
 }
