@@ -30,17 +30,7 @@ export async function GET(
       req.headers.get(
         "authorization"
       )
-
-    console.log(
-  "AUTH DEBUG",
-  {
-    authHeader,
-    envKey:
-      process.env
-        .RAFFLES_INTERNAL_API_KEY
-  }
-)
-
+    
 if (
   authHeader !==
   `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`
