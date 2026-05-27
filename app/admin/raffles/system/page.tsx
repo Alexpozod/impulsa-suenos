@@ -33,6 +33,22 @@ AdminRafflesSystemPage() {
     setAnomalies
   ] = useState<any>(null)
 
+  const totalIssues =
+  health?.issues_found || 0
+
+const totalAnomalies =
+  anomalies?.anomalies_found || 0
+
+const healthScore =
+  Math.max(
+    0,
+    100 -
+    (
+      totalIssues * 10 +
+      totalAnomalies * 15
+    )
+  )
+
   useEffect(() => {
 
   load()
@@ -131,8 +147,7 @@ AdminRafflesSystemPage() {
         title="🛡️ System Health"
         description="Monitoreo interno sorteos"
       />
-
-      <div
+<div
   className="
     grid
     grid-cols-2
@@ -141,65 +156,184 @@ AdminRafflesSystemPage() {
   "
 >
 
-        <div
+  {/* HEALTH SCORE */}
+
+  <div
+    className="
+      rounded-xl
+      border border-slate-800
+      bg-slate-900
+      p-4
+    "
+  >
+
+    <p className="text-xs text-slate-400">
+      Health Score
+    </p>
+
+    <p
+      className="
+        text-2xl
+        font-bold
+        mt-1
+      "
+    >
+
+      {healthScore}%
+
+    </p>
+
+  </div>
+
+  {/* SYSTEM ISSUES */}
+
+  <div
+    className="
+      rounded-xl
+      border border-slate-800
+      bg-slate-900
+      p-4
+    "
+  >
+
+    <p className="text-xs text-slate-400">
+      System Issues
+    </p>
+
+    <p
+      className="
+        text-2xl
+        font-bold
+        mt-1
+      "
+    >
+
+      {
+        totalIssues
+      }
+
+    </p>
+
+  </div>
+
+  {/* ANOMALIES */}
+
+  <div
+    className="
+      rounded-xl
+      border border-slate-800
+      bg-slate-900
+      p-4
+    "
+  >
+
+    <p className="text-xs text-slate-400">
+      Revenue Anomalies
+    </p>
+
+    <p
+      className="
+        text-2xl
+        font-bold
+        mt-1
+      "
+    >
+
+      {
+        totalAnomalies
+      }
+
+    </p>
+
+  </div>
+
+  {/* STATUS */}
+
+  <div
+    className="
+      rounded-xl
+      border border-slate-800
+      bg-slate-900
+      p-4
+    "
+  >
+
+    <p className="text-xs text-slate-400">
+      Status
+    </p>
+
+    <p
+      className="
+        text-lg
+        font-semibold
+        mt-2
+      "
+    >
+
+      {
+
+        healthScore >= 90
+
+          ? "🟢 Healthy"
+
+          : healthScore >= 70
+
+            ? "🟡 Warning"
+
+            : "🔴 Critical"
+
+      }
+
+    </p>
+
+  </div>
+
+</div>
+
+{(
+  totalIssues > 0 ||
+  totalAnomalies > 0
+) && (
+
+  <div
+    className="
+      rounded-xl
+      border
+      border-red-300
+      bg-red-50
+      p-4
+      text-sm
+      text-red-700
+    "
+  >
+
+    ⚠️ Se detectaron
+    {" "}
+    <strong>
+      {totalIssues}
+    </strong>
+    {" "}
+    issues y
+    {" "}
+    <strong>
+      {totalAnomalies}
+    </strong>
+    {" "}
+    anomalías activas.
+
+  </div>
+
+)}
+
+<h2
   className="
-    rounded-xl
-    border border-slate-800
-    bg-slate-900
-    p-4
+    text-sm
+    font-semibold
+    text-slate-500
   "
 >
-
-          <p className="text-xs text-slate-400">
-            System Issues
-          </p>
-
-          <p
-            className="
-              text-2xl
-              font-bold
-              mt-2
-            "
-          >
-
-            {
-              health?.issues_found || 0
-            }
-
-          </p>
-
-        </div>
-
-        <div
-          className="
-            rounded-2xl
-            border border-slate-800
-            bg-slate-900
-            p-6
-          "
-        >
-
-          <p className="text-sm text-slate-400">
-            Revenue Anomalies
-          </p>
-
-          <p
-            className="
-              text-2xl
-              font-bold
-              mt-2
-            "
-          >
-
-            {
-              anomalies?.anomalies_found || 0
-            }
-
-          </p>
-
-        </div>
-
-      </div>
+  System Issues
+</h2>
 
       <TableContainer>
 
@@ -328,9 +462,19 @@ AdminRafflesSystemPage() {
 
         </table>
 
-      </TableContainer>
+</TableContainer>
 
-      <TableContainer>
+<h2
+  className="
+    text-sm
+    font-semibold
+    text-slate-500
+  "
+>
+  Revenue Anomalies
+</h2>
+
+<TableContainer>
 
         <table className="w-full">
 
