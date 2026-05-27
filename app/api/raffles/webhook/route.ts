@@ -21,6 +21,9 @@ from "@/lib/raffles/emails/sendRaffleConfirmationEmail"
 import { sendTicketsEmail }
 from "@/lib/raffles/emails/sendTicketsEmail"
 
+import { validateFlowSignature }
+from "@/lib/flow/validateFlowSignature"
+
 export const runtime = "nodejs"
 
 const FLOW_STATUS_APPROVED = 2
@@ -38,12 +41,27 @@ export async function POST(req: Request) {
       await req.formData()
 
     const data =
-      Object.fromEntries(body.entries())
+Object.fromEntries(body.entries())
 
-      console.log(
-  "FLOW WEBHOOK RAW DATA",
-  data
-)  
+console.log(
+"FLOW WEBHOOK RAW DATA",
+data
+)
+
+/* =========================
+FLOW SIGNATURE CHECK
+========================= */
+
+const signatureValid =
+validateFlowSignature(
+data as Record<string, any>
+)
+
+console.log(
+"FLOW SIGNATURE VALID",
+signatureValid
+)
+
 
     const token =
       String(data.token)
