@@ -27,27 +27,90 @@ export async function GET(
     ========================= */
 
     const authHeader =
-      req.headers.get(
-        "authorization"
-      )
+  req.headers.get(
+    "authorization"
+  )
 
-    if (
-      authHeader !==
-      `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`
-    ) {
+const token =
+  authHeader?.replace(
+    "Bearer ",
+    ""
+  )
 
-      return NextResponse.json(
-        {
-          error:
-            "unauthorized"
-        },
-        {
-          status: 401
-        }
-      )
+let authorized = false
+
+/* =========================
+   INTERNAL API KEY
+========================= */
+
+if (
+  token ===
+  process.env
+    .RAFFLES_INTERNAL_API_KEY
+) {
+
+  authorized = true
+}
+
+/* =========================
+   ADMIN JWT
+========================= */
+
+if (
+  token &&
+  !authorized
+) {
+
+  const {
+    data: { user }
+  } =
+    await supabase.auth
+      .getUser(token)
+
+  if (user) {
+
+    const {
+      data: adminUser
+    } =
+      await supabase
+        .schema("raffles")
+        .from("admin_users")
+        .select("id")
+        .eq(
+          "user_id",
+          user.id
+        )
+        .eq(
+          "active",
+          true
+        )
+        .maybeSingle()
+
+    if (adminUser) {
+
+      authorized = true
+
     }
 
-    const issues: any[] = []
+  }
+
+}
+
+if (!authorized) {
+
+  return NextResponse.json(
+    {
+      error:
+        "unauthorized"
+    },
+    {
+      status: 401
+    }
+  )
+}
+
+const issues: any[] = []
+
 
     /* =========================
        STUCK PAYMENTS
