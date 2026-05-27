@@ -34,15 +34,32 @@ const supabase =
       .SUPABASE_SERVICE_ROLE_KEY!
   )
 
+const blockedEmailDomains = [
+
+  "mailinator.com",
+
+  "guerrillamail.com",
+
+  "yopmail.com",
+
+  "temp-mail.org",
+
+  "10minutemail.com",
+
+  "sharklasers.com"
+
+]
+
 const schema = z.object({
 
   raffle_id:
     z.string().uuid(),
 
   quantity:
-    z.number()
-      .min(1)
-      .max(100),
+  z.number()
+    .int()
+    .min(1)
+    .max(20),
 
   buyer_email:
     z.string().email(),
@@ -194,6 +211,35 @@ if (
       utm_term
 
     } = parsed.data
+
+/* =========================================
+   BLOCK TEMP EMAILS
+========================================= */
+
+const emailDomain =
+  buyer_email
+    .split("@")[1]
+    ?.toLowerCase()
+
+if (
+  emailDomain &&
+  blockedEmailDomains.includes(
+    emailDomain
+  )
+) {
+
+  return NextResponse.json(
+
+    {
+      error:
+        "invalid_email"
+    },
+
+    {
+      status: 400
+    }
+  )
+}
 
     /* =========================================
        REQUEST METADATA
