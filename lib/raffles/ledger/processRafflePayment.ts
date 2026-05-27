@@ -31,19 +31,23 @@ export async function processRafflePayment({
   try {
 
     const alreadyExists =
-      await supabase
-        .schema("raffles")
-        .from("ledger")
-        .select("id")
-        .eq("payment_id", payment_id)
-        .limit(1)
+  await supabase
+    .schema("raffles")
+    .from("ledger")
+    .select("id")
+    .eq("payment_id", payment_id)
+    .eq("type", "payment")
+    .maybeSingle()
 
-    if (
-      alreadyExists.data &&
-      alreadyExists.data.length > 0
-    ) {
-      return
-    }
+if (alreadyExists.data) {
+
+  console.log(
+    "LEDGER_ALREADY_EXISTS",
+    payment_id
+  )
+
+  return
+}
 
     const platformFee =
       amount * 0.10
@@ -147,13 +151,29 @@ export async function processRafflePayment({
 
     if (error) {
 
-      console.error(
-        "LEDGER INSERT ERROR",
-        error
-      )
+  console.error(
+    "LEDGER INSERT ERROR",
+    error
+  )
 
-      throw error
-    }
+  /* =========================
+     DUPLICATE PROTECTION
+  ========================= */
+
+  if (
+    error.code === "23505"
+  ) {
+
+    console.warn(
+      "LEDGER DUPLICATE BLOCKED",
+      payment_id
+    )
+
+    return
+  }
+
+  throw error
+}
 
   } catch (error) {
 
