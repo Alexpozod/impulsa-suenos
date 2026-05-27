@@ -249,7 +249,7 @@ const paymentFailed =
 ========================= */
 
 const {
-  count: visits
+  count: visitsCount
 } =
   await supabase
     .schema("raffles")
@@ -264,6 +264,9 @@ const {
       "page_view"
     )
 
+    const visits =
+  visitsCount || 0
+  
     /* =========================
        LEDGER
     ========================= */
