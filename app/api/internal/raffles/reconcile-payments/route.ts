@@ -7,6 +7,9 @@ from "@supabase/supabase-js"
 import { createAuditLog }
 from "@/lib/raffles/admin/createAuditLog"
 
+import { checkRateLimit }
+from "@/lib/raffles/security/checkRateLimit"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -50,6 +53,39 @@ if (
         }
       )
     }
+
+/* =========================
+   RATE LIMIT
+========================= */
+
+const rateLimit =
+  await checkRateLimit({
+
+    key:
+      "internal_reconcile_payments",
+
+    route:
+      "/api/internal/raffles/reconcile-payments",
+
+    limit: 10,
+
+    windowMinutes: 1
+
+  })
+
+if (!rateLimit.allowed) {
+
+  return NextResponse.json(
+    {
+      error:
+        "rate_limited"
+    },
+    {
+      status: 429
+    }
+  )
+
+}
 
     /* =========================
        LOAD PAYMENTS

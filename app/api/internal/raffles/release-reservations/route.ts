@@ -7,6 +7,9 @@ from "@/lib/raffles/tickets/releaseExpiredReservations"
 import { createAuditLog }
 from "@/lib/raffles/admin/createAuditLog"
 
+import { checkRateLimit }
+from "@/lib/raffles/security/checkRateLimit"
+
 export const runtime = "nodejs"
 
 export async function GET(
@@ -38,6 +41,40 @@ export async function GET(
         }
       )
     }
+
+
+/* =========================
+   RATE LIMIT
+========================= */
+
+const rateLimit =
+  await checkRateLimit({
+
+    key:
+      "internal_release_reservations",
+
+    route:
+      "/api/internal/raffles/release-reservations",
+
+    limit: 10,
+
+    windowMinutes: 1
+
+  })
+
+if (!rateLimit.allowed) {
+
+  return NextResponse.json(
+    {
+      error:
+        "rate_limited"
+    },
+    {
+      status: 429
+    }
+  )
+
+}
 
     /* =========================
        RELEASE EXPIRED
