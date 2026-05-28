@@ -33,6 +33,11 @@ AdminRafflesSystemPage() {
     setAnomalies
   ] = useState<any>(null)
 
+  const [
+  repairing,
+  setRepairing
+] = useState(false)
+
   const totalIssues =
   health?.issues_found || 0
 
