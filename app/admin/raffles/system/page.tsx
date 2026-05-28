@@ -75,6 +75,51 @@ const healthScore =
 
 }, [])
 
+async function releaseReservations() {
+
+  try {
+
+    setRepairing(true)
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth
+        .getSession()
+
+    await fetch(
+
+      "/api/internal/raffles/release-reservations",
+
+      {
+        method: "POST",
+
+        headers: {
+
+          Authorization:
+            `Bearer ${session?.access_token}`
+
+        }
+      }
+    )
+
+    await load()
+
+  } catch (error) {
+
+    console.error(
+      "release reservations error",
+      error
+    )
+
+  } finally {
+
+    setRepairing(false)
+
+  }
+
+}
+
   async function load() {
 
     try {
@@ -152,6 +197,48 @@ const healthScore =
         title="🛡️ System Health"
         description="Monitoreo interno sorteos"
       />
+
+<div
+  className="
+    flex
+    items-center
+    gap-3
+  "
+>
+
+  <button
+    onClick={
+      releaseReservations
+    }
+    disabled={repairing}
+    className="
+      rounded-lg
+      bg-orange-500
+      px-4
+      py-2
+      text-sm
+      font-medium
+      text-white
+      transition
+      hover:bg-orange-600
+      disabled:opacity-50
+    "
+  >
+
+    {
+
+      repairing
+
+        ? "Liberando..."
+
+        : "Liberar Reservas"
+
+    }
+
+  </button>
+
+</div>
+
 <div
   className="
     grid
