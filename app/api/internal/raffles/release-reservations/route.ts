@@ -29,7 +29,7 @@ export async function GET(
 
     if (
       authHeader !==
-      `Bearer ${process.env.INTERNAL_API_SECRET}`
+      `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`
     ) {
 
       return NextResponse.json(
