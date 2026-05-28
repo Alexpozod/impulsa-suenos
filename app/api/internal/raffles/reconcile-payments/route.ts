@@ -4,6 +4,9 @@ from "next/server"
 import { createClient }
 from "@supabase/supabase-js"
 
+import { createAuditLog }
+from "@/lib/raffles/admin/createAuditLog"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -177,6 +180,26 @@ if (
       }
 
     }
+
+await createAuditLog({
+
+  action:
+    "reconcile_payments",
+
+  entity_type:
+    "payments",
+
+  metadata: {
+
+    checked:
+  payments?.length || 0,
+
+    issues_found:
+      issues.length
+
+  }
+
+})
 
     return NextResponse.json({
 
