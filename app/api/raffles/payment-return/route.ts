@@ -32,7 +32,7 @@ export async function GET(
 
       return NextResponse.redirect(
 
-        "https://www.impulsasuenos.com/raffles/payment/error",
+        "https://www.impulsasuenos.com/payment/failure",
 
         303
       )
@@ -60,7 +60,7 @@ export async function GET(
 
       return NextResponse.redirect(
 
-        "https://www.impulsasuenos.com/raffles/payment/error",
+        "https://www.impulsasuenos.com/payment/failure",
 
         303
       )
@@ -82,7 +82,7 @@ export async function GET(
 
     return NextResponse.redirect(
 
-      "https://www.impulsasuenos.com/raffles/payment/error",
+      "https://www.impulsasuenos.com/payment/failure",
 
       303
     )
