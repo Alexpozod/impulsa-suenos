@@ -38,6 +38,11 @@ AdminRafflesSystemPage() {
   setRepairing
 ] = useState(false)
 
+const [
+  reconciling,
+  setReconciling
+] = useState(false)
+
   const totalIssues =
   health?.issues_found || 0
 
@@ -115,6 +120,51 @@ async function releaseReservations() {
   } finally {
 
     setRepairing(false)
+
+  }
+
+}
+
+async function reconcilePayments() {
+
+  try {
+
+    setReconciling(true)
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth
+        .getSession()
+
+    await fetch(
+
+      "/api/internal/raffles/reconcile-payments",
+
+      {
+        method: "GET",
+
+        headers: {
+
+          Authorization:
+            `Bearer ${session?.access_token}`
+
+        }
+      }
+    )
+
+    await load()
+
+  } catch (error) {
+
+    console.error(
+      "reconcile payments error",
+      error
+    )
+
+  } finally {
+
+    setReconciling(false)
 
   }
 
@@ -236,6 +286,37 @@ async function releaseReservations() {
     }
 
   </button>
+
+<button
+  onClick={
+    reconcilePayments
+  }
+  disabled={reconciling}
+  className="
+    rounded-lg
+    bg-blue-600
+    px-4
+    py-2
+    text-sm
+    font-medium
+    text-white
+    transition
+    hover:bg-blue-700
+    disabled:opacity-50
+  "
+>
+
+  {
+
+    reconciling
+
+      ? "Reconciliando..."
+
+      : "Reconciliar Pagos"
+
+  }
+
+</button>
 
 </div>
 
