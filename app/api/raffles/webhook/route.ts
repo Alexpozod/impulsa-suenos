@@ -303,18 +303,31 @@ if (!lockedPayment) {
   })
 }
 
-    await supabase
-      .schema("raffles")
-      .from("payments")
-      .update({
+    const {
+  error: approveError
+} =
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .update({
 
-        status: "approved",
+      status: "approved"
 
-        paid_at:
-          new Date().toISOString()
+    })
+    .eq(
+      "id",
+      dbPayment.id
+    )
 
-      })
-      .eq("id", dbPayment.id)
+if (approveError) {
+
+  console.error(
+    "PAYMENT APPROVE ERROR",
+    approveError
+  )
+
+  throw approveError
+}
 
     await supabase
       .schema("raffles")
