@@ -43,6 +43,11 @@ const [
   setReconciling
 ] = useState(false)
 
+const [
+  cleaning,
+  setCleaning
+] = useState(false)
+
   const totalIssues =
   health?.issues_found || 0
 
@@ -165,6 +170,51 @@ async function reconcilePayments() {
   } finally {
 
     setReconciling(false)
+
+  }
+
+}
+
+async function cleanupSystem() {
+
+  try {
+
+    setCleaning(true)
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth
+        .getSession()
+
+    await fetch(
+
+      "/api/internal/raffles/cleanup",
+
+      {
+        method: "POST",
+
+        headers: {
+
+          Authorization:
+            `Bearer ${session?.access_token}`
+
+        }
+      }
+    )
+
+    await load()
+
+  } catch (error) {
+
+    console.error(
+      "cleanup system error",
+      error
+    )
+
+  } finally {
+
+    setCleaning(false)
 
   }
 
@@ -313,6 +363,37 @@ async function reconcilePayments() {
       ? "Reconciliando..."
 
       : "Reconciliar Pagos"
+
+  }
+
+</button>
+
+<button
+  onClick={
+    cleanupSystem
+  }
+  disabled={cleaning}
+  className="
+    rounded-lg
+    bg-slate-700
+    px-4
+    py-2
+    text-sm
+    font-medium
+    text-white
+    transition
+    hover:bg-slate-800
+    disabled:opacity-50
+  "
+>
+
+  {
+
+    cleaning
+
+      ? "Limpiando..."
+
+      : "Cleanup"
 
   }
 
