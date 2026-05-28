@@ -4,6 +4,9 @@ from "next/server"
 import { createClient }
 from "@supabase/supabase-js"
 
+import { requireAdminAccess }
+from "@/lib/raffles/admin/requireAdminAccess"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -26,45 +29,23 @@ export async function GET(
    AUTH
 ========================= */
 
-const authHeader =
-  req.headers.get(
-    "authorization"
+const auth =
+  await requireAdminAccess(
+    req
   )
 
-const token =
-  authHeader?.replace(
-    "Bearer ",
-    ""
-  )
-
-if (!token) {
+if (!auth.authorized) {
 
   return NextResponse.json(
     {
-      error: "unauthorized"
+      error:
+        "unauthorized"
     },
     {
       status: 401
     }
   )
-}
 
-const {
-  data: { user }
-} =
-  await supabase.auth
-    .getUser(token)
-
-if (!user) {
-
-  return NextResponse.json(
-    {
-      error: "unauthorized"
-    },
-    {
-      status: 401
-    }
-  )
 }
 
     /* =========================

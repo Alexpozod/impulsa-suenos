@@ -4,6 +4,9 @@ from "next/server"
 import { createClient }
 from "@supabase/supabase-js"
 
+import { requireAdminAccess }
+from "@/lib/raffles/admin/requireAdminAccess"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -24,81 +27,27 @@ export async function GET(
   try {
 
     /* =========================
-       AUTH
-    ========================= */
+   AUTH
+========================= */
 
-    const authHeader =
-      req.headers.get(
-        "authorization"
-      )
+const auth =
+  await requireAdminAccess(
+    req
+  )
 
-    const token =
-      authHeader?.replace(
-        "Bearer ",
-        ""
-      )
+if (!auth.authorized) {
 
-    if (!token) {
-
-      return NextResponse.json(
-        {
-          error:
-            "unauthorized"
-        },
-        {
-          status: 401
-        }
-      )
+  return NextResponse.json(
+    {
+      error:
+        "unauthorized"
+    },
+    {
+      status: 401
     }
+  )
 
-    const {
-      data: { user }
-    } =
-      await supabase.auth
-        .getUser(token)
-
-    if (!user) {
-
-      return NextResponse.json(
-        {
-          error:
-            "unauthorized"
-        },
-        {
-          status: 401
-        }
-      )
-    }
-
-    const {
-      data: adminUser
-    } =
-      await supabase
-        .schema("raffles")
-        .from("admin_users")
-        .select("id")
-        .eq(
-          "user_id",
-          user.id
-        )
-        .eq(
-          "active",
-          true
-        )
-        .maybeSingle()
-
-    if (!adminUser) {
-
-      return NextResponse.json(
-        {
-          error:
-            "forbidden"
-        },
-        {
-          status: 403
-        }
-      )
-    }
+}
 
     /* =========================
        LOAD LOGS
