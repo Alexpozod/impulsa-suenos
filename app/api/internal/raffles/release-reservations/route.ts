@@ -4,6 +4,9 @@ from "next/server"
 import { releaseExpiredReservations }
 from "@/lib/raffles/tickets/releaseExpiredReservations"
 
+import { createAuditLog }
+from "@/lib/raffles/admin/createAuditLog"
+
 export const runtime = "nodejs"
 
 export async function GET(
@@ -42,6 +45,23 @@ export async function GET(
 
     const result =
       await releaseExpiredReservations()
+
+await createAuditLog({
+
+  action:
+    "release_reservations",
+
+  entity_type:
+    "ticket_inventory",
+
+  metadata: {
+
+  released:
+    result.released || 0
+
+}
+
+})
 
     return NextResponse.json({
 
