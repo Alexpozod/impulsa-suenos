@@ -85,7 +85,25 @@ const healthScore =
 
 }, [])
 
+function isActionRunning() {
+
+  return (
+    repairing ||
+    reconciling ||
+    cleaning
+  )
+
+}
+
 async function releaseReservations() {
+
+if (
+  isActionRunning()
+) {
+
+  return
+
+}
 
   try {
 
@@ -132,6 +150,14 @@ async function releaseReservations() {
 
 async function reconcilePayments() {
 
+if (
+  isActionRunning()
+) {
+
+  return
+
+}
+
   try {
 
     setReconciling(true)
@@ -176,6 +202,14 @@ async function reconcilePayments() {
 }
 
 async function cleanupSystem() {
+
+if (
+  isActionRunning()
+) {
+
+  return
+
+}
 
   try {
 
