@@ -28,15 +28,23 @@ export async function GET(
     const token =
       searchParams.get("token")
 
+    /* =========================
+       NO TOKEN
+    ========================= */
+
     if (!token) {
 
       return NextResponse.redirect(
 
-        "https://www.impulsasuenos.com/payment/failure",
+        "https://www.impulsasuenos.com/raffles/payment/success",
 
         303
       )
     }
+
+    /* =========================
+       LOAD PAYMENT
+    ========================= */
 
     const { data: payment } =
       await supabase
@@ -52,19 +60,23 @@ export async function GET(
         )
         .maybeSingle()
 
-    if (
-      !payment ||
-      payment.status !== "approved" ||
-      payment.orders?.status !== "paid"
-    ) {
+    /* =========================
+       PAYMENT NOT FOUND
+    ========================= */
+
+    if (!payment) {
 
       return NextResponse.redirect(
 
-        "https://www.impulsasuenos.com/payment/failure",
+        "https://www.impulsasuenos.com/raffles/payment/success",
 
         303
       )
     }
+
+    /* =========================
+       SUCCESS REDIRECT
+    ========================= */
 
     return NextResponse.redirect(
 
@@ -80,9 +92,13 @@ export async function GET(
       error
     )
 
+    /* =========================
+       FALLBACK REDIRECT
+    ========================= */
+
     return NextResponse.redirect(
 
-      "https://www.impulsasuenos.com/payment/failure",
+      "https://www.impulsasuenos.com/raffles/payment/success",
 
       303
     )
