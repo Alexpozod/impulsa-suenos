@@ -77,9 +77,9 @@ export default function RafflePage() {
 
   useEffect(() => {
 
-    loadRaffle()
+  loadRaffle()
 
-  }, [])
+}, [])
 
   async function loadRaffle() {
 
