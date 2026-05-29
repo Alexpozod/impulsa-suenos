@@ -62,32 +62,42 @@ export async function trackEvent({
 
   try {
 
-    await supabase
-      .schema("raffles")
-      .from("analytics_events")
-      .insert({
+    const { error } =
+  await supabase
+    .schema("raffles")
+    .from("analytics_events")
+    .insert({
 
-        event_type,
+      event_type,
 
-        raffle_id,
-        order_id,
-        payment_id,
+      raffle_id,
+      order_id,
+      payment_id,
 
-        user_email,
+      user_email,
 
-        source,
-        referrer,
+      source,
+      referrer,
 
-        utm_source,
-        utm_medium,
-        utm_campaign,
+      utm_source,
+      utm_medium,
+      utm_campaign,
 
-        ip,
-        user_agent,
+      ip,
+      user_agent,
 
-        metadata
+      metadata
 
-      })
+    })
+
+if (error) {
+
+  console.error(
+    "ANALYTICS INSERT ERROR",
+    error
+  )
+
+}
 
   } catch (error) {
 
