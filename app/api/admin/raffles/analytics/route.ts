@@ -73,7 +73,7 @@ if (!auth.authorized) {
       await supabase
         .schema("raffles")
         .from("ticket_inventory")
-        .select("*")
+        .select("id,status")
 
     /* =========================
        🎯 EVENTS
@@ -95,7 +95,7 @@ if (!auth.authorized) {
     await supabase
         .schema("raffles")
         .from("tracking_events")
-        .select("*")
+        .select("event_type")
 
     const totalRevenue =
       (payments || [])
@@ -175,6 +175,29 @@ const revenuePerVisit =
 
     const campaigns: any = {}
 
+    const raffleTitles: Record<
+  string,
+  string
+> = {}
+
+for (
+  const payment of payments || []
+) {
+
+  if (
+    payment.raffle_id &&
+    payment.raffles?.title
+  ) {
+
+    raffleTitles[
+      payment.raffle_id
+    ] =
+      payment.raffles.title
+
+  }
+
+}
+
     for (const event of events || []) {
 
       if (
@@ -227,14 +250,10 @@ campaigns[campaign].conversions += 1
 const raffleId =
   event.raffle_id || "unknown"
 
-const rafflePayment =
-  payments?.find(
-    p =>
-      p.raffle_id === raffleId
-  )
-
 const raffleTitle =
-  rafflePayment?.raffles?.title ||
+  raffleTitles[
+    raffleId
+  ] ||
   "Sin título"
 
 if (!topRaffles[raffleId]) {
