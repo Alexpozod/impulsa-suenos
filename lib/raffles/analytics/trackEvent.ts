@@ -83,7 +83,8 @@ export async function trackEvent({
       utm_medium,
       utm_campaign,
 
-      ip,
+      ip_address: ip,
+      
       user_agent,
 
       metadata
