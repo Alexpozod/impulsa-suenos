@@ -55,6 +55,19 @@ data
 FLOW SIGNATURE CHECK
 ========================= */
 
+/*
+Flow actualmente no envía
+el parámetro "s" en este webhook.
+
+La validación se mantiene
+solo para monitoreo.
+
+La validación real del pago
+se realiza consultando
+/payment/getStatus
+directamente a Flow.
+*/
+
 const signatureValid =
 validateFlowSignature(
 data as Record<string, any>
