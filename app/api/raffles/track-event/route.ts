@@ -87,10 +87,10 @@ export async function POST(
       referrer:
         body.referrer || null,
 
-      ip,
+      ip: ip || undefined,
 
       user_agent:
-        userAgent,
+  userAgent || undefined,
 
       metadata:
         body.metadata || {}
