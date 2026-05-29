@@ -305,49 +305,61 @@ const issues: any[] = []
           "approved"
         )
 
+const {
+  data: ledgerEntries
+}
+=
+await supabase
+  .schema("raffles")
+  .from("ledger")
+  .select(`
+    payment_id
+  `)
+
+const ledgerPaymentIds =
+  new Set(
+
+    (ledgerEntries || [])
+      .map(
+        entry =>
+          entry.payment_id
+      )
+
+  )
+
     for (
-      const payment of
-      approvedPayments || []
-    ) {
+  const payment of
+  approvedPayments || []
+) {
 
-      const {
-        data: ledgerEntry
-      } =
-        await supabase
-          .schema("raffles")
-          .from("ledger")
-          .select("id")
-          .eq(
-            "payment_id",
-            payment.id
-          )
-          .limit(1)
-          .maybeSingle()
+  if (
+    !ledgerPaymentIds.has(
+      payment.id
+    )
+  ) {
 
-      if (!ledgerEntry) {
+    issues.push({
 
-        issues.push({
+      type:
+        "missing_ledger",
 
-          type:
-            "missing_ledger",
+      severity:
+        "high",
 
-          severity:
-            "high",
+      payment_id:
+        payment.id,
 
-          payment_id:
-            payment.id,
+      raffle_id:
+        payment.raffle_id,
 
-          raffle_id:
-            payment.raffle_id,
+      order_id:
+        payment.order_id
 
-          order_id:
-            payment.order_id
+    })
 
-        })
+  }
 
-      }
-
-    }
+}
 
     return NextResponse.json({
 
