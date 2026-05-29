@@ -12,6 +12,9 @@ from "@/lib/raffles/tickets/assignReservedTickets"
 import { processRafflePayment }
 from "@/lib/raffles/ledger/processRafflePayment"
 
+import { requireAdminAccess }
+from "@/lib/raffles/admin/requireAdminAccess"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -24,6 +27,22 @@ export async function POST(
 ) {
 
   try {
+
+const auth =
+  await requireAdminAccess(req)
+
+if (!auth.authorized) {
+
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
+    }
+  )
+
+}
 
     const body =
       await req.json()
