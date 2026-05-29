@@ -361,6 +361,122 @@ const ledgerPaymentIds =
 
 }
 
+/* =========================
+   PAID TICKETS WITH
+   FAILED PAYMENTS
+========================= */
+
+const {
+  data: invalidPaidTickets
+} =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select(`
+      id,
+      ticket_code,
+      raffle_id,
+      order_id,
+      payment_id
+    `)
+    .eq(
+      "status",
+      "paid"
+    )
+
+if (
+  invalidPaidTickets &&
+  invalidPaidTickets.length > 0
+) {
+
+  const paymentIds =
+    invalidPaidTickets
+      .map(
+        ticket =>
+          ticket.payment_id
+      )
+      .filter(Boolean)
+
+  if (paymentIds.length > 0) {
+
+    const {
+      data: payments
+    } =
+      await supabase
+        .schema("raffles")
+        .from("payments")
+        .select(`
+          id,
+          status
+        `)
+        .in(
+          "id",
+          paymentIds
+        )
+
+    const paymentMap =
+      new Map(
+        (payments || [])
+          .map(
+            payment => [
+              payment.id,
+              payment.status
+            ]
+          )
+      )
+
+    for (
+      const ticket of
+      invalidPaidTickets
+    ) {
+
+      const paymentStatus =
+        paymentMap.get(
+          ticket.payment_id
+        )
+
+      if (
+        paymentStatus &&
+        paymentStatus !==
+          "approved"
+      ) {
+
+        issues.push({
+
+          type:
+            "paid_ticket_with_failed_payment",
+
+          severity:
+            "high",
+
+          ticket_id:
+            ticket.id,
+
+          ticket_code:
+            ticket.ticket_code,
+
+          raffle_id:
+            ticket.raffle_id,
+
+          order_id:
+            ticket.order_id,
+
+          payment_id:
+            ticket.payment_id,
+
+          payment_status:
+            paymentStatus
+
+        })
+
+      }
+
+    }
+
+  }
+
+}
+
     return NextResponse.json({
 
       ok: true,
