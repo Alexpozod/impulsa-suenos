@@ -4,6 +4,9 @@ from "next/server"
 import { createClient }
 from "@supabase/supabase-js"
 
+import { requireRaffleAdmin }
+from "@/lib/raffles/auth/requireRaffleAdmin"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -65,6 +68,10 @@ export async function GET(
         }
       )
     }
+
+await requireRaffleAdmin({
+  user_id: user.id
+})
 
     /* =========================
        PARAMS

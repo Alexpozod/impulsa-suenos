@@ -4,6 +4,9 @@ from "next/server"
 import { createClient }
 from "@supabase/supabase-js"
 
+import { requireRaffleAdmin }
+from "@/lib/raffles/auth/requireRaffleAdmin"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -21,50 +24,54 @@ export async function GET(
 
   try {
 
-    /* =========================
-       AUTH
-    ========================= */
+  /* =========================
+   AUTH
+========================= */
 
-    const authHeader =
-      req.headers.get(
-        "authorization"
-      )
+const authHeader =
+  req.headers.get(
+    "authorization"
+  )
 
-    const token =
-      authHeader?.replace(
-        "Bearer ",
-        ""
-      )
+const token =
+  authHeader?.replace(
+    "Bearer ",
+    ""
+  )
 
-    if (!token) {
+if (!token) {
 
-      return NextResponse.json(
-        {
-          error: "unauthorized"
-        },
-        {
-          status: 401
-        }
-      )
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
     }
+  )
+}
 
-    const {
-      data: { user }
-    } =
-      await supabase.auth
-        .getUser(token)
+const {
+  data: { user }
+} =
+  await supabase.auth
+    .getUser(token)
 
-    if (!user) {
+if (!user) {
 
-      return NextResponse.json(
-        {
-          error: "unauthorized"
-        },
-        {
-          status: 401
-        }
-      )
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
     }
+  )
+}
+
+await requireRaffleAdmin({
+  user_id: user.id
+})
 
     /* =========================
        QUERY PARAMS
