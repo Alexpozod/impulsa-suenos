@@ -33,26 +33,74 @@ export async function GET(
     ========================= */
 
     const authHeader =
-      req.headers.get(
-        "authorization"
-      )
-    
+  req.headers.get(
+    "authorization"
+  )
+
+const token =
+  authHeader?.replace(
+    "Bearer ",
+    ""
+  )
+
+let authorized = false
+
 if (
-  authHeader !==
-  `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`
+  token ===
+  process.env
+    .RAFFLES_INTERNAL_API_KEY
+) {
+  authorized = true
+}
+
+if (
+  token &&
+  !authorized
 ) {
 
-      return NextResponse.json(
+  const {
+    data: { user }
+  } =
+    await supabase.auth
+      .getUser(token)
 
-        {
-          error: "unauthorized"
-        },
+  if (user) {
 
-        {
-          status: 401
-        }
-      )
+    const {
+      data: adminUser
+    } =
+      await supabase
+        .schema("raffles")
+        .from("admin_users")
+        .select("id")
+        .eq(
+          "user_id",
+          user.id
+        )
+        .eq(
+          "active",
+          true
+        )
+        .maybeSingle()
+
+    if (adminUser) {
+      authorized = true
     }
+  }
+}
+
+if (!authorized) {
+
+  return NextResponse.json(
+    {
+      error:
+        "unauthorized"
+    },
+    {
+      status: 401
+    }
+  )
+}
 
 /* =========================
    RATE LIMIT

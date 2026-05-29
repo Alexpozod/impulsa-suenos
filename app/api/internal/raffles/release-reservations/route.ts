@@ -10,7 +10,19 @@ from "@/lib/raffles/admin/createAuditLog"
 import { checkRateLimit }
 from "@/lib/raffles/security/checkRateLimit"
 
+import { createClient }
+from "@supabase/supabase-js"
+
 export const runtime = "nodejs"
+
+const supabase =
+  createClient(
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env
+      .SUPABASE_SERVICE_ROLE_KEY!
+  )
 
 export async function GET(
   req: Request
@@ -23,24 +35,74 @@ export async function GET(
     ========================= */
 
     const authHeader =
-      req.headers.get(
-        "authorization"
-      )
+  req.headers.get(
+    "authorization"
+  )
 
-    if (
-      authHeader !==
-      `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`
-    ) {
+const token =
+  authHeader?.replace(
+    "Bearer ",
+    ""
+  )
 
-      return NextResponse.json(
-        {
-          error: "unauthorized"
-        },
-        {
-          status: 401
-        }
-      )
+let authorized = false
+
+if (
+  token ===
+  process.env
+    .RAFFLES_INTERNAL_API_KEY
+) {
+  authorized = true
+}
+
+if (
+  token &&
+  !authorized
+) {
+
+  const {
+    data: { user }
+  } =
+    await supabase.auth
+      .getUser(token)
+
+  if (user) {
+
+    const {
+      data: adminUser
+    } =
+      await supabase
+        .schema("raffles")
+        .from("admin_users")
+        .select("id")
+        .eq(
+          "user_id",
+          user.id
+        )
+        .eq(
+          "active",
+          true
+        )
+        .maybeSingle()
+
+    if (adminUser) {
+      authorized = true
     }
+  }
+}
+
+if (!authorized) {
+
+  return NextResponse.json(
+    {
+      error:
+        "unauthorized"
+    },
+    {
+      status: 401
+    }
+  )
+}
 
 
 /* =========================
