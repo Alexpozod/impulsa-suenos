@@ -73,18 +73,12 @@ export async function trackEvent({
       raffle_id,
       order_id,
       payment_id,
-
-      user_email,
-
+     
       source,
       referrer,
 
-      utm_source,
-      utm_medium,
-      utm_campaign,
-
       ip_address: ip,
-      
+
       user_agent,
 
       metadata
