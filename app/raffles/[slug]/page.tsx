@@ -773,6 +773,117 @@ export default function RafflePage() {
 
             </div>
 
+{winners.length > 0 && (
+
+  <div
+    className="
+      mt-10
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-3xl
+      p-6
+    "
+  >
+
+    <h2
+      className="
+        text-2xl
+        font-black
+        mb-6
+      "
+    >
+      Ganadores
+    </h2>
+
+    <div className="space-y-6">
+
+      {winners.map(winner => (
+
+        <div
+          key={winner.id}
+          className="
+            border
+            border-slate-800
+            rounded-2xl
+            p-4
+          "
+        >
+
+          <div>
+
+            <strong>
+              {winner.prize_title}
+            </strong>
+
+          </div>
+
+          <div>
+
+            Ticket:
+            {" "}
+            {winner.ticket_code}
+
+          </div>
+
+          <div>
+
+            Ganador:
+            {" "}
+            {winner.winner_name}
+
+          </div>
+
+          <div>
+
+            Estado:
+            {" "}
+            {winner.delivery_status}
+
+          </div>
+
+          {winner.evidence_images?.length > 0 && (
+
+            <div
+              className="
+                mt-4
+                grid
+                grid-cols-2
+                gap-3
+              "
+            >
+
+              {winner.evidence_images.map(
+                (image, index) => (
+
+                  <img
+                    key={index}
+                    src={image}
+                    alt="evidencia"
+                    className="
+                      rounded-xl
+                      border
+                      border-slate-700
+                    "
+                  />
+
+                )
+              )}
+
+            </div>
+
+          )}
+
+        </div>
+
+      ))}
+
+    </div>
+
+  </div>
+
+)}
+
           </div>
 
                 </div>
