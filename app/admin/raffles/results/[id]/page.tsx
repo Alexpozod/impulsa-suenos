@@ -87,6 +87,114 @@ async function loadResults() {
   }
 }
 
+async function updateVisibility(
+  resultId: string,
+  mode: "public" | "hidden"
+) {
+
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const response =
+      await fetch(
+        `/api/admin/raffles/results/${resultId}`,
+        {
+          method: "PATCH",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          },
+
+          body: JSON.stringify({
+
+            visibility_mode: mode
+
+          })
+
+        }
+      )
+
+    if (!response.ok) {
+
+      alert(
+        "Error actualizando visibilidad"
+      )
+
+      return
+    }
+
+    await loadResults()
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+}
+
+async function deleteWinner(
+  resultId: string
+) {
+
+  const confirmed =
+    window.confirm(
+      "¿Eliminar ganador?"
+    )
+
+  if (!confirmed) {
+    return
+  }
+
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const response =
+      await fetch(
+        `/api/admin/raffles/results/${resultId}`,
+        {
+          method: "DELETE",
+
+          headers: {
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          }
+        }
+      )
+
+    if (!response.ok) {
+
+      alert(
+        "Error eliminando ganador"
+      )
+
+      return
+    }
+
+    await loadResults()
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+}
+
 async function registerWinner() {
 
   try {
@@ -472,6 +580,87 @@ async function registerWinner() {
                 {result.visibility_mode}
 
               </div>
+
+              <div
+  className="
+    flex
+    gap-2
+    mt-3
+  "
+>
+
+  {result.visibility_mode === "hidden" ? (
+
+    <button
+
+      onClick={() =>
+        updateVisibility(
+          result.id,
+          "public"
+        )
+      }
+
+      className="
+        bg-green-600
+        hover:bg-green-500
+        px-3
+        py-2
+        rounded-lg
+      "
+    >
+
+      Hacer Público
+
+    </button>
+
+  ) : (
+
+    <button
+
+      onClick={() =>
+        updateVisibility(
+          result.id,
+          "hidden"
+        )
+      }
+
+      className="
+        bg-yellow-600
+        hover:bg-yellow-500
+        px-3
+        py-2
+        rounded-lg
+      "
+    >
+
+      Ocultar
+
+    </button>
+
+  )}
+
+  <button
+
+    onClick={() =>
+      deleteWinner(
+        result.id
+      )
+    }
+
+    className="
+      bg-red-600
+      hover:bg-red-500
+      px-3
+      py-2
+      rounded-lg
+    "
+  >
+
+    Eliminar
+
+  </button>
+
+</div>
 
             </div>
 
