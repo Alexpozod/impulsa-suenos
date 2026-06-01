@@ -581,6 +581,22 @@ async function registerWinner() {
 
               </div>
 
+<div>
+
+  Entrega:
+  {" "}
+  {result.delivery_status || "pending"}
+
+</div>
+
+<div>
+
+  Notas:
+  {" "}
+  {result.delivery_notes || "-"}
+
+</div>
+                
               <div
   className="
     flex
