@@ -142,6 +142,62 @@ async function updateVisibility(
   }
 }
 
+async function updateDelivery(
+  resultId: string,
+  status: string
+) {
+
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const response =
+      await fetch(
+        `/api/admin/raffles/results/${resultId}`,
+        {
+          method: "PATCH",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          },
+
+          body: JSON.stringify({
+
+            delivery_status:
+              status
+
+          })
+
+        }
+      )
+
+    if (!response.ok) {
+
+      alert(
+        "Error actualizando entrega"
+      )
+
+      return
+    }
+
+    await loadResults()
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+}
+
 async function deleteWinner(
   resultId: string
 ) {
@@ -655,26 +711,70 @@ async function registerWinner() {
 
   )}
 
-  <button
+<button
 
-    onClick={() =>
-      deleteWinner(
-        result.id
-      )
-    }
+  onClick={() =>
+    updateDelivery(
+      result.id,
+      "delivered"
+    )
+  }
 
-    className="
-      bg-red-600
-      hover:bg-red-500
-      px-3
-      py-2
-      rounded-lg
-    "
-  >
+  className="
+    bg-blue-600
+    hover:bg-blue-500
+    px-3
+    py-2
+    rounded-lg
+  "
+>
 
-    Eliminar
+  Entregado
 
-  </button>
+</button>
+
+<button
+
+  onClick={() =>
+    updateDelivery(
+      result.id,
+      "pending"
+    )
+  }
+
+  className="
+    bg-slate-600
+    hover:bg-slate-500
+    px-3
+    py-2
+    rounded-lg
+  "
+>
+
+  Pendiente
+
+</button>
+
+<button
+
+  onClick={() =>
+    deleteWinner(
+      result.id
+    )
+  }
+
+  className="
+    bg-red-600
+    hover:bg-red-500
+    px-3
+    py-2
+    rounded-lg
+  "
+>
+
+  Eliminar
+
+</button>
 
 </div>
 
