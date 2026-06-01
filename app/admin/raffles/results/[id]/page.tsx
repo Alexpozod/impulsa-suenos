@@ -1,6 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import {
+  useEffect,
+  useState
+} from "react"
 import { useParams } from "next/navigation"
 
 import { supabase }
@@ -28,91 +31,149 @@ export default function RaffleResultDetailPage() {
   const [loading, setLoading] =
     useState(false)
 
-  async function registerWinner() {
+const [results, setResults] =
+  useState<any[]>([])
 
-    try {
+const [loadingResults, setLoadingResults] =
+  useState(true)
 
-      setLoading(true)
+  useEffect(() => {
 
-      const {
-        data: { session }
-      } =
-        await supabase.auth.getSession()
+  loadResults()
 
-      const response =
-        await fetch(
-          "/api/admin/raffles/results",
-          {
-            method: "POST",
+}, [])
+ 
+async function loadResults() {
 
-            headers: {
+  try {
 
-              "Content-Type":
-                "application/json",
+    setLoadingResults(true)
 
-              Authorization:
-                `Bearer ${session?.access_token}`
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
 
-            },
+    const response =
+      await fetch(
 
-            body: JSON.stringify({
+        `/api/admin/raffles/results?raffle_id=${raffleId}`,
 
-              raffle_id:
-                raffleId,
+        {
+          headers: {
 
-              ticket_code:
-                ticketCode,
+            Authorization:
+              `Bearer ${session?.access_token}`
 
-              prize_position:
-                Number(
-                  prizePosition
-                ),
-
-              prize_title:
-                prizeTitle,
-
-              visibility_mode:
-                visibilityMode
-
-            })
           }
-        )
-
-      const json =
-        await response.json()
-
-      if (!response.ok) {
-
-        alert(
-          json.error ||
-          "Error"
-        )
-
-        return
-      }
-
-      alert(
-        "Ganador registrado correctamente"
+        }
       )
 
-      setTicketCode("")
-      setPrizeTitle("")
-      setPrizePosition(1)
+    const json =
+      await response.json()
 
-    } catch (error) {
+    setResults(
+      json.results || []
+    )
 
-      console.error(error)
+  } catch (error) {
 
-      alert(
-        "Error inesperado"
-      )
+    console.error(error)
 
-    } finally {
+  } finally {
 
-      setLoading(false)
+    setLoadingResults(false)
 
-    }
   }
+}
+
+async function registerWinner() {
+
+  try {
+
+    setLoading(true)
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const response =
+      await fetch(
+        "/api/admin/raffles/results",
+        {
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          },
+
+          body: JSON.stringify({
+
+            raffle_id:
+              raffleId,
+
+            ticket_code:
+              ticketCode,
+
+            prize_position:
+              Number(
+                prizePosition
+              ),
+
+            prize_title:
+              prizeTitle,
+
+            visibility_mode:
+              visibilityMode
+
+          })
+        }
+      )
+
+    const json =
+      await response.json()
+
+    if (!response.ok) {
+
+      alert(
+        json.error ||
+        "Error"
+      )
+
+      return
+    }
+
+    alert(
+      "Ganador registrado correctamente"
+    )
+
+    await loadResults()
+
+    setTicketCode("")
+    setPrizeTitle("")
+    setPrizePosition(1)
+
+  } catch (error) {
+
+    console.error(error)
+
+    alert(
+      "Error inesperado"
+    )
+
+  } finally {
+
+    setLoading(false)
+
+  }
+}
 
   return (
 
