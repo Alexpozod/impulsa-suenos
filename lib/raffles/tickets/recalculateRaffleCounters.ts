@@ -31,16 +31,31 @@ export async function recalculateRaffleCounters({
      SOLD
   ========================================= */
 
-  const { count: soldCount } =
-    await supabase
-      .schema("raffles")
-      .from("ticket_inventory")
-      .select("*", {
-        count: "exact",
-        head: true
-      })
-      .eq("raffle_id", raffle_id)
-      .eq("status", "paid")
+  const paidResult =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq("status", "paid")
+
+const winnerResult =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq("status", "winner")
+
+const soldCount =
+  (paidResult.count || 0) +
+  (winnerResult.count || 0)
 
   /* =========================================
      RESERVED
