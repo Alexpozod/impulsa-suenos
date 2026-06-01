@@ -147,6 +147,71 @@ async function updateDelivery(
   status: string
 ) {
 
+async function addEvidence(
+  resultId: string
+) {
+
+  const imageUrl =
+    window.prompt(
+      "URL de imagen"
+    )
+
+  if (!imageUrl) {
+    return
+  }
+
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const response =
+      await fetch(
+        `/api/admin/raffles/results/${resultId}`,
+        {
+          method: "PATCH",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          },
+
+          body: JSON.stringify({
+
+            evidence_images: [
+              imageUrl
+            ]
+
+          })
+
+        }
+      )
+
+    if (!response.ok) {
+
+      alert(
+        "Error guardando evidencia"
+      )
+
+      return
+    }
+
+    await loadResults()
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+}
+
   try {
 
     const {
