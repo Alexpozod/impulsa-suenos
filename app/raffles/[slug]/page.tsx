@@ -48,10 +48,21 @@ type RaffleData = {
   status: string
 }
 
+type Winner = {
+  id: string
+  ticket_code: string
+  prize_title: string
+  prize_position: number
+  winner_name: string
+  delivery_status: string
+  evidence_images?: string[]
+}
+
 type ApiResponse = {
   ok: boolean
   raffle: RaffleData
-  }
+  winners?: Winner[]
+}
 
 export default function RafflePage() {
 
@@ -196,8 +207,8 @@ export default function RafflePage() {
     }
   }
 
-  const raffle =
-    data?.raffle
+  const winners =
+  data?.winners || []
   
   const totalPrice =
     useMemo(() => {
