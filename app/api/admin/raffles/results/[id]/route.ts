@@ -26,6 +26,18 @@ const patchSchema = z.object({
 
   delivery_notes:
     z.string()
+    .optional(),
+
+  evidence_images:
+    z.array(
+      z.string()
+    )
+    .optional(),
+
+  evidence_videos:
+    z.array(
+      z.string()
+    )
     .optional()
 
 })
