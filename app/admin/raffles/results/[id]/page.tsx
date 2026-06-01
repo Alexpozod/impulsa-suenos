@@ -384,6 +384,101 @@ async function registerWinner() {
 
       </div>
 
+      <div
+        className="
+          bg-slate-900
+          border
+          border-slate-800
+          rounded-2xl
+          p-6
+        "
+      >
+
+        <h2
+          className="
+            text-xl
+            font-bold
+            mb-4
+          "
+        >
+          Ganadores Registrados
+        </h2>
+
+        {loadingResults && (
+
+          <p>
+            Cargando...
+          </p>
+
+        )}
+
+        {!loadingResults &&
+          results.length === 0 && (
+
+          <p>
+            Sin ganadores registrados
+          </p>
+
+        )}
+
+        {!loadingResults &&
+          results.map(result => (
+
+            <div
+              key={result.id}
+              className="
+                border-b
+                border-slate-800
+                py-4
+              "
+            >
+
+              <div>
+
+                <strong>
+                  {result.prize_title}
+                </strong>
+
+              </div>
+
+              <div>
+
+                Ticket:
+                {" "}
+                {result.ticket_code}
+
+              </div>
+
+              <div>
+
+                Posición:
+                {" "}
+                {result.prize_position}
+
+              </div>
+
+              <div>
+
+                Ganador:
+                {" "}
+                {result.winner_name}
+
+              </div>
+
+              <div>
+
+                Visibilidad:
+                {" "}
+                {result.visibility_mode}
+
+              </div>
+
+            </div>
+
+          ))}
+
+            </div>
+
     </div>
 
   )
