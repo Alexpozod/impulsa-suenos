@@ -136,15 +136,15 @@ const {
     .schema("raffles")
     .from("payments")
     .select(`
-      id,
-      order_id,
-      provider,
-      provider_payment_id,
-      status,
-      amount_clp,
-      paid_at,
-      created_at
-    `)
+  id,
+  order_id,
+  provider,
+  provider_payment_id,
+  status,
+  amount_clp,
+  provider_fee,
+  created_at
+`)
     .eq("raffle_id", raffle_id)
     .order(
       "created_at",
