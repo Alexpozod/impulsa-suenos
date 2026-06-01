@@ -159,6 +159,41 @@ export async function GET(
         )
         .limit(30)
 
+/* =========================
+   WINNERS
+========================= */
+
+const {
+  data: winners
+} =
+  await supabase
+    .schema("raffles")
+    .from("raffle_results")
+    .select(`
+      id,
+      ticket_code,
+      prize_title,
+      prize_position,
+      winner_name,
+      visibility_mode,
+      delivery_status,
+      evidence_images
+    `)
+    .eq(
+      "raffle_id",
+      raffle.id
+    )
+    .eq(
+      "visibility_mode",
+      "public"
+    )
+    .order(
+      "prize_position",
+      {
+        ascending: true
+      }
+    )
+
     return NextResponse.json({
 
       ok: true,
@@ -189,7 +224,10 @@ export async function GET(
       },
 
       preview_tickets:
-        previewTickets || []
+        previewTickets || [],
+
+        winners:
+        winners || []
 
     })
 
