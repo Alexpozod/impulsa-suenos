@@ -206,8 +206,26 @@ const [
 
 ])
 
+const {
+  count: winnerTicketsCount
+} =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq("status", "winner")
+
+const winnerTickets =
+  winnerTicketsCount || 0
+
 const paidTickets =
-  paidTicketsResult.count || 0
+  (paidTicketsResult.count || 0)
+  +
+  winnerTickets
 
 const reservedTickets =
   reservedTicketsResult.count || 0
@@ -300,6 +318,33 @@ const {
 
     const visits =
   visitsCount || 0
+
+/* =========================
+   TICKETS
+========================= */
+
+const {
+  data: tickets
+} =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select(`
+      id,
+      ticket_code,
+      ticket_number,
+      buyer_email,
+      status,
+      created_at
+    `)
+    .eq("raffle_id", raffle_id)
+    .order(
+      "ticket_number",
+      {
+        ascending: true
+      }
+    )
+    .limit(500)
 
     /* =========================
        LEDGER
@@ -582,7 +627,8 @@ availableTickets:
       payments:
         payments || [],
 
-      tickets: [],
+      tickets:
+        tickets || [],
 
       ledger:
         ledger || [],

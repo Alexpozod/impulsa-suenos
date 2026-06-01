@@ -152,30 +152,33 @@ const res =
     }
   }
 
-  async function exportExcel(
-    raffle_id: string
-  ) {
+  const {
+  data: { session }
+} = await supabase.auth.getSession()
 
-    try {
+const res =
+  await fetch(
+    "/api/admin/raffles/export-excel",
+    {
 
-      const res =
-        await fetch(
-          "/api/admin/raffles/export-excel",
-          {
+      method: "POST",
 
-            method: "POST",
+      headers: {
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+        "Content-Type":
+          "application/json",
 
-            body: JSON.stringify({
-              raffle_id
-            })
+        Authorization:
+          `Bearer ${session?.access_token}`
 
-          }
-        )
+      },
+
+      body: JSON.stringify({
+        raffle_id
+      })
+
+    }
+  )
 
       if (!res.ok) {
 
