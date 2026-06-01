@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react"
 
+import { supabase }
+from "@/src/lib/supabase"
+
 type Raffle = {
   id: string
   title: string
@@ -27,43 +30,45 @@ export default function RaffleResultsPage() {
 
   async function loadRaffles() {
 
-    try {
+  try {
 
-      const token =
-        localStorage.getItem(
-          "sb-access-token"
-        )
+    const {
+      data: { session }
+    } = await supabase.auth.getSession()
 
-      const response =
-        await fetch(
-
-          "/api/admin/raffles/list?page=1&limit=100&status=ended",
-
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            }
+    const response =
+      await fetch(
+        "/api/admin/raffles/list?page=1&limit=100&status=ended",
+        {
+          headers: {
+            Authorization:
+              `Bearer ${session?.access_token}`
           }
-        )
-
-      const json =
-        await response.json()
-
-      setRaffles(
-        json.raffles || []
+        }
       )
 
-    } catch (error) {
+    const json =
+      await response.json()
 
-      console.error(error)
+    console.log(
+      "RESULTS PAGE",
+      json
+    )
 
-    } finally {
+    setRaffles(
+      json?.raffles || []
+    )
 
-      setLoading(false)
+  } catch (error) {
 
-    }
+    console.error(error)
+
+  } finally {
+
+    setLoading(false)
+
   }
+}
 
   return (
 
