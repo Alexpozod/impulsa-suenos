@@ -89,137 +89,146 @@ export default function RafflesManagePage() {
   }
 
   async function action(
-    endpoint: string,
-    raffle_id: string
-  ) {
+  endpoint: string,
+  raffle_id: string
+) {
 
-    try {
+  try {
 
-      const confirmed =
-        window.confirm(
-          "¿Confirmar acción?"
-        )
+    const confirmed =
+      window.confirm(
+        "¿Confirmar acción?"
+      )
 
-      if (!confirmed) {
-        return
-      }
-
-      const {
-  data: { session }
-} = await supabase.auth.getSession()
-
-const res =
-  await fetch(endpoint, {
-
-    method: "POST",
-
-    headers: {
-
-      "Content-Type":
-        "application/json",
-
-      Authorization:
-        `Bearer ${session?.access_token}`
-    },
-
-    body: JSON.stringify({
-      raffle_id
-    })
-
-  })
-
-      if (!res.ok) {
-
-        const json =
-          await res.json()
-
-        alert(
-          json?.error ||
-          "Error"
-        )
-
-        return
-      }
-
-      await load()
-
-    } catch (error) {
-
-      console.error(error)
-
-      alert("Error inesperado")
-
+    if (!confirmed) {
+      return
     }
-  }
 
-  const {
-  data: { session }
-} = await supabase.auth.getSession()
+    const {
+      data: { session }
+    } = await supabase.auth.getSession()
 
-const res =
-  await fetch(
-    "/api/admin/raffles/export-excel",
-    {
+    const res =
+      await fetch(endpoint, {
 
-      method: "POST",
+        method: "POST",
 
-      headers: {
+        headers: {
 
-        "Content-Type":
-          "application/json",
+          "Content-Type":
+            "application/json",
 
-        Authorization:
-          `Bearer ${session?.access_token}`
+          Authorization:
+            `Bearer ${session?.access_token}`
+        },
 
-      },
+        body: JSON.stringify({
+          raffle_id
+        })
 
-      body: JSON.stringify({
-        raffle_id
       })
 
+    if (!res.ok) {
+
+      const json =
+        await res.json()
+
+      alert(
+        json?.error ||
+        "Error"
+      )
+
+      return
     }
-  )
 
-      if (!res.ok) {
+    await load()
 
-        const json =
-          await res.json()
+  } catch (error) {
 
-        alert(
-          json?.error ||
-          "Export failed"
-        )
+    console.error(error)
 
-        return
-      }
+    alert("Error inesperado")
 
-      const blob =
-        await res.blob()
-
-      const url =
-        window.URL.createObjectURL(blob)
-
-      const a =
-        document.createElement("a")
-
-      a.href = url
-
-      a.download =
-        "raffle-export.xlsx"
-
-      a.click()
-
-      window.URL.revokeObjectURL(url)
-
-    } catch (error) {
-
-      console.error(error)
-
-      alert("Export failed")
-
-    }
   }
 
+}
+
+async function exportExcel(
+  raffle_id: string
+) {
+
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const res =
+      await fetch(
+        "/api/admin/raffles/export-excel",
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          },
+
+          body: JSON.stringify({
+            raffle_id
+          })
+
+        }
+      )
+
+    if (!res.ok) {
+
+      const json =
+        await res.json()
+
+      alert(
+        json?.error ||
+        "Export failed"
+      )
+
+      return
+    }
+
+    const blob =
+      await res.blob()
+
+    const url =
+      window.URL.createObjectURL(blob)
+
+    const a =
+      document.createElement("a")
+
+    a.href = url
+
+    a.download =
+      "raffle-export.xlsx"
+
+    a.click()
+
+    window.URL.revokeObjectURL(url)
+
+  } catch (error) {
+
+    console.error(error)
+
+    alert("Export failed")
+
+  }
+
+}
+ 
   const totalRevenue =
     raffles.reduce(
 
