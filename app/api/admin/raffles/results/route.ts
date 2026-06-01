@@ -34,6 +34,146 @@ const schema = z.object({
 
 })
 
+export async function GET(
+  req: Request
+) {
+
+  try {
+
+    const authHeader =
+      req.headers.get(
+        "authorization"
+      )
+
+    if (!authHeader) {
+
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
+    }
+
+    const token =
+      authHeader.replace(
+        "Bearer ",
+        ""
+      )
+
+    const {
+      data: { user },
+      error: userError
+    } =
+      await supabase.auth
+        .getUser(token)
+
+    if (
+      userError ||
+      !user
+    ) {
+
+      return NextResponse.json(
+        {
+          error: "invalid_user"
+        },
+        {
+          status: 401
+        }
+      )
+    }
+
+    await requireRaffleAdmin({
+
+      user_id:
+        user.id
+
+    })
+
+    const {
+      searchParams
+    } =
+      new URL(req.url)
+
+    const raffle_id =
+      searchParams.get(
+        "raffle_id"
+      )
+
+    if (!raffle_id) {
+
+      return NextResponse.json(
+        {
+          error:
+            "raffle_id_required"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    const {
+      data: results,
+      error
+    } =
+      await supabase
+        .schema("raffles")
+        .from("raffle_results")
+        .select("*")
+        .eq(
+          "raffle_id",
+          raffle_id
+        )
+        .order(
+          "prize_position",
+          {
+            ascending: true
+          }
+        )
+
+    if (error) {
+
+      console.error(error)
+
+      return NextResponse.json(
+        {
+          error:
+            "results_load_failed"
+        },
+        {
+          status: 500
+        }
+      )
+    }
+
+    return NextResponse.json({
+
+      ok: true,
+
+      results:
+        results || []
+
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    return NextResponse.json(
+      {
+        error:
+          "server_error"
+      },
+      {
+        status: 500
+      }
+    )
+  }
+}
+
 export async function POST(
   req: Request
 ) {
