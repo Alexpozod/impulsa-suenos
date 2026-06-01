@@ -55,7 +55,7 @@ type Winner = {
   prize_position: number
   winner_name: string
   delivery_status: string
-  evidence_images?: string[]
+  evidence_images: string[]
 }
 
 type ApiResponse = {
@@ -842,7 +842,7 @@ export default function RafflePage() {
 
           </div>
 
-          {winner.evidence_images?.length > 0 && (
+          {(winner.evidence_images ?? []).length > 0 && (
 
             <div
               className="
@@ -853,8 +853,8 @@ export default function RafflePage() {
               "
             >
 
-              {winner.evidence_images.map(
-                (image, index) => (
+              {(winner.evidence_images ?? []).map(
+  (image, index) => (
 
                   <img
                     key={index}
