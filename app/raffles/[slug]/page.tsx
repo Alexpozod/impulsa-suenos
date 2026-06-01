@@ -207,6 +207,9 @@ export default function RafflePage() {
     }
   }
 
+    const raffle =
+  data?.raffle
+
   const winners =
   data?.winners || []
   
