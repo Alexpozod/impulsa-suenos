@@ -147,6 +147,58 @@ async function updateDelivery(
   status: string
 ) {
 
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const response =
+      await fetch(
+        `/api/admin/raffles/results/${resultId}`,
+        {
+          method: "PATCH",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          },
+
+          body: JSON.stringify({
+
+            delivery_status:
+              status
+
+          })
+
+        }
+      )
+
+    if (!response.ok) {
+
+      alert(
+        "Error actualizando entrega"
+      )
+
+      return
+    }
+
+    await loadResults()
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+
+}
+
 async function addEvidence(
   resultId: string
 ) {
@@ -210,57 +262,7 @@ async function addEvidence(
     console.error(error)
 
   }
-}
 
-  try {
-
-    const {
-      data: { session }
-    } =
-      await supabase.auth.getSession()
-
-    const response =
-      await fetch(
-        `/api/admin/raffles/results/${resultId}`,
-        {
-          method: "PATCH",
-
-          headers: {
-
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${session?.access_token}`
-
-          },
-
-          body: JSON.stringify({
-
-            delivery_status:
-              status
-
-          })
-
-        }
-      )
-
-    if (!response.ok) {
-
-      alert(
-        "Error actualizando entrega"
-      )
-
-      return
-    }
-
-    await loadResults()
-
-  } catch (error) {
-
-    console.error(error)
-
-  }
 }
 
 async function deleteWinner(
@@ -775,50 +777,6 @@ async function registerWinner() {
     </button>
 
   )}
-
-<button
-
-  onClick={() =>
-    updateDelivery(
-      result.id,
-      "delivered"
-    )
-  }
-
-  className="
-    bg-blue-600
-    hover:bg-blue-500
-    px-3
-    py-2
-    rounded-lg
-  "
->
-
-  Entregado
-
-</button>
-
-<button
-
-  onClick={() =>
-    updateDelivery(
-      result.id,
-      "pending"
-    )
-  }
-
-  className="
-    bg-slate-600
-    hover:bg-slate-500
-    px-3
-    py-2
-    rounded-lg
-  "
->
-
-  Pendiente
-
-</button>
 
 <button
 
