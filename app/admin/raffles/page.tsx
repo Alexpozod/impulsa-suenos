@@ -431,10 +431,13 @@ p-6
 
 <div
   className="
-    bg-white
-    rounded-2xl
-    border
-    p-5
+   bg-gradient-to-br
+from-slate-900
+to-slate-950
+border
+border-slate-800
+rounded-3xl
+p-6
   "
 >
 
