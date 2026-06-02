@@ -153,9 +153,9 @@ const s =
       )
 
     console.log(
-      "FLOW SUCCESS RESPONSE",
-      response.data
-    )
+  "FLOW SUCCESS RESPONSE",
+  JSON.stringify(response.data, null, 2)
+)
 
   } catch (error: any) {
 
