@@ -75,15 +75,41 @@ export async function GET(
     }
 
     /* =========================
-       SUCCESS REDIRECT
-    ========================= */
+   STATUS REDIRECT
+========================= */
 
-    return NextResponse.redirect(
+const paymentStatus =
+  payment.status
 
-      "https://www.impulsasuenos.com/raffles/payment/success",
+const orderStatus =
+  payment.orders?.status
 
-      303
-    )
+if (
+  paymentStatus === "approved" &&
+  orderStatus === "paid"
+) {
+
+  return NextResponse.redirect(
+    "https://www.impulsasuenos.com/raffles/payment/success",
+    303
+  )
+}
+
+if (
+  paymentStatus === "pending" ||
+  orderStatus === "pending"
+) {
+
+  return NextResponse.redirect(
+    "https://www.impulsasuenos.com/raffles/payment/pending",
+    303
+  )
+}
+
+return NextResponse.redirect(
+  "https://www.impulsasuenos.com/raffles/payment/failure",
+  303
+)
 
   } catch (error) {
 
