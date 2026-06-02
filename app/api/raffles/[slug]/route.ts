@@ -67,14 +67,10 @@ export async function GET(
           "slug",
           params.slug
         )
-        .in(
-          "status",
-          [
-            "active",
-            "paused",
-            "ended"
-          ]
-        )
+        .eq(
+  "status",
+  "active"
+)
         .maybeSingle()
 
     if (error || !raffle) {
