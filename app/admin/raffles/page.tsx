@@ -180,13 +180,16 @@ const res =
   <a
     href="/admin/raffles/system"
     className="
-      bg-white
-      border
-      rounded-2xl
-      p-4
-      hover:border-slate-400
-      transition
-    "
+  bg-gradient-to-br
+  from-slate-900
+  to-slate-950
+  border
+  border-slate-800
+  rounded-3xl
+  p-6
+  hover:border-blue-500
+  transition
+"
   >
 
     <div
@@ -200,21 +203,24 @@ const res =
       <div>
 
         <p
-          className="
-            text-xs
-            text-slate-500
-          "
-        >
+  className="
+    text-xs
+    text-slate-400
+    uppercase
+    tracking-wider
+  "
+>
           System Health
         </p>
 
         <h3
-          className="
-            text-lg
-            font-semibold
-            mt-1
-          "
-        >
+  className="
+    text-xl
+    font-bold
+    mt-2
+    text-white
+  "
+>
           🛡️ Monitor
         </h3>
 
@@ -222,9 +228,10 @@ const res =
 
       <div
         className="
-          text-xs
-          text-slate-400
-        "
+  text-sm
+  font-medium
+  text-blue-400
+"
       >
         View →
       </div>
