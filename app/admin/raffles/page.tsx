@@ -394,14 +394,29 @@ p-6
     >
 
       <LineChart
-        data={revenueChart}
-      >
+  data={revenueChart}
+  margin={{
+    top: 20,
+    right: 20,
+    left: 10,
+    bottom: 10
+  }}
+>
 
-        <XAxis dataKey="date" />
+        <XAxis
+  dataKey="date"
+  stroke="#94a3b8"
+/>
 
-        <YAxis />
+        <YAxis
+  stroke="#94a3b8"
+/>
 
         <Tooltip
+  contentStyle={{
+    background: "#0f172a",
+    border: "1px solid #334155"
+  }}
   formatter={(value: any) => [
     `$${Number(value).toLocaleString()}`,
     "Revenue"
@@ -411,7 +426,7 @@ p-6
        <Line
   type="monotone"
   dataKey="revenue"
-  stroke="#3b82f6"
+  stroke="#22c55e"
   strokeWidth={3}
   dot={false}
   activeDot={{
