@@ -68,8 +68,18 @@ export async function createFlowPayment({
         .NEXT_PUBLIC_FLOW_RETURN_URL
   }
 
-  const s =
-    signParams(params)
+  console.log(
+  "FLOW RETURN URL",
+  params.urlReturn
+)
+
+console.log(
+  "FLOW CONFIRM URL",
+  params.urlConfirmation
+)
+
+const s =
+  signParams(params)
 
   const body =
     new URLSearchParams({
