@@ -274,14 +274,24 @@ const res =
 
 <div
   className="
-    bg-white
-    rounded-2xl
-    border
-    p-5
+    bg-gradient-to-br
+from-slate-900
+to-slate-950
+border
+border-slate-800
+rounded-3xl
+p-6
   "
 >
 
-  <h2 className="font-semibold text-lg mb-4">
+  <h2
+  className="
+    text-xl
+    font-bold
+    text-white
+    mb-4
+  "
+>
     🏆 Top Sorteos
   </h2>
 
@@ -299,14 +309,19 @@ const res =
             flex
             items-center
             justify-between
-            border-b
+            border-b border-slate-800
             pb-2
           "
         >
 
           <div>
 
-            <p className="font-medium">
+            <p
+  className="
+    font-semibold
+    text-white
+  "
+>
               {value.title}
             </p>
 
@@ -314,7 +329,12 @@ const res =
 
           <div className="text-right">
 
-            <p className="font-semibold">
+            <p
+  className="
+    font-bold
+    text-emerald-400
+  "
+>
 
               $
               {Number(
@@ -323,7 +343,7 @@ const res =
 
             </p>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400">
 
               {value.conversions}
               {" "}
@@ -418,7 +438,14 @@ const res =
   "
 >
 
-  <h2 className="font-semibold text-lg mb-4">
+  <h2
+  className="
+    text-xl
+    font-bold
+    text-white
+    mb-4
+  "
+>
     📊 Sources
   </h2>
 
@@ -436,27 +463,37 @@ const res =
                   flex
                   items-center
                   justify-between
-                  border-b
+                  border-b border-slate-800
                   pb-2
                 "
               >
 
                 <div>
-                  <p className="font-medium">
+                  <p
+  className="
+    font-semibold
+    text-white
+  "
+>
                     {key}
                   </p>
                 </div>
 
                 <div className="text-right">
 
-                  <p className="font-semibold">
+                  <p
+  className="
+    font-bold
+    text-emerald-400
+  "
+>
                     $
                     {Number(
                       value.revenue || 0
                     ).toLocaleString()}
                   </p>
 
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-400">
                     {value.conversions}
                     {" "}
                     conversiones
@@ -476,14 +513,24 @@ const res =
 
 <div
   className="
-    bg-white
-    rounded-2xl
-    border
-    p-5
+    bg-gradient-to-br
+from-slate-900
+to-slate-950
+border
+border-slate-800
+rounded-3xl
+p-6
   "
 >
 
-  <h2 className="font-semibold text-lg mb-4">
+  <h2
+  className="
+    text-xl
+    font-bold
+    text-white
+    mb-4
+  "
+>
     🚀 Campaign Tracking
   </h2>
 
@@ -501,14 +548,19 @@ const res =
             flex
             items-center
             justify-between
-            border-b
+            border-b border-slate-800
             pb-2
           "
         >
 
           <div>
 
-            <p className="font-medium">
+            <p
+  className="
+    font-semibold
+    text-white
+  "
+>
               {key}
             </p>
 
@@ -516,7 +568,12 @@ const res =
 
           <div className="text-right">
 
-            <p className="font-semibold">
+            <p
+  className="
+    font-bold
+    text-emerald-400
+  "
+>
 
               $
               {Number(
@@ -525,7 +582,7 @@ const res =
 
             </p>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400">
 
               {value.conversions}
               {" "}
