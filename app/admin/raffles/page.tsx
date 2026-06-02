@@ -345,14 +345,24 @@ const res =
 
 <div
   className="
-    bg-white
-    rounded-2xl
+    bg-gradient-to-br
+    from-slate-900
+    to-slate-950
     border
-    p-5
+    border-slate-800
+    rounded-3xl
+    p-6
   "
 >
 
-  <h2 className="font-semibold text-lg mb-4">
+  <h2
+  className="
+    text-xl
+    font-bold
+    text-white
+    mb-4
+  "
+>
     📈 Revenue Diario
   </h2>
 
@@ -371,12 +381,23 @@ const res =
 
         <YAxis />
 
-        <Tooltip />
+        <Tooltip
+  formatter={(value: any) => [
+    `$${Number(value).toLocaleString()}`,
+    "Revenue"
+  ]}
+/>
 
-        <Line
-          type="monotone"
-          dataKey="revenue"
-        />
+       <Line
+  type="monotone"
+  dataKey="revenue"
+  stroke="#3b82f6"
+  strokeWidth={3}
+  dot={false}
+  activeDot={{
+    r: 6
+  }}
+/>
 
       </LineChart>
 
