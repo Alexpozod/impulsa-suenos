@@ -109,7 +109,13 @@ if (!auth.authorized) {
       (payments || []).length
 
     const totalTickets =
-      (tickets || []).length
+  (tickets || [])
+    .filter(
+      t =>
+        t.status === "paid" ||
+        t.status === "winner"
+    )
+    .length
 
       const totalVisits =
   (tracking || [])
