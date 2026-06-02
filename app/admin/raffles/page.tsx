@@ -91,15 +91,15 @@ const res =
 
   return (
 
-    <div className="p-6 space-y-6">
+    <div className="p-8 space-y-8">
 
       <div>
 
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-4xl font-bold">
           🎟️ Raffles Admin
         </h1>
 
-        <p className="text-slate-500 mt-1">
+        <p className="text-slate-400 mt-2">
           Analytics y revenue
         </p>
 
@@ -530,21 +530,37 @@ function Card({
 
     <div
       className="
-        bg-white
+        bg-gradient-to-br
+        from-slate-900
+        to-slate-950
         border
-        rounded-2xl
+        border-slate-800
+        rounded-3xl
         p-5
       "
     >
 
-      <p className="text-slate-500 text-sm">
+      <p
+        className="
+          text-slate-400
+          text-sm
+        "
+      >
         {title}
       </p>
 
-      <h3 className="text-2xl font-bold mt-2">
+      <h3
+        className="
+          text-3xl
+          font-bold
+          mt-3
+          text-white
+        "
+      >
         {value}
       </h3>
 
     </div>
+
   )
 }
