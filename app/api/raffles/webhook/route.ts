@@ -150,6 +150,11 @@ const response =
     const payment =
       response.data
 
+      console.log(
+  "FLOW PAYMENT STATUS",
+  payment
+)
+
     await supabase
       .schema("raffles")
       .from("webhook_events")
