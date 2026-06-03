@@ -30,11 +30,6 @@ export async function GET(
   req.url
 )
 
-    console.log(
-  "PAYMENT RETURN URL",
-  req.url
-)
-
 const token =
   searchParams.get("token")
 
@@ -55,13 +50,13 @@ console.log(
 
     if (!token) {
 
-      return NextResponse.redirect(
+  return NextResponse.redirect(
 
-        "https://www.impulsasuenos.com/raffles/payment/success",
+    "https://www.impulsasuenos.com/raffles/payment/pending",
 
-        303
-      )
-    }
+    303
+  )
+}
 
     /* =========================
        LOAD PAYMENT
@@ -87,13 +82,13 @@ console.log(
 
     if (!payment) {
 
-      return NextResponse.redirect(
+  return NextResponse.redirect(
 
-        "https://www.impulsasuenos.com/raffles/payment/success",
+    "https://www.impulsasuenos.com/raffles/payment/pending",
 
-        303
-      )
-    }
+    303
+  )
+}
 
     /* =========================
    STATUS REDIRECT
@@ -151,24 +146,26 @@ return NextResponse.redirect(
   "https://www.impulsasuenos.com/raffles/payment/failure",
   303
 )
-  } catch (error) {
 
-    console.error(
-      "payment-return error",
-      error
-    )
+} catch (error) {
 
-    /* =========================
-       FALLBACK REDIRECT
-    ========================= */
+  console.error(
+    "payment-return error",
+    error
+  )
 
-    return NextResponse.redirect(
+  /* =========================
+     FALLBACK REDIRECT
+  ========================= */
 
-      "https://www.impulsasuenos.com/raffles/payment/success",
+  return NextResponse.redirect(
 
-      303
-    )
-  }
+    "https://www.impulsasuenos.com/raffles/payment/pending",
+
+    303
+  )
+}
+
 }
 
 export async function POST(
