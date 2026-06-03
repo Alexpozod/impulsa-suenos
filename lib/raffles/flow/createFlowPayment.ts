@@ -157,6 +157,15 @@ const s =
   JSON.stringify(response.data, null, 2)
 )
 
+console.log(
+  "FLOW ORDER DEBUG",
+  {
+    commerceOrder: orderId,
+    token: response.data?.token,
+    flowOrder: response.data?.flowOrder
+  }
+)
+
   } catch (error: any) {
 
     console.error(
