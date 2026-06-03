@@ -167,7 +167,10 @@ const response =
 
       })
 
-    if (payment.status !== FLOW_STATUS_APPROVED) {
+    if (
+  payment.status !== FLOW_STATUS_APPROVED &&
+  payment.status !== 1
+) {
 
   const { data: dbPayment } =
     await supabase
@@ -238,17 +241,6 @@ const response =
     /* =========================
        CANCEL FAILED ORDER
     ========================= */
-
-await supabase
-  .schema("raffles")
-  .from("payments")
-  .update({
-    status: "rejected"
-  })
-  .eq(
-    "provider_payment_id",
-    token
-  )
 
     await supabase
       .schema("raffles")
