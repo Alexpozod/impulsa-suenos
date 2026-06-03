@@ -155,6 +155,18 @@ const response =
   payment
 )
 
+console.log(
+  "FLOW STATUS NUMBER",
+  payment.status
+)
+
+if (payment.status === 3) {
+
+  console.log(
+    "FLOW PAYMENT REJECTED"
+  )
+}
+
     await supabase
       .schema("raffles")
       .from("webhook_events")
