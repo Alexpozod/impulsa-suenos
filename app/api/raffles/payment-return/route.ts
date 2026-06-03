@@ -30,13 +30,22 @@ export async function GET(
   req.url
 )
 
-    const token =
-      searchParams.get("token")
+    console.log(
+  "PAYMENT RETURN URL",
+  req.url
+)
 
-      console.log(
+const token =
+  searchParams.get("token")
+
+console.log(
   "PAYMENT RETURN HIT",
   {
-    token
+    token,
+    params:
+      Object.fromEntries(
+        searchParams.entries()
+      )
   }
 )
 
