@@ -115,8 +115,8 @@ if (
 }
 
 if (
-  paymentStatus === "pending" ||
-  orderStatus === "pending"
+  paymentStatus === "pending" &&
+  orderStatus !== "cancelled"
 ) {
 
   console.log(

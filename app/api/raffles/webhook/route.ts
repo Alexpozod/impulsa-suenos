@@ -239,6 +239,17 @@ const response =
        CANCEL FAILED ORDER
     ========================= */
 
+await supabase
+  .schema("raffles")
+  .from("payments")
+  .update({
+    status: "rejected"
+  })
+  .eq(
+    "provider_payment_id",
+    token
+  )
+
     await supabase
       .schema("raffles")
       .from("orders")
