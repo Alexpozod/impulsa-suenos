@@ -260,6 +260,19 @@ if (payment.status === 3) {
     ========================= */
 
     await supabase
+  .schema("raffles")
+  .from("payments")
+  .update({
+
+    status: "failed"
+
+  })
+  .eq(
+    "provider_payment_id",
+    token
+  )
+
+    await supabase
       .schema("raffles")
       .from("orders")
       .update({
