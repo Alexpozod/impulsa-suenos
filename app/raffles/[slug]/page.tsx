@@ -176,15 +176,50 @@ export default function RafflePage() {
 
       if (!res.ok) {
 
-        console.error(json)
+  console.error(json)
 
-        alert(
-          json?.error ||
-          "Error creando pago"
-        )
+  if (
+    json?.error ===
+    "pending_order_exists"
+  ) {
 
-        return
-      }
+    alert(
+      "Ya tienes una compra pendiente asociada a este correo. Espera unos minutos o utiliza otro correo."
+    )
+
+    return
+  }
+
+  if (
+    json?.error ===
+    "invalid_email"
+  ) {
+
+    alert(
+      "No se permiten correos temporales."
+    )
+
+    return
+  }
+
+  if (
+    json?.error ===
+    "raffle_inactive"
+  ) {
+
+    alert(
+      "Este sorteo ya no se encuentra disponible."
+    )
+
+    return
+  }
+
+  alert(
+    "No fue posible iniciar el pago."
+  )
+
+  return
+}
 
       if (json?.url) {
 
