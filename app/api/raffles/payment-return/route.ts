@@ -67,7 +67,7 @@ console.log(
 
   return NextResponse.redirect(
 
-    "https://www.impulsasuenos.com/raffles/payment/pending",
+    "https://www.impulsasuenos.com/raffles/payment/check",
 
     303
   )
@@ -99,7 +99,7 @@ console.log(
 
   return NextResponse.redirect(
 
-    "https://www.impulsasuenos.com/raffles/payment/pending",
+    "https://www.impulsasuenos.com/raffles/payment/check",
 
     303
   )
@@ -148,7 +148,7 @@ if (
   )
 
   return NextResponse.redirect(
-    "https://www.impulsasuenos.com/raffles/payment/pending",
+    "https://www.impulsasuenos.com/raffles/payment/check",
     303
   )
 }
@@ -175,7 +175,7 @@ return NextResponse.redirect(
 
   return NextResponse.redirect(
 
-    "https://www.impulsasuenos.com/raffles/payment/pending",
+    "https://www.impulsasuenos.com/raffles/payment/check",
 
     303
   )

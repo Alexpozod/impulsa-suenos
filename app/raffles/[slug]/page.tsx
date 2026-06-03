@@ -223,10 +223,15 @@ export default function RafflePage() {
 
       if (json?.url) {
 
-        window.location.href =
-              `${json.url}?token=${json.token}`
+  localStorage.setItem(
+    "last_raffle_order_id",
+    json.order_id
+  )
 
-      }
+  window.location.href =
+    `${json.url}?token=${json.token}`
+
+}
 
     } catch (error) {
 
