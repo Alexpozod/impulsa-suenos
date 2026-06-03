@@ -25,6 +25,11 @@ export async function GET(
     const { searchParams } =
       new URL(req.url)
 
+      console.log(
+  "PAYMENT RETURN URL",
+  req.url
+)
+
     const token =
       searchParams.get("token")
 
