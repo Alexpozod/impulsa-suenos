@@ -22,8 +22,23 @@ export async function GET(
 
   try {
 
-    const { searchParams } =
-      new URL(req.url)
+    const url =
+  new URL(req.url)
+
+const searchParams =
+  url.searchParams
+
+console.log(
+  "PAYMENT RETURN FULL URL",
+  req.url
+)
+
+console.log(
+  "PAYMENT RETURN SEARCH",
+  Object.fromEntries(
+    searchParams.entries()
+  )
+)
 
       console.log(
   "PAYMENT RETURN URL",
