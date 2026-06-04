@@ -1,34 +1,197 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
 
 export default function RafflesNavbar() {
+
+  const [open, setOpen] = useState(false)
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950 border-b border-slate-800">
 
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur border-b border-slate-800">
 
-        <Link
-          href="/raffles"
-          className="font-black text-2xl text-white"
-        >
-          ImpulsaSueños Sorteos
-        </Link>
+      <div className="max-w-7xl mx-auto px-4 lg:px-6">
 
-        <nav className="flex gap-6 text-white">
+        <div className="h-20 flex items-center justify-between">
 
-          <Link href="/raffles">
-            Sorteos
+          {/* LOGO */}
+
+          <Link
+            href="/raffles"
+            className="flex items-center gap-3"
+          >
+
+            <img
+              src="/logo.png"
+              alt="ImpulsaSueños"
+              className="h-10 w-auto"
+            />
+
+            <div className="hidden sm:block">
+
+              <div className="text-white font-black text-lg leading-none">
+                ImpulsaSueños
+              </div>
+
+              <div className="text-blue-400 text-xs font-semibold uppercase tracking-wider">
+                Sorteos
+              </div>
+
+            </div>
+
           </Link>
 
-          <Link href="/faq">
-            FAQ
-          </Link>
+          {/* DESKTOP MENU */}
 
-        </nav>
+          <nav className="hidden lg:flex items-center gap-8 text-sm font-medium">
+
+            <Link
+              href="/raffles"
+              className="text-slate-200 hover:text-white transition"
+            >
+              Sorteos
+            </Link>
+
+            <Link
+              href="/raffles/winners"
+              className="text-slate-200 hover:text-white transition"
+            >
+              Ganadores
+            </Link>
+
+            <Link
+              href="/raffles/my-tickets"
+              className="text-slate-200 hover:text-white transition"
+            >
+              Buscar Tickets
+            </Link>
+
+            <Link
+              href="/faq"
+              className="text-slate-200 hover:text-white transition"
+            >
+              FAQ
+            </Link>
+
+          </nav>
+
+          {/* DESKTOP CTA */}
+
+          <div className="hidden lg:flex items-center gap-4">
+
+            <Link
+              href="/login"
+              className="text-slate-300 hover:text-white transition"
+            >
+              Entrar
+            </Link>
+
+            <Link
+              href="/raffles"
+              className="
+                bg-blue-600
+                hover:bg-blue-500
+                text-white
+                px-5
+                py-3
+                rounded-xl
+                font-bold
+                transition
+              "
+            >
+              Participar Ahora
+            </Link>
+
+          </div>
+
+          {/* MOBILE BUTTON */}
+
+          <button
+            onClick={() => setOpen(!open)}
+            className="
+              lg:hidden
+              text-white
+              text-2xl
+            "
+          >
+            ☰
+          </button>
+
+        </div>
 
       </div>
 
+      {/* MOBILE MENU */}
+
+      {open && (
+
+        <div className="lg:hidden border-t border-slate-800 bg-slate-950">
+
+          <div className="px-6 py-6 flex flex-col gap-5">
+
+            <Link
+              href="/raffles"
+              onClick={() => setOpen(false)}
+              className="text-white"
+            >
+              Sorteos
+            </Link>
+
+            <Link
+              href="/raffles/winners"
+              onClick={() => setOpen(false)}
+              className="text-white"
+            >
+              Ganadores
+            </Link>
+
+            <Link
+              href="/raffles/my-tickets"
+              onClick={() => setOpen(false)}
+              className="text-white"
+            >
+              Buscar Tickets
+            </Link>
+
+            <Link
+              href="/faq"
+              onClick={() => setOpen(false)}
+              className="text-white"
+            >
+              FAQ
+            </Link>
+
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="text-slate-300"
+            >
+              Entrar
+            </Link>
+
+            <Link
+              href="/raffles"
+              onClick={() => setOpen(false)}
+              className="
+                bg-blue-600
+                text-center
+                text-white
+                py-3
+                rounded-xl
+                font-bold
+              "
+            >
+              Participar Ahora
+            </Link>
+
+          </div>
+
+        </div>
+
+      )}
+
     </header>
+
   )
 }
