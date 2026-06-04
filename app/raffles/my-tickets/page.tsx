@@ -13,6 +13,38 @@ export default function MyTicketsPage() {
   const [tickets, setTickets] =
     useState<any[]>([])
 
+    const groupedTickets =
+  Object.values(
+
+    tickets.reduce(
+      (acc: any, ticket: any) => {
+
+        const raffleId =
+          ticket.raffle_id
+
+        if (!acc[raffleId]) {
+
+          acc[raffleId] = {
+
+            raffle:
+              ticket.raffle,
+
+            tickets: []
+          }
+        }
+
+        acc[raffleId]
+          .tickets
+          .push(ticket)
+
+        return acc
+
+      },
+      {}
+    )
+
+  )
+
   async function searchTickets() {
 
     if (!email.trim()) {
@@ -143,70 +175,106 @@ export default function MyTicketsPage() {
           "
         >
 
-          {tickets.map(ticket => (
+{groupedTickets.map(
+  (group: any) => (
+
+    <div
+      key={
+        group.raffle?.id
+      }
+      className="
+        bg-slate-900
+        border
+        border-slate-800
+        rounded-3xl
+        p-6
+      "
+    >
+
+      <div
+        className="
+          flex
+          items-center
+          gap-4
+          mb-6
+        "
+      >
+
+        <img
+          src={
+            group.raffle?.cover_image
+          }
+          alt=""
+          className="
+            w-20
+            h-20
+            rounded-xl
+            object-cover
+          "
+        />
+
+        <div>
+
+          <h2
+            className="
+              font-bold
+              text-xl
+            "
+          >
+            {
+              group.raffle?.title
+            }
+          </h2>
+
+          <p
+            className="
+              text-slate-400
+            "
+          >
+            {
+              group.tickets.length
+            } tickets
+          </p>
+
+        </div>
+
+      </div>
+
+      <div
+        className="
+          flex
+          flex-wrap
+          gap-2
+        "
+      >
+
+        {group.tickets.map(
+          (ticket: any) => (
 
             <div
               key={ticket.id}
               className="
-                bg-slate-900
+                px-3
+                py-2
+                rounded-xl
+                bg-slate-950
                 border
-                border-slate-800
-                rounded-3xl
-                p-6
+                border-slate-700
+                text-sm
               "
             >
-
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-4
-                "
-              >
-
-                <img
-                  src={
-                    ticket.raffle?.cover_image
-                  }
-                  alt=""
-                  className="
-                    w-20
-                    h-20
-                    rounded-xl
-                    object-cover
-                  "
-                />
-
-                <div>
-
-                  <h2
-                    className="
-                      font-bold
-                      text-lg
-                    "
-                  >
-                    {
-                      ticket.raffle?.title
-                    }
-                  </h2>
-
-                  <p
-                    className="
-                      text-slate-400
-                    "
-                  >
-                    {
-                      ticket.ticket_code
-                    }
-                  </p>
-
-                </div>
-
-              </div>
-
+              {ticket.ticket_code}
             </div>
 
-          ))}
+          )
+        )}
+
+      </div>
+
+    </div>
+
+  )
+)}
 
         </div>
 
