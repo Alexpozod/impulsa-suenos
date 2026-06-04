@@ -1,3 +1,5 @@
+import RafflesGrid from "@/app/components/raffles/public/RafflesGrid"
+
 export default function RafflesHomePage() {
   return (
     <div className="bg-slate-950 text-white">
@@ -39,9 +41,7 @@ export default function RafflesHomePage() {
           <div>
 
             <div className="aspect-square rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-center">
-
               Premio Destacado
-
             </div>
 
           </div>
@@ -49,6 +49,9 @@ export default function RafflesHomePage() {
         </div>
 
       </section>
+
+      {/* SORTEOS ACTIVOS */}
+      <RafflesGrid />
 
     </div>
   )
