@@ -249,25 +249,49 @@ export default function MyTicketsPage() {
       >
 
         {group.tickets.map(
-          (ticket: any) => (
+  (ticket: any) => {
 
-            <div
-              key={ticket.id}
-              className="
-                px-3
-                py-2
-                rounded-xl
-                bg-slate-950
-                border
-                border-slate-700
-                text-sm
-              "
-            >
-              {ticket.ticket_code}
-            </div>
+    const isWinner =
+      ticket.status === "winner"
 
-          )
+    return (
+
+      <div
+        key={ticket.id}
+        className={`
+          px-3
+          py-2
+          rounded-xl
+          border
+          text-sm
+
+          ${
+            isWinner
+              ? "bg-yellow-500/20 border-yellow-500 text-yellow-300 font-bold"
+              : "bg-slate-950 border-slate-700"
+          }
+        `}
+      >
+
+        {isWinner && (
+          <div
+            className="
+              text-xs
+              mb-1
+            "
+          >
+            🏆 GANADOR
+          </div>
         )}
+
+        {ticket.ticket_code}
+
+      </div>
+
+    )
+
+  }
+)}
 
       </div>
 
