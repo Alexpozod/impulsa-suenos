@@ -424,7 +424,7 @@ export default function RafflePage() {
 
               <h1
                 className="
-                  text-4xl
+                  text-3xl md:text-4xl
                   lg:text-5xl
                   font-black
                   leading-tight
@@ -434,220 +434,48 @@ export default function RafflePage() {
               </h1>
 
               <p
-                className="
-                  mt-5
-                  text-slate-300
-                  text-lg
-                  leading-relaxed
-                "
-              >
-                {raffle.description}
-              </p>
+  className="
+    mt-5
+    text-slate-300
+    text-lg
+    leading-relaxed
+  "
+>
+  {raffle.description}
+</p>
 
-            </div>
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
 
-            <div
-              className="
-                grid
-                grid-cols-2
-                gap-4
-              "
-            >
+  <p
+    className="
+      text-sm
+      text-slate-400
+    "
+  >
+    Finaliza en
+  </p>
 
-              <div
-                className="
-                  bg-slate-900
-                  border
-                  border-slate-800
-                  rounded-3xl
-                  p-5
-                "
-              >
+  <h3
+    className="
+      text-3xl md:text-4xl
+      font-black
+      mt-2
+    "
+  >
+    {countdown || "--"}
+  </h3>
 
-                <p
-                  className="
-                    text-sm
-                    text-slate-400
-                  "
-                >
-                  Tickets vendidos
-                </p>
-
-                <h3
-                  className="
-                    text-3xl
-                    font-black
-                    mt-2
-                  "
-                >
-                  {raffle.sold_tickets}
-                </h3>
-
-              </div>
-
-              <div
-                className="
-                  bg-slate-900
-                  border
-                  border-slate-800
-                  rounded-3xl
-                  p-5
-                "
-              >
-
-                <p
-                  className="
-                    text-sm
-                    text-slate-400
-                  "
-                >
-                  Disponibles
-                </p>
-
-                <h3
-                  className="
-                    text-3xl
-                    font-black
-                    mt-2
-                  "
-                >
-                  {raffle.available_tickets}
-                </h3>
-
-              </div>
-
-              <div
-                className="
-                  bg-slate-900
-                  border
-                  border-slate-800
-                  rounded-3xl
-                  p-5
-                "
-              >
-
-                <p
-                  className="
-                    text-sm
-                    text-slate-400
-                  "
-                >
-                  
-                </p>
-
-                <h3
-                  className="
-                    text-2xl
-                    font-black
-                    mt-2
-                  "
-                >
-                  $
-                  {Number(
-                    raffle.revenue || 0
-                  ).toLocaleString("es-CL")}
-                </h3>
-
-              </div>
-
-              <div
-                className="
-                  bg-slate-900
-                  border
-                  border-slate-800
-                  rounded-3xl
-                  p-5
-                "
-              >
-
-                <p
-                  className="
-                    text-sm
-                    text-slate-400
-                  "
-                >
-                  
-                </p>
-
-                <h3
-                  className="
-                    text-2xl
-                    font-black
-                    mt-2
-                  "
-                >
-                  {countdown || "--"}
-                </h3>
-
-              </div>
-
-            </div>
-
-            <div
-              className="
-                bg-slate-900
-                border
-                border-slate-800
-                rounded-3xl
-                p-6
-              "
-            >
-
-              <div
-                className="
-                  flex
-                  items-center
-                  justify-between
-                  mb-3
-                "
-              >
-
-                <span
-                  className="
-                    text-sm
-                    text-slate-400
-                  "
-                >
-                  Progreso
-                </span>
-
-                <span
-                  className="
-                    text-sm
-                    font-semibold
-                  "
-                >
-                  {raffle.progress}%
-                </span>
-
-              </div>
-
-              <div
-                className="
-                  w-full
-                  h-4
-                  bg-slate-800
-                  rounded-full
-                  overflow-hidden
-                "
-              >
-
-                <div
-                  className="
-                    h-full
-                    bg-blue-500
-                    rounded-full
-                  "
-                  style={{
-                    width:
-                      `${raffle.progress}%`
-                  }}
-                />
-
-              </div>
-
-            </div>
-
+</div>
+    
+    </div>
             <div
               className="
                 bg-slate-900
@@ -672,7 +500,7 @@ export default function RafflePage() {
 
                 <h2
                   className="
-                    text-4xl
+                    text-3xl md:text-4xl
                     font-black
                     mt-2
                   "
@@ -686,7 +514,8 @@ export default function RafflePage() {
               </div>
 
               <input
-                type="text"
+  required
+  type="text"
                 placeholder="Tu nombre"
                 value={buyerName}
                 onChange={(e) =>
@@ -707,7 +536,8 @@ export default function RafflePage() {
               />
 
               <input
-                type="email"
+  required
+  type="email"
                 placeholder="Correo electrónico"
                 value={buyerEmail}
                 onChange={(e) =>
@@ -727,7 +557,14 @@ export default function RafflePage() {
                 "
               />
 
-              <div className="grid grid-cols-4 gap-3">
+              <div
+  className="
+    grid
+    grid-cols-2
+    md:grid-cols-4
+    gap-3
+  "
+>
 
   {[1, 3, 5, 10].map((value) => {
 
@@ -757,7 +594,30 @@ export default function RafflePage() {
         `}
       >
 
-        {value} ticket{value > 1 ? "s" : ""}
+        <>
+  <div className="text-sm">
+
+    {
+      value === 1
+        ? "Básico"
+
+        : value === 3
+        ? "Popular ⭐"
+
+        : value === 5
+        ? "Recomendado 🔥"
+
+        : "Premium 👑"
+    }
+
+  </div>
+
+  <div className="text-xs opacity-70">
+
+    {value} ticket{value > 1 ? "s" : ""}
+
+  </div>
+</>
 
       </button>
     )
@@ -789,6 +649,37 @@ export default function RafflePage() {
                 </span>
 
               </div>
+
+<div
+  className="
+    bg-slate-950
+    border
+    border-slate-800
+    rounded-2xl
+    p-4
+    text-sm
+    text-slate-400
+    space-y-2
+  "
+>
+
+  <div>
+    ✓ Tickets automáticos
+  </div>
+
+  <div>
+    ✓ Confirmación por correo
+  </div>
+
+  <div>
+    ✓ Pago seguro
+  </div>
+
+  <div>
+    ✓ Resultados públicos
+  </div>
+
+</div>
 
               <button
                 onClick={buyTickets}
