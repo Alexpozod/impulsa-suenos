@@ -4,6 +4,8 @@ import HowItWorks from "@/app/components/raffles/public/HowItWorks"
 
 import WinnersPreview from "@/app/components/raffles/public/WinnersPreview"
 
+import TrustSection from "@/app/components/raffles/public/TrustSection"
+
 export default function RafflesHomePage() {
   return (
     <div className="bg-slate-950 text-white">
@@ -60,6 +62,8 @@ export default function RafflesHomePage() {
       <HowItWorks />
 
       <WinnersPreview />
+
+      <TrustSection />
 
     </div>
   )
