@@ -6,6 +6,8 @@ import WinnersPreview from "@/app/components/raffles/public/WinnersPreview"
 
 import TrustSection from "@/app/components/raffles/public/TrustSection"
 
+import FinalCTA from "@/app/components/raffles/public/FinalCTA"
+
 export default function RafflesHomePage() {
   return (
     <div className="bg-slate-950 text-white">
@@ -64,6 +66,8 @@ export default function RafflesHomePage() {
       <WinnersPreview />
 
       <TrustSection />
+
+      <FinalCTA />
 
     </div>
   )
