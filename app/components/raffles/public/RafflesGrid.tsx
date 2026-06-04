@@ -51,16 +51,45 @@ export default function RafflesGrid() {
 
   if (loading) {
 
-    return (
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <p className="text-slate-400">
-            Cargando sorteos...
-          </p>
-        </div>
-      </section>
-    )
-  }
+  return (
+
+    <section className="py-20">
+
+      <div className="max-w-7xl mx-auto px-6">
+
+        <p className="text-slate-400">
+          Cargando sorteos...
+        </p>
+
+      </div>
+
+    </section>
+
+  )
+}
+
+if (!raffles.length) {
+
+  return (
+
+    <section className="py-20">
+
+      <div className="max-w-7xl mx-auto px-6 text-center">
+
+        <h2 className="text-4xl font-black mb-4">
+          Próximamente nuevos sorteos
+        </h2>
+
+        <p className="text-slate-400">
+          Estamos preparando los primeros premios.
+        </p>
+
+      </div>
+
+    </section>
+
+  )
+}
 
   return (
 
@@ -128,13 +157,48 @@ export default function RafflesGrid() {
 
               <div className="p-6">
 
+<div className="mb-4">
+
+  <span
+    className="
+      inline-flex
+      px-3
+      py-1
+      rounded-full
+      bg-green-500/20
+      text-green-400
+      text-xs
+      font-semibold
+    "
+  >
+    Sorteo Activo
+  </span>
+
+</div>
+
                 <h3 className="text-2xl font-bold text-white mb-3">
                   {raffle.title}
                 </h3>
 
-                <p className="text-slate-400 mb-6 line-clamp-2">
-                  {raffle.short_description}
-                </p>
+                {raffle.end_date && (
+
+  <p className="text-sm text-slate-500 mb-3">
+
+    Sorteo:
+    {" "}
+    {new Date(
+      raffle.end_date
+    ).toLocaleDateString("es-CL")}
+
+  </p>
+
+)}
+
+<p className="text-slate-400 mb-6 line-clamp-2">
+
+  {raffle.short_description}
+
+</p>
 
                 <div className="flex items-center justify-between">
 
@@ -163,7 +227,7 @@ export default function RafflesGrid() {
                       font-semibold
                     "
                   >
-                    Participar
+                    Comprar Tickets
                   </div>
 
                 </div>
