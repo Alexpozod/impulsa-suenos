@@ -2,6 +2,8 @@ import RafflesGrid from "@/app/components/raffles/public/RafflesGrid"
 
 import HowItWorks from "@/app/components/raffles/public/HowItWorks"
 
+import WinnersPreview from "@/app/components/raffles/public/WinnersPreview"
+
 export default function RafflesHomePage() {
   return (
     <div className="bg-slate-950 text-white">
@@ -56,6 +58,8 @@ export default function RafflesHomePage() {
       <RafflesGrid />
 
       <HowItWorks />
+
+      <WinnersPreview />
 
     </div>
   )
