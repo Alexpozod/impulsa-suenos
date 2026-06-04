@@ -451,6 +451,56 @@ export default function RafflePage() {
     border-slate-800
     rounded-3xl
     p-6
+    mt-6
+  "
+>
+
+  <p
+    className="
+      text-sm
+      uppercase
+      tracking-wider
+      text-amber-400
+      font-semibold
+      mb-3
+    "
+  >
+    🏆 Premio Principal
+  </p>
+
+  <h2
+    className="
+      text-2xl
+      md:text-3xl
+      font-black
+      mb-3
+    "
+  >
+    {raffle.prize_title}
+  </h2>
+
+  {raffle.prize_description && (
+
+    <p
+      className="
+        text-slate-300
+        leading-relaxed
+      "
+    >
+      {raffle.prize_description}
+    </p>
+
+  )}
+
+</div>
+
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
   "
 >
 
