@@ -188,7 +188,7 @@ export default function CheckoutPage() {
                     `}
                   >
 
-                    <>
+  <>
   <div className="text-sm">
 
     {
@@ -211,10 +211,10 @@ export default function CheckoutPage() {
     {value} ticket{value > 1 ? "s" : ""}
 
   </div>
-</>
-                    }
 
-                  </button>
+</>
+
+</button>
 
                 )
 
