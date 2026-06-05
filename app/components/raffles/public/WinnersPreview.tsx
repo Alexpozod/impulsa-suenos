@@ -29,12 +29,12 @@ export default function WinnersPreview() {
             </div>
 
             <h3 className="text-xl font-bold text-white mb-2">
-              Próximamente
-            </h3>
+  Ganadores Publicados
+</h3>
 
-            <p className="text-slate-400">
-              Los primeros ganadores aparecerán aquí.
-            </p>
+<p className="text-slate-400">
+  Consulta los sorteos finalizados y sus ganadores verificados.
+</p>
 
           </div>
 
