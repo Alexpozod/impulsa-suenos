@@ -162,12 +162,45 @@ try {
     )
 
   const json =
-    await res.json()
+  await res.json()
 
-  console.log(
-    "CHECKOUT RESPONSE",
-    json
+console.log(
+  "CHECKOUT RESPONSE",
+  json
+)
+
+if (!res.ok) {
+
+  if (
+    json?.error ===
+    "pending_order_exists"
+  ) {
+
+    alert(
+      "Ya tienes una compra pendiente asociada a este correo."
+    )
+
+    return
+  }
+
+  if (
+    json?.error ===
+    "rate_limit"
+  ) {
+
+    alert(
+      "Demasiadas solicitudes. Intenta nuevamente en unos minutos."
+    )
+
+    return
+  }
+
+  alert(
+    "No fue posible iniciar el pago."
   )
+
+  return
+}
 
 } catch (error) {
 
