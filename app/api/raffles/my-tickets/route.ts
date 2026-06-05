@@ -51,10 +51,13 @@ export async function GET(
           "buyer_email",
           email
         )
-        .eq(
-          "status",
-          "paid"
-        )
+        .in(
+  "status",
+  [
+    "paid",
+    "winner"
+  ]
+)
         .order(
           "created_at",
           {
