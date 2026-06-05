@@ -114,21 +114,7 @@ export default function RafflePage() {
 
   const winners =
   data?.winners || []
-  
-  const totalPrice =
-    useMemo(() => {
-
-      return (
-        Number(
-          raffle?.ticket_price_clp || 0
-        ) * quantity
-      )
-
-    }, [
-      raffle,
-      quantity
-    ])
-
+    
   const countdown =
     useMemo(() => {
 
