@@ -20,12 +20,15 @@ export default function FailurePage() {
         </h1>
 
         <p className="text-slate-300 text-lg mb-8">
-          El pago no pudo ser procesado.
+          El pago fue rechazado o cancelado.
+
           No se asignaron tickets a esta compra.
+
+          Puedes volver a intentarlo seleccionando nuevamente el sorteo de tu interés.
         </p>
 
         <button
-          onClick={() => router.push("/sorteos")}
+          onClick={() => router.push("/raffles")}
           className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold"
         >
           Volver a sorteos

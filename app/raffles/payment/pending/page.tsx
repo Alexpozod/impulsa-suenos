@@ -25,7 +25,7 @@ export default function PendingPage() {
         </p>
 
         <button
-          onClick={() => router.push("/sorteos")}
+          onClick={() => router.push("/raffles")}
           className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold"
         >
           Volver a sorteos

@@ -1,11 +1,14 @@
+import Link from "next/link"
+
 import RafflesGrid from "@/app/components/raffles/public/RafflesGrid"
-
 import HowItWorks from "@/app/components/raffles/public/HowItWorks"
-
 import WinnersPreview from "@/app/components/raffles/public/WinnersPreview"
-
 import TrustSection from "@/app/components/raffles/public/TrustSection"
-
+import FinalCTA from "@/app/components/raffles/public/FinalCTA"
+import RafflesGrid from "@/app/components/raffles/public/RafflesGrid"
+import HowItWorks from "@/app/components/raffles/public/HowItWorks"
+import WinnersPreview from "@/app/components/raffles/public/WinnersPreview"
+import TrustSection from "@/app/components/raffles/public/TrustSection"
 import FinalCTA from "@/app/components/raffles/public/FinalCTA"
 
 export default function RafflesHomePage() {
@@ -32,15 +35,21 @@ export default function RafflesHomePage() {
               y consulta los resultados públicamente.
             </p>
 
-            <div className="flex gap-4 mt-8">
+            <div className="flex flex-col sm:flex-row gap-4 mt-8">
 
-              <button className="bg-blue-600 px-8 py-4 rounded-2xl font-bold">
-                Ver Sorteos
-              </button>
+              <Link
+  href="/raffles"
+  className="bg-blue-600 px-8 py-4 rounded-2xl font-bold"
+>
+  Ver Sorteos
+</Link>
 
-              <button className="border border-slate-700 px-8 py-4 rounded-2xl">
-                Buscar Mis Tickets
-              </button>
+              <Link
+  href="/raffles/my-tickets"
+  className="border border-slate-700 px-8 py-4 rounded-2xl"
+>
+  Buscar Mis Tickets
+</Link>
 
             </div>
 
