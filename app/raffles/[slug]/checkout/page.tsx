@@ -215,6 +215,20 @@ export default function CheckoutPage() {
             </div>
 
 <div
+              className="
+  text-4xl
+  font-black
+  mt-2
+  mb-6
+"
+            >
+              $
+              {Number(
+                raffle.ticket_price_clp
+              ).toLocaleString("es-CL")}
+            </div>
+
+<div
   className="
     mt-6
     grid
@@ -337,20 +351,7 @@ export default function CheckoutPage() {
   </div>
 
 </div>
-
-            <div
-              className="
-                text-4xl
-                font-black
-                mt-2
-              "
-            >
-              $
-              {Number(
-                raffle.ticket_price_clp
-              ).toLocaleString("es-CL")}
-            </div>
-
+            
           </div>
 
         </div>
