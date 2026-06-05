@@ -5,11 +5,6 @@ import HowItWorks from "@/app/components/raffles/public/HowItWorks"
 import WinnersPreview from "@/app/components/raffles/public/WinnersPreview"
 import TrustSection from "@/app/components/raffles/public/TrustSection"
 import FinalCTA from "@/app/components/raffles/public/FinalCTA"
-import RafflesGrid from "@/app/components/raffles/public/RafflesGrid"
-import HowItWorks from "@/app/components/raffles/public/HowItWorks"
-import WinnersPreview from "@/app/components/raffles/public/WinnersPreview"
-import TrustSection from "@/app/components/raffles/public/TrustSection"
-import FinalCTA from "@/app/components/raffles/public/FinalCTA"
 
 export default function RafflesHomePage() {
   return (
