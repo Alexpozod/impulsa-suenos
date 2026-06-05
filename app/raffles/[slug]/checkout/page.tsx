@@ -35,6 +35,15 @@ export default function CheckoutPage() {
     const [quantity, setQuantity] =
   useState(1)
 
+const [buyerName, setBuyerName] =
+  useState("")
+
+const [buyerEmail, setBuyerEmail] =
+  useState("")
+
+const [buyerPhone, setBuyerPhone] =
+  useState("")
+
   useEffect(() => {
 
     loadRaffle()
@@ -347,6 +356,93 @@ export default function CheckoutPage() {
       ).toLocaleString("es-CL")}
 
     </span>
+
+<div
+  className="
+    mt-6
+    bg-slate-950
+    border
+    border-slate-800
+    rounded-2xl
+    p-4
+    space-y-4
+  "
+>
+
+  <h3
+    className="
+      text-lg
+      font-bold
+      text-white
+    "
+  >
+    Datos del Participante
+  </h3>
+
+  <input
+    type="text"
+    placeholder="Nombre completo"
+    value={buyerName}
+    onChange={(e) =>
+      setBuyerName(
+        e.target.value
+      )
+    }
+    className="
+      w-full
+      bg-slate-900
+      border
+      border-slate-700
+      rounded-2xl
+      px-4
+      py-4
+      outline-none
+    "
+  />
+
+  <input
+    type="email"
+    placeholder="Correo electrónico"
+    value={buyerEmail}
+    onChange={(e) =>
+      setBuyerEmail(
+        e.target.value
+      )
+    }
+    className="
+      w-full
+      bg-slate-900
+      border
+      border-slate-700
+      rounded-2xl
+      px-4
+      py-4
+      outline-none
+    "
+  />
+
+  <input
+    type="tel"
+    placeholder="Teléfono móvil"
+    value={buyerPhone}
+    onChange={(e) =>
+      setBuyerPhone(
+        e.target.value
+      )
+    }
+    className="
+      w-full
+      bg-slate-900
+      border
+      border-slate-700
+      rounded-2xl
+      px-4
+      py-4
+      outline-none
+    "
+  />
+
+</div>
 
   </div>
 
