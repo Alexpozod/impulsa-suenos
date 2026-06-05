@@ -86,6 +86,15 @@ export default function RafflePage() {
   const [buyerEmail, setBuyerEmail] =
     useState("")
 
+    const [buyerPhone, setBuyerPhone] =
+    useState("")
+
+    const [acceptTerms, setAcceptTerms] =
+    useState(false)
+
+    const [marketingConsent, setMarketingConsent] =
+    useState(false)
+
   useEffect(() => {
 
   loadRaffle()
@@ -136,6 +145,24 @@ export default function RafflePage() {
       return
     }
 
+if (!buyerPhone.trim()) {
+
+  alert(
+    "Ingresa tu teléfono"
+  )
+
+  return
+}
+
+if (!acceptTerms) {
+
+  alert(
+    "Debes aceptar las bases del sorteo"
+  )
+
+  return
+}
+
     try {
 
       setProcessing(true)
@@ -163,6 +190,9 @@ export default function RafflePage() {
 
               buyer_email:
                 buyerEmail,
+
+                buyer_phone:
+                buyerPhone,
 
               source:
                 "web"
@@ -607,6 +637,28 @@ export default function RafflePage() {
                 "
               />
 
+<input
+  required
+  type="tel"
+  placeholder="Teléfono móvil"
+  value={buyerPhone}
+  onChange={(e) =>
+    setBuyerPhone(
+      e.target.value
+    )
+  }
+  className="
+    w-full
+    bg-slate-950
+    border
+    border-slate-700
+    rounded-2xl
+    px-4
+    py-4
+    outline-none
+  "
+/>
+
               <div
   className="
     grid
@@ -730,6 +782,78 @@ export default function RafflePage() {
   </div>
 
 </div>
+
+<div
+  className="
+    bg-slate-950
+    border
+    border-slate-800
+    rounded-2xl
+    p-4
+    space-y-3
+  "
+>
+
+  <label
+    className="
+      flex
+      gap-3
+      items-start
+      text-sm
+      text-slate-300
+      cursor-pointer
+    "
+  >
+
+    <input
+      type="checkbox"
+      checked={acceptTerms}
+      onChange={(e) =>
+        setAcceptTerms(
+          e.target.checked
+        )
+      }
+      className="mt-1"
+    />
+
+    <span>
+      He leído y acepto las bases,
+      términos y condiciones
+      del sorteo.
+    </span>
+
+  </label>
+
+</div>
+
+<label
+  className="
+    flex
+    gap-3
+    items-start
+    text-sm
+    text-slate-400
+    cursor-pointer
+  "
+>
+
+  <input
+    type="checkbox"
+    checked={marketingConsent}
+    onChange={(e) =>
+      setMarketingConsent(
+        e.target.checked
+      )
+    }
+    className="mt-1"
+  />
+
+  <span>
+    Deseo recibir información,
+    novedades y futuros sorteos.
+  </span>
+
+</label>
 
               <button
                 onClick={buyTickets}
