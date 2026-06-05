@@ -10,6 +10,9 @@ import {
   useParams
 } from "next/navigation"
 
+import RaffleCheckoutForm
+from "@/app/components/raffles/public/RaffleCheckoutForm"
+
 type RaffleData = {
   id: string
   slug: string
