@@ -429,6 +429,25 @@ const [marketingConsent, setMarketingConsent] =
 
   </label>
 
+<button
+  type="button"
+  className="
+    w-full
+    mt-4
+    py-4
+    rounded-2xl
+    bg-blue-600
+    hover:bg-blue-500
+    transition
+    font-black
+    text-lg
+  "
+>
+
+  Participar Ahora
+
+</button>
+
 </div>
 
           </div>
