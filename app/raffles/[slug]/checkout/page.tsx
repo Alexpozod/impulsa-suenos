@@ -627,20 +627,27 @@ if (!res.ok) {
 <button
   type="button"
   onClick={buyTickets}
+  disabled={processing}
   className="
-    w-full
-    mt-4
-    py-4
-    rounded-2xl
-    bg-blue-600
-    hover:bg-blue-500
-    transition
-    font-black
-    text-lg
-  "
+  w-full
+  mt-4
+  py-4
+  rounded-2xl
+  bg-blue-600
+  hover:bg-blue-500
+  transition
+  font-black
+  text-lg
+  disabled:opacity-60
+  disabled:cursor-not-allowed
+"
 >
 
-  Participar Ahora
+  {
+  processing
+    ? "Redirigiendo a Flow..."
+    : "Participar Ahora"
+}
 
 </button>
 
