@@ -437,6 +437,36 @@ if (!res.ok) {
 
           </div>
 
+<div
+  className="
+    mt-6
+    bg-slate-950
+    border
+    border-slate-800
+    rounded-2xl
+    p-4
+    space-y-3
+  "
+>
+
+  <div>
+    ✓ Pago seguro mediante Flow
+  </div>
+
+  <div>
+    ✓ Tickets asignados automáticamente
+  </div>
+
+  <div>
+    ✓ Confirmación enviada por correo
+  </div>
+
+  <div>
+    ✓ Ganadores públicos y verificables
+  </div>
+
+</div>
+
           <div
             className="
               mt-8
