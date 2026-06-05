@@ -40,6 +40,9 @@ export default function CheckoutPage() {
   const [buyerPhone, setBuyerPhone] =
     useState("")
 
+    const [processing, setProcessing] =
+  useState(false)
+
     const [acceptTerms, setAcceptTerms] =
   useState(false)
 
@@ -79,6 +82,102 @@ const [marketingConsent, setMarketingConsent] =
     }
 
   }
+
+async function buyTickets() {
+
+  if (!raffle?.id) {
+    return
+  }
+
+  if (!buyerName.trim()) {
+
+    alert("Ingresa tu nombre")
+
+    return
+  }
+
+  if (!buyerEmail.trim()) {
+
+    alert("Ingresa tu correo")
+
+    return
+  }
+
+  if (!buyerPhone.trim()) {
+
+    alert(
+      "Ingresa tu teléfono"
+    )
+
+    return
+  }
+
+  if (!acceptTerms) {
+
+  alert(
+    "Debes aceptar las bases del sorteo"
+  )
+
+  return
+}
+
+try {
+
+  setProcessing(true)
+
+  const res =
+    await fetch(
+      "/api/raffles/create-payment",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+
+          raffle_id:
+            raffle.id,
+
+          quantity,
+
+          buyer_name:
+            buyerName,
+
+          buyer_email:
+            buyerEmail,
+
+          buyer_phone:
+            buyerPhone,
+
+          source:
+            "web"
+
+        })
+      }
+    )
+
+  const json =
+    await res.json()
+
+  console.log(
+    "CHECKOUT RESPONSE",
+    json
+  )
+
+} catch (error) {
+
+  console.error(error)
+
+} finally {
+
+  setProcessing(false)
+
+}
+
+}
 
   if (loading) {
 
@@ -431,6 +530,7 @@ const [marketingConsent, setMarketingConsent] =
 
 <button
   type="button"
+  onClick={buyTickets}
   className="
     w-full
     mt-4
