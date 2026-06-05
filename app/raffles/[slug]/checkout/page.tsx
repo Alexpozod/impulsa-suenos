@@ -40,6 +40,12 @@ export default function CheckoutPage() {
   const [buyerPhone, setBuyerPhone] =
     useState("")
 
+    const [acceptTerms, setAcceptTerms] =
+  useState(false)
+
+const [marketingConsent, setMarketingConsent] =
+  useState(false)
+
   useEffect(() => {
 
     loadRaffle()
@@ -359,6 +365,71 @@ export default function CheckoutPage() {
                 py-3
               "
             />
+
+            <div
+  className="
+    pt-4
+    border-t
+    border-slate-800
+    space-y-3
+  "
+>
+
+  <label
+    className="
+      flex
+      gap-3
+      items-start
+      text-sm
+      text-slate-300
+    "
+  >
+
+    <input
+      type="checkbox"
+      checked={acceptTerms}
+      onChange={(e) =>
+        setAcceptTerms(
+          e.target.checked
+        )
+      }
+    />
+
+    <span>
+      He leído y acepto las bases,
+      términos y condiciones del sorteo.
+    </span>
+
+  </label>
+
+  <label
+    className="
+      flex
+      gap-3
+      items-start
+      text-sm
+      text-slate-400
+    "
+  >
+
+    <input
+      type="checkbox"
+      checked={marketingConsent}
+      onChange={(e) =>
+        setMarketingConsent(
+          e.target.checked
+        )
+      }
+    />
+
+    <span>
+      Deseo recibir novedades
+      y futuros sorteos.
+    </span>
+
+  </label>
+
+</div>
 
           </div>
 
