@@ -13,6 +13,8 @@ import {
 import RaffleCheckoutForm
 from "@/app/components/raffles/public/RaffleCheckoutForm"
 
+import Link from "next/link"
+
 type RaffleData = {
   id: string
   slug: string
@@ -872,6 +874,25 @@ if (!acceptTerms) {
                   text-lg
                 "
               >
+
+<Link
+  href={`/raffles/${raffle.slug}/checkout`}
+  className="
+    w-full
+    block
+    text-center
+    py-5
+    rounded-2xl
+    bg-emerald-600
+    hover:bg-emerald-500
+    transition
+    font-black
+    text-lg
+    mb-3
+  "
+>
+  Ir al Checkout V2
+</Link>
 
                 {processing
                   ? "Procesando..."
