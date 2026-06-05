@@ -388,6 +388,24 @@ if (!res.ok) {
 <div className="flex justify-between text-slate-400 mb-2">
 
   <span>
+    Premio
+  </span>
+
+  <span
+    className="
+      max-w-[180px]
+      text-right
+      truncate
+    "
+  >
+    {raffle.prize_title}
+  </span>
+
+</div>
+
+<div className="flex justify-between text-slate-400 mb-2">
+
+  <span>
     Valor ticket
   </span>
 
