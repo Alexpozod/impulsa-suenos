@@ -169,6 +169,19 @@ console.log(
   json
 )
 
+if (json?.url) {
+
+  localStorage.setItem(
+    "last_raffle_order_id",
+    json.order_id
+  )
+
+  window.location.href =
+    `${json.url}?token=${json.token}`
+
+  return
+}
+
 if (!res.ok) {
 
   if (
