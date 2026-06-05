@@ -85,6 +85,8 @@ const [marketingConsent, setMarketingConsent] =
 
 async function buyTickets() {
 
+    console.log("BOTON PRESIONADO")
+
   if (!raffle?.id) {
     return
   }
