@@ -77,44 +77,7 @@ function SuccessContent() {
           Tu compra fue procesada correctamente.
           Estamos confirmando tus tickets.
         </p>
-
-        {token && (
-
-          <div
-            className="
-              bg-slate-950
-              border
-              border-slate-800
-              rounded-2xl
-              p-4
-              mb-8
-              text-left
-            "
-          >
-
-            <p
-              className="
-                text-xs
-                text-slate-500
-                mb-2
-              "
-            >
-              Token Flow
-            </p>
-
-            <p
-              className="
-                text-sm
-                break-all
-                text-slate-300
-              "
-            >
-              {token}
-            </p>
-
-          </div>
-        )}
-
+        
         <div
           className="
             space-y-4
