@@ -51,9 +51,88 @@ const [marketingConsent, setMarketingConsent] =
 
   useEffect(() => {
 
-    loadRaffle()
+  loadRaffle()
 
-  }, [])
+  const savedName =
+    localStorage.getItem(
+      "raffle_buyer_name"
+    )
+
+  const savedEmail =
+    localStorage.getItem(
+      "raffle_buyer_email"
+    )
+
+  const savedPhone =
+    localStorage.getItem(
+      "raffle_buyer_phone"
+    )
+
+  const savedQuantity =
+    localStorage.getItem(
+      "raffle_quantity"
+    )
+
+  if (savedName) {
+    setBuyerName(savedName)
+  }
+
+  if (savedEmail) {
+    setBuyerEmail(savedEmail)
+  }
+
+  if (savedPhone) {
+    setBuyerPhone(savedPhone)
+  }
+
+  if (
+  savedQuantity &&
+  !isNaN(Number(savedQuantity))
+) {
+
+  setQuantity(
+    Number(savedQuantity)
+  )
+
+}
+
+}, [])
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "raffle_buyer_name",
+    buyerName
+  )
+
+}, [buyerName])
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "raffle_buyer_email",
+    buyerEmail
+  )
+
+}, [buyerEmail])
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "raffle_buyer_phone",
+    buyerPhone
+  )
+
+}, [buyerPhone])
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "raffle_quantity",
+    String(quantity)
+  )
+
+}, [quantity])
 
   async function loadRaffle() {
 
