@@ -85,21 +85,21 @@ function SuccessContent() {
         >
 
           <button
-            onClick={() =>
-              router.push("/sorteos")
-            }
-            className="
-              w-full
-              bg-blue-600
-              hover:bg-blue-500
-              transition
-              py-4
-              rounded-2xl
-              font-bold
-            "
-          >
-            Ver más sorteos
-          </button>
+  onClick={() =>
+    router.push("/raffles")
+  }
+  className="
+    w-full
+    bg-blue-600
+    hover:bg-blue-500
+    transition
+    py-4
+    rounded-2xl
+    font-bold
+  "
+>
+  Ver más sorteos
+</button>
 
           <button
             onClick={() =>
