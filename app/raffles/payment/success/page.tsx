@@ -84,6 +84,24 @@ function SuccessContent() {
           "
         >
 
+<button
+  onClick={() =>
+    router.push("/my-tickets")
+  }
+  className="
+    w-full
+    bg-emerald-600
+    hover:bg-emerald-500
+    transition
+    py-4
+    rounded-2xl
+    font-black
+    text-lg
+  "
+>
+  Ver mis tickets
+</button>
+
           <button
   onClick={() =>
     router.push("/raffles")
