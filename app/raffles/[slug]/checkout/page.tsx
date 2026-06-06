@@ -370,6 +370,66 @@ if (!res.ok) {
             {raffle.prize_title}
           </p>
 
+<div
+  className="
+    grid
+    grid-cols-1
+    sm:grid-cols-3
+    gap-2
+    mb-6
+  "
+>
+
+  <div
+    className="
+      bg-slate-950
+      border
+      border-slate-800
+      rounded-xl
+      py-3
+      px-3
+      text-center
+      text-sm
+      text-slate-300
+    "
+  >
+    🔒 Pago seguro
+  </div>
+
+  <div
+    className="
+      bg-slate-950
+      border
+      border-slate-800
+      rounded-xl
+      py-3
+      px-3
+      text-center
+      text-sm
+      text-slate-300
+    "
+  >
+    🎟️ Tickets automáticos
+  </div>
+
+  <div
+    className="
+      bg-slate-950
+      border
+      border-slate-800
+      rounded-xl
+      py-3
+      px-3
+      text-center
+      text-sm
+      text-slate-300
+    "
+  >
+    🏆 Sorteo verificable
+  </div>
+
+</div>
+
           <div
             className="
               bg-slate-950
