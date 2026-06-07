@@ -762,6 +762,11 @@ try {
     !order.confirmation_email_sent
   ) {
 
+console.log(
+  "EMAIL TICKETS",
+  JSON.stringify(tickets, null, 2)
+)
+
     await sendTicketsEmail({
 
       email:
