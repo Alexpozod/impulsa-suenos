@@ -86,7 +86,7 @@ function SuccessContent() {
 
 <button
   onClick={() =>
-    router.push("/my-tickets")
+    router.push("/raffles/my-tickets")
   }
   className="
     w-full
