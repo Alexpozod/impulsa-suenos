@@ -36,9 +36,9 @@ export default function RafflesFooter() {
 
             <div className="flex flex-col gap-3 text-slate-400">
 
-              <Link href="/raffles">
-                Sorteos Activos
-              </Link>
+              <Link href="/raffles#sorteos-activos">
+  Sorteos Activos
+</Link>
 
               <Link href="/raffles/winners">
                 Ganadores
