@@ -12,20 +12,61 @@ export default function FailurePage() {
       <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-10 text-center">
 
         <div className="text-6xl mb-6">
-          ❌
-        </div>
+  ⚠️
+</div>
 
-        <h1 className="text-4xl font-black mb-4">
-          Pago rechazado
-        </h1>
+<h1
+  className="
+    text-4xl
+    font-black
+    mb-4
+  "
+>
+  No pudimos completar tu pago
+</h1>
 
-        <p className="text-slate-300 text-lg mb-8">
-          El pago fue rechazado o cancelado.
+<p
+  className="
+    text-slate-300
+    text-lg
+    leading-relaxed
+    mb-8
+  "
+>
+  Tu pago fue cancelado o rechazado por el
+  proveedor de pago.
 
-          No se asignaron tickets a esta compra.
+  No te preocupes: no se asignaron tickets a
+  esta compra y puedes intentarlo nuevamente
+  cuando lo desees.
+</p>
 
-          Puedes volver a intentarlo seleccionando nuevamente el sorteo de tu interés.
-        </p>
+<div
+  className="
+    bg-slate-950
+    border
+    border-slate-800
+    rounded-2xl
+    p-5
+    mb-8
+    text-left
+    space-y-2
+  "
+>
+
+  <div>
+    ❌ Pago no confirmado
+  </div>
+
+  <div>
+    🎟️ No se asignaron tickets
+  </div>
+
+  <div>
+    🔄 Puedes volver a intentarlo en cualquier momento
+  </div>
+
+</div>
 
         <button
           onClick={() => router.push("/raffles")}
