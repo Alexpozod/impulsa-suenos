@@ -43,7 +43,7 @@ export default function FinalCTA() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
 
             <Link
-              href="/raffles"
+              href="#sorteos-activos"
               className="
                 bg-blue-600
                 hover:bg-blue-500
