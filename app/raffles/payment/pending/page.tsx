@@ -12,17 +12,57 @@ export default function PendingPage() {
       <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-10 text-center">
 
         <div className="text-6xl mb-6">
-          ⏳
-        </div>
+  ⏳
+</div>
 
-        <h1 className="text-4xl font-black mb-4">
-          Pago pendiente
-        </h1>
+<h1 className="text-4xl font-black mb-4">
+  Estamos confirmando tu pago
+</h1>
 
-        <p className="text-slate-300 text-lg mb-8">
-          Estamos esperando la confirmación del pago.
-          Tus tickets serán asignados una vez aprobado.
-        </p>
+<p
+  className="
+    text-slate-300
+    text-lg
+    leading-relaxed
+    mb-8
+  "
+>
+  Tu pago fue recibido y estamos esperando la
+  confirmación definitiva del proveedor de pago.
+  Una vez aprobado, tus tickets serán asignados
+  automáticamente.
+</p>
+
+<div
+  className="
+    bg-slate-950
+    border
+    border-slate-800
+    rounded-2xl
+    p-5
+    mb-8
+    text-left
+    space-y-2
+  "
+>
+
+  <div>
+    ✅ Compra registrada
+  </div>
+
+  <div>
+    ⏳ Confirmación de pago en proceso
+  </div>
+
+  <div>
+    🎟️ Tickets asignados automáticamente al aprobarse
+  </div>
+
+  <div>
+    📧 Recibirás una confirmación por correo
+  </div>
+
+</div>
 
         <button
           onClick={() => router.push("/raffles")}
