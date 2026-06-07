@@ -317,7 +317,52 @@ export default function MyTicketsPage() {
   )
 )}
 
-        </div>
+               </div>
+
+        {!loading && tickets.length === 0 && (
+
+          <div
+            className="
+              mt-8
+              bg-slate-900
+              border
+              border-slate-800
+              rounded-3xl
+              p-10
+              text-center
+            "
+          >
+
+            <div className="text-6xl mb-4">
+              🎟️
+            </div>
+
+            <h2
+              className="
+                text-2xl
+                font-black
+                mb-3
+              "
+            >
+              Aún no encontramos tickets
+            </h2>
+
+            <p
+              className="
+                text-slate-400
+                max-w-xl
+                mx-auto
+                leading-relaxed
+              "
+            >
+              Ingresa el mismo correo electrónico que utilizaste
+              al realizar la compra. Si acabas de pagar, espera unos
+              instantes mientras procesamos tu participación.
+            </p>
+
+          </div>
+
+        )}
 
       </div>
 
