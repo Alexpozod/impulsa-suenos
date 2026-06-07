@@ -64,12 +64,40 @@ export default function PendingPage() {
 
 </div>
 
-        <button
-          onClick={() => router.push("/raffles")}
-          className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold"
-        >
-          Volver a sorteos
-        </button>
+        <div className="space-y-4">
+
+  <button
+    onClick={() => window.location.reload()}
+    className="
+      w-full
+      bg-emerald-600
+      hover:bg-emerald-500
+      py-4
+      rounded-2xl
+      font-bold
+      transition
+    "
+  >
+    🔄 Volver a consultar estado
+  </button>
+
+  <button
+    onClick={() => router.push("/raffles")}
+    className="
+      w-full
+      border
+      border-slate-700
+      py-4
+      rounded-2xl
+      font-bold
+      hover:bg-slate-800
+      transition
+    "
+  >
+    Ver más sorteos
+  </button>
+
+</div>
 
       </div>
 
