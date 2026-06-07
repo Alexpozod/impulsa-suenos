@@ -105,15 +105,32 @@ export default function MyTicketsPage() {
         "
       >
 
-        <h1
-          className="
-            text-4xl
-            font-black
-            mb-8
-          "
-        >
-          Mis Tickets
-        </h1>
+        <div className="mb-8">
+
+  <h1
+    className="
+      text-4xl
+      font-black
+      mb-3
+    "
+  >
+    🎟️ Mis Tickets
+  </h1>
+
+  <p
+    className="
+      text-slate-400
+      max-w-2xl
+      leading-relaxed
+    "
+  >
+    Consulta todos los tickets asociados al correo
+    electrónico utilizado durante tu compra.
+    Si participaste en más de un sorteo,
+    aquí podrás verlos agrupados.
+  </p>
+
+</div>
 
         <div
           className="
