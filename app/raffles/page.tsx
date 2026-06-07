@@ -33,7 +33,7 @@ export default function RafflesHomePage() {
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
 
               <Link
-  href="/raffles"
+  href="#sorteos-activos"
   className="bg-blue-600 px-8 py-4 rounded-2xl font-bold"
 >
   Ver Sorteos
