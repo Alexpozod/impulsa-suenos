@@ -244,14 +244,16 @@ export default function MyTicketsPage() {
           </h2>
 
           <p
-            className="
-              text-slate-400
-            "
-          >
-            {
-              group.tickets.length
-            } tickets
-          </p>
+  className="
+    text-slate-400
+    mt-1
+  "
+>
+  🎟️ {group.tickets.length}{" "}
+  {group.tickets.length === 1
+    ? "ticket registrado"
+    : "tickets registrados"}
+</p>
 
         </div>
 
