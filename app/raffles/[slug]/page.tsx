@@ -10,9 +10,6 @@ import {
   useParams
 } from "next/navigation"
 
-import RaffleCheckoutForm
-from "@/app/components/raffles/public/RaffleCheckoutForm"
-
 import Link from "next/link"
 
 type RaffleData = {
@@ -380,6 +377,55 @@ p-5
   {raffle.description}
 </p>
     
+<div
+  className="
+    mt-6
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+  <div
+    className="
+      text-amber-400
+      text-sm
+      font-bold
+      uppercase
+      tracking-wide
+      mb-2
+    "
+  >
+    🎁 Premio principal
+  </div>
+
+  <h2
+    className="
+      text-3xl
+      font-black
+      mb-3
+    "
+  >
+    {raffle.prize_title}
+  </h2>
+
+  {raffle.prize_description && (
+
+    <p
+      className="
+        text-slate-300
+        leading-relaxed
+      "
+    >
+      {raffle.prize_description}
+    </p>
+
+  )}
+
+</div>
+
     </div>
   
 <div
@@ -562,6 +608,8 @@ p-5
   "
 >
   Participar por este premio
+
+  Bases legales
 </Link>
 
 </div>
