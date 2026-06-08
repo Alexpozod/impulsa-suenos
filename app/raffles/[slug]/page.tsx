@@ -372,7 +372,7 @@ const [selectedQty, setSelectedQty] =
               <h1
                 className="
                   text-3xl md:text-4xl
-                  lg:text-5xl
+                  lg:text-4xl
                   font-black
                   leading-tight
                 "
@@ -469,15 +469,19 @@ const [selectedQty, setSelectedQty] =
     "
   >
     <div className="font-bold text-lg">
-      🎟 1 Ticket
-    </div>
+  Básico
+</div>
 
-    <div className="text-slate-400 mt-1">
-      $
-      {Number(
-        raffle.ticket_price_clp
-      ).toLocaleString("es-CL")}
-    </div>
+<div className="text-slate-400 mt-1">
+  1 participación
+</div>
+
+<div className="mt-3 font-semibold">
+  $
+  {Number(
+    raffle.ticket_price_clp
+  ).toLocaleString("es-CL")}
+</div>
   </Link>
 
   <Link
@@ -491,15 +495,19 @@ const [selectedQty, setSelectedQty] =
     "
   >
     <div className="font-bold text-lg">
-      ⭐ 3 Tickets
-    </div>
+  Popular ⭐
+</div>
 
-    <div className="mt-1">
-      $
-      {Number(
-        raffle.ticket_price_clp * 3
-      ).toLocaleString("es-CL")}
-    </div>
+<div className="mt-1">
+  3 participaciones
+</div>
+
+<div className="mt-3 font-semibold">
+  $
+  {Number(
+    raffle.ticket_price_clp * 3
+  ).toLocaleString("es-CL")}
+</div>
   </Link>
 
   <Link
@@ -516,15 +524,19 @@ const [selectedQty, setSelectedQty] =
     "
   >
     <div className="font-bold text-lg">
-      🔥 5 Tickets
-    </div>
+  Recomendado 🔥
+</div>
 
-    <div className="text-slate-400 mt-1">
-      $
-      {Number(
-        raffle.ticket_price_clp * 5
-      ).toLocaleString("es-CL")}
-    </div>
+<div className="text-slate-400 mt-1">
+  5 participaciones
+</div>
+
+<div className="mt-3 font-semibold">
+  $
+  {Number(
+    raffle.ticket_price_clp * 5
+  ).toLocaleString("es-CL")}
+</div>
   </Link>
 
   <Link
@@ -541,15 +553,19 @@ const [selectedQty, setSelectedQty] =
     "
   >
     <div className="font-bold text-lg">
-      👑 10 Tickets
-    </div>
+  Premium 👑
+</div>
 
-    <div className="text-slate-400 mt-1">
-      $
-      {Number(
-        raffle.ticket_price_clp * 10
-      ).toLocaleString("es-CL")}
-    </div>
+<div className="text-slate-400 mt-1">
+  10 participaciones
+</div>
+
+<div className="mt-3 font-semibold">
+  $
+  {Number(
+    raffle.ticket_price_clp * 10
+  ).toLocaleString("es-CL")}
+</div>
   </Link>
 
 </div>
@@ -569,7 +585,7 @@ const [selectedQty, setSelectedQty] =
       text-lg
     "
   >
-    Participar Ahora
+    Participar por este premio
   </Link>
 
 </div>
