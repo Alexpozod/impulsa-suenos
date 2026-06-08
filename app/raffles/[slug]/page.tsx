@@ -254,7 +254,7 @@ const [selectedQty, setSelectedQty] =
 >
   <div
     className="
-      text-amber-400
+      text-yellow-400
       text-sm
       uppercase
       tracking-wider
@@ -262,7 +262,7 @@ const [selectedQty, setSelectedQty] =
       mb-3
     "
   >
-    🎁 Premio Principal
+    🏆 Premio Principal
   </div>
 
   <h2
@@ -339,25 +339,6 @@ p-5
   </Link>
 
 </div>
-
-  <Link
-  href={`/raffles/${raffle.slug}/bases`}
-  className="
-    inline-flex
-    items-center
-    justify-center
-    px-5
-    py-3
-    rounded-xl
-    bg-blue-600
-    hover:bg-blue-500
-    text-white
-    transition
-    font-semibold
-  "
->
-  Ver bases legales
-</Link>
 
 </div>
 
@@ -501,17 +482,17 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(1)}
-    className={`rounded-2xl p-3 border transition ${
+    className={`rounded-xl p-2.5 border transition ${
       selectedQty === 1
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-base font-semibold">
+    <div className="text-sm font-bold">
       Básico
     </div>
 
-    <div className="text-sm text-slate-400">
+    <div className="text-xs text-slate-400">
       1 participación
     </div>
 
@@ -526,17 +507,17 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(3)}
-    className={`rounded-2xl p-3 border transition ${
+    className={`rounded-xl p-2.5 border transition ${
       selectedQty === 3
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-base font-semibold">
+    <div className="text-sm font-bold">
       Popular ⭐
     </div>
 
-    <div className="text-sm text-slate-400">
+    <div className="text-xs text-slate-400">
       3 participaciones
     </div>
 
@@ -551,17 +532,17 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(5)}
-    className={`rounded-2xl p-3 border transition ${
+    className={`rounded-xl p-2.5 border transition ${
       selectedQty === 5
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-base font-semibold">
+    <div className="text-sm font-bold">
       Recomendado 🔥
     </div>
 
-    <div className="text-sm text-slate-400">
+    <div className="text-xs text-slate-400">
       5 participaciones
     </div>
 
@@ -576,17 +557,17 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(10)}
-    className={`rounded-2xl p-3 border transition ${
+    className={`rounded-xl p-2.5 border transition ${
       selectedQty === 10
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-base font-semibold">
+    <div className="text-sm font-bold">
       Premium 👑
     </div>
 
-    <div className="text-sm text-slate-400">
+    <div className="text-xs text-slate-400">
       10 participaciones
     </div>
 
@@ -616,32 +597,62 @@ p-5
     text-lg
   "
 >
-  Participar ahora
+  Continuar participación
 </Link>
 
 <div
   className="
     mt-5
-    space-y-2
-    text-sm
-    text-slate-300
+    grid
+    grid-cols-2
+    gap-3
   "
 >
-  <div>
-    ✅ Pago seguro mediante Flow
+
+  <div
+    className="
+      bg-slate-950
+      rounded-xl
+      p-3
+      text-sm
+    "
+  >
+    🔒 Pago seguro Flow
   </div>
 
-  <div>
-    ✅ Ticket asignado automáticamente
+  <div
+    className="
+      bg-slate-950
+      rounded-xl
+      p-3
+      text-sm
+    "
+  >
+    🎟 Ticket automático
   </div>
 
-  <div>
-    ✅ Sorteo verificable
+  <div
+    className="
+      bg-slate-950
+      rounded-xl
+      p-3
+      text-sm
+    "
+  >
+    🛡️ Sorteo verificable
   </div>
 
-  <div>
-    ✅ Ganador publicado públicamente
+  <div
+    className="
+      bg-slate-950
+      rounded-xl
+      p-3
+      text-sm
+    "
+  >
+    🏆 Ganador publicado
   </div>
+
 </div>
 
 </div>
