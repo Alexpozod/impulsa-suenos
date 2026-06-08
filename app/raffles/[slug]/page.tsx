@@ -563,21 +563,6 @@ p-5
 >
   Participar por este premio
 </Link>
-  className="
-    w-full
-    block
-    text-center
-    py-5
-    rounded-2xl
-    bg-blue-600
-    hover:bg-blue-500
-    transition
-    font-black
-    text-lg
-  "
->
-  Participar por este premio
-</Link>
 
 </div>
 
