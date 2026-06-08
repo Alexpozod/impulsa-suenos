@@ -523,6 +523,8 @@ const [selectedQty, setSelectedQty] =
     Participar Ahora
   </Link>
 
+</div>
+
 {winners.length > 0 && (
 
   <div
