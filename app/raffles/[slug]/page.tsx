@@ -314,7 +314,7 @@ p-5
         text-sm
       "
     >
-      Protocolizado ante notario
+      Protocolizado ante notario para este sorteo.
     </div>
   </div>
 
@@ -382,12 +382,13 @@ p-5
   Participa por este premio
 </h1>
 
-              <p
+             <p
   className="
-    mt-5
+    mt-6
     text-slate-300
     text-lg
     leading-relaxed
+    max-w-xl
   "
 >
   {raffle.prize_description || raffle.description}
@@ -482,21 +483,21 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(1)}
-    className={`rounded-xl p-2.5 border transition ${
+    className={`rounded-xl py-2 px-3 border transition ${
       selectedQty === 1
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-sm font-bold">
+    <div className="text-sm font-semibold">
       Básico
     </div>
 
-    <div className="text-xs text-slate-400">
+    <div className="text-[11px] text-slate-400 mt-0.5">
       1 participación
     </div>
 
-    <div className="mt-1 font-bold">
+    <div className="mt-0.5 font-bold text-sm">
       $
       {Number(
         raffle.ticket_price_clp
@@ -507,21 +508,21 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(3)}
-    className={`rounded-xl p-2.5 border transition ${
+    className={`rounded-xl py-2 px-3 border transition ${
       selectedQty === 3
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-sm font-bold">
+    <div className="text-sm font-semibold">
       Popular ⭐
     </div>
 
-    <div className="text-xs text-slate-400">
+    <div className="text-[11px] text-slate-400 mt-0.5">
       3 participaciones
     </div>
 
-    <div className="mt-1 font-bold">
+    <div className="mt-0.5 font-bold text-sm">
       $
       {Number(
         raffle.ticket_price_clp * 3
@@ -532,21 +533,21 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(5)}
-    className={`rounded-xl p-2.5 border transition ${
+    className={`rounded-xl py-2 px-3 border transition ${
       selectedQty === 5
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-sm font-bold">
+    <div className="text-sm font-semibold">
       Recomendado 🔥
     </div>
 
-    <div className="text-xs text-slate-400">
+    <div className="text-[11px] text-slate-400 mt-0.5">
       5 participaciones
     </div>
 
-    <div className="mt-1 font-bold">
+    <div className="mt-0.5 font-bold text-sm">
       $
       {Number(
         raffle.ticket_price_clp * 5
@@ -557,21 +558,21 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(10)}
-    className={`rounded-xl p-2.5 border transition ${
+    className={`rounded-xl py-2 px-3 border transition ${
       selectedQty === 10
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-sm font-bold">
+    <div className="text-sm font-semibold">
       Premium 👑
     </div>
 
-    <div className="text-xs text-slate-400">
+    <div className="text-[11px] text-slate-400 mt-0.5">
       10 participaciones
     </div>
 
-    <div className="mt-1 font-bold">
+    <div className="mt-0.5 font-bold text-sm">
       $
       {Number(
         raffle.ticket_price_clp * 10
@@ -597,7 +598,7 @@ p-5
     text-lg
   "
 >
-  Continuar participación
+  Participar ahora
 </Link>
 
 <div
@@ -613,30 +614,30 @@ p-5
     className="
       bg-slate-950
       rounded-xl
-      p-3
-      text-sm
+      py-2 px-3
+      text-xs
     "
   >
-    🔒 Pago seguro Flow
+    🔒 Pago seguro mediante Flow
   </div>
 
   <div
     className="
       bg-slate-950
       rounded-xl
-      p-3
-      text-sm
+      py-2 px-3
+      text-xs
     "
   >
-    🎟 Ticket automático
+    🎟 Asignación automática
   </div>
 
   <div
     className="
       bg-slate-950
       rounded-xl
-      p-3
-      text-sm
+      py-2 px-3
+      text-xs
     "
   >
     🛡️ Sorteo verificable
@@ -646,8 +647,8 @@ p-5
     className="
       bg-slate-950
       rounded-xl
-      p-3
-      text-sm
+      py-2 px-3
+      text-xs
     "
   >
     🏆 Ganador publicado
