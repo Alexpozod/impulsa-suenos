@@ -245,6 +245,102 @@ const [selectedQty, setSelectedQty] =
               "
             />
 
+<div
+  className="
+    mt-6
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+  <div
+    className="
+      text-amber-400
+      text-sm
+      uppercase
+      tracking-wider
+      font-semibold
+      mb-3
+    "
+  >
+    🎁 Premio Principal
+  </div>
+
+  <h2
+    className="
+      text-2xl
+      font-black
+      mb-3
+    "
+  >
+    {raffle.prize_title}
+  </h2>
+
+  {raffle.prize_description && (
+
+    <p
+      className="
+        text-slate-300
+        leading-relaxed
+      "
+    >
+      {raffle.prize_description}
+    </p>
+
+  )}
+
+</div>
+
+<div
+  className="
+    mt-6
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+  <h3
+    className="
+      text-xl
+      font-bold
+      mb-2
+    "
+  >
+    📜 Bases legales
+  </h3>
+
+  <p
+    className="
+      text-slate-300
+      mb-4
+    "
+  >
+    Protocolizado ante notario
+  </p>
+
+  <Link
+    href={`/raffles/${raffle.slug}/bases`}
+    className="
+      inline-flex
+      px-5
+      py-3
+      rounded-xl
+      bg-blue-600
+      hover:bg-blue-500
+      transition
+      font-semibold
+    "
+  >
+    Ver bases legales
+  </Link>
+
+</div>
+
           </div>
 
           <div
@@ -294,53 +390,6 @@ const [selectedQty, setSelectedQty] =
 >
   {raffle.description}
 </p>
-
-<div
-  className="
-    mt-6
-    grid
-    grid-cols-2
-    gap-3
-  "
->
-
-  <div
-    className="
-      bg-slate-900
-      border
-      border-slate-800
-      rounded-2xl
-      p-4
-    "
-  >
-    <div className="text-slate-400 text-xs">
-      Premio
-    </div>
-
-    <div className="font-bold mt-1">
-      {raffle.prize_title}
-    </div>
-  </div>
-
-  <div
-    className="
-      bg-slate-900
-      border
-      border-slate-800
-      rounded-2xl
-      p-4
-    "
-  >
-    <div className="text-slate-400 text-xs">
-      Estado
-    </div>
-
-    <div className="font-bold mt-1">
-      Activo
-    </div>
-  </div>
-
-</div>
     
     </div>
   
