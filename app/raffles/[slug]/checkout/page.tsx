@@ -637,7 +637,7 @@ if (!res.ok) {
 
               </div>
 
-              <div className="flex justify-between text-xl font-black mt-2">
+              <div className="flex justify-between text-2xl font-black mt-3">
 
                 <span>
                   Total
@@ -798,6 +798,46 @@ placeholder="Teléfono móvil"
     space-y-3
   "
 >
+
+<div
+className="
+bg-slate-950
+border
+border-slate-800
+rounded-2xl
+p-4
+mb-4
+text-center
+"
+>
+
+<div className="text-slate-400 text-sm">
+Estás comprando
+</div>
+
+<div className="text-xl font-black mt-2">
+🔥 {quantity} participación{quantity > 1 ? "es" : ""}
+</div>
+
+<div className="text-slate-400 mt-3">
+Total a pagar
+</div>
+
+<div className="text-3xl font-black text-blue-400">
+
+$
+
+{(
+Number(
+raffle.ticket_price_clp
+)
+*
+quantity
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
 
   <label
     className="
