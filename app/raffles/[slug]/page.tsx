@@ -279,34 +279,7 @@ const [selectedQty, setSelectedQty] =
 >
     {raffle.prize_title}
   </h2>
-
-  {raffle.prize_description && (
-
-    <p
-      className="
-        text-slate-300
-        text-lg
-        leading-relaxed
-      "
-    >
-      {raffle.prize_description}
-
-<div
-  className="
-    mt-5
-    space-y-2
-    text-slate-300
-  "
->
-  <div>✅ Sorteo verificable</div>
-  <div>✅ Ganador publicado públicamente</div>
-  <div>✅ Ticket asignado automáticamente</div>
-</div>
-
-    </p>
-
-  )}
-
+  
 </div>
 
 <div
@@ -472,178 +445,139 @@ p-5
 >
 
   <button
-  onClick={() => setSelectedQty(1)}
-  className={`
-    rounded-2xl
-    p-4
-    text-center
-    transition
-    border
-    ${
+    type="button"
+    onClick={() => setSelectedQty(1)}
+    className={`rounded-2xl p-4 border transition ${
       selectedQty === 1
         ? "bg-blue-600 border-blue-500"
-        : "bg-slate-950 border-slate-800 hover:border-blue-500"
-    }
-  `}
->
-    <div className="font-bold text-lg">
-  Básico
-</div>
+        : "bg-slate-950 border-slate-800"
+    }`}
+  >
+    <div className="font-bold">
+      Básico
+    </div>
 
-<div className="text-slate-400 mt-1">
-  1 participación
-</div>
+    <div className="text-sm text-slate-400">
+      1 participación
+    </div>
 
-<div className="mt-3 font-semibold">
-  $
-  {Number(
-    raffle.ticket_price_clp
-  ).toLocaleString("es-CL")}
-</div>
+    <div className="mt-2">
+      $
+      {Number(
+        raffle.ticket_price_clp
+      ).toLocaleString("es-CL")}
+    </div>
   </button>
 
   <button
-  onClick={() => setSelectedQty(3)}
-  className={`
-    rounded-2xl
-    p-4
-    text-center
-    transition
-    border
-    ${
+    type="button"
+    onClick={() => setSelectedQty(3)}
+    className={`rounded-2xl p-4 border transition ${
       selectedQty === 3
         ? "bg-blue-600 border-blue-500"
-        : "bg-slate-950 border-slate-800 hover:border-blue-500"
-    }
-  `}
->
-    className="
-      bg-blue-600
-      text-white
-      rounded-2xl
-      p-4
-      text-center
-    "
+        : "bg-slate-950 border-slate-800"
+    }`}
   >
-    <div className="font-bold text-lg">
-  Popular ⭐
-</div>
+    <div className="font-bold">
+      Popular ⭐
+    </div>
 
-<div className="mt-1">
-  3 participaciones
-</div>
+    <div className="text-sm text-slate-400">
+      3 participaciones
+    </div>
 
-<div className="mt-3 font-semibold">
-  $
-  {Number(
-    raffle.ticket_price_clp * 3
-  ).toLocaleString("es-CL")}
-</div>
+    <div className="mt-2">
+      $
+      {Number(
+        raffle.ticket_price_clp * 3
+      ).toLocaleString("es-CL")}
+    </div>
   </button>
-
- <button
-  onClick={() => setSelectedQty(5)}
-  className={`
-    rounded-2xl
-    p-4
-    text-center
-    transition
-    border
-    ${
-      selectedQty === 5
-        ? "bg-blue-600 border-blue-500"
-        : "bg-slate-950 border-slate-800 hover:border-blue-500"
-    }
-  `}
->
-    className="
-      bg-slate-950
-      border
-      border-slate-800
-      rounded-2xl
-      p-4
-      text-center
-      hover:border-blue-500
-      transition
-    "
-  >
-    <div className="font-bold text-lg">
-  Recomendado 🔥
-</div>
-
-<div className="text-slate-400 mt-1">
-  5 participaciones
-</div>
-
-<div className="mt-3 font-semibold">
-  $
-  {Number(
-    raffle.ticket_price_clp * 5
-  ).toLocaleString("es-CL")}
-</div>
-  <</button>
 
   <button
-  onClick={() => setSelectedQty(10)}
-  className={`
-    rounded-2xl
-    p-4
-    text-center
-    transition
-    border
-    ${
+    type="button"
+    onClick={() => setSelectedQty(5)}
+    className={`rounded-2xl p-4 border transition ${
+      selectedQty === 5
+        ? "bg-blue-600 border-blue-500"
+        : "bg-slate-950 border-slate-800"
+    }`}
+  >
+    <div className="font-bold">
+      Recomendado 🔥
+    </div>
+
+    <div className="text-sm text-slate-400">
+      5 participaciones
+    </div>
+
+    <div className="mt-2">
+      $
+      {Number(
+        raffle.ticket_price_clp * 5
+      ).toLocaleString("es-CL")}
+    </div>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setSelectedQty(10)}
+    className={`rounded-2xl p-4 border transition ${
       selectedQty === 10
         ? "bg-blue-600 border-blue-500"
-        : "bg-slate-950 border-slate-800 hover:border-blue-500"
-    }
-  `}
->
-    className="
-      bg-slate-950
-      border
-      border-slate-800
-      rounded-2xl
-      p-4
-      text-center
-      hover:border-blue-500
-      transition
-    "
+        : "bg-slate-950 border-slate-800"
+    }`}
   >
-    <div className="font-bold text-lg">
-  Premium 👑
-</div>
+    <div className="font-bold">
+      Premium 👑
+    </div>
 
-<div className="text-slate-400 mt-1">
-  10 participaciones
-</div>
+    <div className="text-sm text-slate-400">
+      10 participaciones
+    </div>
 
-<div className="mt-3 font-semibold">
-  $
-  {Number(
-    raffle.ticket_price_clp * 10
-  ).toLocaleString("es-CL")}
-</div>
+    <div className="mt-2">
+      $
+      {Number(
+        raffle.ticket_price_clp * 10
+      ).toLocaleString("es-CL")}
+    </div>
   </button>
 
 </div>
-  
-  <Link
+
+<Link
   href={`/raffles/${raffle.slug}/checkout?qty=${selectedQty}`}
-    className="
-      w-full
-      block
-      text-center
-      py-5
-      rounded-2xl
-      bg-blue-600
-      hover:bg-blue-500
-      transition
-      font-black
-      text-lg
-    "
-  >
-    Participar por este premio
-  </Link>
+  className="
+    w-full
+    block
+    text-center
+    py-5
+    rounded-2xl
+    bg-blue-600
+    hover:bg-blue-500
+    transition
+    font-black
+    text-lg
+  "
+>
+  Participar por este premio
+</Link>
+  className="
+    w-full
+    block
+    text-center
+    py-5
+    rounded-2xl
+    bg-blue-600
+    hover:bg-blue-500
+    transition
+    font-black
+    text-lg
+  "
+>
+  Participar por este premio
+</Link>
 
 </div>
 
