@@ -68,11 +68,11 @@ export default function RafflesNavbar() {
             </Link>
 
             <Link
-              href="/faq"
-              className="text-slate-200 hover:text-white transition"
-            >
-              FAQ
-            </Link>
+  href="/raffles/faq"
+  className="text-slate-200 hover:text-white transition"
+>
+  FAQ
+</Link>
 
           </nav>
 
@@ -155,12 +155,12 @@ export default function RafflesNavbar() {
             </Link>
 
             <Link
-              href="/faq"
-              onClick={() => setOpen(false)}
-              className="text-white"
-            >
-              FAQ
-            </Link>
+  href="/raffles/faq"
+  onClick={() => setOpen(false)}
+  className="text-white"
+>
+  FAQ
+</Link>
 
             <Link
               href="/login"

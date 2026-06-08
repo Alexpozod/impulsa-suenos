@@ -62,13 +62,13 @@ export default function RafflesFooter() {
 
             <div className="flex flex-col gap-3 text-slate-400">
 
-              <Link href="/como-funciona">
-                Cómo Funciona
-              </Link>
+              <Link href="/raffles/como-funciona">
+  Cómo Funciona
+</Link>
 
-              <Link href="/faq">
-                Preguntas Frecuentes
-              </Link>
+              <Link href="/raffles/faq">
+  Preguntas Frecuentes
+</Link>
 
               <a
                 href="mailto:contacto@impulsasuenos.com"
@@ -90,17 +90,17 @@ export default function RafflesFooter() {
 
             <div className="flex flex-col gap-3 text-slate-400">
 
-              <Link href="/terminos">
-                Términos y Condiciones
-              </Link>
+              <Link href="/raffles/terminos">
+  Términos y Condiciones
+</Link>
 
-              <Link href="/privacidad">
-                Política de Privacidad
-              </Link>
+              <Link href="/raffles/privacidad">
+  Política de Privacidad
+</Link>
 
-              <Link href="/cookies">
-                Política de Cookies
-              </Link>
+              <Link href="/raffles/cookies">
+  Política de Cookies
+</Link>
 
               <Link href="/raffles/bases">
                 Bases Generales
