@@ -269,12 +269,14 @@ const [selectedQty, setSelectedQty] =
   </div>
 
   <h2
-    className="
-      text-2xl
-      font-black
-      mb-3
-    "
-  >
+  className="
+    text-3xl
+    md:text-4xl
+    font-black
+    leading-tight
+    mb-3
+  "
+>
     {raffle.prize_title}
   </h2>
 
@@ -283,10 +285,24 @@ const [selectedQty, setSelectedQty] =
     <p
       className="
         text-slate-300
+        text-lg
         leading-relaxed
       "
     >
       {raffle.prize_description}
+
+<div
+  className="
+    mt-5
+    space-y-2
+    text-slate-300
+  "
+>
+  <div>✅ Sorteo verificable</div>
+  <div>✅ Ganador publicado públicamente</div>
+  <div>✅ Ticket asignado automáticamente</div>
+</div>
+
     </p>
 
   )}
@@ -299,8 +315,8 @@ const [selectedQty, setSelectedQty] =
     bg-slate-900
     border
     border-slate-800
-    rounded-3xl
-    p-6
+    rounded-2xl
+p-5
   "
 >
 
@@ -336,7 +352,7 @@ const [selectedQty, setSelectedQty] =
       font-semibold
     "
   >
-    Ver bases legales
+    Consultar bases legales
   </Link>
 
 </div>
