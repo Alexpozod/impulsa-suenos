@@ -290,24 +290,55 @@ p-5
   "
 >
 
-  <h3
-    className="
-      text-xl
-      font-bold
-      mb-2
-    "
-  >
-    📜 Bases legales
-  </h3>
+  <div
+  className="
+    flex
+    flex-col
+    gap-3
+  "
+>
 
-  <p
+  <div>
+    <div
+      className="
+        font-bold
+        text-lg
+      "
+    >
+      📜 Bases legales
+    </div>
+
+    <div
+      className="
+        text-slate-300
+        text-sm
+      "
+    >
+      Protocolizado ante notario
+    </div>
+  </div>
+
+  <Link
+    href={`/raffles/${raffle.slug}/bases`}
     className="
-      text-slate-300
-      mb-4
+      inline-flex
+      items-center
+      justify-center
+      px-5
+      py-3
+      rounded-xl
+      bg-blue-600
+      hover:bg-blue-500
+      text-white
+      transition
+      font-semibold
+      w-fit
     "
   >
-    Protocolizado ante notario
-  </p>
+    Ver bases legales
+  </Link>
+
+</div>
 
   <Link
   href={`/raffles/${raffle.slug}/bases`}
@@ -379,6 +410,28 @@ p-5
   "
 >
   {raffle.prize_description || raffle.description}
+
+  {raffle.end_date && (
+
+  <div
+    className="
+      mt-4
+      text-sm
+      text-slate-400
+    "
+  >
+    📅 Fecha del sorteo:
+    {" "}
+    {
+      new Date(
+        raffle.end_date
+      ).toLocaleDateString(
+        "es-CL"
+      )
+    }
+  </div>
+
+)}
 </p> 
 
     </div>
@@ -448,13 +501,13 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(1)}
-    className={`rounded-2xl p-4 border transition ${
+    className={`rounded-2xl p-3 border transition ${
       selectedQty === 1
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="font-bold">
+    <div className="text-base font-semibold">
       Básico
     </div>
 
@@ -462,7 +515,7 @@ p-5
       1 participación
     </div>
 
-    <div className="mt-2">
+    <div className="mt-1 font-bold">
       $
       {Number(
         raffle.ticket_price_clp
@@ -473,13 +526,13 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(3)}
-    className={`rounded-2xl p-4 border transition ${
+    className={`rounded-2xl p-3 border transition ${
       selectedQty === 3
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="font-bold">
+    <div className="text-base font-semibold">
       Popular ⭐
     </div>
 
@@ -487,7 +540,7 @@ p-5
       3 participaciones
     </div>
 
-    <div className="mt-2">
+    <div className="mt-1 font-bold">
       $
       {Number(
         raffle.ticket_price_clp * 3
@@ -498,13 +551,13 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(5)}
-    className={`rounded-2xl p-4 border transition ${
+    className={`rounded-2xl p-3 border transition ${
       selectedQty === 5
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="font-bold">
+    <div className="text-base font-semibold">
       Recomendado 🔥
     </div>
 
@@ -512,7 +565,7 @@ p-5
       5 participaciones
     </div>
 
-    <div className="mt-2">
+    <div className="mt-1 font-bold">
       $
       {Number(
         raffle.ticket_price_clp * 5
@@ -523,13 +576,13 @@ p-5
   <button
     type="button"
     onClick={() => setSelectedQty(10)}
-    className={`rounded-2xl p-4 border transition ${
+    className={`rounded-2xl p-3 border transition ${
       selectedQty === 10
         ? "bg-blue-600 border-blue-500"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="font-bold">
+    <div className="text-base font-semibold">
       Premium 👑
     </div>
 
@@ -537,7 +590,7 @@ p-5
       10 participaciones
     </div>
 
-    <div className="mt-2">
+    <div className="mt-1 font-bold">
       $
       {Number(
         raffle.ticket_price_clp * 10
@@ -565,6 +618,31 @@ p-5
 >
   Participar ahora
 </Link>
+
+<div
+  className="
+    mt-5
+    space-y-2
+    text-sm
+    text-slate-300
+  "
+>
+  <div>
+    ✅ Pago seguro mediante Flow
+  </div>
+
+  <div>
+    ✅ Ticket asignado automáticamente
+  </div>
+
+  <div>
+    ✅ Sorteo verificable
+  </div>
+
+  <div>
+    ✅ Ganador publicado públicamente
+  </div>
+</div>
 
 </div>
 
