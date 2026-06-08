@@ -79,6 +79,9 @@ export default function RafflePage() {
   const [loading, setLoading] =
     useState(true)
   
+const [selectedQty, setSelectedQty] =
+  useState(3)    
+
   useEffect(() => {
 
   loadRaffle()
@@ -294,82 +297,48 @@ export default function RafflePage() {
 
 <div
   className="
-    bg-slate-900
-    border
-    border-slate-800
-    rounded-3xl
-    p-6
     mt-6
+    grid
+    grid-cols-2
+    gap-3
   "
 >
 
-  <p
+  <div
     className="
-      text-sm
-      uppercase
-      tracking-wider
-      text-amber-400
-      font-semibold
-      mb-3
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-2xl
+      p-4
     "
   >
-    🏆 Premio Principal
-  </p>
+    <div className="text-slate-400 text-xs">
+      Premio
+    </div>
 
-  <h2
+    <div className="font-bold mt-1">
+      {raffle.prize_title}
+    </div>
+  </div>
+
+  <div
     className="
-      text-2xl
-      md:text-3xl
-      font-black
-      mb-3
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-2xl
+      p-4
     "
   >
-    {raffle.prize_title}
-  </h2>
+    <div className="text-slate-400 text-xs">
+      Estado
+    </div>
 
-  {raffle.prize_description && (
-
-    <p
-      className="
-        text-slate-300
-        leading-relaxed
-      "
-    >
-      {raffle.prize_description}
-    </p>
-
-  )}
-
-</div>
-
-<div
-  className="
-    bg-slate-900
-    border
-    border-slate-800
-    rounded-3xl
-    p-6
-  "
->
-
-  <p
-    className="
-      text-sm
-      text-slate-400
-    "
-  >
-    Finaliza en
-  </p>
-
-  <h3
-    className="
-      text-3xl md:text-4xl
-      font-black
-      mt-2
-    "
-  >
-    {countdown || "Fecha por definir"}
-  </h3>
+    <div className="font-bold mt-1">
+      Activo
+    </div>
+  </div>
 
 </div>
     
