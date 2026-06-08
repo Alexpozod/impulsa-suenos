@@ -397,93 +397,142 @@ export default function RafflePage() {
 
 <div
   className="
-    grid
-    grid-cols-2
-    gap-4
+    bg-slate-950
+    border
+    border-slate-800
+    rounded-2xl
+    p-4
     mb-6
   "
 >
 
-  <div
+  <div className="text-slate-400 text-sm">
+    Valor Ticket
+  </div>
+
+  <div className="text-3xl font-black mt-1">
+    $
+    {Number(
+      raffle.ticket_price_clp
+    ).toLocaleString("es-CL")}
+  </div>
+
+</div>
+
+<h4
+  className="
+    font-bold
+    mb-4
+  "
+>
+  Selecciona tu participación
+</h4>
+
+<div
+  className="
+    grid
+    grid-cols-2
+    gap-3
+    mb-6
+  "
+>
+
+  <Link
+    href={`/raffles/${raffle.slug}/checkout?qty=1`}
     className="
       bg-slate-950
       border
       border-slate-800
       rounded-2xl
       p-4
+      text-center
+      hover:border-blue-500
+      transition
     "
   >
-    <p className="text-slate-400 text-sm">
-      💰 Valor Ticket
-    </p>
+    <div className="font-bold text-lg">
+      🎟 1 Ticket
+    </div>
 
-    <p className="text-2xl font-black mt-2">
+    <div className="text-slate-400 mt-1">
       $
       {Number(
         raffle.ticket_price_clp
       ).toLocaleString("es-CL")}
-    </p>
-  </div>
+    </div>
+  </Link>
 
-  <div
+  <Link
+    href={`/raffles/${raffle.slug}/checkout?qty=3`}
+    className="
+      bg-blue-600
+      text-white
+      rounded-2xl
+      p-4
+      text-center
+    "
+  >
+    <div className="font-bold text-lg">
+      ⭐ 3 Tickets
+    </div>
+
+    <div className="mt-1">
+      $
+      {Number(
+        raffle.ticket_price_clp * 3
+      ).toLocaleString("es-CL")}
+    </div>
+  </Link>
+
+  <Link
+    href={`/raffles/${raffle.slug}/checkout?qty=5`}
     className="
       bg-slate-950
       border
       border-slate-800
       rounded-2xl
       p-4
+      text-center
+      hover:border-blue-500
+      transition
     "
   >
-    <p className="text-slate-400 text-sm">
-      🎟 Disponibles
-    </p>
+    <div className="font-bold text-lg">
+      🔥 5 Tickets
+    </div>
 
-    <p className="text-2xl font-black mt-2">
+    <div className="text-slate-400 mt-1">
+      $
       {Number(
-        raffle.available_tickets
+        raffle.ticket_price_clp * 5
       ).toLocaleString("es-CL")}
-    </p>
-  </div>
+    </div>
+  </Link>
 
-  <div
+  <Link
+    href={`/raffles/${raffle.slug}/checkout?qty=10`}
     className="
       bg-slate-950
       border
       border-slate-800
       rounded-2xl
       p-4
+      text-center
+      hover:border-blue-500
+      transition
     "
   >
-    <p className="text-slate-400 text-sm">
-      👥 Vendidos
-    </p>
+    <div className="font-bold text-lg">
+      👑 10 Tickets
+    </div>
 
-    <p className="text-2xl font-black mt-2">
+    <div className="text-slate-400 mt-1">
+      $
       {Number(
-        raffle.sold_ticket_count
+        raffle.ticket_price_clp * 10
       ).toLocaleString("es-CL")}
-    </p>
-  </div>
-
-  <div
-    className="
-      bg-slate-950
-      border
-      border-slate-800
-      rounded-2xl
-      p-4
-    "
-  >
-    <p className="text-slate-400 text-sm">
-      🎯 Total
-    </p>
-
-    <p className="text-2xl font-black mt-2">
-      {Number(
-        raffle.total_tickets
-      ).toLocaleString("es-CL")}
-    </p>
-  </div>
+    </div>
+  </Link>
 
 </div>
 
