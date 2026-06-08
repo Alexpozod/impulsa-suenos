@@ -6,8 +6,13 @@ import {
 } from "react"
 
 import {
-  useParams
-} from "next/navigation"
+
+useParams,
+useSearchParams
+
+}
+
+from "next/navigation"
 
 type RaffleData = {
   id: string
@@ -21,6 +26,9 @@ type RaffleData = {
 export default function CheckoutPage() {
 
   const params = useParams()
+
+  const searchParams =
+useSearchParams()
 
   const [raffle, setRaffle] =
     useState<RaffleData | null>(null)
@@ -40,6 +48,9 @@ export default function CheckoutPage() {
   const [buyerPhone, setBuyerPhone] =
     useState("")
 
+    const [buyerRut, setBuyerRut] =
+useState("")
+
     const [processing, setProcessing] =
   useState(false)
 
@@ -52,6 +63,24 @@ const [marketingConsent, setMarketingConsent] =
   useEffect(() => {
 
   loadRaffle()
+
+const qty =
+Number(
+searchParams.get(
+"qty"
+)
+)
+
+if(
+
+qty &&
+[1,3,5,10].includes(qty)
+
+){
+
+setQuantity(qty)
+
+}
 
   const savedName =
     localStorage.getItem(
@@ -67,6 +96,11 @@ const [marketingConsent, setMarketingConsent] =
     localStorage.getItem(
       "raffle_buyer_phone"
     )
+
+    const savedRut =
+localStorage.getItem(
+"raffle_buyer_rut"
+)
 
   const savedQuantity =
     localStorage.getItem(
@@ -85,14 +119,23 @@ const [marketingConsent, setMarketingConsent] =
     setBuyerPhone(savedPhone)
   }
 
-  if (
-  savedQuantity &&
-  !isNaN(Number(savedQuantity))
-) {
+  if(savedRut){
+setBuyerRut(savedRut)
+}
 
-  setQuantity(
-    Number(savedQuantity)
-  )
+  if (
+
+!qty &&
+
+savedQuantity &&
+
+!isNaN(Number(savedQuantity))
+
+){
+
+setQuantity(
+Number(savedQuantity)
+)
 
 }
 
@@ -124,6 +167,15 @@ useEffect(() => {
   )
 
 }, [buyerPhone])
+
+useEffect(()=>{
+
+localStorage.setItem(
+"raffle_buyer_rut",
+buyerRut
+)
+
+},[buyerRut])
 
 useEffect(() => {
 
@@ -184,6 +236,16 @@ async function buyTickets() {
     return
   }
 
+    if(!buyerRut.trim()){
+
+    alert(
+    "Ingresa tu RUT"
+    )
+
+    return
+
+    }
+
   if (!buyerPhone.trim()) {
 
     alert(
@@ -196,8 +258,8 @@ async function buyTickets() {
   if (!acceptTerms) {
 
   alert(
-    "Debes aceptar las bases del sorteo"
-  )
+"Debes aceptar las Bases Legales y los Términos y Condiciones para continuar."
+)
 
   return
 }
@@ -219,24 +281,27 @@ try {
 
         body: JSON.stringify({
 
-          raffle_id:
-            raffle.id,
+raffle_id:
+raffle.id,
 
-          quantity,
+quantity,
 
-          buyer_name:
-            buyerName,
+buyer_name:
+buyerName,
 
-          buyer_email:
-            buyerEmail,
+buyer_email:
+buyerEmail,
 
-          buyer_phone:
-            buyerPhone,
+buyer_rut:
+buyerRut,
 
-          source:
-            "web"
+buyer_phone:
+buyerPhone,
 
-        })
+source:
+"web"
+
+})
       }
     )
 
@@ -363,12 +428,12 @@ if (!res.ok) {
           </p>
 
           <h1 className="text-3xl lg:text-4xl font-black mb-4">
-            {raffle.title}
+            {raffle.prize_title}
           </h1>
 
           <p className="text-slate-300 mb-6">
-            {raffle.prize_title}
-          </p>
+  Participación oficial del sorteo
+</p>
 
 <div
   className="
@@ -393,7 +458,8 @@ if (!res.ok) {
       text-slate-300
     "
   >
-    🔒 Pago seguro
+    🔒 Pago seguro mediante Flow
+
   </div>
 
   <div
@@ -409,7 +475,7 @@ if (!res.ok) {
       text-slate-300
     "
   >
-    🎟️ Tickets automáticos
+    🎟️ Tickets asignados automáticamente
   </div>
 
   <div
@@ -607,19 +673,19 @@ if (!res.ok) {
 >
 
   <div>
-    ✓ Pago seguro mediante Flow
+    🔒 Pago seguro mediante Flow
   </div>
 
   <div>
-    ✓ Tickets asignados automáticamente
+    🎟️ Tickets asignados automáticamente
   </div>
 
   <div>
-    ✓ Confirmación enviada por correo
+    📧 Confirmación enviada por correo
   </div>
 
   <div>
-    ✓ Ganadores públicos y verificables
+    🏆 Sorteo verificable y ganador público
   </div>
 
 </div>
@@ -642,6 +708,7 @@ if (!res.ok) {
 
             <input
               type="text"
+              autoComplete="name"
               placeholder="Nombre completo"
               value={buyerName}
               onChange={(e) =>
@@ -661,8 +728,9 @@ if (!res.ok) {
             />
 
             <input
-              type="email"
-              placeholder="Correo electrónico"
+                type="email"
+                autoComplete="email"
+                placeholder="Correo electrónico"
               value={buyerEmail}
               onChange={(e) =>
                 setBuyerEmail(
@@ -680,9 +748,31 @@ if (!res.ok) {
               "
             />
 
+                <input
+type="text"
+autoComplete="off"
+placeholder="RUT"
+                value={buyerRut}
+                onChange={(e)=>
+                setBuyerRut(
+                e.target.value
+                )
+                }
+                className="
+                w-full
+                bg-slate-900
+                border
+                border-slate-700
+                rounded-2xl
+                px-4
+                py-3
+                "
+                />
+
             <input
-              type="tel"
-              placeholder="Teléfono móvil"
+type="tel"
+autoComplete="tel"
+placeholder="Teléfono móvil"
               value={buyerPhone}
               onChange={(e) =>
                 setBuyerPhone(
@@ -730,8 +820,7 @@ if (!res.ok) {
     />
 
     <span>
-      He leído y acepto las bases,
-      términos y condiciones del sorteo.
+      He leído y acepto las Bases Legales y los Términos y Condiciones del sorteo.
     </span>
 
   </label>
@@ -766,7 +855,21 @@ if (!res.ok) {
 <button
   type="button"
   onClick={buyTickets}
-  disabled={processing}
+  disabled={
+
+processing ||
+
+!buyerName.trim() ||
+
+!buyerEmail.trim() ||
+
+!buyerRut.trim() ||
+
+!buyerPhone.trim() ||
+
+!acceptTerms
+
+}
   className="
   w-full
   mt-4
@@ -779,13 +882,14 @@ if (!res.ok) {
   text-lg
   disabled:opacity-60
   disabled:cursor-not-allowed
+  disabled:bg-slate-700
 "
 >
 
   {
   processing
-    ? "Redirigiendo a Flow..."
-    : "Participar Ahora"
+    ? "Conectando con Flow..."
+    : "Continuar al pago"
 }
 
 </button>
