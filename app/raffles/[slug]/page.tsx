@@ -504,16 +504,7 @@ const [selectedQty, setSelectedQty] =
   </Link>
 
 </div>
-
-  <p
-    className="
-      text-slate-400
-      mb-6
-    "
-  >
-    Completa tu participación en nuestro checkout seguro.
-  </p>
-
+  
   <Link
     href={`/raffles/${raffle.slug}/checkout`}
     className="
@@ -531,35 +522,6 @@ const [selectedQty, setSelectedQty] =
   >
     Participar Ahora
   </Link>
-
-<div
-  className="
-    mt-6
-    space-y-2
-    text-sm
-    text-slate-300
-  "
->
-
-  <div>
-    ✅ Tickets enviados automáticamente
-  </div>
-
-  <div>
-    ✅ Pago seguro mediante Flow
-  </div>
-
-  <div>
-    ✅ Resultados públicos
-  </div>
-
-  <div>
-    ✅ Ganadores verificados
-  </div>
-
-</div>
-
-</div>
 
 {winners.length > 0 && (
 
