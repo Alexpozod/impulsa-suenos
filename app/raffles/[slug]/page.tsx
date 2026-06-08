@@ -310,20 +310,23 @@ p-5
   </p>
 
   <Link
-    href={`/raffles/${raffle.slug}/bases`}
-    className="
-      inline-flex
-      px-5
-      py-3
-      rounded-xl
-      bg-blue-600
-      hover:bg-blue-500
-      transition
-      font-semibold
-    "
-  >
-    Consultar bases legales
-  </Link>
+  href={`/raffles/${raffle.slug}/bases`}
+  className="
+    inline-flex
+    items-center
+    justify-center
+    px-5
+    py-3
+    rounded-xl
+    bg-blue-600
+    hover:bg-blue-500
+    text-white
+    transition
+    font-semibold
+  "
+>
+  Ver bases legales
+</Link>
 
 </div>
 
@@ -356,15 +359,16 @@ p-5
               </div>
 
               <h1
-                className="
-                  text-3xl md:text-4xl
-                  lg:text-4xl
-                  font-black
-                  leading-tight
-                "
-              >
-                {raffle.title}
-              </h1>
+  className="
+    text-3xl
+    md:text-4xl
+    lg:text-4xl
+    font-black
+    leading-tight
+  "
+>
+  Participa por este premio
+</h1>
 
               <p
   className="
@@ -374,57 +378,8 @@ p-5
     leading-relaxed
   "
 >
-  {raffle.description}
-</p>
-    
-<div
-  className="
-    mt-6
-    bg-slate-900
-    border
-    border-slate-800
-    rounded-3xl
-    p-6
-  "
->
-
-  <div
-    className="
-      text-amber-400
-      text-sm
-      font-bold
-      uppercase
-      tracking-wide
-      mb-2
-    "
-  >
-    🎁 Premio principal
-  </div>
-
-  <h2
-    className="
-      text-3xl
-      font-black
-      mb-3
-    "
-  >
-    {raffle.prize_title}
-  </h2>
-
-  {raffle.prize_description && (
-
-    <p
-      className="
-        text-slate-300
-        leading-relaxed
-      "
-    >
-      {raffle.prize_description}
-    </p>
-
-  )}
-
-</div>
+  {raffle.prize_description || raffle.description}
+</p> 
 
     </div>
   
@@ -602,14 +557,13 @@ p-5
     rounded-2xl
     bg-blue-600
     hover:bg-blue-500
+    text-white
     transition
     font-black
     text-lg
   "
 >
-  Participar por este premio
-
-  Bases legales
+  Participar ahora
 </Link>
 
 </div>
