@@ -471,19 +471,21 @@ p-5
   "
 >
 
-  <Link
-    href={`/raffles/${raffle.slug}/checkout?qty=1`}
-    className="
-      bg-slate-950
-      border
-      border-slate-800
-      rounded-2xl
-      p-4
-      text-center
-      hover:border-blue-500
-      transition
-    "
-  >
+  <button
+  onClick={() => setSelectedQty(1)}
+  className={`
+    rounded-2xl
+    p-4
+    text-center
+    transition
+    border
+    ${
+      selectedQty === 1
+        ? "bg-blue-600 border-blue-500"
+        : "bg-slate-950 border-slate-800 hover:border-blue-500"
+    }
+  `}
+>
     <div className="font-bold text-lg">
   Básico
 </div>
@@ -498,10 +500,23 @@ p-5
     raffle.ticket_price_clp
   ).toLocaleString("es-CL")}
 </div>
-  </Link>
+  </button>
 
-  <Link
-    href={`/raffles/${raffle.slug}/checkout?qty=3`}
+  <button
+  onClick={() => setSelectedQty(3)}
+  className={`
+    rounded-2xl
+    p-4
+    text-center
+    transition
+    border
+    ${
+      selectedQty === 3
+        ? "bg-blue-600 border-blue-500"
+        : "bg-slate-950 border-slate-800 hover:border-blue-500"
+    }
+  `}
+>
     className="
       bg-blue-600
       text-white
@@ -524,10 +539,23 @@ p-5
     raffle.ticket_price_clp * 3
   ).toLocaleString("es-CL")}
 </div>
-  </Link>
+  </button>
 
-  <Link
-    href={`/raffles/${raffle.slug}/checkout?qty=5`}
+ <button
+  onClick={() => setSelectedQty(5)}
+  className={`
+    rounded-2xl
+    p-4
+    text-center
+    transition
+    border
+    ${
+      selectedQty === 5
+        ? "bg-blue-600 border-blue-500"
+        : "bg-slate-950 border-slate-800 hover:border-blue-500"
+    }
+  `}
+>
     className="
       bg-slate-950
       border
@@ -553,10 +581,23 @@ p-5
     raffle.ticket_price_clp * 5
   ).toLocaleString("es-CL")}
 </div>
-  </Link>
+  <</button>
 
-  <Link
-    href={`/raffles/${raffle.slug}/checkout?qty=10`}
+  <button
+  onClick={() => setSelectedQty(10)}
+  className={`
+    rounded-2xl
+    p-4
+    text-center
+    transition
+    border
+    ${
+      selectedQty === 10
+        ? "bg-blue-600 border-blue-500"
+        : "bg-slate-950 border-slate-800 hover:border-blue-500"
+    }
+  `}
+>
     className="
       bg-slate-950
       border
@@ -582,12 +623,12 @@ p-5
     raffle.ticket_price_clp * 10
   ).toLocaleString("es-CL")}
 </div>
-  </Link>
+  </button>
 
 </div>
   
   <Link
-    href={`/raffles/${raffle.slug}/checkout`}
+  href={`/raffles/${raffle.slug}/checkout?qty=${selectedQty}`}
     className="
       w-full
       block
