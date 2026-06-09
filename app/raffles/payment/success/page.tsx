@@ -116,24 +116,24 @@ function SuccessContent() {
     font-bold
   "
 >
-  Ver más sorteos
+  🎁 Explorar sorteos
 </button>
 
           <button
-            onClick={() =>
-              router.push("/")
-            }
-            className="
-              w-full
-              border
-              border-slate-700
-              py-4
-              rounded-2xl
-              font-bold
-            "
-          >
-            Volver al inicio
-          </button>
+  onClick={() =>
+    router.push("/raffles")
+  }
+  className="
+    w-full
+    border
+    border-slate-700
+    py-4
+    rounded-2xl
+    font-bold
+  "
+>
+  Volver a sorteos
+</button>
 
         </div>
 

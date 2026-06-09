@@ -1,11 +1,35 @@
 "use client"
 
-import { useState } from "react"
+import {
+  useState,
+  useEffect
+} from "react"
 
 export default function MyTicketsPage() {
 
   const [email, setEmail] =
     useState("")
+
+    useEffect(() => {
+
+  const savedEmail =
+    localStorage.getItem(
+      "raffle_buyer_email"
+    )
+
+  if (savedEmail) {
+
+    setEmail(savedEmail)
+
+    setTimeout(() => {
+
+  searchTickets(savedEmail)
+
+}, 100)
+
+  }
+
+}, [])
 
   const [loading, setLoading] =
     useState(false)
@@ -45,9 +69,14 @@ export default function MyTicketsPage() {
 
   )
 
-  async function searchTickets() {
+  async function searchTickets(
+  emailToSearch?: string
+) {
 
-    if (!email.trim()) {
+    const targetEmail =
+  emailToSearch || email
+
+if (!targetEmail.trim()) {
 
       alert(
         "Ingresa tu correo"
@@ -62,8 +91,8 @@ export default function MyTicketsPage() {
 
       const res =
         await fetch(
-          `/api/raffles/my-tickets?email=${encodeURIComponent(email)}`
-        )
+`/api/raffles/my-tickets?email=${encodeURIComponent(targetEmail)}`
+)
 
       const data =
         await res.json()
@@ -124,10 +153,9 @@ export default function MyTicketsPage() {
       leading-relaxed
     "
   >
-    Consulta todos los tickets asociados al correo
-    electrónico utilizado durante tu compra.
-    Si participaste en más de un sorteo,
-    aquí podrás verlos agrupados.
+    🎟️ Mis participaciones
+
+Consulta todas tus participaciones utilizando el mismo correo electrónico con el que realizaste tu compra. Si participaste en distintos sorteos, aparecerán agrupados automáticamente.
   </p>
 
 </div>
