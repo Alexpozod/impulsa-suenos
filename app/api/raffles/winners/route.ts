@@ -28,13 +28,8 @@ export async function GET() {
             prize_position,
             winner_name,
             delivery_status,
-            evidence_images,
-            raffles(
-                title,
-                slug,
-                cover_image
-            )
-            `)
+            evidence_images
+        `)
         .eq(
           "visibility_mode",
           "public"
