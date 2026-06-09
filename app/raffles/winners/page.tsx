@@ -322,12 +322,19 @@ export default function WinnersPage() {
         </h2>
 
         <div className="text-slate-300 mb-2">
-          👤 <strong>Ganador:</strong> {winner.winner_name}
-        </div>
+            📦 <strong>Sorteo:</strong>{" "}
+            {winner.raffles?.title || "Sorteo"}
+            </div>
 
-        <div className="text-slate-300 mb-4">
-          🎟️ <strong>Ticket:</strong> {winner.ticket_code}
-        </div>
+            <div className="text-slate-300 mb-2">
+            👤 <strong>Ganador:</strong>{" "}
+            {winner.winner_name}
+            </div>
+
+            <div className="text-slate-300 mb-4">
+            🎟️ <strong>Ticket:</strong>{" "}
+            {winner.ticket_code}
+            </div>
 
         <div
           className="
