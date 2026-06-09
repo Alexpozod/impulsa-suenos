@@ -242,7 +242,18 @@ export default function WinnersPage() {
         >
 
           {winners.map(
-            winner => (
+  winner => {
+
+    const deliveryStatus =
+      winner.delivery_status === "pending"
+        ? "🟡 Entrega en coordinación"
+        : winner.delivery_status === "delivered"
+        ? "🟢 Premio entregado"
+        : winner.delivery_status === "published"
+        ? "🔵 Resultado publicado"
+        : "🏆 Ganador verificado"
+
+    return (
 
               <div
                 key={winner.id}
@@ -315,7 +326,7 @@ export default function WinnersPage() {
         font-semibold
       "
     >
-      🏅 {winner.delivery_status}
+    {deliveryStatus}
     </div>
 
   </div>
@@ -355,10 +366,12 @@ export default function WinnersPage() {
 
                 )}
 
-              </div>
+                            </div>
 
             )
-          )}
+
+          }
+)}
 
         </div>
 
