@@ -326,6 +326,17 @@ export default function WinnersPage() {
   {winner.raffle?.title || "Sorteo"}
 </div>
 
+<div className="text-slate-300 mb-2">
+  📅 <strong>Fecha:</strong>{" "}
+  {
+    winner.raffle?.end_date
+      ? new Date(
+          winner.raffle.end_date
+        ).toLocaleDateString("es-CL")
+      : "-"
+  }
+</div>
+
             <div className="text-slate-300 mb-2">
             👤 <strong>Ganador:</strong>{" "}
             {winner.winner_name}
