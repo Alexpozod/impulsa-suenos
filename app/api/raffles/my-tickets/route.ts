@@ -19,9 +19,12 @@ export async function GET(
       new URL(req.url)
 
     const email =
-      searchParams.get("email")
+  searchParams
+    .get("email")
+    ?.trim()
+    .toLowerCase()
 
-    if (!email) {
+    if (!email?.length) {
 
       return NextResponse.json(
         {

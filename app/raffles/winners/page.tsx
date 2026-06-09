@@ -82,15 +82,57 @@ export default function WinnersPage() {
         "
       >
 
-        <h1
-          className="
-            text-4xl
-            font-black
-            mb-10
-          "
-        >
-          🏆 Ganadores
-        </h1>
+        <div
+  className="
+    mb-10
+  "
+>
+
+  <div
+    className="
+      inline-flex
+      items-center
+      px-4
+      py-2
+      rounded-full
+      bg-emerald-500/10
+      border
+      border-emerald-500/30
+      text-emerald-400
+      text-sm
+      font-semibold
+      mb-4
+    "
+  >
+    🏆 Resultados públicos
+  </div>
+
+  <h1
+    className="
+      text-4xl
+      lg:text-5xl
+      font-black
+      leading-tight
+      mb-4
+    "
+  >
+    Ganadores verificados
+  </h1>
+
+  <p
+    className="
+      text-slate-400
+      max-w-3xl
+      leading-relaxed
+    "
+  >
+    Todos los ganadores publicados corresponden a sorteos
+    finalizados y son exhibidos de forma pública para
+    garantizar la transparencia del proceso. Cuando exista
+    evidencia de entrega, será mostrada junto al resultado.
+  </p>
+
+</div>
 
         <div
           className="
