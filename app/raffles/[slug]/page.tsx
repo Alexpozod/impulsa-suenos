@@ -433,14 +433,18 @@ p-5
 >
 
   <h3
-    className="
-      text-2xl
-      font-black
-      mb-4
-    "
-  >
-    Participa en este sorteo
-  </h3>
+  className="
+    text-2xl
+    font-black
+    mb-4
+  "
+>
+{
+  raffle.status === "finished"
+    ? "Resultado oficial del sorteo"
+    : "Participa en este sorteo"
+}
+</h3>
 
 <div
   className="
@@ -586,6 +590,9 @@ p-5
 
 </div>
 
+{
+raffle.status !== "finished" ? (
+
 <Link
   href={`/raffles/${raffle.slug}/checkout?qty=${selectedQty}`}
   className="
@@ -604,6 +611,28 @@ p-5
 >
   Participar ahora
 </Link>
+
+) : (
+
+<div
+  className="
+    w-full
+    text-center
+    py-5
+    rounded-2xl
+    bg-emerald-600/20
+    border
+    border-emerald-500/30
+    text-emerald-300
+    font-black
+    text-lg
+  "
+>
+🏆 Este sorteo ya fue realizado
+</div>
+
+)
+}
 
 <div
   className="
