@@ -132,6 +132,107 @@ export default function WinnersPage() {
     evidencia de entrega, será mostrada junto al resultado.
   </p>
 
+<div
+  className="
+    grid
+    grid-cols-2
+    lg:grid-cols-4
+    gap-4
+    mt-8
+    mb-10
+  "
+>
+
+  <div
+    className="
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-2xl
+      p-4
+    "
+  >
+    <div className="text-2xl mb-2">
+      🔒
+    </div>
+
+    <div className="font-bold">
+      Transparencia
+    </div>
+
+    <div className="text-xs text-slate-400 mt-1">
+      Resultados públicos
+    </div>
+  </div>
+
+  <div
+    className="
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-2xl
+      p-4
+    "
+  >
+    <div className="text-2xl mb-2">
+      🏆
+    </div>
+
+    <div className="font-bold">
+      Verificados
+    </div>
+
+    <div className="text-xs text-slate-400 mt-1">
+      Ganadores oficiales
+    </div>
+  </div>
+
+  <div
+    className="
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-2xl
+      p-4
+    "
+  >
+    <div className="text-2xl mb-2">
+      📸
+    </div>
+
+    <div className="font-bold">
+      Evidencias
+    </div>
+
+    <div className="text-xs text-slate-400 mt-1">
+      Entregas publicadas
+    </div>
+  </div>
+
+  <div
+    className="
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-2xl
+      p-4
+    "
+  >
+    <div className="text-2xl mb-2">
+      ✅
+    </div>
+
+    <div className="font-bold">
+      Sorteos
+    </div>
+
+    <div className="text-xs text-slate-400 mt-1">
+      Procesos auditables
+    </div>
+  </div>
+
+</div>
+
 </div>
 
         <div
