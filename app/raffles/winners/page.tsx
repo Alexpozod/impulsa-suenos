@@ -256,32 +256,71 @@ export default function WinnersPage() {
               >
 
                 <div
-                  className="
-                    text-xl
-                    font-bold
-                    mb-4
-                  "
-                >
-                  {winner.prize_title}
-                </div>
+  className="
+    flex
+    justify-between
+    items-start
+    flex-wrap
+    gap-6
+  "
+>
 
-                <div>
-                  Ticket:
-                  {" "}
-                  {winner.ticket_code}
-                </div>
+  <div>
 
-                <div>
-                  Ganador:
-                  {" "}
-                  {winner.winner_name}
-                </div>
+    <div
+      className="
+        text-yellow-400
+        text-sm
+        font-semibold
+        uppercase
+        tracking-wide
+        mb-2
+      "
+    >
+      🏆 Premio
+    </div>
 
-                <div>
-                  Estado:
-                  {" "}
-                  {winner.delivery_status}
-                </div>
+    <h2
+      className="
+        text-2xl
+        font-black
+        mb-4
+      "
+    >
+      {winner.prize_title}
+    </h2>
+
+    <div className="text-slate-300 mb-2">
+      👤 <strong>Ganador:</strong> {winner.winner_name}
+    </div>
+
+    <div className="text-slate-300">
+      🎟️ <strong>Ticket:</strong> {winner.ticket_code}
+    </div>
+
+  </div>
+
+  <div>
+
+    <div
+      className="
+        inline-flex
+        px-4
+        py-2
+        rounded-full
+        bg-emerald-500/20
+        border
+        border-emerald-500/30
+        text-emerald-300
+        font-semibold
+      "
+    >
+      🏅 {winner.delivery_status}
+    </div>
+
+  </div>
+
+</div>
 
                 {(winner.evidence_images ?? []).length > 0 && (
 
