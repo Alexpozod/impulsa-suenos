@@ -48,9 +48,73 @@ export async function GET() {
       return NextResponse.json([])
     }
 
-    return NextResponse.json(
-      winners || []
+    const raffleIds =
+[
+  ...new Set(
+    (winners || []).map(
+      winner => winner.raffle_id
     )
+  )
+]
+
+const {
+  data: raffles
+} =
+await supabase
+  .schema("raffles")
+  .from("raffles")
+  .select(`
+    id,
+    title,
+    slug,
+    cover_image,
+    end_date
+  `)
+  .in(
+    "id",
+    raffleIds.length
+      ? raffleIds
+      : [
+          "00000000-0000-0000-0000-000000000000"
+        ]
+  )
+
+  const raffleMap =
+  new Map(
+
+    (raffles || []).map(
+      raffle => [
+
+        raffle.id,
+
+        raffle
+
+      ]
+    )
+
+  )
+
+   const result =
+
+(winners || []).map(
+
+  winner => ({
+
+    ...winner,
+
+    raffle:
+
+      raffleMap.get(
+        winner.raffle_id
+      ) || null
+
+  })
+
+)
+
+return NextResponse.json(
+  result
+)
 
   } catch (error) {
 
