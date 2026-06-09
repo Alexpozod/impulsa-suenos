@@ -267,12 +267,38 @@ export default function WinnersPage() {
               >
 
                 <div
+  <div
   className="
     flex
-    justify-between
-    items-start
-    flex-wrap
+    flex-col
+    lg:flex-row
     gap-6
+  "
+>
+
+<div>
+
+<img
+  src={
+    winner.raffle?.cover_image ||
+    "/placeholder.jpg"
+  }
+  alt=""
+  className="
+    w-44
+    h-44
+    object-cover
+    rounded-2xl
+    border
+    border-slate-800
+  "
+/>
+
+</div>
+
+<div
+  className="
+    flex-1
   "
 >
 
@@ -311,7 +337,7 @@ export default function WinnersPage() {
 
   </div>
 
-  <div>
+    <div>
 
     <div
       className="
@@ -326,10 +352,12 @@ export default function WinnersPage() {
         font-semibold
       "
     >
-    {deliveryStatus}
+      {deliveryStatus}
     </div>
 
   </div>
+
+</div>
 
 </div>
 
