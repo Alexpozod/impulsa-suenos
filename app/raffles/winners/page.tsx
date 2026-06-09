@@ -352,6 +352,25 @@ export default function WinnersPage() {
           {deliveryStatus}
         </div>
 
+        <div className="mt-5">
+
+  <a
+    href={`/raffles/${winner.raffle?.slug}`}
+    className="
+      inline-flex
+      items-center
+      gap-2
+      text-blue-400
+      hover:text-blue-300
+      font-semibold
+      transition
+    "
+  >
+    Ver detalle del sorteo →
+  </a>
+
+</div>
+
       </div>
 
     </div>
