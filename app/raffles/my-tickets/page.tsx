@@ -20,13 +20,7 @@ export default function MyTicketsPage() {
   if (savedEmail) {
 
     setEmail(savedEmail)
-
-    setTimeout(() => {
-
-  searchTickets(savedEmail)
-
-}, 100)
-
+    
   }
 
 }, [])
@@ -69,14 +63,9 @@ export default function MyTicketsPage() {
 
   )
 
-  async function searchTickets(
-  emailToSearch?: string
-) {
-
-    const targetEmail =
-  emailToSearch || email
-
-if (!targetEmail.trim()) {
+  async function searchTickets() {
+ 
+if (!email.trim()) {
 
       alert(
         "Ingresa tu correo"
@@ -91,7 +80,7 @@ if (!targetEmail.trim()) {
 
       const res =
         await fetch(
-`/api/raffles/my-tickets?email=${encodeURIComponent(targetEmail)}`
+`/api/raffles/my-tickets?email=${encodeURIComponent(email)}`
 )
 
       const data =
@@ -192,7 +181,7 @@ Consulta todas tus participaciones utilizando el mismo correo electrónico con e
           />
 
           <button
-            onClick={searchTickets}
+  onClick={searchTickets}
             disabled={loading}
             className="
               w-full
