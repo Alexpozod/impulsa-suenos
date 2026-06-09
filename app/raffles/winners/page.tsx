@@ -388,36 +388,54 @@ export default function WinnersPage() {
 
                 {(winner.evidence_images ?? []).length > 0 && (
 
-                  <div
-                    className="
-                      mt-6
-                      grid
-                      grid-cols-2
-                      gap-4
-                    "
-                  >
+  <div
+    className="
+      mt-8
+    "
+  >
 
-                    {winner.evidence_images.map(
-                      (
-                        image: string,
-                        index: number
-                      ) => (
+    <div
+      className="
+        text-lg
+        font-bold
+        mb-4
+      "
+    >
+      📸 Evidencias de entrega
+    </div>
 
-                        <img
-                          key={index}
-                          src={image}
-                          alt="evidencia"
-                          className="
-                            rounded-2xl
-                          "
-                        />
+    <div
+      className="
+        grid
+        grid-cols-2
+        lg:grid-cols-3
+        gap-4
+      "
+    >
 
-                      )
-                    )}
+      {winner.evidence_images.map(
+        (
+          image: string,
+          index: number
+        ) => (
 
-                  </div>
+          <img
+            key={index}
+            src={image}
+            alt="evidencia"
+            className="
+              rounded-2xl
+            "
+          />
 
-                )}
+        )
+      )}
+
+    </div>
+
+  </div>
+
+)}
 
                             </div>
 
