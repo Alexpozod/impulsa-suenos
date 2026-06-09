@@ -353,22 +353,26 @@ p-5
             <div>
 
               <div
-                className="
-                  inline-flex
-                  items-center
-                  px-4
-                  py-2
-                  rounded-full
-                  bg-blue-500/20
-                  text-blue-300
-                  text-sm
-                  border
-                  border-blue-500/30
-                  mb-4
-                "
-              >
-                Sorteo activo
-              </div>
+  className="
+    inline-flex
+    items-center
+    px-4
+    py-2
+    rounded-full
+    bg-emerald-500/20
+    text-emerald-300
+    text-sm
+    border
+    border-emerald-500/30
+    mb-4
+  "
+>
+  {
+    raffle.status === "finished"
+      ? "🏆 Sorteo finalizado"
+      : "🎟️ Sorteo activo"
+  }
+</div>
 
               <h1
   className="
