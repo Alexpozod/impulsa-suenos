@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 
 import RafflesNavbar from "@/app/components/raffles/public/RafflesNavbar"
 import RafflesFooter from "@/app/components/raffles/public/RafflesFooter"
+import AffiliateTracker from "@/app/components/raffles/public/AffiliateTracker"
 
 export default function RafflesLayout({
   children,
@@ -10,13 +11,15 @@ export default function RafflesLayout({
 }) {
   return (
     <>
-      <RafflesNavbar />
+  <AffiliateTracker />
 
-      <main className="min-h-screen pt-24">
-        {children}
-      </main>
+  <RafflesNavbar />
 
-      <RafflesFooter />
-    </>
+  <main className="min-h-screen pt-24">
+    {children}
+  </main>
+
+  <RafflesFooter />
+</>
   )
 }
