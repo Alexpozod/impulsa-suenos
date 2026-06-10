@@ -25,6 +25,11 @@ export interface QuoteInput {
   utm_content?: string | null
 
   utm_term?: string | null
+
+  ip?: string | null
+
+  userAgent?: string | null
+
 }
 
 export interface QuotePromotion {
