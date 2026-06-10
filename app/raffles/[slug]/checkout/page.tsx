@@ -268,6 +268,16 @@ try {
 
   setProcessing(true)
 
+  const affiliateCode =
+  localStorage.getItem(
+    "raffle_affiliate"
+  )
+
+const referralCode =
+  localStorage.getItem(
+    "raffle_referral"
+  )
+
   const res =
     await fetch(
       "/api/raffles/create-payment",
@@ -281,25 +291,29 @@ try {
 
         body: JSON.stringify({
 
-raffle_id:
-raffle.id,
+  raffle_id:
+    raffle.id,
 
-quantity,
+  quantity,
 
-buyer_name:
-buyerName,
+  buyer_name:
+    buyerName,
 
-buyer_email:
-buyerEmail,
+  buyer_email:
+    buyerEmail,
 
-buyer_rut:
-buyerRut,
+  buyer_rut:
+    buyerRut,
 
-buyer_phone:
-buyerPhone,
+  buyer_phone:
+    buyerPhone,
 
-source:
-"web"
+  source:
+    "web",
+
+  affiliateCode,
+
+  referralCode
 
 })
       }

@@ -95,7 +95,13 @@ const schema = z.object({
     z.string().optional(),
 
   utm_term:
-    z.string().optional()
+    z.string().optional(),
+
+    affiliateCode:
+  z.string().optional(),
+
+referralCode:
+  z.string().optional()
 })
 
 const checkoutRequests = new Map<
@@ -200,23 +206,26 @@ if (
 
     const {
 
-      raffle_id,
-      quantity,
+  raffle_id,
+  quantity,
 
-      buyer_email,
-      buyer_name,
-      buyer_phone,
+  buyer_email,
+  buyer_name,
+  buyer_phone,
 
-      source,
-      referrer,
+  source,
+  referrer,
 
-      utm_source,
-      utm_medium,
-      utm_campaign,
-      utm_content,
-      utm_term
+  utm_source,
+  utm_medium,
+  utm_campaign,
+  utm_content,
+  utm_term,
 
-    } = parsed.data
+  affiliateCode,
+  referralCode
+
+} = parsed.data
 
 /* =========================================
    BLOCK TEMP EMAILS
@@ -346,18 +355,18 @@ await processQuote({
 
     tracking: {
 
-        source,
+    source,
 
-        referrer,
+    referrer,
 
-        affiliateCode:
-            undefined,
+    affiliateCode:
+        affiliateCode ?? undefined,
 
-        referralCode:
-            undefined,
+    referralCode:
+        referralCode ?? undefined,
 
-        couponCode:
-            undefined,
+    couponCode:
+        undefined,
 
         utm_source,
 
