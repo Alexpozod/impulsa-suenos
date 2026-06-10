@@ -14,25 +14,75 @@ export default function AffiliateTracker() {
         const aff =
             params.get("aff")
 
-        if (!aff) return
+        if (!aff) {
 
-        try {
+    return
 
-            localStorage.setItem(
-                "raffle_affiliate",
-                aff
-            )
+}
 
-            sessionStorage.setItem(
-                "raffle_affiliate",
-                aff
-            )
+try {
 
-        } catch (e) {
+    localStorage.setItem(
 
-            console.error(e)
+        "raffle_affiliate",
+
+        aff
+
+    )
+
+    sessionStorage.setItem(
+
+        "raffle_affiliate",
+
+        aff
+
+    )
+
+    fetch(
+
+        "/api/raffles/track-event",
+
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":
+
+                    "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                event_type:
+
+                    "affiliate_click",
+
+                affiliateCode:
+
+                    aff,
+
+                source:
+
+                    "landing",
+
+                page:
+
+                    window.location.pathname
+
+            })
 
         }
+
+    ).catch(() => {})
+
+} catch (e) {
+
+    console.error(e)
+
+}
 
     }, [])
 
