@@ -22,6 +22,12 @@ from "@/lib/raffles/tickets/releaseExpiredReservations"
 import { releaseOrderReservations }
 from "@/lib/raffles/tickets/releaseOrderReservations"
 
+import { processQuote }
+from "@/lib/raffles/business/processQuote"
+
+import { createQuoteSnapshot }
+from "@/lib/raffles/business/createQuoteSnapshot"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -327,16 +333,44 @@ if (
     }
 
     /* =========================================
-       CALCULATE TOTALS
-    ========================================= */
+QUOTE ENGINE
+========================================= */
 
-    const ticketPriceCLP =
-      Number(
-        raffle.ticket_price_clp
-      )
+const quote =
+await processQuote({
 
-    const totalCLP =
-      ticketPriceCLP * quantity
+raffleId:
+raffle_id,
+
+quantity,
+
+affiliateCode:
+undefined,
+
+referralCode:
+undefined,
+
+couponCode:
+undefined,
+
+source,
+
+referrer,
+
+utm_source,
+
+utm_medium,
+
+utm_campaign,
+
+utm_content,
+
+utm_term
+
+})
+
+const totalCLP =
+quote.total
 
     /* =========================================
        CREATE ORDER
@@ -360,6 +394,16 @@ if (
           buyer_phone,
 
           quantity,
+
+          metadata: {
+
+          quote:
+
+          createQuoteSnapshot(
+          quote
+          )
+
+          },
 
           subtotal_clp:
             totalCLP,
@@ -435,7 +479,9 @@ if (
 
     buyer_email,
 
-    quantity
+    quantity:
+
+quote.finalQuantity
 
   })
 
@@ -613,7 +659,14 @@ if (paymentError || !payment) {
 
       metadata: {
 
-        quantity,
+        requestedQuantity:
+        quote.requestedQuantity,
+
+        bonusQuantity:
+        quote.bonusQuantity,
+
+        finalQuantity:
+        quote.finalQuantity,
 
         amount_clp:
           totalCLP,
