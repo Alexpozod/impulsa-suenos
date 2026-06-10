@@ -416,13 +416,43 @@ const totalCLP =
 
           metadata: {
 
-          quote:
+  quote:
+    createQuoteSnapshot(
+      quote
+    ),
 
-          createQuoteSnapshot(
-          quote
-          )
+  tracking: {
 
-          },
+    affiliateCode:
+      affiliateCode ?? null,
+
+    referralCode:
+      referralCode ?? null,
+
+    source:
+      source ?? null,
+
+    referrer:
+      referrer ?? null,
+
+    utm_source:
+      utm_source ?? null,
+
+    utm_medium:
+      utm_medium ?? null,
+
+    utm_campaign:
+      utm_campaign ?? null,
+
+    utm_content:
+      utm_content ?? null,
+
+    utm_term:
+      utm_term ?? null
+
+  }
+
+},
 
           subtotal_clp:
             totalCLP,
