@@ -1,35 +1,70 @@
 import { calculateQuote } from "../quote/calculateQuote"
-import { QuoteInput, QuoteResult } from "../quote/types"
+
+import {
+
+    QuoteResult
+
+} from "../quote/types"
+
+import {
+
+    BusinessContext
+
+} from "./types"
 
 export async function processQuote(
 
-    input: QuoteInput
+    context: BusinessContext
 
 ): Promise<QuoteResult> {
 
-    /*
-        Este archivo será el único
-        punto autorizado para calcular
-        una compra.
+    return await calculateQuote({
 
-        En el futuro aquí podrán
-        agregarse:
+        raffleId:
+            context.raffleId,
 
-        - Wallet
+        quantity:
+            context.quantity,
 
-        - Cashback
+        userId:
+            context.userId,
 
-        - Membership
+        affiliateCode:
+            context.tracking.affiliateCode,
 
-        - Loyalty
+        referralCode:
+            context.tracking.referralCode,
 
-        - Dynamic Pricing
+        couponCode:
+            context.tracking.couponCode,
 
-        sin modificar checkout.
-    */
+        source:
+            context.tracking.source,
 
-    return await calculateQuote(
-        input
-    )
+        referrer:
+            context.tracking.referrer,
+
+        utm_source:
+            context.tracking.utm_source,
+
+        utm_medium:
+            context.tracking.utm_medium,
+
+        utm_campaign:
+            context.tracking.utm_campaign,
+
+        utm_content:
+            context.tracking.utm_content,
+
+        utm_term:
+            context.tracking.utm_term,
+
+        ip:
+            context.tracking.ip,
+
+        userAgent:
+            context.tracking.userAgent
+
+    })
 
 }
