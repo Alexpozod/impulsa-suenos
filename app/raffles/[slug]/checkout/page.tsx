@@ -269,14 +269,36 @@ try {
   setProcessing(true)
 
   const affiliateCode =
+
   localStorage.getItem(
     "raffle_affiliate"
   )
 
+  ||
+
+  sessionStorage.getItem(
+    "raffle_affiliate"
+  )
+
+  ||
+
+  undefined
+
 const referralCode =
+
   localStorage.getItem(
     "raffle_referral"
   )
+
+  ||
+
+  sessionStorage.getItem(
+    "raffle_referral"
+  )
+
+  ||
+
+  undefined
 
   const res =
     await fetch(
