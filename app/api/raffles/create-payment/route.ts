@@ -339,38 +339,48 @@ QUOTE ENGINE
 const quote =
 await processQuote({
 
-raffleId:
-raffle_id,
+    raffleId:
+        raffle_id,
 
-quantity,
+    quantity,
 
-affiliateCode:
-undefined,
+    tracking: {
 
-referralCode:
-undefined,
+        source,
 
-couponCode:
-undefined,
+        referrer,
 
-source,
+        affiliateCode:
+            undefined,
 
-referrer,
+        referralCode:
+            undefined,
 
-utm_source,
+        couponCode:
+            undefined,
 
-utm_medium,
+        utm_source,
 
-utm_campaign,
+        utm_medium,
 
-utm_content,
+        utm_campaign,
 
-utm_term
+        utm_content,
+
+        utm_term,
+
+        ip:
+            ip_address,
+
+        userAgent:
+            user_agent
+
+    }
 
 })
 
 const totalCLP =
-quote.total
+  quote.total
 
     /* =========================================
        CREATE ORDER
