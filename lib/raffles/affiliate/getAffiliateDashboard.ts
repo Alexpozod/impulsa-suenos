@@ -1,0 +1,91 @@
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function getAffiliateDashboard(
+  affiliateId: string
+) {
+
+  const { data: affiliate } =
+    await supabase
+      .schema("raffles")
+      .from("raffle_referrals")
+      .select("*")
+      .eq("id", affiliateId)
+      .maybeSingle()
+
+  if (!affiliate) {
+
+    return {
+
+      affiliate: null,
+
+      stats: {
+
+        clicks: 0,
+
+        beginCheckout: 0,
+
+        orders: 0,
+
+        paidOrders: 0,
+
+        revenue: 0,
+
+        estimatedCommission: 0,
+
+        paidCommission: 0
+
+      }
+
+    }
+
+  }
+
+  return {
+
+    affiliate: {
+
+      id:
+        affiliate.id,
+
+      code:
+        affiliate.code,
+
+      email:
+        affiliate.owner_email,
+
+      commissionPercent:
+        Number(
+          affiliate.commission_percent
+        ),
+
+      active:
+        affiliate.active
+
+    },
+
+    stats: {
+
+      clicks: 0,
+
+      beginCheckout: 0,
+
+      orders: 0,
+
+      paidOrders: 0,
+
+      revenue: 0,
+
+      estimatedCommission: 0,
+
+      paidCommission: 0
+
+    }
+
+  }
+
+}
