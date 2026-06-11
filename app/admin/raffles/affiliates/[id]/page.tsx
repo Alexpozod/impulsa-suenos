@@ -173,44 +173,6 @@ setLedger(
 
 </div>
 
-function StatCard({
-
-  title,
-
-  value
-
-}: any) {
-
-  return (
-
-    <div
-      className="
-        bg-slate-900
-        border
-        border-slate-800
-        rounded-3xl
-        p-5
-      "
-    >
-
-      <div className="text-slate-400 text-sm">
-
-        {title}
-
-      </div>
-
-      <div className="text-3xl font-bold mt-3">
-
-        {value}
-
-      </div>
-
-    </div>
-
-  )
-
-}
-
       <div
         className="
           bg-slate-900
@@ -384,6 +346,40 @@ function StatCard({
 
         </div>
 
+      </div>
+
+    </div>
+
+  )
+
+}
+
+function StatCard({
+
+  title,
+
+  value
+
+}: any) {
+
+  return (
+
+    <div
+      className="
+        bg-slate-900
+        border
+        border-slate-800
+        rounded-3xl
+        p-5
+      "
+    >
+
+      <div className="text-slate-400 text-sm">
+        {title}
+      </div>
+
+      <div className="text-3xl font-bold mt-3">
+        {value}
       </div>
 
     </div>
