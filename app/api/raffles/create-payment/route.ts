@@ -730,6 +730,52 @@ if (paymentError || !payment) {
 
     })
 
+if (affiliateCode) {
+
+  await trackEvent({
+
+    event_type:
+      "affiliate_conversion",
+
+    raffle_id,
+
+    order_id:
+      order.id,
+
+    payment_id:
+      payment?.id,
+
+    user_email:
+      buyer_email,
+
+    source,
+
+    referrer,
+
+    ip:
+      ip_address,
+
+    user_agent,
+
+    metadata: {
+
+      affiliateCode,
+
+      requestedQuantity:
+        quote.requestedQuantity,
+
+      finalQuantity:
+        quote.finalQuantity,
+
+      total:
+        quote.total
+
+    }
+
+  })
+
+}
+
     return NextResponse.json({
 
       payment_id:
