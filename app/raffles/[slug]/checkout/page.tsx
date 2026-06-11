@@ -51,6 +51,9 @@ useSearchParams()
     const [buyerRut, setBuyerRut] =
 useState("")
 
+const [affiliateCode, setAffiliateCode] =
+useState("")
+
     const [processing, setProcessing] =
   useState(false)
 
@@ -79,6 +82,46 @@ qty &&
 ){
 
 setQuantity(qty)
+
+}
+
+const aff =
+searchParams.get("aff")
+
+if (aff) {
+
+  localStorage.setItem(
+    "raffle_affiliate",
+    aff
+  )
+
+  sessionStorage.setItem(
+    "raffle_affiliate",
+    aff
+  )
+
+  setAffiliateCode(aff)
+
+}
+else {
+
+  const saved =
+
+    localStorage.getItem(
+      "raffle_affiliate"
+    )
+
+    ||
+
+    sessionStorage.getItem(
+      "raffle_affiliate"
+    )
+
+  if (saved) {
+
+    setAffiliateCode(saved)
+
+  }
 
 }
 
