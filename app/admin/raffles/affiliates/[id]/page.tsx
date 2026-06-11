@@ -5,7 +5,9 @@ import { useParams } from "next/navigation"
 
 export default function AffiliateDetailPage() {
 
-  const { id } = useParams()
+  const params = useParams()
+
+const id = String(params.id)
 
   const [loading, setLoading] =
     useState(true)
@@ -348,7 +350,95 @@ setLedger(
 
       </div>
 
-    </div>
+      <div
+        className="
+          bg-slate-900
+          border
+          border-slate-800
+          rounded-3xl
+          p-6
+        "
+      >
+
+        <h2 className="text-xl font-semibold mb-4">
+          Movimientos Ledger
+        </h2>
+
+        {ledger.length === 0 ? (
+
+          <div className="text-slate-500">
+            Sin movimientos registrados
+          </div>
+
+        ) : (
+
+          <div className="overflow-x-auto">
+
+            <table className="w-full">
+
+              <thead>
+
+                <tr className="border-b border-slate-800">
+
+                  <th className="text-left py-2">
+                    Tipo
+                  </th>
+
+                  <th className="text-left py-2">
+                    Monto
+                  </th>
+
+                  <th className="text-left py-2">
+                    Fecha
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {ledger.map((item: any) => (
+
+                  <tr
+                    key={item.id}
+                    className="border-b border-slate-800"
+                  >
+
+                    <td className="py-3">
+                      {item.type}
+                    </td>
+
+                    <td className="py-3">
+                      $
+                      {Number(
+                        item.amount_clp ?? 0
+                      ).toLocaleString("es-CL")}
+                    </td>
+
+                    <td className="py-3">
+                      {item.created_at
+                        ? new Date(
+                            item.created_at
+                          ).toLocaleString()
+                        : "-"}
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        )}
+
+      </div>
+
+  </div>
 
   )
 
