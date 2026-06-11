@@ -24,6 +24,9 @@ const [ledger, setLedger] =
   const [chartData, setChartData] =
   useState<any[]>([])
 
+  const [showLedger, setShowLedger] =
+  useState(true)
+
   useEffect(() => {
 
     load()
@@ -376,11 +379,54 @@ setChartData(
         "
       >
 
-        <h2 className="text-xl font-semibold mb-4">
-          Movimientos Ledger
-        </h2>
+        <div className="flex items-center justify-between mb-4">
 
-        {ledger.length === 0 ? (
+  <h2 className="text-xl font-semibold">
+    Movimientos Ledger
+  </h2>
+
+  <button
+    type="button"
+    onClick={() =>
+      setShowLedger(!showLedger)
+    }
+    className="
+      px-3
+      py-2
+      rounded-xl
+      bg-slate-800
+      hover:bg-slate-700
+      text-sm
+    "
+  >
+    {
+      showLedger
+        ? "Ocultar"
+        : "Mostrar"
+    }
+  </button>
+
+</div>
+
+        {
+
+!showLedger
+
+? (
+
+<div className="text-slate-500">
+
+Tabla oculta
+
+</div>
+
+)
+
+:
+
+ledger.length===0
+
+? (
 
           <div className="text-slate-500">
             Sin movimientos registrados
