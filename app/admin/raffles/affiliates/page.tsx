@@ -11,37 +11,120 @@ useState(true)
 const [affiliates, setAffiliates] =
 useState<any[]>([])
 
+const [code, setCode] =
+useState("")
+
+const [email, setEmail] =
+useState("")
+
+const [commission, setCommission] =
+useState("10")
+
+const [saving, setSaving] =
+useState(false)
+
 useEffect(() => {
 
-load()
+  load()
 
 }, [])
 
 async function load() {
 
-try {
+  try {
 
-setLoading(true)
+    setLoading(true)
 
-const res =
-await fetch(
-"/api/admin/raffles/affiliates"
-)
+    const res =
+      await fetch(
+        "/api/admin/raffles/affiliates"
+      )
 
-const json =
-await res.json()
+    const json =
+      await res.json()
 
-setAffiliates(
-json.affiliates || []
-)
+    setAffiliates(
+      json.affiliates || []
+    )
+
+  }
+
+  finally {
+
+    setLoading(false)
+
+  }
 
 }
 
-finally {
+async function createAffiliate() {
 
-setLoading(false)
+  try {
 
-}
+    setSaving(true)
+
+    const res =
+      await fetch(
+        "/api/admin/raffles/affiliates",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            code,
+
+            owner_email: email,
+
+            commission_percent:
+              Number(commission)
+
+          })
+
+        }
+      )
+
+    const json =
+      await res.json()
+
+    if (!res.ok) {
+
+      alert(
+        json.error ||
+        "Error"
+      )
+
+      return
+
+    }
+
+    setCode("")
+    setEmail("")
+    setCommission("10")
+
+    await load()
+
+  }
+
+  catch (e) {
+
+    console.error(e)
+
+    alert(
+      "Error inesperado"
+    )
+
+  }
+
+  finally {
+
+    setSaving(false)
+
+  }
 
 }
 
@@ -67,21 +150,6 @@ Administración del programa de influencers
 
 </div>
 
-<button
-className="
-bg-blue-600
-hover:bg-blue-500
-px-5
-py-3
-rounded-2xl
-font-semibold
-"
->
-
-➕ Nuevo Influencer
-
-</button>
-
 </div>
 
 <div
@@ -91,25 +159,126 @@ border
 border-slate-800
 rounded-3xl
 p-6
+space-y-4
+"
+>
+
+<div className="font-bold">
+
+Nuevo Influencer
+
+</div>
+
+<div
+className="
+grid
+md:grid-cols-3
+gap-3
 "
 >
 
 <input
 
-placeholder="Buscar código o email"
+value={code}
+
+onChange={(e)=>
+setCode(e.target.value)
+}
+
+placeholder="Código"
 
 className="
-w-full
 bg-slate-950
 border
 border-slate-700
 rounded-2xl
 px-4
 py-3
-outline-none
 "
 
 />
+
+<input
+
+value={email}
+
+onChange={(e)=>
+setEmail(e.target.value)
+}
+
+placeholder="Email"
+
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-2xl
+px-4
+py-3
+"
+
+/>
+
+<input
+
+value={commission}
+
+onChange={(e)=>
+setCommission(e.target.value)
+}
+
+placeholder="Comisión %"
+
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-2xl
+px-4
+py-3
+"
+
+/>
+
+</div>
+
+<div className="flex gap-3">
+
+<button
+
+onClick={createAffiliate}
+
+disabled={saving}
+
+className="
+bg-blue-600
+hover:bg-blue-500
+px-5
+py-3
+rounded-2xl
+font-semibold
+disabled:opacity-50
+"
+
+>
+
+{
+
+saving
+
+?
+
+"Guardando..."
+
+:
+
+"➕ Crear Influencer"
+
+}
+
+</button>
+
+</div>
 
 </div>
 
@@ -242,7 +411,7 @@ className="border-b border-slate-800"
 
 <td className="p-4 text-xs">
 
-{`${window.location.origin}/raffles?aff=${item.code}`}
+{`/raffles?aff=${item.code}`}
 
 </td>
 
