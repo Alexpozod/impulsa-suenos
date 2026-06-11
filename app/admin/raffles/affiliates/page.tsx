@@ -417,7 +417,18 @@ className="border-b border-slate-800"
 
 <td className="p-4">
 
+<div className="flex gap-2">
+
 <button
+onClick={() => {
+
+navigator.clipboard.writeText(
+
+`${window.location.origin}/raffles?aff=${item.code}`
+
+)
+
+}}
 className="
 px-3
 py-2
@@ -431,6 +442,27 @@ text-sm
 Copiar
 
 </button>
+
+<Link
+
+href={`/admin/raffles/affiliates/${item.id}`}
+
+className="
+px-3
+py-2
+rounded-xl
+bg-blue-600
+hover:bg-blue-500
+text-sm
+"
+
+>
+
+Detalle
+
+</Link>
+
+</div>
 
 </td>
 
