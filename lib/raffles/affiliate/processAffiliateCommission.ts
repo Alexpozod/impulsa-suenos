@@ -77,14 +77,40 @@ export async function processAffiliateCommission({
     ledgerEntry
   )
 
-return{
+console.log(
+
+  "AFFILIATE_COMMISSION_RESULT",
+
+  {
+
+    payment_id,
+
+    order_id,
+
+    raffle_id,
+
+    inserted:
+
+      inserted.inserted,
+
+    reason:
+
+      inserted.reason ?? null
+
+  }
+
+)
+
+return {
 
   processed:
+
     inserted.inserted,
 
   ledgerEntry,
 
   result:
+
     inserted
 
 }
