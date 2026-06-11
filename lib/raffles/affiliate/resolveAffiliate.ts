@@ -1,32 +1,42 @@
+import { createClient } from "@supabase/supabase-js"
 import { AffiliateResult } from "./types"
+import { normalizeAffiliateCode } from "./normalizeAffiliateCode"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function resolveAffiliate(
-
   affiliateCode?: string | null
-
 ): Promise<AffiliateResult> {
 
-  /*
-    En este Sprint aún no consultamos BD.
+  const normalized =
+    normalizeAffiliateCode(
+      affiliateCode
+    )
 
-    Este archivo será el único punto
-    autorizado para resolver influencers.
-
-    Más adelante leerá:
-
-    raffles.affiliate_programs
-    raffles.affiliates
-    raffles.affiliate_links
-
-    sin modificar calculateQuote().
-  */
-
-  if (!affiliateCode) {
+  if (!normalized) {
 
     return {
-
       found: false
+    }
 
+  }
+
+  const { data, error } =
+    await supabase
+      .schema("raffles")
+      .from("raffle_referrals")
+      .select("*")
+      .eq("code", normalized)
+      .eq("active", true)
+      .maybeSingle()
+
+  if (error || !data) {
+
+    return {
+      found: false
     }
 
   }
@@ -35,15 +45,25 @@ export async function resolveAffiliate(
 
     found: true,
 
-    affiliateCode,
+    affiliateId:
+      data.id,
 
-    affiliateName: affiliateCode,
+    affiliateCode:
+      data.code,
 
-    commissionType: "percentage",
+    affiliateName:
+      data.owner_email,
 
-    commissionValue: 0,
+    commissionType:
+      "percentage",
 
-    commissionAmount: 0
+    commissionValue:
+      Number(
+        data.commission_percent
+      ),
+
+    commissionAmount:
+      0
 
   }
 

@@ -322,6 +322,126 @@ async function exportExcel(
 
       </div>
 
+{/* QUICK OPERATIONS */}
+
+<div
+className="
+grid
+grid-cols-1
+md:grid-cols-2
+xl:grid-cols-4
+gap-4
+"
+>
+
+<Link
+href="/admin/raffles/create"
+className="
+bg-gradient-to-br
+from-blue-600
+to-blue-700
+rounded-3xl
+p-6
+hover:scale-[1.02]
+transition
+"
+>
+
+<div className="text-4xl">
+➕
+</div>
+
+<div className="mt-4 text-xl font-bold">
+Nuevo Sorteo
+</div>
+
+<div className="text-sm opacity-80 mt-2">
+Crear un nuevo sorteo
+</div>
+
+</Link>
+
+<Link
+href="/admin/raffles/orders"
+className="
+bg-gradient-to-br
+from-green-600
+to-green-700
+rounded-3xl
+p-6
+hover:scale-[1.02]
+transition
+"
+>
+
+<div className="text-4xl">
+🧾
+</div>
+
+<div className="mt-4 text-xl font-bold">
+Órdenes
+</div>
+
+<div className="text-sm opacity-80 mt-2">
+Administrar compras
+</div>
+
+</Link>
+
+<Link
+href="/admin/raffles/payments"
+className="
+bg-gradient-to-br
+from-purple-600
+to-purple-700
+rounded-3xl
+p-6
+hover:scale-[1.02]
+transition
+"
+>
+
+<div className="text-4xl">
+💳
+</div>
+
+<div className="mt-4 text-xl font-bold">
+Pagos
+</div>
+
+<div className="text-sm opacity-80 mt-2">
+Revisar pagos
+</div>
+
+</Link>
+
+<div
+className="
+bg-gradient-to-br
+from-orange-600
+to-orange-700
+rounded-3xl
+p-6
+opacity-80
+"
+>
+
+<div className="text-4xl">
+⭐
+</div>
+
+<div className="mt-4 text-xl font-bold">
+Influencers
+</div>
+
+<div className="text-sm opacity-80 mt-2">
+Próximo módulo
+</div>
+
+</div>
+
+</div>
+
       {/* KPI */}
 
       <div
