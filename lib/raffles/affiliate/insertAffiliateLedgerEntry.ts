@@ -14,31 +14,41 @@ export async function insertAffiliateLedgerEntry(
   try{
 
     const existing =
-      await supabase
-        .schema("raffles")
-        .from("ledger")
-        .select("id")
-        .eq(
-          "payment_id",
-          ledgerEntry.payment_id
-        )
-        .eq(
-          "type",
-          "affiliate_commission"
-        )
-        .maybeSingle()
+  await supabase
+    .schema("raffles")
+    .from("ledger")
+    .select("id,status,metadata")
+    .eq(
+      "payment_id",
+      ledgerEntry.payment_id
+    )
+    .eq(
+      "type",
+      "affiliate_commission"
+    )
+    .maybeSingle()
 
-    if(existing.data){
+    if (existing.data) {
 
-      return{
+  console.log(
 
-        inserted:false,
+    "AFFILIATE_COMMISSION_ALREADY_EXISTS",
 
-        reason:"duplicate"
+    ledgerEntry.payment_id
 
-      }
+  )
 
-    }
+  return {
+
+    inserted: false,
+
+    reason: "duplicate",
+
+    existing: existing.data
+
+  }
+
+}
 
 ledgerEntry.metadata = {
 
