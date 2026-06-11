@@ -9,43 +9,59 @@ export async function GET(
 
   req: Request,
 
-  {
-    params
-  }: {
-    params: {
+  context: {
+
+    params: Promise<{
+
       id: string
-    }
+
+    }>
+
   }
 
 ) {
 
   try {
 
+    const {
+
+      id
+
+    } = await context.params
+
     const dashboard =
       await getAffiliateDashboard(
-        params.id
+        id
       )
 
     return NextResponse.json(
       dashboard
     )
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(
+
       "affiliate dashboard error",
+
       error
+
     )
 
     return NextResponse.json(
 
       {
-        error:
-          "server_error"
+
+        error: "server_error"
+
       },
 
       {
+
         status: 500
+
       }
 
     )
