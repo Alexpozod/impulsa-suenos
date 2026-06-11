@@ -1,15 +1,13 @@
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { resolveAffiliateCommission } from "./resolveAffiliateCommission"
+import { shouldCreateAffiliateCommission } from "./shouldCreateAffiliateCommission"
+import { buildAffiliateLedgerEntry } from "./buildAffiliateLedgerEntry"
 
 export async function processAffiliateCommission({
 
   payment_id,
   order_id,
-  raffle_id
+  raffle_id,
+  amount
 
 }:{
 
@@ -19,27 +17,65 @@ export async function processAffiliateCommission({
 
   raffle_id:string
 
+  amount:number
+
 }){
 
   try{
 
-    /*
-      Sprint 1
+    const commission =
+      await resolveAffiliateCommission(
 
-      Este módulo aún no modifica
-      el ledger.
+        order_id,
 
-      Solo será el punto oficial
-      para calcular comisiones.
+        amount
 
-      Toda la lógica futura vivirá aquí.
-    */
+      )
+
+    if(
+
+      !shouldCreateAffiliateCommission(
+        commission
+      )
+
+    ){
+
+      return{
+
+        processed:false,
+
+        reason:"no_commission"
+
+      }
+
+    }
+
+    const ledgerEntry =
+      buildAffiliateLedgerEntry({
+
+        raffle_id,
+
+        order_id,
+
+        payment_id,
+
+        affiliate_id:
+          commission!.affiliate.id,
+
+        affiliate_code:
+          commission!.affiliate.code,
+
+        commission_amount:
+          commission!.calculation
+            .commissionAmount
+
+      })
 
     return{
 
-      processed:false,
+      processed:true,
 
-      reason:"not_implemented"
+      ledgerEntry
 
     }
 
