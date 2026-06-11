@@ -1,6 +1,7 @@
 import { resolveAffiliateCommission } from "./resolveAffiliateCommission"
 import { shouldCreateAffiliateCommission } from "./shouldCreateAffiliateCommission"
 import { buildAffiliateLedgerEntry } from "./buildAffiliateLedgerEntry"
+import { insertAffiliateLedgerEntry } from "./insertAffiliateLedgerEntry"
 
 export async function processAffiliateCommission({
 
@@ -71,13 +72,22 @@ export async function processAffiliateCommission({
 
       })
 
-    return{
+    const inserted =
+  await insertAffiliateLedgerEntry(
+    ledgerEntry
+  )
 
-      processed:true,
+return{
 
-      ledgerEntry
+  processed:
+    inserted.inserted,
 
-    }
+  ledgerEntry,
+
+  result:
+    inserted
+
+}
 
   }
 
