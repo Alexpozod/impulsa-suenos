@@ -27,6 +27,9 @@ from "@/lib/raffles/emails/sendTicketsEmail"
 import { validateFlowSignature }
 from "@/lib/raffles/flow/validateFlowSignature"
 
+import { processAffiliateCommission }
+from "@/lib/raffles/affiliate/processAffiliateCommission"
+
 export const runtime = "nodejs"
 
 const FLOW_STATUS_APPROVED = 2
@@ -709,6 +712,44 @@ await processRafflePayment({
     Number(payment.fee || 0)
 
 })
+
+/* =========================
+   AFFILIATE COMMISSION
+========================= */
+
+try {
+
+  await processAffiliateCommission({
+
+    payment_id:
+      dbPayment.id,
+
+    raffle_id:
+      order.raffle_id,
+
+    order_id:
+      order.id,
+
+    amount:
+      Number(
+        dbPayment.amount_clp
+      )
+
+  })
+
+}
+
+catch (error) {
+
+  console.error(
+
+    "AFFILIATE COMMISSION ERROR",
+
+    error
+
+  )
+
+}
 
 if (
   !order.confirmation_email_sent
