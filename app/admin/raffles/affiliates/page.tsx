@@ -1,8 +1,49 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function AffiliatesPage() {
+
+    const [loading, setLoading] =
+useState(true)
+
+const [affiliates, setAffiliates] =
+useState<any[]>([])
+
+useEffect(() => {
+
+load()
+
+}, [])
+
+async function load() {
+
+try {
+
+setLoading(true)
+
+const res =
+await fetch(
+"/api/admin/raffles/affiliates"
+)
+
+const json =
+await res.json()
+
+setAffiliates(
+json.affiliates || []
+)
+
+}
+
+finally {
+
+setLoading(false)
+
+}
+
+}
 
 return (
 
@@ -130,15 +171,31 @@ Acciones
 
 <tbody>
 
+{loading && (
+
 <tr>
 
 <td
 colSpan={6}
-className="
-p-12
-text-center
-text-slate-500
-"
+className="p-10 text-center text-slate-500"
+>
+
+Cargando...
+
+</td>
+
+</tr>
+
+)}
+
+{!loading &&
+affiliates.length===0 && (
+
+<tr>
+
+<td
+colSpan={6}
+className="p-10 text-center text-slate-500"
 >
 
 No existen influencers registrados
@@ -146,6 +203,71 @@ No existen influencers registrados
 </td>
 
 </tr>
+
+)}
+
+{!loading &&
+affiliates.map((item)=>(
+
+<tr
+key={item.id}
+className="border-b border-slate-800"
+>
+
+<td className="p-4 font-semibold">
+
+{item.code}
+
+</td>
+
+<td className="p-4">
+
+{item.owner_email}
+
+</td>
+
+<td className="p-4">
+
+{item.commission_percent}%
+
+</td>
+
+<td className="p-4">
+
+{item.active
+? "🟢 Activo"
+: "🔴 Inactivo"}
+
+</td>
+
+<td className="p-4 text-xs">
+
+{`${window.location.origin}/raffles?aff=${item.code}`}
+
+</td>
+
+<td className="p-4">
+
+<button
+className="
+px-3
+py-2
+rounded-xl
+bg-slate-800
+hover:bg-slate-700
+text-sm
+"
+>
+
+Copiar
+
+</button>
+
+</td>
+
+</tr>
+
+))}
 
 </tbody>
 
