@@ -40,6 +40,18 @@ export async function insertAffiliateLedgerEntry(
 
     }
 
+ledgerEntry.metadata = {
+
+  ...(ledgerEntry.metadata || {}),
+
+  createdBy:
+    "affiliate_engine",
+
+  createdAt:
+    new Date().toISOString()
+
+}
+
     const { error } =
       await supabase
         .schema("raffles")
@@ -54,9 +66,11 @@ export async function insertAffiliateLedgerEntry(
 
     return{
 
-      inserted:true
+  inserted:true,
 
-    }
+  ledgerEntry
+
+}
 
   }
 
