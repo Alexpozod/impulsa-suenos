@@ -13,6 +13,12 @@ export default function AffiliateDetailPage() {
   const [dashboard, setDashboard] =
     useState<any>(null)
 
+    const [summary, setSummary] =
+  useState<any>(null)
+
+const [ledger, setLedger] =
+  useState<any[]>([])
+
   useEffect(() => {
 
     load()
@@ -25,15 +31,50 @@ export default function AffiliateDetailPage() {
 
       setLoading(true)
 
-      const res =
-        await fetch(
-          `/api/admin/raffles/affiliates/${id}`
-        )
+      const [
 
-      const json =
-        await res.json()
+  dashboardRes,
 
-      setDashboard(json)
+  summaryRes,
+
+  ledgerRes
+
+] = await Promise.all([
+
+  fetch(
+    `/api/admin/raffles/affiliates/${id}`
+  ),
+
+  fetch(
+    `/api/admin/raffles/affiliates/${id}/summary`
+  ),
+
+  fetch(
+    `/api/admin/raffles/affiliates/${id}/ledger`
+  )
+
+])
+
+const dashboardJson =
+  await dashboardRes.json()
+
+const summaryJson =
+  await summaryRes.json()
+
+const ledgerJson =
+  await ledgerRes.json()
+
+setDashboard(
+  dashboardJson
+)
+
+setSummary(
+  summaryJson
+)
+
+setLedger(
+  ledgerJson.ledger || []
+)
 
     }
 
