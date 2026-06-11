@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function GET() {
 
-  const { data, error } =
+    const { data, error } =
     await supabase
       .schema("raffles")
       .from("raffle_referrals")
@@ -38,5 +38,123 @@ export async function GET() {
     affiliates: data ?? []
 
   })
+
+}
+
+export async function POST(
+  req: Request
+) {
+
+  try {
+
+    const body =
+      await req.json()
+
+    const {
+
+      code,
+      owner_email,
+      commission_percent
+
+    } = body
+
+    if (
+      !code ||
+      !owner_email
+    ) {
+
+      return NextResponse.json(
+
+        {
+          error:
+            "missing_fields"
+        },
+
+        {
+          status: 400
+        }
+
+      )
+
+    }
+
+    const { data, error } =
+      await supabase
+        .schema("raffles")
+        .from("raffle_referrals")
+        .insert({
+
+          code:
+            String(code)
+              .trim()
+              .toUpperCase(),
+
+          owner_email:
+            String(owner_email)
+              .trim()
+              .toLowerCase(),
+
+          commission_percent:
+            Number(
+              commission_percent
+            ) || 0,
+
+          active: true
+
+        })
+        .select()
+        .single()
+
+    if (error) {
+
+      return NextResponse.json(
+
+        {
+          error:
+            error.message
+        },
+
+        {
+          status: 500
+        }
+
+      )
+
+    }
+
+    return NextResponse.json({
+
+      success: true,
+
+      affiliate:
+        data
+
+    })
+
+  }
+
+  catch (error: any) {
+
+    return NextResponse.json(
+
+      {
+
+        error:
+
+          error?.message ||
+
+          "server_error"
+
+      },
+
+      {
+
+        status: 500
+
+      }
+
+    )
+
+  }
 
 }
