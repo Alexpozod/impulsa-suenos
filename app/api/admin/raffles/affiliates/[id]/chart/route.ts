@@ -1,0 +1,115 @@
+import { NextResponse } from "next/server"
+
+import { createClient }
+from "@supabase/supabase-js"
+
+export const runtime = "nodejs"
+
+const supabase =
+createClient(
+
+process.env
+.NEXT_PUBLIC_SUPABASE_URL!,
+
+process.env
+.SUPABASE_SERVICE_ROLE_KEY!
+
+)
+
+export async function GET(
+
+req: Request,
+
+context:{
+
+params:Promise<{
+
+id:string
+
+}>
+
+}
+
+){
+
+try{
+
+const { id } =
+await context.params
+
+const { data,error } =
+await supabase
+.schema("raffles")
+.from("ledger")
+.select(
+"amount_clp,created_at"
+)
+.eq(
+"type",
+"affiliate_commission"
+)
+.contains(
+"metadata",
+{
+affiliateId:id
+}
+)
+.order(
+"created_at",
+{
+ascending:true
+}
+)
+
+if(error){
+
+throw error
+
+}
+
+const chart =
+(data||[]).map(item=>({
+
+date:
+item.created_at,
+
+amount:
+Math.abs(
+Number(
+item.amount_clp||0
+)
+)
+
+}))
+
+return NextResponse.json({
+
+chart
+
+})
+
+}
+
+catch(error){
+
+console.error(error)
+
+return NextResponse.json(
+
+{
+
+chart:[]
+
+},
+
+{
+
+status:500
+
+}
+
+)
+
+}
+
+}
