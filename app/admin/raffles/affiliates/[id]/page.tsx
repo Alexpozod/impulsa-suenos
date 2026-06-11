@@ -21,6 +21,9 @@ const id = String(params.id)
 const [ledger, setLedger] =
   useState<any[]>([])
 
+  const [chartData, setChartData] =
+  useState<any[]>([])
+
   useEffect(() => {
 
     load()
@@ -39,7 +42,9 @@ const [ledger, setLedger] =
 
   summaryRes,
 
-  ledgerRes
+  ledgerRes,
+
+  chartRes
 
 ] = await Promise.all([
 
@@ -55,6 +60,10 @@ const [ledger, setLedger] =
     `/api/admin/raffles/affiliates/${id}/ledger`
   )
 
+  fetch(
+    `/api/admin/raffles/affiliates/${id}/chart`
+    )
+
 ])
 
 const dashboardJson =
@@ -66,6 +75,9 @@ const summaryJson =
 const ledgerJson =
   await ledgerRes.json()
 
+  const chartJson =
+  await chartRes.json()
+
 setDashboard(
   dashboardJson
 )
@@ -76,6 +88,10 @@ setSummary(
 
 setLedger(
   ledgerJson.ledger || []
+)
+
+setChartData(
+  chartJson.chart || []
 )
 
     }
