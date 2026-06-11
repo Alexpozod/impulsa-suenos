@@ -58,7 +58,7 @@ const [ledger, setLedger] =
 
   fetch(
     `/api/admin/raffles/affiliates/${id}/ledger`
-  )
+  ),
 
   fetch(
     `/api/admin/raffles/affiliates/${id}/chart`
