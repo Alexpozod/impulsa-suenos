@@ -206,9 +206,10 @@ setChartData(
 <div
   className="
     grid
-    md:grid-cols-3
+    md:grid-cols-2
+    xl:grid-cols-4
     gap-4
-  "
+"
 >
 
   <StatCard
@@ -229,6 +230,27 @@ setChartData(
     title="Registros Ledger"
     value={ledger.length}
   />
+
+<StatCard
+  title="Total Ledger"
+
+  value={`$${filteredLedger
+    .reduce(
+
+      (sum:any,item:any)=>
+
+        sum+
+        Math.abs(
+          Number(
+            item.amount_clp||0
+          )
+        ),
+
+      0
+
+    )
+    .toLocaleString("es-CL")}`}
+/>
 
 </div>
 
