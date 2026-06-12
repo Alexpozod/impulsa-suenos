@@ -31,21 +31,39 @@ const [ledger, setLedger] =
   useState("")
 
   const filteredLedger =
-  ledger.filter((item: any) => {
+  [...ledger]
 
-    if (!searchLedger.trim()) {
+    .filter((item: any) => {
 
-      return true
+      if (!searchLedger.trim()) {
 
-    }
+        return true
 
-    return JSON.stringify(item)
-      .toLowerCase()
-      .includes(
-        searchLedger.toLowerCase()
-      )
+      }
 
-  })
+      return JSON.stringify(item)
+        .toLowerCase()
+        .includes(
+          searchLedger.toLowerCase()
+        )
+
+    })
+
+    .sort((a: any, b: any) => {
+
+      const da =
+        new Date(
+          a.created_at ?? 0
+        ).getTime()
+
+      const db =
+        new Date(
+          b.created_at ?? 0
+        ).getTime()
+
+      return db - da
+
+    })
 
   useEffect(() => {
 
