@@ -24,6 +24,9 @@ const [ledger, setLedger] =
   const [chartData, setChartData] =
   useState<any[]>([])
 
+  const [wallet, setWallet] =
+  useState<any>(null)
+
   const [showLedger, setShowLedger] =
   useState(true)
 
@@ -85,7 +88,9 @@ const [ledger, setLedger] =
 
   ledgerRes,
 
-  chartRes
+  chartRes,
+
+  walletRes
 
 ] = await Promise.all([
 
@@ -103,7 +108,11 @@ const [ledger, setLedger] =
 
   fetch(
     `/api/admin/raffles/affiliates/${id}/chart`
-    )
+    ),
+
+fetch(
+  `/api/admin/raffles/affiliates/${id}/wallet`
+)
 
 ])
 
@@ -119,6 +128,9 @@ const ledgerJson =
   const chartJson =
   await chartRes.json()
 
+  const walletJson =
+  await walletRes.json()
+
 setDashboard(
   dashboardJson
 )
@@ -133,6 +145,10 @@ setLedger(
 
 setChartData(
   chartJson.chart || []
+)
+
+setWallet(
+  walletJson.wallet || null
 )
 
     }
