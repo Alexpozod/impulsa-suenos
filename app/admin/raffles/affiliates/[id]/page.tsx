@@ -214,6 +214,99 @@ setChartData(
 
 </div>
 
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+  <h2 className="text-xl font-semibold mb-4">
+
+    Evolución de Comisiones
+
+  </h2>
+
+  {
+
+    chartData.length === 0
+
+    ? (
+
+      <div className="text-slate-500">
+
+        Sin datos disponibles
+
+      </div>
+
+    )
+
+    : (
+
+      <div className="space-y-2">
+
+        {
+
+          chartData.slice(-10).map((item:any,index:number)=>(
+
+            <div
+              key={index}
+              className="
+                flex
+                justify-between
+                border-b
+                border-slate-800
+                py-2
+              "
+            >
+
+              <span>
+
+                {
+
+                  item.date
+
+                  ?
+
+                  new Date(
+                    item.date
+                  ).toLocaleDateString("es-CL")
+
+                  :
+
+                  "-"
+
+                }
+
+              </span>
+
+              <span className="font-semibold">
+
+                $
+
+                {Number(
+                  item.amount || 0
+                ).toLocaleString("es-CL")}
+
+              </span>
+
+            </div>
+
+          ))
+
+        }
+
+      </div>
+
+    )
+
+  }
+
+</div>
+
       <div
         className="
           bg-slate-900
