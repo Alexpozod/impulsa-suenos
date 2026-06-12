@@ -27,6 +27,26 @@ const [ledger, setLedger] =
   const [showLedger, setShowLedger] =
   useState(true)
 
+  const [searchLedger, setSearchLedger] =
+  useState("")
+
+  const filteredLedger =
+  ledger.filter((item: any) => {
+
+    if (!searchLedger.trim()) {
+
+      return true
+
+    }
+
+    return JSON.stringify(item)
+      .toLowerCase()
+      .includes(
+        searchLedger.toLowerCase()
+      )
+
+  })
+
   useEffect(() => {
 
     load()
@@ -408,6 +428,31 @@ setChartData(
 
 </div>
 
+<input
+
+  value={searchLedger}
+
+  onChange={(e) =>
+    setSearchLedger(
+      e.target.value
+    )
+  }
+
+  placeholder="Buscar movimiento..."
+
+  className="
+    w-full
+    mb-4
+    bg-slate-950
+    border
+    border-slate-700
+    rounded-2xl
+    px-4
+    py-3
+  "
+
+/>
+
         {
 
 !showLedger
@@ -460,7 +505,7 @@ ledger.length===0
 
               <tbody>
 
-                {ledger.map((item: any) => (
+                {filteredLedger.map((item: any) => (
 
                   <tr
                     key={item.id}
