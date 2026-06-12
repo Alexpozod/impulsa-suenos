@@ -222,8 +222,10 @@ setWallet(
 <div
   className="
     grid
+    grid-cols-1
     md:grid-cols-2
     xl:grid-cols-4
+    2xl:grid-cols-8
     gap-4
 "
 >
@@ -266,6 +268,34 @@ setWallet(
 
     )
     .toLocaleString("es-CL")}`}
+/>
+
+<StatCard
+  title="Wallet Generado"
+  value={`$${Number(
+    wallet?.generated ?? 0
+  ).toLocaleString("es-CL")}`}
+/>
+
+<StatCard
+  title="Disponible"
+  value={`$${Number(
+    wallet?.available ?? 0
+  ).toLocaleString("es-CL")}`}
+/>
+
+<StatCard
+  title="Pagado"
+  value={`$${Number(
+    wallet?.paid ?? 0
+  ).toLocaleString("es-CL")}`}
+/>
+
+<StatCard
+  title="Pendiente"
+  value={`$${Number(
+    wallet?.pending ?? 0
+  ).toLocaleString("es-CL")}`}
 />
 
 </div>
