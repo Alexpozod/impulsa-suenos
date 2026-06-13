@@ -63,9 +63,7 @@ affiliate?.found ||
 
 referral?.found
 
-let highestPriority =
-
-COMMERCIAL_PRIORITY.default
+let highestPriority = 0
 
 if (
 
