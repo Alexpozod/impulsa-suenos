@@ -1,9 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 import { QuoteInput, QuoteResult } from "./types"
 
-import { applyPromotions } from "../promotion/applyPromotions"
-import { resolveAffiliate } from "../affiliate/resolveAffiliate"
-import { resolveReferral } from "../referral/resolveReferral"
+import { resolveBusinessRules } from "../rules/resolveBusinessRules"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -53,8 +51,8 @@ export async function calculateQuote(
   const subtotal =
 unitPrice * quantity
 
-const promotion =
-await applyPromotions({
+const rules =
+await resolveBusinessRules({
 
 raffleId,
 
@@ -62,29 +60,24 @@ quantity,
 
 subtotal,
 
-unitPrice
+unitPrice,
+
+affiliateCode:
+input.affiliateCode ?? undefined,
+
+referralCode:
+input.referralCode ?? undefined,
+
+couponCode:
+input.couponCode ?? undefined
 
 })
 
-const affiliate =
-await resolveAffiliate(
-
-input.affiliateCode
-
-)
-
-const referral =
-await resolveReferral(
-
-input.referralCode
-
-)
-
 const bonusQuantity =
-promotion.bonusQuantity
+rules.promotion.bonusQuantity
 
 const discount =
-promotion.discount
+rules.promotion.discount
 
   const total =
     subtotal - discount
@@ -115,47 +108,88 @@ promotion.discount
     promotion:{
 
 id:
-promotion.promotionId,
+rules.promotion.promotionId,
 
 code:
-promotion.promotionCode,
+rules.promotion.promotionCode,
 
 name:
-promotion.promotionName,
+rules.promotion.promotionName,
 
 type:
-promotion.bonusQuantity>0
-?"bonus"
-:"discount",
+rules.promotion.bonusQuantity > 0
+? "bonus"
+: "discount",
 
 value:
-promotion.bonusQuantity>0
-?promotion.bonusQuantity
-:promotion.discount
+rules.promotion.bonusQuantity > 0
+? rules.promotion.bonusQuantity
+: rules.promotion.discount
 
 },
 
   affiliate:
-affiliate.found
-  ? {
-      code: affiliate.affiliateCode,
-      name: affiliate.affiliateName,
-      commissionType: affiliate.commissionType,
-      commissionValue: affiliate.commissionValue,
-      commissionAmount: affiliate.commissionAmount
-    }
-  : null,
+
+rules.affiliate?.found
+?{
+
+code:
+rules.affiliate.affiliateCode,
+
+name:
+rules.affiliate.affiliateName,
+
+commissionType:
+rules.affiliate.commissionType,
+
+commissionValue:
+rules.affiliate.commissionValue,
+
+commissionAmount:
+rules.affiliate.commissionAmount
+
+}
+
+:null,
 
    referral:
-referral.found
-  ? {
-      code: referral.referralCode,
-      rewardType: referral.rewardType,
-      rewardValue: referral.rewardValue
-    }
-  : null,
 
-    coupon: null,
+rules.referral?.found
+?{
+
+code:
+rules.referral.referralCode,
+
+rewardType:
+rules.referral.rewardType,
+
+rewardValue:
+rules.referral.rewardValue
+
+}
+
+:null,
+
+    coupon:
+
+rules.coupon?.found
+?{
+
+id:
+rules.coupon.id,
+
+code:
+rules.coupon.code,
+
+discountType:
+rules.coupon.discountType,
+
+discountValue:
+rules.coupon.discountValue
+
+}
+
+:null,
 
     metadata: {
 
