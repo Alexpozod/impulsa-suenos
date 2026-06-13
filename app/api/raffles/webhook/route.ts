@@ -107,6 +107,21 @@ console.log(
   pipelineResult
 )
 
+if (
+
+  pipelineResult.status ===
+  "ignored"
+
+) {
+
+  return NextResponse.json({
+
+    ok: true
+
+  })
+
+}
+
     const existingWebhook =
       await supabase
         .schema("raffles")
