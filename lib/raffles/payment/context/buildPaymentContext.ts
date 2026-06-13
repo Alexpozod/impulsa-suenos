@@ -1,77 +1,100 @@
-import { createClient } from "@supabase/supabase-js"
-
 import { PaymentProcessingContext } from "../types"
+
+import {
+  assignReservedTickets
+} from "@/lib/raffles/tickets/assignReservedTickets"
+
+import {
+  releaseOrderReservations
+} from "@/lib/raffles/tickets/releaseOrderReservations"
+
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function buildPaymentContext(
+export async function assignTickets(
   context: PaymentProcessingContext
-): Promise<PaymentProcessingContext> {
+) {
 
-  const { data: payment, error: paymentError } =
+  if (!context.payment) {
+    throw new Error(
+      "payment_not_found"
+    )
+  }
+
+  const raffleId =
+    context.raffleId ??
+    context.payment.raffle_id
+
+  const orderId =
+    context.orderId ??
+    context.payment.order_id
+
+  const paymentId =
+    context.payment.id
+
+  if (
+    !raffleId ||
+    !orderId ||
+    !paymentId
+  ) {
+    return context
+  }
+
+  try {
+
+    await assignReservedTickets({
+
+      raffle_id:
+        raffleId,
+
+      order_id:
+        orderId,
+
+      payment_id:
+        paymentId
+
+    })
+
+  } catch (error) {
+
     await supabase
       .schema("raffles")
       .from("payments")
-      .select("*")
+      .update({
+
+        status: "failed"
+
+      })
       .eq(
-        "provider_payment_id",
-        context.providerToken
+        "id",
+        paymentId
       )
-      .maybeSingle()
 
-  if (paymentError) {
-
-    throw paymentError
-
-  }
-
-  if (!payment) {
-
-    return {
-
-      ...context,
-
-      payment: null,
-
-      order: null,
-
-      raffle: null
-
-    }
-
-  }
-
-  const { data: order, error: orderError } =
     await supabase
       .schema("raffles")
       .from("orders")
-      .select("*")
+      .update({
+
+        status: "cancelled"
+
+      })
       .eq(
         "id",
-        payment.order_id
+        orderId
       )
-      .maybeSingle()
 
-  if (orderError) {
+    await releaseOrderReservations(
+      orderId
+    )
 
-    throw orderError
-
-  }
-
-  return {
-
-    ...context,
-
-    payment,
-
-    order: order ?? null,
-
-    raffle:
-      context.raffle ?? null
+    throw error
 
   }
+
+  return context
 
 }

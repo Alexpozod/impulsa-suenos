@@ -16,24 +16,32 @@ const supabase = createClient(
 )
 
 export async function assignTickets(
-
   context: PaymentProcessingContext
-
 ) {
 
-  /*
-    Próximamente este step absorberá
-    completamente la lógica del webhook.
-  */
+  if (!context.payment) {
+    throw new Error(
+      "payment_not_found"
+    )
+  }
+
+  const raffleId =
+    context.raffleId ??
+    context.payment.raffle_id
+
+  const orderId =
+    context.orderId ??
+    context.payment.order_id
+
+  const paymentId =
+    context.payment.id
 
   if (
-    !context.raffleId ||
-    !context.orderId ||
-    !context.paymentId
+    !raffleId ||
+    !orderId ||
+    !paymentId
   ) {
-
     return context
-
   }
 
   try {
@@ -41,19 +49,17 @@ export async function assignTickets(
     await assignReservedTickets({
 
       raffle_id:
-        context.raffleId,
+        raffleId,
 
       order_id:
-        context.orderId,
+        orderId,
 
       payment_id:
-        context.paymentId
+        paymentId
 
     })
 
-  }
-
-  catch (error) {
+  } catch (error) {
 
     await supabase
       .schema("raffles")
@@ -65,7 +71,7 @@ export async function assignTickets(
       })
       .eq(
         "id",
-        context.paymentId
+        paymentId
       )
 
     await supabase
@@ -78,13 +84,11 @@ export async function assignTickets(
       })
       .eq(
         "id",
-        context.orderId
+        orderId
       )
 
     await releaseOrderReservations(
-
-      context.orderId
-
+      orderId
     )
 
     throw error

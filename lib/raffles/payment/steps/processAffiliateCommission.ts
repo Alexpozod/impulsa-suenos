@@ -1,23 +1,50 @@
 import { PaymentProcessingContext } from "../types"
 
 import {
-  processAffiliateCommission as processAffiliateCommissionEngine
-}
-from "@/lib/raffles/affiliate/processAffiliateCommission"
+  processAffiliateCommission as processAffiliate
+} from "@/lib/raffles/affiliate/processAffiliateCommission"
 
 export async function processAffiliateCommission(
-
   context: PaymentProcessingContext
-
 ) {
 
-  /*
-    Este step será el único encargado
-    de ejecutar el motor de afiliados.
+  if (
+    !context.payment ||
+    !context.order
+  ) {
+    return context
+  }
 
-    La migración desde webhook se hará
-    progresivamente.
-  */
+  try {
+
+    await processAffiliate({
+
+      payment_id:
+        context.payment.id,
+
+      raffle_id:
+        context.order.raffle_id,
+
+      order_id:
+        context.order.id,
+
+      amount:
+        Number(
+          context.payment.amount_clp ??
+          context.payment.amount ??
+          0
+        )
+
+    })
+
+  } catch (error) {
+
+    console.error(
+      "AFFILIATE COMMISSION ERROR",
+      error
+    )
+
+  }
 
   return context
 
