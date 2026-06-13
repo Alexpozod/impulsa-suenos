@@ -8,6 +8,9 @@ from "./recalculateRaffleCounters"
 import { ensureTicketInventory }
 from "./ensureTicketInventory"
 
+import { allocateTickets }
+from "./allocator"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -36,6 +39,28 @@ export async function reserveTickets({
   await ensureTicketInventory(
     raffle_id
   )
+
+/*
+==================================
+NEW ALLOCATION ENGINE
+==================================
+*/
+
+const allocation =
+  await allocateTickets({
+
+    raffleId:
+      raffle_id,
+
+    quantity,
+
+    orderId:
+      order_id,
+
+    buyerEmail:
+      buyer_email
+
+  })
 
   /* =========================================
      RESERVATION TOKEN
