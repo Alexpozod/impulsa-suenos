@@ -16,13 +16,33 @@ let bonusQuantity = 0
 let discount = 0
 
 /*
-==================================
+==================================================
 
-TEMP RULES
+BUSINESS RULE ENGINE
 
-Luego vendrán desde BD
+Por ahora utiliza reglas internas.
 
-==================================
+En la siguiente etapa consultará:
+
+- raffles.business_rules
+
+y soportará:
+
+- Coupons
+
+- Bundles
+
+- Promotions
+
+- Buy X Get Y
+
+- Percentage Discount
+
+- Fixed Discount
+
+sin modificar el Quote Engine.
+
+==================================================
 */
 
 if (context.quantity >= 10) {

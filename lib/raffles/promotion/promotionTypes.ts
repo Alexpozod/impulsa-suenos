@@ -8,6 +8,12 @@ export interface PromotionContext {
 
   unitPrice: number
 
+  couponCode?: string
+
+  affiliateCode?: string
+
+  referralCode?: string
+
 }
 
 export interface PromotionResult {
