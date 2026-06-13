@@ -1,100 +1,104 @@
-import { PaymentProcessingContext } from "../types"
-
-import {
-  assignReservedTickets
-} from "@/lib/raffles/tickets/assignReservedTickets"
-
-import {
-  releaseOrderReservations
-} from "@/lib/raffles/tickets/releaseOrderReservations"
-
 import { createClient } from "@supabase/supabase-js"
+
+import { PaymentProcessingContext } from "../types"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function assignTickets(
+export async function buildPaymentContext(
   context: PaymentProcessingContext
-) {
+): Promise<PaymentProcessingContext> {
 
-  if (!context.payment) {
-    throw new Error(
-      "payment_not_found"
-    )
-  }
-
-  const raffleId =
-    context.raffleId ??
-    context.payment.raffle_id
-
-  const orderId =
-    context.orderId ??
-    context.payment.order_id
-
-  const paymentId =
-    context.payment.id
-
-  if (
-    !raffleId ||
-    !orderId ||
-    !paymentId
-  ) {
-    return context
-  }
-
-  try {
-
-    await assignReservedTickets({
-
-      raffle_id:
-        raffleId,
-
-      order_id:
-        orderId,
-
-      payment_id:
-        paymentId
-
-    })
-
-  } catch (error) {
-
+  const {
+    data: payment,
+    error: paymentError
+  } =
     await supabase
       .schema("raffles")
       .from("payments")
-      .update({
-
-        status: "failed"
-
-      })
+      .select("*")
       .eq(
-        "id",
-        paymentId
+        "provider_payment_id",
+        context.providerToken
       )
+      .maybeSingle()
 
-    await supabase
-      .schema("raffles")
-      .from("orders")
-      .update({
+  if (paymentError) {
+    throw paymentError
+  }
 
-        status: "cancelled"
+  if (!payment) {
 
-      })
-      .eq(
-        "id",
-        orderId
-      )
+    return {
 
-    await releaseOrderReservations(
-      orderId
-    )
+      ...context,
 
-    throw error
+      payment: null,
+
+      order: null,
+
+      raffle: null
+
+    }
 
   }
 
-  return context
+  const {
+    data: order,
+    error: orderError
+  } =
+    await supabase
+      .schema("raffles")
+      .from("orders")
+      .select("*")
+      .eq(
+        "id",
+        payment.order_id
+      )
+      .maybeSingle()
+
+  if (orderError) {
+    throw orderError
+  }
+
+  let raffle = null
+
+  if (order?.raffle_id) {
+
+    const {
+      data: raffleData,
+      error: raffleError
+    } =
+      await supabase
+        .schema("raffles")
+        .from("raffles")
+        .select("*")
+        .eq(
+          "id",
+          order.raffle_id
+        )
+        .maybeSingle()
+
+    if (raffleError) {
+      throw raffleError
+    }
+
+    raffle = raffleData
+
+  }
+
+  return {
+
+    ...context,
+
+    payment,
+
+    order,
+
+    raffle
+
+  }
 
 }
