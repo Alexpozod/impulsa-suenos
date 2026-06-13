@@ -7,7 +7,12 @@ import {
   validatePayment,
   lockPayment,
   approvePayment,
-  assignTickets
+  assignTickets,
+  createLedger,
+  processAffiliateCommission,
+  trackAnalytics,
+  sendNotifications,
+  finalizePayment
 } from "./steps"
 
 export async function processPayment(
@@ -16,18 +21,28 @@ export async function processPayment(
 
   await validatePayment(context)
 
-  await lockPayment(context)
+await lockPayment(context)
 
-  await approvePayment(context)
+await approvePayment(context)
 
-  await assignTickets(context)
+await assignTickets(context)
 
-  return {
+await createLedger(context)
 
-    success: true,
+await processAffiliateCommission(context)
 
-    status: "pending"
+await trackAnalytics(context)
 
-  }
+await sendNotifications(context)
+
+await finalizePayment(context)
+
+return {
+
+  success: true,
+
+  status: "pending"
+
+}
 
 }
