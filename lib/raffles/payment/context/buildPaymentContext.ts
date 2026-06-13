@@ -1,4 +1,11 @@
+import { createClient } from "@supabase/supabase-js"
+
 import { PaymentProcessingContext } from "../types"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function buildPaymentContext(
 
@@ -6,22 +13,29 @@ export async function buildPaymentContext(
 
 ): Promise<PaymentProcessingContext> {
 
-  /*
-    Este builder irá absorbiendo toda la
-    carga de información necesaria para
-    el pipeline.
+  const { data: payment, error } =
+    await supabase
+      .schema("raffles")
+      .from("payments")
+      .select("*")
+      .eq(
+        "provider_payment_id",
+        context.providerToken
+      )
+      .maybeSingle()
 
-    Por ahora simplemente normaliza el
-    contexto y prepara los objetos que
-    luego serán cargados desde BD.
-  */
+  if (error) {
+
+    throw error
+
+  }
 
   return {
 
     ...context,
 
     payment:
-      context.payment ?? null,
+      payment ?? null,
 
     order:
       context.order ?? null,
