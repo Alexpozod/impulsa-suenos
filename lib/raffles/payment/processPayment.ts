@@ -4,6 +4,10 @@ import {
 } from "./types"
 
 import {
+  buildPaymentContext
+} from "./context"
+
+import {
   validatePayment,
   lockPayment,
   approvePayment,
@@ -16,33 +20,39 @@ import {
 } from "./steps"
 
 export async function processPayment(
-  context: PaymentProcessingContext
+  initialContext: PaymentProcessingContext
 ): Promise<PaymentProcessingResult> {
+
+  let context = initialContext
+
+  context = await buildPaymentContext(
+    context
+  )
 
   await validatePayment(context)
 
-await lockPayment(context)
+  await lockPayment(context)
 
-await approvePayment(context)
+  await approvePayment(context)
 
-await assignTickets(context)
+  await assignTickets(context)
 
-await createLedger(context)
+  await createLedger(context)
 
-await processAffiliateCommission(context)
+  await processAffiliateCommission(context)
 
-await trackAnalytics(context)
+  await trackAnalytics(context)
 
-await sendNotifications(context)
+  await sendNotifications(context)
 
-await finalizePayment(context)
+  await finalizePayment(context)
 
-return {
+  return {
 
-  success: true,
+    success: true,
 
-  status: "completed"
+    status: "completed"
 
-}
+  }
 
 }
