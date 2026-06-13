@@ -76,8 +76,14 @@ input.couponCode ?? undefined
 const bonusQuantity =
 rules.promotion.bonusQuantity
 
-const discount =
+const promotionDiscount =
 rules.promotion.discount
+
+const couponDiscount =
+rules.coupon?.discountAmount ?? 0
+
+const discount =
+promotionDiscount + couponDiscount
 
   const total =
     subtotal - discount
