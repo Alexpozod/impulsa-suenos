@@ -41,7 +41,7 @@ return {
 
   success: true,
 
-  status: "pending"
+  status: "completed"
 
 }
 
