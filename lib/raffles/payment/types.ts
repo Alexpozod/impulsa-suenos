@@ -38,6 +38,12 @@ export interface PaymentProcessingContext {
 
   metadata?: Record<string, any>
 
+  payment?: any
+
+  order?: any
+
+  raffle?: any
+
 }
 
 export interface PaymentProcessingResult {
