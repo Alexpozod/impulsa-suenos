@@ -30,6 +30,10 @@ from "@/lib/raffles/flow/validateFlowSignature"
 import { processAffiliateCommission }
 from "@/lib/raffles/affiliate/processAffiliateCommission"
 
+import {
+  processPayment
+} from "@/lib/raffles/payment"
+
 export const runtime = "nodejs"
 
 const FLOW_STATUS_APPROVED = 2
@@ -84,6 +88,24 @@ signatureValid
 
     const token =
       String(data.token)
+
+      const pipelineResult =
+  await processPayment({
+
+    provider: "flow",
+
+    providerToken:
+      token,
+
+    paymentId:
+      token
+
+  })
+
+console.log(
+  "PAYMENT PIPELINE",
+  pipelineResult
+)
 
     const existingWebhook =
       await supabase
