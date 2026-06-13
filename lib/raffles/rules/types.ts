@@ -36,17 +36,17 @@ export interface RuleResult {
 
   affiliate: any
 
-referral: any
+  referral: any
 
-coupon: any
+  coupon: any
 
-hasCommercialRule: boolean
+  hasCommercialRule: boolean
 
-commercialRuleSource?:
-  "promotion"
-  | "coupon"
-  | "bundle"
-  | "affiliate"
-  | "none"
+  commercialRuleSource?:
+    | "promotion"
+    | "coupon"
+    | "bundle"
+    | "affiliate"
+    | "none"
 
 }
