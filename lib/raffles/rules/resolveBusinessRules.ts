@@ -51,6 +51,43 @@ context.couponCode,
 context.subtotal
 )
 
+const hasCommercialRule =
+
+promotion.applied ||
+
+coupon?.found ||
+
+affiliate?.found ||
+
+referral?.found
+
+let commercialRuleSource:
+"promotion"
+|"coupon"
+|"bundle"
+|"affiliate"
+|"none"
+=
+"none"
+
+if (promotion.applied) {
+
+commercialRuleSource="promotion"
+
+}
+
+else if (coupon?.found) {
+
+commercialRuleSource="coupon"
+
+}
+
+else if (affiliate?.found) {
+
+commercialRuleSource="affiliate"
+
+}
+
 return{
 
 promotion:{
@@ -79,7 +116,11 @@ affiliate,
 
 referral,
 
-coupon
+coupon,
+
+hasCommercialRule,
+
+commercialRuleSource
 
 }
 
