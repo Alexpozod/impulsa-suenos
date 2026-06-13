@@ -12,6 +12,12 @@ export interface PaymentProcessingContext {
 
   amount?: number
 
+  buyerEmail?: string
+
+  providerFee?: number
+
+  metadata?: Record<string, any>
+
 }
 
 export interface PaymentProcessingResult {
