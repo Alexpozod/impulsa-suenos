@@ -6,7 +6,8 @@ import {
 import {
   validatePayment,
   lockPayment,
-  approvePayment
+  approvePayment,
+  assignTickets
 } from "./steps"
 
 export async function processPayment(
@@ -18,6 +19,8 @@ export async function processPayment(
   await lockPayment(context)
 
   await approvePayment(context)
+
+  await assignTickets(context)
 
   return {
 
