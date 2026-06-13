@@ -27,11 +27,9 @@ export async function processPayment(
   initialContext: PaymentProcessingContext
 ): Promise<PaymentProcessingResult> {
 
-  let context = initialContext
-
-  context =
+  let context =
     await buildPaymentContext(
-      context
+      initialContext
     )
 
   if (!context.payment) {
@@ -53,7 +51,7 @@ export async function processPayment(
     await checkExecutionGuard({
 
       executionKey:
-        `${context.provider}:${context.paymentId}`
+        `${context.provider}:${context.payment.id}`
 
     })
 
