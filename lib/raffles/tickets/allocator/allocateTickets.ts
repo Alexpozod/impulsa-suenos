@@ -9,6 +9,9 @@ from "./selectAvailableTickets"
 import { reserveSelectedTickets }
 from "./reserveSelectedTickets"
 
+import { validateReservation }
+from "./validateReservation"
+
 export async function allocateTickets(
 
   input: AllocateTicketsInput
@@ -52,6 +55,14 @@ export async function allocateTickets(
       input.buyerEmail
 
     )
+
+await validateReservation(
+
+  reservation.reservationToken,
+
+  input.quantity
+
+)
 
   return {
 
