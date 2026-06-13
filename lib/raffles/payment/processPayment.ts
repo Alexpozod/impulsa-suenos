@@ -8,9 +8,7 @@ import {
 } from "./context"
 
 import {
-
   checkExecutionGuard
-
 } from "./guard"
 
 import {
@@ -31,35 +29,48 @@ export async function processPayment(
 
   let context = initialContext
 
-  context = await buildPaymentContext(
-    context
-  )
+  context =
+    await buildPaymentContext(
+      context
+    )
 
-  const guard =
+  if (!context.payment) {
 
-await checkExecutionGuard({
+    return {
 
-  executionKey:
+      success: true,
 
-    `${context.provider}:${context.paymentId}`
+      status: "ignored",
 
-})
+      message:
+        "payment_not_found"
 
-if (!guard.allowed) {
-
-  return {
-
-    success: true,
-
-    status: "ignored",
-
-    message:
-
-      guard.reason
+    }
 
   }
 
-}
+  const guard =
+    await checkExecutionGuard({
+
+      executionKey:
+        `${context.provider}:${context.paymentId}`
+
+    })
+
+  if (!guard.allowed) {
+
+    return {
+
+      success: true,
+
+      status: "ignored",
+
+      message:
+        guard.reason
+
+    }
+
+  }
 
   await validatePayment(context)
 
