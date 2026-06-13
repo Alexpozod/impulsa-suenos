@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js"
 import { QuoteInput, QuoteResult } from "./types"
+
 import { applyPromotions } from "../promotion/applyPromotions"
 import { resolveAffiliate } from "../affiliate/resolveAffiliate"
 import { resolveReferral } from "../referral/resolveReferral"
@@ -66,18 +67,18 @@ unitPrice
 })
 
 const affiliate =
-  await resolveAffiliate(
+await resolveAffiliate(
 
-    input.affiliateCode
+input.affiliateCode
 
-  )
+)
 
-  const referral =
-  await resolveReferral(
+const referral =
+await resolveReferral(
 
-    input.referralCode
+input.referralCode
 
-  )
+)
 
 const bonusQuantity =
 promotion.bonusQuantity
@@ -111,7 +112,7 @@ promotion.discount
     currency:
       raffle.currency || "CLP",
 
-    promotion: {
+    promotion:{
 
 id:
 promotion.promotionId,
@@ -123,56 +124,36 @@ name:
 promotion.promotionName,
 
 type:
-promotion.bonusQuantity > 0
-? "bonus"
-: "discount",
+promotion.bonusQuantity>0
+?"bonus"
+:"discount",
 
 value:
-promotion.bonusQuantity > 0
-? promotion.bonusQuantity
-: promotion.discount
+promotion.bonusQuantity>0
+?promotion.bonusQuantity
+:promotion.discount
 
 },
 
-    affiliate: affiliate.found
-? {
+  affiliate:
+affiliate.found
+  ? {
+      code: affiliate.affiliateCode,
+      name: affiliate.affiliateName,
+      commissionType: affiliate.commissionType,
+      commissionValue: affiliate.commissionValue,
+      commissionAmount: affiliate.commissionAmount
+    }
+  : null,
 
-    code:
-      affiliate.affiliateCode,
-
-    name:
-      affiliate.affiliateName,
-
-    commissionType:
-      affiliate.commissionType,
-
-    commissionValue:
-      affiliate.commissionValue,
-
-    commissionAmount:
-      affiliate.commissionAmount
-
-  }
-: null,
-
-    referral:
-
-  referral.found
-
-    ? {
-
-        code:
-          referral.referralCode,
-
-        rewardType:
-          referral.rewardType,
-
-        rewardValue:
-          referral.rewardValue
-
-      }
-
-    : null,
+   referral:
+referral.found
+  ? {
+      code: referral.referralCode,
+      rewardType: referral.rewardType,
+      rewardValue: referral.rewardValue
+    }
+  : null,
 
     coupon: null,
 

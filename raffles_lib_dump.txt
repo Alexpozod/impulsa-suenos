@@ -1,0 +1,4143 @@
+================================================
+lib/raffles/promotion/promotionTypes.ts
+================================================
+export interface PromotionContext {
+
+  raffleId: string
+
+  quantity: number
+
+  subtotal: number
+
+  unitPrice: number
+
+}
+
+export interface PromotionResult {
+
+  applied: boolean
+
+  promotionId?: string
+
+  promotionCode?: string
+
+  promotionName?: string
+
+  bonusQuantity: number
+
+  discount: number
+
+}
+================================================
+lib/raffles/promotion/applyPromotions.ts
+================================================
+import {
+
+PromotionContext,
+PromotionResult
+
+} from "./promotionTypes"
+
+export async function applyPromotions(
+
+context: PromotionContext
+
+): Promise<PromotionResult> {
+
+let bonusQuantity = 0
+
+let discount = 0
+
+/*
+==================================
+
+TEMP RULES
+
+Luego vendrán desde BD
+
+==================================
+*/
+
+if (context.quantity >= 10) {
+
+bonusQuantity = 5
+
+}
+
+else if (context.quantity >= 5) {
+
+bonusQuantity = 2
+
+}
+
+return {
+
+applied:
+bonusQuantity > 0 || discount > 0,
+
+promotionId:
+bonusQuantity > 0
+? "AUTO_BONUS"
+: undefined,
+
+promotionCode:
+bonusQuantity > 0
+? "BUY_MORE"
+: undefined,
+
+promotionName:
+bonusQuantity > 0
+? "Compra más y recibe tickets adicionales"
+: undefined,
+
+bonusQuantity,
+
+discount
+
+}
+
+}
+================================================
+lib/raffles/tickets/ensureTicketInventory.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+import { createTicketInventory }
+from "./createTicketInventory"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const INVENTORY_THRESHOLD = 1000
+
+export async function ensureTicketInventory(
+  raffle_id: string
+) {
+
+  /* =========================================
+     LOAD RAFFLE
+  ========================================= */
+
+  const { data: raffle, error } =
+    await supabase
+      .schema("raffles")
+      .from("raffles")
+      .select(`
+        id,
+        unlimited_tickets,
+        status
+      `)
+      .eq("id", raffle_id)
+      .maybeSingle()
+
+  if (error || !raffle) {
+
+    throw new Error(
+      "raffle_not_found"
+    )
+  }
+
+  if (raffle.status !== "active") {
+
+    return
+  }
+
+  /* =========================================
+     COUNT AVAILABLE
+  ========================================= */
+
+  const { count: availableCount } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("raffle_id", raffle_id)
+      .eq("status", "available")
+
+  /* =========================================
+     THRESHOLD CHECK
+  ========================================= */
+
+  if (
+    (availableCount || 0) >=
+    INVENTORY_THRESHOLD
+  ) {
+
+    return
+  }
+
+  /* =========================================
+     GENERATE NEXT CHUNK
+  ========================================= */
+
+  await createTicketInventory({
+    raffle_id
+  })
+}
+================================================
+lib/raffles/tickets/reserveTickets.ts
+================================================
+import crypto from "crypto"
+
+import { createClient } from "@supabase/supabase-js"
+
+import { recalculateRaffleCounters }
+from "./recalculateRaffleCounters"
+
+import { ensureTicketInventory }
+from "./ensureTicketInventory"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const RESERVATION_MINUTES = 15
+
+interface ReserveTicketsParams {
+  raffle_id: string
+  order_id: string
+  buyer_email: string
+  quantity: number
+}
+
+export async function reserveTickets({
+  raffle_id,
+  order_id,
+  buyer_email,
+  quantity
+}: ReserveTicketsParams) {
+
+  /* =========================================
+     ENSURE INVENTORY
+  ========================================= */
+
+  await ensureTicketInventory(
+    raffle_id
+  )
+
+  /* =========================================
+     RESERVATION TOKEN
+  ========================================= */
+
+  const reservationToken =
+    crypto.randomUUID()
+
+  /* =========================================
+     RESERVATION EXPIRATION
+  ========================================= */
+
+  const reservedUntil = new Date(
+    Date.now() +
+    RESERVATION_MINUTES * 60 * 1000
+  ).toISOString()
+
+  /* =========================================
+   LOAD AVAILABLE TICKETS
+========================================= */
+
+const { data: availableTickets, error } =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select(`
+      id
+    `)
+    .eq("raffle_id", raffle_id)
+    .eq("status", "available")
+    .order(
+      "ticket_number",
+      {
+        ascending: true
+      }
+    )
+    .limit(quantity)
+
+if (error) {
+
+  console.error(
+    "reserveTickets select error",
+    error
+  )
+
+  throw new Error(
+    "inventory_select_failed"
+  )
+}
+
+if (
+  !availableTickets ||
+  availableTickets.length < quantity
+) {
+
+  throw new Error(
+    "not_enough_tickets_available"
+  )
+}
+
+const ticketIds =
+  availableTickets.map(
+    t => t.id
+  )
+
+  /* =========================================
+     RESERVE INVENTORY
+  ========================================= */
+
+  const {
+  data: reservedUpdate,
+  error: updateError
+} =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .update({
+
+      status: "reserved",
+
+      order_id,
+
+      buyer_email,
+
+      reserved_until:
+        reservedUntil,
+
+      reservation_token:
+        reservationToken
+
+    })
+    .in("id", ticketIds)
+    .eq("status", "available")
+    .select("id")
+
+if (updateError) {
+
+  console.error(
+    "reserveTickets update error",
+    updateError
+  )
+
+  throw new Error(
+    "inventory_reservation_failed"
+  )
+}
+
+/* =========================================
+   VERIFY UPDATED ROWS
+========================================= */
+
+const { count: reservedCount } =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq(
+      "reservation_token",
+      reservationToken
+    )
+
+if (
+  (reservedCount || 0) !== quantity
+) {
+
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .update({
+
+      status: "available",
+
+      order_id: null,
+
+      buyer_email: null,
+
+      reserved_until: null,
+
+      reservation_token: null
+
+    })
+    .eq(
+      "reservation_token",
+      reservationToken
+    )
+
+  throw new Error(
+    "reservation_race_condition"
+  )
+}
+
+/* =========================================
+   VERIFY ATOMIC RESERVATION
+========================================= */
+
+if (
+  !reservedUpdate ||
+  reservedUpdate.length !== quantity
+) {
+
+  console.error(
+    "reserveTickets partial reservation",
+    {
+      expected: quantity,
+      reserved:
+        reservedUpdate?.length || 0
+    }
+  )
+
+  throw new Error(
+    "inventory_race_condition"
+  )
+}
+
+  /* =========================================
+     VERIFY OWNERSHIP
+  ========================================= */
+
+  const { data: reservedTickets } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select(`
+        id,
+        ticket_code,
+        ticket_number
+      `)
+      .eq(
+        "reservation_token",
+        reservationToken
+      )
+
+  if (
+    !reservedTickets ||
+    reservedTickets.length !== quantity
+  ) {
+
+    throw new Error(
+      "reservation_conflict"
+    )
+  }
+
+  /* =========================================
+     RECALCULATE COUNTERS
+  ========================================= */
+
+  await recalculateRaffleCounters({
+    raffle_id
+  })
+
+  return reservedTickets
+}
+================================================
+lib/raffles/tickets/createTicketInventory.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const DEFAULT_CHUNK_SIZE = 10000
+
+interface CreateTicketInventoryParams {
+  raffle_id: string
+  chunk_size?: number
+}
+
+export async function createTicketInventory({
+  raffle_id,
+  chunk_size = DEFAULT_CHUNK_SIZE
+}: CreateTicketInventoryParams) {
+
+  /* =========================================
+     LOAD RAFFLE
+  ========================================= */
+
+  const { data: raffle, error: raffleError } =
+    await supabase
+      .schema("raffles")
+      .from("raffles")
+      .select(`
+        id,
+        ticket_prefix,
+        ticket_min_number,
+        ticket_max_number,
+        unlimited_tickets
+      `)
+      .eq("id", raffle_id)
+      .maybeSingle()
+
+  if (raffleError || !raffle) {
+    throw new Error("raffle_not_found")
+  }
+
+  /* =========================================
+     CURRENT MAX GENERATED
+  ========================================= */
+
+  const { data: lastTicket } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select("ticket_number")
+      .eq("raffle_id", raffle_id)
+      .order("ticket_number", {
+        ascending: false
+      })
+      .limit(1)
+      .maybeSingle()
+
+  const startNumber =
+    lastTicket?.ticket_number
+      ? Number(lastTicket.ticket_number) + 1
+      : Number(raffle.ticket_min_number)
+
+  let endNumber =
+    startNumber + chunk_size - 1
+
+  /* =========================================
+     LIMITED RAFFLES
+  ========================================= */
+
+  if (!raffle.unlimited_tickets) {
+
+    const maxAllowed =
+      Number(raffle.ticket_max_number)
+
+    if (startNumber > maxAllowed) {
+      return {
+        created: 0,
+        completed: true
+      }
+    }
+
+    if (endNumber > maxAllowed) {
+      endNumber = maxAllowed
+    }
+  }
+
+  /* =========================================
+     BUILD INVENTORY
+  ========================================= */
+
+  const inventory = []
+
+  for (
+    let number = startNumber;
+    number <= endNumber;
+    number++
+  ) {
+
+    const visibleNumber =
+      String(number).padStart(5, "0")
+
+    inventory.push({
+
+      raffle_id,
+
+      ticket_number: number,
+
+      ticket_code:
+        `${raffle.ticket_prefix}/${visibleNumber}`,
+
+      status: "available"
+    })
+  }
+
+  /* =========================================
+     INSERT INVENTORY
+  ========================================= */
+
+  const { error: insertError } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .insert(inventory)
+
+  if (insertError) {
+
+    console.error(
+      "createTicketInventory insert error",
+      insertError
+    )
+
+    throw new Error(
+      "inventory_insert_failed"
+    )
+  }
+
+  /* =========================================
+     UPDATE GENERATED COUNTER
+  ========================================= */
+
+  await supabase
+    .schema("raffles")
+    .from("raffles")
+    .update({
+
+      generated_ticket_count:
+        endNumber
+
+    })
+    .eq("id", raffle_id)
+
+  return {
+
+    created:
+      inventory.length,
+
+    start_number:
+      startNumber,
+
+    end_number:
+      endNumber,
+
+    completed:
+      !raffle.unlimited_tickets &&
+      endNumber >=
+        Number(raffle.ticket_max_number)
+  }
+}
+================================================
+lib/raffles/tickets/generateTickets.ts
+================================================
+import { createClient }
+from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+function randomNumber(min: number, max: number) {
+
+  return Math.floor(
+    Math.random() * (max - min + 1)
+  ) + min
+}
+
+export async function generateTickets({
+
+  order_id,
+  raffle_id,
+  quantity,
+  user_email
+
+}: {
+
+  order_id: string
+raffle_id: string
+quantity: number
+user_email: string
+
+}) {
+
+  const { data: raffle } = await supabase
+    .schema("raffles")
+    .from("raffles")
+    .select("*")
+    .eq("id", raffle_id)
+    .maybeSingle()
+
+  if (!raffle) {
+    throw new Error("raffle_not_found")
+  }
+
+  const generated = []
+
+  for (let i = 0; i < quantity; i++) {
+
+    let ticketNumber = ""
+    let exists = true
+
+    while (exists) {
+
+  ticketNumber =
+    String(
+      randomNumber(
+        raffle.ticket_min_number,
+        raffle.ticket_max_number
+      )
+    )
+
+  const { data } = await supabase
+    .schema("raffles")
+    .from("tickets")
+    .select("id")
+    .eq("raffle_id", raffle_id)
+    .eq("ticket_number", ticketNumber)
+    .maybeSingle()
+
+  exists = !!data
+}
+
+const code =
+  `${raffle.ticket_prefix}-${ticketNumber}`
+
+const { data: ticket } = await supabase
+  .schema("raffles")
+  .from("tickets")
+  .insert({
+
+    raffle_id,
+
+    order_id,
+
+    user_email,
+
+    ticket_number: ticketNumber,
+
+    ticket_code: code,
+
+    status: "active"
+
+  })
+  .select()
+  .single()
+
+generated.push(ticket)
+ }
+
+  return generated
+}
+================================================
+lib/raffles/tickets/releaseExpiredReservations.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+import { recalculateRaffleCounters }
+from "./recalculateRaffleCounters"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function releaseExpiredReservations() {
+
+  /* =========================================
+     FIND EXPIRED RESERVATIONS
+  ========================================= */
+
+  const now =
+    new Date().toISOString()
+
+  const { data: expiredTickets, error } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select(`
+        id,
+        raffle_id
+      `)
+      .eq("status", "reserved")
+      .lt("reserved_until", now)
+
+  if (error) {
+
+    console.error(
+      "releaseExpiredReservations select error",
+      error
+    )
+
+    throw new Error(
+      "expired_reservations_select_failed"
+    )
+  }
+
+  if (
+    !expiredTickets ||
+    expiredTickets.length === 0
+  ) {
+
+    return {
+      released: 0
+    }
+  }
+
+  const ticketIds =
+    expiredTickets.map(
+      t => t.id
+    )
+
+  /* =========================================
+     RELEASE INVENTORY
+  ========================================= */
+
+  const { error: updateError } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .update({
+
+  status: "available",
+
+  reserved_until: null,
+
+  order_id: null,
+
+  buyer_email: null,
+
+  reservation_token: null
+
+})
+      .in("id", ticketIds)
+      .eq("status", "reserved")
+
+  if (updateError) {
+
+    console.error(
+      "releaseExpiredReservations update error",
+      updateError
+    )
+
+    throw new Error(
+      "expired_reservations_release_failed"
+    )
+  }
+
+  /* =========================================
+     RECALCULATE COUNTERS
+  ========================================= */
+
+  const raffleIds =
+    [...new Set(
+      expiredTickets.map(
+        t => t.raffle_id
+      )
+    )]
+
+  for (const raffleId of raffleIds) {
+
+    await recalculateRaffleCounters({
+      raffle_id: raffleId
+    })
+  }
+
+  return {
+
+    released:
+      expiredTickets.length
+  }
+}
+================================================
+lib/raffles/tickets/releaseOrderReservations.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+import { recalculateRaffleCounters }
+from "./recalculateRaffleCounters"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function releaseOrderReservations(
+  order_id: string
+) {
+
+  /* =========================================
+     LOAD RESERVED TICKETS
+  ========================================= */
+
+  const { data: tickets, error } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select(`
+        id,
+        raffle_id
+      `)
+      .eq("order_id", order_id)
+      .eq("status", "reserved")
+
+  if (error) {
+
+    console.error(
+      "releaseOrderReservations select error",
+      error
+    )
+
+    throw new Error(
+      "release_order_reservations_failed"
+    )
+  }
+
+  if (!tickets || tickets.length === 0) {
+    return
+  }
+
+  const ticketIds =
+    tickets.map(
+      t => t.id
+    )
+
+  /* =========================================
+     RELEASE INVENTORY
+  ========================================= */
+
+  const { error: releaseError } =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .update({
+
+      status: "available",
+
+      order_id: null,
+
+      buyer_email: null,
+
+      reserved_until: null,
+
+      reservation_token: null
+
+    })
+    .in("id", ticketIds)
+    .eq("status", "reserved")
+
+if (releaseError) {
+
+  console.error(
+    "releaseOrderReservations update error",
+    releaseError
+  )
+
+  throw new Error(
+    "release_order_inventory_failed"
+  )
+}
+
+  /* =========================================
+     RECALCULATE COUNTERS
+  ========================================= */
+
+  const raffleIds =
+    [...new Set(
+      tickets.map(
+        t => t.raffle_id
+      )
+    )]
+
+  for (const raffleId of raffleIds) {
+
+    await recalculateRaffleCounters({
+      raffle_id: raffleId
+    })
+  }
+}
+================================================
+lib/raffles/tickets/recalculateRaffleCounters.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+interface RecalculateRaffleCountersParams {
+  raffle_id: string
+}
+
+export async function recalculateRaffleCounters({
+  raffle_id
+}: RecalculateRaffleCountersParams) {
+
+  /* =========================================
+     GENERATED
+  ========================================= */
+
+  const { count: generatedCount } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("raffle_id", raffle_id)
+
+  /* =========================================
+     SOLD
+  ========================================= */
+
+  const paidResult =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq("status", "paid")
+
+const winnerResult =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("raffle_id", raffle_id)
+    .eq("status", "winner")
+
+const soldCount =
+  (paidResult.count || 0) +
+  (winnerResult.count || 0)
+
+  /* =========================================
+     RESERVED
+  ========================================= */
+
+  const { count: reservedCount } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("raffle_id", raffle_id)
+      .eq("status", "reserved")
+
+  /* =========================================
+     UPDATE RAFFLE
+  ========================================= */
+
+  const { error } =
+    await supabase
+      .schema("raffles")
+      .from("raffles")
+      .update({
+
+        generated_ticket_count:
+          generatedCount || 0,
+
+        sold_ticket_count:
+          soldCount || 0,
+
+        reserved_ticket_count:
+          reservedCount || 0
+
+      })
+      .eq("id", raffle_id)
+
+  if (error) {
+
+    console.error(
+      "recalculateRaffleCounters error",
+      error
+    )
+
+    throw new Error(
+      "raffle_counter_recalculation_failed"
+    )
+  }
+
+  return {
+
+    generated:
+      generatedCount || 0,
+
+    sold:
+      soldCount || 0,
+
+    reserved:
+      reservedCount || 0
+  }
+}
+================================================
+lib/raffles/tickets/assignReservedTickets.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+import { recalculateRaffleCounters }
+from "./recalculateRaffleCounters"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+interface AssignReservedTicketsParams {
+  raffle_id: string
+  order_id: string
+  payment_id: string
+}
+
+export async function assignReservedTickets({
+  raffle_id,
+  order_id,
+  payment_id
+}: AssignReservedTicketsParams) {
+
+  /* =========================================
+     LOAD RESERVED TICKETS
+  ========================================= */
+
+  const { data: reservedTickets, error } =
+    await supabase
+      .schema("raffles")
+      .from("ticket_inventory")
+      .select(`
+        id,
+        ticket_code,
+        ticket_number
+      `)
+      .eq("raffle_id", raffle_id)
+      .eq("order_id", order_id)
+      .eq("status", "reserved")
+
+  if (error) {
+
+    console.error(
+      "assignReservedTickets select error",
+      error
+    )
+
+    throw new Error(
+      "reserved_tickets_select_failed"
+    )
+  }
+
+  if (
+    !reservedTickets ||
+    reservedTickets.length === 0
+  ) {
+
+    throw new Error(
+      "reserved_tickets_not_found"
+    )
+  }
+
+  const ticketIds =
+    reservedTickets.map(
+      t => t.id
+    )
+
+  /* =========================================
+   MARK AS PAID
+========================================= */
+
+const { error: updateError } =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .update({
+
+      status: "paid",
+
+      payment_id,
+
+      reserved_until: null
+
+    })
+    .in("id", ticketIds)
+    .eq("status", "reserved")
+
+  if (updateError) {
+
+    console.error(
+      "assignReservedTickets update error",
+      updateError
+    )
+
+    throw new Error(
+      "ticket_assignment_failed"
+    )
+  }
+
+  /* =========================================
+   CREATE OWNERSHIP RECORDS
+========================================= */
+
+const ownershipRows =
+  ticketIds.map(ticket_id => ({
+
+    order_id,
+
+    ticket_id
+
+  }))
+
+const { error: ownershipError } =
+  await supabase
+    .schema("raffles")
+    .from("order_tickets")
+    .upsert(
+      ownershipRows,
+      {
+        onConflict:
+          "ticket_id"
+      }
+    )
+
+  if (ownershipError) {
+
+    console.error(
+      "assignReservedTickets ownership error",
+      ownershipError
+    )
+
+    throw new Error(
+      "ticket_ownership_creation_failed"
+    )
+  }
+
+  /* =========================================
+     RECALCULATE COUNTERS
+  ========================================= */
+
+  await recalculateRaffleCounters({
+    raffle_id
+  })
+
+  return reservedTickets
+}
+================================================
+lib/raffles/ledger/processRafflePayment.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function processRafflePayment({
+
+  payment_id,
+  raffle_id,
+  order_id,
+
+  amount,
+  provider_fee
+
+}: {
+
+  payment_id: string
+
+  raffle_id: string
+
+  order_id: string
+
+  amount: number
+
+  provider_fee: number
+
+}) {
+
+  try {
+
+    const alreadyExists =
+  await supabase
+    .schema("raffles")
+    .from("ledger")
+    .select("id")
+    .eq("payment_id", payment_id)
+    .eq("type", "payment")
+    .maybeSingle()
+
+if (alreadyExists.data) {
+
+  console.log(
+    "LEDGER_ALREADY_EXISTS",
+    payment_id
+  )
+
+  return
+}
+
+    const platformFee =
+      amount * 0.10
+
+    const iva =
+      platformFee * 0.19
+
+    const creatorNet =
+      amount -
+      provider_fee -
+      platformFee -
+      iva
+
+    const { error } =
+      await supabase
+        .schema("raffles")
+        .from("ledger")
+        .insert([
+
+          {
+            raffle_id,
+
+            order_id,
+
+            payment_id,
+
+            type: "payment",
+
+            flow_type: "in",
+
+            amount_clp: amount,
+
+            status: "confirmed"
+          },
+
+          {
+            raffle_id,
+
+            order_id,
+
+            payment_id,
+
+            type: "fee_provider",
+
+            flow_type: "out",
+
+            amount_clp: -provider_fee,
+
+            status: "confirmed"
+          },
+
+          {
+            raffle_id,
+
+            order_id,
+
+            payment_id,
+
+            type: "platform_fee",
+
+            flow_type: "out",
+
+            amount_clp: -platformFee,
+
+            status: "confirmed"
+          },
+
+          {
+            raffle_id,
+
+            order_id,
+
+            payment_id,
+
+            type: "platform_fee_iva",
+
+            flow_type: "out",
+
+            amount_clp: -iva,
+
+            status: "confirmed"
+          },
+
+          {
+            raffle_id,
+
+            order_id,
+
+            payment_id,
+
+            type: "creator_net",
+
+            flow_type: "out",
+
+            amount_clp: -creatorNet,
+
+            status: "confirmed"
+          }
+
+        ])
+
+    if (error) {
+
+  console.error(
+    "LEDGER INSERT ERROR",
+    error
+  )
+
+  /* =========================
+     DUPLICATE PROTECTION
+  ========================= */
+
+  if (
+    error.code === "23505"
+  ) {
+
+    console.warn(
+      "LEDGER DUPLICATE BLOCKED",
+      payment_id
+    )
+
+    return
+  }
+
+  throw error
+}
+
+  } catch (error) {
+
+    console.error(
+      "processRafflePayment error",
+      error
+    )
+  }
+}
+================================================
+lib/raffles/referral/types.ts
+================================================
+export interface ReferralResult {
+
+  found: boolean
+
+  referralId?: string
+
+  referralCode?: string
+
+  rewardType?: "ticket" | "amount" | "percentage"
+
+  rewardValue?: number
+
+}
+================================================
+lib/raffles/referral/resolveReferral.ts
+================================================
+import { ReferralResult } from "./types"
+
+export async function resolveReferral(
+
+  referralCode?: string | null
+
+): Promise<ReferralResult> {
+
+  /*
+      Próximamente consultará:
+
+      raffles.referral_programs
+
+      raffles.referrals
+
+      raffles.referral_rewards
+
+      Hoy solamente centralizamos
+      la lógica.
+  */
+
+  if (!referralCode) {
+
+    return {
+
+      found: false
+
+    }
+
+  }
+
+  return {
+
+    found: true,
+
+    referralCode,
+
+    rewardType: "ticket",
+
+    rewardValue: 1
+
+  }
+
+}
+================================================
+lib/raffles/security/checkRateLimit.ts
+================================================
+import { createClient }
+from "@supabase/supabase-js"
+
+const supabase =
+  createClient(
+
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env
+      .SUPABASE_SERVICE_ROLE_KEY!
+
+  )
+
+interface CheckRateLimitParams {
+
+  key: string
+
+  route: string
+
+  limit?: number
+
+  windowMinutes?: number
+
+}
+
+export async function
+checkRateLimit({
+
+  key,
+
+  route,
+
+  limit = 20,
+
+  windowMinutes = 1
+
+}: CheckRateLimitParams) {
+
+  const windowStart =
+    new Date(
+
+      Date.now() -
+      windowMinutes *
+      60 *
+      1000
+
+    ).toISOString()
+
+  const {
+    data: existing
+  } =
+    await supabase
+      .schema("raffles")
+      .from("rate_limits")
+      .select("*")
+      .eq("key", key)
+      .eq("route", route)
+      .gte(
+        "window_start",
+        windowStart
+      )
+      .maybeSingle()
+
+  /* =========================
+     FIRST HIT
+  ========================= */
+
+  if (!existing) {
+
+    await supabase
+      .schema("raffles")
+      .from("rate_limits")
+      .insert({
+
+        key,
+
+        route,
+
+        hits: 1,
+
+        window_start:
+          new Date().toISOString()
+
+      })
+
+    return {
+
+      allowed: true,
+
+      remaining:
+        limit - 1
+
+    }
+
+  }
+
+  /* =========================
+     LIMIT REACHED
+  ========================= */
+
+  if (
+    existing.hits >= limit
+  ) {
+
+    return {
+
+      allowed: false,
+
+      remaining: 0
+
+    }
+
+  }
+
+  /* =========================
+     UPDATE HITS
+  ========================= */
+
+  await supabase
+    .schema("raffles")
+    .from("rate_limits")
+    .update({
+
+      hits:
+        existing.hits + 1,
+
+      updated_at:
+        new Date().toISOString()
+
+    })
+    .eq("id", existing.id)
+
+  return {
+
+    allowed: true,
+
+    remaining:
+      limit -
+      (existing.hits + 1)
+
+  }
+
+}
+================================================
+lib/raffles/auth/requireRaffleAdmin.ts
+================================================
+import { createClient }
+from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+interface RequireRaffleAdminParams {
+  user_id: string
+  allowed_roles?: string[]
+}
+
+export async function requireRaffleAdmin({
+
+  user_id,
+  allowed_roles = [
+    "raffle_admin"
+  ]
+
+}: RequireRaffleAdminParams) {
+
+  const { data, error } =
+    await supabase
+      .schema("raffles")
+      .from("admin_users")
+      .select("*")
+      .eq("user_id", user_id)
+      .eq("active", true)
+      .maybeSingle()
+
+  if (error || !data) {
+
+    throw new Error(
+      "raffle_admin_required"
+    )
+  }
+
+  if (
+    !allowed_roles.includes(
+      data.role
+    )
+  ) {
+
+    throw new Error(
+      "raffle_admin_forbidden"
+    )
+  }
+
+  return data
+}
+================================================
+lib/raffles/quote/types.ts
+================================================
+export interface QuoteInput {
+
+  raffleId: string
+
+  quantity: number
+
+  userId?: string | null
+
+  affiliateCode?: string | null
+
+  referralCode?: string | null
+
+  couponCode?: string | null
+
+  source?: string | null
+
+  referrer?: string | null
+
+  utm_source?: string | null
+
+  utm_medium?: string | null
+
+  utm_campaign?: string | null
+
+  utm_content?: string | null
+
+  utm_term?: string | null
+
+  ip?: string | null
+
+  userAgent?: string | null
+
+}
+
+export interface QuotePromotion {
+
+  id?: string
+
+  code?: string
+
+  name?: string
+
+  type?: string
+
+  value?: number
+}
+
+export interface QuoteAffiliate {
+
+  id?: string
+
+  code?: string
+
+  name?: string
+
+  commissionType?: "percentage" | "fixed"
+
+  commissionValue?: number
+
+  commissionAmount?: number
+
+}
+
+export interface QuoteReferral {
+
+  id?: string
+
+  code?: string
+
+  rewardType?: string
+
+  rewardValue?: number
+}
+
+export interface QuoteCoupon {
+
+  id?: string
+
+  code?: string
+
+  discountType?: string
+
+  discountValue?: number
+}
+
+export interface QuoteResult {
+
+  raffleId: string
+
+  requestedQuantity: number
+
+  bonusQuantity: number
+
+  finalQuantity: number
+
+  unitPrice: number
+
+  subtotal: number
+
+  discount: number
+
+  total: number
+
+  currency: string
+
+  promotion?: QuotePromotion | null
+
+  affiliate?: QuoteAffiliate | null
+
+  referral?: QuoteReferral | null
+
+  coupon?: QuoteCoupon | null
+
+  metadata?: Record<string, any>
+}
+================================================
+lib/raffles/quote/calculateQuote.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+import { QuoteInput, QuoteResult } from "./types"
+import { applyPromotions } from "../promotion/applyPromotions"
+import { resolveAffiliate } from "../affiliate/resolveAffiliate"
+import { resolveReferral } from "../referral/resolveReferral"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function calculateQuote(
+  input: QuoteInput
+): Promise<QuoteResult> {
+
+  const {
+
+    raffleId,
+    quantity
+
+  } = input
+
+  if (quantity <= 0) {
+    throw new Error("invalid_quantity")
+  }
+
+  const { data: raffle, error } =
+    await supabase
+      .schema("raffles")
+      .from("raffles")
+      .select("*")
+      .eq("id", raffleId)
+      .single()
+
+  if (error || !raffle) {
+    throw new Error("raffle_not_found")
+  }
+
+  if (raffle.status !== "active") {
+    throw new Error("raffle_inactive")
+  }
+
+  const unitPrice =
+    Number(
+      raffle.ticket_price_clp
+    )
+
+  if (!unitPrice || unitPrice <= 0) {
+    throw new Error("invalid_ticket_price")
+  }
+  
+  const subtotal =
+unitPrice * quantity
+
+const promotion =
+await applyPromotions({
+
+raffleId,
+
+quantity,
+
+subtotal,
+
+unitPrice
+
+})
+
+const affiliate =
+  await resolveAffiliate(
+
+    input.affiliateCode
+
+  )
+
+  const referral =
+  await resolveReferral(
+
+    input.referralCode
+
+  )
+
+const bonusQuantity =
+promotion.bonusQuantity
+
+const discount =
+promotion.discount
+
+  const total =
+    subtotal - discount
+
+  return {
+
+    raffleId,
+
+    requestedQuantity:
+      quantity,
+
+    bonusQuantity,
+
+    finalQuantity:
+      quantity + bonusQuantity,
+
+    unitPrice,
+
+    subtotal,
+
+    discount,
+
+    total,
+
+    currency:
+      raffle.currency || "CLP",
+
+    promotion: {
+
+id:
+promotion.promotionId,
+
+code:
+promotion.promotionCode,
+
+name:
+promotion.promotionName,
+
+type:
+promotion.bonusQuantity > 0
+? "bonus"
+: "discount",
+
+value:
+promotion.bonusQuantity > 0
+? promotion.bonusQuantity
+: promotion.discount
+
+},
+
+    affiliate: affiliate.found
+? {
+
+    code:
+      affiliate.affiliateCode,
+
+    name:
+      affiliate.affiliateName,
+
+    commissionType:
+      affiliate.commissionType,
+
+    commissionValue:
+      affiliate.commissionValue,
+
+    commissionAmount:
+      affiliate.commissionAmount
+
+  }
+: null,
+
+    referral:
+
+  referral.found
+
+    ? {
+
+        code:
+          referral.referralCode,
+
+        rewardType:
+          referral.rewardType,
+
+        rewardValue:
+          referral.rewardValue
+
+      }
+
+    : null,
+
+    coupon: null,
+
+    metadata: {
+
+      engine: 1,
+
+      calculatedAt:
+        new Date().toISOString()
+
+    }
+
+  }
+
+}
+================================================
+lib/raffles/emails/sendRaffleConfirmationEmail.ts
+================================================
+import { createClient }
+from "@supabase/supabase-js"
+
+const supabase =
+  createClient(
+
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env
+      .SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+export async function sendRaffleConfirmationEmail(
+
+  order_id: string
+
+) {
+
+  try {
+
+    /* =========================================
+       LOAD ORDER + RAFFLE
+    ========================================= */
+
+    const { data: order } =
+      await supabase
+        .schema("raffles")
+        .from("orders")
+        .select(`
+          *,
+          raffles (
+            title,
+            slug,
+            cover_image
+          )
+        `)
+        .eq("id", order_id)
+        .maybeSingle()
+
+    if (!order) {
+      return
+    }
+
+    /* =========================================
+       LOAD PAID TICKETS
+    ========================================= */
+
+    const { data: tickets } =
+      await supabase
+        .schema("raffles")
+        .from("ticket_inventory")
+        .select(`
+          ticket_code,
+          ticket_number
+        `)
+        .eq("order_id", order_id)
+        .eq("status", "paid")
+
+    console.log(
+      "EMAIL RAFFLE",
+      {
+        to:
+          order.buyer_email,
+
+        raffle:
+          order.raffles?.title,
+
+        tickets
+      }
+    )
+
+    /* =========================================
+       MARK EMAIL SENT
+    ========================================= */
+
+    await supabase
+      .schema("raffles")
+      .from("orders")
+      .update({
+
+        confirmation_email_sent: true,
+
+        confirmation_email_sent_at:
+          new Date().toISOString()
+
+      })
+      .eq("id", order_id)
+
+  } catch (error) {
+
+    console.error(
+      "sendRaffleConfirmationEmail",
+      error
+    )
+  }
+}
+================================================
+lib/raffles/emails/sendTicketsEmail.ts
+================================================
+import { Resend }
+from "resend"
+
+const resend =
+  new Resend(
+    process.env.RESEND_API_KEY
+  )
+
+export async function sendTicketsEmail({
+
+  email,
+  raffleTitle,
+  tickets
+
+}: {
+
+  email: string
+
+  raffleTitle: string
+
+  tickets: any[]
+
+}) {
+
+  const list =
+    tickets
+      .map(
+        t =>
+          `<li>${t.ticket_code}</li>`
+      )
+      .join("")
+
+  await resend.emails.send({
+
+    from:
+      "ImpulsaSueños <tickets@impulsasuenos.com>",
+
+    to: email,
+
+    subject:
+      `🎟️ Tus tickets - ${raffleTitle}`,
+
+    html: `
+
+<div style="background:#f4f7fb;padding:40px 20px;font-family:Arial,sans-serif;">
+
+<div style="max-width:700px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e5e7eb;">
+
+<div style="background:#0f172a;padding:30px;text-align:center;">
+
+<div style="font-size:34px;font-weight:bold;color:#ffffff;">
+🚀 ImpulsaSueños
+</div>
+
+<div style="margin-top:10px;color:#cbd5e1;font-size:16px;">
+Compra confirmada
+</div>
+
+</div>
+
+<div style="padding:35px;">
+
+<h2 style="margin:0;color:#111827;font-size:28px;">
+🎉 ¡Tus tickets ya están listos!
+</h2>
+
+<p style="margin-top:20px;color:#4b5563;font-size:16px;line-height:1.7;">
+Gracias por participar en
+<strong>${raffleTitle}</strong>.
+Tu pago fue confirmado correctamente y tus tickets quedaron registrados.
+</p>
+
+<div style="margin-top:30px;padding:20px;background:#f8fafc;border-radius:12px;border:1px solid #e5e7eb;">
+
+<div style="font-size:18px;font-weight:bold;color:#111827;margin-bottom:12px;">
+🎟️ Tus tickets
+</div>
+
+<ul style="padding-left:22px;color:#2563eb;font-size:18px;line-height:1.9;">
+${list}
+</ul>
+
+</div>
+
+<div style="margin-top:30px;padding:18px;background:#ecfeff;border-left:5px solid #0891b2;border-radius:10px;color:#164e63;line-height:1.7;">
+
+✅ Tu participación quedó registrada.<br>
+✅ Conserva este correo como comprobante.<br>
+✅ Los resultados del sorteo serán publicados en ImpulsaSueños.
+
+</div>
+
+<div style="margin-top:35px;text-align:center;">
+
+<a
+href="https://www.impulsasuenos.com/raffles"
+style="
+display:inline-block;
+background:#2563eb;
+color:#ffffff;
+text-decoration:none;
+padding:16px 34px;
+border-radius:12px;
+font-size:18px;
+font-weight:bold;
+">
+Ver más sorteos
+</a>
+
+</div>
+
+<hr style="margin:40px 0;border:none;border-top:1px solid #e5e7eb;">
+
+<div style="font-size:13px;color:#6b7280;line-height:1.8;text-align:center;">
+
+ImpulsaSueños<br>
+
+Este correo fue enviado automáticamente porque realizaste una compra en nuestra plataforma.<br><br>
+
+Si necesitas ayuda puedes contactarnos mediante nuestros canales oficiales.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+`
+  })
+}
+================================================
+lib/raffles/business/processQuote.ts
+================================================
+import { calculateQuote } from "../quote/calculateQuote"
+
+import {
+
+    QuoteResult
+
+} from "../quote/types"
+
+import {
+
+    BusinessContext
+
+} from "./types"
+
+export async function processQuote(
+
+    context: BusinessContext
+
+): Promise<QuoteResult> {
+
+    return await calculateQuote({
+
+        raffleId:
+            context.raffleId,
+
+        quantity:
+            context.quantity,
+
+        userId:
+            context.userId,
+
+        affiliateCode:
+            context.tracking.affiliateCode,
+
+        referralCode:
+            context.tracking.referralCode,
+
+        couponCode:
+            context.tracking.couponCode,
+
+        source:
+            context.tracking.source,
+
+        referrer:
+            context.tracking.referrer,
+
+        utm_source:
+            context.tracking.utm_source,
+
+        utm_medium:
+            context.tracking.utm_medium,
+
+        utm_campaign:
+            context.tracking.utm_campaign,
+
+        utm_content:
+            context.tracking.utm_content,
+
+        utm_term:
+            context.tracking.utm_term,
+
+        ip:
+            context.tracking.ip,
+
+        userAgent:
+            context.tracking.userAgent
+
+    })
+
+}
+================================================
+lib/raffles/business/types.ts
+================================================
+import { TrackingContext } from "../tracking/types"
+
+export interface BusinessContext {
+
+    raffleId: string
+
+    quantity: number
+
+    userId?: string | null
+
+    tracking: TrackingContext
+
+}
+================================================
+lib/raffles/business/index.ts
+================================================
+export { processQuote } from "./processQuote"
+
+export { createQuoteSnapshot } from "./createQuoteSnapshot"
+================================================
+lib/raffles/business/modules/types.ts
+================================================
+import { QuoteResult } from "../../quote/types"
+import { BusinessContext } from "../types"
+
+export interface BusinessModule {
+
+    execute(
+
+        context: BusinessContext,
+
+        quote: QuoteResult
+
+    ): Promise<QuoteResult>
+
+}
+================================================
+lib/raffles/business/modules/BaseModule.ts
+================================================
+import { BusinessModule } from "./types"
+import { BusinessContext } from "../types"
+import { QuoteResult } from "../../quote/types"
+
+export class BaseModule
+implements BusinessModule {
+
+    async execute(
+
+        context: BusinessContext,
+
+        quote: QuoteResult
+
+    ): Promise<QuoteResult> {
+
+        return quote
+
+    }
+
+}
+================================================
+lib/raffles/business/modules/index.ts
+================================================
+export * from "./types"
+export * from "./BaseModule"
+================================================
+lib/raffles/business/createQuoteSnapshot.ts
+================================================
+import { QuoteResult } from "../quote/types"
+
+export function createQuoteSnapshot(
+
+    quote: QuoteResult
+
+) {
+
+    return {
+
+        raffleId:
+            quote.raffleId,
+
+        requestedQuantity:
+            quote.requestedQuantity,
+
+        bonusQuantity:
+            quote.bonusQuantity,
+
+        finalQuantity:
+            quote.finalQuantity,
+
+        unitPrice:
+            quote.unitPrice,
+
+        subtotal:
+            quote.subtotal,
+
+        discount:
+            quote.discount,
+
+        total:
+            quote.total,
+
+        currency:
+            quote.currency,
+
+        promotion:
+            quote.promotion,
+
+        affiliate:
+            quote.affiliate,
+
+        referral:
+            quote.referral,
+
+        coupon:
+            quote.coupon,
+
+        metadata:
+            quote.metadata
+
+    }
+
+}
+================================================
+lib/raffles/admin/createAuditLog.ts
+================================================
+import { createClient }
+from "@supabase/supabase-js"
+
+const supabase =
+  createClient(
+
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env
+      .SUPABASE_SERVICE_ROLE_KEY!
+
+  )
+
+interface CreateAuditLogParams {
+
+  admin_user_id?: string
+
+  action: string
+
+  entity_type?: string
+
+  entity_id?: string
+
+  metadata?: any
+
+}
+
+export async function
+createAuditLog({
+
+  admin_user_id,
+
+  action,
+
+  entity_type,
+
+  entity_id,
+
+  metadata = {}
+
+}: CreateAuditLogParams) {
+
+  try {
+
+    await supabase
+      .schema("raffles")
+      .from("admin_audit_logs")
+      .insert({
+
+        admin_user_id,
+
+        action,
+
+        entity_type,
+
+        entity_id,
+
+        metadata
+
+      })
+
+  } catch (error) {
+
+    console.error(
+      "create audit log error",
+      error
+    )
+
+  }
+
+}
+================================================
+lib/raffles/admin/requireAdminAccess.ts
+================================================
+import { createClient }
+from "@supabase/supabase-js"
+
+const supabase =
+  createClient(
+
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env
+      .SUPABASE_SERVICE_ROLE_KEY!
+
+  )
+
+export async function
+requireAdminAccess(
+  req: Request
+) {
+
+  try {
+
+    const authHeader =
+      req.headers.get(
+        "authorization"
+      )
+
+    const token =
+      authHeader?.replace(
+        "Bearer ",
+        ""
+      )
+
+    if (!token) {
+
+      return {
+
+        authorized: false
+
+      }
+
+    }
+
+    const {
+      data: { user }
+    } =
+      await supabase.auth
+        .getUser(token)
+
+    if (!user) {
+
+      return {
+
+        authorized: false
+
+      }
+
+    }
+
+    const {
+      data: adminUser
+    } =
+      await supabase
+        .schema("raffles")
+        .from("admin_users")
+        .select("id")
+        .eq(
+          "user_id",
+          user.id
+        )
+        .eq(
+          "active",
+          true
+        )
+        .maybeSingle()
+
+    if (!adminUser) {
+
+      return {
+
+        authorized: false
+
+      }
+
+    }
+
+    return {
+
+      authorized: true,
+
+      user,
+
+      adminUser
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "require admin access error",
+      error
+    )
+
+    return {
+
+      authorized: false
+
+    }
+
+  }
+
+}
+================================================
+lib/raffles/tracking/createTrackingContext.ts
+================================================
+import { TrackingContext } from "./types"
+
+export function createTrackingContext(
+
+    data: TrackingContext
+
+): TrackingContext {
+
+    return {
+
+        source:
+            data.source ?? null,
+
+        referrer:
+            data.referrer ?? null,
+
+        affiliateCode:
+            data.affiliateCode ?? null,
+
+        referralCode:
+            data.referralCode ?? null,
+
+        couponCode:
+            data.couponCode ?? null,
+
+        utm_source:
+            data.utm_source ?? null,
+
+        utm_medium:
+            data.utm_medium ?? null,
+
+        utm_campaign:
+            data.utm_campaign ?? null,
+
+        utm_content:
+            data.utm_content ?? null,
+
+        utm_term:
+            data.utm_term ?? null,
+
+        ip:
+            data.ip ?? null,
+
+        userAgent:
+            data.userAgent ?? null
+
+    }
+
+}
+================================================
+lib/raffles/tracking/types.ts
+================================================
+export interface TrackingContext {
+
+  source?: string | null
+
+  referrer?: string | null
+
+  affiliateCode?: string | null
+
+  referralCode?: string | null
+
+  couponCode?: string | null
+
+  utm_source?: string | null
+
+  utm_medium?: string | null
+
+  utm_campaign?: string | null
+
+  utm_content?: string | null
+
+  utm_term?: string | null
+
+  ip?: string | null
+
+  userAgent?: string | null
+
+}
+================================================
+lib/raffles/affiliate/shouldCreateAffiliateCommission.ts
+================================================
+export function shouldCreateAffiliateCommission(
+
+  commission: any
+
+) {
+
+  if (!commission) {
+
+    return false
+
+  }
+
+  if (!commission.affiliate) {
+
+    return false
+
+  }
+
+  if (!commission.calculation) {
+
+    return false
+
+  }
+
+  if (
+
+    commission.calculation.commissionAmount <= 0
+
+  ) {
+
+    return false
+
+  }
+
+  return true
+
+}
+================================================
+lib/raffles/affiliate/buildAffiliateLedgerEntry.ts
+================================================
+export function buildAffiliateLedgerEntry({
+
+  raffle_id,
+
+  order_id,
+
+  payment_id,
+
+  affiliate_id,
+
+  affiliate_code,
+
+  commission_amount
+
+}:{
+
+  raffle_id:string
+
+  order_id:string
+
+  payment_id:string
+
+  affiliate_id:string
+
+  affiliate_code:string
+
+  commission_amount:number
+
+}){
+
+  return{
+
+    raffle_id,
+
+    order_id,
+
+    payment_id,
+
+    type:"affiliate_commission",
+
+    flow_type:"out",
+
+    amount_clp:-commission_amount,
+
+    status:"confirmed",
+
+    metadata:{
+
+      affiliateId:
+
+        affiliate_id,
+
+      affiliateCode:
+
+        affiliate_code
+
+    }
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/findAffiliateByCode.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function findAffiliateByCode(
+  code?: string | null
+) {
+
+  if (!code) {
+
+    return null
+
+  }
+
+  const normalized =
+    code.trim().toUpperCase()
+
+  const { data } =
+    await supabase
+      .schema("raffles")
+      .from("raffle_referrals")
+      .select("*")
+      .eq("code", normalized)
+      .eq("active", true)
+      .maybeSingle()
+
+  if (!data) {
+
+    return null
+
+  }
+
+  return {
+
+    id: data.id,
+
+    code: data.code,
+
+    email: data.owner_email,
+
+    commissionPercent:
+      Number(data.commission_percent)
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/getAffiliateCommissionContext.ts
+================================================
+import { loadAffiliateFromOrder } from "./loadAffiliateFromOrder"
+import { findAffiliateByCode } from "./findAffiliateByCode"
+
+export async function getAffiliateCommissionContext(
+  order_id: string
+) {
+
+  const tracking =
+    await loadAffiliateFromOrder(
+      order_id
+    )
+
+  if (!tracking) {
+
+    return null
+
+  }
+
+  if (!tracking.affiliateCode) {
+
+    return null
+
+  }
+
+  const affiliate =
+    await findAffiliateByCode(
+      tracking.affiliateCode
+    )
+
+  if (!affiliate) {
+
+    return null
+
+  }
+
+  return {
+
+    tracking,
+
+    affiliate
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/insertAffiliateLedgerEntry.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function insertAffiliateLedgerEntry(
+
+  ledgerEntry: any
+
+){
+
+  try{
+
+    const existing =
+  await supabase
+    .schema("raffles")
+    .from("ledger")
+    .select("id,status,metadata")
+    .eq(
+      "payment_id",
+      ledgerEntry.payment_id
+    )
+    .eq(
+      "type",
+      "affiliate_commission"
+    )
+    .maybeSingle()
+
+    if (existing.data) {
+
+  console.log(
+
+    "AFFILIATE_COMMISSION_ALREADY_EXISTS",
+
+    ledgerEntry.payment_id
+
+  )
+
+  return {
+
+    inserted: false,
+
+    reason: "duplicate",
+
+    existing: existing.data
+
+  }
+
+}
+
+ledgerEntry.metadata = {
+
+  ...(ledgerEntry.metadata || {}),
+
+  createdBy:
+    "affiliate_engine",
+
+  createdAt:
+    new Date().toISOString()
+
+}
+
+    const { error } =
+      await supabase
+        .schema("raffles")
+        .from("ledger")
+        .insert(ledgerEntry)
+
+    if(error){
+
+      throw error
+
+    }
+
+    return{
+
+  inserted:true,
+
+  ledgerEntry
+
+}
+
+  }
+
+  catch(error){
+
+    console.error(
+
+      "insertAffiliateLedgerEntry",
+
+      error
+
+    )
+
+    return{
+
+      inserted:false,
+
+      reason:"error"
+
+    }
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/isValidAffiliateCode.ts
+================================================
+import { normalizeAffiliateCode }
+from "./normalizeAffiliateCode"
+
+export function isValidAffiliateCode(
+
+    code?: string | null
+
+): boolean {
+
+    const value =
+        normalizeAffiliateCode(
+            code
+        )
+
+    if (!value) {
+
+        return false
+
+    }
+
+    return /^[A-Z0-9_-]{3,30}$/.test(
+        value
+    )
+
+}
+================================================
+lib/raffles/affiliate/normalizeAffiliateCode.ts
+================================================
+export function normalizeAffiliateCode(
+
+    code?: string | null
+
+): string | null {
+
+    if (!code) {
+
+        return null
+
+    }
+
+    const value =
+        code
+            .trim()
+            .toUpperCase()
+
+    if (!value.length) {
+
+        return null
+
+    }
+
+    return value
+
+}
+================================================
+lib/raffles/affiliate/calculateAffiliateCommission.ts
+================================================
+export interface AffiliateCommissionInput {
+
+  amount: number
+
+  commissionPercent: number
+
+}
+
+export interface AffiliateCommissionResult {
+
+  grossAmount: number
+
+  commissionPercent: number
+
+  commissionAmount: number
+
+}
+
+export function calculateAffiliateCommission(
+
+  input: AffiliateCommissionInput
+
+): AffiliateCommissionResult {
+
+  const grossAmount =
+    Number(input.amount)
+
+  const commissionPercent =
+    Number(input.commissionPercent)
+
+  const commissionAmount =
+    Math.round(
+
+      grossAmount *
+
+      commissionPercent /
+
+      100
+
+    )
+
+  return {
+
+    grossAmount,
+
+    commissionPercent,
+
+    commissionAmount
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/resolveAffiliate.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+import { AffiliateResult } from "./types"
+import { normalizeAffiliateCode } from "./normalizeAffiliateCode"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function resolveAffiliate(
+  affiliateCode?: string | null
+): Promise<AffiliateResult> {
+
+  const normalized =
+    normalizeAffiliateCode(
+      affiliateCode
+    )
+
+  if (!normalized) {
+
+    return {
+      found: false
+    }
+
+  }
+
+  const { data, error } =
+    await supabase
+      .schema("raffles")
+      .from("raffle_referrals")
+      .select("*")
+      .eq("code", normalized)
+      .eq("active", true)
+      .maybeSingle()
+
+  if (error || !data) {
+
+    return {
+      found: false
+    }
+
+  }
+
+  return {
+
+    found: true,
+
+    affiliateId:
+      data.id,
+
+    affiliateCode:
+      data.code,
+
+    affiliateName:
+      data.owner_email,
+
+    commissionType:
+      "percentage",
+
+    commissionValue:
+      Number(
+        data.commission_percent
+      ),
+
+    commissionAmount:
+      0
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/getAffiliateDashboard.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function getAffiliateDashboard(
+  affiliateId: string
+) {
+
+  const { data: affiliate } =
+    await supabase
+      .schema("raffles")
+      .from("raffle_referrals")
+      .select("*")
+      .eq("id", affiliateId)
+      .maybeSingle()
+
+  if (!affiliate) {
+
+    return {
+
+      affiliate: null,
+
+      stats: {
+
+        clicks: 0,
+
+        beginCheckout: 0,
+
+        orders: 0,
+
+        paidOrders: 0,
+
+        revenue: 0,
+
+        estimatedCommission: 0,
+
+        paidCommission: 0
+
+      }
+
+    }
+
+  }
+
+  return {
+
+    affiliate: {
+
+      id:
+        affiliate.id,
+
+      code:
+        affiliate.code,
+
+      email:
+        affiliate.owner_email,
+
+      commissionPercent:
+        Number(
+          affiliate.commission_percent
+        ),
+
+      active:
+        affiliate.active
+
+    },
+
+    stats: {
+
+      clicks: 0,
+
+      beginCheckout: 0,
+
+      orders: 0,
+
+      paidOrders: 0,
+
+      revenue: 0,
+
+      estimatedCommission: 0,
+
+      paidCommission: 0
+
+    }
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/calculateAffiliateWallet.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function calculateAffiliateWallet(
+
+  affiliateId: string
+
+) {
+
+  const { data, error } =
+    await supabase
+      .schema("raffles")
+      .from("ledger")
+      .select(
+        "type,amount_clp,status"
+      )
+      .contains(
+        "metadata",
+        {
+          affiliateId
+        }
+      )
+
+  if (error || !data) {
+
+    return {
+
+      generated: 0,
+
+      available: 0,
+
+      paid: 0,
+
+      pending: 0
+
+    }
+
+  }
+
+  let generated = 0
+  let paid = 0
+
+  for (const row of data) {
+
+    const amount =
+      Math.abs(
+        Number(
+          row.amount_clp || 0
+        )
+      )
+
+    if (
+      row.type ===
+      "affiliate_commission"
+    ) {
+
+      generated += amount
+
+    }
+
+    if (
+      row.type ===
+      "affiliate_payout"
+    ) {
+
+      paid += amount
+
+    }
+
+  }
+
+  const available =
+    Math.max(
+      generated - paid,
+      0
+    )
+
+  return {
+
+    generated,
+
+    paid,
+
+    pending: 0,
+
+    available
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/processAffiliateCommission.ts
+================================================
+import { resolveAffiliateCommission } from "./resolveAffiliateCommission"
+import { shouldCreateAffiliateCommission } from "./shouldCreateAffiliateCommission"
+import { buildAffiliateLedgerEntry } from "./buildAffiliateLedgerEntry"
+import { insertAffiliateLedgerEntry } from "./insertAffiliateLedgerEntry"
+
+export async function processAffiliateCommission({
+
+  payment_id,
+  order_id,
+  raffle_id,
+  amount
+
+}:{
+
+  payment_id:string
+
+  order_id:string
+
+  raffle_id:string
+
+  amount:number
+
+}){
+
+  try{
+
+    const commission =
+      await resolveAffiliateCommission(
+
+        order_id,
+
+        amount
+
+      )
+
+    if(
+
+      !shouldCreateAffiliateCommission(
+        commission
+      )
+
+    ){
+
+      return{
+
+        processed:false,
+
+        reason:"no_commission"
+
+      }
+
+    }
+
+    const ledgerEntry =
+      buildAffiliateLedgerEntry({
+
+        raffle_id,
+
+        order_id,
+
+        payment_id,
+
+        affiliate_id:
+          commission!.affiliate.id,
+
+        affiliate_code:
+          commission!.affiliate.code,
+
+        commission_amount:
+          commission!.calculation
+            .commissionAmount
+
+      })
+
+    const inserted =
+  await insertAffiliateLedgerEntry(
+    ledgerEntry
+  )
+
+console.log(
+
+  "AFFILIATE_COMMISSION_RESULT",
+
+  {
+
+    payment_id,
+
+    order_id,
+
+    raffle_id,
+
+    inserted:
+
+      inserted.inserted,
+
+    reason:
+
+      inserted.reason ?? null
+
+  }
+
+)
+
+return {
+
+  processed:
+
+    inserted.inserted,
+
+  ledgerEntry,
+
+  result:
+
+    inserted
+
+}
+
+  }
+
+  catch(error){
+
+    console.error(
+
+      "processAffiliateCommission",
+
+      error
+
+    )
+
+    return{
+
+      processed:false,
+
+      reason:"error"
+
+    }
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/types.ts
+================================================
+export interface AffiliateResult {
+
+  found: boolean
+
+  affiliateId?: string
+
+  affiliateCode?: string
+
+  affiliateName?: string
+
+  commissionType?: "percentage" | "fixed"
+
+  commissionValue?: number
+
+  commissionAmount?: number
+
+}
+================================================
+lib/raffles/affiliate/createAffiliatePayoutRequest.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function createAffiliatePayoutRequest({
+
+  affiliateId,
+
+  amount
+
+}:{
+
+  affiliateId:string
+
+  amount:number
+
+}){
+
+  const { data, error } =
+    await supabase
+      .schema("raffles")
+      .from("affiliate_payout_requests")
+      .insert({
+
+        affiliate_id:
+          affiliateId,
+
+        amount_clp:
+          amount,
+
+        status:
+          "pending"
+
+      })
+
+      .select()
+
+      .single()
+
+  if(error){
+
+    throw error
+
+  }
+
+  return data
+
+}
+================================================
+lib/raffles/affiliate/resolveAffiliateCommission.ts
+================================================
+import { getAffiliateCommissionContext } from "./getAffiliateCommissionContext"
+import { calculateAffiliateCommission } from "./calculateAffiliateCommission"
+
+export async function resolveAffiliateCommission(
+
+  order_id: string,
+
+  amount: number
+
+) {
+
+  const context =
+    await getAffiliateCommissionContext(
+      order_id
+    )
+
+  if (!context) {
+
+    return null
+
+  }
+
+  const calculation =
+    calculateAffiliateCommission({
+
+      amount,
+
+      commissionPercent:
+        context.affiliate.commissionPercent
+
+    })
+
+  return {
+
+    affiliate:
+
+      context.affiliate,
+
+    tracking:
+
+      context.tracking,
+
+    calculation
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/index.ts
+================================================
+export * from "./interfaces"
+export * from "./resolveAffiliate"
+================================================
+lib/raffles/affiliate/canRequestAffiliatePayout.ts
+================================================
+import { calculateAffiliateWallet }
+from "./calculateAffiliateWallet"
+
+export async function canRequestAffiliatePayout(
+
+  affiliateId: string,
+
+  minimumAmount = 10000
+
+){
+
+  const wallet =
+    await calculateAffiliateWallet(
+      affiliateId
+    )
+
+  if (
+
+    wallet.available < minimumAmount
+
+  ){
+
+    return{
+
+      allowed:false,
+
+      reason:"minimum_not_reached",
+
+      wallet
+
+    }
+
+  }
+
+  return{
+
+    allowed:true,
+
+    reason:null,
+
+    wallet
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/loadAffiliateFromOrder.ts
+================================================
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function loadAffiliateFromOrder(
+  order_id: string
+) {
+
+  const { data: order } =
+    await supabase
+      .schema("raffles")
+      .from("orders")
+      .select("id, metadata")
+      .eq("id", order_id)
+      .maybeSingle()
+
+  if (!order) {
+
+    return null
+
+  }
+
+  const metadata =
+    (order.metadata || {}) as any
+
+  const tracking =
+    metadata.tracking || {}
+
+  return {
+
+    affiliateCode:
+      tracking.affiliateCode || null,
+
+    referralCode:
+      tracking.referralCode || null,
+
+    metadata
+
+  }
+
+}
+================================================
+lib/raffles/affiliate/interfaces.ts
+================================================
+export interface AffiliateContext {
+
+    code?: string | null
+
+    landingUrl?: string | null
+
+    source?: string | null
+
+}
+
+export interface AffiliateResolution {
+
+    found: boolean
+
+    affiliateId?: string
+
+    affiliateCode?: string
+
+    affiliateName?: string
+
+    commissionType?: "percentage" | "fixed"
+
+    commissionValue?: number
+
+}
+================================================
+lib/raffles/analytics/trackEvent.ts
+================================================
+import { createClient }
+from "@supabase/supabase-js"
+
+const supabase =
+  createClient(
+
+    process.env
+      .NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env
+      .SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+interface TrackEventInput {
+
+  event_type: string
+
+  raffle_id?: string
+
+  order_id?: string
+
+  payment_id?: string
+
+  user_email?: string
+
+  source?: string
+  referrer?: string
+
+  utm_source?: string
+  utm_medium?: string
+  utm_campaign?: string
+
+  ip?: string
+  user_agent?: string
+
+  metadata?: any
+}
+
+export async function trackEvent({
+
+  event_type,
+
+  raffle_id,
+  order_id,
+  payment_id,
+
+  user_email,
+
+  source,
+  referrer,
+
+  utm_source,
+  utm_medium,
+  utm_campaign,
+
+  ip,
+  user_agent,
+
+  metadata = {}
+
+}: TrackEventInput) {
+
+  try {
+
+    const { error } =
+  await supabase
+    .schema("raffles")
+    .from("analytics_events")
+    .insert({
+
+      event_type,
+
+      raffle_id,
+      order_id,
+      payment_id,
+     
+      source,
+      referrer,
+
+      ip_address: ip,
+
+      user_agent,
+
+      metadata
+
+    })
+
+if (error) {
+
+  console.error(
+    "ANALYTICS INSERT ERROR",
+    error
+  )
+
+}
+
+  } catch (error) {
+
+    console.error(
+      "raffle analytics error",
+      error
+    )
+  }
+}
+================================================
+lib/raffles/flow/createFlowPayment.ts
+================================================
+import axios from "axios"
+
+const CryptoJS = require("crypto-js")
+
+function signParams(
+  params: Record<string, any>
+) {
+
+  const keys =
+    Object.keys(params).sort()
+
+  const toSign =
+    keys
+      .map(
+        k => `${k}${params[k]}`
+      )
+      .join("")
+
+  return CryptoJS.HmacSHA256(
+
+    toSign,
+
+    process.env
+      .FLOW_SECRET_KEY!
+
+  ).toString()
+}
+
+export async function createFlowPayment({
+
+  orderId,
+  amount,
+  email,
+  subject
+
+}: {
+
+  orderId: string
+  amount: number
+  email: string
+  subject: string
+
+}) {
+
+  const params = {
+
+    apiKey:
+      process.env.FLOW_API_KEY,
+
+    commerceOrder:
+      orderId,
+
+    subject,
+
+    currency:
+      "CLP",
+
+    amount,
+
+    email,
+
+    urlConfirmation:
+      process.env
+        .NEXT_PUBLIC_FLOW_CONFIRMATION_URL,
+
+    urlReturn:
+      process.env
+        .NEXT_PUBLIC_FLOW_RETURN_URL
+  }
+
+  console.log(
+  "FLOW RETURN URL",
+  params.urlReturn
+)
+
+console.log(
+  "FLOW CONFIRM URL",
+  params.urlConfirmation
+)
+
+const s =
+  signParams(params)
+
+  const body =
+    new URLSearchParams({
+
+      apiKey:
+        String(params.apiKey),
+
+      commerceOrder:
+        String(params.commerceOrder),
+
+      subject:
+        String(params.subject),
+
+      currency:
+        String(params.currency),
+
+      amount:
+        String(params.amount),
+
+      email:
+        String(params.email),
+
+      urlConfirmation:
+        String(params.urlConfirmation),
+
+      urlReturn:
+        String(params.urlReturn),
+
+      s:
+        String(s)
+
+    })
+
+  console.log(
+    "FLOW PARAMS",
+    params
+  )
+
+  console.log(
+    "FLOW SIGNATURE",
+    s
+  )
+
+  console.log(
+    "FLOW BODY",
+    body.toString()
+  )
+
+  console.log(
+    "FLOW URL",
+    `${process.env.FLOW_BASE_URL}/payment/create`
+  )
+
+  let response
+
+  try {
+
+    response =
+      await axios.post(
+
+        `${process.env.FLOW_BASE_URL}/payment/create`,
+
+        body,
+
+        {
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded"
+          }
+        }
+      )
+
+    console.log(
+  "FLOW SUCCESS RESPONSE",
+  JSON.stringify(response.data, null, 2)
+)
+
+console.log(
+  "FLOW ORDER DEBUG",
+  {
+    commerceOrder: orderId,
+    token: response.data?.token,
+    flowOrder: response.data?.flowOrder
+  }
+)
+
+  } catch (error: any) {
+
+    console.error(
+      "FLOW AXIOS ERROR DATA",
+      error?.response?.data
+    )
+
+    console.error(
+      "FLOW AXIOS ERROR STATUS",
+      error?.response?.status
+    )
+
+    console.error(
+      "FLOW AXIOS ERROR HEADERS",
+      error?.response?.headers
+    )
+
+    console.error(
+      "FLOW AXIOS FULL ERROR",
+      error
+    )
+
+    throw new Error(
+      JSON.stringify({
+        data:
+          error?.response?.data,
+
+        status:
+          error?.response?.status
+      })
+    )
+  }
+
+  return response.data
+}
+================================================
+lib/raffles/flow/validateFlowSignature.ts
+================================================
+import CryptoJS from "crypto-js"
+
+export function validateFlowSignature(
+  rawParams: Record<string, any>
+) {
+
+  const params = {
+    ...rawParams
+  }
+
+  const receivedSignature =
+    String(params.s || "")
+
+  delete params.s
+
+  const keys =
+    Object.keys(params)
+      .filter(
+        key =>
+          params[key] !== undefined &&
+          params[key] !== null
+      )
+      .sort()
+
+  const toSign =
+    keys
+      .map(
+        key =>
+          `${key}${String(params[key])}`
+      )
+      .join("")
+
+  const expectedSignature =
+    CryptoJS.HmacSHA256(
+
+      toSign,
+
+      process.env
+        .FLOW_SECRET_KEY!
+
+    ).toString()
+
+  console.log(
+    "FLOW WEBHOOK SIGN VALIDATION",
+    {
+      receivedSignature,
+      expectedSignature,
+      toSign
+    }
+  )
+
+  const valid =
+  expectedSignature ===
+  receivedSignature
+
+console.log(
+  "FLOW SIGNATURE DEBUG",
+  {
+    valid,
+    receivedSignature,
+    expectedSignature,
+    toSign,
+    params
+  }
+)
+
+return valid
+}
