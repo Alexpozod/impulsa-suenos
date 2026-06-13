@@ -6,6 +6,12 @@ export interface PaymentProcessingContext {
 
   provider: string
 
+  orderId?: string
+
+  raffleId?: string
+
+  amount?: number
+
 }
 
 export interface PaymentProcessingResult {
