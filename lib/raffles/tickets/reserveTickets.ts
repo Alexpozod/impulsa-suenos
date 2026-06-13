@@ -270,6 +270,11 @@ if (
      RECALCULATE COUNTERS
   ========================================= */
 
+console.log(
+  "ALLOCATION_ENGINE_RESULT",
+  allocation
+)
+
   await recalculateRaffleCounters({
     raffle_id
   })
