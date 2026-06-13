@@ -8,6 +8,12 @@ import {
 } from "./context"
 
 import {
+
+  checkExecutionGuard
+
+} from "./guard"
+
+import {
   validatePayment,
   lockPayment,
   approvePayment,
@@ -28,6 +34,32 @@ export async function processPayment(
   context = await buildPaymentContext(
     context
   )
+
+  const guard =
+
+await checkExecutionGuard({
+
+  executionKey:
+
+    `${context.provider}:${context.paymentId}`
+
+})
+
+if (!guard.allowed) {
+
+  return {
+
+    success: true,
+
+    status: "ignored",
+
+    message:
+
+      guard.reason
+
+  }
+
+}
 
   await validatePayment(context)
 
