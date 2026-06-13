@@ -1,3 +1,5 @@
+import { COMMERCIAL_PRIORITY } from "./priority"
+
 import { applyPromotions } from "../promotion/applyPromotions"
 
 import { resolveAffiliate } from "../affiliate/resolveAffiliate"
@@ -61,6 +63,58 @@ affiliate?.found ||
 
 referral?.found
 
+let highestPriority =
+
+COMMERCIAL_PRIORITY.default
+
+if (
+
+coupon?.found
+
+){
+
+highestPriority =
+
+COMMERCIAL_PRIORITY.coupon
+
+}
+
+else if(
+
+promotion.applied
+
+){
+
+highestPriority =
+
+COMMERCIAL_PRIORITY.promotion
+
+}
+
+else if(
+
+affiliate?.found
+
+){
+
+highestPriority =
+
+COMMERCIAL_PRIORITY.affiliate
+
+}
+
+else if(
+
+referral?.found
+
+){
+
+highestPriority =
+
+COMMERCIAL_PRIORITY.referral
+
+}
+
 let commercialRuleSource:
 "promotion"
 |"coupon"
@@ -120,7 +174,9 @@ coupon,
 
 hasCommercialRule,
 
-commercialRuleSource
+commercialRuleSource,
+
+highestPriority
 
 }
 

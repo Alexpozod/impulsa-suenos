@@ -49,4 +49,6 @@ export interface RuleResult {
     | "affiliate"
     | "none"
 
+  highestPriority: number
+
 }
