@@ -16,7 +16,6 @@ export async function allocateTickets(
 ): Promise<AllocateTicketsResult> {
 
   const availableTickets =
-
     await selectAvailableTickets(
 
       input.raffleId,
@@ -42,13 +41,10 @@ export async function allocateTickets(
   }
 
   const reservation =
-
     await reserveSelectedTickets(
 
       availableTickets.map(
-
         t => t.id
-
       ),
 
       input.orderId,
@@ -57,6 +53,31 @@ export async function allocateTickets(
 
     )
 
-  return reservation
+  return {
+
+    reservationToken:
+      reservation.reservationToken,
+
+    reservedUntil:
+      reservation.reservedUntil,
+
+    tickets:
+
+      reservation.tickets.map(
+        ticket => ({
+
+          id:
+            ticket.id,
+
+          ticketCode:
+            ticket.ticket_code,
+
+          ticketNumber:
+            ticket.ticket_number
+
+        })
+      )
+
+  }
 
 }
