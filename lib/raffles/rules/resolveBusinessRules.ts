@@ -6,6 +6,8 @@ import { resolveReferral } from "../referral/resolveReferral"
 
 import { RuleContext, RuleResult } from "./types"
 
+import { resolveCoupon } from "../coupon/resolveCoupon"
+
 export async function resolveBusinessRules(
 
 context: RuleContext
@@ -38,12 +40,15 @@ context.affiliateCode
 
 )
 
-const referral=
-
+const referral =
 await resolveReferral(
-
 context.referralCode
+)
 
+const coupon =
+await resolveCoupon(
+context.couponCode,
+context.subtotal
 )
 
 return{
@@ -74,7 +79,7 @@ affiliate,
 
 referral,
 
-coupon:null
+coupon
 
 }
 

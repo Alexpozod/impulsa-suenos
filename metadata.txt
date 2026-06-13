@@ -1,1 +1,0 @@
-app/campaign/[id]/layout.tsx:export async function generateMetadata(
