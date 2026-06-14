@@ -70,23 +70,35 @@ export async function processPayment(
 
   }
 
-  await validatePayment(context)
+  console.log("STEP -> validatePayment")
+await validatePayment(context)
 
-  await lockPayment(context)
+console.log("STEP -> lockPayment")
+await lockPayment(context)
 
-  await approvePayment(context)
+console.log("STEP -> approvePayment")
+await approvePayment(context)
 
-  await assignTickets(context)
+console.log("STEP -> assignTickets")
+await assignTickets(context)
 
-  await createLedger(context)
+console.log("STEP -> createLedger")
+await createLedger(context)
 
-  await processAffiliateCommission(context)
+console.log("STEP -> processAffiliateCommission")
+await processAffiliateCommission(context)
 
-  await trackAnalytics(context)
+console.log("STEP -> trackAnalytics")
+await trackAnalytics(context)
 
-  await sendNotifications(context)
+console.log("STEP -> sendNotifications")
+await sendNotifications(context)
 
-  await finalizePayment(context)
+console.log("STEP -> finalizePayment")
+await finalizePayment(context)
+
+console.log("PIPELINE COMPLETED")
+
     return {
 
     success: true,
