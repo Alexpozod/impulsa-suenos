@@ -88,40 +88,7 @@ signatureValid
 
     const token =
       String(data.token)
-
-      const pipelineResult =
-  await processPayment({
-
-    provider: "flow",
-
-    providerToken:
-      token,
-
-    paymentId:
-      token
-
-  })
-
-console.log(
-  "PAYMENT PIPELINE",
-  pipelineResult
-)
-
-if (
-
-  pipelineResult.status ===
-  "ignored"
-
-) {
-
-  return NextResponse.json({
-
-    ok: true
-
-  })
-
-}
-
+      
     const existingWebhook =
       await supabase
         .schema("raffles")
@@ -338,6 +305,36 @@ if (payment.status === 3) {
   return NextResponse.json({
     ok: true
   })
+}
+
+const pipelineResult =
+  await processPayment({
+
+    provider: "flow",
+
+    providerToken: token,
+
+    paymentId: token,
+
+    providerFee:
+      Number(payment.fee || 0)
+
+  })
+
+console.log(
+  "PAYMENT PIPELINE",
+  pipelineResult
+)
+
+if (
+  pipelineResult.status ===
+  "ignored"
+) {
+
+  return NextResponse.json({
+    ok: true
+  })
+
 }
 
     const { data: dbPayment } =
