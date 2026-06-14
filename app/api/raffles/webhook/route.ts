@@ -353,62 +353,7 @@ if (
   })
 }
 
-const { data: lockedPayment } =
-  await supabase
-    .schema("raffles")
-    .from("payments")
-    .update({
-
-      status: "processing"
-
-    })
-    .eq("id", dbPayment.id)
-    .eq("status", "pending")
-    .select()
-    .maybeSingle()
-
-if (!lockedPayment) {
-
-  return NextResponse.json({
-    ok: true
-  })
-}
-
-    const {
-  error: approveError
-} =
-  await supabase
-    .schema("raffles")
-    .from("payments")
-    .update({
-
-      status: "approved"
-
-    })
-    .eq(
-      "id",
-      dbPayment.id
-    )
-
-if (approveError) {
-
-  console.error(
-    "PAYMENT APPROVE ERROR",
-    approveError
-  )
-
-  throw approveError
-}
-
-    await supabase
-      .schema("raffles")
-      .from("orders")
-      .update({
-
-        status: "paid"
-
-      })
-      .eq("id", dbPayment.order_id)
+// Payment aprobado por el Payment Pipeline
 
     const { data: order } =
       await supabase
