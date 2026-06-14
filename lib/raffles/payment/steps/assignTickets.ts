@@ -60,7 +60,7 @@ export async function assignTickets(
 
   })
 
-;(context as any).tickets =
+context.tickets =
   tickets
 
   } catch (error) {

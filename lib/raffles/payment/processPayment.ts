@@ -27,10 +27,10 @@ export async function processPayment(
   initialContext: PaymentProcessingContext
 ): Promise<PaymentProcessingResult> {
 
-  let context =
-    await buildPaymentContext(
-      initialContext
-    )
+  let context: any =
+  await buildPaymentContext(
+    initialContext
+  )
 
   if (!context.payment) {
 
@@ -96,7 +96,7 @@ export async function processPayment(
     message: JSON.stringify({
 
         tickets:
-        (context as any).tickets ?? []
+  context.tickets ?? []
 
     })
 
