@@ -674,21 +674,6 @@ if (
    const tickets =
   pipelineTickets
 
-await processRafflePayment({
-
-  payment_id: dbPayment.id,
-
-  raffle_id: order.raffle_id,
-
-  order_id: order.id,
-
-  amount: Number(dbPayment.amount_clp),
-
-  provider_fee:
-    Number(payment.fee || 0)
-
-})
-
 /* =========================
    AFFILIATE COMMISSION
 ========================= */
