@@ -309,14 +309,18 @@ const pipelineResult =
   const pipelineTickets =
   pipelineResult.tickets ?? []
 
-console.log(
-  "PAYMENT PIPELINE",
-  pipelineResult
-)
+if (
+  pipelineResult.status === "ignored"
+) {
+
+  return NextResponse.json({
+    ok: true
+  })
+
+}
 
 if (
-  pipelineResult.status ===
-  "ignored"
+  pipelineResult.status === "completed"
 ) {
 
   return NextResponse.json({
