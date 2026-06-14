@@ -306,36 +306,14 @@ const pipelineResult =
 
   })
 
-  const pipelineTickets =
-  pipelineResult.tickets ?? []
+return NextResponse.json({
 
-if (
-  pipelineResult.status === "ignored"
-) {
+  ok: true,
 
-  return NextResponse.json({
-    ok: true
-  })
+  status:
+    pipelineResult.status
 
-}
-
-if (
-  pipelineResult.status === "completed"
-) {
-
-  return NextResponse.json({
-    ok: true
-  })
-
-}
-   
-/* =========================
-   AFFILIATE COMMISSION
-========================= */
-
-    return NextResponse.json({
-      ok: true
-    })
+})
 
   } catch (error) {
 
