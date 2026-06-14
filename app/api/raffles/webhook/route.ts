@@ -668,69 +668,7 @@ if (
 
 })
 
-   let tickets
-
-try {
-
-  tickets =
-    await assignReservedTickets({
-
-      raffle_id:
-        order.raffle_id,
-
-      order_id:
-        order.id,
-
-      payment_id:
-        dbPayment.id
-
-    })
-
-} catch (ticketError) {
-
-  console.error(
-    "ASSIGN RESERVED TICKETS ERROR",
-    ticketError
-  )
-
-  /* =========================
-     ROLLBACK PAYMENT
-  ========================= */
-
-  await supabase
-    .schema("raffles")
-    .from("payments")
-    .update({
-
-      status: "failed"
-
-    })
-    .eq("id", dbPayment.id)
-
-  /* =========================
-     ROLLBACK ORDER
-  ========================= */
-
-  await supabase
-    .schema("raffles")
-    .from("orders")
-    .update({
-
-      status: "cancelled"
-
-    })
-    .eq("id", order.id)
-
-  /* =========================
-     RELEASE RESERVATIONS
-  ========================= */
-
-  await releaseOrderReservations(
-    order.id
-  )
-
-  throw ticketError
-}
+   const tickets = []
 
 await processRafflePayment({
 
