@@ -321,6 +321,9 @@ const pipelineResult =
 
   })
 
+  const pipelineTickets =
+  pipelineResult.tickets ?? []
+
 console.log(
   "PAYMENT PIPELINE",
   pipelineResult
@@ -668,7 +671,8 @@ if (
 
 })
 
-   const tickets: any[] = []
+   const tickets =
+  pipelineTickets
 
 await processRafflePayment({
 
