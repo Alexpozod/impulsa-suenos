@@ -56,4 +56,6 @@ export interface PaymentProcessingResult {
 
   message?: string
 
+  tickets?: any[]
+
 }

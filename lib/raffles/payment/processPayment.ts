@@ -87,13 +87,19 @@ export async function processPayment(
   await sendNotifications(context)
 
   await finalizePayment(context)
-
-  return {
+    return {
 
     success: true,
 
-    status: "completed"
+    status: "completed",
 
-  }
+    message: JSON.stringify({
+
+        tickets:
+        (context as any).tickets ?? []
+
+    })
+
+}
 
 }
