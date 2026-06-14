@@ -668,7 +668,7 @@ if (
 
 })
 
-   const tickets = []
+   const tickets: any[] = []
 
 await processRafflePayment({
 
