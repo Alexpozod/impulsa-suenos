@@ -678,41 +678,6 @@ if (
    AFFILIATE COMMISSION
 ========================= */
 
-if (
-  !order.confirmation_email_sent
-) {
-
-  try {
-
-  await sendRaffleConfirmationEmail(
-    order.id
-  )
-
-} catch (emailError) {
-
-  console.error(
-    "CONFIRMATION EMAIL ERROR",
-    emailError
-  )
-
-}
-
-  await supabase
-    .schema("raffles")
-    .from("orders")
-    .update({
-
-      confirmation_email_sent:
-        true,
-
-      confirmation_email_sent_at:
-        new Date().toISOString()
-
-    })
-    .eq("id", order.id)
-
-}
-
 const { data: raffle } =
   await supabase
     .schema("raffles")
@@ -723,41 +688,6 @@ const { data: raffle } =
       order.raffle_id
     )
     .maybeSingle()
-
-try {
-
-  if (
-    !order.confirmation_email_sent
-  ) {
-
-console.log(
-  "EMAIL TICKETS",
-  JSON.stringify(tickets, null, 2)
-)
-
-    await sendTicketsEmail({
-
-      email:
-        order.buyer_email,
-
-      raffleTitle:
-        raffle?.title ||
-        "Sorteo",
-
-      tickets
-
-    })
-
-  }
-
-} catch (emailError) {
-
-  console.error(
-    "SEND TICKETS EMAIL ERROR",
-    emailError
-  )
-
-}
 
     return NextResponse.json({
       ok: true
