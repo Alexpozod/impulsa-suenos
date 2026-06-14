@@ -6,29 +6,14 @@ import axios from "axios"
 import { createClient }
 from "@supabase/supabase-js"
 
-import { assignReservedTickets }
-from "@/lib/raffles/tickets/assignReservedTickets"
-
 import { releaseOrderReservations }
 from "@/lib/raffles/tickets/releaseOrderReservations"
-
-import { processRafflePayment }
-from "@/lib/raffles/ledger/processRafflePayment"
 
 import { trackEvent }
 from "@/lib/raffles/analytics/trackEvent"
 
-import { sendRaffleConfirmationEmail }
-from "@/lib/raffles/emails/sendRaffleConfirmationEmail"
-
-import { sendTicketsEmail }
-from "@/lib/raffles/emails/sendTicketsEmail"
-
 import { validateFlowSignature }
 from "@/lib/raffles/flow/validateFlowSignature"
-
-import { processAffiliateCommission }
-from "@/lib/raffles/affiliate/processAffiliateCommission"
 
 import {
   processPayment
@@ -677,17 +662,6 @@ if (
 /* =========================
    AFFILIATE COMMISSION
 ========================= */
-
-const { data: raffle } =
-  await supabase
-    .schema("raffles")
-    .from("raffles")
-    .select("title")
-    .eq(
-      "id",
-      order.raffle_id
-    )
-    .maybeSingle()
 
     return NextResponse.json({
       ok: true
