@@ -678,40 +678,6 @@ if (
    AFFILIATE COMMISSION
 ========================= */
 
-try {
-
-  await processAffiliateCommission({
-
-    payment_id:
-      dbPayment.id,
-
-    raffle_id:
-      order.raffle_id,
-
-    order_id:
-      order.id,
-
-    amount:
-      Number(
-        dbPayment.amount_clp
-      )
-
-  })
-
-}
-
-catch (error) {
-
-  console.error(
-
-    "AFFILIATE COMMISSION ERROR",
-
-    error
-
-  )
-
-}
-
 if (
   !order.confirmation_email_sent
 ) {
