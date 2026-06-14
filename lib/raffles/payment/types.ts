@@ -44,6 +44,8 @@ export interface PaymentProcessingContext {
 
   raffle?: any
 
+  tickets?: any[]
+
 }
 
 export interface PaymentProcessingResult {

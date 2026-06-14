@@ -80,7 +80,8 @@ export async function sendNotifications(
           context.raffle.title ||
           "Sorteo",
 
-        tickets: []
+        tickets:
+  context.tickets ?? []
 
       })
 

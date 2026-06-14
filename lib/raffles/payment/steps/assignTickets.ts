@@ -46,18 +46,22 @@ export async function assignTickets(
 
   try {
 
-    await assignReservedTickets({
+    const tickets =
+  await assignReservedTickets({
 
-      raffle_id:
-        raffleId,
+    raffle_id:
+      raffleId,
 
-      order_id:
-        orderId,
+    order_id:
+      orderId,
 
-      payment_id:
-        paymentId
+    payment_id:
+      paymentId
 
-    })
+  })
+
+;(context as any).tickets =
+  tickets
 
   } catch (error) {
 
