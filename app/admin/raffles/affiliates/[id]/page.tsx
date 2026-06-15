@@ -27,6 +27,9 @@ const [ledger, setLedger] =
   const [wallet, setWallet] =
   useState<any>(null)
 
+  const [requesting,setRequesting]=
+useState(false)
+
   const [showLedger, setShowLedger] =
   useState(true)
 
@@ -316,9 +319,29 @@ Solicitar retiro
 
 <button
 
-className="px-4 py-3 rounded-xl bg-emerald-600"
+disabled={
+requesting ||
+Number(wallet?.available ?? 0)<=0
+}
+
+className={
+
+`px-4 py-3 rounded-xl ${
+requesting ||
+Number(wallet?.available ?? 0)<=0
+?
+"bg-slate-700 cursor-not-allowed"
+:
+"bg-emerald-600"
+}`
+
+}
 
 onClick={async()=>{
+
+try{
+
+setRequesting(true)
 
 const response=
 
@@ -338,25 +361,77 @@ const json=
 
 await response.json()
 
+if(json.success){
+
 alert(
 
-json.success
-
-?"Solicitud enviada"
-
-:(json.error||"Error")
+"Solicitud enviada correctamente"
 
 )
 
-load()
+}
+
+else{
+
+alert(
+
+json.error
+
+??
+
+"Error"
+
+)
+
+}
+
+await load()
+
+}
+
+finally{
+
+setRequesting(false)
+
+}
 
 }}
 
 >
 
-💰 Solicitar retiro
+{
+
+requesting
+
+?
+
+"Procesando..."
+
+:
+
+"💰 Solicitar retiro"
+
+}
 
 </button>
+
+<div className="mt-3 text-sm text-slate-400">
+
+Saldo disponible:
+
+<strong>
+
+{" "}
+
+${Number(
+
+wallet?.available??0
+
+).toLocaleString("es-CL")}
+
+</strong>
+
+</div>
 
 </div>
 
