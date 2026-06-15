@@ -34,7 +34,7 @@ export async function findReferralByCode(
 
       .schema("raffles")
 
-      .from("raffle_referrals")
+      .from("referrals")
 
       .select("*")
 
@@ -64,18 +64,23 @@ export async function findReferralByCode(
 
   return{
 
-    id:
+  id:
+    data.id,
 
-      data.id,
+  code:
+    data.code,
 
-    code:
+  email:
+    data.owner_email,
 
-      data.code,
+  rewardType:
+    data.reward_type,
 
-    email:
+  rewardValue:
+    Number(
+      data.reward_value
+    )
 
-      data.owner_email
-
-  }
+}
 
 }

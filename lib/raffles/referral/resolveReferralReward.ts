@@ -28,17 +28,21 @@ export async function resolveReferralReward(
 
   const calculation =
 
-    calculateReferralReward({
+  calculateReferralReward({
 
-      amount,
+    amount,
 
-      rewardType:
-        "percentage",
+    rewardType:
 
-      rewardValue:
-        5
+      context.referral
+        .rewardType,
 
-    })
+    rewardValue:
+
+      context.referral
+        .rewardValue
+
+  })
 
   return{
 
