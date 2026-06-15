@@ -112,10 +112,6 @@ export async function getAffiliateDashboard(
 
         orders++
 
-        revenue += Number(
-          metadata.total || 0
-        )
-
         break
 
       case "payment_success":
@@ -123,7 +119,9 @@ export async function getAffiliateDashboard(
         paidOrders++
 
         revenue += Number(
-          metadata.amount || 0
+          metadata.amount ||
+          metadata.total ||
+          0
         )
 
         break
