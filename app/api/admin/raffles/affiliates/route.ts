@@ -110,6 +110,45 @@ String(owner_email)
 .trim()
 .toLowerCase()
 
+const normalizedCommission =
+Number(commission_percent)
+
+if (
+
+Number.isNaN(
+normalizedCommission
+)
+
+||
+
+normalizedCommission < 0
+
+||
+
+normalizedCommission > 100
+
+){
+
+return NextResponse.json(
+
+{
+
+error:
+
+"invalid_commission_percent"
+
+},
+
+{
+
+status:400
+
+}
+
+)
+
+}
+
 const { data: existing } =
 await supabase
 .schema("raffles")
@@ -177,9 +216,7 @@ owner_email:
   normalizedEmail,
 
           commission_percent:
-            Number(
-              commission_percent
-            ) || 0,
+normalizedCommission,
 
           active: true
 
