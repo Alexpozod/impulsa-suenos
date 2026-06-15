@@ -327,6 +327,27 @@ Number(savedQuantity)
 
 }
 
+try {
+
+  const storedAffiliate =
+
+    localStorage.getItem(
+      "raffle_affiliate"
+    )
+
+  if (
+    storedAffiliate &&
+    !affiliateCode
+  ) {
+
+    setAffiliateCode(
+      storedAffiliate
+    )
+
+  }
+
+} catch {}
+
 }, [])
 
 useEffect(() => {
