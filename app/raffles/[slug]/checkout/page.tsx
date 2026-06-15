@@ -72,9 +72,6 @@ const [marketingConsent, setMarketingConsent] =
 const [loadingQuote, setLoadingQuote] =
   useState(false)
 
-const [couponCode, setCouponCode] =
-  useState("")
-
   useEffect(() => {
 
   loadRaffle()
