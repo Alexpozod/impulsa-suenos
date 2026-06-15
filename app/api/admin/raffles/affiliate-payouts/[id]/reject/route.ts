@@ -33,7 +33,58 @@ try{
 const { id } =
 await context.params
 
-const { error } =
+const { data:request,error } =
+await supabase
+.schema("raffles")
+.from("affiliate_payout_requests")
+.select("*")
+.eq(
+"id",
+id
+)
+.maybeSingle()
+
+if(
+
+error ||
+
+!request
+
+){
+
+return NextResponse.json({
+
+success:false,
+
+error:"request_not_found"
+
+},
+
+{
+
+status:404
+
+})
+
+}
+
+if(
+
+request.status!=="pending"
+
+){
+
+return NextResponse.json({
+
+success:true,
+
+message:"already_processed"
+
+})
+
+}
+
+const { error:updateError } =
 await supabase
 .schema("raffles")
 .from("affiliate_payout_requests")
@@ -50,9 +101,9 @@ new Date().toISOString()
 id
 )
 
-if(error){
+if(updateError){
 
-throw error
+throw updateError
 
 }
 
