@@ -148,6 +148,9 @@ wallet.available,
 
 status:"pending",
 
+created_at:
+new Date().toISOString(),
+
 metadata:{
 
 requestedAt:
@@ -169,6 +172,14 @@ wallet.paid
 .single()
 
 if(error){
+
+console.error(
+
+"AFFILIATE_PAYOUT_INSERT_ERROR",
+
+error
+
+)
 
 throw error
 
