@@ -791,6 +791,58 @@ if (affiliateCode) {
 
 }
 
+if (referralCode) {
+
+  await trackEvent({
+
+    event_type:
+      "referral_conversion",
+
+    raffle_id,
+
+    order_id:
+      order.id,
+
+    payment_id:
+      payment?.id,
+
+    user_email:
+      buyer_email,
+
+    source,
+
+    referrer,
+
+    utm_source,
+
+    utm_medium,
+
+    utm_campaign,
+
+    ip:
+      ip_address,
+
+    user_agent,
+
+    metadata: {
+
+      referralCode,
+
+      requestedQuantity:
+        quote.requestedQuantity,
+
+      finalQuantity:
+        quote.finalQuantity,
+
+      total:
+        quote.total
+
+    }
+
+  })
+
+}
+
     return NextResponse.json({
 
       payment_id:
