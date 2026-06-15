@@ -835,38 +835,7 @@ if (!res.ok) {
   </span>
 
 </div>
-
-              <div className="flex justify-between text-slate-400">
-
-                <span>
-                  Cantidad
-                </span>
-
-                <span>
-                  {quantity}
-                </span>
-
-              </div>
-
-              <div className="flex justify-between text-2xl font-black mt-3">
-
-                <span>
-                  Total
-                </span>
-
-                <span>
-
-                  $
-                  {(
-                    Number(
-                      raffle.ticket_price_clp
-                    ) * quantity
-                  ).toLocaleString("es-CL")}
-
-                </span>
-
-              </div>
-
+              
             </div>
 
           </div>
