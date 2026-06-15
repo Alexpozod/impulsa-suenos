@@ -1044,28 +1044,125 @@ text-center
 >
 
 <div className="text-slate-400 text-sm">
-Estás comprando
+Resumen de compra
 </div>
 
-<div className="text-xl font-black mt-2">
-🔥 {quantity} participación{quantity > 1 ? "es" : ""}
+<div className="flex justify-between mt-4">
+
+<span>
+🎟️ Solicitados
+</span>
+
+<span>
+
+{quote?.requestedQuantity ?? quantity}
+
+</span>
+
 </div>
 
-<div className="text-slate-400 mt-3">
-Total a pagar
+<div className="flex justify-between mt-2">
+
+<span>
+🎁 Bonus
+</span>
+
+<span>
+
++
+
+{quote?.bonusQuantity ?? 0}
+
+</span>
+
 </div>
 
-<div className="text-3xl font-black text-blue-400">
+<div className="flex justify-between mt-2">
+
+<span>
+✅ Total tickets
+</span>
+
+<span>
+
+{quote?.finalQuantity ?? quantity}
+
+</span>
+
+</div>
+
+{
+
+quote?.discount > 0 && (
+
+<div className="flex justify-between mt-2 text-green-400">
+
+<span>
+💰 Descuento
+</span>
+
+<span>
+
+-$
+
+{Number(
+quote.discount
+).toLocaleString("es-CL")}
+
+</span>
+
+</div>
+
+)
+
+}
+
+{
+
+quote?.coupon?.code && (
+
+<div className="flex justify-between mt-2 text-blue-400">
+
+<span>
+🏷 Cupón
+</span>
+
+<span>
+
+{quote.coupon.code}
+
+</span>
+
+</div>
+
+)
+
+}
+
+<div className="border-t border-slate-800 mt-4 pt-4 flex justify-between font-black text-2xl">
+
+<span>
+
+Total
+
+</span>
+
+<span className="text-blue-400">
 
 $
 
-{(
+{Number(
+
+quote?.total ??
+
 Number(
 raffle.ticket_price_clp
-)
-*
+) *
 quantity
+
 ).toLocaleString("es-CL")}
+
+</span>
 
 </div>
 
