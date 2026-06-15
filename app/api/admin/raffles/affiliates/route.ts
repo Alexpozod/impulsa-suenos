@@ -33,11 +33,30 @@ export async function GET() {
 
   }
 
-  return NextResponse.json({
+  const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "http://localhost:3000"
 
-    affiliates: data ?? []
+const affiliates =
+  (data ?? []).map((item:any)=>({
 
-  })
+    ...item,
+
+    shareUrl:
+
+      `${baseUrl}?aff=${item.code}`,
+
+    shareCode:
+
+      item.code
+
+  }))
+
+return NextResponse.json({
+
+  affiliates
+
+})
 
 }
 
