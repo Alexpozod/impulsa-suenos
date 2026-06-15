@@ -923,6 +923,43 @@ placeholder="Teléfono móvil"
             />
 
             <div
+className="
+w-full
+bg-slate-900
+border
+border-slate-700
+rounded-2xl
+px-4
+py-3
+"
+>
+
+<div className="text-xs text-slate-400 mb-2">
+Cupón de descuento (opcional)
+</div>
+
+<input
+type="text"
+placeholder="Ej: CHATGPT10"
+value={couponCode}
+onChange={(e)=>{
+
+setCouponCode(
+e.target.value.toUpperCase()
+)
+
+}}
+className="
+w-full
+bg-transparent
+outline-none
+text-white
+"
+/>
+
+</div>
+
+            <div
   className="
     pt-4
     border-t
