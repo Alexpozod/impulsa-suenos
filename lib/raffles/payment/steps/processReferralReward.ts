@@ -1,11 +1,19 @@
-import { PaymentProcessingContext } from "../types"
+import { PaymentProcessingContext }
+from "../types"
+
+import {
+  processReferralReward as processReferral
+}
+from "@/lib/raffles/referral/processReferralReward"
 
 export async function processReferralReward(
+
   context: PaymentProcessingContext
+
 ) {
 
-  console.log(
-    "STEP -> processReferralReward"
+  await processReferral(
+    context
   )
 
   return context
