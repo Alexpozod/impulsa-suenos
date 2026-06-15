@@ -480,6 +480,90 @@ setWallet(
                 </div>
 
               </div>
+              
+<hr className="my-4 border-slate-800" />
+
+<div>
+
+  <span className="text-slate-400">
+
+    Enlace del Influencer
+
+  </span>
+
+  <div className="mt-2 break-all text-sm">
+
+    {`${window.location.origin}?aff=${dashboard?.affiliate?.code ?? ""}`}
+
+  </div>
+
+</div>
+
+<div className="flex flex-wrap gap-2 mt-3">
+
+  <button
+
+    onClick={() => {
+
+      navigator.clipboard.writeText(
+
+        dashboard?.affiliate?.code ?? ""
+
+      )
+
+    }}
+
+    className="px-3 py-2 rounded-lg bg-slate-800"
+
+  >
+
+    📋 Copiar código
+
+  </button>
+
+  <button
+
+    onClick={() => {
+
+      navigator.clipboard.writeText(
+
+        `${window.location.origin}?aff=${dashboard?.affiliate?.code ?? ""}`
+
+      )
+
+    }}
+
+    className="px-3 py-2 rounded-lg bg-slate-800"
+
+  >
+
+    🔗 Copiar enlace
+
+  </button>
+
+  <button
+
+    onClick={() => {
+
+      window.open(
+
+        `${window.location.origin}?aff=${dashboard?.affiliate?.code ?? ""}`,
+
+        "_blank"
+
+      )
+
+    }}
+
+    className="px-3 py-2 rounded-lg bg-emerald-600"
+
+  >
+
+    🚀 Abrir enlace
+
+  </button>
+
+</div>
 
             </div>
 
