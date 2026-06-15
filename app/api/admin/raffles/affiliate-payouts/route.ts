@@ -20,7 +20,14 @@ const { data,error } =
 await supabase
 .schema("raffles")
 .from("affiliate_payout_requests")
-.select("*")
+.select(`
+*,
+raffle_referrals(
+id,
+code,
+owner_email
+)
+`)
 .order(
 "created_at",
 {
