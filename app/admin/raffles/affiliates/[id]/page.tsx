@@ -298,6 +298,68 @@ setWallet(
   ).toLocaleString("es-CL")}`}
 />
 
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+<h2 className="text-xl font-semibold mb-4">
+
+Solicitar retiro
+
+</h2>
+
+<button
+
+className="px-4 py-3 rounded-xl bg-emerald-600"
+
+onClick={async()=>{
+
+const response=
+
+await fetch(
+
+`/api/admin/raffles/affiliates/${id}/request-payout`,
+
+{
+
+method:"POST"
+
+}
+
+)
+
+const json=
+
+await response.json()
+
+alert(
+
+json.success
+
+?"Solicitud enviada"
+
+:(json.error||"Error")
+
+)
+
+load()
+
+}}
+
+>
+
+💰 Solicitar retiro
+
+</button>
+
+</div>
+
 </div>
 
 <div
@@ -480,7 +542,7 @@ setWallet(
                 </div>
 
               </div>
-              
+
 <hr className="my-4 border-slate-800" />
 
 <div>
