@@ -72,6 +72,100 @@ const [marketingConsent, setMarketingConsent] =
 const [loadingQuote, setLoadingQuote] =
   useState(false)
 
+useEffect(() => {
+
+  if (!raffle?.id) {
+
+    return
+
+  }
+
+  loadQuote()
+
+}, [
+
+  raffle?.id,
+
+  quantity,
+
+  couponCode
+
+])
+
+async function loadQuote() {
+
+  if (!raffle?.id) {
+
+    return
+
+  }
+
+  try {
+
+    setLoadingQuote(true)
+
+    const res =
+      await fetch(
+
+        "/api/raffles/quote",
+
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json"
+
+          },
+
+          body: JSON.stringify({
+
+            raffle_id:
+              raffle.id,
+
+            quantity,
+
+            couponCode
+
+          })
+
+        }
+
+      )
+
+    if (!res.ok) {
+
+      setQuote(null)
+
+      return
+
+    }
+
+    const json =
+      await res.json()
+
+    setQuote(json)
+
+  }
+
+  catch (error) {
+
+    console.error(error)
+
+    setQuote(null)
+
+  }
+
+  finally {
+
+    setLoadingQuote(false)
+
+  }
+
+}
+  
   useEffect(() => {
 
   loadRaffle()
