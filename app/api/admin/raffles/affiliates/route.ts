@@ -100,6 +100,50 @@ export async function POST(
 
     } = body
 
+    const normalizedCode =
+String(code)
+.trim()
+.toUpperCase()
+
+const normalizedEmail =
+String(owner_email)
+.trim()
+.toLowerCase()
+
+const { data: existing } =
+await supabase
+.schema("raffles")
+.from("raffle_referrals")
+.select("id")
+.or(
+
+`code.eq.${normalizedCode},owner_email.eq.${normalizedEmail}`
+
+)
+.maybeSingle()
+
+if(existing){
+
+return NextResponse.json(
+
+{
+
+error:
+
+"affiliate_already_exists"
+
+},
+
+{
+
+status:409
+
+}
+
+)
+
+}
+
     if (
       !code ||
       !owner_email
@@ -127,14 +171,10 @@ export async function POST(
         .insert({
 
           code:
-            String(code)
-              .trim()
-              .toUpperCase(),
+  normalizedCode,
 
-          owner_email:
-            String(owner_email)
-              .trim()
-              .toLowerCase(),
+owner_email:
+  normalizedEmail,
 
           commission_percent:
             Number(
