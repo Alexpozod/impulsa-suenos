@@ -308,6 +308,85 @@ useEffect(() => {
 
   }
 
+async function loadQuote() {
+
+  if (!raffle?.id) {
+    return
+  }
+
+  try {
+
+    setLoadingQuote(true)
+
+    const res =
+      await fetch(
+        "/api/raffles/quote",
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            raffle_id:
+              raffle.id,
+
+            quantity,
+
+            couponCode,
+
+            affiliateCode
+
+          })
+
+        }
+      )
+
+    if (!res.ok) {
+      return
+    }
+
+    const json =
+      await res.json()
+
+    setQuote(json)
+
+  } catch (error) {
+
+    console.error(error)
+
+  } finally {
+
+    setLoadingQuote(false)
+
+  }
+
+}
+
+useEffect(() => {
+
+  if (!raffle?.id) {
+    return
+  }
+
+  loadQuote()
+
+}, [
+
+  raffle,
+
+  quantity,
+
+  couponCode,
+
+  affiliateCode
+
+])
+
 async function buyTickets() {
 
     console.log("BOTON PRESIONADO")
