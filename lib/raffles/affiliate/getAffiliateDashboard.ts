@@ -96,11 +96,11 @@ export async function getAffiliateDashboard(
 
     switch (event.event_type) {
 
-      case "page_view":
+      case "affiliate_click":
 
-        clicks++
+    clicks++
 
-        break
+    break
 
       case "begin_checkout":
 
@@ -119,10 +119,11 @@ export async function getAffiliateDashboard(
         paidOrders++
 
         revenue += Number(
-          metadata.amount ||
-          metadata.total ||
-          0
-        )
+  metadata.amount ??
+  metadata.total ??
+  metadata.amount_clp ??
+  0
+)
 
         break
 
