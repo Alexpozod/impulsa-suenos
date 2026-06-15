@@ -101,7 +101,11 @@ const schema = z.object({
   z.string().optional(),
 
 referralCode:
+  z.string().optional(),
+
+couponCode:
   z.string().optional()
+
 })
 
 const checkoutRequests = new Map<
@@ -223,7 +227,8 @@ if (
   utm_term,
 
   affiliateCode,
-  referralCode
+referralCode,
+couponCode
 
 } = parsed.data
 
@@ -366,7 +371,7 @@ await processQuote({
         referralCode ?? undefined,
 
     couponCode:
-        undefined,
+    couponCode ?? undefined,
 
         utm_source,
 
