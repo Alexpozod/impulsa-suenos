@@ -452,6 +452,8 @@ text-sm
 
 </button>
 
+<div className="flex flex-wrap gap-2">
+
 <button
 
 onClick={()=>{
@@ -477,9 +479,52 @@ text-sm
 
 >
 
-🔗 Link
+🔗 General
 
 </button>
+
+{
+
+(item.raffleLinks ?? []).map(
+
+(raffle:any)=>(
+
+<button
+
+key={raffle.id}
+
+onClick={()=>{
+
+navigator.clipboard.writeText(
+
+raffle.url
+
+)
+
+}}
+
+className="
+px-3
+py-2
+rounded-xl
+bg-indigo-700
+hover:bg-indigo-600
+text-xs
+"
+
+>
+
+🎟 {raffle.title}
+
+</button>
+
+)
+
+)
+
+}
+
+</div>
 
 <Link
 
