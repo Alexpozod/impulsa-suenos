@@ -97,11 +97,33 @@ id
 
 if(existing){
 
+console.log(
+
+"AFFILIATE_PENDING_REQUEST",
+
+{
+
+affiliateId:id,
+
+requestId:
+existing.id
+
+}
+
+)
+
+}
+
+if(existing){
+
 return NextResponse.json({
 
 success:false,
 
-error:"pending_request_exists"
+error:"pending_request_exists",
+
+requestId:
+existing.id
 
 })
 
