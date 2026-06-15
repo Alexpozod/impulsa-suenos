@@ -97,7 +97,22 @@ await sendNotifications(context)
 console.log("STEP -> finalizePayment")
 await finalizePayment(context)
 
-console.log("PIPELINE COMPLETED")
+console.log(
+  "PIPELINE COMPLETED",
+  {
+    paymentId:
+      context.payment?.id,
+
+    orderId:
+      context.order?.id,
+
+    raffleId:
+      context.raffle?.id,
+
+    tickets:
+      context.tickets?.length ?? 0
+  }
+)
 
     return {
 
