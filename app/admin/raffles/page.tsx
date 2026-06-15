@@ -105,6 +105,144 @@ const res =
 
       </div>
 
+      <div
+className="
+grid
+grid-cols-2
+md:grid-cols-3
+xl:grid-cols-6
+gap-4
+"
+>
+
+<a
+href="/admin/raffles/create"
+className="
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-5
+hover:border-blue-500
+transition
+"
+>
+<div className="text-3xl">
+➕
+</div>
+
+<div className="mt-3 font-bold">
+Crear Sorteo
+</div>
+</a>
+
+<a
+href="/admin/raffles/manage"
+className="
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-5
+hover:border-blue-500
+transition
+"
+>
+<div className="text-3xl">
+🎟️
+</div>
+
+<div className="mt-3 font-bold">
+Gestionar
+</div>
+</a>
+
+<a
+href="/admin/raffles/orders"
+className="
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-5
+hover:border-blue-500
+transition
+"
+>
+<div className="text-3xl">
+🛒
+</div>
+
+<div className="mt-3 font-bold">
+Órdenes
+</div>
+</a>
+
+<a
+href="/admin/raffles/payments"
+className="
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-5
+hover:border-blue-500
+transition
+"
+>
+<div className="text-3xl">
+💳
+</div>
+
+<div className="mt-3 font-bold">
+Pagos
+</div>
+</a>
+
+<a
+href="/admin/raffles/tickets"
+className="
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-5
+hover:border-blue-500
+transition
+"
+>
+<div className="text-3xl">
+🎫
+</div>
+
+<div className="mt-3 font-bold">
+Tickets
+</div>
+</a>
+
+<a
+href="/admin/raffles/results"
+className="
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-5
+hover:border-blue-500
+transition
+"
+>
+<div className="text-3xl">
+🏆
+</div>
+
+<div className="mt-3 font-bold">
+Resultados
+</div>
+</a>
+
+</div>
+
       {/* METRICS */}
 
       <div
