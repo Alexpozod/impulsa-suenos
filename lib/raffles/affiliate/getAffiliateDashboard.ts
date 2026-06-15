@@ -45,6 +45,123 @@ export async function getAffiliateDashboard(
 
   }
 
+  const affiliateCode =
+    String(
+      affiliate.code || ""
+    ).toUpperCase()
+
+  const { data: events } =
+    await supabase
+      .schema("raffles")
+      .from("analytics_events")
+      .select("*")
+
+  const { data: ledger } =
+    await supabase
+      .schema("raffles")
+      .from("ledger")
+      .select("*")
+      .eq(
+        "type",
+        "affiliate_commission"
+      )
+      .contains(
+        "metadata",
+        {
+          affiliateId
+        }
+      )
+
+  let clicks = 0
+  let beginCheckout = 0
+  let orders = 0
+  let paidOrders = 0
+  let revenue = 0
+
+  for (const event of events || []) {
+
+    const metadata =
+      (event.metadata || {}) as any
+
+    const code =
+      String(
+        metadata.affiliateCode || ""
+      ).toUpperCase()
+
+    if (code !== affiliateCode) {
+
+      continue
+
+    }
+
+    switch (event.event_type) {
+
+      case "page_view":
+
+        clicks++
+
+        break
+
+      case "begin_checkout":
+
+        beginCheckout++
+
+        break
+
+      case "affiliate_conversion":
+
+        orders++
+
+        revenue += Number(
+          metadata.total || 0
+        )
+
+        break
+
+      case "payment_success":
+
+        paidOrders++
+
+        revenue += Number(
+          metadata.amount || 0
+        )
+
+        break
+
+    }
+
+  }
+
+  const paidCommission =
+    (ledger || []).reduce(
+
+      (sum: number, row: any) =>
+
+        sum +
+
+        Math.abs(
+          Number(
+            row.amount_clp || 0
+          )
+        ),
+
+      0
+
+    )
+
+  const estimatedCommission =
+    Math.round(
+
+      revenue *
+
+      Number(
+        affiliate.commission_percent || 0
+      ) /
+
+      100
+
+    )
+
   return {
 
     affiliate: {
@@ -70,19 +187,19 @@ export async function getAffiliateDashboard(
 
     stats: {
 
-      clicks: 0,
+      clicks,
 
-      beginCheckout: 0,
+      beginCheckout,
 
-      orders: 0,
+      orders,
 
-      paidOrders: 0,
+      paidOrders,
 
-      revenue: 0,
+      revenue,
 
-      estimatedCommission: 0,
+      estimatedCommission,
 
-      paidCommission: 0
+      paidCommission
 
     }
 
