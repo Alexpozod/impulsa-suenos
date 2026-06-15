@@ -56,6 +56,30 @@ error:"no_available_balance"
 
 }
 
+console.log(
+
+"AFFILIATE_PAYOUT_REQUEST",
+
+{
+
+affiliateId:id,
+
+generated:
+wallet.generated,
+
+available:
+wallet.available,
+
+paid:
+wallet.paid,
+
+pending:
+wallet.pending
+
+}
+
+)
+
 const { data:existing } =
 await supabase
 .schema("raffles")
@@ -83,7 +107,13 @@ error:"pending_request_exists"
 
 }
 
-const { error } =
+const {
+
+data,
+
+error
+
+} =
 await supabase
 .schema("raffles")
 .from("affiliate_payout_requests")
@@ -94,9 +124,27 @@ affiliate_id:id,
 amount_clp:
 wallet.available,
 
-status:"pending"
+status:"pending",
+
+metadata:{
+
+requestedAt:
+new Date().toISOString(),
+
+generated:
+wallet.generated,
+
+available:
+wallet.available,
+
+paid:
+wallet.paid
+
+}
 
 })
+.select()
+.single()
 
 if(error){
 
@@ -106,7 +154,9 @@ throw error
 
 return NextResponse.json({
 
-success:true
+success:true,
+
+request:data
 
 })
 
