@@ -227,8 +227,9 @@ if (
   utm_term,
 
   affiliateCode,
-referralCode,
-couponCode
+  referralCode,
+
+  couponCode
 
 } = parsed.data
 
@@ -705,7 +706,7 @@ if (paymentError || !payment) {
       utm_source,
       utm_medium,
       utm_campaign,
-
+      
       ip:
         ip_address,
 
@@ -713,16 +714,25 @@ if (paymentError || !payment) {
 
       metadata: {
 
+        affiliateCode:
+          affiliateCode ?? null,
+
+        referralCode:
+          referralCode ?? null,
+
         requestedQuantity:
-        quote.requestedQuantity,
+          quote.requestedQuantity,
 
         bonusQuantity:
-        quote.bonusQuantity,
+          quote.bonusQuantity,
 
         finalQuantity:
-        quote.finalQuantity,
+          quote.finalQuantity,
 
         amount_clp:
+          totalCLP,
+
+        total:
           totalCLP,
 
         currency:
