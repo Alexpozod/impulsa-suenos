@@ -56,23 +56,42 @@ try {
 
             body: JSON.stringify({
 
-                event_type:
+    event_type:
 
-                    "affiliate_click",
+        "page_view",
 
-                affiliateCode:
+    affiliateCode:
 
-                    aff,
+        aff,
 
-                source:
+    source:
 
-                    "landing",
+        "landing",
 
-                page:
+    referrer:
 
-                    window.location.pathname
+        document.referrer || null,
 
-            })
+    raffle_slug:
+
+        window.location.pathname
+            .split("/")
+            .filter(Boolean)
+            .pop(),
+
+    metadata: {
+
+        affiliateCode:
+
+            aff,
+
+        page:
+
+            window.location.pathname
+
+    }
+
+})
 
         }
 
