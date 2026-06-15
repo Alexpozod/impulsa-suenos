@@ -54,6 +54,9 @@ useState("")
 const [affiliateCode, setAffiliateCode] =
 useState("")
 
+const [couponCode, setCouponCode] =
+useState("")
+
     const [processing, setProcessing] =
   useState(false)
 
@@ -120,6 +123,48 @@ else {
   if (saved) {
 
     setAffiliateCode(saved)
+
+  }
+
+}
+
+const coupon =
+searchParams.get("coupon")
+
+if (coupon) {
+
+  localStorage.setItem(
+    "raffle_coupon",
+    coupon
+  )
+
+  sessionStorage.setItem(
+    "raffle_coupon",
+    coupon
+  )
+
+  setCouponCode(coupon)
+
+}
+else {
+
+  const savedCoupon =
+
+    localStorage.getItem(
+      "raffle_coupon"
+    )
+
+    ||
+
+    sessionStorage.getItem(
+      "raffle_coupon"
+    )
+
+  if (savedCoupon) {
+
+    setCouponCode(
+      savedCoupon
+    )
 
   }
 
