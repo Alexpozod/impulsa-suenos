@@ -1,89 +1,129 @@
 import { NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
 
-import { canRequestAffiliatePayout }
-from "@/lib/raffles/affiliate/canRequestAffiliatePayout"
+import {
+  calculateAffiliateWallet
+} from "@/lib/raffles/affiliate/calculateAffiliateWallet"
 
 export const runtime = "nodejs"
 
+const supabase =
+createClient(
+
+process.env.NEXT_PUBLIC_SUPABASE_URL!,
+
+process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+)
+
 export async function POST(
 
-  req: Request,
+req:Request,
 
-  context: {
+context:{
 
-    params: Promise<{
+params:Promise<{
 
-      id: string
+id:string
 
-    }>
+}>
 
-  }
+}
 
 ){
 
-  try{
+try{
 
-    const { id } =
-      await context.params
+const { id } =
+await context.params
 
-    const validation =
-      await canRequestAffiliatePayout(
-        id
-      )
+const wallet =
+await calculateAffiliateWallet(
+id
+)
 
-    if(
+if(
+wallet.available<=0
+){
 
-      !validation.allowed
+return NextResponse.json({
 
-    ){
+success:false,
 
-      return NextResponse.json(
+error:"no_available_balance"
 
-        validation,
+})
 
-        {
+}
 
-          status:400
+const { data:existing } =
+await supabase
+.schema("raffles")
+.from("affiliate_payout_requests")
+.select("id")
+.eq(
+"affiliate_id",
+id
+)
+.eq(
+"status",
+"pending"
+)
+.maybeSingle()
 
-        }
+if(existing){
 
-      )
+return NextResponse.json({
 
-    }
+success:false,
 
-    return NextResponse.json({
+error:"pending_request_exists"
 
-      success:true,
+})
 
-      wallet:
-        validation.wallet
+}
 
-    })
+const { error } =
+await supabase
+.schema("raffles")
+.from("affiliate_payout_requests")
+.insert({
 
-  }
+affiliate_id:id,
 
-  catch(error){
+amount_clp:
+wallet.available,
 
-    console.error(error)
+status:"pending"
 
-    return NextResponse.json(
+})
 
-      {
+if(error){
 
-        success:false,
+throw error
 
-        error:"server_error"
+}
 
-      },
+return NextResponse.json({
 
-      {
+success:true
 
-        status:500
+})
 
-      }
+}
 
-    )
+catch(error){
 
-  }
+console.error(error)
+
+return NextResponse.json({
+
+success:false,
+
+error:"server_error"
+
+})
+
+}
 
 }
