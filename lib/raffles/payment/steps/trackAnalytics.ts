@@ -57,10 +57,19 @@ export async function trackAnalytics(
 
       metadata: {
 
+        affiliateCode:
+          context.order?.metadata?.tracking?.affiliateCode ?? null,
+
+        referralCode:
+          context.order?.metadata?.tracking?.referralCode ?? null,
+
         quantity:
           context.order.quantity,
 
         amount:
+          context.order.total_clp,
+
+        total:
           context.order.total_clp,
 
         currency:
