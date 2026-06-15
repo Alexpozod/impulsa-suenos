@@ -409,26 +409,34 @@ className="border-b border-slate-800"
 
 </td>
 
-<td className="p-4 text-xs">
+<td className="p-4 text-xs break-all">
 
-{`/raffles?aff=${item.code}`}
+{
+
+item.shareUrl ??
+
+`${window.location.origin}/raffles?aff=${item.code}`
+
+}
 
 </td>
 
 <td className="p-4">
 
-<div className="flex gap-2">
+<div className="flex flex-wrap gap-2">
 
 <button
-onClick={() => {
+
+onClick={()=>{
 
 navigator.clipboard.writeText(
 
-`${window.location.origin}/raffles?aff=${item.code}`
+item.code
 
 )
 
 }}
+
 className="
 px-3
 py-2
@@ -437,9 +445,39 @@ bg-slate-800
 hover:bg-slate-700
 text-sm
 "
+
 >
 
-Copiar
+📋 Código
+
+</button>
+
+<button
+
+onClick={()=>{
+
+navigator.clipboard.writeText(
+
+item.shareUrl ??
+
+`${window.location.origin}/raffles?aff=${item.code}`
+
+)
+
+}}
+
+className="
+px-3
+py-2
+rounded-xl
+bg-slate-800
+hover:bg-slate-700
+text-sm
+"
+
+>
+
+🔗 Link
 
 </button>
 
