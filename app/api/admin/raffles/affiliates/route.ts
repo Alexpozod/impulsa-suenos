@@ -37,18 +37,41 @@ export async function GET() {
   process.env.NEXT_PUBLIC_APP_URL ||
   "http://localhost:3000"
 
+const { data: raffles } =
+  await supabase
+    .schema("raffles")
+    .from("raffles")
+    .select("id,title,slug")
+    .eq("status","active")
+
 const affiliates =
   (data ?? []).map((item:any)=>({
 
     ...item,
 
-    shareUrl:
+    shareCode:
+      item.code,
 
+    shareUrl:
       `${baseUrl}?aff=${item.code}`,
 
-    shareCode:
+    raffleLinks:
 
-      item.code
+      (raffles ?? []).map((raffle:any)=>({
+
+        id:
+          raffle.id,
+
+        title:
+          raffle.title,
+
+        slug:
+          raffle.slug,
+
+        url:
+          `${baseUrl}/raffles/${raffle.slug}?aff=${item.code}`
+
+      }))
 
   }))
 
