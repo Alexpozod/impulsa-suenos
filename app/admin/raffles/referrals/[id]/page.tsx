@@ -294,21 +294,27 @@ setLedger(
 
         <th className="p-4 text-left">
 
-          Fecha
+  Fecha
 
-        </th>
+</th>
 
-        <th className="p-4 text-left">
+<th className="p-4 text-left">
 
-          Tipo
+  Tipo
 
-        </th>
+</th>
 
-        <th className="p-4 text-left">
+<th className="p-4 text-left">
 
-          Monto
+  Monto
 
-        </th>
+</th>
+
+<th className="p-4 text-left">
+
+  Metadata
+
+</th>
 
       </tr>
 
@@ -325,7 +331,7 @@ setLedger(
           <tr>
 
             <td
-              colSpan={3}
+              colSpan={4}
               className="
               p-6
               text-center
@@ -394,6 +400,34 @@ setLedger(
                   ).toLocaleString("es-CL")}
 
                 </td>
+
+<td className="p-4 text-xs">
+
+  <pre
+    className="
+    whitespace-pre-wrap
+    break-all
+    text-slate-400
+    "
+  >
+
+    {
+
+      JSON.stringify(
+
+        item.metadata ?? {},
+
+        null,
+
+        2
+
+      )
+
+    }
+
+  </pre>
+
+</td>
 
               </tr>
 
