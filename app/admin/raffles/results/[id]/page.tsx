@@ -719,6 +719,39 @@ async function registerWinner() {
   {result.delivery_notes || "-"}
 
 </div>
+
+{result.evidence_images?.length > 0 && (
+
+  <div className="mt-3">
+
+    <div className="font-semibold mb-2">
+      Evidencias
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+
+      {result.evidence_images.map(
+        (image:string,index:number) => (
+
+          <img
+            key={index}
+            src={image}
+            alt="evidencia"
+            className="
+              rounded-lg
+              border
+              border-slate-700
+            "
+          />
+
+        )
+      )}
+
+    </div>
+
+  </div>
+
+)}
                 
               <div
   className="
@@ -777,6 +810,49 @@ async function registerWinner() {
     </button>
 
   )}
+
+<button
+
+  onClick={() =>
+    updateDelivery(
+      result.id,
+      "delivered"
+    )
+  }
+
+  className="
+    bg-blue-600
+    hover:bg-blue-500
+    px-3
+    py-2
+    rounded-lg
+  "
+>
+
+  Marcar Entregado
+
+</button>
+
+<button
+
+  onClick={() =>
+    addEvidence(
+      result.id
+    )
+  }
+
+  className="
+    bg-purple-600
+    hover:bg-purple-500
+    px-3
+    py-2
+    rounded-lg
+  "
+>
+
+  Agregar Evidencia
+
+</button>
 
 <button
 
