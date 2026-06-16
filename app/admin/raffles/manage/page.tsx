@@ -821,18 +821,33 @@ Próximo módulo
 
                       {raffle.status === "paused" && (
 
-                        <ActionButton
-                          label="End"
-                          color="red"
-                          onClick={() =>
-                            action(
-                              "/api/admin/raffles/end",
-                              raffle.id
-                            )
-                          }
-                        />
+  <>
 
-                      )}
+    <ActionButton
+      label="Resume"
+      color="green"
+      onClick={() =>
+        action(
+          "/api/admin/raffles/resume",
+          raffle.id
+        )
+      }
+    />
+
+    <ActionButton
+      label="End"
+      color="red"
+      onClick={() =>
+        action(
+          "/api/admin/raffles/end",
+          raffle.id
+        )
+      }
+    />
+
+  </>
+
+)}
 
                       {(raffle.status === "ended" ||
                         raffle.status === "completed") && (
