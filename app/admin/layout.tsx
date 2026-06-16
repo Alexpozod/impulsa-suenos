@@ -258,6 +258,16 @@ export default function AdminLayout({ children }: any) {
                     label="📤 Exports"
                   />
 
+                  <SubItem
+                    href="/admin/raffles/affiliates"
+                    label="⭐ Influencers"
+                  />
+
+                  <SubItem
+                    href="/admin/raffles/referrals"
+                    label="🎁 Referidos"
+                  />
+
                 </div>
               )}
 
