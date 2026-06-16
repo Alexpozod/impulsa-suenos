@@ -264,6 +264,11 @@ export default function AdminLayout({ children }: any) {
                   />
 
                   <SubItem
+                    href="/admin/raffles/affiliate-payouts"
+                    label="💰 Retiros Influencers"
+                  />
+
+                  <SubItem
                     href="/admin/raffles/referrals"
                     label="🎁 Referidos"
                   />
