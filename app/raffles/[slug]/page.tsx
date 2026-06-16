@@ -58,6 +58,7 @@ type Winner = {
   winner_name: string
   delivery_status: string
   evidence_images: string[]
+  evidence_videos?: string[]
 }
 
 type ApiResponse = {
@@ -861,6 +862,41 @@ raffle.status === "active" ? (
             </div>
 
           )}
+
+{(winner.evidence_videos ?? []).length > 0 && (
+
+  <div
+    className="
+      mt-4
+      space-y-3
+    "
+  >
+
+    {(winner.evidence_videos ?? []).map(
+      (
+        video,
+        index
+      ) => (
+
+        <video
+          key={index}
+          controls
+          className="
+            w-full
+            rounded-xl
+            border
+            border-slate-700
+          "
+        >
+          <source src={video} />
+        </video>
+
+      )
+    )}
+
+  </div>
+
+)}
 
         </div>
 

@@ -268,32 +268,69 @@ async function addEvidence(
           return
         }
 
-        const response =
-          await fetch(
-            `/api/admin/raffles/results/${resultId}`,
-            {
-              method: "PATCH",
+        const currentResult =
+  results.find(
+    item =>
+      item.id === resultId
+  )
 
-              headers: {
+const existingImages =
+  currentResult?.evidence_images || []
 
-                "Content-Type":
-                  "application/json",
+const existingVideos =
+  currentResult?.evidence_videos || []
 
-                Authorization:
-                  `Bearer ${session?.access_token}`
+const payload =
+  file.type.startsWith(
+    "video/"
+  )
 
-              },
+    ? {
 
-              body: JSON.stringify({
+        evidence_videos: [
 
-                evidence_images: [
-                  uploadJson.url
-                ]
+          ...existingVideos,
 
-              })
+          uploadJson.url
 
-            }
-          )
+        ]
+
+      }
+
+    : {
+
+        evidence_images: [
+
+          ...existingImages,
+
+          uploadJson.url
+
+        ]
+
+      }
+
+const response =
+  await fetch(
+    `/api/admin/raffles/results/${resultId}`,
+    {
+      method: "PATCH",
+
+      headers: {
+
+        "Content-Type":
+          "application/json",
+
+        Authorization:
+          `Bearer ${session?.access_token}`
+
+      },
+
+      body: JSON.stringify(
+        payload
+      )
+
+    }
+  )
 
         if (!response.ok) {
 
@@ -305,6 +342,10 @@ async function addEvidence(
         }
 
         await loadResults()
+
+        alert(
+  "Evidencia cargada correctamente"
+)
 
       } catch (error) {
 
@@ -783,7 +824,10 @@ async function registerWinner() {
     <div className="grid grid-cols-2 gap-2">
 
       {result.evidence_images.map(
-        (image:string,index:number) => (
+        (
+          image:string,
+          index:number
+        ) => (
 
           <img
             key={index}
@@ -804,7 +848,45 @@ async function registerWinner() {
   </div>
 
 )}
-                
+
+{result.evidence_videos?.length > 0 && (
+
+  <div className="mt-3">
+
+    <div className="font-semibold mb-2">
+      Videos
+    </div>
+
+    <div className="space-y-3">
+
+      {result.evidence_videos.map(
+        (
+          video:string,
+          index:number
+        ) => (
+
+          <video
+            key={index}
+            controls
+            className="
+              w-full
+              rounded-lg
+              border
+              border-slate-700
+            "
+          >
+            <source src={video} />
+          </video>
+
+        )
+      )}
+
+    </div>
+
+  </div>
+
+)}
+     
               <div
   className="
     flex

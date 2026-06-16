@@ -471,6 +471,49 @@ export default function WinnersPage() {
 
 )}
 
+{(winner.evidence_videos ?? []).length > 0 && (
+
+  <div
+    className="
+      mt-6
+      space-y-4
+    "
+  >
+
+    <div
+      className="
+        text-lg
+        font-bold
+        mb-4
+      "
+    >
+      🎥 Videos de entrega
+    </div>
+
+    {winner.evidence_videos.map(
+      (
+        video:string,
+        index:number
+      ) => (
+
+        <video
+          key={index}
+          controls
+          className="
+            w-full
+            rounded-2xl
+          "
+        >
+          <source src={video} />
+        </video>
+
+      )
+    )}
+
+  </div>
+
+)}
+
                             </div>
 
             )

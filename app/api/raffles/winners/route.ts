@@ -29,6 +29,7 @@ export async function GET() {
     winner_name,
     delivery_status,
     evidence_images,
+    evidence_videos,
     created_at
 `)
         .eq(
