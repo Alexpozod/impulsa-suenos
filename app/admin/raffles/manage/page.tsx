@@ -55,6 +55,16 @@ export default function RafflesManagePage() {
         data: { session }
         } = await supabase.auth.getSession()
 
+        console.log(
+  "ADMIN SESSION",
+  session
+)
+
+console.log(
+  "ACCESS TOKEN",
+  session?.access_token
+)
+
         const res =
         await fetch(
             `/api/admin/raffles/list?${params}`,
