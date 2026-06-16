@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import RafflesNavbar from "@/app/components/raffles/public/RafflesNavbar"
 import RafflesFooter from "@/app/components/raffles/public/RafflesFooter"
 import AffiliateTracker from "@/app/components/raffles/public/AffiliateTracker"
+import ReferralTracker from "@/app/components/raffles/public/ReferralTracker"
 
 export default function RafflesLayout({
   children,
@@ -12,6 +13,8 @@ export default function RafflesLayout({
   return (
     <>
   <AffiliateTracker />
+
+  <ReferralTracker />
 
   <RafflesNavbar />
 
