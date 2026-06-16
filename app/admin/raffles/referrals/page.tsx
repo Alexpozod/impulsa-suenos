@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
 export default function ReferralsPage(){
@@ -293,6 +294,12 @@ Link
 
 </th>
 
+<th className="p-4 text-left">
+
+Acciones
+
+</th>
+
 </tr>
 
 </thead>
@@ -306,7 +313,7 @@ loading&&(
 <tr>
 
 <td
-colSpan={4}
+colSpan={5}
 
 className="p-6"
 
@@ -374,6 +381,29 @@ item.reward_type==="percentage"
 item.shareUrl
 
 }
+
+</td>
+
+<td className="p-4">
+
+<Link
+
+href={`/admin/raffles/referrals/${item.id}`}
+
+className="
+px-3
+py-2
+rounded-xl
+bg-blue-600
+hover:bg-blue-500
+text-sm
+"
+
+>
+
+Detalle
+
+</Link>
 
 </td>
 
