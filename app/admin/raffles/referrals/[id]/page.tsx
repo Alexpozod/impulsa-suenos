@@ -15,6 +15,9 @@ export default function ReferralDetailPage() {
   const [referral,setReferral] =
     useState<any>(null)
 
+const [summary,setSummary] =
+  useState<any>(null)
+
   useEffect(()=>{
 
     load()
@@ -27,17 +30,37 @@ export default function ReferralDetailPage() {
 
       setLoading(true)
 
-      const res =
-        await fetch(
-          `/api/admin/raffles/referrals/${id}`
-        )
+      const [
 
-      const json =
-        await res.json()
+  referralRes,
 
-      setReferral(
-        json.referral ?? null
-      )
+  summaryRes
+
+] = await Promise.all([
+
+  fetch(
+    `/api/admin/raffles/referrals/${id}`
+  ),
+
+  fetch(
+    `/api/admin/raffles/referrals/${id}/summary`
+  )
+
+])
+
+const referralJson =
+  await referralRes.json()
+
+const summaryJson =
+  await summaryRes.json()
+
+setReferral(
+  referralJson.referral ?? null
+)
+
+setSummary(
+  summaryJson
+)
 
     }
 
@@ -60,6 +83,68 @@ export default function ReferralDetailPage() {
           🎁 Detalle Referido
 
         </h1>
+
+<div
+  className="
+  grid
+  md:grid-cols-2
+  gap-4
+  "
+>
+
+  <div
+    className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+    "
+  >
+
+    <div className="text-slate-400">
+
+      Total Ganado
+
+    </div>
+
+    <div className="text-3xl font-bold mt-2">
+
+      $
+
+      {Number(
+        summary?.totalEarned ?? 0
+      ).toLocaleString("es-CL")}
+
+    </div>
+
+  </div>
+
+  <div
+    className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+    "
+  >
+
+    <div className="text-slate-400">
+
+      Conversiones
+
+    </div>
+
+    <div className="text-3xl font-bold mt-2">
+
+      {summary?.conversions ?? 0}
+
+    </div>
+
+  </div>
+
+</div>
 
         <div
           className="
