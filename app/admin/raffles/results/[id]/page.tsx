@@ -203,65 +203,117 @@ async function addEvidence(
   resultId: string
 ) {
 
-  const imageUrl =
-    window.prompt(
-      "URL de imagen"
+  const input =
+    document.createElement(
+      "input"
     )
 
-  if (!imageUrl) {
-    return
-  }
+  input.type = "file"
 
-  try {
+  input.accept =
+    "image/*,video/*"
 
-    const {
-      data: { session }
-    } =
-      await supabase.auth.getSession()
+  input.onchange =
+    async () => {
 
-    const response =
-      await fetch(
-        `/api/admin/raffles/results/${resultId}`,
-        {
-          method: "PATCH",
+      const file =
+        input.files?.[0]
 
-          headers: {
+      if (!file) {
+        return
+      }
 
-            "Content-Type":
-              "application/json",
+      try {
 
-            Authorization:
-              `Bearer ${session?.access_token}`
+        const {
+          data: { session }
+        } =
+          await supabase.auth
+            .getSession()
 
-          },
+        const formData =
+          new FormData()
 
-          body: JSON.stringify({
+        formData.append(
+          "file",
+          file
+        )
 
-            evidence_images: [
-              imageUrl
-            ]
+        const uploadResponse =
+          await fetch(
+            "/api/admin/raffles/results/upload",
+            {
+              method: "POST",
 
-          })
+              headers: {
 
+                Authorization:
+                  `Bearer ${session?.access_token}`
+
+              },
+
+              body: formData
+            }
+          )
+
+        const uploadJson =
+          await uploadResponse.json()
+
+        if (!uploadResponse.ok) {
+
+          alert(
+            "Error subiendo archivo"
+          )
+
+          return
         }
-      )
 
-    if (!response.ok) {
+        const response =
+          await fetch(
+            `/api/admin/raffles/results/${resultId}`,
+            {
+              method: "PATCH",
 
-      alert(
-        "Error guardando evidencia"
-      )
+              headers: {
 
-      return
+                "Content-Type":
+                  "application/json",
+
+                Authorization:
+                  `Bearer ${session?.access_token}`
+
+              },
+
+              body: JSON.stringify({
+
+                evidence_images: [
+                  uploadJson.url
+                ]
+
+              })
+
+            }
+          )
+
+        if (!response.ok) {
+
+          alert(
+            "Error guardando evidencia"
+          )
+
+          return
+        }
+
+        await loadResults()
+
+      } catch (error) {
+
+        console.error(error)
+
+      }
     }
 
-    await loadResults()
-
-  } catch (error) {
-
-    console.error(error)
-
-  }
+  input.click()
 
 }
 
