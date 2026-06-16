@@ -171,15 +171,16 @@ const {
     .schema("raffles")
     .from("raffle_results")
     .select(`
-      id,
-      ticket_code,
-      prize_title,
-      prize_position,
-      winner_name,
-      visibility_mode,
-      delivery_status,
-      evidence_images
-    `)
+  id,
+  ticket_code,
+  prize_title,
+  prize_position,
+  winner_name,
+  visibility_mode,
+  delivery_status,
+  evidence_images,
+  evidence_videos
+`)
     .eq(
       "raffle_id",
       raffle.id
