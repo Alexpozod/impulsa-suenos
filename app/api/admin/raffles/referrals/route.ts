@@ -34,8 +34,15 @@ export async function GET() {
   }
 
   const baseUrl =
+
+  (
     process.env.NEXT_PUBLIC_APP_URL ||
-    "http://localhost:3000"
+
+    process.env.NEXT_PUBLIC_SITE_URL ||
+
+    "https://impulsasuenos.com"
+
+  ).replace(/\/$/, "")
 
   const referrals =
     (data ?? []).map(
