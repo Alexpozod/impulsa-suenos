@@ -42,7 +42,8 @@ export async function calculateAffiliateWallet(
   }
 
   let generated = 0
-  let paid = 0
+    let paid = 0
+    let pending = 0
 
   for (const row of data) {
 
@@ -73,22 +74,68 @@ export async function calculateAffiliateWallet(
 
   }
 
-  const available =
-    Math.max(
-      generated - paid,
+  const {
+
+  data: pendingRequests
+
+} = await supabase
+  .schema("raffles")
+  .from(
+    "affiliate_payout_requests"
+  )
+  .select(
+    "amount_clp"
+  )
+  .eq(
+    "affiliate_id",
+    affiliateId
+  )
+  .eq(
+    "status",
+    "pending"
+  )
+
+pending =
+  (pendingRequests ?? [])
+    .reduce(
+
+      (
+        sum:number,
+        row:any
+      ) =>
+
+        sum +
+
+        Math.abs(
+
+          Number(
+            row.amount_clp || 0
+          )
+
+        ),
+
       0
+
     )
+
+  const available =
+  Math.max(
+    generated -
+    paid -
+    pending,
+    0
+  )
 
   return {
 
-    generated,
+  generated,
 
-    paid,
+  paid,
 
-    pending: 0,
+  pending,
 
-    available
+  available
 
-  }
+}
 
 }
