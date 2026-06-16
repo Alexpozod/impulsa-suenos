@@ -18,6 +18,9 @@ export default function ReferralDetailPage() {
 const [summary,setSummary] =
   useState<any>(null)
 
+  const [ledger,setLedger] =
+  useState<any[]>([])
+
   useEffect(()=>{
 
     load()
@@ -34,7 +37,9 @@ const [summary,setSummary] =
 
   referralRes,
 
-  summaryRes
+  summaryRes,
+
+  ledgerRes
 
 ] = await Promise.all([
 
@@ -44,6 +49,10 @@ const [summary,setSummary] =
 
   fetch(
     `/api/admin/raffles/referrals/${id}/summary`
+  ),
+
+  fetch(
+    `/api/admin/raffles/referrals/${id}/ledger`
   )
 
 ])
@@ -54,12 +63,19 @@ const referralJson =
 const summaryJson =
   await summaryRes.json()
 
+const ledgerJson =
+  await ledgerRes.json()
+
 setReferral(
   referralJson.referral ?? null
 )
 
 setSummary(
   summaryJson
+)
+
+setLedger(
+  ledgerJson.ledger ?? []
 )
 
     }
@@ -234,24 +250,169 @@ setSummary(
 
         <div>
 
-          <strong>Estado:</strong>{" "}
+  <strong>Estado:</strong>{" "}
 
-          {
+  {
 
-            referral?.active
+    referral?.active
 
-            ? "🟢 Activo"
+    ? "🟢 Activo"
 
-            : "🔴 Inactivo"
+    : "🔴 Inactivo"
 
-          }
+  }
 
-        </div>
+</div>
 
-      </div>
+</div>
 
-    </div>
+<div
+  className="
+  bg-slate-900
+  border
+  border-slate-800
+  rounded-3xl
+  overflow-hidden
+  "
+>
 
-  )
+  <div className="p-6 border-b border-slate-800">
+
+    <h2 className="text-xl font-semibold">
+
+      Historial de Recompensas
+
+    </h2>
+
+  </div>
+
+  <table className="w-full">
+
+    <thead>
+
+      <tr>
+
+        <th className="p-4 text-left">
+
+          Fecha
+
+        </th>
+
+        <th className="p-4 text-left">
+
+          Tipo
+
+        </th>
+
+        <th className="p-4 text-left">
+
+          Monto
+
+        </th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      {
+
+        ledger.length === 0
+
+        ? (
+
+          <tr>
+
+            <td
+              colSpan={3}
+              className="
+              p-6
+              text-center
+              text-slate-500
+              "
+            >
+
+              Sin movimientos
+
+            </td>
+
+          </tr>
+
+        )
+
+        : (
+
+          ledger.map(
+
+            (item:any)=>(
+
+              <tr
+                key={item.id}
+                className="
+                border-t
+                border-slate-800
+                "
+              >
+
+                <td className="p-4">
+
+                  {
+
+                    item.created_at
+
+                    ?
+
+                    new Date(
+                      item.created_at
+                    ).toLocaleString("es-CL")
+
+                    :
+
+                    "-"
+
+                  }
+
+                </td>
+
+                <td className="p-4">
+
+                  {item.type}
+
+                </td>
+
+                <td className="p-4 font-semibold">
+
+                  $
+
+                  {Math.abs(
+
+                    Number(
+                      item.amount_clp || 0
+                    )
+
+                  ).toLocaleString("es-CL")}
+
+                </td>
+
+              </tr>
+
+            )
+
+          )
+
+        )
+
+      }
+
+    </tbody>
+
+  </table>
+
+</div>
+
+</div>
+
+)
 
 }
