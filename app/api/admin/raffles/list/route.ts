@@ -218,14 +218,16 @@ await requireRaffleAdmin({
       )
 
       return {
-        ...raffle,
+  ...raffle,
 
-        revenue,
+  revenue,
 
-        tickets_sold: raffleTickets.length,
+  sold_ticket_count:
+    raffleTickets.length,
 
-        total_orders: raffleOrders.length
-      }
+  total_orders:
+    raffleOrders.length
+}
     })
 
     // =========================

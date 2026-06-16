@@ -69,6 +69,11 @@ export default function RafflesManagePage() {
       const json =
         await res.json()
 
+        console.log(
+  "RAFFLES API RESPONSE",
+  json
+)
+
       setRaffles(
         json?.raffles || []
       )
