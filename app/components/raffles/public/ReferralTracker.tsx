@@ -22,21 +22,10 @@ export default function ReferralTracker() {
 
 try {
 
-    localStorage.setItem(
-
-        "raffle_referral",
-
-        ref
-
-    )
-
-    sessionStorage.setItem(
-
-        "raffle_referral",
-
-        ref
-
-    )
+   sessionStorage.setItem(
+  "raffle_referral",
+  ref
+)
 
     fetch(
 

@@ -193,11 +193,6 @@ searchParams.get("aff")
 
 if (aff) {
 
-  localStorage.setItem(
-    "raffle_affiliate",
-    aff
-  )
-
   sessionStorage.setItem(
     "raffle_affiliate",
     aff
@@ -209,13 +204,6 @@ if (aff) {
 else {
 
   const saved =
-
-    localStorage.getItem(
-      "raffle_affiliate"
-    )
-
-    ||
-
     sessionStorage.getItem(
       "raffle_affiliate"
     )
@@ -331,7 +319,7 @@ try {
 
   const storedAffiliate =
 
-    localStorage.getItem(
+    sessionStorage.getItem(
       "raffle_affiliate"
     )
 
@@ -479,12 +467,6 @@ try {
 
   const affiliateCode =
 
-  localStorage.getItem(
-    "raffle_affiliate"
-  )
-
-  ||
-
   sessionStorage.getItem(
     "raffle_affiliate"
   )
@@ -494,12 +476,6 @@ try {
   undefined
 
 const referralCode =
-
-  localStorage.getItem(
-    "raffle_referral"
-  )
-
-  ||
 
   sessionStorage.getItem(
     "raffle_referral"

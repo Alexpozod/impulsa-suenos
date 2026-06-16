@@ -22,21 +22,10 @@ export default function AffiliateTracker() {
 
 try {
 
-    localStorage.setItem(
-
-        "raffle_affiliate",
-
-        aff
-
-    )
-
     sessionStorage.setItem(
-
-        "raffle_affiliate",
-
-        aff
-
-    )
+  "raffle_affiliate",
+  aff
+)
 
     fetch(
 
