@@ -5,6 +5,38 @@ import {
   useState
 } from "react"
 
+function maskWinnerName(
+  name?: string
+) {
+
+  if (!name) {
+    return "Ganador verificado"
+  }
+
+  const parts =
+    name
+      .trim()
+      .split(/\s+/)
+
+  if (parts.length === 1) {
+    return parts[0]
+  }
+
+  const firstName =
+    parts[0]
+
+  const initials =
+    parts
+      .slice(1)
+      .map(
+        part =>
+          `${part.charAt(0).toUpperCase()}.`
+      )
+      .join(" ")
+
+  return `${firstName} ${initials}`
+}
+
 export default function WinnersPage() {
 
   const [loading, setLoading] =
@@ -327,11 +359,11 @@ export default function WinnersPage() {
 </div>
 
 <div className="text-slate-300 mb-2">
-  📅 <strong>Fecha:</strong>{" "}
+  📅 <strong>Publicado:</strong>{" "}
   {
-    winner.raffle?.end_date
+    winner.created_at
       ? new Date(
-          winner.raffle.end_date
+          winner.created_at
         ).toLocaleDateString("es-CL")
       : "-"
   }
@@ -339,7 +371,9 @@ export default function WinnersPage() {
 
             <div className="text-slate-300 mb-2">
             👤 <strong>Ganador:</strong>{" "}
-            {winner.winner_name}
+            {maskWinnerName(
+              winner.winner_name
+            )}
             </div>
 
             <div className="text-slate-300 mb-4">

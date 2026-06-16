@@ -21,15 +21,16 @@ export async function GET() {
         .schema("raffles")
         .from("raffle_results")
         .select(`
-            id,
-            raffle_id,
-            ticket_code,
-            prize_title,
-            prize_position,
-            winner_name,
-            delivery_status,
-            evidence_images
-        `)
+    id,
+    raffle_id,
+    ticket_code,
+    prize_title,
+    prize_position,
+    winner_name,
+    delivery_status,
+    evidence_images,
+    created_at
+`)
         .eq(
           "visibility_mode",
           "public"
