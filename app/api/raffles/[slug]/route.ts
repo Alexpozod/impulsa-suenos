@@ -67,9 +67,14 @@ export async function GET(
           "slug",
           params.slug
         )
-        .eq(
+        .in(
   "status",
-  "active"
+  [
+    "active",
+    "paused",
+    "ended",
+    "completed"
+  ]
 )
         .maybeSingle()
 

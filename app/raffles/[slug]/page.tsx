@@ -368,10 +368,21 @@ p-5
   "
 >
   {
-    raffle.status === "finished"
-      ? "🏆 Sorteo finalizado"
-      : "🎟️ Sorteo activo"
-  }
+  raffle.status === "active"
+    ? "🎟️ Sorteo activo"
+
+  : raffle.status === "paused"
+    ? "⏸️ Sorteo pausado"
+
+  : raffle.status === "ended"
+    ? "🏁 Sorteo finalizado"
+
+  : raffle.status === "completed"
+    ? "🏆 Resultado publicado"
+
+  : "🎟️ Sorteo"
+}
+
 </div>
 
               <h1
@@ -440,8 +451,11 @@ p-5
   "
 >
 {
-  raffle.status === "finished"
+  raffle.status === "ended" ||
+  raffle.status === "completed"
+
     ? "Resultado oficial del sorteo"
+
     : "Participa en este sorteo"
 }
 </h3>
@@ -591,7 +605,7 @@ p-5
 </div>
 
 {
-raffle.status !== "finished" ? (
+raffle.status === "active" ? (
 
 <Link
   href={`/raffles/${raffle.slug}/checkout?qty=${selectedQty}`}
@@ -628,7 +642,18 @@ raffle.status !== "finished" ? (
     text-lg
   "
 >
-🏆 Este sorteo ya fue realizado
+{
+  raffle.status === "paused"
+    ? "⏸️ Sorteo temporalmente pausado"
+
+  : raffle.status === "ended"
+    ? "🏁 Sorteo finalizado"
+
+  : raffle.status === "completed"
+    ? "🏆 Resultado publicado"
+
+  : "No disponible"
+}
 </div>
 
 )
