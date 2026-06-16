@@ -868,7 +868,9 @@ raffle.status === "active" ? (
   <div
     className="
       mt-4
-      space-y-3
+      flex
+      flex-wrap
+      gap-4
     "
   >
 
@@ -883,6 +885,7 @@ raffle.status === "active" ? (
           controls
           className="
             w-full
+            max-w-sm
             rounded-xl
             border
             border-slate-700

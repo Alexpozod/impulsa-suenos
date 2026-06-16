@@ -476,7 +476,9 @@ export default function WinnersPage() {
   <div
     className="
       mt-6
-      space-y-4
+      flex
+      flex-wrap
+      gap-4
     "
   >
 
@@ -496,14 +498,17 @@ export default function WinnersPage() {
         index:number
       ) => (
 
-        <video
-          key={index}
-          controls
-          className="
-            w-full
-            rounded-2xl
-          "
-        >
+       <video
+  key={index}
+  controls
+  className="
+    w-full
+    max-w-sm
+    rounded-xl
+    border
+    border-slate-700
+  "
+>
           <source src={video} />
         </video>
 
