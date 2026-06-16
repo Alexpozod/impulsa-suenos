@@ -753,37 +753,82 @@ raffle.status === "active" ? (
           "
         >
 
-          <div>
+          <div
+  className="
+    flex
+    items-start
+    justify-between
+    gap-4
+    flex-wrap
+  "
+>
 
-            <strong>
-              {winner.prize_title}
-            </strong>
+  <div>
 
-          </div>
+    <div
+      className="
+        text-yellow-400
+        text-xs
+        uppercase
+        tracking-wider
+        font-semibold
+        mb-1
+      "
+    >
+      🏆 Premio
+    </div>
 
-          <div>
+    <h3
+      className="
+        text-xl
+        font-black
+        mb-3
+      "
+    >
+      {winner.prize_title}
+    </h3>
 
-            Ticket:
-            {" "}
-            {winner.ticket_code}
+    <div className="text-slate-300">
+      👤 Ganador:
+      {" "}
+      {winner.winner_name}
+    </div>
 
-          </div>
+    <div className="text-slate-300 mt-1">
+      🎟 Ticket:
+      {" "}
+      {winner.ticket_code}
+    </div>
 
-          <div>
+  </div>
 
-            Ganador:
-            {" "}
-            {winner.winner_name}
+  <div>
 
-          </div>
+    <div
+      className={`
+        px-4
+        py-2
+        rounded-full
+        text-sm
+        font-semibold
 
-          <div>
+        ${
+          winner.delivery_status === "delivered"
+            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+            : "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+        }
+      `}
+    >
+      {
+        winner.delivery_status === "delivered"
+          ? "🟢 Premio entregado"
+          : "🟡 Entrega en coordinación"
+      }
+    </div>
 
-            Estado:
-            {" "}
-            {winner.delivery_status}
+  </div>
 
-          </div>
+</div>
 
           {(winner.evidence_images ?? []).length > 0 && (
 
