@@ -231,44 +231,65 @@ async function addEvidence(
           await supabase.auth
             .getSession()
 
-        const formData =
-          new FormData()
+        const extension =
+  file.name
+    .split(".")
+    .pop()
 
-        formData.append(
-          "file",
-          file
-        )
+const fileName =
+  `${Date.now()}-${crypto.randomUUID()}.${extension}`
 
-        const uploadResponse =
-          await fetch(
-            "/api/admin/raffles/results/upload",
-            {
-              method: "POST",
+const path =
+  `results/${fileName}`
 
-              headers: {
+const {
+  error: uploadError
+} =
+  await supabase.storage
+    .from(
+      "raffle-evidence"
+    )
+    .upload(
+      path,
+      file,
+      {
+        contentType:
+          file.type
+      }
+    )
 
-                Authorization:
-                  `Bearer ${session?.access_token}`
+if (uploadError) {
 
-              },
+  console.error(
+    uploadError
+  )
 
-              body: formData
-            }
-          )
+  alert(
+    "Error subiendo archivo"
+  )
 
-        const uploadJson =
-          await uploadResponse.json()
+  return
+}
 
-        if (!uploadResponse.ok) {
+const {
+  data: publicData
+} =
+  supabase.storage
+    .from(
+      "raffle-evidence"
+    )
+    .getPublicUrl(
+      path
+    )
 
-          alert(
-            "Error subiendo archivo"
-          )
+const uploadJson = {
 
-          return
-        }
+  url:
+    publicData.publicUrl
 
-        const currentResult =
+}
+
+const currentResult =
   results.find(
     item =>
       item.id === resultId
