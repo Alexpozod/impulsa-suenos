@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 
 export default function ReferralDetailPage() {
@@ -8,7 +9,79 @@ export default function ReferralDetailPage() {
 
   const id = String(params.id)
 
-  return (
+  const [loading,setLoading] =
+    useState(true)
+
+  const [referral,setReferral] =
+    useState<any>(null)
+
+  useEffect(()=>{
+
+    load()
+
+  },[])
+
+  async function load(){
+
+    try{
+
+      setLoading(true)
+
+      const res =
+        await fetch(
+          `/api/admin/raffles/referrals/${id}`
+        )
+
+      const json =
+        await res.json()
+
+      setReferral(
+        json.referral ?? null
+      )
+
+    }
+
+    finally{
+
+      setLoading(false)
+
+    }
+
+  }
+
+  if(loading){
+
+    return(
+
+      <div className="space-y-6">
+
+        <h1 className="text-3xl font-bold">
+
+          🎁 Detalle Referido
+
+        </h1>
+
+        <div
+          className="
+          bg-slate-900
+          border
+          border-slate-800
+          rounded-3xl
+          p-6
+          "
+        >
+
+          Cargando...
+
+        </div>
+
+      </div>
+
+    )
+
+  }
+
+  return(
 
     <div className="space-y-6">
 
@@ -35,10 +108,60 @@ export default function ReferralDetailPage() {
         border-slate-800
         rounded-3xl
         p-6
+        space-y-3
         "
       >
 
-        Próximamente dashboard del referido
+        <div>
+
+          <strong>Código:</strong>{" "}
+
+          {referral?.code}
+
+        </div>
+
+        <div>
+
+          <strong>Email:</strong>{" "}
+
+          {referral?.owner_email}
+
+        </div>
+
+        <div>
+
+          <strong>Reward:</strong>{" "}
+
+          {referral?.reward_value}
+
+          {
+
+            referral?.reward_type ===
+            "percentage"
+
+            ? "%"
+
+            : " CLP"
+
+          }
+
+        </div>
+
+        <div>
+
+          <strong>Estado:</strong>{" "}
+
+          {
+
+            referral?.active
+
+            ? "🟢 Activo"
+
+            : "🔴 Inactivo"
+
+          }
+
+        </div>
 
       </div>
 
