@@ -34,15 +34,7 @@ export async function GET() {
   }
 
   const baseUrl =
-
-  (
-    process.env.NEXT_PUBLIC_APP_URL ||
-
-    process.env.NEXT_PUBLIC_SITE_URL ||
-
-    "https://impulsasuenos.com"
-
-  ).replace(/\/$/, "")
+  "https://impulsasuenos.com"
 
 const { data: raffles } =
   await supabase
