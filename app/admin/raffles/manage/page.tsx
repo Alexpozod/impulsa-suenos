@@ -850,19 +850,36 @@ Próximo módulo
 )}
 
                       {(raffle.status === "ended" ||
-                        raffle.status === "completed") && (
+  raffle.status === "completed") && (
 
-                        <ActionButton
-                          label="Export"
-                          color="blue"
-                          onClick={() =>
-                            exportExcel(
-                              raffle.id
-                            )
-                          }
-                        />
+  <>
 
-                      )}
+    <Link
+      href={`/admin/raffles/results/${raffle.id}`}
+      className="
+        px-3 py-2
+        rounded-xl
+        bg-emerald-600
+        hover:bg-emerald-500
+        text-sm
+      "
+    >
+      Resultados
+    </Link>
+
+    <ActionButton
+      label="Export"
+      color="blue"
+      onClick={() =>
+        exportExcel(
+          raffle.id
+        )
+      }
+    />
+
+  </>
+
+)}
 
                       <Link
                         href={`/raffles/${raffle.slug}`}
