@@ -112,8 +112,14 @@ export default function EditRafflePage() {
             ?.slice(0,16) || "",
 
         draw_date:
-          json.raffle.draw_date
-            ?.slice(0,16) || ""
+  json.raffle.draw_date
+    ?.slice(0,16) || "",
+
+legal_terms:
+  json.raffle.legal_terms || "",
+
+rules:
+  json.raffle.rules || ""
 
       })
 
@@ -294,6 +300,28 @@ export default function EditRafflePage() {
           })
         }
       />
+
+<Textarea
+  label="Bases Legales"
+  value={form.legal_terms}
+  onChange={(v:string)=>
+    setForm({
+      ...form,
+      legal_terms:v
+    })
+  }
+/>
+
+<Textarea
+  label="Reglas"
+  value={form.rules}
+  onChange={(v:string)=>
+    setForm({
+      ...form,
+      rules:v
+    })
+  }
+/>
 
       <Input
         label="Valor Ticket"
