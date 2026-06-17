@@ -198,37 +198,6 @@ rules:
 
 }
 
-<div>
-
-  <input
-
-    type="file"
-
-    accept="image/*"
-
-    multiple
-
-    onChange={async e => {
-
-      const files =
-        Array.from(
-          e.target.files || []
-        )
-
-      for (const file of files) {
-
-        await uploadGalleryImage(
-          file
-        )
-
-      }
-
-    }}
-
-  />
-
-</div>
-
   async function save() {
 
     try {
@@ -422,6 +391,45 @@ rules:
   <p className="font-semibold">
     Galería
   </p>
+
+  <label
+  className="
+    inline-block
+    px-4
+    py-2
+    rounded-xl
+    bg-blue-600
+    text-white
+    cursor-pointer
+  "
+>
+
+  Agregar Imágenes
+
+  <input
+    type="file"
+    accept="image/*"
+    multiple
+    className="hidden"
+    onChange={async e => {
+
+      const files =
+        Array.from(
+          e.target.files || []
+        )
+
+      for (const file of files) {
+
+        await uploadGalleryImage(
+          file
+        )
+
+      }
+
+    }}
+  />
+
+</label>
 
   {form.gallery?.length > 0 && (
 
