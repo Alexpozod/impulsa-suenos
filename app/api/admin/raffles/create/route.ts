@@ -51,7 +51,11 @@ const schema = z.object({
     ).optional(),
 
   promo_video:
-    z.string().url().optional(),
+  z.union([
+    z.string().url(),
+    z.literal("")
+  ])
+  .optional(),
 
   ticket_price:
     z.coerce.number().min(100),
