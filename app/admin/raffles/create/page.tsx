@@ -296,6 +296,15 @@ if (!session?.access_token) {
    CREATE
 ========================= */
 
+console.log(
+  "FORM CREATE",
+  JSON.stringify(
+    form,
+    null,
+    2
+  )
+)
+
 const res =
   await fetch(
     "/api/admin/raffles/create",

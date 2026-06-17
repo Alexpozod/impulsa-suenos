@@ -172,6 +172,15 @@ await requireRaffleAdmin({
     const data =
       parsed.data
 
+      console.log(
+  "RAFFLE CREATE DATA",
+  JSON.stringify(
+    data,
+    null,
+    2
+  )
+)
+
     /* =========================
        🔒 UNIQUE SLUG
     ========================= */
