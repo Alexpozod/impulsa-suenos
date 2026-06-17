@@ -135,6 +135,100 @@ rules:
 
   }
 
+  async function uploadGalleryImage(
+  file: File
+) {
+
+  try {
+
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+
+    const fileName =
+      `${Date.now()}-${crypto.randomUUID()}.${extension}`
+
+    const path =
+      `raffles/${fileName}`
+
+    const {
+      error
+    } =
+      await supabase.storage
+        .from("raffle-media")
+        .upload(
+          path,
+          file
+        )
+
+    if (error) {
+
+      alert(
+        "Error subiendo imagen"
+      )
+
+      return
+    }
+
+    const { data } =
+      supabase.storage
+        .from("raffle-media")
+        .getPublicUrl(path)
+
+    setForm((prev:any)=>({
+
+      ...prev,
+
+      gallery: [
+
+        ...(prev.gallery || []),
+
+        data.publicUrl
+
+      ]
+
+    }))
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+
+}
+
+<div>
+
+  <input
+
+    type="file"
+
+    accept="image/*"
+
+    multiple
+
+    onChange={async e => {
+
+      const files =
+        Array.from(
+          e.target.files || []
+        )
+
+      for (const file of files) {
+
+        await uploadGalleryImage(
+          file
+        )
+
+      }
+
+    }}
+
+  />
+
+</div>
+
   async function save() {
 
     try {
@@ -322,6 +416,84 @@ rules:
     })
   }
 />
+
+<div className="space-y-4">
+
+  <p className="font-semibold">
+    Galería
+  </p>
+
+  {form.gallery?.length > 0 && (
+
+    <div
+      className="
+        grid
+        grid-cols-3
+        gap-4
+      "
+    >
+
+      {form.gallery.map(
+        (
+          image:string,
+          index:number
+        ) => (
+
+          <div
+            key={index}
+            className="space-y-2"
+          >
+
+            <img
+              src={image}
+              alt=""
+              className="
+                w-full
+                h-32
+                object-cover
+                rounded-xl
+                border
+              "
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+
+                setForm({
+
+                  ...form,
+
+                  gallery:
+                    form.gallery.filter(
+                      (_:any,i:number)=>
+                        i !== index
+                    )
+
+                })
+
+              }}
+              className="
+                w-full
+                bg-red-600
+                text-white
+                py-2
+                rounded-xl
+              "
+            >
+              Eliminar Imagen
+            </button>
+
+          </div>
+
+        )
+      )}
+
+    </div>
+
+  )}
+
+</div>
 
       <Input
         label="Valor Ticket"
