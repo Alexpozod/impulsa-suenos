@@ -36,14 +36,22 @@ const schema = z.object({
   description:
     z.string().min(10),
 
-prize_title:
-  z.string().min(3),
+  prize_title:
+    z.string().min(3),
 
-prize_description:
-  z.string().optional(),
+  prize_description:
+    z.string().optional(),
 
   cover_image:
     z.string().url(),
+
+  gallery:
+    z.array(
+      z.string().url()
+    ).optional(),
+
+  promo_video:
+    z.string().url().optional(),
 
   ticket_price:
     z.coerce.number().min(100),
@@ -61,16 +69,16 @@ prize_description:
     z.coerce.number(),
 
   currency:
-  z.string(),
+    z.string(),
 
-start_date:
-  z.string().optional(),
+  start_date:
+    z.string().optional(),
 
-end_date:
-  z.string().optional(),
+  end_date:
+    z.string().optional(),
 
-draw_date:
-  z.string().optional()
+  draw_date:
+    z.string().optional()
 
 })
 
