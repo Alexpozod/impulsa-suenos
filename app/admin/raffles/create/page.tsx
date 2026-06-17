@@ -48,7 +48,13 @@ export default function CreateRafflePage() {
 
       min_tickets_goal: 1,
 
-      currency: "CLP"
+      currency: "CLP",
+
+      start_date: "",
+
+      end_date: "",
+
+      draw_date: ""
 
     })
 
@@ -294,6 +300,42 @@ const res =
             })
           }
         />
+
+<Input
+  label="Fecha Inicio"
+  type="datetime-local"
+  value={form.start_date}
+  onChange={(v:string) =>
+    setForm({
+      ...form,
+      start_date: v
+    })
+  }
+/>
+
+<Input
+  label="Fecha Cierre"
+  type="datetime-local"
+  value={form.end_date}
+  onChange={(v:string) =>
+    setForm({
+      ...form,
+      end_date: v
+    })
+  }
+/>
+
+<Input
+  label="Fecha Sorteo"
+  type="datetime-local"
+  value={form.draw_date}
+  onChange={(v:string) =>
+    setForm({
+      ...form,
+      draw_date: v
+    })
+  }
+/>
 
         <button
           onClick={submit}

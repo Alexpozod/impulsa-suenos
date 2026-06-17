@@ -61,7 +61,16 @@ prize_description:
     z.coerce.number(),
 
   currency:
-    z.string()
+  z.string(),
+
+start_date:
+  z.string().optional(),
+
+end_date:
+  z.string().optional(),
+
+draw_date:
+  z.string().optional()
 
 })
 
@@ -227,6 +236,15 @@ await requireRaffleAdmin({
 
           currency:
             data.currency,
+
+          start_date:
+            data.start_date || null,
+
+          end_date:
+            data.end_date || null,
+
+          draw_date:
+            data.draw_date || null,
 
           created_by:
             user.id,
