@@ -41,6 +41,9 @@ export default function CreateRafflePage() {
 
       cover_image: "",
 
+      gallery: [] as string[],
+promo_video: "",
+
       ticket_price: "",
 
       ticket_prefix: "RAF",
@@ -126,6 +129,75 @@ export default function CreateRafflePage() {
   } finally {
 
     setUploading(false)
+
+  }
+
+}
+
+async function uploadGalleryImage(
+  file: File
+) {
+
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth
+        .getSession()
+
+    const formData =
+      new FormData()
+
+    formData.append(
+      "file",
+      file
+    )
+
+    const response =
+      await fetch(
+        "/api/admin/raffles/media/upload",
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${session?.access_token}`
+          },
+
+          body: formData
+        }
+      )
+
+    const json =
+      await response.json()
+
+    if (!response.ok) {
+
+      alert(
+        "Error subiendo imagen"
+      )
+
+      return
+    }
+
+    setForm(prev => ({
+
+      ...prev,
+
+      gallery: [
+
+        ...prev.gallery,
+
+        json.url
+
+      ]
+
+    }))
+
+  } catch (error) {
+
+    console.error(error)
 
   }
 
@@ -347,6 +419,84 @@ const res =
     />
 
   )}
+
+  <div className="mt-6">
+
+  <label
+    className="
+      block
+      text-sm
+      font-medium
+      mb-2
+    "
+  >
+    Galería del Sorteo
+  </label>
+
+  <input
+
+    type="file"
+
+    accept="image/*"
+
+    multiple
+
+    onChange={async e => {
+
+      const files =
+        Array.from(
+          e.target.files || []
+        )
+
+      for (const file of files) {
+
+        await uploadGalleryImage(
+          file
+        )
+
+      }
+
+    }}
+
+  />
+
+  {form.gallery.length > 0 && (
+
+    <div
+      className="
+        mt-4
+        grid
+        grid-cols-3
+        gap-3
+      "
+    >
+
+      {form.gallery.map(
+        (
+          image,
+          index
+        ) => (
+
+          <img
+            key={index}
+            src={image}
+            alt=""
+            className="
+              rounded-xl
+              border
+              h-32
+              object-cover
+            "
+          />
+
+        )
+      )}
+
+    </div>
+
+  )}
+
+</div>
 
 </div>
 
