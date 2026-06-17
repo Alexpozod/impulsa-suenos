@@ -568,6 +568,10 @@ Próximo módulo
               Ended
             </option>
 
+            <option value="cancelled">
+              Cancelled
+            </option>
+
           </select>
 
           <button
@@ -1054,6 +1058,9 @@ function StatusBadge({
 
     ended:
       "bg-red-900/40 text-red-300",
+
+      cancelled:
+    "bg-slate-700 text-slate-300",
 
     completed:
       "bg-purple-900/40 text-purple-300"
