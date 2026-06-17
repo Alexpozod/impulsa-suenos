@@ -77,16 +77,25 @@ export default function RafflePage() {
     useState<ApiResponse | null>(null)
 
   const [loading, setLoading] =
-    useState(true)
-  
+  useState(true)
+
 const [selectedQty, setSelectedQty] =
-  useState(3)    
+  useState(3)
+
+const [activeMedia, setActiveMedia] =
+  useState(0)
 
   useEffect(() => {
 
   loadRaffle()
 
 }, [])
+
+useEffect(() => {
+
+  setActiveMedia(0)
+
+}, [raffle?.id])
 
   async function loadRaffle() {
 
@@ -114,6 +123,42 @@ const [selectedQty, setSelectedQty] =
   
     const raffle =
   data?.raffle
+
+  const mediaItems: {
+  type: "image" | "video"
+  url: string
+}[] =
+  raffle
+    ? [
+
+        {
+          type: "image",
+          url: raffle.cover_image
+        },
+
+        ...(raffle.gallery || [])
+
+          .filter(
+            url =>
+              url !== raffle.cover_image
+          )
+
+          .map(url => ({
+            type: "image" as const,
+            url
+          })),
+
+        ...(raffle.promo_video
+          ? [
+              {
+                type: "video" as const,
+                url: raffle.promo_video
+              }
+            ]
+          : [])
+
+      ]
+    : []
 
   const winners =
   data?.winners || []
@@ -231,81 +276,200 @@ const [selectedQty, setSelectedQty] =
 
           <div>
 
-           <img
-            src={
-                raffle.cover_image ||
-                "/placeholder.jpg"
-            }
-              alt={raffle.title}
-              className="
-                w-full
-                rounded-3xl
-                border
-                border-slate-800
-              "
+  {mediaItems.length > 0 && (
+
+    <>
+
+      <div
+        className="
+          relative
+        "
+      >
+
+        {mediaItems[
+          activeMedia
+        ]?.type === "video" ? (
+
+          <video
+  key={mediaItems[activeMedia]?.url}
+  controls
+            className="
+              w-full
+              aspect-video
+              object-contain
+              rounded-3xl
+              border
+              border-slate-800
+            "
+          >
+            <source
+              src={
+                mediaItems[
+                  activeMedia
+                ].url
+              }
             />
+          </video>
 
-{raffle.promo_video && (
+        ) : (
 
-  <div className="mt-4">
+          <img
+            src={
+              mediaItems[
+                activeMedia
+              ]?.url
+            }
+            alt=""
+            className="
+              w-full
+              aspect-video
+              object-cover
+              rounded-3xl
+              border
+              border-slate-800
+            "
+          />
 
-    <video
-      controls
-      className="
-        w-full
-        rounded-3xl
-        border
-        border-slate-800
-      "
-    >
-      <source
-        src={raffle.promo_video}
-      />
-    </video>
+        )}
 
-  </div>
+        {mediaItems.length > 1 && (
 
-)}
+          <>
 
-{Array.isArray(raffle.gallery) &&
-  raffle.gallery.length > 0 && (
+            <button
+              type="button"
+              onClick={() =>
+                setActiveMedia(
+                  activeMedia === 0
+                    ? mediaItems.length - 1
+                    : activeMedia - 1
+                )
+              }
+              className="
+                absolute
+                left-3
+                top-1/2
+                -translate-y-1/2
+                z-10
+                h-10
+                w-10
+                rounded-full
+                bg-black/70
+              "
+            >
+              ←
+            </button>
 
-  <div
-    className="
-      mt-4
-      grid
-      grid-cols-2
-      md:grid-cols-3
-      gap-3
-    "
-  >
+            <button
+              type="button"
+              onClick={() =>
+                setActiveMedia(
+                  activeMedia ===
+                  mediaItems.length - 1
+                    ? 0
+                    : activeMedia + 1
+                )
+              }
+              className="
+                absolute
+                right-3
+                top-1/2
+                -translate-y-1/2
+                z-10
+                h-10
+                w-10
+                rounded-full
+                bg-black/70
+              "
+            >
+              →
+            </button>
 
-    {raffle.gallery.map(
-      (
-        image:string,
-        index:number
-      ) => (
+          </>
 
-        <img
-          key={index}
-          src={image}
-          alt=""
-          className="
-            h-32
-            w-full
-            object-cover
-            rounded-xl
-            border
-            border-slate-800
-          "
-        />
+        )}
 
-      )
-    )}
+      </div>
 
-  </div>
+      <div
+        className="
+          mt-4
+          flex
+          gap-3
+          overflow-x-auto
+        "
+      >
 
-)}
+        {mediaItems.map(
+          (
+            item,
+            index
+          ) => (
+
+            <button
+              key={index}
+              type="button"
+              onClick={() =>
+                setActiveMedia(
+                  index
+                )
+              }
+              className={`
+                shrink-0
+                rounded-xl
+                overflow-hidden
+                border-2
+
+                ${
+                 activeMedia === index
+  ? "border-blue-500 scale-105"
+  : "border-slate-700 opacity-70"
+                }
+              `}
+            >
+
+              {item.type === "video" ? (
+
+                <div
+                  className="
+                    w-24
+                    h-24
+                    bg-slate-900
+                    flex
+                    items-center
+                    justify-center
+                    text-2xl
+                  "
+                >
+                  ▶️
+                </div>
+
+              ) : (
+
+                <img
+                  src={item.url}
+                  alt=""
+                  className="
+                    w-24
+                    h-24
+                    object-cover
+                  "
+                />
+
+              )}
+
+            </button>
+
+          )
+        )}
+
+      </div>
+
+    </>
+
+  )}
+
+</div>   
 
 <div
   className="
