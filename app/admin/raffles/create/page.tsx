@@ -203,6 +203,74 @@ async function uploadGalleryImage(
 
 }
 
+async function uploadPromoVideo(
+  file: File
+) {
+
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth
+        .getSession()
+
+    const formData =
+      new FormData()
+
+    formData.append(
+      "file",
+      file
+    )
+
+    const response =
+      await fetch(
+        "/api/admin/raffles/media/upload",
+        {
+          method: "POST",
+
+          headers: {
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          },
+
+          body: formData
+
+        }
+      )
+
+    const json =
+      await response.json()
+
+    if (!response.ok) {
+
+      alert(
+        "Error subiendo video"
+      )
+
+      return
+
+    }
+
+    setForm(prev => ({
+
+      ...prev,
+
+      promo_video:
+        json.url
+
+    }))
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+
+}
+
   async function submit() {
 
     try {
@@ -493,6 +561,61 @@ const res =
       )}
 
     </div>
+
+  )}
+
+</div>
+
+<div className="mt-6">
+
+  <label
+    className="
+      block
+      text-sm
+      font-medium
+      mb-2
+    "
+  >
+    Video Promocional
+  </label>
+
+  <input
+
+    type="file"
+
+    accept="video/*"
+
+    onChange={async e => {
+
+      const file =
+        e.target.files?.[0]
+
+      if (!file) return
+
+      await uploadPromoVideo(
+        file
+      )
+
+    }}
+
+  />
+
+  {form.promo_video && (
+
+    <video
+      controls
+      className="
+        mt-4
+        w-full
+        max-w-md
+        rounded-xl
+        border
+      "
+    >
+      <source
+        src={form.promo_video}
+      />
+    </video>
 
   )}
 
