@@ -23,6 +23,9 @@ export default function CreateRafflePage() {
   const [loading, setLoading] =
     useState(false)
 
+    const [uploading, setUploading] =
+  useState(false)
+
   const [form, setForm] =
     useState({
 
@@ -57,6 +60,76 @@ export default function CreateRafflePage() {
       draw_date: ""
 
     })
+
+    async function uploadCoverImage(
+  file: File
+) {
+
+  try {
+
+    setUploading(true)
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth
+        .getSession()
+
+    const formData =
+      new FormData()
+
+    formData.append(
+      "file",
+      file
+    )
+
+    const response =
+      await fetch(
+        "/api/admin/raffles/media/upload",
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${session?.access_token}`
+          },
+
+          body: formData
+        }
+      )
+
+    const json =
+      await response.json()
+
+    if (!response.ok) {
+
+      alert(
+        "Error subiendo imagen"
+      )
+
+      return
+    }
+
+    setForm(prev => ({
+
+      ...prev,
+
+      cover_image:
+        json.url
+
+    }))
+
+  } catch (error) {
+
+    console.error(error)
+
+  } finally {
+
+    setUploading(false)
+
+  }
+
+}
 
   async function submit() {
 
@@ -216,16 +289,66 @@ const res =
   }
 />
 
-        <Input
-          label="Imagen URL"
-          value={form.cover_image}
-          onChange={(v: string) =>
-            setForm({
-              ...form,
-              cover_image: v
-            })
-          }
-        />
+        <div>
+
+  <label
+    className="
+      block
+      text-sm
+      font-medium
+      mb-2
+    "
+  >
+    Imagen Principal
+  </label>
+
+  <input
+
+    type="file"
+
+    accept="image/*"
+
+    onChange={async e => {
+
+      const file =
+        e.target.files?.[0]
+
+      if (!file) return
+
+      await uploadCoverImage(
+        file
+      )
+
+    }}
+
+  />
+
+  {uploading && (
+
+    <p className="mt-2">
+
+      Subiendo...
+
+    </p>
+
+  )}
+
+  {form.cover_image && (
+
+    <img
+      src={form.cover_image}
+      alt="cover"
+      className="
+        mt-4
+        rounded-xl
+        border
+        max-h-64
+      "
+    />
+
+  )}
+
+</div>
 
         <Input
           label="Valor ticket"
