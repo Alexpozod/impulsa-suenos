@@ -467,9 +467,7 @@ const [activeMedia, setActiveMedia] =
 
     </>
 
-  )}
-
-</div>   
+    )}
 
 <div
   className="
@@ -1144,10 +1142,11 @@ raffle.status === "active" ? (
 
           </div>
 
-                </div>
+        </div>
 
       </div>
 
     </div>
+
   )
 }
