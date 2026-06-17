@@ -82,7 +82,13 @@ const schema = z.object({
     z.string().optional(),
 
   draw_date:
-    z.string().optional()
+    z.string().optional(),
+
+    legal_terms:
+    z.string().optional(),
+
+  rules:
+    z.string().optional(),
 
 })
 
@@ -272,6 +278,12 @@ promo_video:
 
           draw_date:
             data.draw_date || null,
+
+            legal_terms:
+            data.legal_terms || null,
+
+          rules:
+            data.rules || null,
 
           created_by:
             user.id,

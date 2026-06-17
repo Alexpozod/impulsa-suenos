@@ -124,6 +124,12 @@ draw_date:
     ? body.draw_date
     : null,
 
+    legal_terms:
+  body.legal_terms || null,
+
+rules:
+  body.rules || null,
+
           updated_at:
             new Date()
               .toISOString()
