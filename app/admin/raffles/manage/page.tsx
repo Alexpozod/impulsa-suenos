@@ -894,6 +894,17 @@ Próximo módulo
   Editar
 </Link>
 
+<ActionButton
+  label="Eliminar"
+  color="red"
+  onClick={() =>
+    action(
+      "/api/admin/raffles/delete",
+      raffle.id
+    )
+  }
+/>
+
                       <Link
                         href={`/raffles/${raffle.slug}`}
                         target="_blank"
