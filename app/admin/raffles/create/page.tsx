@@ -72,39 +72,32 @@ promo_video: "",
 
     setUploading(true)
 
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+
+    const fileName =
+      `${Date.now()}-${crypto.randomUUID()}.${extension}`
+
+    const path =
+      `raffles/${fileName}`
+
     const {
-      data: { session }
+      error
     } =
-      await supabase.auth
-        .getSession()
+      await supabase.storage
+        .from(
+          "raffle-media"
+        )
+        .upload(
+          path,
+          file
+        )
 
-    const formData =
-      new FormData()
+    if (error) {
 
-    formData.append(
-      "file",
-      file
-    )
-
-    const response =
-      await fetch(
-        "/api/admin/raffles/media/upload",
-        {
-          method: "POST",
-
-          headers: {
-            Authorization:
-              `Bearer ${session?.access_token}`
-          },
-
-          body: formData
-        }
-      )
-
-    const json =
-      await response.json()
-
-    if (!response.ok) {
+      console.error(error)
 
       alert(
         "Error subiendo imagen"
@@ -113,12 +106,23 @@ promo_video: "",
       return
     }
 
+    const {
+      data
+    } =
+      supabase.storage
+        .from(
+          "raffle-media"
+        )
+        .getPublicUrl(
+          path
+        )
+
     setForm(prev => ({
 
       ...prev,
 
       cover_image:
-        json.url
+        data.publicUrl
 
     }))
 
@@ -140,39 +144,32 @@ async function uploadGalleryImage(
 
   try {
 
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+
+    const fileName =
+      `${Date.now()}-${crypto.randomUUID()}.${extension}`
+
+    const path =
+      `raffles/${fileName}`
+
     const {
-      data: { session }
+      error
     } =
-      await supabase.auth
-        .getSession()
+      await supabase.storage
+        .from(
+          "raffle-media"
+        )
+        .upload(
+          path,
+          file
+        )
 
-    const formData =
-      new FormData()
+    if (error) {
 
-    formData.append(
-      "file",
-      file
-    )
-
-    const response =
-      await fetch(
-        "/api/admin/raffles/media/upload",
-        {
-          method: "POST",
-
-          headers: {
-            Authorization:
-              `Bearer ${session?.access_token}`
-          },
-
-          body: formData
-        }
-      )
-
-    const json =
-      await response.json()
-
-    if (!response.ok) {
+      console.error(error)
 
       alert(
         "Error subiendo imagen"
@@ -180,6 +177,17 @@ async function uploadGalleryImage(
 
       return
     }
+
+    const {
+      data
+    } =
+      supabase.storage
+        .from(
+          "raffle-media"
+        )
+        .getPublicUrl(
+          path
+        )
 
     setForm(prev => ({
 
@@ -189,7 +197,7 @@ async function uploadGalleryImage(
 
         ...prev.gallery,
 
-        json.url
+        data.publicUrl
 
       ]
 
@@ -209,42 +217,32 @@ async function uploadPromoVideo(
 
   try {
 
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+
+    const fileName =
+      `${Date.now()}-${crypto.randomUUID()}.${extension}`
+
+    const path =
+      `raffles/${fileName}`
+
     const {
-      data: { session }
+      error
     } =
-      await supabase.auth
-        .getSession()
+      await supabase.storage
+        .from(
+          "raffle-media"
+        )
+        .upload(
+          path,
+          file
+        )
 
-    const formData =
-      new FormData()
+    if (error) {
 
-    formData.append(
-      "file",
-      file
-    )
-
-    const response =
-      await fetch(
-        "/api/admin/raffles/media/upload",
-        {
-          method: "POST",
-
-          headers: {
-
-            Authorization:
-              `Bearer ${session?.access_token}`
-
-          },
-
-          body: formData
-
-        }
-      )
-
-    const json =
-      await response.json()
-
-    if (!response.ok) {
+      console.error(error)
 
       alert(
         "Error subiendo video"
@@ -254,12 +252,23 @@ async function uploadPromoVideo(
 
     }
 
+    const {
+      data
+    } =
+      supabase.storage
+        .from(
+          "raffle-media"
+        )
+        .getPublicUrl(
+          path
+        )
+
     setForm(prev => ({
 
       ...prev,
 
       promo_video:
-        json.url
+        data.publicUrl
 
     }))
 
