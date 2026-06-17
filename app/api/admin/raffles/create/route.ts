@@ -90,6 +90,9 @@ const schema = z.object({
   rules:
     z.string().optional(),
 
+    legal_document_url:
+  z.string().optional(),
+
 })
 
 export async function POST(
@@ -284,6 +287,9 @@ promo_video:
 
           rules:
             data.rules || null,
+
+            legal_document_url:
+  data.legal_document_url || null,
 
           created_by:
             user.id,

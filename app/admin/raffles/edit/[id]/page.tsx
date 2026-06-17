@@ -119,7 +119,10 @@ legal_terms:
   json.raffle.legal_terms || "",
 
 rules:
-  json.raffle.rules || ""
+  json.raffle.rules || "",
+
+legal_document_url:
+  json.raffle.legal_document_url || ""
 
       })
 
@@ -187,6 +190,64 @@ rules:
         data.publicUrl
 
       ]
+
+    }))
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+
+}
+
+async function uploadLegalPdf(
+  file: File
+) {
+
+  try {
+
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+
+    const fileName =
+      `${Date.now()}-${crypto.randomUUID()}.${extension}`
+
+    const path =
+      `legal/${fileName}`
+
+    const {
+      error
+    } =
+      await supabase.storage
+        .from("raffle-media")
+        .upload(
+          path,
+          file
+        )
+
+    if (error) {
+
+      alert(
+        "Error subiendo PDF"
+      )
+
+      return
+    }
+
+    const { data } =
+      supabase.storage
+        .from("raffle-media")
+        .getPublicUrl(path)
+
+    setForm((prev:any)=>({
+
+      ...prev,
+
+      legal_document_url:
+        data.publicUrl
 
     }))
 
@@ -432,6 +493,64 @@ async function uploadCoverImage(
     })
   }
 />
+
+<div className="space-y-3">
+
+  <p className="font-semibold">
+    PDF Bases Legales
+  </p>
+
+  {form.legal_document_url && (
+
+    <a
+      href={form.legal_document_url}
+      target="_blank"
+      rel="noreferrer"
+      className="
+        text-blue-500
+        underline
+      "
+    >
+      Ver PDF actual
+    </a>
+
+  )}
+
+  <label
+    className="
+      inline-block
+      px-4
+      py-2
+      rounded-xl
+      bg-purple-600
+      text-white
+      cursor-pointer
+    "
+  >
+
+    Subir PDF
+
+    <input
+      type="file"
+      accept=".pdf"
+      className="hidden"
+      onChange={async e => {
+
+        const file =
+          e.target.files?.[0]
+
+        if (!file) return
+
+        await uploadLegalPdf(
+          file
+        )
+
+      }}
+    />
+
+  </label>
+
+</div>
 
 <Textarea
   label="Reglas"

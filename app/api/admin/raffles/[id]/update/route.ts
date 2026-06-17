@@ -127,6 +127,9 @@ draw_date:
     legal_terms:
   body.legal_terms || null,
 
+  legal_document_url:
+  body.legal_document_url || null,
+
 rules:
   body.rules || null,
 
