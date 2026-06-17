@@ -52,6 +52,7 @@ export async function GET(
           cover_image,
           gallery,
           promo_video,
+          legal_document_url,
           ticket_price_clp,
           currency,
           generated_ticket_count,
