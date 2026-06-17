@@ -24,9 +24,11 @@ type RaffleData = {
 
   cover_image: string
 
-  gallery?: string[]
+gallery?: string[]
 
-  ticket_price_clp: number
+promo_video?: string
+
+ticket_price_clp: number
 
   currency: string
 
@@ -242,6 +244,68 @@ const [selectedQty, setSelectedQty] =
                 border-slate-800
               "
             />
+
+{raffle.promo_video && (
+
+  <div className="mt-4">
+
+    <video
+      controls
+      className="
+        w-full
+        rounded-3xl
+        border
+        border-slate-800
+      "
+    >
+      <source
+        src={raffle.promo_video}
+      />
+    </video>
+
+  </div>
+
+)}
+
+{Array.isArray(raffle.gallery) &&
+  raffle.gallery.length > 0 && (
+
+  <div
+    className="
+      mt-4
+      grid
+      grid-cols-2
+      md:grid-cols-3
+      gap-3
+    "
+  >
+
+    {raffle.gallery.map(
+      (
+        image:string,
+        index:number
+      ) => (
+
+        <img
+          key={index}
+          src={image}
+          alt=""
+          className="
+            h-32
+            w-full
+            object-cover
+            rounded-xl
+            border
+            border-slate-800
+          "
+        />
+
+      )
+    )}
+
+  </div>
+
+)}
 
 <div
   className="
