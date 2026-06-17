@@ -28,6 +28,8 @@ gallery?: string[]
 
 promo_video?: string
 
+legal_document_url?: string
+
 ticket_price_clp: number
 
   currency: string
@@ -545,8 +547,10 @@ p-5
     </div>
   </div>
 
-  <Link
-    href={`/raffles/${raffle.slug}/bases`}
+  <a
+    href={raffle.legal_document_url || "#"}
+    target="_blank"
+    rel="noopener noreferrer"
     className="
       inline-flex
       items-center
@@ -563,7 +567,7 @@ p-5
     "
   >
     Ver bases legales
-  </Link>
+</a>
 
 </div>
 
