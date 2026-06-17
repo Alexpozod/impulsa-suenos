@@ -91,12 +91,6 @@ const [activeMedia, setActiveMedia] =
 
 }, [])
 
-useEffect(() => {
-
-  setActiveMedia(0)
-
-}, [raffle?.id])
-
   async function loadRaffle() {
 
     try {
@@ -123,6 +117,12 @@ useEffect(() => {
   
     const raffle =
   data?.raffle
+
+  useEffect(() => {
+
+  setActiveMedia(0)
+
+}, [raffle?.id])
 
   const mediaItems: {
   type: "image" | "video"
@@ -626,7 +626,7 @@ p-5
   Participa por este premio
 </h1>
 
-             <p
+             <div
   className="
     mt-6
     text-slate-300
@@ -635,30 +635,33 @@ p-5
     max-w-xl
   "
 >
-  {raffle.prize_description || raffle.description}
+
+  <p>
+    {raffle.prize_description || raffle.description}
+  </p>
 
   {raffle.end_date && (
 
-  <div
-    className="
-      mt-4
-      text-sm
-      text-slate-400
-    "
-  >
-    📅 Fecha del sorteo:
-    {" "}
-    {
-      new Date(
-        raffle.end_date
-      ).toLocaleDateString(
-        "es-CL"
-      )
-    }
-  </div>
+    <div
+      className="
+        mt-4
+        text-sm
+        text-slate-400
+      "
+    >
+      📅 Fecha del sorteo{" "}
+      {
+        new Date(
+          raffle.end_date
+        ).toLocaleDateString(
+          "es-CL"
+        )
+      }
+    </div>
 
-)}
-</p> 
+  )}
+
+</div>
 
     </div>
   
