@@ -124,15 +124,30 @@ export async function createTicketInventory({
 
   if (insertError) {
 
-    console.error(
-      "createTicketInventory insert error",
-      insertError
-    )
+  console.error(
+    "================================="
+  )
 
-    throw new Error(
-      "inventory_insert_failed"
+  console.error(
+    "TICKET INVENTORY ERROR"
+  )
+
+  console.error(
+    JSON.stringify(
+      insertError,
+      null,
+      2
     )
-  }
+  )
+
+  console.error(
+    "================================="
+  )
+
+  throw new Error(
+    "inventory_insert_failed"
+  )
+}
 
   /* =========================================
      UPDATE GENERATED COUNTER
