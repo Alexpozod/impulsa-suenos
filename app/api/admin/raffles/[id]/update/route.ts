@@ -110,13 +110,19 @@ export async function PUT(
             body.min_tickets_goal,
 
           start_date:
-            body.start_date,
+  body.start_date?.trim()
+    ? body.start_date
+    : null,
 
-          end_date:
-            body.end_date,
+end_date:
+  body.end_date?.trim()
+    ? body.end_date
+    : null,
 
-          draw_date:
-            body.draw_date,
+draw_date:
+  body.draw_date?.trim()
+    ? body.draw_date
+    : null,
 
           updated_at:
             new Date()
