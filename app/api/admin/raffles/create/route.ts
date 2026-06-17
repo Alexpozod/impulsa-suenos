@@ -227,6 +227,12 @@ await requireRaffleAdmin({
           cover_image:
             data.cover_image,
 
+gallery:
+  data.gallery || [],
+
+promo_video:
+  data.promo_video || null,
+
           ticket_price_clp:
             data.ticket_price,
 
