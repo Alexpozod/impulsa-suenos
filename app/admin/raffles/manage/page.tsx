@@ -881,6 +881,19 @@ Próximo módulo
 
 )}
 
+<Link
+  href={`/admin/raffles/edit/${raffle.id}`}
+  className="
+    px-3 py-2
+    rounded-xl
+    bg-blue-600
+    hover:bg-blue-500
+    text-sm
+  "
+>
+  Editar
+</Link>
+
                       <Link
                         href={`/raffles/${raffle.slug}`}
                         target="_blank"
