@@ -198,6 +198,64 @@ rules:
 
 }
 
+async function uploadCoverImage(
+  file: File
+) {
+
+  try {
+
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+
+    const fileName =
+      `${Date.now()}-${crypto.randomUUID()}.${extension}`
+
+    const path =
+      `raffles/${fileName}`
+
+    const {
+      error
+    } =
+      await supabase.storage
+        .from("raffle-media")
+        .upload(
+          path,
+          file
+        )
+
+    if (error) {
+
+      alert(
+        "Error subiendo portada"
+      )
+
+      return
+    }
+
+    const { data } =
+      supabase.storage
+        .from("raffle-media")
+        .getPublicUrl(path)
+
+    setForm((prev:any)=>({
+
+      ...prev,
+
+      cover_image:
+        data.publicUrl
+
+    }))
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+
+}
+
   async function save() {
 
     try {
@@ -385,6 +443,63 @@ rules:
     })
   }
 />
+
+<div className="space-y-4">
+
+  <p className="font-semibold">
+    Imagen Principal
+  </p>
+
+  {form.cover_image && (
+
+    <img
+      src={form.cover_image}
+      alt=""
+      className="
+        w-full
+        max-w-md
+        rounded-xl
+        border
+      "
+    />
+
+  )}
+
+  <label
+    className="
+      inline-block
+      px-4
+      py-2
+      rounded-xl
+      bg-emerald-600
+      text-white
+      cursor-pointer
+    "
+  >
+
+    Cambiar Imagen Principal
+
+    <input
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async e => {
+
+        const file =
+          e.target.files?.[0]
+
+        if (!file) return
+
+        await uploadCoverImage(
+          file
+        )
+
+      }}
+    />
+
+  </label>
+
+</div>
 
 <div className="space-y-4">
 
