@@ -16,6 +16,18 @@ export default function PayoutsPage() {
   const [requesting, setRequesting] =
     useState(false)
 
+    const [sendingOtp, setSendingOtp] =
+  useState(false)
+
+const [validatingOtp, setValidatingOtp] =
+  useState(false)
+
+const [otpVerified, setOtpVerified] =
+  useState(false)
+
+const [otp, setOtp] =
+  useState("")
+
   const [wallet, setWallet] =
     useState<any>(null)
 
@@ -77,7 +89,160 @@ export default function PayoutsPage() {
 
   }
 
+async function sendOtp() {
+
+  try {
+
+    setSendingOtp(true)
+
+    const {
+      data: { user }
+    } =
+      await supabase.auth.getUser()
+
+    const res =
+      await fetch(
+        "/api/otp/send",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            email:
+              user?.email
+
+          })
+        }
+      )
+
+    const json =
+      await res.json()
+
+    if (!res.ok) {
+
+      alert(
+        json?.error ||
+        "No fue posible enviar OTP."
+      )
+
+      return
+
+    }
+
+    alert(
+      "Código enviado a tu correo."
+    )
+
+  } catch {
+
+    alert(
+      "Error enviando OTP."
+    )
+
+  } finally {
+
+    setSendingOtp(false)
+
+  }
+
+}
+
+async function validateOtp() {
+
+  if (!otp.trim()) {
+
+    alert(
+      "Ingresa el OTP."
+    )
+
+    return
+
+  }
+
+  try {
+
+    setValidatingOtp(true)
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const res =
+      await fetch(
+        "/api/otp/verify",
+        {
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          },
+
+          body: JSON.stringify({
+
+            code: otp
+
+          })
+
+        }
+      )
+
+    const json =
+      await res.json()
+
+    if (!res.ok) {
+
+      alert(
+        json?.error ||
+        "OTP inválido."
+      )
+
+      return
+
+    }
+
+    setOtpVerified(true)
+
+    alert(
+      "OTP validado correctamente."
+    )
+
+  } catch {
+
+    alert(
+      "Error validando OTP."
+    )
+
+  } finally {
+
+    setValidatingOtp(false)
+
+  }
+
+}
+  
   async function requestPayout() {
+
+if (!otpVerified) {
+
+  alert(
+    "Debes validar OTP antes de solicitar un retiro."
+  )
+
+  return
+
+}
 
     const confirmAction =
       confirm(
@@ -101,16 +266,28 @@ export default function PayoutsPage() {
 
       const res =
         await fetch(
-          "/api/raffles/partners/payouts",
-          {
-            method: "POST",
+  "/api/raffles/partners/payouts",
+  {
+    method:"POST",
 
-            headers: {
-              Authorization:
-                `Bearer ${session?.access_token}`
-            }
-          }
-        )
+    headers:{
+
+      "Content-Type":
+        "application/json",
+
+      Authorization:
+        `Bearer ${session?.access_token}`
+
+    },
+
+    body: JSON.stringify({
+
+      otp
+
+    })
+
+  }
+)
 
       const json =
         await res.json()
@@ -129,6 +306,9 @@ export default function PayoutsPage() {
       alert(
         "Solicitud enviada correctamente."
       )
+
+      setOtp("")
+setOtpVerified(false)
 
       await loadData()
 
@@ -265,6 +445,107 @@ export default function PayoutsPage() {
                 font-black
               "
             >
+<div
+  className="
+    mb-6
+    flex
+    flex-wrap
+    gap-3
+    items-center
+  "
+>
+
+  <button
+    type="button"
+    onClick={sendOtp}
+    disabled={sendingOtp}
+    className="
+      px-5
+      py-3
+      rounded-2xl
+      text-white
+      font-semibold
+
+      bg-gradient-to-r
+      from-blue-600
+      via-purple-600
+      to-cyan-500
+    "
+  >
+
+    {
+      sendingOtp
+
+      ? "Enviando..."
+
+      : "Solicitar OTP"
+    }
+
+  </button>
+
+  <input
+    type="text"
+    maxLength={6}
+    placeholder="Código OTP"
+    value={otp}
+    onChange={(e)=>
+      setOtp(
+        e.target.value
+      )
+    }
+    className="
+      border
+      rounded-2xl
+      px-4
+      py-3
+    "
+  />
+
+  <button
+    type="button"
+    onClick={validateOtp}
+    disabled={
+      validatingOtp ||
+      otp.length !== 6
+    }
+    className="
+      px-5
+      py-3
+      rounded-2xl
+      border
+      font-semibold
+    "
+  >
+
+    {
+      validatingOtp
+
+      ? "Validando..."
+
+      : "Validar OTP"
+    }
+
+  </button>
+
+  {
+
+    otpVerified && (
+
+      <span
+        className="
+          text-emerald-600
+          font-semibold
+        "
+      >
+        ✅ OTP Validado
+      </span>
+
+    )
+
+  }
+
+</div>
+
               Solicitar Retiro
             </h2>
 
