@@ -135,7 +135,8 @@ export default function PartnerLinksPage() {
         className="
           grid
           grid-cols-1
-          xl:grid-cols-2
+lg:grid-cols-2
+2xl:grid-cols-3
           gap-6
         "
       >
@@ -161,7 +162,7 @@ export default function PartnerLinksPage() {
 
                <div
   className="
-    h-40
+    h-32
     overflow-hidden
     bg-slate-100
   "
@@ -182,11 +183,11 @@ export default function PartnerLinksPage() {
 
 </div>
 
-                <div className="p-6">
+                <div className="p-4">
 
                   <h3
                     className="
-                      text-xl
+                      text-lg
                       font-black
                       text-slate-900
                       line-clamp-2
@@ -236,11 +237,12 @@ export default function PartnerLinksPage() {
 
                   <div
                     className="
-                      mt-4
-                      bg-slate-50
-                      border
-                      rounded-2xl
-                      p-3
+                      mt-3
+                        bg-slate-50
+                        border
+                        rounded-xl
+                        px-3
+                        py-2
                       text-xs
                       text-slate-500
                       break-all
@@ -265,8 +267,8 @@ export default function PartnerLinksPage() {
                       }
 
                       className="
-                        px-5
-                        py-3
+                        px-4
+py-2
                         rounded-xl
                         font-semibold
                         text-white
