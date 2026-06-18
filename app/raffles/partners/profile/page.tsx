@@ -16,6 +16,26 @@ export default function ProfilePage() {
   const [saving, setSaving] =
     useState(false)
 
+const [affiliateType, setAffiliateType] =
+  useState("person")
+
+const [companyName, setCompanyName] =
+  useState("")
+
+const [companyRut, setCompanyRut] =
+  useState("")
+
+const [companyBusiness, setCompanyBusiness] =
+  useState("")
+
+const [legalRepresentative,
+setLegalRepresentative] =
+  useState("")
+
+const [companyEmail,
+setCompanyEmail] =
+  useState("")
+
   const [firstName, setFirstName] =
     useState("")
 
@@ -77,6 +97,31 @@ export default function ProfilePage() {
         return
 
       }
+
+      setAffiliateType(
+  profile.affiliate_type ||
+  "person"
+)
+
+setCompanyName(
+  profile.company_name || ""
+)
+
+setCompanyRut(
+  profile.company_rut || ""
+)
+
+setCompanyBusiness(
+  profile.company_business || ""
+)
+
+setLegalRepresentative(
+  profile.legal_representative || ""
+)
+
+setCompanyEmail(
+  profile.company_email || ""
+)
 
       setFirstName(
         profile.first_name || ""
@@ -150,6 +195,24 @@ export default function ProfilePage() {
             },
 
             body: JSON.stringify({
+
+affiliate_type:
+  affiliateType,
+
+company_name:
+  companyName,
+
+company_rut:
+  companyRut,
+
+company_business:
+  companyBusiness,
+
+legal_representative:
+  legalRepresentative,
+
+company_email:
+  companyEmail,
 
               first_name:
                 firstName,
@@ -260,6 +323,67 @@ export default function ProfilePage() {
         "
       >
         Completa los datos necesarios para recibir tus comisiones.
+
+        <div
+  className="
+    mt-6
+    mb-8
+    flex
+    gap-3
+  "
+>
+
+  <button
+    type="button"
+    onClick={() =>
+      setAffiliateType(
+        "person"
+      )
+    }
+    className={`
+      px-5
+      py-3
+      rounded-2xl
+      font-semibold
+
+      ${
+        affiliateType === "person"
+
+        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white"
+
+        : "border"
+      }
+    `}
+  >
+    Persona Natural
+  </button>
+
+  <button
+    type="button"
+    onClick={() =>
+      setAffiliateType(
+        "company"
+      )
+    }
+    className={`
+      px-5
+      py-3
+      rounded-2xl
+      font-semibold
+
+      ${
+        affiliateType === "company"
+
+        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white"
+
+        : "border"
+      }
+    `}
+  >
+    Empresa
+  </button>
+
+</div>
       </p>
 
       <div
@@ -345,6 +469,127 @@ export default function ProfilePage() {
           mt-8
         "
       >
+
+{
+affiliateType === "company" && (
+
+<div
+  className="
+    mb-8
+  "
+>
+
+  <h2
+    className="
+      text-2xl
+      font-black
+      mb-4
+    "
+  >
+    🏢 Datos Empresa
+  </h2>
+
+  <div
+    className="
+      grid
+      md:grid-cols-2
+      gap-4
+    "
+  >
+
+    <input
+      type="text"
+      placeholder="Razón Social"
+      value={companyName}
+      onChange={(e)=>
+        setCompanyName(
+          e.target.value
+        )
+      }
+      className="
+        border
+        rounded-2xl
+        px-4
+        py-3
+      "
+    />
+
+    <input
+      type="text"
+      placeholder="RUT Empresa"
+      value={companyRut}
+      onChange={(e)=>
+        setCompanyRut(
+          e.target.value
+        )
+      }
+      className="
+        border
+        rounded-2xl
+        px-4
+        py-3
+      "
+    />
+
+    <input
+      type="text"
+      placeholder="Giro"
+      value={companyBusiness}
+      onChange={(e)=>
+        setCompanyBusiness(
+          e.target.value
+        )
+      }
+      className="
+        border
+        rounded-2xl
+        px-4
+        py-3
+      "
+    />
+
+    <input
+      type="email"
+      placeholder="Correo Empresa"
+      value={companyEmail}
+      onChange={(e)=>
+        setCompanyEmail(
+          e.target.value
+        )
+      }
+      className="
+        border
+        rounded-2xl
+        px-4
+        py-3
+      "
+    />
+
+    <input
+      type="text"
+      placeholder="Representante Legal"
+      value={
+        legalRepresentative
+      }
+      onChange={(e)=>
+        setLegalRepresentative(
+          e.target.value
+        )
+      }
+      className="
+        border
+        rounded-2xl
+        px-4
+        py-3
+      "
+    />
+
+  </div>
+
+</div>
+
+)
+}
 
         <h2
           className="

@@ -109,38 +109,58 @@ export async function POST(req: Request) {
 
     const payload = {
 
-      affiliate_id:
-        affiliate.id,
+  affiliate_id:
+    affiliate.id,
 
-      first_name:
-        body.first_name,
+  affiliate_type:
+    body.affiliate_type ||
 
-      last_name:
-        body.last_name,
+    "person",
 
-      phone:
-        body.phone,
+  first_name:
+    body.first_name,
 
-      rut:
-        body.rut,
+  last_name:
+    body.last_name,
 
-      bank_name:
-        body.bank_name,
+  phone:
+    body.phone,
 
-      account_type:
-        body.account_type,
+  rut:
+    body.rut,
 
-      account_number:
-        body.account_number,
+  bank_name:
+    body.bank_name,
 
-      account_holder:
-        body.account_holder,
+  account_type:
+    body.account_type,
 
-      updated_at:
-        new Date()
-          .toISOString()
+  account_number:
+    body.account_number,
 
-    }
+  account_holder:
+    body.account_holder,
+
+  company_name:
+    body.company_name,
+
+  company_rut:
+    body.company_rut,
+
+  company_business:
+    body.company_business,
+
+  legal_representative:
+    body.legal_representative,
+
+  company_email:
+    body.company_email,
+
+  updated_at:
+    new Date()
+      .toISOString()
+
+}
 
     const { error } =
       await supabase
