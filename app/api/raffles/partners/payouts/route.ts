@@ -28,40 +28,6 @@ export async function GET(req: Request) {
   try {
     const user = await requireUser(req)
 
-const { data: code } =
-  await supabase
-    .from("otp_codes")
-    .select("*")
-    .eq(
-      "user_email",
-      user.email!.toLowerCase()
-    )
-    .eq("code", otp)
-    .eq("verified", true)
-    .eq("used", false)
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    )
-    .limit(1)
-    .maybeSingle()
-
-if (!code) {
-
-  return NextResponse.json(
-    {
-      ok:false,
-      error:"invalid_otp"
-    },
-    {
-      status:400
-    }
-  )
-
-}
-
     const affiliate =
       await getAffiliate(
         user.email!.toLowerCase()
@@ -122,6 +88,40 @@ export async function POST(req: Request) {
 
 const otp =
   body?.otp?.trim()
+
+  const { data: code } =
+  await supabase
+    .from("otp_codes")
+    .select("*")
+    .eq(
+      "user_email",
+      user.email!.toLowerCase()
+    )
+    .eq("code", otp)
+    .eq("verified", true)
+    .eq("used", false)
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    )
+    .limit(1)
+    .maybeSingle()
+
+if (!code) {
+
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "invalid_otp"
+    },
+    {
+      status: 400
+    }
+  )
+
+}
 
 if (!otp) {
 
