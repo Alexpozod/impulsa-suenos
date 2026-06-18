@@ -159,24 +159,28 @@ export default function PartnerLinksPage() {
                 "
               >
 
-                <div
-                  className="
-                    aspect-video
-                    bg-slate-100
-                  "
-                >
+               <div
+  className="
+    h-40
+    overflow-hidden
+    bg-slate-100
+  "
+>
 
-                  <img
-                    src={raffle.cover_image}
-                    alt={raffle.title}
-                    className="
-                      w-full
-                      h-full
-                      object-cover
-                    "
-                  />
+  <img
+    src={
+      raffle.cover_image ||
+      "/placeholder-raffle.jpg"
+    }
+    alt={raffle.title}
+    className="
+      w-full
+      h-full
+      object-cover
+    "
+  />
 
-                </div>
+</div>
 
                 <div className="p-6">
 

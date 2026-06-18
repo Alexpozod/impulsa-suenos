@@ -46,11 +46,12 @@ export async function GET(req: Request) {
         .schema("raffles")
         .from("raffles")
         .select(`
-          id,
-          slug,
-          title,
-          status
-        `)
+            id,
+            slug,
+            title,
+            status,
+            cover_image
+            `)
         .eq(
           "status",
           "active"
