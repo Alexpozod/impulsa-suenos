@@ -59,7 +59,7 @@ export default function RafflePartnerDashboardPage() {
   if (loading) {
 
     return (
-      <div className="p-8">
+      <div className="p-6">
         Cargando dashboard...
       </div>
     )
@@ -70,7 +70,7 @@ export default function RafflePartnerDashboardPage() {
 
     return (
 
-      <div className="p-8">
+      <div className="p-6">
 
         <h1 className="text-3xl font-bold">
           Partners
@@ -88,12 +88,12 @@ export default function RafflePartnerDashboardPage() {
 
   return (
 
-    <div className="p-8 space-y-8">
+    <div className="p-6 space-y-8">
 
       <div
   className="
     rounded-3xl
-    p-8
+    p-6
     text-white
     bg-gradient-to-r
     from-blue-600
@@ -107,12 +107,12 @@ export default function RafflePartnerDashboardPage() {
     <img
       src="/favicon-removebg-preview.png"
       alt="Partners"
-      className="w-16 h-16"
+      className="w-12 h-12"
     />
 
     <div>
 
-      <h1 className="text-4xl font-black">
+      <h1 className="text-3xl font-black">
         Programa de Partners
       </h1>
 
@@ -126,7 +126,7 @@ export default function RafflePartnerDashboardPage() {
 
   <div
     className="
-      mt-8
+      mt-5
       bg-white/10
       backdrop-blur
       rounded-2xl
@@ -140,7 +140,7 @@ export default function RafflePartnerDashboardPage() {
 
     <div
       className="
-        text-4xl
+        text-3xl
         font-black
         mt-2
       "
@@ -173,18 +173,20 @@ export default function RafflePartnerDashboardPage() {
       </button>
 
       <a
-        href="/raffles/partners/links"
-        className="
-          px-5
-          py-3
-          rounded-xl
-          border
-          border-white/30
-          font-bold
-        "
-      >
-        Ver Links
-      </a>
+  href="/raffles/partners/links"
+  className="
+    px-5
+    py-3
+    rounded-xl
+    bg-white/15
+    hover:bg-white/25
+    text-white
+    font-bold
+    transition
+  "
+>
+  Ver Links
+</a>
 
     </div>
 
@@ -197,7 +199,7 @@ export default function RafflePartnerDashboardPage() {
         grid
         grid-cols-1
         md:grid-cols-2
-        xl:grid-cols-3
+        xl:grid-cols-4
         gap-4
       "
       >
