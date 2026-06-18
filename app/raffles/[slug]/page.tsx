@@ -7,7 +7,8 @@ import {
 } from "react"
 
 import {
-  useParams
+  useParams,
+  useSearchParams
 } from "next/navigation"
 
 import Link from "next/link"
@@ -75,6 +76,9 @@ export default function RafflePage() {
 
   const params = useParams()
 
+  const searchParams =
+  useSearchParams()
+
   const [data, setData] =
     useState<ApiResponse | null>(null)
 
@@ -92,6 +96,34 @@ const [activeMedia, setActiveMedia] =
   loadRaffle()
 
 }, [])
+
+useEffect(() => {
+
+  const aff =
+    searchParams.get("aff")
+
+  if (aff) {
+
+    sessionStorage.setItem(
+      "raffle_affiliate",
+      aff
+    )
+
+  }
+
+  const ref =
+    searchParams.get("ref")
+
+  if (ref) {
+
+    sessionStorage.setItem(
+      "raffle_referral",
+      ref
+    )
+
+  }
+
+}, [searchParams])
 
   async function loadRaffle() {
 
