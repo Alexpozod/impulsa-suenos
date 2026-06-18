@@ -90,32 +90,114 @@ export default function RafflePartnerDashboardPage() {
 
     <div className="p-8 space-y-8">
 
-      <div>
+      <div
+  className="
+    rounded-3xl
+    p-8
+    text-white
+    bg-gradient-to-r
+    from-blue-600
+    via-purple-600
+    to-cyan-500
+  "
+>
 
-        <h1 className="text-4xl font-bold">
-          🚀 Partner Dashboard
-        </h1>
+  <div className="flex items-center gap-4">
 
-        <p className="text-slate-400 mt-2">
+    <img
+      src="/favicon-removebg-preview.png"
+      alt="Partners"
+      className="w-16 h-16"
+    />
 
-          Código:
+    <div>
 
-          {" "}
+      <h1 className="text-4xl font-black">
+        Programa de Partners
+      </h1>
 
-          <span className="font-bold text-white">
-            {data.affiliate.code}
-          </span>
+      <p className="opacity-90 mt-2">
+        Comparte sorteos y gana comisiones por cada venta.
+      </p>
 
-        </p>
+    </div>
 
-      </div>
+  </div>
+
+  <div
+    className="
+      mt-8
+      bg-white/10
+      backdrop-blur
+      rounded-2xl
+      p-5
+    "
+  >
+
+    <div className="text-sm opacity-80">
+      Código Afiliado
+    </div>
+
+    <div
+      className="
+        text-4xl
+        font-black
+        mt-2
+      "
+    >
+      {data.affiliate.code}
+    </div>
+
+    <div className="flex gap-3 mt-5">
+
+      <button
+        onClick={() => {
+          navigator.clipboard.writeText(
+            data.affiliate.code
+          )
+
+          alert(
+            "Código copiado"
+          )
+        }}
+        className="
+          px-5
+          py-3
+          rounded-xl
+          bg-white
+          text-black
+          font-bold
+        "
+      >
+        Copiar Código
+      </button>
+
+      <a
+        href="/raffles/partners/links"
+        className="
+          px-5
+          py-3
+          rounded-xl
+          border
+          border-white/30
+          font-bold
+        "
+      >
+        Ver Links
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
 
       <div
         className="
         grid
         grid-cols-1
         md:grid-cols-2
-        xl:grid-cols-4
+        xl:grid-cols-3
         gap-4
       "
       >
@@ -179,10 +261,10 @@ function Card({
     <div
       className="
       bg-gradient-to-br
-      from-slate-900
-      to-slate-950
+      from-blue-950
+      to-purple-950
       border
-      border-slate-800
+      border-blue-800/30
       rounded-3xl
       p-5
     "
