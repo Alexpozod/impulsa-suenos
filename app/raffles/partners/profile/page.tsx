@@ -591,7 +591,7 @@ setUnlockUntil("")
         👤 Perfil de Afiliado
       </h1>
 
-      <div
+      <p
   className="
     text-slate-500
     mt-2
@@ -599,6 +599,7 @@ setUnlockUntil("")
   "
 >
   Completa los datos necesarios para recibir tus comisiones.
+</p>
 
   <div
   className="
