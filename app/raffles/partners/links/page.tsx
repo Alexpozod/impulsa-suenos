@@ -76,100 +76,234 @@ export default function PartnerLinksPage() {
   if (loading) {
 
     return (
-      <div className="p-8">
+
+      <div
+        className="
+          bg-white
+          rounded-3xl
+          border
+          p-8
+        "
+      >
         Cargando...
       </div>
+
     )
 
   }
 
   return (
 
-    <div className="p-8 space-y-6">
+    <div className="space-y-6">
 
-      <div>
+      <div
+        className="
+          bg-white
+          rounded-3xl
+          border
+          p-8
+          shadow-sm
+        "
+      >
 
-        <h1 className="text-4xl font-bold">
-          🔗 Affiliate Links
+        <h1
+          className="
+            text-4xl
+            font-black
+            text-slate-900
+          "
+        >
+          🔗 Links de Afiliado
         </h1>
 
-        <p className="text-slate-400 mt-2">
-
+        <p
+          className="
+            text-slate-500
+            mt-2
+          "
+        >
           Código:
-
           {" "}
-
-          {data?.affiliate?.code}
-
+          <span className="font-bold">
+            {data?.affiliate?.code}
+          </span>
         </p>
 
       </div>
 
-      {data?.raffles?.map(
-        (raffle: any) => {
+      <div
+        className="
+          grid
+          grid-cols-1
+          xl:grid-cols-2
+          gap-6
+        "
+      >
 
-          const link =
+        {data?.raffles?.map(
+          (raffle: any) => {
+
+            const link =
 `https://impulsasuenos.com/raffles/${raffle.slug}?aff=${data.affiliate.code}`
 
-          return (
-
-            <div
-              key={raffle.id}
-              className="
-              border
-              border-slate-800
-              rounded-3xl
-              p-5
-            "
-            >
-
-              <h3
-                className="
-                font-bold
-                text-xl
-              "
-              >
-                {raffle.title}
-              </h3>
+            return (
 
               <div
+                key={raffle.id}
                 className="
-                mt-4
-                break-all
-                text-sm
-              "
+                  bg-white
+                  rounded-3xl
+                  border
+                  overflow-hidden
+                  shadow-sm
+                "
               >
 
-                {link}
+                <div
+                  className="
+                    aspect-video
+                    bg-slate-100
+                  "
+                >
+
+                  <img
+                    src={raffle.cover_image}
+                    alt={raffle.title}
+                    className="
+                      w-full
+                      h-full
+                      object-cover
+                    "
+                  />
+
+                </div>
+
+                <div className="p-6">
+
+                  <h3
+                    className="
+                      text-xl
+                      font-black
+                      text-slate-900
+                      line-clamp-2
+                    "
+                  >
+                    {raffle.title}
+                  </h3>
+
+                  <div
+                    className="
+                      mt-4
+                      flex
+                      items-center
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        px-3
+                        py-1
+                        rounded-full
+                        text-xs
+                        font-semibold
+                        bg-emerald-100
+                        text-emerald-700
+                      "
+                    >
+                      Activo
+                    </span>
+
+                    <span
+                      className="
+                        px-3
+                        py-1
+                        rounded-full
+                        text-xs
+                        font-semibold
+                        bg-purple-100
+                        text-purple-700
+                      "
+                    >
+                      Afiliado
+                    </span>
+
+                  </div>
+
+                  <div
+                    className="
+                      mt-4
+                      bg-slate-50
+                      border
+                      rounded-2xl
+                      p-3
+                      text-xs
+                      text-slate-500
+                      break-all
+                    "
+                  >
+                    {link}
+                  </div>
+
+                  <div
+                    className="
+                      mt-5
+                      flex
+                      flex-wrap
+                      gap-3
+                    "
+                  >
+
+                    <button
+
+                      onClick={() =>
+                        copy(link)
+                      }
+
+                      className="
+                        px-5
+                        py-3
+                        rounded-xl
+                        font-semibold
+                        text-white
+
+                        bg-gradient-to-r
+                        from-blue-600
+                        via-purple-600
+                        to-cyan-500
+                      "
+                    >
+                      Copiar Link
+                    </button>
+
+                    <a
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        px-5
+                        py-3
+                        rounded-xl
+                        border
+                        font-semibold
+                        text-slate-700
+                      "
+                    >
+                      Abrir Sorteo
+                    </a>
+
+                  </div>
+
+                </div>
 
               </div>
 
-              <button
+            )
 
-                onClick={() =>
-                  copy(link)
-                }
+          }
+        )}
 
-                className="
-                mt-4
-                px-4
-                py-2
-                rounded-xl
-                bg-blue-600
-                text-white
-              "
-              >
-
-                Copiar Link
-
-              </button>
-
-            </div>
-
-          )
-
-        }
-      )}
+      </div>
 
     </div>
 
