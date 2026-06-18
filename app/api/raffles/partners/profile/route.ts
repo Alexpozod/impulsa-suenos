@@ -107,6 +107,47 @@ export async function POST(req: Request) {
 
     }
 
+    const { data: existing } =
+  await supabase
+    .schema("raffles")
+    .from("partner_profiles")
+    .select("*")
+    .eq(
+      "affiliate_id",
+      affiliate.id
+    )
+    .maybeSingle()
+
+if (
+  existing?.profile_locked === true
+) {
+
+  const editWindow =
+    existing.edit_window_until
+      ? new Date(
+          existing.edit_window_until
+        ).getTime()
+      : 0
+
+  if (
+    editWindow <
+    Date.now()
+  ) {
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "profile_locked"
+      },
+      {
+        status: 403
+      }
+    )
+
+  }
+
+}
+
     const payload = {
 
   affiliate_id:
@@ -114,7 +155,6 @@ export async function POST(req: Request) {
 
   affiliate_type:
     body.affiliate_type ||
-
     "person",
 
   first_name:
@@ -158,7 +198,10 @@ export async function POST(req: Request) {
 
   updated_at:
     new Date()
-      .toISOString()
+      .toISOString(),
+
+  profile_locked:
+    true
 
 }
 
