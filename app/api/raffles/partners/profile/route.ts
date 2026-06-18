@@ -111,7 +111,10 @@ export async function POST(req: Request) {
   await supabase
     .schema("raffles")
     .from("partner_profiles")
-    .select("*")
+    .select(`
+      profile_locked,
+      edit_window_until
+    `)
     .eq(
       "affiliate_id",
       affiliate.id
@@ -119,25 +122,38 @@ export async function POST(req: Request) {
     .maybeSingle()
 
 if (
-  existing?.profile_locked === true
+  existing?.profile_locked
 ) {
 
-  const editWindow =
-    existing.edit_window_until
-      ? new Date(
-          existing.edit_window_until
-        ).getTime()
-      : 0
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "profile_locked"
+    },
+    {
+      status: 403
+    }
+  )
+
+}
+
+if (
+  existing?.edit_window_until
+) {
+
+  const expiresAt =
+    new Date(
+      existing.edit_window_until
+    ).getTime()
 
   if (
-    editWindow <
-    Date.now()
+    Date.now() > expiresAt
   ) {
 
     return NextResponse.json(
       {
         ok: false,
-        error: "profile_locked"
+        error: "edit_window_expired"
       },
       {
         status: 403

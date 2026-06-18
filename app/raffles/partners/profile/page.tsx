@@ -338,15 +338,31 @@ async function unlockProfile() {
       const profile =
         json?.profile
 
-        setProfileLocked(
-  profile?.profile_locked ??
-  true
-)
+        const windowUntil =
+  profile?.edit_window_until
 
-setUnlockUntil(
-  profile?.edit_window_until ||
-  ""
-)
+if (
+  windowUntil &&
+  new Date(windowUntil).getTime() >
+    Date.now()
+) {
+
+  setProfileLocked(false)
+
+  setUnlockUntil(
+    windowUntil
+  )
+
+} else {
+
+  setProfileLocked(
+    profile?.profile_locked ??
+    true
+  )
+
+  setUnlockUntil("")
+
+}
 
       if (!profile) {
 
