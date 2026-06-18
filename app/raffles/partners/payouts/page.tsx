@@ -294,6 +294,11 @@ if (!otpVerified) {
       const json =
         await res.json()
 
+        console.log(
+  "PAYOUT_RESPONSE",
+  json
+)
+
       if (!json.ok) {
 
         alert(
