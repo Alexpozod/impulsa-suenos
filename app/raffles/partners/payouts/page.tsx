@@ -234,6 +234,8 @@ async function validateOtp() {
   
   async function requestPayout() {
 
+    console.log("REQUEST_PAYOUT_CLICK")
+
 if (!otpVerified) {
 
   alert(
