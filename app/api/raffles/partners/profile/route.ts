@@ -196,12 +196,12 @@ if (
   company_email:
     body.company_email,
 
-  updated_at:
-    new Date()
-      .toISOString(),
+  profile_locked: true,
 
-  profile_locked:
-    true
+  edit_window_until: null,
+
+  updated_at:
+    new Date().toISOString()
 
 }
 
