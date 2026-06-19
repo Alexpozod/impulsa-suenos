@@ -1,127 +1,209 @@
 export default function RafflesPrivacyPage() {
-  return (
-    <section className="bg-slate-950 text-white">
 
-      <div className="max-w-5xl mx-auto px-6 py-16">
+return (
 
-        <div className="mb-12">
+```
+<section className="bg-slate-950 text-white">
 
-          <h1 className="text-4xl md:text-5xl font-black mb-4">
-            Política de Privacidad
-          </h1>
+  <div className="max-w-5xl mx-auto px-6 py-16">
 
-          <p className="text-slate-400">
-            Última actualización: {new Date().toLocaleDateString()}
-          </p>
+    <div className="mb-12">
 
-        </div>
+      <h1 className="text-4xl md:text-5xl font-black mb-4">
+        Política de Privacidad
+      </h1>
 
-        <div className="space-y-10">
+      <p className="text-slate-400">
+        Última actualización: {new Date().toLocaleDateString()}
+      </p>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-3">
-              1. Información recopilada
-            </h2>
+    </div>
 
-            <p className="text-slate-300 leading-relaxed">
-              Podemos recopilar información proporcionada durante el proceso
-              de compra, participación, contacto o navegación dentro de la
-              plataforma.
-            </p>
-          </section>
+    <div className="space-y-10">
 
-          <section>
-            <h2 className="text-2xl font-bold mb-3">
-              2. Datos que podemos solicitar
-            </h2>
+      <section>
 
-            <ul className="list-disc pl-6 space-y-2 text-slate-300">
-              <li>Nombre.</li>
-              <li>Correo electrónico.</li>
-              <li>Teléfono.</li>
-              <li>País de residencia.</li>
-              <li>Información necesaria para entregar premios.</li>
-            </ul>
-          </section>
+        <h2 className="text-2xl font-bold mb-3">
+          1. Información recopilada
+        </h2>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-3">
-              3. Finalidad del tratamiento
-            </h2>
+        <p className="text-slate-300 leading-relaxed">
+          Podemos recopilar información proporcionada durante el proceso
+          de compra, participación, registro, contacto, navegación o
+          utilización de cualquiera de los servicios disponibles dentro
+          de la plataforma.
+        </p>
 
-            <ul className="list-disc pl-6 space-y-2 text-slate-300">
-              <li>Procesar compras.</li>
-              <li>Asignar participaciones.</li>
-              <li>Enviar tickets digitales.</li>
-              <li>Contactar ganadores.</li>
-              <li>Prevenir fraude.</li>
-              <li>Mejorar la plataforma.</li>
-            </ul>
-          </section>
+      </section>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-3">
-              4. Seguridad
-            </h2>
+      <section>
 
-            <p className="text-slate-300 leading-relaxed">
-              Aplicamos medidas razonables de seguridad para proteger la
-              información almacenada contra accesos no autorizados,
-              modificaciones o divulgaciones indebidas.
-            </p>
-          </section>
+        <h2 className="text-2xl font-bold mb-3">
+          2. Datos que podemos solicitar
+        </h2>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-3">
-              5. Compartición de información
-            </h2>
+        <ul className="list-disc pl-6 space-y-2 text-slate-300">
 
-            <p className="text-slate-300 leading-relaxed">
-              La información podrá compartirse únicamente con proveedores
-              tecnológicos, procesadores de pago, autoridades competentes o
-              terceros necesarios para la operación legítima de la plataforma.
-            </p>
-          </section>
+          <li>Nombre y apellidos.</li>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-3">
-              6. Participación internacional
-            </h2>
+          <li>Correo electrónico.</li>
 
-            <p className="text-slate-300 leading-relaxed">
-              Debido a la naturaleza global de internet, algunos datos podrán
-              ser procesados o almacenados fuera del país de residencia del
-              participante utilizando proveedores tecnológicos internacionales.
-            </p>
-          </section>
+          <li>Número de teléfono.</li>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-3">
-              7. Derechos del usuario
-            </h2>
+          <li>País o región de residencia.</li>
 
-            <p className="text-slate-300 leading-relaxed">
-              Los usuarios podrán solicitar acceso, corrección o actualización
-              de la información personal que hayan proporcionado, sujeto a las
-              limitaciones legales aplicables.
-            </p>
-          </section>
+          <li>Información necesaria para validar compras o participaciones.</li>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-3">
-              8. Modificaciones
-            </h2>
+          <li>Información necesaria para la entrega de premios o beneficios.</li>
 
-            <p className="text-slate-300 leading-relaxed">
-              Esta política podrá actualizarse periódicamente. Las nuevas
-              versiones serán publicadas dentro de la plataforma.
-            </p>
-          </section>
+          <li>Información técnica relacionada con el uso de la plataforma.</li>
 
-        </div>
+        </ul>
 
-      </div>
+      </section>
 
-    </section>
-  )
+      <section>
+
+        <h2 className="text-2xl font-bold mb-3">
+          3. Finalidad del tratamiento
+        </h2>
+
+        <ul className="list-disc pl-6 space-y-2 text-slate-300">
+
+          <li>Procesar compras realizadas dentro de la plataforma.</li>
+
+          <li>Registrar participaciones asociadas a promociones o sorteos.</li>
+
+          <li>Enviar confirmaciones, notificaciones y comunicaciones operativas.</li>
+
+          <li>Publicar resultados cuando corresponda.</li>
+
+          <li>Contactar participantes o ganadores.</li>
+
+          <li>Gestionar entregas de premios o beneficios.</li>
+
+          <li>Prevenir fraude, abuso o actividades ilícitas.</li>
+
+          <li>Mejorar la experiencia de uso y funcionamiento de la plataforma.</li>
+
+          <li>Cumplir obligaciones legales y regulatorias aplicables.</li>
+
+        </ul>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-2xl font-bold mb-3">
+          4. Resultados, ganadores y evidencias
+        </h2>
+
+        <p className="text-slate-300 leading-relaxed">
+          Para fines de transparencia, la organización podrá publicar
+          información relacionada con resultados, ganadores y evidencias
+          de entrega de premios. Dicha publicación podrá incluir nombre
+          parcial, iniciales, ciudad, fotografías, videos o cualquier
+          otro antecedente autorizado o permitido por la normativa
+          aplicable.
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-2xl font-bold mb-3">
+          5. Seguridad de la información
+        </h2>
+
+        <p className="text-slate-300 leading-relaxed">
+          Aplicamos medidas técnicas, administrativas y organizativas
+          razonables para proteger la información almacenada contra
+          accesos no autorizados, pérdida, alteración, divulgación o uso
+          indebido.
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-2xl font-bold mb-3">
+          6. Compartición de información
+        </h2>
+
+        <p className="text-slate-300 leading-relaxed">
+          La información podrá compartirse únicamente con proveedores
+          tecnológicos, procesadores de pago, plataformas de comunicación,
+          autoridades competentes o terceros que resulten necesarios para
+          la correcta operación de los servicios ofrecidos.
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-2xl font-bold mb-3">
+          7. Transferencias internacionales
+        </h2>
+
+        <p className="text-slate-300 leading-relaxed">
+          Debido a la naturaleza global de internet y de los servicios
+          tecnológicos utilizados, parte de la información podrá ser
+          almacenada o procesada en servidores ubicados fuera del país de
+          residencia del usuario.
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-2xl font-bold mb-3">
+          8. Conservación de datos
+        </h2>
+
+        <p className="text-slate-300 leading-relaxed">
+          La información podrá conservarse durante el tiempo necesario
+          para cumplir fines operativos, legales, regulatorios,
+          contables, de seguridad o de prevención de fraude.
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-2xl font-bold mb-3">
+          9. Derechos del usuario
+        </h2>
+
+        <p className="text-slate-300 leading-relaxed">
+          Los usuarios podrán solicitar acceso, actualización,
+          rectificación o eliminación de la información personal que
+          hayan proporcionado, sujeto a las limitaciones legales,
+          contractuales y regulatorias aplicables.
+        </p>
+
+      </section>
+
+      <section>
+
+        <h2 className="text-2xl font-bold mb-3">
+          10. Modificaciones
+        </h2>
+
+        <p className="text-slate-300 leading-relaxed">
+          Esta política podrá ser modificada periódicamente para reflejar
+          cambios operativos, legales o tecnológicos. Las versiones
+          actualizadas serán publicadas dentro de la plataforma.
+        </p>
+
+      </section>
+
+    </div>
+
+  </div>
+
+</section>
+```
+
+)
+
 }
