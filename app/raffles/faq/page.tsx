@@ -1,64 +1,77 @@
 export default function RafflesFAQPage() {
+
   const faqs = [
     {
       q: "¿Qué es ImpulsaSueños Sorteos?",
-      a: "ImpulsaSueños Sorteos es una plataforma digital donde los usuarios pueden adquirir productos digitales y obtener participaciones promocionales asociadas a sorteos publicados dentro de la plataforma."
+      a: "ImpulsaSueños Sorteos es una plataforma digital donde los usuarios pueden adquirir productos digitales y obtener participaciones promocionales asociadas a iniciativas y sorteos publicados dentro de la plataforma."
     },
     {
       q: "¿Qué estoy comprando?",
-      a: "Estás adquiriendo un producto digital. Dependiendo de la promoción vigente, tu compra puede incluir una o más participaciones asociadas a un sorteo."
+      a: "Estás adquiriendo un producto digital. Dependiendo de la promoción vigente, tu compra puede incluir una o más participaciones asociadas a un sorteo o iniciativa publicada en la plataforma."
     },
     {
       q: "¿Cómo obtengo mis participaciones?",
-      a: "Las participaciones son asignadas automáticamente una vez que el pago es confirmado correctamente."
+      a: "Las participaciones son asignadas automáticamente una vez que el pago es confirmado correctamente. El detalle queda registrado dentro de nuestros sistemas."
     },
     {
-      q: "¿Dónde recibo mis tickets?",
-      a: "Los tickets son enviados automáticamente al correo electrónico registrado durante la compra."
+      q: "¿Dónde puedo ver mis participaciones?",
+      a: "Puedes consultar todas tus participaciones utilizando el mismo correo electrónico registrado durante la compra desde la sección 'Mis Participaciones'."
     },
     {
-      q: "¿Puedo consultar mis tickets después?",
-      a: "Sí. Puedes consultar tus tickets en cualquier momento desde la sección 'Mis Tickets' utilizando el correo electrónico registrado en tu compra."
+      q: "¿Recibiré una confirmación de mi compra?",
+      a: "Sí. Una vez confirmado el pago recibirás una notificación con el detalle de tu compra y de las participaciones asociadas cuando corresponda."
     },
     {
       q: "¿Cómo se elige al ganador?",
-      a: "Dependiendo del sorteo, la selección podrá realizarse mediante algoritmos aleatorios, plataformas externas, procesos certificados, mecanismos notariales u otros sistemas previamente informados."
+      a: "Dependiendo de la iniciativa, la selección podrá realizarse mediante algoritmos aleatorios, plataformas externas, procesos certificados, mecanismos notariales u otros sistemas previamente informados en las bases correspondientes."
     },
     {
       q: "¿Dónde se publican los resultados?",
-      a: "Los resultados podrán publicarse en la sección Ganadores de la plataforma, en redes sociales oficiales y mediante otros canales de comunicación habilitados."
+      a: "Los resultados podrán publicarse en la sección de Ganadores de la plataforma, en los canales oficiales de comunicación y en cualquier otro medio informado por la organización."
+    },
+    {
+      q: "¿Los resultados son públicos?",
+      a: "Sí. Cuando corresponda, los resultados, ganadores y evidencias de entrega podrán ser publicados con fines de transparencia, respetando la normativa aplicable."
     },
     {
       q: "¿Puedo participar desde otro país?",
-      a: "Sí. La plataforma puede aceptar participantes internacionales, salvo restricciones específicas informadas en determinadas promociones."
-    },
-    {
-      q: "¿Los productos digitales tienen devolución?",
-      a: "No. Debido a la naturaleza digital de los productos comercializados, todas las compras son finales y no existen cambios, devoluciones ni reembolsos."
+      a: "Sí. La plataforma puede aceptar participantes internacionales, salvo restricciones específicas indicadas en determinadas promociones o exigidas por la normativa aplicable."
     },
     {
       q: "¿La compra garantiza ganar?",
-      a: "No. La adquisición de un producto digital y sus participaciones asociadas no garantiza la obtención de premios."
+      a: "No. La adquisición de un producto digital y las participaciones asociadas no garantizan la obtención de premios ni beneficios específicos."
     },
     {
-      q: "¿Qué ocurre si un sorteo es reprogramado?",
-      a: "La organización podrá modificar fechas o cronogramas cuando existan razones técnicas, operativas, comerciales o de fuerza mayor."
+      q: "¿Los productos digitales tienen devolución?",
+      a: "No. Debido a la naturaleza digital de los productos comercializados, las compras son finales y no contemplan cambios, devoluciones ni reembolsos, salvo obligación legal expresa."
     },
     {
-      q: "¿Qué ocurre si no se alcanza la participación mínima requerida?",
-      a: "Las condiciones aplicables serán informadas en cada promoción y podrán incluir modificaciones previamente establecidas para ese sorteo."
+      q: "¿Qué ocurre si una iniciativa cambia de fecha?",
+      a: "La organización podrá modificar fechas, plazos o cronogramas cuando existan razones técnicas, operativas, comerciales, regulatorias o de fuerza mayor."
     },
     {
-      q: "¿Cómo me contactan si gano?",
-      a: "La organización contactará al ganador utilizando el correo electrónico registrado durante la compra."
+      q: "¿Qué ocurre si no se alcanza la participación esperada?",
+      a: "Las condiciones aplicables a cada iniciativa estarán definidas en sus respectivas bases y podrán contemplar ajustes, reprogramaciones o mecanismos alternativos previamente informados."
     },
     {
-      q: "¿Qué ocurre si no respondo al aviso de ganador?",
-      a: "El ganador dispondrá de 15 días corridos para responder. Si no existe respuesta dentro del plazo establecido, podrá realizarse un nuevo sorteo extraordinario entre los participantes válidos."
+      q: "¿Cómo me contactarán si resulto ganador?",
+      a: "La organización utilizará los datos de contacto proporcionados durante la compra para informar cualquier resultado relevante o condición asociada a la entrega del premio."
     },
     {
-      q: "¿Qué ocurre si gano un premio físico y vivo en otro país?",
-      a: "Cuando un premio físico no pueda ser entregado razonablemente en el país de residencia del ganador, la organización podrá sustituir dicho premio por una compensación económica equivalente de hasta un 60% del valor referencial del premio expresado en dólares estadounidenses."
+      q: "¿Qué ocurre si no respondo al contacto de la organización?",
+      a: "Los plazos, requisitos y procedimientos para reclamar premios estarán definidos en las bases aplicables a cada iniciativa. El incumplimiento de dichos requisitos podrá generar la pérdida del derecho al premio."
+    },
+    {
+      q: "¿Qué ocurre si el premio no puede ser entregado físicamente?",
+      a: "Cuando existan limitaciones logísticas, geográficas, regulatorias o de cualquier otra naturaleza, la organización podrá aplicar las alternativas contempladas en las bases específicas de la iniciativa."
+    },
+    {
+      q: "¿Dónde puedo revisar las bases de cada iniciativa?",
+      a: "Cada iniciativa podrá contar con sus propias bases, condiciones, requisitos, fechas y mecanismos de selección. Estas estarán disponibles en la publicación correspondiente cuando aplique."
+    },
+    {
+      q: "¿Cómo sé que mis participaciones quedaron registradas?",
+      a: "Una vez confirmada la compra, las participaciones quedan registradas dentro de la plataforma y pueden ser consultadas posteriormente utilizando el correo electrónico asociado a la operación."
     }
   ]
 
@@ -74,9 +87,9 @@ export default function RafflesFAQPage() {
           </h1>
 
           <p className="text-slate-400 text-lg max-w-3xl">
-            Resolvemos las dudas más comunes relacionadas con la compra de
-            productos digitales, participaciones, sorteos, ganadores y
-            funcionamiento general de la plataforma.
+            Resolvemos las dudas más comunes relacionadas con compras,
+            participaciones, sorteos, resultados, premios y funcionamiento
+            general de la plataforma.
           </p>
 
         </div>
@@ -110,16 +123,25 @@ export default function RafflesFAQPage() {
 
         </div>
 
-        <div className="mt-12 rounded-2xl border border-blue-500/30 bg-blue-500/10 p-6">
+        <div
+          className="
+            mt-12
+            rounded-2xl
+            border
+            border-cyan-500/30
+            bg-cyan-500/10
+            p-6
+          "
+        >
 
           <h3 className="font-bold text-lg mb-3">
             ¿No encontraste tu respuesta?
           </h3>
 
           <p className="text-slate-300 leading-relaxed">
-            Te recomendamos revisar nuestros Términos y Condiciones o
-            contactarnos mediante los canales oficiales publicados en la
-            plataforma.
+            Te recomendamos revisar nuestros Términos y Condiciones,
+            Bases Generales o contactarnos mediante los canales oficiales
+            publicados en la plataforma.
           </p>
 
         </div>
