@@ -2,19 +2,19 @@ export default function HowItWorks() {
 
   return (
 
-    <section className="py-24 bg-slate-900/30">
+    <section className="py-16 bg-slate-900/20">
 
       <div className="max-w-7xl mx-auto px-6">
 
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
 
           <h2 className="text-4xl font-black text-white mb-4">
             ¿Cómo funciona?
           </h2>
 
           <p className="text-slate-400 max-w-2xl mx-auto">
-            Participar toma menos de un minuto y recibirás tus tickets automáticamente.
-          </p>
+  Participa en minutos y recibe tus participaciones de forma automática.
+</p>
 
         </div>
 
@@ -22,48 +22,48 @@ export default function HowItWorks() {
 
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
 
-            <div className="text-5xl mb-6">
+            <div className="text-4xl mb-4">
               🎟️
             </div>
 
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Compra tus tickets
+            <h3 className="text-xl font-bold text-white mb-4">
+              Elige tu participación
             </h3>
 
             <p className="text-slate-400">
-              Selecciona la cantidad de tickets y realiza tu pago de forma segura.
+              Selecciona tu participación y completa tu aporte de forma segura.
             </p>
 
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
 
-            <div className="text-5xl mb-6">
+            <div className="text-4xl mb-4">
               📧
             </div>
 
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Recíbelos por correo
+            <h3 className="text-xl font-bold text-white mb-4">
+              Confirmación inmediata
             </h3>
 
             <p className="text-slate-400">
-              Tus tickets son asignados automáticamente y enviados a tu email.
+              Recibirás un correo con el detalle y comprobante de tu participación.
             </p>
 
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
 
-            <div className="text-5xl mb-6">
+            <div className="text-4xl mb-4">
               🏆
             </div>
 
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Revisa los resultados
+            <h3 className="text-xl font-bold text-white mb-4">
+              Sigue la historia
             </h3>
 
             <p className="text-slate-400">
-              Publicamos resultados, ganadores y evidencias de forma transparente.
+              Conoce los resultados y el impacto generado en cada iniciativa.
             </p>
 
           </div>
