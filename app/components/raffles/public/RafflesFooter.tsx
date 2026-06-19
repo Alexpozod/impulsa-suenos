@@ -83,19 +83,38 @@ los resultados públicamente.
 
             <div className="flex flex-col gap-3">
 
-              <Link href="/raffles/como-funciona">
+              <Link
+  href="/raffles/como-funciona"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
   Cómo Funciona
 </Link>
 
-              <Link href="/raffles/faq">
+              <Link
+  href="/raffles/faq"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
   Preguntas Frecuentes
 </Link>
 
               <a
-                href="mailto:contacto@impulsasuenos.com"
-              >
-                Contacto
-              </a>
+  href="mailto:contacto@impulsasuenos.com"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
+  Contacto
+</a>
 
             </div>
 
@@ -111,19 +130,47 @@ los resultados públicamente.
 
             <div className="flex flex-col gap-3">
 
-              <Link href="/raffles/terminos">
+              <Link
+  href="/raffles/terminos"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
   Términos y Condiciones
 </Link>
 
-              <Link href="/raffles/privacidad">
+              <Link
+  href="/raffles/privacidad"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
   Política de Privacidad
 </Link>
 
-              <Link href="/raffles/cookies">
+              <Link
+  href="/raffles/cookies"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
   Política de Cookies
 </Link>
 
-              <Link href="/raffles/bases">
+              <Link
+  href="/raffles/bases"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
                 Bases Generales
               </Link>
 
