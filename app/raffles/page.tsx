@@ -12,7 +12,7 @@ async function getFeaturedRaffle() {
 
     const res =
       await fetch(
-        `${process.env.NEXT_PUBLIC_SITE_URL}/api/raffles`,
+        "https://impulsasuenos.com/api/raffles",
         {
           cache: "no-store"
         }
@@ -23,7 +23,9 @@ async function getFeaturedRaffle() {
 
     return data?.raffles?.[0] || null
 
-  } catch {
+  } catch (error) {
+
+    console.error(error)
 
     return null
 
@@ -40,7 +42,7 @@ export default async function RafflesHomePage() {
 
     <div className="bg-slate-950 text-white">
 
-      <section className="min-h-[65vh] flex items-center">
+      <section className="min-h-[60vh] flex items-center">
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
 
@@ -59,7 +61,7 @@ export default async function RafflesHomePage() {
               IMPULSASUEÑOS
             </span>
 
-            <h1 className="text-6xl font-black mt-4 leading-tight">
+            <h1 className="text-5xl lg:text-6xl font-black mt-4 leading-tight">
 
               Hay historias que
               todavía no terminan.
