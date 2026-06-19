@@ -4,11 +4,11 @@ export default function WinnersPreview() {
 
   return (
 
-    <section className="py-24">
+    <section className="py-16">
 
       <div className="max-w-7xl mx-auto px-6">
 
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
 
           <h2 className="text-4xl font-black text-white mb-4">
             Transparencia Garantizada
@@ -22,13 +22,13 @@ export default function WinnersPreview() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-center">
 
-            <div className="text-5xl mb-4">
+            <div className="text-4xl mb-3">
               📋
             </div>
 
-            <h3 className="text-xl font-bold text-white mb-2">
+            <h3 className="text-lg font-bold text-white mb-2">
   Bases Públicas
 </h3>
 
@@ -38,13 +38,13 @@ export default function WinnersPreview() {
 
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-center">
 
-            <div className="text-5xl mb-4">
+            <div className="text-4xl mb-3">
               🔐
             </div>
 
-            <h3 className="text-xl font-bold text-white mb-2">
+            <h3 className="text-lg font-bold text-white mb-2">
               Participaciones Registradas
             </h3>
 
@@ -54,13 +54,13 @@ export default function WinnersPreview() {
 
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-center">
 
-            <div className="text-5xl mb-4">
+            <div className="text-4xl mb-3">
               ✅
             </div>
 
-            <h3 className="text-xl font-bold text-white mb-2">
+            <h3 className="text-lg font-bold text-white mb-2">
               Resultados Transparentes
             </h3>
 
@@ -78,8 +78,9 @@ export default function WinnersPreview() {
             href="/faq"
             className="
               inline-flex
-              bg-blue-600
-              hover:bg-blue-500
+              bg-cyan-500
+hover:bg-cyan-400
+text-slate-950
               px-8
               py-4
               rounded-2xl
