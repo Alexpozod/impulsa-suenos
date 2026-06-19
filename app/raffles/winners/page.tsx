@@ -45,6 +45,9 @@ export default function WinnersPage() {
   const [winners, setWinners] =
     useState<any[]>([])
 
+    const [expandedWinners, setExpandedWinners] =
+  useState<Record<string, boolean>>({})
+
   useEffect(() => {
 
     loadWinners()
@@ -285,6 +288,13 @@ export default function WinnersPage() {
         ? "🔵 Resultado publicado"
         : "🏆 Ganador verificado"
 
+const hasEvidence =
+  (winner.evidence_images ?? []).length > 0 ||
+  (winner.evidence_videos ?? []).length > 0
+
+const isExpanded =
+  expandedWinners[winner.id] || false
+
     return (
 
   <div
@@ -416,11 +426,36 @@ export default function WinnersPage() {
 
 </div>
 
+{hasEvidence && (
+
+  <button
+    onClick={() =>
+      setExpandedWinners(prev => ({
+        ...prev,
+        [winner.id]: !prev[winner.id]
+      }))
+    }
+    className="
+      mt-4
+      text-cyan-400
+      hover:text-cyan-300
+      font-semibold
+      transition
+    "
+  >
+    {isExpanded
+      ? "Ocultar evidencias ▲"
+      : "Ver evidencias ▼"}
+  </button>
+
+)}
+
       </div>
 
     </div>
 
-                {(winner.evidence_images ?? []).length > 0 && (
+                {isExpanded &&
+ (winner.evidence_images ?? []).length > 0 && (
 
   <div
     className="
@@ -476,7 +511,8 @@ export default function WinnersPage() {
 
 )}
 
-{(winner.evidence_videos ?? []).length > 0 && (
+{isExpanded &&
+ (winner.evidence_videos ?? []).length > 0 && (
 
   <div className="mt-4">
 
