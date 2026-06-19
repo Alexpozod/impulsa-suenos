@@ -11,11 +11,11 @@ export default function WinnersPreview() {
         <div className="text-center mb-16">
 
           <h2 className="text-4xl font-black text-white mb-4">
-            Ganadores Verificados
+            Transparencia Garantizada
           </h2>
 
           <p className="text-slate-400 max-w-2xl mx-auto">
-            Publicamos los resultados y evidencias de cada sorteo para garantizar transparencia.
+            Cada iniciativa cuenta con bases públicas, registros verificables y resultados transparentes.
           </p>
 
         </div>
@@ -25,15 +25,15 @@ export default function WinnersPreview() {
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
 
             <div className="text-5xl mb-4">
-              🏆
+              📋
             </div>
 
             <h3 className="text-xl font-bold text-white mb-2">
-  Ganadores Publicados
+  Bases Públicas
 </h3>
 
 <p className="text-slate-400">
-  Consulta los sorteos finalizados y sus ganadores verificados.
+  Cada iniciativa incluye reglas, condiciones y fechas claramente definidas.
 </p>
 
           </div>
@@ -41,15 +41,15 @@ export default function WinnersPreview() {
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
 
             <div className="text-5xl mb-4">
-              📸
+              🔐
             </div>
 
             <h3 className="text-xl font-bold text-white mb-2">
-              Evidencias
+              Participaciones Registradas
             </h3>
 
             <p className="text-slate-400">
-              Fotografías, videos y comprobantes de entrega.
+              Todas las participaciones quedan registradas y verificadas dentro del sistema.
             </p>
 
           </div>
@@ -57,15 +57,15 @@ export default function WinnersPreview() {
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center">
 
             <div className="text-5xl mb-4">
-              🔍
+              ✅
             </div>
 
             <h3 className="text-xl font-bold text-white mb-2">
-              Resultados Públicos
+              Resultados Transparentes
             </h3>
 
             <p className="text-slate-400">
-              Consulta los resultados de cada sorteo cuando estén disponibles.
+              Los resultados y evidencias serán publicados cuando cada iniciativa finalice.
             </p>
 
           </div>
@@ -75,7 +75,7 @@ export default function WinnersPreview() {
         <div className="text-center mt-12">
 
           <Link
-            href="/raffles/winners"
+            href="/faq"
             className="
               inline-flex
               bg-blue-600
@@ -87,7 +87,7 @@ export default function WinnersPreview() {
               transition
             "
           >
-            Ver Ganadores
+            Conocer Más
           </Link>
 
         </div>
