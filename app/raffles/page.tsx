@@ -21,20 +21,33 @@ export default function RafflesHomePage() {
             </span>
 
             <h1 className="text-6xl font-black mt-4 leading-tight">
-              Gana premios increíbles desde $3.000
+              Impulsando sueños,
+              una participación a la vez.
             </h1>
 
-            <p className="text-slate-300 text-xl mt-6">
-              Participa en sorteos transparentes,
-              recibe tus tickets por correo
-              y consulta los resultados públicamente.
+            <p className="text-slate-300 text-xl mt-6 max-w-2xl">
+              Participa en iniciativas reales,
+              conoce historias inspiradoras y sé parte
+              de oportunidades que pueden cambiar vidas.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
 
               <Link
   href="#sorteos-activos"
-  className="bg-blue-600 px-8 py-4 rounded-2xl font-bold"
+  className="
+px-8
+py-4
+rounded-2xl
+font-bold
+text-white
+bg-gradient-to-r
+from-emerald-500
+via-cyan-500
+to-violet-600
+shadow-lg
+shadow-cyan-500/20
+"
 >
   Ver Sorteos
 </Link>
