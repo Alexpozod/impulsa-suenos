@@ -54,7 +54,17 @@ shadow-blue-950/40
 
               <Link
   href="/raffles/my-tickets"
-  className="border border-slate-700 px-8 py-4 rounded-2xl"
+  className="
+border
+border-slate-700
+text-slate-200
+hover:bg-slate-900
+px-8
+py-4
+rounded-xl
+font-medium
+transition
+"
 >
   Buscar Mis Tickets
 </Link>

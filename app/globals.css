@@ -76,7 +76,7 @@
    🔥 TIPOGRAFÍA PRO
 ========================= */
 body {
-  background: var(--background);
+  background: #020817;
   color: var(--foreground);
   font-family: 'Inter', sans-serif;
 }
