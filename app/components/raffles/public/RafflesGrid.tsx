@@ -140,7 +140,7 @@ if (!raffles.length) {
               "
             >
 
-              <div className="aspect-[4/3] bg-slate-800">
+              <div className="aspect-[16/10] bg-slate-800">
 
                 {raffle.cover_image && (
 
@@ -168,8 +168,8 @@ if (!raffles.length) {
       px-3
       py-1
       rounded-full
-      bg-green-500/20
-      text-green-400
+      bg-cyan-500/15
+text-cyan-400
       text-xs
       font-semibold
     "
@@ -179,7 +179,7 @@ if (!raffles.length) {
 
 </div>
 
-                <h3 className="text-2xl font-bold text-white mb-3">
+                <h3 className="text-xl font-bold text-white mb-3">
                   {raffle.title}
                 </h3>
 
@@ -225,8 +225,8 @@ if (!raffles.length) {
                       px-4
                       py-2
                       rounded-xl
-                      bg-blue-600
-                      text-white
+                      bg-cyan-500
+                      text-slate-950
                       font-semibold
                     "
                   >
