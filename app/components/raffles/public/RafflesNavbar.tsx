@@ -34,7 +34,7 @@ export default function RafflesNavbar() {
                 ImpulsaSueños
               </div>
 
-              <div className="text-blue-400 text-xs font-semibold uppercase tracking-wider">
+              <div className="text-cyan-400 text-xs font-semibold uppercase tracking-wider">
                 Sorteos
               </div>
 
@@ -64,7 +64,7 @@ export default function RafflesNavbar() {
               href="/raffles/my-tickets"
               className="text-slate-200 hover:text-white transition"
             >
-              Buscar Tickets
+              Mis Participaciones
             </Link>
 
             <Link
@@ -88,11 +88,11 @@ export default function RafflesNavbar() {
             </Link>
 
             <Link
-              href="/raffles"
+              href="#sorteos-activos"
               className="
-                bg-blue-600
-                hover:bg-blue-500
-                text-white
+                bg-cyan-500
+hover:bg-cyan-400
+text-slate-950
                 px-5
                 py-3
                 rounded-xl
@@ -151,7 +151,7 @@ export default function RafflesNavbar() {
               onClick={() => setOpen(false)}
               className="text-white"
             >
-              Buscar Tickets
+              Mis Participaciones
             </Link>
 
             <Link
@@ -171,12 +171,12 @@ export default function RafflesNavbar() {
             </Link>
 
             <Link
-              href="/raffles"
+              href="#sorteos-activos"
               onClick={() => setOpen(false)}
               className="
-                bg-blue-600
+                bg-cyan-500
                 text-center
-                text-white
+                text-slate-950
                 py-3
                 rounded-xl
                 font-bold
