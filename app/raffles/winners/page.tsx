@@ -170,7 +170,7 @@ export default function WinnersPage() {
     grid-cols-2
     lg:grid-cols-4
     gap-4
-    mt-8
+    mt-6
     mb-10
   "
 >
@@ -294,7 +294,7 @@ export default function WinnersPage() {
       border
       border-slate-800
       rounded-3xl
-      p-6
+      p-5
     "
   >
 
@@ -424,7 +424,7 @@ export default function WinnersPage() {
 
   <div
     className="
-      mt-8
+      mt-6
     "
   >
 
@@ -454,13 +454,18 @@ export default function WinnersPage() {
         ) => (
 
           <img
-            key={index}
-            src={image}
-            alt="evidencia"
-            className="
-              rounded-2xl
-            "
-          />
+  key={index}
+  src={image}
+  alt="evidencia"
+  className="
+    w-full
+    aspect-video
+    object-cover
+    rounded-2xl
+    border
+    border-slate-800
+  "
+/>
 
         )
       )}
@@ -473,14 +478,7 @@ export default function WinnersPage() {
 
 {(winner.evidence_videos ?? []).length > 0 && (
 
-  <div
-    className="
-      mt-6
-      flex
-      flex-wrap
-      gap-4
-    "
-  >
+  <div className="mt-4">
 
     <div
       className="
@@ -492,28 +490,41 @@ export default function WinnersPage() {
       🎥 Videos de entrega
     </div>
 
-    {winner.evidence_videos.map(
-      (
-        video:string,
-        index:number
-      ) => (
+    <div
+      className="
+        grid
+        grid-cols-1
+        md:grid-cols-2
+        lg:grid-cols-3
+        gap-4
+      "
+    >
 
-       <video
-  key={index}
-  controls
-  className="
-    w-full
-    max-w-sm
-    rounded-xl
-    border
-    border-slate-700
-  "
->
-          <source src={video} />
-        </video>
+      {winner.evidence_videos.map(
+        (
+          video:string,
+          index:number
+        ) => (
 
-      )
-    )}
+          <video
+            key={index}
+            controls
+            className="
+              w-full
+              aspect-video
+              object-cover
+              rounded-2xl
+              border
+              border-slate-800
+            "
+          >
+            <source src={video} />
+          </video>
+
+        )
+      )}
+
+    </div>
 
   </div>
 
