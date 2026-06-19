@@ -16,19 +16,19 @@ export default function RafflesHomePage() {
 
           <div>
 
-            <span className="text-cyan-400 font-semibold tracking-wider uppercase">
+            <span className="text-cyan-400 font-semibold tracking-[0.2em] uppercase">
   IMPULSASUEÑOS
 </span>
 
             <h1 className="text-6xl font-black mt-4 leading-tight">
-              Impulsando sueños,
-              una participación a la vez.
+              Hay historias que
+              todavía no terminan.
             </h1>
 
             <p className="text-slate-300 text-xl mt-6 max-w-2xl">
-              Participa en iniciativas reales,
-              conoce historias inspiradoras y sé parte
-              de oportunidades que pueden cambiar vidas.
+              Conoce historias reales, participa en oportunidades
+              que generan impacto y ayuda a impulsar sueños que
+              merecen una nueva oportunidad.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
