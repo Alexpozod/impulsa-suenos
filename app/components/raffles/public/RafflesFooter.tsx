@@ -190,7 +190,7 @@ los resultados públicamente.
 
           <div className="text-slate-500 text-sm">
 
-            © {new Date().getFullYear()} ImpulsaSueños Sorteos
+            © {new Date().getFullYear()} ImpulsaSueños
 
           </div>
 
