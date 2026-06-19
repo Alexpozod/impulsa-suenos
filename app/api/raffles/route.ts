@@ -21,15 +21,16 @@ export async function GET() {
         .schema("raffles")
         .from("raffles")
         .select(`
-          id,
-          slug,
-          title,
-          short_description,
-          cover_image,
-          ticket_price_clp,
-          end_date,
-          status
-        `)
+  id,
+  slug,
+  title,
+  description,
+  short_description,
+  cover_image,
+  ticket_price_clp,
+  end_date,
+  status
+`)
         .eq(
           "status",
           "active"
