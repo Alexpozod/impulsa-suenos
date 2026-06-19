@@ -16,9 +16,9 @@ export default function RafflesHomePage() {
 
           <div>
 
-            <span className="text-blue-400 font-semibold">
-              IMPULSASUEÑOS SORTEOS
-            </span>
+            <span className="text-cyan-400 font-semibold tracking-wider uppercase">
+  IMPULSASUEÑOS
+</span>
 
             <h1 className="text-6xl font-black mt-4 leading-tight">
               Impulsando sueños,
@@ -36,17 +36,17 @@ export default function RafflesHomePage() {
               <Link
   href="#sorteos-activos"
   className="
+bg-blue-600
+hover:bg-blue-500
+text-white
 px-8
 py-4
-rounded-2xl
-font-bold
-text-white
-bg-gradient-to-r
-from-emerald-500
-via-cyan-500
-to-violet-600
-shadow-lg
-shadow-cyan-500/20
+rounded-xl
+font-semibold
+transition-all
+duration-200
+shadow-md
+shadow-blue-950/40
 "
 >
   Ver Sorteos
