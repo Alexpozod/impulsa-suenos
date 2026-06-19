@@ -132,7 +132,7 @@ if (!email.trim()) {
       mb-3
     "
   >
-    🎟️ Mis Tickets
+    🎟️ Mis Participaciones
   </h1>
 
   <p
@@ -187,7 +187,7 @@ Consulta todas tus participaciones utilizando el mismo correo electrónico con e
               w-full
               py-4
               rounded-2xl
-              bg-blue-600
+              bg-cyan-500
               font-bold
             "
           >
@@ -195,7 +195,7 @@ Consulta todas tus participaciones utilizando el mismo correo electrónico con e
             {
               loading
                 ? "Buscando..."
-                : "Buscar mis tickets"
+                : "Buscar mis participaciones"
             }
 
           </button>
@@ -363,7 +363,7 @@ Consulta todas tus participaciones utilizando el mismo correo electrónico con e
                 mb-3
               "
             >
-              Aún no encontramos tickets
+              No encontramos participaciones
             </h2>
 
             <p
