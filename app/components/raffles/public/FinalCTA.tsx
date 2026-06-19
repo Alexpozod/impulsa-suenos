@@ -6,37 +6,35 @@ export default function FinalCTA() {
 
     <section className="py-24">
 
-      <div className="max-w-5xl mx-auto px-6">
+      <div className="max-w-4xl mx-auto px-6">
 
         <div
           className="
-            rounded-[40px]
+            rounded-3xl
             border
             border-slate-800
             bg-gradient-to-br
             from-blue-600/20
             to-slate-900
-            p-10
-            md:p-16
+            p-8 md:p-10
             text-center
           "
         >
 
-          <div className="text-6xl mb-6">
+          <div className="text-4xl mb-4">
             🎁
           </div>
 
-          <h2 className="text-4xl md:text-6xl font-black text-white mb-6">
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
 
-            Tu próximo premio podría estar a un ticket de distancia
+            Cada participación puede cambiar una historia.
 
           </h2>
 
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto mb-10">
+          <p className="text-slate-300 text-lg max-w-2xl mx-auto mb-8">
 
-            Participa desde cualquier dispositivo,
-            recibe tus tickets automáticamente
-            y sigue los resultados de forma transparente.
+            Conoce iniciativas reales, participa de forma segura
+y sigue cada proceso con total transparencia.
 
           </p>
 
@@ -45,13 +43,13 @@ export default function FinalCTA() {
             <Link
               href="#sorteos-activos"
               className="
-                bg-blue-600
-                hover:bg-blue-500
+                bg-cyan-500
+                hover:bg-cyan-400
                 px-8
                 py-4
                 rounded-2xl
                 font-bold
-                text-white
+                text-slate-950
                 transition
               "
             >
@@ -69,7 +67,7 @@ export default function FinalCTA() {
                 text-white
               "
             >
-              Buscar Mis Tickets
+              Mis Participaciones
             </Link>
 
           </div>
