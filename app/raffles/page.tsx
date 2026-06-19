@@ -42,7 +42,7 @@ export default async function RafflesHomePage() {
 
     <div className="bg-slate-950 text-white">
 
-      <section className="min-h-[60vh] flex items-center">
+      <section className="py-16 lg:py-24">
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
 
@@ -61,26 +61,23 @@ export default async function RafflesHomePage() {
               IMPULSASUEÑOS
             </span>
 
-            <h1 className="text-5xl lg:text-6xl font-black mt-4 leading-tight">
+            <h1 className="text-5xl lg:text-7xl font-black mt-4 leading-[0.95]">
 
               Hay historias que
               todavía no terminan.
 
             </h1>
 
-            <p className="text-slate-300 text-xl mt-6 max-w-2xl">
+            <p className="text-slate-300 text-lg mt-6 max-w-xl leading-relaxed">
 
-              No prometemos milagros.
+  No prometemos milagros.
 
-              <br />
-              <br />
+  Creamos oportunidades para que personas reales
+  puedan escribir un nuevo capítulo en sus vidas.
 
-              Creamos oportunidades para que personas reales
-              puedan escribir un nuevo capítulo en sus vidas.
+</p>
 
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 mt-8">
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
 
               <Link
                 href="#sorteos-activos"
