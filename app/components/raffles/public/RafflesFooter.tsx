@@ -6,7 +6,7 @@ export default function RafflesFooter() {
 
     <footer className="bg-slate-950 border-t border-slate-800">
 
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="max-w-7xl mx-auto px-6 py-10">
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 
@@ -14,14 +14,14 @@ export default function RafflesFooter() {
 
           <div>
 
-            <h3 className="text-white text-2xl font-black mb-4">
+            <h3 className="text-white text-xl font-black mb-3">
               ImpulsaSueños Sorteos
             </h3>
 
             <p className="text-slate-400 leading-relaxed">
-              Participa en sorteos transparentes,
-              recibe tus tickets por correo y consulta
-              los resultados públicamente.
+              Participa en iniciativas transparentes,
+sigue cada proceso y consulta
+los resultados públicamente.
             </p>
 
           </div>
@@ -34,19 +34,40 @@ export default function RafflesFooter() {
               Sorteos
             </h4>
 
-            <div className="flex flex-col gap-3 text-slate-400">
+            <div className="flex flex-col gap-3">
 
-              <Link href="/raffles#sorteos-activos">
+              <Link
+  href="/raffles#sorteos-activos"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
   Sorteos Activos
 </Link>
 
-              <Link href="/raffles/winners">
-                Ganadores
-              </Link>
+              <Link
+  href="/raffles/winners"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
+  Ganadores
+</Link>
 
-              <Link href="/raffles/my-tickets">
-                Buscar Tickets
-              </Link>
+              <Link
+  href="/raffles/my-tickets"
+  className="
+    text-slate-400
+    hover:text-cyan-400
+    transition-colors
+  "
+>
+  Mis Participaciones
+</Link>
 
             </div>
 
@@ -60,7 +81,7 @@ export default function RafflesFooter() {
               Información
             </h4>
 
-            <div className="flex flex-col gap-3 text-slate-400">
+            <div className="flex flex-col gap-3">
 
               <Link href="/raffles/como-funciona">
   Cómo Funciona
@@ -88,7 +109,7 @@ export default function RafflesFooter() {
               Legal
             </h4>
 
-            <div className="flex flex-col gap-3 text-slate-400">
+            <div className="flex flex-col gap-3">
 
               <Link href="/raffles/terminos">
   Términos y Condiciones
@@ -113,74 +134,12 @@ export default function RafflesFooter() {
         </div>
 
       </div>
-
-      {/* TRANSPARENCIA */}
-
-      <div className="border-t border-slate-800">
-
-        <div className="max-w-7xl mx-auto px-6 py-8">
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-
-            <div>
-
-              <div className="text-2xl mb-2">
-                🏆
-              </div>
-
-              <div className="text-white font-semibold">
-                Ganadores Verificados
-              </div>
-
-              <div className="text-slate-500 text-sm mt-1">
-                Publicación de resultados y evidencia.
-              </div>
-
-            </div>
-
-            <div>
-
-              <div className="text-2xl mb-2">
-                🎟️
-              </div>
-
-              <div className="text-white font-semibold">
-                Tickets Digitales
-              </div>
-
-              <div className="text-slate-500 text-sm mt-1">
-                Entregados automáticamente por correo.
-              </div>
-
-            </div>
-
-            <div>
-
-              <div className="text-2xl mb-2">
-                🔒
-              </div>
-
-              <div className="text-white font-semibold">
-                Pagos Seguros
-              </div>
-
-              <div className="text-slate-500 text-sm mt-1">
-                Procesados mediante pasarelas certificadas.
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
+      
       {/* COPYRIGHT */}
 
       <div className="border-t border-slate-800">
 
-        <div className="max-w-7xl mx-auto px-6 py-6 text-center">
+        <div className="max-w-7xl mx-auto px-6 py-4 text-center">
 
           <div className="text-slate-500 text-sm">
 
@@ -196,7 +155,7 @@ export default function RafflesFooter() {
 
       <div className="bg-black/30 border-t border-slate-800">
 
-        <div className="max-w-7xl mx-auto px-6 py-5">
+        <div className="max-w-7xl mx-auto px-6 py-3">
 
           <p className="text-xs text-slate-500 text-center leading-relaxed">
 
