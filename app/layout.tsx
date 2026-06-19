@@ -7,6 +7,8 @@ import CookieBanner from "./components/CookieBanner"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 
+import RafflesLayoutWrapper from "@/app/components/raffles/layout/RafflesLayoutWrapper"
+
 export const metadata: Metadata = {
   title: "ImpulsaSueños | Crowdfunding Solidario",
   description:
@@ -50,16 +52,22 @@ export default function RootLayout({
           fontFamily: "Inter, sans-serif",
         }}
       >
-        <Navbar />
+        <RafflesLayoutWrapper>
+  <Navbar />
+</RafflesLayoutWrapper>
 
         <main className="min-h-screen pt-20 md:pt-24">
           {children}
         </main>
 
-        <Footer />
+        <RafflesLayoutWrapper>
+  <Footer />
+</RafflesLayoutWrapper>
 
         {/* 🍪 COOKIE BANNER GLOBAL */}
-        <CookieBanner />
+        <RafflesLayoutWrapper>
+  <CookieBanner />
+</RafflesLayoutWrapper>
       </body>
     </html>
   )
