@@ -740,7 +740,14 @@ if (!res.ok) {
               ).toLocaleString("es-CL")}
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div
+  className="
+    grid
+    grid-cols-1
+    sm:grid-cols-3
+    gap-2
+  "
+>
 
               {[1, 3, 5].map((value) => {
 
@@ -755,11 +762,12 @@ if (!res.ok) {
                     onClick={() =>
                       setQuantity(value)
                     }
-                    className={`
-                      py-2.5
-rounded-xl
-                      border
-                      font-bold
+                   className={`
+  py-4
+  px-3
+  rounded-xl
+  border
+  font-bold
 
                       ${
                         active
@@ -786,7 +794,7 @@ rounded-xl
     mt-1
     ${
       active
-? "text-slate-900"
+? "text-slate-800"
         : "text-slate-400"
     }
   `}
