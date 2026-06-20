@@ -772,7 +772,8 @@ text-slate-950
 <div
   className="
     grid
-    grid-cols-2
+    grid-cols-1
+md:grid-cols-3
     gap-3
     mb-6
   "
@@ -781,21 +782,21 @@ text-slate-950
   <button
     type="button"
     onClick={() => setSelectedQty(1)}
-    className={`rounded-xl py-2 px-3 border transition ${
+    className={`rounded-xl py-4 px-3 border transition min-h-[120px] ${
       selectedQty === 1
   ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-sm font-semibold">
+    <div className="text-base font-bold">
       Básico
     </div>
 
-    <div className="text-[11px] text-slate-400 mt-0.5">
+    <div className="text-xs text-slate-400 mt-2">
       1 participación
     </div>
 
-    <div className="mt-0.5 font-bold text-sm">
+   <div className="mt-3 font-black text-lg">
       $
       {Number(
         raffle.ticket_price_clp
@@ -806,21 +807,21 @@ text-slate-950
   <button
     type="button"
     onClick={() => setSelectedQty(3)}
-    className={`rounded-xl py-2 px-3 border transition ${
+    className={`rounded-xl py-4 px-3 border transition min-h-[120px] ${
       selectedQty === 3
   ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-sm font-semibold">
+    <div className="text-base font-bold">
       Popular ⭐
     </div>
 
-    <div className="text-[11px] text-slate-400 mt-0.5">
+    <div className="text-xs text-slate-400 mt-2">
       3 participaciones
     </div>
 
-    <div className="mt-0.5 font-bold text-sm">
+    <div className="mt-3 font-black text-lg">
       $
       {Number(
         raffle.ticket_price_clp * 3
@@ -831,21 +832,21 @@ text-slate-950
   <button
     type="button"
     onClick={() => setSelectedQty(5)}
-    className={`rounded-xl py-2 px-3 border transition ${
+    className={`rounded-xl py-4 px-3 border transition min-h-[120px] ${
       selectedQty === 5
   ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
   >
-    <div className="text-sm font-semibold">
+    <div className="text-base font-bold">
       Recomendado 🔥
     </div>
 
-    <div className="text-[11px] text-slate-400 mt-0.5">
+    <div className="text-xs text-slate-400 mt-2">
       5 participaciones
     </div>
 
-    <div className="mt-0.5 font-bold text-sm">
+    <div className="mt-3 font-black text-lg">
       $
       {Number(
         raffle.ticket_price_clp * 5
