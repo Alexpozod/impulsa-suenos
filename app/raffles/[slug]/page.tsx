@@ -782,7 +782,7 @@ text-slate-950
     type="button"
     onClick={() => setSelectedQty(1)}
     className={`rounded-xl py-2 px-3 border transition ${
-      selectedQty === X
+      selectedQty === 1
   ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
@@ -807,7 +807,7 @@ text-slate-950
     type="button"
     onClick={() => setSelectedQty(3)}
     className={`rounded-xl py-2 px-3 border transition ${
-      selectedQty === X
+      selectedQty === 3
   ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
@@ -832,7 +832,7 @@ text-slate-950
     type="button"
     onClick={() => setSelectedQty(5)}
     className={`rounded-xl py-2 px-3 border transition ${
-      selectedQty === X
+      selectedQty === 5
   ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
