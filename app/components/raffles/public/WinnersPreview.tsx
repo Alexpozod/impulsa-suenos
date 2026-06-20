@@ -75,7 +75,7 @@ export default function WinnersPreview() {
         <div className="text-center mt-12">
 
           <Link
-            href="/faq"
+            href="/raffles/faq"
             className="
               inline-flex
               bg-cyan-500
