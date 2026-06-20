@@ -456,7 +456,7 @@ useEffect(() => {
 
                 ${
                  activeMedia === index
-  ? "border-blue-500 scale-105"
+  ? "border-cyan-400 scale-105"
   : "border-slate-700 opacity-70"
                 }
               `}
@@ -590,9 +590,9 @@ p-5
       px-5
       py-3
       rounded-xl
-      bg-blue-600
-      hover:bg-blue-500
-      text-white
+      bg-cyan-500
+hover:bg-cyan-400
+text-slate-950
       transition
       font-semibold
       w-fit
@@ -676,24 +676,34 @@ p-5
 
   {raffle.end_date && (
 
-    <div
-      className="
-        mt-4
-        text-sm
-        text-slate-400
-      "
-    >
-      📅 Fecha del sorteo{" "}
-      {
-        new Date(
-          raffle.end_date
-        ).toLocaleDateString(
-          "es-CL"
-        )
-      }
-    </div>
+  <div
+    className="
+      mt-5
+      inline-flex
+      items-center
+      px-4
+      py-2
+      rounded-full
+      bg-cyan-500/10
+      border
+      border-cyan-500/30
+      text-cyan-300
+      text-sm
+      font-semibold
+    "
+  >
+    📅 Fecha del sorteo:
+    {" "}
+    {
+      new Date(
+        raffle.end_date
+      ).toLocaleDateString(
+        "es-CL"
+      )
+    }
+  </div>
 
-  )}
+)}
 
 </div>
 
@@ -738,8 +748,8 @@ p-5
 >
 
   <div className="text-slate-400 text-sm">
-    Valor Ticket
-  </div>
+  Valor participación
+</div>
 
   <div className="text-3xl font-black mt-1">
     $
@@ -772,8 +782,8 @@ p-5
     type="button"
     onClick={() => setSelectedQty(1)}
     className={`rounded-xl py-2 px-3 border transition ${
-      selectedQty === 1
-        ? "bg-blue-600 border-blue-500"
+      selectedQty === X
+  ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
   >
@@ -797,8 +807,8 @@ p-5
     type="button"
     onClick={() => setSelectedQty(3)}
     className={`rounded-xl py-2 px-3 border transition ${
-      selectedQty === 3
-        ? "bg-blue-600 border-blue-500"
+      selectedQty === X
+  ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
   >
@@ -822,8 +832,8 @@ p-5
     type="button"
     onClick={() => setSelectedQty(5)}
     className={`rounded-xl py-2 px-3 border transition ${
-      selectedQty === 5
-        ? "bg-blue-600 border-blue-500"
+      selectedQty === X
+  ? "bg-cyan-500 border-cyan-400 text-slate-950"
         : "bg-slate-950 border-slate-800"
     }`}
   >
@@ -842,32 +852,7 @@ p-5
       ).toLocaleString("es-CL")}
     </div>
   </button>
-
-  <button
-    type="button"
-    onClick={() => setSelectedQty(10)}
-    className={`rounded-xl py-2 px-3 border transition ${
-      selectedQty === 10
-        ? "bg-blue-600 border-blue-500"
-        : "bg-slate-950 border-slate-800"
-    }`}
-  >
-    <div className="text-sm font-semibold">
-      Premium 👑
-    </div>
-
-    <div className="text-[11px] text-slate-400 mt-0.5">
-      10 participaciones
-    </div>
-
-    <div className="mt-0.5 font-bold text-sm">
-      $
-      {Number(
-        raffle.ticket_price_clp * 10
-      ).toLocaleString("es-CL")}
-    </div>
-  </button>
-
+  
 </div>
 
 {
@@ -881,9 +866,9 @@ raffle.status === "active" ? (
     text-center
     py-5
     rounded-2xl
-    bg-blue-600
-    hover:bg-blue-500
-    text-white
+    bg-cyan-500
+hover:bg-cyan-400
+text-slate-950
     transition
     font-black
     text-lg
