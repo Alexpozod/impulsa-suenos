@@ -177,12 +177,12 @@ searchParams.get(
 )
 )
 
-if(
+if (
 
-qty &&
-[1,3,5,10].includes(qty)
+  qty &&
+  [1, 3, 5].includes(qty)
 
-){
+) {
 
 setQuantity(qty)
 
@@ -646,7 +646,7 @@ if (!res.ok) {
   "
 >
 
-          <p className="text-blue-400 font-semibold mb-2">
+          <p className="text-cyan-400 font-semibold mb-2">
             Checkout Seguro
           </p>
 
@@ -698,7 +698,7 @@ if (!res.ok) {
       text-slate-300
     "
   >
-    🎟️ Tickets asignados automáticamente
+    🎟️ Participaciones asignadas automáticamente
   </div>
 
   <div
@@ -730,7 +730,7 @@ if (!res.ok) {
           >
 
             <div className="text-slate-400 text-sm">
-              Valor Ticket
+              Valor participación
             </div>
 
             <div className="text-3xl font-black mt-2 mb-6">
@@ -740,9 +740,9 @@ if (!res.ok) {
               ).toLocaleString("es-CL")}
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
 
-              {[1, 3, 5, 10].map((value) => {
+              {[1, 3, 5].map((value) => {
 
                 const active =
                   quantity === value
@@ -756,14 +756,14 @@ if (!res.ok) {
                       setQuantity(value)
                     }
                     className={`
-                      py-3
-                      rounded-2xl
+                      py-2.5
+rounded-xl
                       border
                       font-bold
 
                       ${
                         active
-                          ? "bg-blue-600 border-blue-500 text-white"
+? "bg-cyan-500 border-cyan-400 text-slate-950"
                           : "bg-slate-900 border-slate-700 text-slate-300"
                       }
                     `}
@@ -781,15 +781,24 @@ if (!res.ok) {
 
         : value === 5
         ? "Recomendado 🔥"
-
-        : "Premium 👑"
+      
     }
 
   </div>
 
-  <div className="text-xs opacity-70 mt-1">
+  <div
+  className={`
+    text-xs
+    mt-1
+    ${
+      active
+? "text-slate-900"
+        : "text-slate-400"
+    }
+  `}
+>
 
-    {value} ticket{value > 1 ? "s" : ""}
+    {value} participación{value > 1 ? "es" : ""}
 
   </div>
 
@@ -834,7 +843,7 @@ if (!res.ok) {
 <div className="flex justify-between text-slate-400 mb-2">
 
   <span>
-    Valor ticket
+    Valor participación
   </span>
 
   <span>
@@ -869,7 +878,7 @@ if (!res.ok) {
   </div>
 
   <div>
-    🎟️ Tickets asignados automáticamente
+    🎟️ Participaciones asignadas automáticamente
   </div>
 
   <div>
@@ -995,12 +1004,12 @@ py-3
 >
 
 <div className="text-xs text-slate-400 mb-2">
-Cupón de descuento (opcional)
+Código promocional (opcional)
 </div>
 
 <input
 type="text"
-placeholder="Ej: CHATGPT10"
+placeholder="Ingresa tu código promocional"
 value={couponCode}
 onChange={(e)=>{
 
@@ -1036,7 +1045,7 @@ border-slate-800
 rounded-2xl
 p-4
 mb-4
-text-center
+text-left
 "
 >
 
@@ -1077,7 +1086,7 @@ Resumen de compra
 <div className="flex justify-between mt-2">
 
 <span>
-✅ Total tickets
+✅ Total participaciones
 </span>
 
 <span>
@@ -1144,7 +1153,7 @@ Total
 
 </span>
 
-<span className="text-blue-400">
+<span className="text-cyan-400">
 
 $
 
@@ -1241,14 +1250,16 @@ processing ||
   mt-4
   py-4
   rounded-2xl
-  bg-blue-600
-  hover:bg-blue-500
+  bg-cyan-500
+hover:bg-cyan-400
+text-slate-950
   transition
   font-black
   text-lg
   disabled:opacity-60
   disabled:cursor-not-allowed
   disabled:bg-slate-700
+  disabled:text-slate-400
 "
 >
 
