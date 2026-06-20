@@ -772,17 +772,11 @@ rounded-xl
   <>
   <div className="text-sm">
 
-    {
-      value === 1
-        ? "Básico"
-
-        : value === 3
-        ? "Popular ⭐"
-
-        : value === 5
-        ? "Recomendado 🔥"
-      
-    }
+    {value === 1
+  ? "Básico"
+  : value === 3
+  ? "Popular ⭐"
+  : "Recomendado 🔥"}
 
   </div>
 
