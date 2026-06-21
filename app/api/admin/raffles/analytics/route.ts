@@ -83,11 +83,24 @@ const { data: orders } =
        🎯 EVENTS
     ========================= */
 
-    const { data: events } =
-      await supabase
-        .schema("raffles")
-        .from("analytics_events")
-        .select("*")
+    let events: any[] = []
+
+try {
+
+  const result =
+    await supabase
+      .schema("raffles")
+      .from("analytics_events")
+      .select("*")
+
+  events =
+    result.data || []
+
+} catch {
+
+  events = []
+
+}
     
     const totalRevenue =
       (payments || [])

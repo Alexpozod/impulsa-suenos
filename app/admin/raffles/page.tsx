@@ -6,15 +6,6 @@ import {
 }
 from "react"
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer
-} from "recharts"
-
 import { supabase }
 from "@/src/lib/supabase"
 
@@ -22,20 +13,6 @@ export default function AdminRafflesPage() {
 
   const [data, setData] =
     useState<any>(null)
-
-const revenueChart =
-  Object.entries(
-    data?.dailyRevenue || {}
-  ).map(
-
-    ([date, value]) => ({
-
-      date,
-
-      revenue: value
-
-    })
-  )
 
   const [loading, setLoading] =
     useState(true)
@@ -100,8 +77,8 @@ const res =
         </h1>
 
         <p className="text-slate-400 mt-2">
-          Analytics y revenue
-        </p>
+  Dashboard principal de sorteos
+</p>
 
       </div>
 
@@ -241,6 +218,29 @@ Resultados
 </div>
 </a>
 
+<a
+href="/admin/raffles/analytics"
+className="
+bg-gradient-to-br
+from-blue-900/40
+to-blue-950/40
+border
+border-blue-700
+rounded-2xl
+p-5
+hover:border-blue-400
+transition
+"
+>
+<div className="text-3xl">
+📈
+</div>
+
+<div className="mt-3 font-bold">
+Analytics
+</div>
+</a>
+
 </div>
 
       {/* METRICS */}
@@ -256,11 +256,11 @@ Resultados
       >
 
         <Card
-          title="Revenue"
-          value={`$${Number(
-            data?.revenue || 0
-          ).toLocaleString()}`}
-        />
+  title="Revenue Total"
+  value={`$${Number(
+    data?.revenue || 0
+  ).toLocaleString()}`}
+/>
 
         <Card
           title="Pagos"
@@ -376,383 +376,7 @@ Resultados
 
     </div>
 
-  </a>
-
-</div>
-
-      {/* CHECKOUT */}
-
-      <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-3
-          gap-4
-        "
-      >
-
-        <Card
-          title="Begin Checkout"
-          value={data?.beginCheckout || 0}
-        />
-
-        <Card
-          title="Payment Success"
-          value={data?.paymentSuccess || 0}
-        />
-
-        <Card
-          title="Payment Failed"
-          value={data?.paymentFailed || 0}
-        />
-
-      </div>
-
-      {/* TOP RAFFLES */}
-
-<div
-  className="
-    bg-gradient-to-br
-from-slate-900
-to-slate-950
-border
-border-slate-800
-rounded-3xl
-p-6
-  "
->
-
-  <h2
-  className="
-    text-xl
-    font-bold
-    text-white
-    mb-4
-  "
->
-    🏆 Top Sorteos
-  </h2>
-
-  <div className="space-y-3">
-
-    {Object.entries(
-      data?.topRaffles || {}
-    ).map(
-
-      ([key, value]: any) => (
-
-        <div
-          key={key}
-          className="
-            flex
-            items-center
-            justify-between
-            border-b border-slate-800
-            pb-2
-          "
-        >
-
-          <div>
-
-            <p
-  className="
-    font-semibold
-    text-white
-  "
->
-              {value.title}
-            </p>
-
-          </div>
-
-          <div className="text-right">
-
-            <p
-  className="
-    font-bold
-    text-emerald-400
-  "
->
-
-              $
-              {Number(
-                value.revenue || 0
-              ).toLocaleString()}
-
-            </p>
-
-            <p className="text-sm text-slate-400">
-
-              {value.conversions}
-              {" "}
-              conversiones
-
-            </p>
-
-          </div>
-
-        </div>
-      )
-    )}
-
-  </div>
-
-</div>
-
-{/* REVENUE CHART */}
-
-<div
-  className="
-    bg-gradient-to-br
-    from-slate-900
-    to-slate-950
-    border
-    border-slate-800
-    rounded-3xl
-    p-6
-  "
->
-
-  <h2
-  className="
-    text-xl
-    font-bold
-    text-white
-    mb-4
-  "
->
-    📈 Revenue Diario
-  </h2>
-
-  <div className="h-80">
-
-    <ResponsiveContainer
-      width="100%"
-      height="100%"
-    >
-
-      <LineChart
-  data={revenueChart}
-  margin={{
-    top: 20,
-    right: 20,
-    left: 10,
-    bottom: 10
-  }}
->
-
-        <XAxis
-  dataKey="date"
-  stroke="#94a3b8"
-/>
-
-        <YAxis
-  stroke="#94a3b8"
-/>
-
-        <Tooltip
-  contentStyle={{
-    background: "#0f172a",
-    border: "1px solid #334155"
-  }}
-  formatter={(value: any) => [
-    `$${Number(value).toLocaleString()}`,
-    "Revenue"
-  ]}
-/>
-
-       <Line
-  type="monotone"
-  dataKey="revenue"
-  stroke="#22c55e"
-  strokeWidth={3}
-  dot={false}
-  activeDot={{
-    r: 6
-  }}
-/>
-
-      </LineChart>
-
-    </ResponsiveContainer>
-
-  </div>
-
-</div>
-
-{/* SOURCES */}
-
-<div
-  className="
-   bg-gradient-to-br
-from-slate-900
-to-slate-950
-border
-border-slate-800
-rounded-3xl
-p-6
-  "
->
-
-  <h2
-  className="
-    text-xl
-    font-bold
-    text-white
-    mb-4
-  "
->
-    📊 Sources
-  </h2>
-
-  <div className="space-y-3">
-
-          {Object.entries(
-            data?.sources || {}
-          ).map(
-
-            ([key, value]: any) => (
-
-              <div
-                key={key}
-                className="
-                  flex
-                  items-center
-                  justify-between
-                  border-b border-slate-800
-                  pb-2
-                "
-              >
-
-                <div>
-                  <p
-  className="
-    font-semibold
-    text-white
-  "
->
-                    {key}
-                  </p>
-                </div>
-
-                <div className="text-right">
-
-                  <p
-  className="
-    font-bold
-    text-emerald-400
-  "
->
-                    $
-                    {Number(
-                      value.revenue || 0
-                    ).toLocaleString()}
-                  </p>
-
-                  <p className="text-sm text-slate-400">
-                    {value.conversions}
-                    {" "}
-                    conversiones
-                  </p>
-
-                </div>
-
-              </div>
-            )
-          )}
-
-        </div>
-
-      </div>
-
-{/* CAMPAIGNS */}
-
-<div
-  className="
-    bg-gradient-to-br
-from-slate-900
-to-slate-950
-border
-border-slate-800
-rounded-3xl
-p-6
-  "
->
-
-  <h2
-  className="
-    text-xl
-    font-bold
-    text-white
-    mb-4
-  "
->
-    🚀 Campaign Tracking
-  </h2>
-
-  <div className="space-y-3">
-
-    {Object.entries(
-      data?.campaigns || {}
-    ).map(
-
-      ([key, value]: any) => (
-
-        <div
-          key={key}
-          className="
-            flex
-            items-center
-            justify-between
-            border-b border-slate-800
-            pb-2
-          "
-        >
-
-          <div>
-
-            <p
-  className="
-    font-semibold
-    text-white
-  "
->
-              {key}
-            </p>
-
-          </div>
-
-          <div className="text-right">
-
-            <p
-  className="
-    font-bold
-    text-emerald-400
-  "
->
-
-              $
-              {Number(
-                value.revenue || 0
-              ).toLocaleString()}
-
-            </p>
-
-            <p className="text-sm text-slate-400">
-
-              {value.conversions}
-              {" "}
-              conversiones
-
-            </p>
-
-          </div>
-
-        </div>
-      )
-    )}
-
-  </div>
+</a>
 
 </div>
 
