@@ -255,52 +255,36 @@ Analytics
         "
       >
 
-        <Card
-  title="Revenue Total"
-  value={`$${Number(
-    data?.revenue || 0
-  ).toLocaleString()}`}
+        <div
+className="
+grid
+grid-cols-2
+md:grid-cols-4
+gap-4
+"
+>
+
+<Card
+title="Sorteos"
+value="Manage"
 />
 
-        <Card
-          title="Pagos"
-          value={data?.payments || 0}
-        />
+<Card
+title="Ventas"
+value="Orders"
+/>
 
-        <Card
-          title="Tickets"
-          value={data?.tickets || 0}
-        />
+<Card
+title="Pagos"
+value="Payments"
+/>
 
-        <Card
-          title="Conversión"
-          value={`${Number(
-            data?.conversionRate || 0
-          ).toFixed(2)}%`}
-        />
+<Card
+title="Analytics"
+value="View"
+/>
 
-            <Card
-            title="Visits"
-            value={
-                Number(
-                data?.visits || 0
-                ).toLocaleString()
-            }
-            />
-
-            <Card
-            title="AOV"
-            value={`$${Number(
-                data?.avgOrderValue || 0
-            ).toLocaleString()}`}
-            />
-
-            <Card
-            title="Revenue / Visit"
-            value={`$${Number(
-                data?.revenuePerVisit || 0
-            ).toFixed(0)}`}
-            />
+</div>
 
       </div>
 
