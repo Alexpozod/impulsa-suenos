@@ -70,10 +70,47 @@ if (!auth.authorized) {
     ========================= */
 
     const { data: tickets } =
-      await supabase
-        .schema("raffles")
-        .from("ticket_inventory")
-        .select("id,status")
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select(`
+      id,
+      status,
+      raffle_id
+    `)
+
+    console.log(
+  "TICKET SAMPLE",
+  tickets?.slice(0, 20)
+)
+
+const raffleBreakdown =
+  (tickets || []).reduce(
+    (acc: any, t: any) => {
+
+      if (!acc[t.raffle_id]) {
+
+        acc[t.raffle_id] = {
+          paid: 0,
+          winner: 0,
+          available: 0
+        }
+
+      }
+
+      acc[t.raffle_id][t.status] =
+        (acc[t.raffle_id][t.status] || 0) + 1
+
+      return acc
+
+    },
+    {}
+  )
+
+console.log(
+  "RAFFLE BREAKDOWN",
+  raffleBreakdown
+)
 
     /* =========================
        🎯 EVENTS
