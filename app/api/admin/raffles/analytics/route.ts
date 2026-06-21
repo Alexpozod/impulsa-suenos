@@ -65,53 +65,20 @@ if (!auth.authorized) {
     `)
     .eq("status", "approved")
 
-    /* =========================
-       🎟️ TICKETS
-    ========================= */
+   /* =========================
+   🎟️ ORDERS
+========================= */
 
-    const { data: tickets } =
+const { data: orders } =
   await supabase
     .schema("raffles")
-    .from("ticket_inventory")
+    .from("orders")
     .select(`
-      id,
-      status,
-      raffle_id
+      raffle_id,
+      quantity,
+      status
     `)
-
-    console.log(
-  "TICKET SAMPLE",
-  tickets?.slice(0, 20)
-)
-
-const raffleBreakdown =
-  (tickets || []).reduce(
-    (acc: any, t: any) => {
-
-      if (!acc[t.raffle_id]) {
-
-        acc[t.raffle_id] = {
-          paid: 0,
-          winner: 0,
-          available: 0
-        }
-
-      }
-
-      acc[t.raffle_id][t.status] =
-        (acc[t.raffle_id][t.status] || 0) + 1
-
-      return acc
-
-    },
-    {}
-  )
-
-console.log(
-  "RAFFLE BREAKDOWN",
-  raffleBreakdown
-)
-
+    
     /* =========================
        🎯 EVENTS
     ========================= */
@@ -134,26 +101,34 @@ console.log(
       (payments || []).length
 
     const totalTickets =
-  (tickets || [])
+  (orders || [])
     .filter(
-      t =>
-        t.status === "paid" ||
-        t.status === "winner"
+      o =>
+        o.status === "paid"
     )
-    .length
+    .reduce(
+      (sum, order) =>
+        sum + Number(order.quantity || 0),
+      0
+    )
 
     console.log(
-  "TICKET STATS",
-  (tickets || []).reduce(
-    (acc: any, t: any) => {
-      acc[t.status] =
-        (acc[t.status] || 0) + 1
-      return acc
-    },
-    {}
-  )
+  "ORDERS COUNT",
+  orders?.length
 )
 
+console.log(
+  "TOTAL TICKETS SOLD",
+  totalTickets
+)
+
+console.log(
+  "PAID ORDERS",
+  orders?.filter(
+    o => o.status === "paid"
+  )
+)
+   
       const totalVisits =
 (events || [])
 .filter(
