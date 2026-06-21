@@ -84,19 +84,7 @@ if (!auth.authorized) {
         .schema("raffles")
         .from("analytics_events")
         .select("*")
-
-    /* =========================
-    👁️ TRACKING EVENTS
-    ========================= */
-
-    const {
-    data: tracking
-    } =
-    await supabase
-        .schema("raffles")
-        .from("tracking_events")
-        .select("event_type")
-
+    
     const totalRevenue =
       (payments || [])
         .reduce(
@@ -117,13 +105,25 @@ if (!auth.authorized) {
     )
     .length
 
+    console.log(
+  "TICKET STATS",
+  (tickets || []).reduce(
+    (acc: any, t: any) => {
+      acc[t.status] =
+        (acc[t.status] || 0) + 1
+      return acc
+    },
+    {}
+  )
+)
+
       const totalVisits =
-  (tracking || [])
-    .filter(
-      e =>
-        e.event_type ===
-        "page_view"
-    ).length
+(events || [])
+.filter(
+  e =>
+    e.event_type ===
+    "page_view"
+).length
 
     const beginCheckout =
       (events || [])
