@@ -126,9 +126,11 @@ export default function RaffleTicketsPage() {
       >
 
         <MetricCard
-          title="Total"
-          value={tickets.length}
-        />
+  title="Total"
+  value={
+    pagination?.total || 0
+  }
+/>
 
         <MetricCard
           title="Available"
@@ -263,11 +265,15 @@ export default function RaffleTicketsPage() {
           <table className="w-full">
 
             <thead
-              className="
-                bg-slate-950
-                border-b border-slate-800
-              "
-            >
+  className="
+    sticky
+    top-0
+    z-10
+    bg-slate-950
+    border-b
+    border-slate-800
+  "
+>
 
               <tr className="text-left">
 
@@ -288,8 +294,12 @@ export default function RaffleTicketsPage() {
                 </th>
 
                 <th className="p-4">
-                  Reserva
-                </th>
+  Reserva
+</th>
+
+<th className="p-4">
+  Acciones
+</th>
 
               </tr>
 
@@ -340,8 +350,11 @@ export default function RaffleTicketsPage() {
                 <tr
                   key={ticket.id}
                   className="
-                    border-b border-slate-800
-                  "
+  border-b
+  border-slate-800
+  hover:bg-slate-900/40
+  transition
+"
                 >
 
                   <td className="p-4">
@@ -399,6 +412,30 @@ export default function RaffleTicketsPage() {
                       : "-"}
 
                   </td>
+
+                  <td className="p-4">
+
+  <button
+    onClick={() => {
+
+      window.location.href =
+        `/admin/raffles/tickets/${ticket.id}`
+
+    }}
+    className="
+      px-3
+      py-2
+      rounded-xl
+      bg-blue-600
+      hover:bg-blue-500
+      transition
+      text-sm
+    "
+  >
+    👁 Ver
+  </button>
+
+</td>
 
                 </tr>
 
