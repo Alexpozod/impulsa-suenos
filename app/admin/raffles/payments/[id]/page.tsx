@@ -40,8 +40,8 @@ export default function PaymentDetailPage() {
           .getSession()
 
       const res =
-        await fetch(
-          `/api/admin/raffles/payment/${params.id}`,
+  await fetch(
+    `/api/admin/raffles/payments/${params.id}`,
           {
             headers: {
               Authorization:
@@ -75,6 +75,15 @@ export default function PaymentDetailPage() {
       </div>
     )
   }
+
+  if (!payment) {
+
+  return (
+    <div className="p-6">
+      Pago no encontrado
+    </div>
+  )
+}
 
   const netAmount =
     Number(

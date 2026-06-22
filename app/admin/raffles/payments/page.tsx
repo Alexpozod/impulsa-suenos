@@ -293,10 +293,6 @@ xl:grid-cols-4
   Acciones
 </th>
 
-                <th className="p-4">
-  Acciones
-</th>
-
               </tr>
 
             </thead>
