@@ -135,7 +135,7 @@ export default function RaffleOrdersPage() {
         className="
           grid
           grid-cols-1
-          md:grid-cols-3
+          md:grid-cols-4
           gap-4
         "
       >
@@ -151,16 +151,24 @@ export default function RaffleOrdersPage() {
         />
 
         <MetricCard
-          title="Pending"
-          value={
-            orders.filter(
+  title="Paid Orders"
+  value={
+    orders.filter(
+      order =>
+        order.status === "paid"
+    ).length
+  }
+/>
 
-              order =>
-                order.status === "pending"
-
-            ).length
-          }
-        />
+<MetricCard
+  title="Pending"
+  value={
+    orders.filter(
+      order =>
+        order.status === "pending"
+    ).length
+  }
+/>
 
       </div>
 
@@ -179,7 +187,7 @@ export default function RaffleOrdersPage() {
           className="
             grid
             grid-cols-1
-            md:grid-cols-3
+            md:grid-cols-4
             gap-4
           "
         >
@@ -191,7 +199,9 @@ export default function RaffleOrdersPage() {
                 e.target.value
               )
             }
-            placeholder="Buscar comprador..."
+            placeholder="
+Buscar nombre, email o ID...
+"
             className="
               bg-slate-950
               border border-slate-700
@@ -259,11 +269,15 @@ export default function RaffleOrdersPage() {
           <table className="w-full">
 
             <thead
-              className="
-                bg-slate-950
-                border-b border-slate-800
-              "
-            >
+  className="
+    bg-slate-950
+    border-b
+    border-slate-800
+    sticky
+    top-0
+    z-10
+  "
+>
 
               <tr className="text-left">
 
@@ -290,6 +304,10 @@ export default function RaffleOrdersPage() {
                 <th className="p-4">
                   Fecha
                 </th>
+
+                <th className="p-4">
+  Acciones
+</th>
 
               </tr>
 
@@ -340,17 +358,25 @@ export default function RaffleOrdersPage() {
                 <tr
                   key={order.id}
                   className="
-                    border-b border-slate-800
-                  "
+  border-b
+  border-slate-800
+  hover:bg-slate-900/50
+  transition
+"
                 >
 
                   <td className="p-4">
 
                     <div>
 
-                      <p className="font-medium">
-                        {order.buyer_name}
-                      </p>
+                      <p
+  className="
+    font-semibold
+    text-white
+  "
+>
+  👤 {order.buyer_name}
+</p>
 
                       <p className="text-sm text-slate-500">
                         {order.buyer_email}
@@ -398,8 +424,22 @@ export default function RaffleOrdersPage() {
                   <td className="p-4">
 
                     <StatusBadge
-                      status={order.status}
-                    />
+  status={order.status}
+/>
+
+<p
+  className="
+    text-xs
+    text-slate-500
+    mt-1
+  "
+>
+  {order.status === "paid"
+    ? "Pago confirmado"
+    : order.status === "pending"
+    ? "Pendiente"
+    : "Cancelado"}
+</p>
 
                   </td>
 
@@ -410,6 +450,23 @@ export default function RaffleOrdersPage() {
                     ).toLocaleString()}
 
                   </td>
+
+                  <td className="p-4">
+
+  <button
+    className="
+      px-3 py-2
+      rounded-xl
+      bg-slate-800
+      hover:bg-slate-700
+      text-sm
+      transition
+    "
+  >
+    👁 Ver
+  </button>
+
+</td>
 
                 </tr>
 
