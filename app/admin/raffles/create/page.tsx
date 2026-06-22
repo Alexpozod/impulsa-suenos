@@ -383,89 +383,450 @@ const res =
 
       <div>
 
-        <h1 className="text-3xl font-bold">
-          🎟️ Crear Sorteo
-        </h1>
+  <h1 className="text-3xl font-bold">
+    🎟️ Crear Sorteo
+  </h1>
 
-      </div>
+  <p className="text-slate-400 mt-2">
+    Crea un nuevo sorteo dentro del sistema.
+  </p>
+
+</div>
+
+<div
+  className="
+    bg-blue-950/40
+    border
+    border-blue-800
+    rounded-3xl
+    p-5
+  "
+>
+
+  <p
+    className="
+      text-blue-300
+      font-semibold
+    "
+  >
+    📌 Draft automático
+  </p>
+
+  <p
+    className="
+      text-slate-300
+      text-sm
+      mt-2
+    "
+  >
+    Todos los sorteos se crean inicialmente en estado Draft.
+    Después podrás publicarlos desde Manage cuando estén listos.
+  </p>
+
+</div>
 
       <div className="space-y-4">
 
-        <Input
-          label="Título"
-          value={form.title}
-          onChange={(v: string) =>
-            setForm({
-                ...form,
-                title: v,
-                slug: slugify(v)
-            })
-            }
-        />
+        <div>
 
-        <Input
-          label="Slug"
-          value={form.slug}
-          onChange={(v: string) =>
-            setForm({
-              ...form,
-              slug: v
-            })
-          }
-        />
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
 
-        <Textarea
-          label="Descripción"
-          value={form.description}
-          onChange={(v: string) =>
-            setForm({
-              ...form,
-              description: v
-            })
-          }
-        />
+  <div className="mb-6">
 
-        <Input
-  label="Título premio"
-  value={form.prize_title}
-  onChange={(v: string) =>
-    setForm({
-      ...form,
-      prize_title: v
-    })
-  }
-/>
+    <h2
+      className="
+        text-xl
+        font-bold
+      "
+    >
+      📝 Datos Generales
+    </h2>
 
-<Textarea
-  label="Descripción premio"
-  value={form.prize_description}
-  onChange={(v: string) =>
-    setForm({
-      ...form,
-      prize_description: v
-    })
-  }
-/>
+    <p
+      className="
+        text-slate-400
+        text-sm
+        mt-1
+      "
+    >
+      Información principal del sorteo
+    </p>
+
+  </div>
+
+  <Input
+    label="Título"
+    value={form.title}
+    onChange={(v: string) =>
+      setForm({
+        ...form,
+        title: v,
+        slug: slugify(v)
+      })
+    }
+  />
+
+  <div className="mt-2">
+
+    {form.title.length < 10 ? (
+
+      <p
+        className="
+          text-xs
+          text-red-400
+        "
+      >
+        Mínimo 10 caracteres
+        ({form.title.length}/10)
+      </p>
+
+    ) : (
+
+      <p
+        className="
+          text-xs
+          text-emerald-400
+        "
+      >
+        ✓ Título válido
+      </p>
+
+    )}
+
+  </div>
+
+</div>
 
         <div>
+
+  <Input
+    label="Slug"
+    value={form.slug}
+    onChange={(v: string) =>
+      setForm({
+        ...form,
+        slug: v
+      })
+    }
+  />
+
+  <div
+    className="
+      mt-2
+      rounded-xl
+      border
+      border-slate-800
+      bg-slate-900
+      px-3
+      py-2
+    "
+  >
+
+    <p
+      className="
+        text-xs
+        text-slate-400
+      "
+    >
+      URL pública
+    </p>
+
+    <p
+      className="
+        text-sm
+        text-blue-400
+        break-all
+      "
+    >
+      /raffles/{form.slug || "mi-sorteo"}
+    </p>
+
+  </div>
+
+</div>
+
+        <div>
+
+  <Textarea
+    label="Descripción"
+    value={form.description}
+    onChange={(v: string) =>
+      setForm({
+        ...form,
+        description: v
+      })
+    }
+  />
+
+  </div>
+
+  <div
+    className="
+      flex
+      items-center
+      justify-between
+      mt-2
+    "
+  >
+
+    <div>
+
+      {form.description.length < 100 ? (
+
+        <p
+          className="
+            text-xs
+            text-red-400
+          "
+        >
+          Mínimo 100 caracteres
+        </p>
+
+      ) : (
+
+        <p
+          className="
+            text-xs
+            text-emerald-400
+          "
+        >
+          ✓ Descripción válida
+        </p>
+
+      )}
+
+    </div>
+
+    <p
+      className={`
+        text-xs
+
+        ${
+          form.description.length >= 100
+            ? "text-emerald-400"
+            : "text-slate-500"
+        }
+      `}
+    >
+      {form.description.length} caracteres
+    </p>
+
+  </div>
+
+</div>
+
+        <div>
+
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+  <div className="mb-6">
+
+    <h2
+      className="
+        text-xl
+        font-bold
+      "
+    >
+      🏆 Premio
+    </h2>
+
+    <p
+      className="
+        text-slate-400
+        text-sm
+        mt-1
+      "
+    >
+      Información que verá el participante
+    </p>
+
+  </div>
+
+  <Input
+    label="Título premio"
+    value={form.prize_title}
+    onChange={(v: string) =>
+      setForm({
+        ...form,
+        prize_title: v
+      })
+    }
+  />
+
+  <div className="mt-2">
+
+    {form.prize_title.length < 10 ? (
+
+      <p
+        className="
+          text-xs
+          text-red-400
+        "
+      >
+        Mínimo 10 caracteres
+        ({form.prize_title.length}/10)
+      </p>
+
+    ) : (
+
+      <p
+        className="
+          text-xs
+          text-emerald-400
+        "
+      >
+        ✓ Premio válido
+      </p>
+
+    )}
+
+  </div>
+
+</div>
+
+<div>
+
+  <Textarea
+    label="Descripción premio"
+    value={form.prize_description}
+    onChange={(v: string) =>
+      setForm({
+        ...form,
+        prize_description: v
+      })
+    }
+  />
+
+  </div>
+
+  <div
+    className="
+      flex
+      items-center
+      justify-between
+      mt-2
+    "
+  >
+
+    <div>
+
+      {form.prize_description.length < 20 ? (
+
+        <p
+          className="
+            text-xs
+            text-red-400
+          "
+        >
+          Mínimo 20 caracteres
+        </p>
+
+      ) : (
+
+        <p
+          className="
+            text-xs
+            text-emerald-400
+          "
+        >
+          ✓ Descripción de premio válida
+        </p>
+
+      )}
+
+    </div>
+
+    <p
+      className={`
+        text-xs
+
+        ${
+          form.prize_description.length >= 20
+            ? "text-emerald-400"
+            : "text-slate-500"
+        }
+      `}
+    >
+      {form.prize_description.length} caracteres
+    </p>
+
+  </div>
+
+</div>
+
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+  <div className="mb-6">
+
+    <h2
+      className="
+        text-xl
+        font-bold
+      "
+    >
+      🎬 Multimedia
+    </h2>
+
+    <p
+      className="
+        text-slate-400
+        text-sm
+        mt-1
+      "
+    >
+      Imágenes y contenido promocional
+    </p>
+
+  </div>
+
+        <div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-5
+  "
+>
 
   <label
     className="
       block
       text-sm
       font-medium
-      mb-2
+      mb-3
     "
   >
-    Imagen Principal
+    🖼️ Imagen Principal
   </label>
 
   <input
-
     type="file"
-
     accept="image/*"
-
     onChange={async e => {
 
       const file =
@@ -478,55 +839,87 @@ const res =
       )
 
     }}
-
+    className="
+      w-full
+      rounded-xl
+      border
+      border-slate-700
+      bg-slate-950
+      p-3
+    "
   />
 
   {uploading && (
 
-    <p className="mt-2">
-
-      Subiendo...
-
-    </p>
+    <div
+      className="
+        mt-4
+        text-sm
+        text-blue-400
+      "
+    >
+      Subiendo imagen...
+    </div>
 
   )}
 
   {form.cover_image && (
 
-    <img
-      src={form.cover_image}
-      alt="cover"
-      className="
-        mt-4
-        rounded-xl
-        border
-        max-h-64
-      "
-    />
+    <div className="mt-5">
+
+      <img
+        src={form.cover_image}
+        alt="cover"
+        className="
+          w-full
+          rounded-2xl
+          border
+          border-slate-700
+          max-h-[400px]
+          object-cover
+        "
+      />
+
+      <div
+        className="
+          mt-3
+          text-xs
+          text-emerald-400
+        "
+      >
+        ✓ Imagen cargada correctamente
+      </div>
+
+    </div>
 
   )}
 
-  <div className="mt-6">
+  <div
+  className="
+    mt-6
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-5
+  "
+>
 
   <label
     className="
       block
       text-sm
       font-medium
-      mb-2
+      mb-3
     "
   >
-    Galería del Sorteo
+    🖼️ Galería del Sorteo
   </label>
 
   <input
-
     type="file"
-
     accept="image/*"
-
     multiple
-
     onChange={async e => {
 
       const files =
@@ -543,7 +936,14 @@ const res =
       }
 
     }}
-
+    className="
+      w-full
+      rounded-xl
+      border
+      border-slate-700
+      bg-slate-950
+      p-3
+    "
   />
 
   {form.gallery.length > 0 && (
@@ -568,11 +968,13 @@ const res =
             src={image}
             alt=""
             className="
-              rounded-xl
-              border
-              h-32
-              object-cover
-            "
+  rounded-2xl
+  border
+  border-slate-700
+  h-36
+  w-full
+  object-cover
+"
           />
 
         )
@@ -580,29 +982,47 @@ const res =
 
     </div>
 
+</div>
+
   )}
+
+  <div
+  className="
+    mt-4
+    text-xs
+    text-slate-400
+  "
+>
+  {form.gallery.length} imagen(es) cargadas
+</div>
 
 </div>
 
-<div className="mt-6">
+<div
+  className="
+    mt-6
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-5
+  "
+>
 
   <label
     className="
       block
       text-sm
       font-medium
-      mb-2
+      mb-3
     "
   >
-    Video Promocional
+    🎬 Video Promocional
   </label>
 
   <input
-
     type="file"
-
     accept="video/*"
-
     onChange={async e => {
 
       const file =
@@ -615,19 +1035,27 @@ const res =
       )
 
     }}
-
+    className="
+      w-full
+      rounded-xl
+      border
+      border-slate-700
+      bg-slate-950
+      p-3
+    "
   />
 
   {form.promo_video && (
 
+  <div className="mt-5">
+
     <video
       controls
       className="
-        mt-4
         w-full
-        max-w-md
-        rounded-xl
+        rounded-2xl
         border
+        border-slate-700
       "
     >
       <source
@@ -635,7 +1063,19 @@ const res =
       />
     </video>
 
-  )}
+    <div
+      className="
+        mt-3
+        text-xs
+        text-emerald-400
+      "
+    >
+      ✓ Video cargado correctamente
+    </div>
+
+  </div>
+
+)}
 
 </div>
 
