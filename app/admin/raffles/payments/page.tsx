@@ -448,6 +448,32 @@ xl:grid-cols-4
 <td className="p-4">
 
   <button
+    onClick={() =>
+      alert(
+        [
+          `Pago ID: ${payment.id}`,
+          `Order ID: ${payment.order_id}`,
+          `Provider: ${payment.provider}`,
+          `Provider Payment ID: ${payment.provider_payment_id}`,
+          `Estado: ${payment.status}`,
+          `Monto: $${Number(
+            payment.amount_clp || 0
+          ).toLocaleString()}`,
+          `Fee: $${Number(
+            payment.provider_fee || 0
+          ).toLocaleString()}`,
+          `Comprador: ${
+            payment.orders?.buyer_name || "-"
+          }`,
+          `Email: ${
+            payment.orders?.buyer_email || "-"
+          }`,
+          `Fecha: ${new Date(
+            payment.created_at
+          ).toLocaleString()}`
+        ].join("\n")
+      )
+    }
     className="
       px-3
       py-2
