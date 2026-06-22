@@ -982,32 +982,56 @@ function ActionButton({
 
   const colors: any = {
 
-    green:
-      "bg-green-600 hover:bg-green-500",
+  green:
+    `
+    bg-emerald-600
+    hover:bg-emerald-500
+    text-white
+    `,
 
-    yellow:
-      "bg-yellow-600 hover:bg-yellow-500",
+  yellow:
+    `
+    bg-amber-500
+    hover:bg-amber-400
+    text-slate-950
+    font-bold
+    `,
 
-    red:
-      "bg-red-600 hover:bg-red-500",
+  red:
+    `
+    bg-red-600
+    hover:bg-red-500
+    text-white
+    `,
 
-    blue:
-      "bg-blue-600 hover:bg-blue-500"
+  blue:
+    `
+    bg-blue-600
+    hover:bg-blue-500
+    text-white
+    `
 
-  }
+}
 
   return (
 
     <button
       onClick={onClick}
       className={`
-        px-2 py-1
-        rounded-xl
-        text-sm
-        transition
+  min-w-[34px]
+  h-[34px]
 
-        ${colors[color]}
-      `}
+  flex
+  items-center
+  justify-center
+
+  rounded-xl
+
+  text-sm
+  transition
+
+  ${colors[color]}
+`}
     >
       {label}
     </button>
