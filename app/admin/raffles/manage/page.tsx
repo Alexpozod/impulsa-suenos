@@ -588,14 +588,16 @@ async function exportExcel(
 
                     <div>
 
-                      <p className="font-semibold">
-                        {raffle.title}
-                      </p>
-
-                      <p className="text-sm text-slate-500">
-                        /{raffle.slug}
-                      </p>
-
+                      <p
+  className="
+    font-semibold
+    max-w-[420px]
+    truncate
+  "
+>
+  {raffle.title}
+</p>
+                      
                     </div>
 
                   </td>
