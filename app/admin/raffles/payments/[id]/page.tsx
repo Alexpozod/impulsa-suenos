@@ -191,6 +191,20 @@ export default function PaymentDetailPage() {
           }
         />
 
+        <Info
+  label="IP"
+  value={
+    payment.orders?.ip_address
+  }
+/>
+
+<Info
+  label="User Agent"
+  value={
+    payment.orders?.user_agent
+  }
+/>
+
       </Section>
 
       {/* ORDEN */}
@@ -212,6 +226,13 @@ export default function PaymentDetailPage() {
         />
 
         <Info
+  label="Tickets Entregados"
+  value={
+    payment.tickets?.length || 0
+  }
+/>
+
+        <Info
           label="Estado"
           value={
             payment.orders?.status
@@ -227,6 +248,14 @@ export default function PaymentDetailPage() {
               : "No"
           }
         />
+
+        <Info
+  label="Fecha Email"
+  value={
+    payment.orders
+      ?.confirmation_email_sent_at
+  }
+/>
 
       </Section>
 
@@ -249,6 +278,83 @@ export default function PaymentDetailPage() {
         />
 
       </Section>
+
+{/* TICKETS */}
+
+<Section title="Tickets Asociados">
+
+  {payment.tickets?.length ? (
+
+    <div className="space-y-2">
+
+      {payment.tickets.map(
+        (ticket: any) => (
+
+          <div
+            key={ticket.id}
+            className="
+              flex
+              justify-between
+              items-center
+              rounded-xl
+              border
+              border-slate-800
+              bg-slate-950
+              p-3
+            "
+          >
+
+            <div>
+
+              <p className="font-medium">
+
+                {ticket.ticket_code}
+
+              </p>
+
+              <p className="text-sm text-slate-500">
+
+                Número:
+                {" "}
+                {ticket.ticket_number}
+
+              </p>
+
+            </div>
+
+            <div>
+
+              <span
+                className="
+                  px-2
+                  py-1
+                  rounded-full
+                  text-xs
+                  bg-green-900/40
+                  text-green-300
+                "
+              >
+                {ticket.status}
+              </span>
+
+            </div>
+
+          </div>
+
+        )
+      )}
+
+    </div>
+
+  ) : (
+
+    <p className="text-slate-500">
+      Sin tickets asociados
+    </p>
+
+  )}
+
+</Section>
 
       {/* AUDITORIA */}
 

@@ -293,6 +293,10 @@ xl:grid-cols-4
   Acciones
 </th>
 
+                <th className="p-4">
+  Acciones
+</th>
+
               </tr>
 
             </thead>
@@ -448,109 +452,10 @@ xl:grid-cols-4
 <td className="p-4">
 
   <button
-    onClick={async () => {
+    onClick={() => {
 
-      try {
-
-        const {
-          data: { session }
-        } =
-          await supabase.auth.getSession()
-
-        const res =
-          await fetch(
-            `/api/admin/raffles/payments/${payment.id}`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${session?.access_token}`
-              }
-            }
-          )
-
-        const json =
-          await res.json()
-
-        const p =
-          json.payment
-
-        const tickets =
-          p.tickets
-            ?.map(
-              (ticket: any) =>
-                ticket.ticket_code
-            )
-            .join("\n") ||
-          "Sin tickets"
-
-        alert(
-          [
-
-            "PAGO",
-            "",
-
-            `ID: ${p.id}`,
-
-            `Order ID: ${p.order_id}`,
-
-            `Estado: ${p.status}`,
-
-            `Monto: $${Number(
-              p.amount_clp || 0
-            ).toLocaleString()}`,
-
-            `Fee: $${Number(
-              p.provider_fee || 0
-            ).toLocaleString()}`,
-
-            `Provider: ${p.provider}`,
-
-            `Provider Payment ID: ${p.provider_payment_id}`,
-
-            "",
-
-            "CLIENTE",
-            "",
-
-            `${p.orders?.buyer_name || "-"}`,
-
-            `${p.orders?.buyer_email || "-"}`,
-
-            "",
-
-            "EMAIL",
-            "",
-
-            `Enviado: ${
-              p.orders?.confirmation_email_sent
-                ? "SI"
-                : "NO"
-            }`,
-
-            `Fecha: ${
-              p.orders?.confirmation_email_sent_at ||
-              "-"
-            }`,
-
-            "",
-
-            "TICKETS",
-            "",
-
-            tickets
-
-          ].join("\n")
-        )
-
-      } catch (error) {
-
-        console.error(error)
-
-        alert(
-          "Error cargando detalle"
-        )
-
-      }
+      window.location.href =
+        `/admin/raffles/payments/${payment.id}`
 
     }}
     className="
@@ -567,6 +472,7 @@ xl:grid-cols-4
   </button>
 
 </td>
+
 
                 </tr>
 
