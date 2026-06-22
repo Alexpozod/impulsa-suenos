@@ -2,8 +2,97 @@
 
 import Link from "next/link"
 
+const sections = [
+
+  {
+    title: "Crear Sorteo",
+    icon: "➕",
+    href: "/admin/raffles/create",
+    description: "Crear un nuevo sorteo"
+  },
+
+  {
+    title: "Gestionar",
+    icon: "🎟️",
+    href: "/admin/raffles/manage",
+    description: "Administrar sorteos"
+  },
+
+  {
+    title: "Órdenes",
+    icon: "🛒",
+    href: "/admin/raffles/orders",
+    description: "Ver compras y órdenes"
+  },
+
+  {
+    title: "Pagos",
+    icon: "💳",
+    href: "/admin/raffles/payments",
+    description: "Pagos Flow y estados"
+  },
+
+  {
+    title: "Tickets",
+    icon: "🎫",
+    href: "/admin/raffles/tickets",
+    description: "Inventario y asignaciones"
+  },
+
+  {
+    title: "Resultados",
+    icon: "🏆",
+    href: "/admin/raffles/results",
+    description: "Ganadores y sorteos"
+  },
+
+  {
+    title: "Analytics",
+    icon: "📈",
+    href: "/admin/raffles/analytics",
+    description: "Ventas y conversión",
+    featured: true
+  },
+
+  {
+    title: "Fraud",
+    icon: "🚨",
+    href: "/admin/raffles/fraud",
+    description: "Detección de fraude"
+  },
+
+  {
+    title: "Exports",
+    icon: "📤",
+    href: "/admin/raffles/exports",
+    description: "Exportar información"
+  },
+
+  {
+    title: "Influencers",
+    icon: "⭐",
+    href: "/admin/raffles/affiliates",
+    description: "Programa de afiliados"
+  },
+
+  {
+    title: "Retiros",
+    icon: "💰",
+    href: "/admin/raffles/affiliate-payouts",
+    description: "Pagos influencers"
+  },
+
+  {
+    title: "Referidos",
+    icon: "🎁",
+    href: "/admin/raffles/referrals",
+    description: "Sistema de referidos"
+  }
+
+]
+
 export default function AdminRafflesPage() {
-    
+
   return (
 
     <div className="p-8 space-y-8">
@@ -11,341 +100,159 @@ export default function AdminRafflesPage() {
       <div>
 
         <h1 className="text-4xl font-bold">
-          🎟️ Raffles Admin
+          🎟️ Sorteos ImpulsaSueños
         </h1>
 
         <p className="text-slate-400 mt-2">
-  Dashboard principal de sorteos
-</p>
+          Centro de control del módulo de sorteos
+        </p>
 
       </div>
-
-      <div
-className="
-grid
-grid-cols-2
-md:grid-cols-3
-xl:grid-cols-6
-gap-4
-"
->
-
-<a
-href="/admin/raffles/create"
-className="
-bg-slate-900
-border
-border-slate-800
-rounded-2xl
-p-5
-hover:border-blue-500
-transition
-"
->
-<div className="text-3xl">
-➕
-</div>
-
-<div className="mt-3 font-bold">
-Crear Sorteo
-</div>
-</a>
-
-<a
-href="/admin/raffles/manage"
-className="
-bg-slate-900
-border
-border-slate-800
-rounded-2xl
-p-5
-hover:border-blue-500
-transition
-"
->
-<div className="text-3xl">
-🎟️
-</div>
-
-<div className="mt-3 font-bold">
-Gestionar
-</div>
-</a>
-
-<a
-href="/admin/raffles/orders"
-className="
-bg-slate-900
-border
-border-slate-800
-rounded-2xl
-p-5
-hover:border-blue-500
-transition
-"
->
-<div className="text-3xl">
-🛒
-</div>
-
-<div className="mt-3 font-bold">
-Órdenes
-</div>
-</a>
-
-<a
-href="/admin/raffles/payments"
-className="
-bg-slate-900
-border
-border-slate-800
-rounded-2xl
-p-5
-hover:border-blue-500
-transition
-"
->
-<div className="text-3xl">
-💳
-</div>
-
-<div className="mt-3 font-bold">
-Pagos
-</div>
-</a>
-
-<a
-href="/admin/raffles/tickets"
-className="
-bg-slate-900
-border
-border-slate-800
-rounded-2xl
-p-5
-hover:border-blue-500
-transition
-"
->
-<div className="text-3xl">
-🎫
-</div>
-
-<div className="mt-3 font-bold">
-Tickets
-</div>
-</a>
-
-<a
-href="/admin/raffles/results"
-className="
-bg-slate-900
-border
-border-slate-800
-rounded-2xl
-p-5
-hover:border-blue-500
-transition
-"
->
-<div className="text-3xl">
-🏆
-</div>
-
-<div className="mt-3 font-bold">
-Resultados
-</div>
-</a>
-
-<a
-href="/admin/raffles/analytics"
-className="
-bg-gradient-to-br
-from-blue-900/40
-to-blue-950/40
-border
-border-blue-700
-rounded-2xl
-p-5
-hover:border-blue-400
-transition
-"
->
-<div className="text-3xl">
-📈
-</div>
-
-<div className="mt-3 font-bold">
-Analytics
-</div>
-</a>
-
-</div>
-
-      {/* METRICS */}
 
       <div
         className="
           grid
           grid-cols-1
           md:grid-cols-2
-          xl:grid-cols-7
-          gap-4
+          xl:grid-cols-4
+          gap-5
         "
       >
 
-        <div
-className="
-grid
-grid-cols-2
-md:grid-cols-4
-gap-4
-"
->
+        {sections.map(section => (
 
-<Card
-title="Sorteos"
-value="Manage"
-/>
+          <Link
+            key={section.href}
+            href={section.href}
+            className={`
+              rounded-3xl
+              border
+              p-6
+              transition-all
+              hover:scale-[1.02]
 
-<Card
-title="Ventas"
-value="Orders"
-/>
+              ${
+                section.featured
+                  ? `
+                    border-blue-700
+                    bg-gradient-to-br
+                    from-blue-950/40
+                    to-slate-950
+                  `
+                  : `
+                    border-slate-800
+                    bg-gradient-to-br
+                    from-slate-900
+                    to-slate-950
+                    hover:border-blue-500
+                  `
+              }
+            `}
+          >
 
-<Card
-title="Pagos"
-value="Payments"
-/>
+            <div className="text-4xl">
+              {section.icon}
+            </div>
 
-<Card
-title="Analytics"
-value="View"
-/>
+            <h3
+              className="
+                mt-5
+                text-xl
+                font-bold
+                text-white
+              "
+            >
+              {section.title}
+            </h3>
 
-</div>
+            <p
+              className="
+                mt-2
+                text-sm
+                text-slate-400
+              "
+            >
+              {section.description}
+            </p>
 
-      </div>
+          </Link>
 
-      {/* SYSTEM */}
-
-<div
-  className="
-    grid
-    grid-cols-1
-    md:grid-cols-2
-    gap-4
-  "
->
-
-  <a
-    href="/admin/raffles/system"
-    className="
-  bg-gradient-to-br
-  from-slate-900
-  to-slate-950
-  border
-  border-slate-800
-  rounded-3xl
-  p-6
-  hover:border-blue-500
-  transition
-"
-  >
-
-    <div
-      className="
-        flex
-        items-center
-        justify-between
-      "
-    >
-
-      <div>
-
-        <p
-  className="
-    text-xs
-    text-slate-400
-    uppercase
-    tracking-wider
-  "
->
-          System Health
-        </p>
-
-        <h3
-  className="
-    text-xl
-    font-bold
-    mt-2
-    text-white
-  "
->
-          🛡️ Monitor
-        </h3>
+        ))}
 
       </div>
 
       <div
         className="
-  text-sm
-  font-medium
-  text-blue-400
-"
+          rounded-3xl
+          border
+          border-slate-800
+          bg-gradient-to-br
+          from-slate-900
+          to-slate-950
+          p-8
+        "
       >
-        View →
+
+        <div
+          className="
+            flex
+            items-center
+            justify-between
+          "
+        >
+
+          <div>
+
+            <p
+              className="
+                text-xs
+                uppercase
+                tracking-widest
+                text-slate-500
+              "
+            >
+              System
+            </p>
+
+            <h2
+              className="
+                text-2xl
+                font-bold
+                mt-2
+              "
+            >
+              🛡️ Monitor del Sistema
+            </h2>
+
+            <p
+              className="
+                text-slate-400
+                mt-2
+              "
+            >
+              Estado general de pagos, tickets,
+              webhooks y procesos automáticos.
+            </p>
+
+          </div>
+
+          <Link
+            href="/admin/raffles/system"
+            className="
+              px-5
+              py-3
+              rounded-xl
+              bg-blue-600
+              hover:bg-blue-500
+              transition
+            "
+          >
+            Abrir Monitor
+          </Link>
+
+        </div>
+
       </div>
-
-    </div>
-
-</a>
-
-</div>
-
-    </div>
-  )
-}
-
-function Card({
-
-  title,
-  value
-
-}: any) {
-
-  return (
-
-    <div
-      className="
-        bg-gradient-to-br
-        from-slate-900
-        to-slate-950
-        border
-        border-slate-800
-        rounded-3xl
-        p-5
-      "
-    >
-
-      <p
-        className="
-          text-slate-400
-          text-sm
-        "
-      >
-        {title}
-      </p>
-
-      <h3
-        className="
-          text-3xl
-          font-bold
-          mt-3
-          text-white
-        "
-      >
-        {value}
-      </h3>
 
     </div>
 
