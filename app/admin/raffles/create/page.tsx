@@ -498,6 +498,8 @@ const res =
 
   </div>
 
+  <div>
+
   <Input
     label="Título"
     value={form.title}
@@ -509,6 +511,22 @@ const res =
       })
     }
   />
+
+  {!titleValid && form.title.length > 0 && (
+
+    <p
+      className="
+        mt-2
+        text-sm
+        text-red-400
+      "
+    >
+      ⚠ El título debe tener al menos 5 caracteres
+    </p>
+
+  )}
+
+</div>
 
   <div className="mt-2">
 
@@ -566,6 +584,20 @@ const res =
     "
   >
 
+    {!slugValid && form.slug.length > 0 && (
+
+  <p
+    className="
+      mt-2
+      text-sm
+      text-red-400
+    "
+  >
+    ⚠ El slug debe tener al menos 3 caracteres
+  </p>
+
+)}
+
     <p
       className="
         text-xs
@@ -591,6 +623,8 @@ const res =
 
         <div>
 
+  <div>
+
   <Textarea
     label="Descripción"
     value={form.description}
@@ -601,6 +635,46 @@ const res =
       })
     }
   />
+
+  <div
+    className="
+      mt-2
+      flex
+      items-center
+      justify-between
+    "
+  >
+
+    <div>
+
+      {!descriptionValid &&
+        form.description.length > 0 && (
+
+        <p
+          className="
+            text-sm
+            text-red-400
+          "
+        >
+          ⚠ La descripción debe tener al menos 30 caracteres
+        </p>
+
+      )}
+
+    </div>
+
+    <p
+      className="
+        text-xs
+        text-slate-500
+      "
+    >
+      {form.description.length} caracteres
+    </p>
+
+  </div>
+
+</div>
 
   </div>
 
@@ -738,6 +812,8 @@ const res =
 
 <div>
 
+  <div>
+
   <Textarea
     label="Descripción premio"
     value={form.prize_description}
@@ -748,6 +824,46 @@ const res =
       })
     }
   />
+
+  <div
+    className="
+      mt-2
+      flex
+      items-center
+      justify-between
+    "
+  >
+
+    <div>
+
+      {!prizeDescriptionValid &&
+        form.prize_description.length > 0 && (
+
+        <p
+          className="
+            text-sm
+            text-red-400
+          "
+        >
+          ⚠ La descripción del premio debe tener al menos 20 caracteres
+        </p>
+
+      )}
+
+    </div>
+
+    <p
+      className="
+        text-xs
+        text-slate-500
+      "
+    >
+      {form.prize_description.length} caracteres
+    </p>
+
+  </div>
+
+</div>
 
   </div>
 
@@ -1154,17 +1270,36 @@ const res =
 
   </div>
 
-        <Input
-          label="Valor ticket"
-          type="number"
-          value={form.ticket_price}
-          onChange={(v: string) =>
-            setForm({
-              ...form,
-              ticket_price: v
-            })
-          }
-        />
+        <div>
+
+  <Input
+    label="Valor ticket"
+    type="number"
+    value={form.ticket_price}
+    onChange={(v: string) =>
+      setForm({
+        ...form,
+        ticket_price: v
+      })
+    }
+  />
+
+  {!ticketPriceValid &&
+    form.ticket_price !== "" && (
+
+    <p
+      className="
+        mt-2
+        text-sm
+        text-red-400
+      "
+    >
+      ⚠ El valor del ticket debe ser mayor a 0
+    </p>
+
+  )}
+
+</div>
 
         <Input
           label="Prefijo tickets"
@@ -1312,14 +1447,96 @@ const res =
 
 </div>
 
+{!datesValid &&
+  form.start_date &&
+  form.end_date &&
+  form.draw_date && (
+
+  <div
+    className="
+      mt-4
+      rounded-2xl
+      border
+      border-red-800
+      bg-red-950/30
+      p-4
+    "
+  >
+
+    <p
+      className="
+        text-red-400
+        text-sm
+      "
+    >
+      ⚠ La fecha de cierre debe ser posterior al inicio y la fecha del sorteo debe ser posterior al cierre.
+    </p>
+
+  </div>
+
+)}
+
+{formValid ? (
+
+  <div
+    className="
+      rounded-2xl
+      border
+      border-emerald-800
+      bg-emerald-950/30
+      p-4
+    "
+  >
+
+    <p
+      className="
+        text-emerald-400
+        text-sm
+      "
+    >
+      ✓ Sorteo listo para ser creado
+    </p>
+
+  </div>
+
+) : (
+
+  <div
+    className="
+      rounded-2xl
+      border
+      border-amber-800
+      bg-amber-950/30
+      p-4
+    "
+  >
+
+    <p
+      className="
+        text-amber-400
+        text-sm
+      "
+    >
+      Completa todos los campos requeridos para continuar.
+    </p>
+
+  </div>
+
+)}
+
         <button
-          onClick={submit}
-          disabled={loading}
+  onClick={submit}
+  disabled={
+    loading ||
+    !formValid
+  }
           className="
 w-full
 bg-blue-600
 hover:bg-blue-500
-disabled:opacity-50
+disabled:bg-slate-700
+disabled:cursor-not-allowed
+disabled:opacity-60
 transition
 py-4
 rounded-2xl
