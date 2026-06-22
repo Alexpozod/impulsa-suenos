@@ -996,8 +996,6 @@ const res =
   {form.gallery.length} imagen(es) cargadas
 </div>
 
-</div>
-
 <div
   className="
     mt-6
