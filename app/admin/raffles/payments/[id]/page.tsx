@@ -192,6 +192,13 @@ export default function PaymentDetailPage() {
         />
 
         <Info
+  label="Teléfono"
+  value={
+    payment.orders?.buyer_phone
+  }
+/>
+
+        <Info
   label="IP"
   value={
     payment.orders?.ip_address
@@ -285,7 +292,14 @@ export default function PaymentDetailPage() {
 
   {payment.tickets?.length ? (
 
-    <div className="space-y-2">
+    <div
+  className="
+    grid
+    md:grid-cols-2
+    xl:grid-cols-3
+    gap-3
+  "
+>
 
       {payment.tickets.map(
         (ticket: any) => (
