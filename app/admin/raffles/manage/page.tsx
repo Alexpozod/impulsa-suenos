@@ -747,21 +747,23 @@ async function exportExcel(
   <>
 
     <Link
-      href={`/admin/raffles/results/${raffle.id}`}
-      className="
-        px-3 py-2
-        rounded-xl
-        bg-emerald-600
-        hover:bg-emerald-500
-        text-sm
-      "
-    >
-      Resultados
-    </Link>
+  href={`/admin/raffles/results/${raffle.id}`}
+  className="
+    px-3 py-2
+    rounded-xl
+    bg-emerald-500
+    hover:bg-emerald-400
+    text-slate-950
+    font-semibold
+    text-sm
+  "
+>
+  Resultados
+</Link>
 
-    <ActionButton
+   <ActionButton
   label="Export"
-      color="blue"
+  color="purple"
       onClick={() =>
         exportExcel(
           raffle.id
@@ -778,9 +780,11 @@ async function exportExcel(
   className="
     px-3 py-2
     rounded-xl
-    bg-blue-600
-    hover:bg-blue-500
+    bg-sky-600
+    hover:bg-sky-500
+    text-white
     text-sm
+    font-medium
   "
 >
   Editar
@@ -1009,7 +1013,15 @@ function ActionButton({
     bg-blue-600
     hover:bg-blue-500
     text-white
-    `
+    `,
+
+    purple:
+`
+bg-fuchsia-600
+hover:bg-fuchsia-500
+text-white
+font-medium
+`,
 
 }
 
