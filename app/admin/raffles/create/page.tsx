@@ -894,6 +894,8 @@ const res =
 
   )}
 
+  </div>
+
   <div
   className="
     mt-6
@@ -997,6 +999,8 @@ const res =
   </>
 
 )}
+
+</div>
   
 <div
   className="
