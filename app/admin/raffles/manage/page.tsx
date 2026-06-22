@@ -312,11 +312,11 @@ async function exportExcel(
               font-bold
             "
           >
-            🎟️ Raffles Operations
+            🎟️ Gestión de Sorteos
           </h1>
 
           <p className="text-slate-400 mt-1">
-            Gestión operacional de sorteos
+            Administración completa del sistema de sorteos
           </p>
 
         </div>
@@ -324,8 +324,9 @@ async function exportExcel(
         <Link
           href="/admin/raffles/create"
           className="
-            bg-blue-600
-            hover:bg-blue-500
+            bg-white
+            text-slate-900
+            hover:bg-slate-200
             transition
             px-5 py-3
             rounded-2xl
@@ -352,21 +353,21 @@ gap-4
 <Link
 href="/admin/raffles/create"
 className="
-bg-gradient-to-br
-from-blue-600
-to-blue-700
-rounded-3xl
-p-6
-hover:scale-[1.02]
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-4
+hover:border-blue-500
 transition
 "
 >
 
-<div className="text-4xl">
+<div className="text-3xl text-blue-400">
 ➕
 </div>
 
-<div className="mt-4 text-xl font-bold">
+<div className="mt-2 text-lg font-bold">
 Nuevo Sorteo
 </div>
 
@@ -379,21 +380,21 @@ Crear un nuevo sorteo
 <Link
 href="/admin/raffles/orders"
 className="
-bg-gradient-to-br
-from-green-600
-to-green-700
-rounded-3xl
-p-6
-hover:scale-[1.02]
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-4
+hover:border-blue-500
 transition
 "
 >
 
-<div className="text-4xl">
+<div className="text-3xl text-green-400">
 🧾
 </div>
 
-<div className="mt-4 text-xl font-bold">
+<div className="mt-2 text-lg font-bold">
 Órdenes
 </div>
 
@@ -406,21 +407,21 @@ Administrar compras
 <Link
 href="/admin/raffles/payments"
 className="
-bg-gradient-to-br
-from-purple-600
-to-purple-700
-rounded-3xl
-p-6
-hover:scale-[1.02]
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-4
+hover:border-blue-500
 transition
 "
 >
 
-<div className="text-4xl">
+<div className="text-3xl text-purple-400">
 💳
 </div>
 
-<div className="mt-4 text-xl font-bold">
+<div className="mt-2 text-lg font-bold">
 Pagos
 </div>
 
@@ -432,20 +433,19 @@ Revisar pagos
 
 <div
 className="
-bg-gradient-to-br
-from-orange-600
-to-orange-700
-rounded-3xl
-p-6
-opacity-80
+bg-slate-900
+border
+border-slate-800
+rounded-2xl
+p-4
 "
 >
 
-<div className="text-4xl">
+<div className="text-3xl text-yellow-400">
 ⭐
 </div>
 
-<div className="mt-4 text-xl font-bold">
+<div className="mt-2 text-lg font-bold">
 Influencers
 </div>
 
@@ -694,11 +694,14 @@ Próximo módulo
                 raffles.map((raffle) => (
 
                 <tr
-                  key={raffle.id}
-                  className="
-                    border-b border-slate-800
-                  "
-                >
+  key={raffle.id}
+  className="
+    border-b
+    border-slate-800
+    hover:bg-slate-800/40
+    transition
+  "
+>
 
                   <td className="p-4">
 
@@ -773,7 +776,7 @@ Próximo módulo
                     <div
                       className="
                         flex flex-wrap
-                        gap-2
+gap-1
                       "
                     >
 
@@ -1015,8 +1018,8 @@ function MetricCard({
         from-slate-900
         to-slate-950
         border border-slate-800
-        rounded-3xl
-        p-5
+        rounded-2xl
+p-4
       "
     >
 
@@ -1026,9 +1029,9 @@ function MetricCard({
 
       <h3
         className="
-          text-3xl
-          font-bold
-          mt-3
+          text-2xl
+font-bold
+mt-2
         "
       >
         {value}
@@ -1113,7 +1116,7 @@ function ActionButton({
     <button
       onClick={onClick}
       className={`
-        px-3 py-2
+        px-2 py-1
         rounded-xl
         text-sm
         transition
