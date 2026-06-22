@@ -98,9 +98,21 @@ export async function getAffiliateDashboard(
 
       case "affiliate_click":
 
+  clicks++
+
+  break
+
+case "page_view":
+
+  if (
+    metadata.affiliateCode
+  ) {
+
     clicks++
 
-    break
+  }
+
+  break
 
       case "begin_checkout":
 

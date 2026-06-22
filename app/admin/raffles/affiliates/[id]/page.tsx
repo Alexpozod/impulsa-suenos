@@ -630,7 +630,7 @@ wallet?.available??0
 
   <div className="mt-2 break-all text-sm">
 
-    {`${window.location.origin}?aff=${dashboard?.affiliate?.code ?? ""}`}
+    {`${window.location.origin}/raffles?aff=${dashboard?.affiliate?.code ?? ""}`}
 
   </div>
 
@@ -664,9 +664,9 @@ wallet?.available??0
 
       navigator.clipboard.writeText(
 
-        `${window.location.origin}?aff=${dashboard?.affiliate?.code ?? ""}`
+`${window.location.origin}/raffles?aff=${dashboard?.affiliate?.code ?? ""}`
 
-      )
+)
 
     }}
 
@@ -684,11 +684,11 @@ wallet?.available??0
 
       window.open(
 
-        `${window.location.origin}?aff=${dashboard?.affiliate?.code ?? ""}`,
+`${window.location.origin}/raffles?aff=${dashboard?.affiliate?.code ?? ""}`,
 
-        "_blank"
+"_blank"
 
-      )
+)
 
     }}
 
@@ -739,6 +739,40 @@ wallet?.available??0
                 {dashboard?.stats?.orders ?? 0}
 
               </div>
+
+              <div>
+
+  Conversión:
+  {" "}
+
+  {
+
+    Number(
+      dashboard?.stats?.clicks || 0
+    ) > 0
+
+      ? (
+
+          (
+            Number(
+              dashboard?.stats?.paidOrders || 0
+            ) /
+
+            Number(
+              dashboard?.stats?.clicks || 1
+            )
+
+          ) * 100
+
+        ).toFixed(2)
+
+      : "0"
+
+  }
+
+  %
+
+</div>
 
               <div>
 
