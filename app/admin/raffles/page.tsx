@@ -3,92 +3,79 @@
 import Link from "next/link"
 
 const sections = [
-
   {
     title: "Crear Sorteo",
+    description: "Nuevo sorteo",
     icon: "➕",
-    href: "/admin/raffles/create",
-    description: "Crear un nuevo sorteo"
+    href: "/admin/raffles/create"
   },
-
   {
     title: "Gestionar",
+    description: "Administrar",
     icon: "🎟️",
-    href: "/admin/raffles/manage",
-    description: "Administrar sorteos"
+    href: "/admin/raffles/manage"
   },
-
   {
     title: "Órdenes",
+    description: "Compras",
     icon: "🛒",
-    href: "/admin/raffles/orders",
-    description: "Ver compras y órdenes"
+    href: "/admin/raffles/orders"
   },
-
   {
     title: "Pagos",
+    description: "Flow",
     icon: "💳",
-    href: "/admin/raffles/payments",
-    description: "Pagos Flow y estados"
+    href: "/admin/raffles/payments"
   },
-
   {
     title: "Tickets",
+    description: "Inventario",
     icon: "🎫",
-    href: "/admin/raffles/tickets",
-    description: "Inventario y asignaciones"
+    href: "/admin/raffles/tickets"
   },
-
   {
     title: "Resultados",
+    description: "Ganadores",
     icon: "🏆",
-    href: "/admin/raffles/results",
-    description: "Ganadores y sorteos"
+    href: "/admin/raffles/results"
   },
-
   {
     title: "Analytics",
+    description: "Ventas",
     icon: "📈",
     href: "/admin/raffles/analytics",
-    description: "Ventas y conversión",
     featured: true
   },
-
   {
     title: "Fraud",
+    description: "Seguridad",
     icon: "🚨",
-    href: "/admin/raffles/fraud",
-    description: "Detección de fraude"
+    href: "/admin/raffles/fraud"
   },
-
   {
     title: "Exports",
+    description: "Reportes",
     icon: "📤",
-    href: "/admin/raffles/exports",
-    description: "Exportar información"
+    href: "/admin/raffles/exports"
   },
-
   {
     title: "Influencers",
+    description: "Afiliados",
     icon: "⭐",
-    href: "/admin/raffles/affiliates",
-    description: "Programa de afiliados"
+    href: "/admin/raffles/affiliates"
   },
-
   {
     title: "Retiros",
+    description: "Pagos",
     icon: "💰",
-    href: "/admin/raffles/affiliate-payouts",
-    description: "Pagos influencers"
+    href: "/admin/raffles/affiliate-payouts"
   },
-
   {
     title: "Referidos",
+    description: "Programa",
     icon: "🎁",
-    href: "/admin/raffles/referrals",
-    description: "Sistema de referidos"
+    href: "/admin/raffles/referrals"
   }
-
 ]
 
 export default function AdminRafflesPage() {
@@ -97,25 +84,30 @@ export default function AdminRafflesPage() {
 
     <div className="p-8 space-y-8">
 
+      {/* HEADER */}
+
       <div>
 
-        <h1 className="text-4xl font-bold">
+        <h1 className="text-4xl font-bold text-white">
           🎟️ Sorteos ImpulsaSueños
         </h1>
 
         <p className="text-slate-400 mt-2">
-          Centro de control del módulo de sorteos
+          Centro de administración del sistema de sorteos
         </p>
 
       </div>
 
+      {/* QUICK ACCESS */}
+
       <div
         className="
           grid
-          grid-cols-1
-          md:grid-cols-2
+          grid-cols-2
+          md:grid-cols-3
           xl:grid-cols-4
-          gap-5
+          2xl:grid-cols-6
+          gap-4
         "
       >
 
@@ -125,40 +117,29 @@ export default function AdminRafflesPage() {
             key={section.href}
             href={section.href}
             className={`
-              rounded-3xl
+              rounded-2xl
               border
-              p-6
+              p-4
               transition-all
-              hover:scale-[1.02]
+              hover:border-blue-500
 
               ${
                 section.featured
-                  ? `
-                    border-blue-700
-                    bg-gradient-to-br
-                    from-blue-950/40
-                    to-slate-950
-                  `
-                  : `
-                    border-slate-800
-                    bg-gradient-to-br
-                    from-slate-900
-                    to-slate-950
-                    hover:border-blue-500
-                  `
+                  ? "border-blue-700 bg-blue-950/20"
+                  : "border-slate-800 bg-slate-900"
               }
             `}
           >
 
-            <div className="text-4xl">
+            <div className="text-3xl">
               {section.icon}
             </div>
 
             <h3
               className="
-                mt-5
-                text-xl
-                font-bold
+                mt-3
+                text-lg
+                font-semibold
                 text-white
               "
             >
@@ -167,8 +148,8 @@ export default function AdminRafflesPage() {
 
             <p
               className="
-                mt-2
-                text-sm
+                mt-1
+                text-xs
                 text-slate-400
               "
             >
@@ -181,6 +162,8 @@ export default function AdminRafflesPage() {
 
       </div>
 
+      {/* SYSTEM CARD */}
+
       <div
         className="
           rounded-3xl
@@ -189,7 +172,7 @@ export default function AdminRafflesPage() {
           bg-gradient-to-br
           from-slate-900
           to-slate-950
-          p-8
+          p-6
         "
       >
 
@@ -207,7 +190,7 @@ export default function AdminRafflesPage() {
               className="
                 text-xs
                 uppercase
-                tracking-widest
+                tracking-wider
                 text-slate-500
               "
             >
@@ -218,6 +201,7 @@ export default function AdminRafflesPage() {
               className="
                 text-2xl
                 font-bold
+                text-white
                 mt-2
               "
             >
@@ -226,12 +210,11 @@ export default function AdminRafflesPage() {
 
             <p
               className="
-                text-slate-400
                 mt-2
+                text-slate-400
               "
             >
-              Estado general de pagos, tickets,
-              webhooks y procesos automáticos.
+              Estado general de pagos, tickets, webhooks y procesos automáticos.
             </p>
 
           </div>
@@ -239,11 +222,13 @@ export default function AdminRafflesPage() {
           <Link
             href="/admin/raffles/system"
             className="
-              px-5
+              px-6
               py-3
               rounded-xl
-              bg-blue-600
-              hover:bg-blue-500
+              bg-white
+              text-slate-900
+              font-semibold
+              hover:bg-slate-200
               transition
             "
           >
