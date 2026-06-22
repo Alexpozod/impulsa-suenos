@@ -448,32 +448,111 @@ xl:grid-cols-4
 <td className="p-4">
 
   <button
-    onClick={() =>
-      alert(
-        [
-          `Pago ID: ${payment.id}`,
-          `Order ID: ${payment.order_id}`,
-          `Provider: ${payment.provider}`,
-          `Provider Payment ID: ${payment.provider_payment_id}`,
-          `Estado: ${payment.status}`,
-          `Monto: $${Number(
-            payment.amount_clp || 0
-          ).toLocaleString()}`,
-          `Fee: $${Number(
-            payment.provider_fee || 0
-          ).toLocaleString()}`,
-          `Comprador: ${
-            payment.orders?.buyer_name || "-"
-          }`,
-          `Email: ${
-            payment.orders?.buyer_email || "-"
-          }`,
-          `Fecha: ${new Date(
-            payment.created_at
-          ).toLocaleString()}`
-        ].join("\n")
-      )
-    }
+    onClick={async () => {
+
+      try {
+
+        const {
+          data: { session }
+        } =
+          await supabase.auth.getSession()
+
+        const res =
+          await fetch(
+            `/api/admin/raffles/payments/${payment.id}`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${session?.access_token}`
+              }
+            }
+          )
+
+        const json =
+          await res.json()
+
+        const p =
+          json.payment
+
+        const tickets =
+          p.tickets
+            ?.map(
+              (ticket: any) =>
+                ticket.ticket_code
+            )
+            .join("\n") ||
+          "Sin tickets"
+
+        alert(
+          [
+
+            "PAGO",
+            "",
+
+            `ID: ${p.id}`,
+
+            `Order ID: ${p.order_id}`,
+
+            `Estado: ${p.status}`,
+
+            `Monto: $${Number(
+              p.amount_clp || 0
+            ).toLocaleString()}`,
+
+            `Fee: $${Number(
+              p.provider_fee || 0
+            ).toLocaleString()}`,
+
+            `Provider: ${p.provider}`,
+
+            `Provider Payment ID: ${p.provider_payment_id}`,
+
+            "",
+
+            "CLIENTE",
+            "",
+
+            `${p.orders?.buyer_name || "-"}`,
+
+            `${p.orders?.buyer_email || "-"}`,
+
+            "",
+
+            "EMAIL",
+            "",
+
+            `Enviado: ${
+              p.orders?.confirmation_email_sent
+                ? "SI"
+                : "NO"
+            }`,
+
+            `Fecha: ${
+              p.orders?.confirmation_email_sent_at ||
+              "-"
+            }`,
+
+            "",
+
+            "TICKETS",
+            "",
+
+            tickets
+
+          ].join("\n")
+        )
+
+      } catch (error) {
+
+        console.error(error)
+
+        alert(
+          "Error cargando detalle"
+        )
+
+      }
+
+    }}
     className="
       px-3
       py-2

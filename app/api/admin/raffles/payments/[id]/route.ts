@@ -90,6 +90,51 @@ export async function GET(
         .eq("id", id)
         .single()
 
+        /* =========================
+   ORDER TICKETS
+========================= */
+
+const {
+  data: orderTickets
+} =
+  await supabase
+    .schema("raffles")
+    .from("order_tickets")
+    .select(`
+      ticket_id
+    `)
+    .eq(
+      "order_id",
+      data.order_id
+    )
+
+const ticketIds =
+  orderTickets?.map(
+    ticket =>
+      ticket.ticket_id
+  ) || []
+
+/* =========================
+   TICKETS
+========================= */
+
+const {
+  data: tickets
+} =
+  await supabase
+    .schema("raffles")
+    .from("ticket_inventory")
+    .select(`
+      id,
+      ticket_code,
+      ticket_number,
+      status
+    `)
+    .in(
+      "id",
+      ticketIds
+    )
+
     if (error) {
 
       return NextResponse.json(
@@ -105,11 +150,18 @@ export async function GET(
 
     return NextResponse.json({
 
-      ok: true,
+  ok: true,
 
-      payment: data
+  payment: {
 
-    })
+    ...data,
+
+    tickets:
+      tickets || []
+
+  }
+
+})
 
   } catch (error) {
 
