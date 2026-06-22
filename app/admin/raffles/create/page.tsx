@@ -948,6 +948,8 @@ const res =
 
   {form.gallery.length > 0 && (
 
+  <>
+
     <div
       className="
         mt-4
@@ -968,13 +970,13 @@ const res =
             src={image}
             alt=""
             className="
-  rounded-2xl
-  border
-  border-slate-700
-  h-36
-  w-full
-  object-cover
-"
+              rounded-2xl
+              border
+              border-slate-700
+              h-36
+              w-full
+              object-cover
+            "
           />
 
         )
@@ -982,20 +984,20 @@ const res =
 
     </div>
 
-</div>
+    <div
+      className="
+        mt-4
+        text-xs
+        text-slate-400
+      "
+    >
+      {form.gallery.length} imagen(es) cargadas
+    </div>
 
-  )}
+  </>
 
-  <div
-  className="
-    mt-4
-    text-xs
-    text-slate-400
-  "
->
-  {form.gallery.length} imagen(es) cargadas
-</div>
-
+)}
+  
 <div
   className="
     mt-6
