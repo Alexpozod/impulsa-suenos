@@ -11,11 +11,8 @@ export const runtime = "nodejs"
 
 const supabase =
   createClient(
-    process.env
-      .NEXT_PUBLIC_SUPABASE_URL!,
-
-    process.env
-      .SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
 export async function GET(
@@ -24,77 +21,65 @@ export async function GET(
 
   try {
 
-    /* =========================
-   AUTH
-========================= */
+    const auth =
+      await requireAdminAccess(
+        req
+      )
 
-const auth =
-  await requireAdminAccess(
-    req
-  )
+    if (!auth.authorized) {
 
-if (!auth.authorized) {
-
-  return NextResponse.json(
-    {
-      error:
-        "unauthorized"
-    },
-    {
-      status: 401
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
     }
-  )
 
-}
-    
-const { searchParams } =
-  new URL(req.url)
+    const { searchParams } =
+      new URL(req.url)
 
-const raffle_id =
-  searchParams.get("raffle_id")
+    const raffle_id =
+      searchParams.get(
+        "raffle_id"
+      )
 
-    /* =========================
-       LOAD RECENT ORDERS
-    ========================= */
-
-    let fraudQuery =
-  supabase
+    let query =
+      supabase
         .schema("raffles")
-        .from("orders")
-.select(`
-  id,
-  raffle_id,
-  buyer_name,
-  buyer_email,
-  quantity,
-  total_clp,
-  status,
-  ip_address,
-  source,
-  user_agent,
-  created_at
-`)
-.order(
-  "created_at",
-  {
-    ascending: false
-  }
-)
-.limit(100)
+        .from("fraud_logs")
+        .select(`
+          *,
+          orders (
+            buyer_name,
+            buyer_email,
+            total_clp,
+            source
+          )
+        `)
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        )
+        .limit(200)
 
-if (raffle_id) {
+    if (raffle_id) {
 
-  fraudQuery =
-    fraudQuery.eq(
-      "raffle_id",
-      raffle_id
-    )
-}
+      query =
+        query.eq(
+          "raffle_id",
+          raffle_id
+        )
+    }
 
-const {
-  data: orders,
-  error
-} = await fraudQuery
+    const {
+      data,
+      error
+    } = await query
 
     if (error) {
 
@@ -102,7 +87,8 @@ const {
 
       return NextResponse.json(
         {
-          error: "fraud_load_error"
+          error:
+            "fraud_load_error"
         },
         {
           status: 500
@@ -110,66 +96,49 @@ const {
       )
     }
 
-    /* =========================
-       BASIC SIGNALS
-    ========================= */
+    const incidents =
+      (data || []).map(
+        incident => ({
 
-    const suspicious =
-      (orders || []).map(order => {
+          ...incident,
 
-        const flags: string[] = []
+          buyer_name:
+            incident.orders
+              ?.buyer_name ||
 
-        if (
-          Number(order.quantity) >= 20
-        ) {
-          flags.push(
-            "high_ticket_volume"
-          )
-        }
+            "-",
 
-        if (
-          !order.ip_address ||
-          order.ip_address === "unknown"
-        ) {
-          flags.push(
-            "missing_ip"
-          )
-        }
 
-        if (
-          !order.user_agent ||
-          order.user_agent === "unknown"
-        ) {
-          flags.push(
-            "missing_user_agent"
-          )
-        }
+          buyer_email:
+            incident.orders
+              ?.buyer_email ||
 
-        return {
+            incident.user_email ||
 
-          ...order,
+            "-",
 
-          risk_flags:
-            flags,
 
-          risk_level:
+          total_clp:
+            incident.orders
+              ?.total_clp ||
 
-            flags.length >= 2
-              ? "high"
+            0,
 
-            : flags.length === 1
-              ? "medium"
 
-            : "low"
-        }
-      })
+          source:
+            incident.orders
+              ?.source ||
+
+            "-"
+        })
+      )
 
     return NextResponse.json({
 
       ok: true,
 
       orders:
-        suspicious
+        incidents
 
     })
 
@@ -179,7 +148,8 @@ const {
 
     return NextResponse.json(
       {
-        error: "server_error"
+        error:
+          "server_error"
       },
       {
         status: 500
