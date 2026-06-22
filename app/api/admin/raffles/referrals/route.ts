@@ -46,7 +46,7 @@ export async function GET() {
           item.code,
 
         shareUrl:
-          `${baseUrl}/raffles?ref=${item.code}`
+`${baseUrl}/?ref=${item.code}`
 
       })
     )

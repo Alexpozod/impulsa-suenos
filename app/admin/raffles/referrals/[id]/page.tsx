@@ -264,6 +264,60 @@ setLedger(
 
 </div>
 
+<div className="pt-2">
+
+  <button
+
+    onClick={async()=>{
+
+      await fetch(
+
+        `/api/admin/raffles/referrals/${id}/toggle`,
+
+        {
+
+          method:"POST"
+
+        }
+
+      )
+
+      await load()
+
+    }}
+
+    className={`
+      px-4
+      py-2
+      rounded-xl
+      text-white
+      ${
+
+        referral?.active
+
+        ? "bg-red-600 hover:bg-red-500"
+
+        : "bg-green-600 hover:bg-green-500"
+
+      }
+    `}
+
+  >
+
+    {
+
+      referral?.active
+
+      ? "Desactivar"
+
+      : "Activar"
+
+    }
+
+  </button>
+
+</div>
+
 </div>
 
 <div

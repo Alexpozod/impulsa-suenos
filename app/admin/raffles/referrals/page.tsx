@@ -376,34 +376,88 @@ item.reward_type==="percentage"
 
 <td className="p-4 text-xs break-all">
 
-{
-
-item.shareUrl
-
-}
+  {item.shareUrl}
 
 </td>
 
 <td className="p-4">
 
-<Link
+  <div className="flex gap-2 flex-wrap">
 
-href={`/admin/raffles/referrals/${item.id}`}
+    <Link
 
-className="
-px-3
-py-2
-rounded-xl
-bg-blue-600
-hover:bg-blue-500
-text-sm
-"
+      href={`/admin/raffles/referrals/${item.id}`}
 
->
+      className="
+      px-3
+      py-2
+      rounded-xl
+      bg-blue-600
+      hover:bg-blue-500
+      text-sm
+      "
 
-Detalle
+    >
 
-</Link>
+      Detalle
+
+    </Link>
+
+    <button
+
+      onClick={()=>
+
+        navigator.clipboard.writeText(
+
+          item.code
+
+        )
+
+      }
+
+      className="
+      px-3
+      py-2
+      rounded-xl
+      bg-slate-700
+      hover:bg-slate-600
+      text-sm
+      "
+
+    >
+
+      📋 Código
+
+    </button>
+
+    <button
+
+      onClick={()=>
+
+        navigator.clipboard.writeText(
+
+          item.shareUrl
+
+        )
+
+      }
+
+      className="
+      px-3
+      py-2
+      rounded-xl
+      bg-slate-700
+      hover:bg-slate-600
+      text-sm
+      "
+
+    >
+
+      🔗 Link
+
+    </button>
+
+  </div>
 
 </td>
 
