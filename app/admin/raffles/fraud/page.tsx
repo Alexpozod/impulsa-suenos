@@ -99,7 +99,7 @@ export default function RaffleFraudPage() {
       >
 
         <MetricCard
-          title="Orders"
+          title="Incidentes"
           value={orders.length}
         />
 
@@ -149,24 +149,24 @@ export default function RaffleFraudPage() {
                 </th>
 
                 <th className="p-4">
-                  Total
-                </th>
+  Riesgo
+</th>
 
-                <th className="p-4">
-                  Source
-                </th>
+<th className="p-4">
+  Motivo
+</th>
 
-                <th className="p-4">
-                  IP
-                </th>
+<th className="p-4">
+  IP
+</th>
 
-                <th className="p-4">
-                  Risk
-                </th>
+<th className="p-4">
+  Payment
+</th>
 
-                <th className="p-4">
-                  Flags
-                </th>
+<th className="p-4">
+  Fecha
+</th>
 
               </tr>
 
@@ -237,14 +237,56 @@ export default function RaffleFraudPage() {
 
                   </td>
 
-                  <td className="p-4 font-semibold">
+                  <td className="p-4">
 
-                    $
-                    {Number(
-                      order.total_clp || 0
-                    ).toLocaleString()}
+  <StatusBadge
+    status={order.risk_level}
+  />
 
-                  </td>
+</td>
+
+<td className="p-4">
+
+  <div
+    className="
+      max-w-md
+      text-sm
+      text-slate-300
+      break-words
+    "
+  >
+    {order.reason || "-"}
+  </div>
+
+</td>
+
+<td className="p-4 text-sm text-slate-400">
+
+  {order.ip || "-"}
+
+</td>
+
+<td className="p-4">
+
+  <span
+    className="
+      text-xs
+      text-slate-500
+      break-all
+    "
+  >
+    {order.payment_id || "-"}
+  </span>
+
+</td>
+
+<td className="p-4 text-sm text-slate-400">
+
+  {new Date(
+    order.created_at
+  ).toLocaleString()}
+
+</td>
 
                   <td className="p-4">
 
