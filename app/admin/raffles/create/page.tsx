@@ -1085,6 +1085,39 @@ const res =
 
 </div>
 
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+  <div className="mb-6">
+
+    <h2
+      className="
+        text-xl
+        font-bold
+      "
+    >
+      🎟️ Configuración de Tickets
+    </h2>
+
+    <p
+      className="
+        text-slate-400
+        text-sm
+        mt-1
+      "
+    >
+      Define precios, numeración y reglas del sorteo
+    </p>
+
+  </div>
+
         <Input
           label="Valor ticket"
           type="number"
@@ -1159,6 +1192,50 @@ const res =
           }
         />
 
+        </div>
+
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+  <div className="mb-6">
+
+    <h2
+      className="
+        text-xl
+        font-bold
+      "
+    >
+      📅 Fechas y Programación
+    </h2>
+
+    <p
+      className="
+        text-slate-400
+        text-sm
+        mt-1
+      "
+    >
+      Configuración temporal del sorteo
+    </p>
+
+  </div>
+
+  <div
+    className="
+      grid
+      grid-cols-1
+      md:grid-cols-3
+      gap-4
+    "
+  ></div>
+
 <Input
   label="Fecha Inicio"
   type="datetime-local"
@@ -1195,16 +1272,26 @@ const res =
   }
 />
 
+  </div>
+
+</div>
+
         <button
           onClick={submit}
           disabled={loading}
           className="
-            bg-black
-            text-white
-            px-6
-            py-4
-            rounded-xl
-          "
+w-full
+bg-blue-600
+hover:bg-blue-500
+disabled:opacity-50
+transition
+py-4
+rounded-2xl
+font-semibold
+text-lg
+shadow-lg
+shadow-blue-900/30
+"
         >
 
           {loading
