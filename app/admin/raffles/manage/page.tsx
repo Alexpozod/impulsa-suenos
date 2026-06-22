@@ -686,7 +686,7 @@ async function exportExcel(
                         <>
 
                           <ActionButton
-                            label="⏸"
+  label="Pause"
                             color="yellow"
                             onClick={() =>
                               action(
@@ -697,7 +697,7 @@ async function exportExcel(
                           />
 
                           <ActionButton
-                            label="⛔"
+  label="End"
                             color="red"
                             onClick={() =>
                               action(
@@ -716,7 +716,7 @@ async function exportExcel(
   <>
 
     <ActionButton
-      label="▶"
+      label="Resume"
       color="green"
       onClick={() =>
         action(
@@ -760,7 +760,7 @@ async function exportExcel(
     </Link>
 
     <ActionButton
-      label="📊"
+  label="Export"
       color="blue"
       onClick={() =>
         exportExcel(
@@ -783,11 +783,11 @@ async function exportExcel(
     text-sm
   "
 >
-  ✏️
+  Editar
 </Link>
 
 <ActionButton
-  label="🗑"
+  label="Eliminar"
   color="red"
   onClick={() =>
     action(
@@ -808,8 +808,8 @@ async function exportExcel(
                           text-sm
                         "
                       >
-                        👁️
-                      </Link>
+  Ver
+</Link>
 
                     </div>
 
@@ -1018,13 +1018,9 @@ function ActionButton({
     <button
       onClick={onClick}
       className={`
-  min-w-[34px]
-  h-[34px]
-
-  flex
-  items-center
-  justify-center
-
+  px-3
+py-2
+ 
   rounded-xl
 
   text-sm
