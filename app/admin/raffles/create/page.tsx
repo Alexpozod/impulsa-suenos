@@ -65,7 +65,7 @@ promo_video: "",
     })
 
     const titleValid =
-  form.title.trim().length >= 5
+  form.title.trim().length >= 10
 
 const slugValid =
   form.slug.trim().length >= 3
@@ -74,7 +74,7 @@ const descriptionValid =
   form.description.trim().length >= 30
 
 const prizeTitleValid =
-  form.prize_title.trim().length >= 5
+  form.prize_title.trim().length >= 10
 
 const prizeDescriptionValid =
   form.prize_description.trim().length >= 20
@@ -751,21 +751,7 @@ const res =
       )}
 
     </div>
-
-    <p
-      className={`
-        text-xs
-
-        ${
-          form.description.length >= 100
-            ? "text-emerald-400"
-            : "text-slate-500"
-        }
-      `}
-    >
-      {form.description.length} caracteres
-    </p>
-
+    
   </div>
 
 </div>
@@ -940,21 +926,7 @@ const res =
       )}
 
     </div>
-
-    <p
-      className={`
-        text-xs
-
-        ${
-          form.prize_description.length >= 20
-            ? "text-emerald-400"
-            : "text-slate-500"
-        }
-      `}
-    >
-      {form.prize_description.length} caracteres
-    </p>
-
+    
   </div>
 
 </div>
@@ -1082,6 +1054,20 @@ const res =
     </div>
 
   )}
+
+  {!coverImageValid && (
+
+  <div
+    className="
+      mt-3
+      text-sm
+      text-red-400
+    "
+  >
+    ⚠ Debes cargar una imagen principal
+  </div>
+
+)}
 
   </div>
 
