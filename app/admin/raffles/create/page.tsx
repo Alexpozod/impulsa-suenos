@@ -82,6 +82,28 @@ const prizeDescriptionValid =
 const ticketPriceValid =
   Number(form.ticket_price) > 0
 
+  const ticketRangeValid =
+  Number(
+    form.ticket_max_number
+  ) >
+  Number(
+    form.ticket_min_number
+  )
+
+  const minGoalValid =
+  Number(
+    form.min_tickets_goal
+  ) <=
+  (
+    Number(
+      form.ticket_max_number
+    ) -
+    Number(
+      form.ticket_min_number
+    ) +
+    1
+  )
+
 const datesValid =
   form.start_date &&
   form.end_date &&
@@ -91,6 +113,9 @@ const datesValid =
   new Date(form.draw_date) >
     new Date(form.end_date)
 
+const coverImageValid =
+  !!form.cover_image
+
 const formValid =
   titleValid &&
   slugValid &&
@@ -98,6 +123,9 @@ const formValid =
   prizeTitleValid &&
   prizeDescriptionValid &&
   ticketPriceValid &&
+  ticketRangeValid &&
+  minGoalValid &&
+  coverImageValid &&
   datesValid
 
     async function uploadCoverImage(
@@ -317,6 +345,15 @@ async function uploadPromoVideo(
 }
 
   async function submit() {
+
+    if (!formValid) {
+
+  alert(
+    "Formulario inválido"
+  )
+
+  return
+}
 
     try {
 
@@ -1330,38 +1367,66 @@ const res =
         />
 
         <Input
-          label="Número máximo"
-          type="number"
-          value={
-            String(
-              form.ticket_max_number
-            )
-          }
-          onChange={(v: string) =>
-            setForm({
-              ...form,
-              ticket_max_number:
-                Number(v)
-            })
-          }
-        />
+  label="Número máximo"
+  type="number"
+  value={
+    String(
+      form.ticket_max_number
+    )
+  }
+  onChange={(v: string) =>
+    setForm({
+      ...form,
+      ticket_max_number:
+        Number(v)
+    })
+  }
+/>
+
+{!ticketRangeValid && (
+
+  <p
+    className="
+      mt-2
+      text-sm
+      text-red-400
+    "
+  >
+    ⚠ El número máximo debe ser mayor que el mínimo
+  </p>
+
+)}
 
         <Input
-          label="Mínimo tickets para sortear"
-          type="number"
-          value={
-            String(
-              form.min_tickets_goal
-            )
-          }
-          onChange={(v: string) =>
-            setForm({
-              ...form,
-              min_tickets_goal:
-                Number(v)
-            })
-          }
-        />
+  label="Mínimo tickets para sortear"
+  type="number"
+  value={
+    String(
+      form.min_tickets_goal
+    )
+  }
+  onChange={(v: string) =>
+    setForm({
+      ...form,
+      min_tickets_goal:
+        Number(v)
+    })
+  }
+/>
+
+{!minGoalValid && (
+
+  <p
+    className="
+      mt-2
+      text-sm
+      text-red-400
+    "
+  >
+    ⚠ El objetivo mínimo supera la cantidad disponible de tickets
+  </p>
+
+)}
 
         </div>
 
