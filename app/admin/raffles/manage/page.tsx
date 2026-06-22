@@ -496,9 +496,9 @@ async function exportExcel(
 
               <tr className="text-left">
 
-                <th className="p-4">
-                  Sorteo
-                </th>
+                <th className="p-4 w-[380px]">
+  Sorteo
+</th>
 
                 <th className="p-4">
                   Estado
@@ -524,9 +524,9 @@ async function exportExcel(
                   Cierre
                 </th>
 
-                <th className="p-4">
-                  Actions
-                </th>
+                <th className="p-4 w-[240px]">
+  Actions
+</th>
 
               </tr>
 
@@ -591,8 +591,9 @@ async function exportExcel(
                       <p
   className="
     font-semibold
-    max-w-[420px]
-    truncate
+    max-w-[380px]
+    line-clamp-2
+    leading-5
   "
 >
   {raffle.title}
@@ -659,9 +660,9 @@ async function exportExcel(
                     <div
   className="
     flex
-    items-center
+    flex-wrap
     gap-1
-    whitespace-nowrap
+    max-w-[220px]
   "
 >
 
