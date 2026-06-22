@@ -182,8 +182,12 @@ export default function RaffleExportsPage() {
             },
 
             body: JSON.stringify({
-              raffle_id
-            })
+
+  raffle_id,
+
+  export_type: "full"
+
+})
 
           }
         )
