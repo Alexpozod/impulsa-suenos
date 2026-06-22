@@ -1227,14 +1227,14 @@ const res =
 
   </div>
 
-  <div
-    className="
-      grid
-      grid-cols-1
-      md:grid-cols-3
-      gap-4
-    "
-  ></div>
+ <div
+  className="
+    grid
+    grid-cols-1
+    md:grid-cols-3
+    gap-4
+  "
+>
 
 <Input
   label="Fecha Inicio"
