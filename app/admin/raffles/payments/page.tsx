@@ -128,7 +128,8 @@ export default function RafflePaymentsPage() {
         className="
           grid
           grid-cols-1
-          md:grid-cols-3
+md:grid-cols-2
+xl:grid-cols-4
           gap-4
         "
       >
@@ -144,16 +145,25 @@ export default function RafflePaymentsPage() {
         />
 
         <MetricCard
-          title="Paid"
-          value={
-            payments.filter(
+  title="Approved"
+  value={
+    payments.filter(
+      payment =>
+        payment.status === "approved" ||
+        payment.status === "paid"
+    ).length
+  }
+/>
 
-              payment =>
-                payment.status === "paid"
-
-            ).length
-          }
-        />
+<MetricCard
+  title="Failed"
+  value={
+    payments.filter(
+      payment =>
+        payment.status === "failed"
+    ).length
+  }
+/>
 
       </div>
 
@@ -239,11 +249,15 @@ export default function RafflePaymentsPage() {
           <table className="w-full">
 
             <thead
-              className="
-                bg-slate-950
-                border-b border-slate-800
-              "
-            >
+  className="
+    sticky
+    top-0
+    z-10
+    bg-slate-950
+    border-b
+    border-slate-800
+  "
+>
 
               <tr className="text-left">
 
@@ -275,6 +289,10 @@ export default function RafflePaymentsPage() {
                   Fecha
                 </th>
 
+                <th className="p-4">
+  Acciones
+</th>
+
               </tr>
 
             </thead>
@@ -286,7 +304,7 @@ export default function RafflePaymentsPage() {
                 <tr>
 
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="
                       p-10
                       text-center
@@ -305,7 +323,7 @@ export default function RafflePaymentsPage() {
                 <tr>
 
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="
                       p-10
                       text-center
@@ -323,9 +341,12 @@ export default function RafflePaymentsPage() {
 
                 <tr
                   key={payment.id}
-                  className="
-                    border-b border-slate-800
-                  "
+                 className="
+  border-b
+  border-slate-800
+  hover:bg-slate-900/40
+  transition
+"
                 >
 
                   <td className="p-4">
@@ -362,19 +383,33 @@ export default function RafflePaymentsPage() {
 
                   <td className="p-4">
 
-                    <div>
+  <div className="space-y-2">
 
-                      <p className="font-medium uppercase">
-                        {payment.provider}
-                      </p>
+    <span
+      className="
+        inline-flex
+        px-2 py-1
+        rounded-full
+        bg-cyan-900/40
+        text-cyan-300
+        text-xs
+        font-medium
+      "
+    >
+      {payment.provider}
+    </span>
 
-                      <p className="text-xs text-slate-500">
-                        {payment.provider_payment_id}
-                      </p>
+    <p className="text-xs text-slate-500">
 
-                    </div>
+      {String(
+        payment.provider_payment_id || ""
+      ).slice(0, 16)}...
 
-                  </td>
+    </p>
+
+  </div>
+
+</td>
 
                   <td className="p-4 font-semibold">
 
@@ -404,11 +439,29 @@ export default function RafflePaymentsPage() {
 
                   <td className="p-4 text-sm text-slate-400">
 
-                    {new Date(
-                      payment.created_at
-                    ).toLocaleString()}
+  {new Date(
+    payment.created_at
+  ).toLocaleString()}
 
-                  </td>
+</td>
+
+<td className="p-4">
+
+  <button
+    className="
+      px-3
+      py-2
+      rounded-xl
+      bg-blue-600
+      hover:bg-blue-500
+      transition
+      text-sm
+    "
+  >
+    👁 Ver
+  </button>
+
+</td>
 
                 </tr>
 
