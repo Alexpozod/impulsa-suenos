@@ -655,11 +655,13 @@ async function exportExcel(
                   <td className="p-4">
 
                     <div
-                      className="
-                        flex flex-wrap
-gap-1
-                      "
-                    >
+  className="
+    flex
+    items-center
+    gap-1
+    whitespace-nowrap
+  "
+>
 
                       {(raffle.status === "draft" ||
                         raffle.status === "scheduled") && (
@@ -682,7 +684,7 @@ gap-1
                         <>
 
                           <ActionButton
-                            label="Pause"
+                            label="⏸"
                             color="yellow"
                             onClick={() =>
                               action(
@@ -693,7 +695,7 @@ gap-1
                           />
 
                           <ActionButton
-                            label="End"
+                            label="⛔"
                             color="red"
                             onClick={() =>
                               action(
@@ -712,7 +714,7 @@ gap-1
   <>
 
     <ActionButton
-      label="Resume"
+      label="▶"
       color="green"
       onClick={() =>
         action(
@@ -756,7 +758,7 @@ gap-1
     </Link>
 
     <ActionButton
-      label="Export"
+      label="📊"
       color="blue"
       onClick={() =>
         exportExcel(
@@ -779,11 +781,11 @@ gap-1
     text-sm
   "
 >
-  Editar
+  ✏️
 </Link>
 
 <ActionButton
-  label="Eliminar"
+  label="🗑"
   color="red"
   onClick={() =>
     action(
@@ -804,7 +806,7 @@ gap-1
                           text-sm
                         "
                       >
-                        Ver
+                        👁️
                       </Link>
 
                     </div>
