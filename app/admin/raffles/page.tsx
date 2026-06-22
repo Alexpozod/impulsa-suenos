@@ -1,71 +1,9 @@
 "use client"
 
-import {
-  useEffect,
-  useState
-}
-from "react"
-
-import { supabase }
-from "@/src/lib/supabase"
+import Link from "next/link"
 
 export default function AdminRafflesPage() {
-
-  const [data, setData] =
-    useState<any>(null)
-
-  const [loading, setLoading] =
-    useState(true)
-
-  useEffect(() => {
-
-    load()
-
-  }, [])
-
-  async function load() {
-
-    try {
-
-      const {
-  data: { session }
-} = await supabase.auth.getSession()
-
-const res =
-  await fetch(
-    "/api/admin/raffles/analytics",
-    {
-      headers: {
-        Authorization:
-          `Bearer ${session?.access_token}`
-      }
-    }
-  )
-
-      const json =
-        await res.json()
-
-      setData(json)
-
-    } catch (error) {
-
-      console.error(error)
-
-    } finally {
-
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
-
-    return (
-      <div className="p-6">
-        Cargando...
-      </div>
-    )
-  }
-
+    
   return (
 
     <div className="p-8 space-y-8">
