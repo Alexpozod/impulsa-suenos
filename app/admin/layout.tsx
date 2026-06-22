@@ -218,6 +218,11 @@ export default function AdminLayout({ children }: any) {
 
                 <div className="space-y-1 py-2">
 
+<SubItem
+  href="/admin/raffles"
+  label="🏠 Dashboard"
+/>
+
                   <SubItem
   href="/admin/raffles/analytics"
   label="📊 Analytics"
