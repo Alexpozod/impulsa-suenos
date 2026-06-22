@@ -64,6 +64,42 @@ promo_video: "",
 
     })
 
+    const titleValid =
+  form.title.trim().length >= 5
+
+const slugValid =
+  form.slug.trim().length >= 3
+
+const descriptionValid =
+  form.description.trim().length >= 30
+
+const prizeTitleValid =
+  form.prize_title.trim().length >= 5
+
+const prizeDescriptionValid =
+  form.prize_description.trim().length >= 20
+
+const ticketPriceValid =
+  Number(form.ticket_price) > 0
+
+const datesValid =
+  form.start_date &&
+  form.end_date &&
+  form.draw_date &&
+  new Date(form.end_date) >
+    new Date(form.start_date) &&
+  new Date(form.draw_date) >
+    new Date(form.end_date)
+
+const formValid =
+  titleValid &&
+  slugValid &&
+  descriptionValid &&
+  prizeTitleValid &&
+  prizeDescriptionValid &&
+  ticketPriceValid &&
+  datesValid
+
     async function uploadCoverImage(
   file: File
 ) {
