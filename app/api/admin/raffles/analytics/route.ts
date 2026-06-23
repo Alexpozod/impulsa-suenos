@@ -78,6 +78,44 @@ const { data: orders } =
       quantity,
       status
     `)
+
+    /* =========================
+   ACTIVE RAFFLES
+========================= */
+
+const {
+  data: activeRaffles
+}
+=
+await supabase
+  .schema("raffles")
+  .from("raffles")
+  .select(`
+    id
+  `)
+  .in(
+    "status",
+    [
+      "active",
+      "scheduled"
+    ]
+  )
+
+/* =========================
+   FINANCIAL PLANS
+========================= */
+
+const {
+  data: plans
+}
+=
+await supabase
+  .schema("raffles")
+  .from("raffle_financial_plans")
+  .select(`
+    prize_cost,
+    fixed_costs
+  `)
     
     /* =========================
        🎯 EVENTS
@@ -193,6 +231,81 @@ const revenuePerVisit =
     ? totalRevenue /
       totalVisits
     : 0
+
+    /* =========================
+   EXECUTIVE KPIs
+========================= */
+
+const today =
+  new Date()
+    .toISOString()
+    .split("T")[0]
+
+const revenueToday =
+  (payments || [])
+    .filter(payment =>
+
+      payment.created_at
+        ?.startsWith(today)
+
+    )
+    .reduce(
+
+      (sum,payment)=>
+
+        sum +
+        Number(
+          payment.amount_clp || 0
+        ),
+
+      0
+
+    )
+
+const prizesCommitted =
+  (plans || [])
+    .reduce(
+
+      (sum,plan)=>
+
+        sum +
+        Number(
+          plan.prize_cost || 0
+        ),
+
+      0
+
+    )
+
+const fixedCostsCommitted =
+  (plans || [])
+    .reduce(
+
+      (sum,plan)=>
+
+        sum +
+        Number(
+          plan.fixed_costs || 0
+        ),
+
+      0
+
+    )
+
+const projectedProfit =
+
+  totalRevenue
+
+  -
+
+  prizesCommitted
+
+  -
+
+  fixedCostsCommitted
+
+const activeRafflesCount =
+  activeRaffles?.length || 0
 
     /* =========================
        📊 SOURCE BREAKDOWN
@@ -330,6 +443,15 @@ dailyRevenue[day] +=
 
       revenue:
         totalRevenue,
+
+        activeRaffles:
+  activeRafflesCount,
+
+revenueToday,
+
+prizesCommitted,
+
+projectedProfit,
 
       payments:
         totalPayments,
