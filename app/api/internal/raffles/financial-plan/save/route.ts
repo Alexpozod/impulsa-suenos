@@ -60,9 +60,9 @@ export async function POST(
       data: existing
     } =
       await supabase
-        .schema("raffles")
-        .from("financial_plans")
-        .select("id")
+  .schema("raffles")
+  .from("raffle_financial_plans")
+  .select("id")
         .eq(
           "raffle_id",
           raffle_id
@@ -75,9 +75,9 @@ export async function POST(
         error
       } =
         await supabase
-          .schema("raffles")
-          .from("financial_plans")
-          .update({
+  .schema("raffles")
+  .from("raffle_financial_plans")
+  .update({
 
             prize_cost,
             fixed_costs,
@@ -120,9 +120,9 @@ export async function POST(
         error
       } =
         await supabase
-          .schema("raffles")
-          .from("financial_plans")
-          .insert({
+  .schema("raffles")
+  .from("raffle_financial_plans")
+  .insert({
 
             raffle_id,
 
