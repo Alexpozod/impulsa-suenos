@@ -1,86 +1,112 @@
+import { createClient } from "@supabase/supabase-js"
+
 import {
-
-PromotionContext,
-PromotionResult
-
+  PromotionContext,
+  PromotionResult
 } from "./promotionTypes"
 
+const supabase =
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
 export async function applyPromotions(
-
-context: PromotionContext
-
+  context: PromotionContext
 ): Promise<PromotionResult> {
 
-let bonusQuantity = 0
+  let bonusQuantity = 0
+  let discount = 0
 
-let discount = 0
+  const now =
+    new Date().toISOString()
 
-/*
-==================================================
+  const { data: rules } =
+    await supabase
+      .schema("raffles")
+      .from("business_rules")
+      .select("*")
+      .eq("active", true)
+      .or(
+        `raffle_id.is.null,raffle_id.eq.${context.raffleId}`
+      )
 
-BUSINESS RULE ENGINE
+  if (!rules?.length) {
 
-Por ahora utiliza reglas internas.
+    return {
+      applied: false,
+      bonusQuantity: 0,
+      discount: 0
+    }
 
-En la siguiente etapa consultará:
+  }
 
-- raffles.business_rules
+  let selectedRule: any = null
 
-y soportará:
+  for (const rule of rules) {
 
-- Coupons
+    if (
+      rule.starts_at &&
+      rule.starts_at > now
+    ) {
+      continue
+    }
 
-- Bundles
+    if (
+      rule.ends_at &&
+      rule.ends_at < now
+    ) {
+      continue
+    }
 
-- Promotions
+    if (
+      rule.min_quantity &&
+      context.quantity <
+      rule.min_quantity
+    ) {
+      continue
+    }
 
-- Buy X Get Y
+    if (
+      rule.max_quantity &&
+      context.quantity >
+      rule.max_quantity
+    ) {
+      continue
+    }
 
-- Percentage Discount
+    if (
+      rule.type === "bundle" ||
+      rule.type === "bonus"
+    ) {
 
-- Fixed Discount
+      bonusQuantity +=
+        Number(
+          rule.bonus_quantity || 0
+        )
 
-sin modificar el Quote Engine.
+      selectedRule = rule
+    }
+  }
 
-==================================================
-*/
+  return {
 
-if (context.quantity >= 10) {
+    applied:
+      bonusQuantity > 0 ||
+      discount > 0,
 
-bonusQuantity = 5
+    promotionId:
+      selectedRule?.id,
 
-}
+    promotionCode:
+      selectedRule?.code,
 
-else if (context.quantity >= 5) {
+    promotionName:
+      selectedRule?.name,
 
-bonusQuantity = 2
+    bonusQuantity,
 
-}
+    discount
 
-return {
-
-applied:
-bonusQuantity > 0 || discount > 0,
-
-promotionId:
-bonusQuantity > 0
-? "AUTO_BONUS"
-: undefined,
-
-promotionCode:
-bonusQuantity > 0
-? "BUY_MORE"
-: undefined,
-
-promotionName:
-bonusQuantity > 0
-? "Compra más y recibe tickets adicionales"
-: undefined,
-
-bonusQuantity,
-
-discount
-
-}
-
+  }
 }
