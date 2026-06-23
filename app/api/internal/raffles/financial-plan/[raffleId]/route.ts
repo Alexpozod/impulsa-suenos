@@ -36,18 +36,18 @@ export async function GET(
 } = await context.params
 
     const {
-      data,
-      error
-    } =
-      await supabase
-        .schema("raffles")
-        .from("financial_plans")
-        .select("*")
-        .eq(
-          "raffle_id",
-          raffleId
-        )
-        .maybeSingle()
+  data,
+  error
+} =
+  await supabase
+    .schema("raffles")
+    .from("raffle_financial_plans")
+    .select("*")
+    .eq(
+      "raffle_id",
+      raffleId
+    )
+    .maybeSingle()
 
     if (error) {
 
