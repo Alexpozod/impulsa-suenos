@@ -3,6 +3,9 @@
 import Link from "next/link"
 import { useState } from "react"
 
+import { useEffect } from "react"
+import { supabase } from "@/src/lib/supabase"
+
 const sections = [
   {
     title: "Crear Sorteo",
@@ -102,6 +105,16 @@ useState("19")
 const [targetProfit,setTargetProfit] =
 useState("10000000")
 
+const [
+  raffles,
+  setRaffles
+] = useState<any[]>([])
+
+const [
+  selectedRaffle,
+  setSelectedRaffle
+] = useState("")
+
 const prize =
 Number(prizeValue || 0)
 
@@ -160,6 +173,51 @@ Math.ceil(
 breakEvenRevenue /
 recommendedTicket
 )
+
+useEffect(() => {
+
+  loadRaffles()
+
+}, [])
+
+async function loadRaffles() {
+
+  try {
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const response =
+      await fetch(
+
+        "/api/admin/raffles/list?page=1&limit=100",
+
+        {
+          headers: {
+
+            Authorization:
+              `Bearer ${session?.access_token}`
+
+          }
+        }
+      )
+
+    const json =
+      await response.json()
+
+    setRaffles(
+      json.raffles || []
+    )
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+
+}
 
   return (
 
@@ -271,6 +329,68 @@ recommendedTicket
     <p className="text-slate-400 mt-2">
       Simulación financiera para nuevos sorteos
     </p>
+
+<div className="mt-4">
+
+  <label
+    className="
+      text-sm
+      text-slate-400
+    "
+  >
+    Sorteo
+  </label>
+
+  <select
+
+    value={
+      selectedRaffle
+    }
+
+    onChange={(e)=>
+      setSelectedRaffle(
+        e.target.value
+      )
+    }
+
+    className="
+      mt-2
+      w-full
+      rounded-xl
+      bg-slate-950
+      border
+      border-slate-700
+      px-4
+      py-3
+    "
+  >
+
+    <option value="">
+      Seleccionar sorteo
+    </option>
+
+    {
+
+      raffles.map(
+        raffle => (
+
+          <option
+            key={raffle.id}
+            value={raffle.id}
+          >
+
+            {raffle.title}
+
+          </option>
+
+        )
+      )
+
+    }
+
+  </select>
+
+</div>
 
   </div>
 
