@@ -21,6 +21,15 @@ export async function POST(
       cost
     } = body
 
+    console.log(
+  "EXTRA PRIZE BODY =>",
+  JSON.stringify(
+    body,
+    null,
+    2
+  )
+)
+
     const { data, error } =
       await supabase
         .schema("raffles")
@@ -41,9 +50,19 @@ export async function POST(
 
     if (error) {
 
-      throw error
+  console.error(
+    "INSERT EXTRA PRIZE ERROR =>",
+    error
+  )
 
-    }
+  throw error
+
+}
+
+console.log(
+  "EXTRA PRIZE CREATED =>",
+  data
+)
 
     return NextResponse.json({
 
