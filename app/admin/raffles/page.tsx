@@ -805,6 +805,219 @@ async function loadFinancialProgress(
 
       </div>
 
+{
+dashboardData && (
+
+<div
+  className="
+    rounded-3xl
+    border
+    border-slate-800
+    bg-slate-900
+    p-6
+  "
+>
+
+  <div
+    className="
+      flex
+      items-center
+      justify-between
+      mb-6
+    "
+  >
+
+    <div>
+
+      <h2
+        className="
+          text-2xl
+          font-bold
+          text-white
+        "
+      >
+        📊 Dashboard Ejecutivo
+      </h2>
+
+      <p
+        className="
+          text-slate-400
+          mt-2
+        "
+      >
+        Estado global del negocio de sorteos
+      </p>
+
+    </div>
+
+  </div>
+
+  <div
+    className="
+      grid
+      md:grid-cols-2
+      xl:grid-cols-4
+      gap-4
+    "
+  >
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        p-5
+      "
+    >
+
+      <div className="text-slate-400 text-sm">
+        Facturación
+      </div>
+
+      <div className="text-2xl font-bold mt-2">
+        $
+        {Number(
+          dashboardData.revenue || 0
+        ).toLocaleString("es-CL")}
+      </div>
+
+    </div>
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        p-5
+      "
+    >
+
+      <div className="text-slate-400 text-sm">
+        Pagos
+      </div>
+
+      <div className="text-2xl font-bold mt-2">
+        {dashboardData.payments || 0}
+      </div>
+
+    </div>
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        p-5
+      "
+    >
+
+      <div className="text-slate-400 text-sm">
+        Tickets Vendidos
+      </div>
+
+      <div className="text-2xl font-bold mt-2">
+        {dashboardData.tickets || 0}
+      </div>
+
+    </div>
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        p-5
+      "
+    >
+
+      <div className="text-slate-400 text-sm">
+        Conversión
+      </div>
+
+      <div className="text-2xl font-bold mt-2">
+        {Number(
+          dashboardData.conversionRate || 0
+        ).toFixed(1)}
+        %
+      </div>
+
+    </div>
+
+  </div>
+
+  <div
+    className="
+      grid
+      md:grid-cols-2
+      xl:grid-cols-3
+      gap-4
+      mt-4
+    "
+  >
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        p-5
+      "
+    >
+
+      <div className="text-slate-400 text-sm">
+        Visitas
+      </div>
+
+      <div className="text-2xl font-bold mt-2">
+        {dashboardData.visits || 0}
+      </div>
+
+    </div>
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        p-5
+      "
+    >
+
+      <div className="text-slate-400 text-sm">
+        Ticket Promedio
+      </div>
+
+      <div className="text-2xl font-bold mt-2">
+        $
+        {Number(
+          dashboardData.avgOrderValue || 0
+        ).toLocaleString("es-CL")}
+      </div>
+
+    </div>
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        p-5
+      "
+    >
+
+      <div className="text-slate-400 text-sm">
+        Ingreso por Visita
+      </div>
+
+      <div className="text-2xl font-bold mt-2">
+        $
+        {Number(
+          dashboardData.revenuePerVisit || 0
+        ).toLocaleString("es-CL")}
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+)
+}
+
 {/* FINANCIAL PLANNER */}
 
 <div
