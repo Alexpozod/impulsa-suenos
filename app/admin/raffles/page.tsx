@@ -80,6 +80,13 @@ const sections = [
     icon: "🎁",
     href: "/admin/raffles/referrals"
   }
+  ,
+{
+  title: "Promociones",
+  description: "Bundles y cupones",
+  icon: "🎉",
+  href: "/admin/raffles/promotions"
+}
 ]
 
 export default function AdminRafflesPage() {
