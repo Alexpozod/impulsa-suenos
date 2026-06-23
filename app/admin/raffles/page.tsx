@@ -121,6 +121,9 @@ useState(false)
 const [saveMessage,setSaveMessage] =
 useState("")
 
+const [progressData,setProgressData] =
+useState<any>(null)
+
 const prize =
 Number(prizeValue || 0)
 
@@ -300,6 +303,10 @@ async function loadFinancialPlan(
       )
     )
 
+    await loadFinancialProgress(
+  raffleId
+)
+
   } catch (error) {
 
     console.error(error)
@@ -413,6 +420,38 @@ async function saveFinancialPlan() {
   finally{
 
     setSaving(false)
+
+  }
+
+}
+
+async function loadFinancialProgress(
+
+  raffleId:string
+
+){
+
+  try{
+
+    const response =
+      await fetch(
+
+`/api/internal/raffles/financial-plan-progress/${raffleId}`
+
+      )
+
+    const json =
+      await response.json()
+
+    setProgressData(
+      json
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
 
   }
 
@@ -967,6 +1006,186 @@ async function saveFinancialPlan() {
 </div>
 
 </div>
+
+{
+progressData?.exists && (
+
+<div
+className="
+rounded-3xl
+border
+border-emerald-900
+bg-emerald-950/20
+p-6
+"
+>
+
+<h2
+className="
+text-2xl
+font-bold
+text-white
+mb-5
+"
+>
+
+📊 Avance Financiero
+
+</h2>
+
+<div
+className="
+grid
+md:grid-cols-2
+xl:grid-cols-5
+gap-4
+"
+>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+
+Ventas Reales
+
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+$
+
+{Number(
+
+progressData.revenue || 0
+
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+
+Tickets Vendidos
+
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+{progressData.soldTickets || 0}
+
+</div>
+
+</div>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+
+Meta Financiera
+
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+$
+
+{Number(
+
+progressData.requiredRevenue || 0
+
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+
+Avance
+
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+{
+
+Number(
+
+progressData.progress || 0
+
+).toFixed(1)
+
+}
+
+%
+
+</div>
+
+</div>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+
+Utilidad Proyectada
+
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+$
+
+{Number(
+
+progressData.projectedProfit || 0
+
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+)
+}
 
       {/* SYSTEM CARD */}
 
