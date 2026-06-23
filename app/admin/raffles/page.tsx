@@ -124,6 +124,18 @@ useState("")
 const [progressData,setProgressData] =
 useState<any>(null)
 
+const [extraPrizes,setExtraPrizes] =
+useState<any[]>([])
+
+const [extraPrizeName,setExtraPrizeName] =
+useState("")
+
+const [extraPrizeCost,setExtraPrizeCost] =
+useState("")
+
+const [scenarioData,setScenarioData] =
+useState<any>(null)
+
 const prize =
 Number(prizeValue || 0)
 
@@ -303,7 +315,15 @@ async function loadFinancialPlan(
       )
     )
 
-    await loadFinancialProgress(
+   await loadFinancialProgress(
+  raffleId
+)
+
+await loadExtraPrizes(
+  raffleId
+)
+
+await loadScenarios(
   raffleId
 )
 
@@ -420,6 +440,175 @@ async function saveFinancialPlan() {
   finally{
 
     setSaving(false)
+
+  }
+
+}
+
+async function loadExtraPrizes(
+
+  raffleId:string
+
+){
+
+  try{
+
+    const response =
+      await fetch(
+
+`/api/internal/raffles/financial-extra-prizes?raffle_id=${raffleId}`
+
+      )
+
+    const json =
+      await response.json()
+
+    setExtraPrizes(
+      json.prizes || []
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+  }
+
+}
+
+async function loadScenarios(
+
+  raffleId:string
+
+){
+
+  try{
+
+    const response =
+      await fetch(
+
+`/api/internal/raffles/prize-scenarios/${raffleId}`
+
+      )
+
+    const json =
+      await response.json()
+
+    setScenarioData(
+      json
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+  }
+
+}
+
+async function createExtraPrize(){
+
+  if(
+    !selectedRaffle ||
+    !extraPrizeName ||
+    !extraPrizeCost
+  ){
+    return
+  }
+
+  try{
+
+    await fetch(
+
+"/api/internal/raffles/financial-extra-prizes",
+
+      {
+
+        method:"POST",
+
+        headers:{
+
+          "Content-Type":
+          "application/json"
+
+        },
+
+        body:JSON.stringify({
+
+          raffle_id:
+            selectedRaffle,
+
+          name:
+            extraPrizeName,
+
+          cost:
+            Number(
+              extraPrizeCost
+            )
+
+        })
+
+      }
+
+    )
+
+    setExtraPrizeName("")
+    setExtraPrizeCost("")
+
+    await loadExtraPrizes(
+      selectedRaffle
+    )
+
+    await loadScenarios(
+      selectedRaffle
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+  }
+
+}
+
+async function deleteExtraPrize(
+
+  id:string
+
+){
+
+  try{
+
+    await fetch(
+
+`/api/internal/raffles/financial-extra-prizes/${id}`,
+
+      {
+
+        method:"DELETE"
+
+      }
+
+    )
+
+    await loadExtraPrizes(
+      selectedRaffle
+    )
+
+    await loadScenarios(
+      selectedRaffle
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
 
   }
 
