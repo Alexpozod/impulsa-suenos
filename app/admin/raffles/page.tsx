@@ -102,6 +102,65 @@ useState("19")
 const [targetProfit,setTargetProfit] =
 useState("10000000")
 
+const prize =
+Number(prizeValue || 0)
+
+const fixed =
+Number(fixedCosts || 0)
+
+const marketing =
+Number(marketingPercent || 0)
+
+const influencer =
+Number(influencerPercent || 0)
+
+const flow =
+Number(flowPercent || 0)
+
+const iva =
+Number(ivaPercent || 0)
+
+const profit =
+Number(targetProfit || 0)
+
+const totalPercentCosts =
+marketing +
+influencer +
+flow +
+iva
+
+const requiredRevenue =
+(
+prize +
+fixed +
+profit
+)
+/
+(
+1 -
+(
+totalPercentCosts / 100
+)
+)
+
+const recommendedTicket =
+10000
+
+const minimumTickets =
+Math.ceil(
+requiredRevenue /
+recommendedTicket
+)
+
+const breakEvenRevenue =
+prize + fixed
+
+const breakEvenTickets =
+Math.ceil(
+breakEvenRevenue /
+recommendedTicket
+)
+
   return (
 
     <div className="p-8 space-y-8">
@@ -386,7 +445,7 @@ useState("10000000")
 
     </div>
 
-    <div>
+        <div>
 
       <label className="text-sm text-slate-400">
         Utilidad Objetivo
@@ -410,6 +469,101 @@ useState("10000000")
           py-3
         "
       />
+
+    </div>
+
+  </div>
+
+  <div
+    className="
+      grid
+      md:grid-cols-2
+      xl:grid-cols-4
+      gap-4
+    "
+  >
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        border
+        border-slate-800
+        p-5
+      "
+    >
+
+      <p className="text-slate-400 text-sm">
+        Facturación Objetivo
+      </p>
+
+      <p className="text-2xl font-bold mt-2">
+        $
+        {Math.round(
+          requiredRevenue
+        ).toLocaleString("es-CL")}
+      </p>
+
+    </div>
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        border
+        border-slate-800
+        p-5
+      "
+    >
+
+      <p className="text-slate-400 text-sm">
+        Ticket Recomendado
+      </p>
+
+      <p className="text-2xl font-bold mt-2">
+        $
+        {recommendedTicket.toLocaleString("es-CL")}
+      </p>
+
+    </div>
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        border
+        border-slate-800
+        p-5
+      "
+    >
+
+      <p className="text-slate-400 text-sm">
+        Tickets Necesarios
+      </p>
+
+      <p className="text-2xl font-bold mt-2">
+        {minimumTickets.toLocaleString("es-CL")}
+      </p>
+
+    </div>
+
+    <div
+      className="
+        rounded-2xl
+        bg-slate-950
+        border
+        border-slate-800
+        p-5
+      "
+    >
+
+      <p className="text-slate-400 text-sm">
+        Punto de Equilibrio
+      </p>
+
+      <p className="text-2xl font-bold mt-2">
+        {breakEvenTickets.toLocaleString("es-CL")}
+      </p>
 
     </div>
 
