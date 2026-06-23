@@ -102,6 +102,9 @@ useState("2.95")
 const [ivaPercent,setIvaPercent] =
 useState("19")
 
+const [taxReservePercent,setTaxReservePercent] =
+useState("27")
+
 const [targetProfit,setTargetProfit] =
 useState("10000000")
 
@@ -157,6 +160,11 @@ Number(flowPercent || 0)
 const iva =
 Number(ivaPercent || 0)
 
+const taxReserve =
+Number(
+  taxReservePercent || 0
+)
+
 const profit =
 Number(targetProfit || 0)
 
@@ -164,7 +172,8 @@ const totalPercentCosts =
 marketing +
 influencer +
 flow +
-iva
+iva +
+taxReserve
 
 const requiredRevenue =
 (
@@ -179,6 +188,58 @@ profit
 totalPercentCosts / 100
 )
 )
+
+const marketingAmount =
+requiredRevenue *
+(marketing / 100)
+
+const influencerAmount =
+requiredRevenue *
+(influencer / 100)
+
+const flowAmount =
+requiredRevenue *
+(flow / 100)
+
+const ivaAmount =
+requiredRevenue *
+(iva / 100)
+
+const taxReserveAmount =
+requiredRevenue *
+(taxReserve / 100)
+
+const projectedFreeCash =
+
+requiredRevenue
+
+-
+
+prize
+
+-
+
+fixed
+
+-
+
+marketingAmount
+
+-
+
+influencerAmount
+
+-
+
+flowAmount
+
+-
+
+ivaAmount
+
+-
+
+taxReserveAmount
 
 const recommendedTicket =
 10000
@@ -1291,6 +1352,33 @@ dashboardData && (
 
     </div>
 
+    <div>
+
+<label className="text-sm text-slate-400">
+Impuesto Anual %
+</label>
+
+<input
+value={taxReservePercent}
+onChange={(e)=>
+setTaxReservePercent(
+e.target.value
+)
+}
+className="
+w-full
+mt-2
+rounded-xl
+bg-slate-950
+border
+border-slate-700
+px-4
+py-3
+"
+/>
+
+</div>
+
         <div>
 
       <label className="text-sm text-slate-400">
@@ -1413,7 +1501,176 @@ dashboardData && (
 
     </div>
 
+    <div
+className="
+rounded-2xl
+bg-emerald-950
+border
+border-emerald-800
+p-5
+"
+>
+
+<p className="text-slate-300 text-sm">
+Caja Libre Proyectada
+</p>
+
+<p className="text-2xl font-bold mt-2 text-emerald-400">
+$
+{Math.round(
+projectedFreeCash
+).toLocaleString("es-CL")}
+</p>
+
+</div>
+
   </div>
+
+<div
+className="
+grid
+md:grid-cols-2
+xl:grid-cols-5
+gap-4
+"
+>
+
+<div
+className="
+rounded-2xl
+bg-slate-950
+border
+border-slate-800
+p-5
+"
+>
+
+<p className="text-slate-400 text-sm">
+Marketing
+</p>
+
+<p className="text-sm">
+{marketing}%
+</p>
+
+<p className="text-xl font-bold mt-2">
+$
+{Math.round(
+marketingAmount
+).toLocaleString("es-CL")}
+</p>
+
+</div>
+
+<div
+className="
+rounded-2xl
+bg-slate-950
+border
+border-slate-800
+p-5
+"
+>
+
+<p className="text-slate-400 text-sm">
+Influencers
+</p>
+
+<p className="text-sm">
+{influencer}%
+</p>
+
+<p className="text-xl font-bold mt-2">
+$
+{Math.round(
+influencerAmount
+).toLocaleString("es-CL")}
+</p>
+
+</div>
+
+<div
+className="
+rounded-2xl
+bg-slate-950
+border
+border-slate-800
+p-5
+"
+>
+
+<p className="text-slate-400 text-sm">
+Flow
+</p>
+
+<p className="text-sm">
+{flow}%
+</p>
+
+<p className="text-xl font-bold mt-2">
+$
+{Math.round(
+flowAmount
+).toLocaleString("es-CL")}
+</p>
+
+</div>
+
+<div
+className="
+rounded-2xl
+bg-slate-950
+border
+border-slate-800
+p-5
+"
+>
+
+<p className="text-slate-400 text-sm">
+IVA
+</p>
+
+<p className="text-sm">
+{iva}%
+</p>
+
+<p className="text-xl font-bold mt-2">
+$
+{Math.round(
+ivaAmount
+).toLocaleString("es-CL")}
+</p>
+
+</div>
+
+<div
+className="
+rounded-2xl
+bg-slate-950
+border
+border-slate-800
+p-5
+"
+>
+
+<p className="text-slate-400 text-sm">
+Reserva Impuesto
+</p>
+
+<p className="text-sm">
+{taxReserve}%
+</p>
+
+<p className="text-xl font-bold mt-2">
+$
+{Math.round(
+taxReserveAmount
+).toLocaleString("es-CL")}
+</p>
+
+</div>
+
+</div>
 
 <div
   className="
