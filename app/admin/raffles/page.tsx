@@ -115,6 +115,12 @@ const [
   setSelectedRaffle
 ] = useState("")
 
+const [saving,setSaving] =
+useState(false)
+
+const [saveMessage,setSaveMessage] =
+useState("")
+
 const prize =
 Number(prizeValue || 0)
 
@@ -297,6 +303,116 @@ async function loadFinancialPlan(
   } catch (error) {
 
     console.error(error)
+
+  }
+
+}
+
+async function saveFinancialPlan() {
+
+  if (!selectedRaffle) {
+
+    alert(
+      "Selecciona un sorteo"
+    )
+
+    return
+
+  }
+
+  try {
+
+    setSaving(true)
+
+    setSaveMessage("")
+
+    const response =
+      await fetch(
+
+        "/api/internal/raffles/financial-plan/save",
+
+        {
+
+          method:"POST",
+
+          headers:{
+
+            "Content-Type":
+            "application/json"
+
+          },
+
+          body:JSON.stringify({
+
+            raffle_id:
+              selectedRaffle,
+
+            prize_cost:
+              prize,
+
+            fixed_costs:
+              fixed,
+
+            marketing_percent:
+              marketing,
+
+            influencer_percent:
+              influencer,
+
+            flow_percent:
+              flow,
+
+            iva_percent:
+              iva,
+
+            target_profit:
+              profit,
+
+            ticket_price:
+              recommendedTicket,
+
+            required_revenue:
+              requiredRevenue,
+
+            minimum_tickets:
+              minimumTickets,
+
+            break_even_tickets:
+              breakEvenTickets
+
+          })
+
+        }
+
+      )
+
+    if (!response.ok) {
+
+      throw new Error(
+        "save_error"
+      )
+
+    }
+
+    setSaveMessage(
+      "✅ Plan guardado"
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+    setSaveMessage(
+      "❌ Error guardando"
+    )
+
+  }
+
+  finally{
+
+    setSaving(false)
 
   }
 
@@ -780,6 +896,75 @@ async function loadFinancialPlan(
     </div>
 
   </div>
+
+<div
+  className="
+    flex
+    items-center
+    gap-4
+    pt-4
+  "
+>
+
+  <button
+
+    onClick={
+      saveFinancialPlan
+    }
+
+    disabled={
+      saving
+    }
+
+    className="
+      px-6
+      py-3
+      rounded-xl
+      bg-emerald-600
+      hover:bg-emerald-500
+      text-white
+      font-semibold
+      disabled:opacity-50
+    "
+
+  >
+
+    {
+
+      saving
+
+      ?
+
+      "Guardando..."
+
+      :
+
+      "💾 Guardar Plan"
+
+    }
+
+  </button>
+
+  {
+
+    saveMessage && (
+
+      <div
+        className="
+          text-sm
+          text-slate-300
+        "
+      >
+
+        {saveMessage}
+
+      </div>
+
+    )
+
+  }
+
+</div>
 
 </div>
 
