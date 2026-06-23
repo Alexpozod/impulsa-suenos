@@ -511,6 +511,16 @@ async function loadScenarios(
 
 async function createExtraPrize(){
 
+console.log({
+
+  selectedRaffle,
+
+  extraPrizeName,
+
+  extraPrizeCost
+
+})
+
   if(
     !selectedRaffle ||
     !extraPrizeName ||
@@ -521,40 +531,62 @@ async function createExtraPrize(){
 
   try{
 
-    await fetch(
+   const response =
+  await fetch(
 
 "/api/internal/raffles/financial-extra-prizes",
 
-      {
+    {
 
-        method:"POST",
+      method:"POST",
 
-        headers:{
+      headers:{
 
-          "Content-Type":
-          "application/json"
+        "Content-Type":
+        "application/json"
 
-        },
+      },
 
-        body:JSON.stringify({
+      body:JSON.stringify({
 
-          raffle_id:
-            selectedRaffle,
+        raffle_id:
+          selectedRaffle,
 
-          name:
-            extraPrizeName,
+        name:
+          extraPrizeName,
 
-          cost:
-            Number(
-              extraPrizeCost
-            )
+        cost:
+          Number(
+            extraPrizeCost
+          )
 
-        })
+      })
 
-      }
+    }
 
+  )
+
+const json =
+  await response.json()
+
+console.log(
+  "CREATE EXTRA PRIZE RESPONSE =>",
+  json
+)
+
+if (!response.ok) {
+
+  alert(
+    JSON.stringify(
+      json,
+      null,
+      2
     )
+  )
 
+  return
+}
+        
     setExtraPrizeName("")
     setExtraPrizeCost("")
 
