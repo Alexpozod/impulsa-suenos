@@ -133,21 +133,65 @@ plan.required_revenue
 
 0
 
+const marketingCost =
+revenue *
+(
+Number(plan.marketing_percent || 0)
+/
+100
+)
+
+const influencerCost =
+revenue *
+(
+Number(plan.influencer_percent || 0)
+/
+100
+)
+
+const flowCost =
+revenue *
+(
+Number(plan.flow_percent || 0)
+/
+100
+)
+
+const ivaCost =
+revenue *
+(
+Number(plan.iva_percent || 0)
+/
+100
+)
+
 const projectedProfit =
 
 revenue
 
 -
 
-Number(
-plan.prize_cost||0
-)
+Number(plan.prize_cost || 0)
 
 -
 
-Number(
-plan.fixed_costs||0
-)
+Number(plan.fixed_costs || 0)
+
+-
+
+marketingCost
+
+-
+
+influencerCost
+
+-
+
+flowCost
+
+-
+
+ivaCost
 
 const remainingRevenue =
 
@@ -203,13 +247,7 @@ Math.max(
 
 0,
 
-revenue
-
--
-
-Number(
-plan.prize_cost || 0
-)
+projectedProfit
 
 )
 
