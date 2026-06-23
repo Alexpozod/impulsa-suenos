@@ -179,6 +179,104 @@ if (!authorized) {
           cleanupDate
         )
 
+/* =========================
+   CANCEL OLD PENDING ORDERS
+========================= */
+
+const oldPendingDate =
+  new Date(
+    Date.now() -
+    7 *
+    24 *
+    60 *
+    60 *
+    1000
+  ).toISOString()
+
+const {
+  data: oldOrders
+} =
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .select(`
+      id
+    `)
+    .eq(
+      "status",
+      "pending"
+    )
+    .lte(
+      "created_at",
+      oldPendingDate
+    )
+
+let cancelledOrders = 0
+
+let failedPayments = 0
+
+for (
+  const order of
+  oldOrders || []
+) {
+
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .update({
+
+      status:
+        "cancelled"
+
+    })
+    .eq(
+      "id",
+      order.id
+    )
+
+  cancelledOrders++
+
+  const {
+    data: payments
+  } =
+    await supabase
+      .schema("raffles")
+      .from("payments")
+      .select("id")
+      .eq(
+        "order_id",
+        order.id
+      )
+      .eq(
+        "status",
+        "pending"
+      )
+
+  for (
+    const payment of
+    payments || []
+  ) {
+
+    await supabase
+      .schema("raffles")
+      .from("payments")
+      .update({
+
+        status:
+          "failed"
+
+      })
+      .eq(
+        "id",
+        payment.id
+      )
+
+    failedPayments++
+
+  }
+
+}
+
     /* =========================
        AUDIT LOG
     ========================= */
@@ -193,28 +291,40 @@ if (!authorized) {
 
       metadata: {
 
-        cleanup_date:
-          cleanupDate,
+  cleanup_date:
+    cleanupDate,
 
-        rate_limit_error:
-          rateLimitError
-            ? true
-            : false,
+  cancelled_orders:
+    cancelledOrders,
 
-        webhook_error:
-          webhookError
-            ? true
-            : false
+  failed_payments:
+    failedPayments,
 
-      }
+  rate_limit_error:
+    rateLimitError
+      ? true
+      : false,
+
+  webhook_error:
+    webhookError
+      ? true
+      : false
+
+}
 
     })
 
     return NextResponse.json({
 
-      ok: true
+  ok: true,
 
-    })
+  cancelled_orders:
+    cancelledOrders,
+
+  failed_payments:
+    failedPayments
+
+})
 
   } catch (error) {
 
