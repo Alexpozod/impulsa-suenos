@@ -644,6 +644,96 @@ if (
 
 )}
 
+<div
+  className="
+    grid
+    md:grid-cols-4
+    gap-3
+  "
+>
+
+  <div
+    className="
+      rounded-xl
+      bg-slate-900
+      border
+      border-slate-800
+      p-4
+    "
+  >
+
+    <div className="text-xs text-slate-400">
+      Critical
+    </div>
+
+    <div className="text-2xl font-bold">
+      {criticalIssues}
+    </div>
+
+  </div>
+
+  <div
+    className="
+      rounded-xl
+      bg-slate-900
+      border
+      border-slate-800
+      p-4
+    "
+  >
+
+    <div className="text-xs text-slate-400">
+      High
+    </div>
+
+    <div className="text-2xl font-bold">
+      {highIssues}
+    </div>
+
+  </div>
+
+  <div
+    className="
+      rounded-xl
+      bg-slate-900
+      border
+      border-slate-800
+      p-4
+    "
+  >
+
+    <div className="text-xs text-slate-400">
+      Medium
+    </div>
+
+    <div className="text-2xl font-bold">
+      {mediumIssues}
+    </div>
+
+  </div>
+
+  <div
+    className="
+      rounded-xl
+      bg-slate-900
+      border
+      border-slate-800
+      p-4
+    "
+  >
+
+    <div className="text-xs text-slate-400">
+      Low
+    </div>
+
+    <div className="text-2xl font-bold">
+      {lowIssues}
+    </div>
+
+  </div>
+
+</div>
+
 <h2
   className="
     text-sm
