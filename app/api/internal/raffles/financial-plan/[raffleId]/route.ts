@@ -21,20 +21,19 @@ export async function GET(
 
   req: NextRequest,
 
-  {
-    params
-  }: {
-    params: {
+  context: {
+    params: Promise<{
       raffleId: string
-    }
+    }>
   }
 
 ) {
 
   try {
 
-    const raffleId =
-      params.raffleId
+    const {
+  raffleId
+} = await context.params
 
     const {
       data,
