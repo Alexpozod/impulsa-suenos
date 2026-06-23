@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
 
 const sections = [
   {
@@ -79,6 +80,27 @@ const sections = [
 ]
 
 export default function AdminRafflesPage() {
+
+const [prizeValue,setPrizeValue] =
+useState("20000000")
+
+const [fixedCosts,setFixedCosts] =
+useState("2000000")
+
+const [marketingPercent,setMarketingPercent] =
+useState("15")
+
+const [influencerPercent,setInfluencerPercent] =
+useState("10")
+
+const [flowPercent,setFlowPercent] =
+useState("2.95")
+
+const [ivaPercent,setIvaPercent] =
+useState("19")
+
+const [targetProfit,setTargetProfit] =
+useState("10000000")
 
   return (
 
@@ -161,6 +183,34 @@ export default function AdminRafflesPage() {
         ))}
 
       </div>
+
+{/* FINANCIAL PLANNER */}
+
+<div
+  className="
+    rounded-3xl
+    border
+    border-slate-800
+    bg-slate-900
+    p-6
+  "
+>
+
+  <h2
+    className="
+      text-2xl
+      font-bold
+      text-white
+    "
+  >
+    💰 Financial Planner
+  </h2>
+
+  <p className="text-slate-400 mt-2">
+    Simulación financiera para nuevos sorteos
+  </p>
+
+</div>
 
       {/* SYSTEM CARD */}
 
