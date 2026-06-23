@@ -219,6 +219,89 @@ async function loadRaffles() {
 
 }
 
+async function loadFinancialPlan(
+
+  raffleId: string
+
+) {
+
+  if (!raffleId) {
+
+    return
+
+  }
+
+  try {
+
+    const response =
+      await fetch(
+
+        `/api/internal/raffles/financial-plan/${raffleId}`
+
+      )
+
+    const json =
+      await response.json()
+
+    if (!json.plan) {
+
+      return
+
+    }
+
+    const plan =
+      json.plan
+
+    setPrizeValue(
+      String(
+        plan.prize_cost || 0
+      )
+    )
+
+    setFixedCosts(
+      String(
+        plan.fixed_costs || 0
+      )
+    )
+
+    setMarketingPercent(
+      String(
+        plan.marketing_percent || 0
+      )
+    )
+
+    setInfluencerPercent(
+      String(
+        plan.influencer_percent || 0
+      )
+    )
+
+    setFlowPercent(
+      String(
+        plan.flow_percent || 0
+      )
+    )
+
+    setIvaPercent(
+      String(
+        plan.iva_percent || 0
+      )
+    )
+
+    setTargetProfit(
+      String(
+        plan.target_profit || 0
+      )
+    )
+
+  } catch (error) {
+
+    console.error(error)
+
+  }
+
+}
+
   return (
 
     <div className="p-8 space-y-8">
@@ -347,11 +430,20 @@ async function loadRaffles() {
       selectedRaffle
     }
 
-    onChange={(e)=>
-      setSelectedRaffle(
-        e.target.value
-      )
-    }
+    onChange={(e)=>{
+
+  const raffleId =
+    e.target.value
+
+  setSelectedRaffle(
+    raffleId
+  )
+
+  loadFinancialPlan(
+    raffleId
+  )
+
+}}
 
     className="
       mt-2
