@@ -136,6 +136,9 @@ useState("")
 const [scenarioData,setScenarioData] =
 useState<any>(null)
 
+const [dashboardData,setDashboardData] =
+useState<any>(null)
+
 const prize =
 Number(prizeValue || 0)
 
@@ -199,7 +202,49 @@ useEffect(() => {
 
   loadRaffles()
 
+  loadDashboard()
+
 }, [])
+
+async function loadDashboard(){
+
+  try{
+
+    const {
+      data:{ session }
+    } =
+      await supabase.auth.getSession()
+
+    const response =
+      await fetch(
+
+        "/api/admin/raffles/analytics",
+
+        {
+          headers:{
+            Authorization:
+              `Bearer ${session?.access_token}`
+          }
+        }
+
+      )
+
+    const json =
+      await response.json()
+
+    setDashboardData(
+      json
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+  }
+
+}
 
 async function loadRaffles() {
 
