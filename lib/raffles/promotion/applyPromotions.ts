@@ -1,112 +1,165 @@
 import { createClient } from "@supabase/supabase-js"
 
 import {
-  PromotionContext,
-  PromotionResult
+PromotionContext,
+PromotionResult
 } from "./promotionTypes"
 
 const supabase =
-  createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+createClient(
+
+process.env.NEXT_PUBLIC_SUPABASE_URL!,
+
+process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+)
 
 export async function applyPromotions(
-  context: PromotionContext
+
+context: PromotionContext
+
 ): Promise<PromotionResult> {
 
-  let bonusQuantity = 0
-  let discount = 0
+try{
 
-  const now =
-    new Date().toISOString()
+const now =
+new Date().toISOString()
 
-  const { data: rules } =
-    await supabase
-      .schema("raffles")
-      .from("business_rules")
-      .select("*")
-      .eq("active", true)
-      .or(
-        `raffle_id.is.null,raffle_id.eq.${context.raffleId}`
-      )
+const {
+data:rules
+}
+=
+await supabase
+.schema("raffles")
+.from("business_rules")
+.select("*")
+.eq("active",true)
+.in(
+"type",
+[
+"bundle",
+"bonus"
+]
+)
 
-  if (!rules?.length) {
+if(!rules?.length){
 
-    return {
-      applied: false,
-      bonusQuantity: 0,
-      discount: 0
-    }
+return {
+applied:false,
+bonusQuantity:0,
+discount:0
+}
 
-  }
+}
 
-  let selectedRule: any = null
+let selectedRule:any =
+null
 
-  for (const rule of rules) {
+for(
+const rule of rules
+){
 
-    if (
-      rule.starts_at &&
-      rule.starts_at > now
-    ) {
-      continue
-    }
+if(
 
-    if (
-      rule.ends_at &&
-      rule.ends_at < now
-    ) {
-      continue
-    }
+rule.min_quantity &&
+context.quantity <
+rule.min_quantity
 
-    if (
-      rule.min_quantity &&
-      context.quantity <
-      rule.min_quantity
-    ) {
-      continue
-    }
+){
+continue
+}
 
-    if (
-      rule.max_quantity &&
-      context.quantity >
-      rule.max_quantity
-    ) {
-      continue
-    }
+if(
 
-    if (
-      rule.type === "bundle" ||
-      rule.type === "bonus"
-    ) {
+rule.max_quantity &&
+context.quantity >
+rule.max_quantity
 
-      bonusQuantity +=
-        Number(
-          rule.bonus_quantity || 0
-        )
+){
+continue
+}
 
-      selectedRule = rule
-    }
-  }
+if(
+rule.starts_at &&
+rule.starts_at > now
+){
+continue
+}
 
-  return {
+if(
+rule.ends_at &&
+rule.ends_at < now
+){
+continue
+}
 
-    applied:
-      bonusQuantity > 0 ||
-      discount > 0,
+if(
+!selectedRule ||
+rule.priority >
+selectedRule.priority
+){
 
-    promotionId:
-      selectedRule?.id,
+selectedRule = rule
 
-    promotionCode:
-      selectedRule?.code,
+}
 
-    promotionName:
-      selectedRule?.name,
+}
 
-    bonusQuantity,
+if(!selectedRule){
 
-    discount
+return {
 
-  }
+applied:false,
+
+bonusQuantity:0,
+
+discount:0
+
+}
+
+}
+
+return {
+
+applied:true,
+
+promotionId:
+selectedRule.id,
+
+promotionCode:
+selectedRule.code,
+
+promotionName:
+selectedRule.name,
+
+bonusQuantity:
+Number(
+selectedRule.bonus_quantity || 0
+),
+
+discount:0
+
+}
+
+}
+
+catch(error){
+
+console.error(
+"applyPromotions error",
+error
+)
+
+return {
+
+applied:false,
+
+bonusQuantity:0,
+
+discount:0
+
+}
+
+}
+
 }
