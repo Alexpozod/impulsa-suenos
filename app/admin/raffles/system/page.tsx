@@ -54,13 +54,40 @@ const [
 const totalAnomalies =
   anomalies?.anomalies_found || 0
 
+const criticalIssues =
+  health?.issues?.filter(
+    (issue:any) =>
+      issue.severity === "critical"
+  ).length || 0
+
+const highIssues =
+  health?.issues?.filter(
+    (issue:any) =>
+      issue.severity === "high"
+  ).length || 0
+
+const mediumIssues =
+  health?.issues?.filter(
+    (issue:any) =>
+      issue.severity === "medium"
+  ).length || 0
+
+const lowIssues =
+  health?.issues?.filter(
+    (issue:any) =>
+      issue.severity === "low"
+  ).length || 0
+
 const healthScore =
   Math.max(
     0,
     100 -
     (
-      totalIssues * 10 +
-      totalAnomalies * 15
+      criticalIssues * 25 +
+      highIssues * 10 +
+      mediumIssues * 2 +
+      lowIssues * 1 +
+      totalAnomalies * 10
     )
   )
 
@@ -562,13 +589,17 @@ if (
 
         healthScore >= 90
 
-          ? "🟢 Healthy"
+? "🟢 Excelente"
 
-          : healthScore >= 70
+: healthScore >= 75
 
-            ? "🟡 Warning"
+? "🟡 Estable"
 
-            : "🔴 Critical"
+: healthScore >= 50
+
+? "🟠 Revisar"
+
+: "🔴 Crítico"
 
       }
 
