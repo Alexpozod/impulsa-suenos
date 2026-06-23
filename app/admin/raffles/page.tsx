@@ -1182,6 +1182,146 @@ progressData.projectedProfit || 0
 
 </div>
 
+<div
+className="
+grid
+md:grid-cols-2
+xl:grid-cols-5
+gap-4
+mt-5
+"
+>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+🎯 Faltante Meta
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+$
+
+{Number(
+
+progressData.remainingRevenue || 0
+
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+🎟 Tickets Faltantes
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+{Number(
+
+progressData.remainingTickets || 0
+
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+🚀 Exceso sobre Meta
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+$
+
+{Number(
+
+progressData.surplusRevenue || 0
+
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+💰 Caja Disponible
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+$
+
+{Number(
+
+progressData.availableCash || 0
+
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
+
+<div
+className="
+bg-slate-900
+rounded-2xl
+p-4
+"
+>
+
+<div className="text-slate-400 text-sm">
+🎁 Premio Extra Posible
+</div>
+
+<div className="text-2xl font-bold mt-2">
+
+$
+
+{Number(
+
+progressData.extraPrizeCapacity || 0
+
+).toLocaleString("es-CL")}
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 )
