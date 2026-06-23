@@ -149,6 +149,80 @@ Number(
 plan.fixed_costs||0
 )
 
+const remainingRevenue =
+
+Math.max(
+
+0,
+
+Number(
+plan.required_revenue || 0
+)
+
+-
+
+revenue
+
+)
+
+const remainingTickets =
+
+Math.max(
+
+0,
+
+Number(
+plan.minimum_tickets || 0
+)
+
+-
+
+soldTickets
+
+)
+
+const surplusRevenue =
+
+Math.max(
+
+0,
+
+revenue
+
+-
+
+Number(
+plan.required_revenue || 0
+)
+
+)
+
+const availableCash =
+
+Math.max(
+
+0,
+
+revenue
+
+-
+
+Number(
+plan.prize_cost || 0
+)
+
+)
+
+const extraPrizeCapacity =
+
+Math.max(
+
+0,
+
+surplusRevenue * 0.80
+
+)
+
 return NextResponse.json({
 
 exists:true,
@@ -168,7 +242,17 @@ minimumTickets:
 plan.minimum_tickets,
 
 breakEvenTickets:
-plan.break_even_tickets
+plan.break_even_tickets,
+
+remainingRevenue,
+
+remainingTickets,
+
+surplusRevenue,
+
+availableCash,
+
+extraPrizeCapacity
 
 })
 
