@@ -193,22 +193,227 @@ useState("10000000")
     border-slate-800
     bg-slate-900
     p-6
+    space-y-6
   "
 >
 
-  <h2
+  <div>
+
+    <h2
+      className="
+        text-2xl
+        font-bold
+        text-white
+      "
+    >
+      💰 Financial Planner
+    </h2>
+
+    <p className="text-slate-400 mt-2">
+      Simulación financiera para nuevos sorteos
+    </p>
+
+  </div>
+
+  <div
     className="
-      text-2xl
-      font-bold
-      text-white
+      grid
+      md:grid-cols-2
+      xl:grid-cols-4
+      gap-4
     "
   >
-    💰 Financial Planner
-  </h2>
 
-  <p className="text-slate-400 mt-2">
-    Simulación financiera para nuevos sorteos
-  </p>
+    <div>
+
+      <label className="text-sm text-slate-400">
+        Premio Principal
+      </label>
+
+      <input
+        value={prizeValue}
+        onChange={(e)=>
+          setPrizeValue(
+            e.target.value
+          )
+        }
+        className="
+          w-full
+          mt-2
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+      />
+
+    </div>
+
+    <div>
+
+      <label className="text-sm text-slate-400">
+        Costos Fijos
+      </label>
+
+      <input
+        value={fixedCosts}
+        onChange={(e)=>
+          setFixedCosts(
+            e.target.value
+          )
+        }
+        className="
+          w-full
+          mt-2
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+      />
+
+    </div>
+
+    <div>
+
+      <label className="text-sm text-slate-400">
+        Marketing %
+      </label>
+
+      <input
+        value={marketingPercent}
+        onChange={(e)=>
+          setMarketingPercent(
+            e.target.value
+          )
+        }
+        className="
+          w-full
+          mt-2
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+      />
+
+    </div>
+
+    <div>
+
+      <label className="text-sm text-slate-400">
+        Influencers %
+      </label>
+
+      <input
+        value={influencerPercent}
+        onChange={(e)=>
+          setInfluencerPercent(
+            e.target.value
+          )
+        }
+        className="
+          w-full
+          mt-2
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+      />
+
+    </div>
+
+    <div>
+
+      <label className="text-sm text-slate-400">
+        Flow %
+      </label>
+
+      <input
+        value={flowPercent}
+        onChange={(e)=>
+          setFlowPercent(
+            e.target.value
+          )
+        }
+        className="
+          w-full
+          mt-2
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+      />
+
+    </div>
+
+    <div>
+
+      <label className="text-sm text-slate-400">
+        IVA %
+      </label>
+
+      <input
+        value={ivaPercent}
+        onChange={(e)=>
+          setIvaPercent(
+            e.target.value
+          )
+        }
+        className="
+          w-full
+          mt-2
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+      />
+
+    </div>
+
+    <div>
+
+      <label className="text-sm text-slate-400">
+        Utilidad Objetivo
+      </label>
+
+      <input
+        value={targetProfit}
+        onChange={(e)=>
+          setTargetProfit(
+            e.target.value
+          )
+        }
+        className="
+          w-full
+          mt-2
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+      />
+
+    </div>
+
+  </div>
 
 </div>
 
