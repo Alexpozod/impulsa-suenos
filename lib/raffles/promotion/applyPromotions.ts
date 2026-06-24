@@ -126,19 +126,36 @@ selectedBonus = rule
 
 }
 
-const bundleBonus =
-Number(
-selectedBundle?.bonus_quantity || 0
-)
+let selectedRule:any = null
 
-const launchBonus =
-Number(
-selectedBonus?.bonus_quantity || 0
-)
+if(
+selectedBundle &&
+selectedBonus
+){
+
+selectedRule =
+
+selectedBundle.priority >=
+selectedBonus.priority
+
+? selectedBundle
+
+: selectedBonus
+
+}
+
+else{
+
+selectedRule =
+selectedBundle ||
+selectedBonus
+
+}
 
 const totalBonus =
-bundleBonus +
-launchBonus
+Number(
+selectedRule?.bonus_quantity || 0
+)
 
 return {
 
@@ -146,26 +163,13 @@ applied:
 totalBonus > 0,
 
 promotionId:
-selectedBundle?.id ||
-selectedBonus?.id,
+selectedRule?.id,
 
 promotionCode:
-
-[
-selectedBundle?.code,
-selectedBonus?.code
-]
-.filter(Boolean)
-.join("+"),
+selectedRule?.code,
 
 promotionName:
-
-[
-selectedBundle?.name,
-selectedBonus?.name
-]
-.filter(Boolean)
-.join(" + "),
+selectedRule?.name,
 
 bonusQuantity:
 totalBonus,
