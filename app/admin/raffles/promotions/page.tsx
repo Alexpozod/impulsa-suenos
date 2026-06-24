@@ -32,6 +32,9 @@ useState("1")
 const [priority,setPriority] =
 useState("100")
 
+const [editingId,setEditingId] =
+useState("")
+
 useEffect(()=>{
 
 loadRules()
@@ -187,6 +190,10 @@ Bonus
 
 <th className="p-4 text-left">
 Min Qty
+</th>
+
+<th className="p-4 text-left">
+Acciones
 </th>
 
 </tr>
@@ -385,6 +392,63 @@ rule.min_quantity || "-"
 
 </td>
 
+<td className="p-4">
+
+<button
+type="button"
+onClick={()=>{
+
+setType(
+rule.type || "bonus"
+)
+
+setCode(
+rule.code || ""
+)
+
+setName(
+rule.name || ""
+)
+
+setBonusQuantity(
+String(
+rule.bonus_quantity || 0
+)
+)
+
+setMinQuantity(
+String(
+rule.min_quantity || 1
+)
+)
+
+setPriority(
+String(
+rule.priority || 0
+)
+)
+
+setEditingId(
+rule.id
+)
+
+}}
+className="
+px-3
+py-1
+rounded-lg
+bg-cyan-500
+text-slate-950
+font-semibold
+"
+>
+
+Editar
+
+</button>
+
+</td>
+
 </tr>
 
 ))
@@ -417,7 +481,13 @@ text-white
 mb-6
 "
 >
-Nueva Promoción
+{
+editingId
+?
+"Editar Promoción"
+:
+"Nueva Promoción"
+}
 </h2>
 
 <div
@@ -567,7 +637,12 @@ await fetch(
 
 {
 
-method:"POST",
+method:
+editingId
+?
+"PUT"
+:
+"POST",
 
 headers:{
 
@@ -580,6 +655,9 @@ Authorization:
 },
 
 body:JSON.stringify({
+
+id:
+editingId || undefined,
 
 type,
 
@@ -610,6 +688,8 @@ priority
 
 setCode("")
 setName("")
+
+setEditingId("")
 
 await loadRules()
 
