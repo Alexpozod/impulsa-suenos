@@ -269,13 +269,103 @@ border-slate-800
 
 <td className="p-4">
 
+<button
+type="button"
+onClick={async()=>{
+
+try{
+
+const {
+data:{session}
+}
+=
+await supabase.auth.getSession()
+
+if(rule.active){
+
+await fetch(
+
+`/api/admin/raffles/promotions?id=${rule.id}`,
+
+{
+
+method:"DELETE",
+
+headers:{
+
+Authorization:
+`Bearer ${session?.access_token}`
+
+}
+
+}
+
+)
+
+}
+else{
+
+await fetch(
+
+"/api/admin/raffles/promotions",
+
+{
+
+method:"PUT",
+
+headers:{
+
+"Content-Type":
+"application/json",
+
+Authorization:
+`Bearer ${session?.access_token}`
+
+},
+
+body:JSON.stringify({
+
+...rule,
+
+active:true
+
+})
+
+}
+
+)
+
+}
+
+await loadRules()
+
+}
+
+catch(error){
+
+console.error(error)
+
+}
+
+}}
+className="
+px-3
+py-1
+rounded-lg
+border
+border-slate-700
+"
+>
+
 {
 rule.active
 ?
-"✅"
+"✅ Activa"
 :
-"❌"
+"❌ Inactiva"
 }
+
+</button>
 
 </td>
 
