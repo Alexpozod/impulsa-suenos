@@ -47,8 +47,16 @@ export interface RuleResult {
     | "coupon"
     | "bundle"
     | "affiliate"
+    | "referral"
     | "none"
 
   highestPriority: number
+
+  winningRule?:
+    | "promotion"
+    | "coupon"
+    | "affiliate"
+    | "referral"
+    | "none"
 
 }
