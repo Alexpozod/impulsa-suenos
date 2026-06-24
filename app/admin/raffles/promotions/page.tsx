@@ -35,9 +35,17 @@ useState("100")
 const [editingId,setEditingId] =
 useState("")
 
+const [raffles,setRaffles] =
+useState<any[]>([])
+
+const [raffleId,setRaffleId] =
+useState("")
+
 useEffect(()=>{
 
 loadRules()
+
+loadRaffles()
 
 },[])
 
@@ -83,6 +91,49 @@ console.error(error)
 finally{
 
 setLoading(false)
+
+}
+
+}
+
+async function loadRaffles(){
+
+try{
+
+const {
+data:{session}
+}
+=
+await supabase.auth.getSession()
+
+const response =
+await fetch(
+
+"/api/admin/raffles/list",
+
+{
+headers:{
+Authorization:
+`Bearer ${session?.access_token}`
+}
+}
+
+)
+
+const json =
+await response.json()
+
+setRaffles(
+json.raffles || []
+)
+
+}
+
+catch(error){
+
+console.error(error)
+
+}
 
 }
 
@@ -410,6 +461,10 @@ setName(
 rule.name || ""
 )
 
+setRaffleId(
+rule.raffle_id || ""
+)
+
 setBonusQuantity(
 String(
 rule.bonus_quantity || 0
@@ -498,6 +553,44 @@ md:grid-cols-2
 gap-4
 "
 >
+
+<select
+value={raffleId}
+onChange={(e)=>
+setRaffleId(
+e.target.value
+)
+}
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-xl
+p-3
+"
+>
+
+<option value="">
+Todos los sorteos
+</option>
+
+{
+raffles.map(
+raffle=>(
+
+<option
+key={raffle.id}
+value={raffle.id}
+>
+
+{raffle.title}
+
+</option>
+
+))
+}
+
+</select>
 
 <select
 value={type}
@@ -665,6 +758,9 @@ code,
 
 name,
 
+raffle_id:
+raffleId || null,
+
 bonus_quantity:
 Number(
 bonusQuantity
@@ -690,6 +786,8 @@ setCode("")
 setName("")
 
 setEditingId("")
+
+setRaffleId("")
 
 await loadRules()
 
