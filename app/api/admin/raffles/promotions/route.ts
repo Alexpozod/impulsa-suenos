@@ -232,3 +232,223 @@ export async function POST(
   }
 
 }
+
+export async function PUT(
+  req: Request
+) {
+
+  try {
+
+    const auth =
+      await requireAdminAccess(req)
+
+    if (!auth.authorized) {
+
+      return NextResponse.json(
+        { error: "unauthorized" },
+        { status: 401 }
+      )
+
+    }
+
+    const body =
+      await req.json()
+
+    const {
+      id,
+
+      type,
+      code,
+      name,
+      description,
+
+      active,
+
+      raffle_id,
+
+      priority,
+      stackable,
+
+      value_type,
+      value,
+
+      bonus_quantity,
+
+      min_quantity,
+      max_quantity,
+
+      starts_at,
+      ends_at,
+
+      max_uses,
+
+      metadata
+    } = body
+
+    if (!id) {
+
+      return NextResponse.json(
+        { error: "id_required" },
+        { status: 400 }
+      )
+
+    }
+
+    const { data, error } =
+      await supabase
+        .schema("raffles")
+        .from("business_rules")
+        .update({
+
+          type,
+          code,
+          name,
+          description,
+
+          active,
+
+          raffle_id,
+
+          priority,
+          stackable,
+
+          value_type,
+          value,
+
+          bonus_quantity,
+
+          min_quantity,
+          max_quantity,
+
+          starts_at,
+          ends_at,
+
+          max_uses,
+
+          metadata,
+
+          updated_at:
+            new Date()
+              .toISOString()
+
+        })
+
+        .eq("id", id)
+
+        .select()
+
+        .single()
+
+    if (error) {
+
+      throw error
+
+    }
+
+    return NextResponse.json({
+
+      ok: true,
+
+      rule: data
+
+    })
+
+  }
+
+  catch (error) {
+
+    console.error(error)
+
+    return NextResponse.json(
+      {
+        error: "server_error"
+      },
+      {
+        status: 500
+      }
+    )
+
+  }
+
+}
+
+export async function DELETE(
+  req: Request
+) {
+
+  try {
+
+    const auth =
+      await requireAdminAccess(req)
+
+    if (!auth.authorized) {
+
+      return NextResponse.json(
+        { error: "unauthorized" },
+        { status: 401 }
+      )
+
+    }
+
+    const {
+      searchParams
+    } = new URL(req.url)
+
+    const id =
+      searchParams.get("id")
+
+    if (!id) {
+
+      return NextResponse.json(
+        { error: "id_required" },
+        { status: 400 }
+      )
+
+    }
+
+    const { error } =
+      await supabase
+        .schema("raffles")
+        .from("business_rules")
+        .update({
+
+          active: false,
+
+          updated_at:
+            new Date()
+              .toISOString()
+
+        })
+
+        .eq("id", id)
+
+    if (error) {
+
+      throw error
+
+    }
+
+    return NextResponse.json({
+
+      ok: true
+
+    })
+
+  }
+
+  catch (error) {
+
+    console.error(error)
+
+    return NextResponse.json(
+      {
+        error: "server_error"
+      },
+      {
+        status: 500
+      }
+    )
+
+  }
+
+}
