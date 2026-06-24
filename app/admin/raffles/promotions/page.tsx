@@ -137,8 +137,6 @@ console.error(error)
 
 }
 
-}
-
 return(
 
 <div className="p-8 space-y-8">
