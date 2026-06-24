@@ -3,6 +3,37 @@ import type { NextRequest } from "next/server"
 
 export async function middleware(req: NextRequest) {
 
+  const host =
+  req.headers.get("host") || ""
+
+/* =========================
+   SUBDOMINIO SORTEOS
+========================= */
+
+if (
+
+  host.includes(
+    "sorteos.impulsasuenos.com"
+  )
+
+) {
+
+  const url =
+    req.nextUrl.clone()
+
+  if (url.pathname === "/") {
+
+    url.pathname =
+      "/raffles"
+
+    return NextResponse.rewrite(
+      url
+    )
+
+  }
+
+}
+
   const url = req.nextUrl.pathname
 
   const protectedRoutes = [
