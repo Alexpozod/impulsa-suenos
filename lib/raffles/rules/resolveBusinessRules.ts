@@ -12,170 +12,208 @@ import { resolveCoupon } from "../coupon/resolveCoupon"
 
 export async function resolveBusinessRules(
 
-context: RuleContext
+  context: RuleContext
 
-): Promise<RuleResult>{
+): Promise<RuleResult> {
 
-const promotion=
+  const promotion =
+    await applyPromotions({
 
-await applyPromotions({
+      raffleId:
+        context.raffleId,
 
-raffleId:
-context.raffleId,
+      quantity:
+        context.quantity,
 
-quantity:
-context.quantity,
+      subtotal:
+        context.subtotal,
 
-subtotal:
-context.subtotal,
+      unitPrice:
+        context.unitPrice
 
-unitPrice:
-context.unitPrice
+    })
 
-})
+  const affiliate =
+    await resolveAffiliate(
+      context.affiliateCode
+    )
 
-const affiliate=
+  const referral =
+    await resolveReferral(
+      context.referralCode
+    )
 
-await resolveAffiliate(
+  const coupon =
+    await resolveCoupon(
+      context.couponCode,
+      context.subtotal
+    )
 
-context.affiliateCode
+  const hasCommercialRule =
 
-)
+    promotion.applied ||
 
-const referral =
-await resolveReferral(
-context.referralCode
-)
+    coupon?.found ||
 
-const coupon =
-await resolveCoupon(
-context.couponCode,
-context.subtotal
-)
+    affiliate?.found ||
 
-const hasCommercialRule =
+    referral?.found
 
-promotion.applied ||
+  let highestPriority = 0
 
-coupon?.found ||
+  let winningRule:
+    | "promotion"
+    | "coupon"
+    | "affiliate"
+    | "referral"
+    | "none"
+    =
+    "none"
 
-affiliate?.found ||
+  if (coupon?.found) {
 
-referral?.found
+    highestPriority =
+      COMMERCIAL_PRIORITY.coupon
 
-let highestPriority = 0
+    winningRule =
+      "coupon"
 
-if (
+  }
 
-coupon?.found
+  else if (promotion.applied) {
 
-){
+    highestPriority =
+      COMMERCIAL_PRIORITY.promotion
 
-highestPriority =
+    winningRule =
+      "promotion"
 
-COMMERCIAL_PRIORITY.coupon
+  }
 
-}
+  else if (affiliate?.found) {
 
-else if(
+    highestPriority =
+      COMMERCIAL_PRIORITY.affiliate
 
-promotion.applied
+    winningRule =
+      "affiliate"
 
-){
+  }
 
-highestPriority =
+  else if (referral?.found) {
 
-COMMERCIAL_PRIORITY.promotion
+    highestPriority =
+      COMMERCIAL_PRIORITY.referral
 
-}
+    winningRule =
+      "referral"
 
-else if(
+  }
 
-affiliate?.found
+  let commercialRuleSource:
+    | "promotion"
+    | "coupon"
+    | "bundle"
+    | "affiliate"
+    | "referral"
+    | "none"
+    =
+    "none"
 
-){
+  switch (winningRule) {
 
-highestPriority =
+    case "coupon":
 
-COMMERCIAL_PRIORITY.affiliate
+      commercialRuleSource =
+        "coupon"
 
-}
+      break
 
-else if(
+    case "promotion":
 
-referral?.found
+      commercialRuleSource =
+        "promotion"
 
-){
+      break
 
-highestPriority =
+    case "affiliate":
 
-COMMERCIAL_PRIORITY.referral
+      commercialRuleSource =
+        "affiliate"
 
-}
+      break
 
-let commercialRuleSource:
-"promotion"
-|"coupon"
-|"bundle"
-|"affiliate"
-|"none"
-=
-"none"
+    case "referral":
 
-if (promotion.applied) {
+      commercialRuleSource =
+        "referral"
 
-commercialRuleSource="promotion"
+      break
 
-}
+  }
 
-else if (coupon?.found) {
+  return {
 
-commercialRuleSource="coupon"
+    promotion: {
 
-}
+      applied:
+        winningRule === "promotion"
+          ? promotion.applied
+          : false,
 
-else if (affiliate?.found) {
+      promotionId:
+        winningRule === "promotion"
+          ? promotion.promotionId
+          : undefined,
 
-commercialRuleSource="affiliate"
+      promotionCode:
+        winningRule === "promotion"
+          ? promotion.promotionCode
+          : undefined,
 
-}
+      promotionName:
+        winningRule === "promotion"
+          ? promotion.promotionName
+          : undefined,
 
-return{
+      bonusQuantity:
+        winningRule === "promotion"
+          ? promotion.bonusQuantity
+          : 0,
 
-promotion:{
+      discount:
+        winningRule === "promotion"
+          ? promotion.discount
+          : 0
 
-applied:
-promotion.applied,
+    },
 
-promotionId:
-promotion.promotionId,
+    affiliate:
 
-promotionCode:
-promotion.promotionCode,
+      winningRule === "affiliate"
+        ? affiliate
+        : null,
 
-promotionName:
-promotion.promotionName,
+    referral:
 
-bonusQuantity:
-promotion.bonusQuantity,
+      winningRule === "referral"
+        ? referral
+        : null,
 
-discount:
-promotion.discount
+    coupon:
 
-},
+      winningRule === "coupon"
+        ? coupon
+        : null,
 
-affiliate,
+    hasCommercialRule,
 
-referral,
+    commercialRuleSource,
 
-coupon,
+    highestPriority,
 
-hasCommercialRule,
+    winningRule
 
-commercialRuleSource,
-
-highestPriority
-
-}
+  }
 
 }
