@@ -232,13 +232,11 @@ if (
 ========================= */
 export const config = {
   matcher: [
+    "/",
+
     "/api/withdraw",
     "/api/campaign/create",
 
-    /*
-      EXCLUIR RAFFLES
-      usa auth propia
-    */
     "/api/admin/((?!raffles).*)",
 
     "/admin/:path*",
