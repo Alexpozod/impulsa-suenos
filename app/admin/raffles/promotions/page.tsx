@@ -41,6 +41,12 @@ useState<any[]>([])
 const [raffleId,setRaffleId] =
 useState("")
 
+const [startsAt,setStartsAt] =
+useState("")
+
+const [endsAt,setEndsAt] =
+useState("")
+
 useEffect(()=>{
 
 loadRules()
@@ -463,6 +469,40 @@ setRaffleId(
 rule.raffle_id || ""
 )
 
+setStartsAt(
+
+rule.starts_at
+
+?
+
+rule.starts_at.slice(
+0,
+16
+)
+
+:
+
+""
+
+)
+
+setEndsAt(
+
+rule.ends_at
+
+?
+
+rule.ends_at.slice(
+0,
+16
+)
+
+:
+
+""
+
+)
+
 setBonusQuantity(
 String(
 rule.bonus_quantity || 0
@@ -589,6 +629,42 @@ value={raffle.id}
 }
 
 </select>
+
+<input
+type="datetime-local"
+value={startsAt}
+onChange={(e)=>
+setStartsAt(
+e.target.value
+)
+}
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-xl
+p-3
+"
+placeholder="Inicio"
+/>
+
+<input
+type="datetime-local"
+value={endsAt}
+onChange={(e)=>
+setEndsAt(
+e.target.value
+)
+}
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-xl
+p-3
+"
+placeholder="Fin"
+/>
 
 <select
 value={type}
@@ -759,6 +835,12 @@ name,
 raffle_id:
 raffleId || null,
 
+starts_at:
+startsAt || null,
+
+ends_at:
+endsAt || null,
+
 bonus_quantity:
 Number(
 bonusQuantity
@@ -786,6 +868,9 @@ setName("")
 setEditingId("")
 
 setRaffleId("")
+
+setStartsAt("")
+setEndsAt("")
 
 await loadRules()
 
