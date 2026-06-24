@@ -18,6 +18,11 @@ if (
 
 ) {
 
+  console.log(
+  "SUBDOMINIO SORTEOS DETECTADO",
+  host
+)
+
   const url =
     req.nextUrl.clone()
 
