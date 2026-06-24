@@ -606,7 +606,7 @@ gap-4
 "
 >
 
-<select
+ <select
 value={raffleId}
 onChange={(e)=>
 setRaffleId(
@@ -644,6 +644,20 @@ value={raffle.id}
 
 </select>
 
+<div>
+
+<label
+className="
+block
+mb-2
+text-sm
+text-slate-400
+font-medium
+"
+>
+📅 Inicio promoción
+</label>
+
 <input
 type="datetime-local"
 value={startsAt}
@@ -653,14 +667,30 @@ e.target.value
 )
 }
 className="
+w-full
 bg-slate-950
 border
 border-slate-700
 rounded-xl
 p-3
 "
-placeholder="Inicio"
 />
+
+</div>
+
+<div>
+
+<label
+className="
+block
+mb-2
+text-sm
+text-slate-400
+font-medium
+"
+>
+⏰ Fin promoción
+</label>
 
 <input
 type="datetime-local"
@@ -671,14 +701,26 @@ e.target.value
 )
 }
 className="
+w-full
 bg-slate-950
 border
 border-slate-700
 rounded-xl
 p-3
 "
-placeholder="Fin"
 />
+
+</div>
+
+<div
+className="
+md:col-span-2
+text-xs
+text-amber-400
+"
+>
+💡 Si no defines fechas la promoción permanecerá activa permanentemente.
+</div>
 
 <select
 value={type}
@@ -918,6 +960,10 @@ font-bold
 saving
 ?
 "Guardando..."
+:
+editingId
+?
+"Guardar Cambios"
 :
 "Crear Promoción"
 }
