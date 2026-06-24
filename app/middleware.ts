@@ -28,14 +28,14 @@ if (
 
   if (url.pathname === "/") {
 
-    url.pathname =
-      "/raffles"
-
-    return NextResponse.rewrite(
-      url
+  return NextResponse.redirect(
+    new URL(
+      "/raffles",
+      req.url
     )
+  )
 
-  }
+}
 
 }
 
