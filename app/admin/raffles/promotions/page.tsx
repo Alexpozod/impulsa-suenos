@@ -583,6 +583,20 @@ editingId
 }
 </h2>
 
+<p
+className="
+text-slate-400
+text-sm
+mb-6
+"
+>
+Código = identificador interno.
+Nombre = nombre visible.
+Tickets extra = participaciones adicionales.
+Compra mínima = cantidad requerida para activar la promoción.
+Prioridad = la regla con mayor prioridad tiene preferencia.
+</p>
+
 <div
 className="
 grid
@@ -697,7 +711,7 @@ Coupon
 </select>
 
 <input
-placeholder="Código"
+placeholder="Código de promoción (ej: LAUNCH_48H)"
 value={code}
 onChange={(e)=>
 setCode(
@@ -714,7 +728,7 @@ p-3
 />
 
 <input
-placeholder="Nombre"
+placeholder="Nombre visible de la promoción"
 value={name}
 onChange={(e)=>
 setName(
@@ -731,7 +745,7 @@ p-3
 />
 
 <input
-placeholder="Bonus Quantity"
+placeholder="Tickets extra entregados"
 value={bonusQuantity}
 onChange={(e)=>
 setBonusQuantity(
@@ -748,7 +762,7 @@ p-3
 />
 
 <input
-placeholder="Min Quantity"
+placeholder="Compra mínima requerida"
 value={minQuantity}
 onChange={(e)=>
 setMinQuantity(
@@ -765,7 +779,7 @@ p-3
 />
 
 <input
-placeholder="Priority"
+placeholder="Prioridad comercial (100 gana)"
 value={priority}
 onChange={(e)=>
 setPriority(
