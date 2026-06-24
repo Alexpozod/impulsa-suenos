@@ -45,39 +45,26 @@ await supabase
 if(!rules?.length){
 
 return {
+
 applied:false,
+
 bonusQuantity:0,
+
 discount:0
-}
 
 }
 
-let selectedRule:any =
+}
+
+let selectedBundle:any =
+null
+
+let selectedBonus:any =
 null
 
 for(
 const rule of rules
 ){
-
-if(
-
-rule.min_quantity &&
-context.quantity <
-rule.min_quantity
-
-){
-continue
-}
-
-if(
-
-rule.max_quantity &&
-context.quantity >
-rule.max_quantity
-
-){
-continue
-}
 
 if(
 rule.starts_at &&
@@ -94,48 +81,94 @@ continue
 }
 
 if(
-!selectedRule ||
+rule.min_quantity &&
+context.quantity <
+rule.min_quantity
+){
+continue
+}
+
+if(
+rule.max_quantity &&
+context.quantity >
+rule.max_quantity
+){
+continue
+}
+
+if(rule.type === "bundle"){
+
+if(
+!selectedBundle ||
 rule.priority >
-selectedRule.priority
+selectedBundle.priority
 ){
 
-selectedRule = rule
+selectedBundle = rule
 
 }
 
 }
 
-if(!selectedRule){
+if(rule.type === "bonus"){
+
+if(
+!selectedBonus ||
+rule.priority >
+selectedBonus.priority
+){
+
+selectedBonus = rule
+
+}
+
+}
+
+}
+
+const bundleBonus =
+Number(
+selectedBundle?.bonus_quantity || 0
+)
+
+const launchBonus =
+Number(
+selectedBonus?.bonus_quantity || 0
+)
+
+const totalBonus =
+bundleBonus +
+launchBonus
 
 return {
 
-applied:false,
-
-bonusQuantity:0,
-
-discount:0
-
-}
-
-}
-
-return {
-
-applied:true,
+applied:
+totalBonus > 0,
 
 promotionId:
-selectedRule.id,
+selectedBundle?.id ||
+selectedBonus?.id,
 
 promotionCode:
-selectedRule.code,
+
+[
+selectedBundle?.code,
+selectedBonus?.code
+]
+.filter(Boolean)
+.join("+"),
 
 promotionName:
-selectedRule.name,
+
+[
+selectedBundle?.name,
+selectedBonus?.name
+]
+.filter(Boolean)
+.join(" + "),
 
 bonusQuantity:
-Number(
-selectedRule.bonus_quantity || 0
-),
+totalBonus,
 
 discount:0
 
