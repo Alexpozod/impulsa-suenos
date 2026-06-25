@@ -186,18 +186,44 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-6 pt-28">
+    <main className="min-h-screen flex items-center justify-center bg-slate-950 px-6 pt-28">
 
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+      <div
+  className="
+    w-full
+    max-w-md
+    rounded-3xl
+    border
+    border-slate-800
+    bg-slate-900
+    p-8
+    shadow-2xl
+  "
+>
 
         {/* TITLE */}
-        <h1 className="text-2xl font-bold mb-2 text-center">
-          Bienvenido
-        </h1>
+        <h1
+  className="
+    text-3xl
+    font-black
+    text-center
+    text-white
+    mb-2
+  "
+>
+  ImpulsaSueños Sorteos
+</h1>
 
-        <p className="text-center text-gray-500 text-sm mb-6">
-          Ingresa o crea tu cuenta
-        </p>
+       <p
+  className="
+    text-center
+    text-slate-400
+    text-sm
+    mb-6
+  "
+>
+  Accede para participar, revisar tus tickets y administrar tus compras.
+</p>
 
         {/* GOOGLE */}
         <button
