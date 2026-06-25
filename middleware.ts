@@ -3,8 +3,6 @@ import type { NextRequest } from "next/server"
 
 export async function middleware(req: NextRequest) {
 
-  throw new Error("MIDDLEWARE_TEST")
-
   const host =
   req.headers.get("host") || ""
 
