@@ -348,21 +348,22 @@ useEffect(() => {
         ) : (
 
           <img
-            src={
-              mediaItems[
-                activeMedia
-              ]?.url
-            }
-            alt=""
-            className="
-              w-full
-              aspect-video
-              object-cover
-              rounded-3xl
-              border
-              border-slate-800
-            "
-          />
+  src={
+    mediaItems[
+      activeMedia
+    ]?.url
+  }
+  alt=""
+  className="
+    w-full
+    max-h-[700px]
+    object-contain
+    rounded-3xl
+    border
+    border-slate-800
+    bg-slate-950
+  "
+/>
 
         )}
 
@@ -426,13 +427,13 @@ useEffect(() => {
       </div>
 
       <div
-        className="
-          mt-4
-          flex
-          gap-3
-          overflow-x-auto
-        "
-      >
+  className="
+    mt-4
+    flex
+    gap-3
+    flex-wrap
+  "
+>
 
         {mediaItems.map(
           (
@@ -481,14 +482,15 @@ useEffect(() => {
               ) : (
 
                 <img
-                  src={item.url}
-                  alt=""
-                  className="
-                    w-24
-                    h-24
-                    object-cover
-                  "
-                />
+  src={item.url}
+  alt=""
+  className="
+    w-24
+    h-24
+    object-contain
+    bg-slate-950
+  "
+/>
 
               )}
 
