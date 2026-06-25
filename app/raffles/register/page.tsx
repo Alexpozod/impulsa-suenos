@@ -1,6 +1,14 @@
 'use client'
 
+import { useState } from "react"
+import { supabase } from "@/src/lib/supabase"
+
 export default function RafflesRegisterPage() {
+
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState("")
 
   return (
 
@@ -44,6 +52,8 @@ export default function RafflesRegisterPage() {
 <input
   type="email"
   placeholder="Correo electrónico"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
   className="
     w-full
     rounded-xl
@@ -62,6 +72,8 @@ export default function RafflesRegisterPage() {
 <input
   type="password"
   placeholder="Contraseña"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
   className="
     w-full
     rounded-xl
