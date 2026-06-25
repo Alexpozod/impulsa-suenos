@@ -134,14 +134,15 @@ export default async function RafflesHomePage() {
               >
 
                 <img
-                  src={featuredRaffle.cover_image}
-                  alt={featuredRaffle.title}
-                  className="
-                    w-full
-                    h-[340px]
-                    object-cover
-                  "
-                />
+  src={featuredRaffle.cover_image}
+  alt={featuredRaffle.title}
+  className="
+    w-full
+    h-[340px]
+    object-contain
+    bg-slate-950
+  "
+/>
 
                 <div className="p-6">
 
@@ -162,14 +163,17 @@ export default async function RafflesHomePage() {
                   </div>
 
                   <h3
-                    className="
-                      text-2xl
-                      font-bold
-                      mb-3
-                    "
-                  >
-                    {featuredRaffle.title}
-                  </h3>
+  className="
+    text-2xl
+    font-bold
+    mb-3
+    text-white
+    group-hover:text-cyan-400
+    transition-colors
+  "
+>
+  {featuredRaffle.title}
+</h3>
 
                   <p
                     className="
