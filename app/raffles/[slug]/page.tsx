@@ -659,7 +659,7 @@ text-slate-950
     leading-tight
   "
 >
-  Participa por este premio
+  {raffle.title}
 </h1>
 
              <div
@@ -672,9 +672,24 @@ text-slate-950
   "
 >
 
-  <p>
-    {raffle.prize_description || raffle.description}
-  </p>
+  {raffle.prize_description && (
+
+  <h2
+    className="
+      text-xl
+      font-semibold
+      text-slate-200
+      mb-4
+    "
+  >
+    {raffle.prize_description}
+  </h2>
+
+)}
+
+<p>
+  {raffle.description}
+</p>
 
   {raffle.end_date && (
 
