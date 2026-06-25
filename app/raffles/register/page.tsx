@@ -10,6 +10,79 @@ export default function RafflesRegisterPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
+  const validatePassword = (password: string) => {
+
+  const minLength = password.length >= 8
+  const hasUpper = /[A-Z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
+  const hasSymbol = /[^A-Za-z0-9]/.test(password)
+
+  if (!minLength) return "Debe tener al menos 8 caracteres"
+  if (!hasUpper) return "Debe incluir una mayúscula"
+  if (!hasNumber) return "Debe incluir un número"
+  if (!hasSymbol) return "Debe incluir un símbolo"
+
+  return null
+
+}
+
+const signUp = async () => {
+
+  setLoading(true)
+  setMessage("")
+
+  const passwordError = validatePassword(password)
+
+  if (passwordError) {
+
+    setMessage("❌ " + passwordError)
+    setLoading(false)
+    return
+
+  }
+
+  const { error } = await supabase.auth.signUp({
+
+    email,
+    password
+
+  })
+
+  if (error) {
+
+    setMessage(error.message)
+
+  } else {
+
+    fetch("/api/legal-consent", {
+
+      method: "POST",
+
+      headers: {
+
+        "Content-Type": "application/json"
+
+      },
+
+      body: JSON.stringify({
+
+        type: "terms",
+        accepted: true,
+        version: "v1.0",
+        email
+
+      })
+
+    }).catch(() => {})
+
+    setMessage("📩 Revisa tu correo para confirmar tu cuenta")
+
+  }
+
+  setLoading(false)
+
+}
+
   return (
 
     <main className="min-h-screen bg-slate-950 flex items-center justify-center px-6 pt-28">
@@ -94,6 +167,9 @@ export default function RafflesRegisterPage() {
 </p>
 
 <button
+  type="button"
+  onClick={signUp}
+  disabled={loading}
   className="
     w-full
     rounded-xl
@@ -103,12 +179,14 @@ export default function RafflesRegisterPage() {
     py-3
     font-bold
     text-slate-950
+    disabled:opacity-60
   "
 >
-  Crear cuenta
+  {loading ? "Creando cuenta..." : "Crear cuenta"}
 </button>
 
 <button
+  type="button"
   onClick={() => window.location.href = "/raffles/login"}
   className="
     w-full
@@ -120,6 +198,19 @@ export default function RafflesRegisterPage() {
 >
   Ya tengo una cuenta
 </button>
+
+{message && (
+  <p
+    className="
+      mt-6
+      text-center
+      text-sm
+      text-slate-300
+    "
+  >
+    {message}
+  </p>
+)}
 
       </div>
 
