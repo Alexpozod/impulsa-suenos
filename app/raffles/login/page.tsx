@@ -180,7 +180,7 @@ export default function Login() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/login`
+        redirectTo: `${location.origin}/raffles/login`
       }
     })
   }
@@ -270,7 +270,7 @@ export default function Login() {
         {/* RECOVER */}
         <div className="flex justify-end mb-4">
           <button
-            onClick={() => window.location.href = "/recover"}
+            onClick={() => window.location.href = "/raffles/recover"}
             className="text-sm text-green-600 hover:underline"
           >
             ¿Olvidaste tu contraseña?
@@ -288,7 +288,7 @@ export default function Login() {
 
         {/* REGISTER */}
         <button
-          onClick={signUp}
+          onClick={() => window.location.href = "/raffles/register"}
           className="w-full border py-3 rounded-lg font-medium hover:bg-gray-50 transition"
           disabled={loading}
         >
@@ -298,8 +298,8 @@ export default function Login() {
         {/* LEGAL */}
         <p className="text-xs text-gray-400 text-center mt-4">
           Al continuar aceptas nuestros{" "}
-          <a href="/terminos" className="underline">Términos</a> y{" "}
-          <a href="/privacidad" className="underline">Política de Privacidad</a>.
+          <a href="/raffles/terminos" className="underline">Términos</a> y{" "}
+          <a href="/raffles/privacidad" className="underline">Política de Privacidad</a>.
         </p>
 
         {/* MESSAGE */}
