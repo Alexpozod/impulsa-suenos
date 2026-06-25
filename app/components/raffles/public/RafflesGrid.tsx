@@ -125,38 +125,66 @@ if (!raffles.length) {
           {raffles.map((raffle) => (
 
             <Link
-              key={raffle.id}
-              href={`/raffles/${raffle.slug}`}
-              className="
-                bg-slate-900
-                border
-                border-slate-800
-                rounded-3xl
-                overflow-hidden
-                transition-all
-                duration-300
-                hover:scale-[1.02]
-                hover:border-blue-500
-              "
-            >
+  key={raffle.id}
+  href={`/raffles/${raffle.slug}`}
+  className="
+    group
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    overflow-hidden
+    transition-all
+    duration-300
+    hover:scale-[1.02]
+    hover:border-blue-500
+  "
+>
 
-              <div className="aspect-[16/10] bg-slate-800">
+              <div
+  className="
+    relative
+    aspect-[16/10]
+    bg-slate-950
+    flex
+    items-center
+    justify-center
+    overflow-hidden
+  "
+>
 
-                {raffle.cover_image && (
+  {raffle.cover_image && (
 
-                  <img
-                    src={raffle.cover_image}
-                    alt={raffle.title}
-                    className="
-                      w-full
-                      h-full
-                      object-cover
-                    "
-                  />
+    <img
+      src={raffle.cover_image}
+      alt={raffle.title}
+      className="
+        w-full
+        h-full
+        object-contain
+        transition-transform
+        duration-500
+        group-hover:scale-105
+      "
+    />
 
-                )}
+  )}
 
-              </div>
+  <div
+    className="
+      absolute
+      inset-x-0
+      bottom-0
+      h-24
+      bg-gradient-to-t
+      from-slate-950
+      via-slate-950/60
+      to-transparent
+      pointer-events-none
+    "
+  />
+
+</div>
 
               <div className="p-6">
 
