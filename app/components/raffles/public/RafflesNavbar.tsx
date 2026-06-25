@@ -81,7 +81,7 @@ export default function RafflesNavbar() {
           <div className="hidden lg:flex items-center gap-4">
 
             <Link
-              href="/login"
+              href="/raffles/login"
               className="text-slate-300 hover:text-white transition"
             >
               Entrar
@@ -163,7 +163,7 @@ text-slate-950
 </Link>
 
             <Link
-              href="/login"
+              href="/raffles/login"
               onClick={() => setOpen(false)}
               className="text-slate-300"
             >
