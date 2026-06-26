@@ -59,18 +59,31 @@ console.log(
   }
 )
 
-    /* =========================
-       NO TOKEN
-    ========================= */
+/* =========================
+   FLOW RETURN
 
-    if (!token) {
+   Flow normalmente NO envía
+   el token en el navegador.
+
+   El webhook ya procesa
+   completamente el pago.
+
+   La página /payment/check
+   será la encargada de
+   consultar el estado.
+========================= */
+
+if (!token) {
+
+  console.log(
+    "FLOW RETURN WITHOUT TOKEN"
+  )
 
   return NextResponse.redirect(
-
-    "https://www.impulsasuenos.com/raffles/payment/check",
-
+    "https://sorteos.impulsasuenos.com/raffles/payment/check",
     303
   )
+
 }
 
     /* =========================
@@ -99,7 +112,7 @@ console.log(
 
   return NextResponse.redirect(
 
-    "https://www.impulsasuenos.com/raffles/payment/check",
+    "https://sorteos.impulsasuenos.com/raffles/payment/check",
 
     303
   )
@@ -133,7 +146,7 @@ if (
   )
 
   return NextResponse.redirect(
-    "https://www.impulsasuenos.com/raffles/payment/success",
+    "https://sorteos.impulsasuenos.com/raffles/payment/success",
     303
   )
 }
@@ -148,7 +161,7 @@ if (
   )
 
   return NextResponse.redirect(
-    "https://www.impulsasuenos.com/raffles/payment/check",
+    "https://sorteos.impulsasuenos.com/raffles/payment/check",
     303
   )
 }
@@ -158,7 +171,7 @@ console.log(
 )
 
 return NextResponse.redirect(
-  "https://www.impulsasuenos.com/raffles/payment/failure",
+  "https://sorteos.impulsasuenos.com/raffles/payment/failure",
   303
 )
 
@@ -175,7 +188,7 @@ return NextResponse.redirect(
 
   return NextResponse.redirect(
 
-    "https://www.impulsasuenos.com/raffles/payment/check",
+    "https://sorteos.impulsasuenos.com/raffles/payment/check",
 
     303
   )
