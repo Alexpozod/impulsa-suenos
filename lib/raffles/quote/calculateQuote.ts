@@ -53,13 +53,15 @@ unitPrice * quantity
 
 const commercialCode =
 
-input.commercialCode ??
+  input.commercialCode ??
 
-input.affiliateCode ??
+  input.affiliateCode ??
 
-input.couponCode ??
+  input.couponCode ??
 
-input.referralCode
+  input.referralCode ??
+
+  undefined
 
 const rules =
 await resolveBusinessRules({
