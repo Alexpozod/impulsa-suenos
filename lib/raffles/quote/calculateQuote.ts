@@ -77,13 +77,13 @@ unitPrice,
 commercialCode,
 
 affiliateCode:
-input.affiliateCode,
+input.affiliateCode ?? undefined,
 
 referralCode:
-input.referralCode,
+input.referralCode ?? undefined,
 
 couponCode:
-input.couponCode
+input.couponCode ?? undefined
 
 })
 
