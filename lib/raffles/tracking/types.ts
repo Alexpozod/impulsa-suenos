@@ -4,6 +4,8 @@ export interface TrackingContext {
 
   referrer?: string | null
 
+  commercialCode?: string | null
+
   affiliateCode?: string | null
 
   referralCode?: string | null
