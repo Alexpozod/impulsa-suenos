@@ -233,6 +233,16 @@ if (
 
 } = parsed.data
 
+console.log("AFFILIATE INPUT", {
+
+  affiliateCode,
+
+  referralCode,
+
+  couponCode
+
+})
+
 /* =========================================
    BLOCK TEMP EMAILS
 ========================================= */
