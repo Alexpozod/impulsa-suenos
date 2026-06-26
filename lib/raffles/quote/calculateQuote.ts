@@ -74,7 +74,14 @@ input.couponCode ?? undefined
 })
 
 const bonusQuantity =
-rules.promotion.bonusQuantity
+
+Math.max(
+
+rules.promotion.bonusQuantity,
+
+rules.coupon?.bonusQuantity ?? 0
+
+)
 
 const promotionDiscount =
 rules.promotion.discount
