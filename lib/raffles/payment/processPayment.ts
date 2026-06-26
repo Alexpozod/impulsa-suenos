@@ -17,8 +17,7 @@ import {
   approvePayment,
   assignTickets,
   createLedger,
-  processAffiliateCommission,
-  processReferralReward,
+  processCommercialReward,
   trackAnalytics,
   sendNotifications,
   finalizePayment
@@ -86,13 +85,11 @@ await assignTickets(context)
 console.log("STEP -> createLedger")
 await createLedger(context)
 
-console.log("STEP -> processAffiliateCommission")
-await processAffiliateCommission(context)
-
 console.log(
-  "STEP -> processReferralReward"
+  "STEP -> processCommercialReward"
 )
-await processReferralReward(
+
+await processCommercialReward(
   context
 )
 
