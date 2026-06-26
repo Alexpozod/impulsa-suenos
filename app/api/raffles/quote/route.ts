@@ -23,45 +23,39 @@ export async function POST(
         quantity:
           Number(body.quantity),
 
-        tracking:{
+        tracking: {
 
-          affiliateCode:
-            body.affiliateCode,
+  commercialCode:
+    body.commercialCode,
 
-          referralCode:
-            body.referralCode,
+  source:
+    body.source,
 
-          couponCode:
-            body.couponCode,
+  referrer:
+    body.referrer,
 
-          source:
-            body.source,
+  utm_source:
+    body.utm_source,
 
-          referrer:
-            body.referrer,
+  utm_medium:
+    body.utm_medium,
 
-          utm_source:
-            body.utm_source,
+  utm_campaign:
+    body.utm_campaign,
 
-          utm_medium:
-            body.utm_medium,
+  utm_content:
+    body.utm_content,
 
-          utm_campaign:
-            body.utm_campaign,
+  utm_term:
+    body.utm_term,
 
-          utm_content:
-            body.utm_content,
+  ip:
+    body.ip,
 
-          utm_term:
-            body.utm_term,
+  userAgent:
+    body.userAgent
 
-          ip:
-            body.ip,
-
-          userAgent:
-            body.userAgent
-
-        }
+}
 
       })
 

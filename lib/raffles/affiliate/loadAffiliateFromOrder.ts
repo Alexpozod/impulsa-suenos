@@ -29,16 +29,36 @@ export async function loadAffiliateFromOrder(
   const tracking =
     metadata.tracking || {}
 
+  /*
+  =====================================
+
+  Nuevo modelo comercial.
+
+  commercialCode es la fuente de verdad.
+
+  Compatibilidad para órdenes antiguas.
+
+  =====================================
+  */
+
+  const commercialCode =
+
+    tracking.commercialCode ??
+
+    tracking.affiliateCode ??
+
+    tracking.couponCode ??
+
+    tracking.referralCode ??
+
+    null
+
   return {
 
-    affiliateCode:
-      tracking.affiliateCode || null,
-
-    referralCode:
-      tracking.referralCode || null,
+    commercialCode,
 
     metadata
 
-  }
+}
 
 }

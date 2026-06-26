@@ -1,79 +1,64 @@
 import { calculateQuote } from "../quote/calculateQuote"
 
 import {
-
-    QuoteResult
-
+  QuoteResult
 } from "../quote/types"
 
 import {
-
-    BusinessContext
-
+  BusinessContext
 } from "./types"
 
 export async function processQuote(
-
-    context: BusinessContext
-
+  context: BusinessContext
 ): Promise<QuoteResult> {
 
-    return await calculateQuote({
+  return await calculateQuote({
 
-        raffleId:
-            context.raffleId,
+    raffleId:
+      context.raffleId,
 
-        quantity:
-            context.quantity,
+    quantity:
+      context.quantity,
 
-        userId:
-            context.userId,
+    userId:
+      context.userId,
 
-        commercialCode:
-    context.tracking.commercialCode ??
+    commercialCode:
+      context.tracking.commercialCode ??
 
-    context.tracking.affiliateCode ??
+      context.tracking.affiliateCode ??
 
-    context.tracking.couponCode ??
+      context.tracking.couponCode ??
 
-    context.tracking.referralCode,
+      context.tracking.referralCode,
 
-affiliateCode:
-    context.tracking.affiliateCode,
+    source:
+      context.tracking.source,
 
-referralCode:
-    context.tracking.referralCode,
+    referrer:
+      context.tracking.referrer,
 
-couponCode:
-    context.tracking.couponCode,
+    utm_source:
+      context.tracking.utm_source,
 
-        source:
-            context.tracking.source,
+    utm_medium:
+      context.tracking.utm_medium,
 
-        referrer:
-            context.tracking.referrer,
+    utm_campaign:
+      context.tracking.utm_campaign,
 
-        utm_source:
-            context.tracking.utm_source,
+    utm_content:
+      context.tracking.utm_content,
 
-        utm_medium:
-            context.tracking.utm_medium,
+    utm_term:
+      context.tracking.utm_term,
 
-        utm_campaign:
-            context.tracking.utm_campaign,
+    ip:
+      context.tracking.ip,
 
-        utm_content:
-            context.tracking.utm_content,
+    userAgent:
+      context.tracking.userAgent
 
-        utm_term:
-            context.tracking.utm_term,
-
-        ip:
-            context.tracking.ip,
-
-        userAgent:
-            context.tracking.userAgent
-
-    })
+  })
 
 }

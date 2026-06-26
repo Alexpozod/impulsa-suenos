@@ -24,16 +24,16 @@ export async function getReferralRewardContext(
 
   }
 
-  if(!tracking.referralCode){
+  if(!tracking.commercialCode){
 
     return null
 
-  }
+}
 
   const referral =
 
     await findReferralByCode(
-      tracking.referralCode
+      tracking.commercialCode
     )
 
   if(!referral){

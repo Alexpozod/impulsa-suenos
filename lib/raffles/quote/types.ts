@@ -6,8 +6,17 @@ export interface QuoteInput {
 
   userId?: string | null
 
+  /*
+   * Nuevo contrato único.
+   * Todo código comercial entra por aquí.
+   */
   commercialCode?: string | null
 
+  /*
+   * Compatibilidad temporal.
+   * Eliminar cuando toda la plataforma
+   * utilice commercialCode.
+   */
   affiliateCode?: string | null
 
   referralCode?: string | null

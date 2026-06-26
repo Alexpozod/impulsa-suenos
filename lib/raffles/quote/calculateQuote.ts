@@ -51,6 +51,16 @@ export async function calculateQuote(
   const subtotal =
 unitPrice * quantity
 
+const commercialCode =
+
+input.commercialCode ??
+
+input.affiliateCode ??
+
+input.couponCode ??
+
+input.referralCode
+
 const rules =
 await resolveBusinessRules({
 
@@ -62,17 +72,16 @@ subtotal,
 
 unitPrice,
 
-commercialCode:
-input.commercialCode ?? undefined,
+commercialCode,
 
 affiliateCode:
-input.affiliateCode ?? undefined,
+input.affiliateCode,
 
 referralCode:
-input.referralCode ?? undefined,
+input.referralCode,
 
 couponCode:
-input.couponCode ?? undefined
+input.couponCode
 
 })
 
@@ -209,12 +218,20 @@ rules.coupon.discountValue
 
     metadata: {
 
-      engine: 1,
+  engine: 1,
 
-      calculatedAt:
-        new Date().toISOString()
+  calculatedAt:
+    new Date().toISOString(),
 
-    }
+  commercialType:
+
+    rules.winningRule,
+
+  commercialRuleSource:
+
+    rules.commercialRuleSource
+
+}
 
   }
 

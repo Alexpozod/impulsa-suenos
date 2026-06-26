@@ -16,7 +16,23 @@ export async function getAffiliateCommissionContext(
 
   }
 
-  if (!tracking.affiliateCode) {
+  /*
+  =====================================
+
+  Nuevo motor comercial.
+
+  Si existe commercialCode siempre tiene
+  prioridad.
+
+  Compatibilidad con órdenes antiguas.
+
+  =====================================
+  */
+
+  const code =
+  tracking.commercialCode
+
+  if (!code) {
 
     return null
 
@@ -24,7 +40,7 @@ export async function getAffiliateCommissionContext(
 
   const affiliate =
     await findAffiliateByCode(
-      tracking.affiliateCode
+      code
     )
 
   if (!affiliate) {

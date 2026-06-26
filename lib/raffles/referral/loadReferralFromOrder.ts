@@ -34,13 +34,24 @@ export async function loadReferralFromOrder(
   const tracking =
     metadata.tracking || {}
 
-  return {
+  const commercialCode =
 
-    referralCode:
-      tracking.referralCode || null,
+  tracking.commercialCode ??
 
-    metadata
+  tracking.referralCode ??
 
-  }
+  tracking.affiliateCode ??
+
+  tracking.couponCode ??
+
+  null
+
+return {
+
+  commercialCode,
+
+  metadata
+
+}
 
 }

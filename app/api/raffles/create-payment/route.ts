@@ -97,14 +97,8 @@ const schema = z.object({
   utm_term:
     z.string().optional(),
 
-    affiliateCode:
-  z.string().optional(),
-
-referralCode:
-  z.string().optional(),
-
-couponCode:
-  z.string().optional()
+    commercialCode:
+z.string().optional()
 
 })
 
@@ -226,22 +220,21 @@ if (
   utm_content,
   utm_term,
 
-  affiliateCode,
-  referralCode,
-
-  couponCode
+  commercialCode
 
 } = parsed.data
 
-console.log("AFFILIATE INPUT", {
+console.log(
 
-  affiliateCode,
+  "COMMERCIAL INPUT",
 
-  referralCode,
+  {
 
-  couponCode
+    commercialCode
 
-})
+  }
+
+)
 
 /* =========================================
    BLOCK TEMP EMAILS
@@ -375,14 +368,8 @@ await processQuote({
 
     referrer,
 
-    affiliateCode:
-        affiliateCode ?? undefined,
-
-    referralCode:
-        referralCode ?? undefined,
-
-    couponCode:
-    couponCode ?? undefined,
+    commercialCode:
+      commercialCode ?? undefined,
 
         utm_source,
 
@@ -406,7 +393,7 @@ await processQuote({
 
 const totalCLP =
   quote.total
-
+  
     /* =========================================
        CREATE ORDER
     ========================================= */
@@ -439,11 +426,17 @@ const totalCLP =
 
   tracking: {
 
-    affiliateCode:
-      affiliateCode ?? null,
+    commercialCode:
 
-    referralCode:
-      referralCode ?? null,
+      commercialCode ?? null,
+
+    commercialType:
+
+      quote.metadata?.commercialType ?? null,
+
+    commercialSource:
+
+      quote.metadata?.commercialRuleSource ?? null,
 
     source:
       source ?? null,
@@ -724,11 +717,7 @@ if (paymentError || !payment) {
 
       metadata: {
 
-        affiliateCode:
-          affiliateCode ?? null,
-
-        referralCode:
-          referralCode ?? null,
+        commercialCode,
 
         requestedQuantity:
           quote.requestedQuantity,
@@ -755,12 +744,12 @@ if (paymentError || !payment) {
 
     })
 
-if (affiliateCode) {
+if (commercialCode) {
 
   await trackEvent({
 
     event_type:
-      "affiliate_conversion",
+      "commercial_conversion",
 
     raffle_id,
 
@@ -784,59 +773,7 @@ if (affiliateCode) {
 
     metadata: {
 
-      affiliateCode,
-
-      requestedQuantity:
-        quote.requestedQuantity,
-
-      finalQuantity:
-        quote.finalQuantity,
-
-      total:
-        quote.total
-
-    }
-
-  })
-
-}
-
-if (referralCode) {
-
-  await trackEvent({
-
-    event_type:
-      "referral_conversion",
-
-    raffle_id,
-
-    order_id:
-      order.id,
-
-    payment_id:
-      payment?.id,
-
-    user_email:
-      buyer_email,
-
-    source,
-
-    referrer,
-
-    utm_source,
-
-    utm_medium,
-
-    utm_campaign,
-
-    ip:
-      ip_address,
-
-    user_agent,
-
-    metadata: {
-
-      referralCode,
+      commercialCode,
 
       requestedQuantity:
         quote.requestedQuantity,

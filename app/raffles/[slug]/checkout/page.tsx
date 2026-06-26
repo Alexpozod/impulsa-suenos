@@ -51,10 +51,7 @@ useSearchParams()
     const [buyerRut, setBuyerRut] =
 useState("")
 
-const [affiliateCode, setAffiliateCode] =
-useState("")
-
-const [couponCode, setCouponCode] =
+const [commercialCode, setCommercialCode] =
 useState("")
 
     const [processing, setProcessing] =
@@ -88,7 +85,7 @@ useEffect(() => {
 
   quantity,
 
-  couponCode
+  commercialCode
 
 ])
 
@@ -127,7 +124,7 @@ async function loadQuote() {
 
             quantity,
 
-            couponCode
+            commercialCode
 
           })
 
@@ -188,71 +185,53 @@ setQuantity(qty)
 
 }
 
-const aff =
+const commercial =
+
+searchParams.get("code")
+
+??
+
+searchParams.get("coupon")
+
+??
+
 searchParams.get("aff")
 
-if (aff) {
+if (commercial) {
 
-  sessionStorage.setItem(
-    "raffle_affiliate",
-    aff
+  localStorage.setItem(
+    "raffle_commercial",
+    commercial.toUpperCase()
   )
 
-  setAffiliateCode(aff)
+  sessionStorage.setItem(
+    "raffle_commercial",
+    commercial.toUpperCase()
+  )
+
+  setCommercialCode(
+    commercial.toUpperCase()
+  )
 
 }
+
 else {
 
   const saved =
-    sessionStorage.getItem(
-      "raffle_affiliate"
-    )
-
-  if (saved) {
-
-    setAffiliateCode(saved)
-
-  }
-
-}
-
-const coupon =
-searchParams.get("coupon")
-
-if (coupon) {
-
-  localStorage.setItem(
-    "raffle_coupon",
-    coupon
-  )
-
-  sessionStorage.setItem(
-    "raffle_coupon",
-    coupon
-  )
-
-  setCouponCode(coupon)
-
-}
-else {
-
-  const savedCoupon =
 
     localStorage.getItem(
-      "raffle_coupon"
+      "raffle_commercial"
     )
 
     ||
 
     sessionStorage.getItem(
-      "raffle_coupon"
+      "raffle_commercial"
     )
 
-  if (savedCoupon) {
+  if (saved) {
 
-    setCouponCode(
-      savedCoupon
-    )
+    setCommercialCode(saved)
 
   }
 
@@ -314,27 +293,6 @@ Number(savedQuantity)
 )
 
 }
-
-try {
-
-  const storedAffiliate =
-
-    sessionStorage.getItem(
-      "raffle_affiliate"
-    )
-
-  if (
-    storedAffiliate &&
-    !affiliateCode
-  ) {
-
-    setAffiliateCode(
-      storedAffiliate
-    )
-
-  }
-
-} catch {}
 
 }, [])
 
@@ -464,27 +422,7 @@ async function buyTickets() {
 try {
 
   setProcessing(true)
-
-  const affiliateCode =
-
-  sessionStorage.getItem(
-    "raffle_affiliate"
-  )
-
-  ||
-
-  undefined
-
-const referralCode =
-
-  sessionStorage.getItem(
-    "raffle_referral"
-  )
-
-  ||
-
-  undefined
-
+  
   const res =
     await fetch(
       "/api/raffles/create-payment",
@@ -516,13 +454,9 @@ const referralCode =
     buyerPhone,
 
   source:
-    "web",
+"web",
 
-  affiliateCode,
-
-referralCode,
-
-couponCode
+commercialCode
 
 })
       }
@@ -1012,11 +946,24 @@ Código promocional (opcional)
 <input
 type="text"
 placeholder="Ingresa tu código promocional"
-value={couponCode}
+value={commercialCode}
 onChange={(e)=>{
 
-setCouponCode(
-e.target.value.toUpperCase()
+const value =
+e.target.value
+.trim()
+.toUpperCase()
+
+setCommercialCode(value)
+
+localStorage.setItem(
+"raffle_commercial",
+value
+)
+
+sessionStorage.setItem(
+"raffle_commercial",
+value
 )
 
 }}
@@ -1100,7 +1047,62 @@ Resumen de compra
 </div>
 
 {
+quote?.promotion?.name && (
 
+<div
+className="
+mt-3
+rounded-xl
+bg-emerald-500/10
+border
+border-emerald-500/30
+p-3
+"
+>
+
+<div className="text-emerald-400 text-sm font-semibold">
+🎉 Promoción aplicada
+</div>
+
+<div className="mt-1 text-white">
+{quote.promotion.name}
+</div>
+
+</div>
+
+)
+}
+
+{
+quote?.affiliate?.code && (
+
+<div
+className="
+mt-3
+rounded-xl
+bg-cyan-500/10
+border
+border-cyan-500/30
+p-3
+"
+>
+
+<div className="text-cyan-400 text-sm font-semibold">
+⭐ Código aplicado
+</div>
+
+<div className="mt-1 text-white">
+
+{quote.affiliate.code}
+
+</div>
+
+</div>
+
+)
+}
+
+{
 quote?.discount > 0 && (
 
 <div className="flex justify-between mt-2 text-green-400">

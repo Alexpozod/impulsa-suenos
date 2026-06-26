@@ -2,13 +2,7 @@ import { COMMERCIAL_PRIORITY } from "./priority"
 
 import { applyPromotions } from "../promotion/applyPromotions"
 
-import { resolveAffiliate } from "../affiliate/resolveAffiliate"
-
-import { resolveReferral } from "../referral/resolveReferral"
-
 import { RuleContext, RuleResult } from "./types"
-
-import { resolveCoupon } from "../coupon/resolveCoupon"
 
 import { resolveCommercial } from "../commercial"
 
@@ -56,35 +50,19 @@ export async function resolveBusinessRules(
   })
 
   const affiliate =
-
   commercial.type === "affiliate"
-
     ? commercial.metadata
-
-    : await resolveAffiliate(
-        context.affiliateCode
-      )
+    : null
 
 const referral =
-
   commercial.type === "referral"
-
     ? commercial.metadata
-
-    : await resolveReferral(
-        context.referralCode
-      )
+    : null
 
 const coupon =
-
   commercial.type === "coupon"
-
     ? commercial.metadata
-
-    : await resolveCoupon(
-        context.couponCode,
-        context.subtotal
-      )
+    : null
 
   const hasCommercialRule =
 
