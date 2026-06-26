@@ -1,5 +1,7 @@
 import Link from "next/link"
 
+export const dynamic = "force-dynamic"
+
 import RafflesGrid from "@/app/components/raffles/public/RafflesGrid"
 import HowItWorks from "@/app/components/raffles/public/HowItWorks"
 import WinnersPreview from "@/app/components/raffles/public/WinnersPreview"
