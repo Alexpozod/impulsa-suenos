@@ -35,6 +35,11 @@ export default function PaymentCheckPage() {
         const json =
           await res.json()
 
+          console.log(
+  "ORDER STATUS",
+  json
+)
+
         if (
           json.payment_status === "approved" &&
           json.order_status === "paid"
