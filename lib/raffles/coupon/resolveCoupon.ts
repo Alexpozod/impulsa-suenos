@@ -19,6 +19,10 @@ export interface CouponResult {
 
   discountAmount?: number
 
+  bonusQuantity?: number
+
+type?: "coupon" | "bonus"
+
 }
 
 export async function resolveCoupon(
@@ -46,7 +50,7 @@ export async function resolveCoupon(
       .schema("raffles")
       .from("business_rules")
       .select("*")
-      .eq("type", "coupon")
+      .in("type", ["coupon", "bonus"])
       .eq("active", true)
       .eq("code", couponCode)
       .or(`starts_at.is.null,starts_at.lte.${now}`)
@@ -87,12 +91,28 @@ export async function resolveCoupon(
 
     code: data.code,
 
-    discountType: data.value_type,
+    discountType:
+        data.type === "coupon"
+            ? data.value_type
+            : undefined,
 
-    discountValue: Number(data.value),
+    discountValue:
+        data.type === "coupon"
+            ? Number(data.value)
+            : undefined,
 
-    discountAmount
+    discountAmount:
+        data.type === "coupon"
+            ? discountAmount
+            : 0,
 
-  }
+    bonusQuantity:
+        data.type === "bonus"
+            ? Number(data.bonus_quantity || 0)
+            : 0,
+
+    type: data.type
+
+}
 
 }
