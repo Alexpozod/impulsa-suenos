@@ -37,8 +37,7 @@ await supabase
 .in(
 "type",
 [
-"bundle",
-"bonus"
+"bundle"
 ]
 )
 
