@@ -72,11 +72,11 @@ export async function resolveCommercial(
       name:
         affiliate.affiliateName,
 
-      commissionAmount:
-        affiliate.commissionAmount,
+            commissionAmount:
+        affiliate.commissionAmount ?? 0,
 
       commissionPercent:
-        affiliate.commissionValue,
+        affiliate.commissionValue ?? 0,
 
       bonusQuantity: 0,
 
