@@ -10,6 +10,8 @@ import { RuleContext, RuleResult } from "./types"
 
 import { resolveCoupon } from "../coupon/resolveCoupon"
 
+import { resolveCommercial } from "../commercial"
+
 export async function resolveBusinessRules(
 
   context: RuleContext
@@ -33,21 +35,56 @@ export async function resolveBusinessRules(
 
     })
 
+    const commercial =
+  await resolveCommercial({
+
+    raffleId:
+      context.raffleId,
+
+    quantity:
+      context.quantity,
+
+    subtotal:
+      context.subtotal,
+
+    unitPrice:
+      context.unitPrice,
+
+    commercialCode:
+      context.commercialCode
+
+  })
+
   const affiliate =
-    await resolveAffiliate(
-      context.affiliateCode
-    )
 
-  const referral =
-    await resolveReferral(
-      context.referralCode
-    )
+  commercial.type === "affiliate"
 
-  const coupon =
-    await resolveCoupon(
-      context.couponCode,
-      context.subtotal
-    )
+    ? commercial.metadata
+
+    : await resolveAffiliate(
+        context.affiliateCode
+      )
+
+const referral =
+
+  commercial.type === "referral"
+
+    ? commercial.metadata
+
+    : await resolveReferral(
+        context.referralCode
+      )
+
+const coupon =
+
+  commercial.type === "coupon"
+
+    ? commercial.metadata
+
+    : await resolveCoupon(
+        context.couponCode,
+        context.subtotal
+      )
 
   const hasCommercialRule =
 

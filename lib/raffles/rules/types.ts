@@ -8,6 +8,8 @@ export interface RuleContext {
 
   unitPrice: number
 
+  commercialCode?: string
+
   affiliateCode?: string
 
   referralCode?: string

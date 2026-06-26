@@ -29,14 +29,23 @@ export async function processQuote(
         userId:
             context.userId,
 
-        affiliateCode:
-            context.tracking.affiliateCode,
+        commercialCode:
+    context.tracking.commercialCode ??
 
-        referralCode:
-            context.tracking.referralCode,
+    context.tracking.affiliateCode ??
 
-        couponCode:
-            context.tracking.couponCode,
+    context.tracking.couponCode ??
+
+    context.tracking.referralCode,
+
+affiliateCode:
+    context.tracking.affiliateCode,
+
+referralCode:
+    context.tracking.referralCode,
+
+couponCode:
+    context.tracking.couponCode,
 
         source:
             context.tracking.source,

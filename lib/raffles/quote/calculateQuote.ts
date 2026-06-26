@@ -62,6 +62,9 @@ subtotal,
 
 unitPrice,
 
+commercialCode:
+input.commercialCode ?? undefined,
+
 affiliateCode:
 input.affiliateCode ?? undefined,
 

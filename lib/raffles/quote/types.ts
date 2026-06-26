@@ -6,6 +6,8 @@ export interface QuoteInput {
 
   userId?: string | null
 
+  commercialCode?: string | null
+
   affiliateCode?: string | null
 
   referralCode?: string | null
