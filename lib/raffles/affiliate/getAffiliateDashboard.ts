@@ -84,9 +84,11 @@ export async function getAffiliateDashboard(
       (event.metadata || {}) as any
 
     const code =
-      String(
-        metadata.affiliateCode || ""
-      ).toUpperCase()
+  String(
+    metadata.commercialCode ??
+    metadata.affiliateCode ??
+    ""
+  ).toUpperCase()
 
     if (code !== affiliateCode) {
 
@@ -105,7 +107,11 @@ export async function getAffiliateDashboard(
 case "page_view":
 
   if (
+
+    metadata.commercialCode ||
+
     metadata.affiliateCode
+
   ) {
 
     clicks++
@@ -128,16 +134,31 @@ case "page_view":
 
       case "payment_success":
 
-        paidOrders++
+  if (
 
-        revenue += Number(
-  metadata.amount ??
-  metadata.total ??
-  metadata.amount_clp ??
-  0
-)
+    metadata.commercialCode ||
 
-        break
+    metadata.affiliateCode
+
+  ) {
+
+    paidOrders++
+
+    revenue += Number(
+
+      metadata.amount ??
+
+      metadata.total ??
+
+      metadata.amount_clp ??
+
+      0
+
+    )
+
+  }
+
+  break
 
     }
 
