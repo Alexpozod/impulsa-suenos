@@ -12,17 +12,6 @@ export interface QuoteInput {
    */
   commercialCode?: string | null
 
-  /*
-   * Compatibilidad temporal.
-   * Eliminar cuando toda la plataforma
-   * utilice commercialCode.
-   */
-  affiliateCode?: string | null
-
-  referralCode?: string | null
-
-  couponCode?: string | null
-
   source?: string | null
 
   referrer?: string | null

@@ -4,24 +4,9 @@ export interface TrackingContext {
 
   referrer?: string | null
 
-  /*
-   * Nuevo punto único de entrada para cualquier
-   * código comercial (cupón, afiliado, referido, etc.)
-   */
   commercialCode?: string | null
 
-  /*
-   * Compatibilidad temporal.
-   * Se eliminarán cuando toda la plataforma
-   * utilice commercialCode.
-   */
-  affiliateCode?: string | null
-
-  referralCode?: string | null
-
-  couponCode?: string | null
-
-  utm_source?: string |null
+  utm_source?: string | null
 
   utm_medium?: string | null
 

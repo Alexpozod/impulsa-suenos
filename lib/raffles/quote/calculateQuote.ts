@@ -52,38 +52,20 @@ export async function calculateQuote(
 unitPrice * quantity
 
 const commercialCode =
-
-  input.commercialCode ??
-
-  input.affiliateCode ??
-
-  input.couponCode ??
-
-  input.referralCode ??
-
-  undefined
+  input.commercialCode ?? undefined
 
 const rules =
 await resolveBusinessRules({
 
-raffleId,
+  raffleId,
 
-quantity,
+  quantity,
 
-subtotal,
+  subtotal,
 
-unitPrice,
+  unitPrice,
 
-commercialCode,
-
-affiliateCode:
-input.affiliateCode ?? undefined,
-
-referralCode:
-input.referralCode ?? undefined,
-
-couponCode:
-input.couponCode ?? undefined
+  commercialCode
 
 })
 
@@ -234,7 +216,7 @@ rules.coupon.discountValue
     rules.commercialRuleSource
 
 
-    
+
 }
 
   }

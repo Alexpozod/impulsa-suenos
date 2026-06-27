@@ -10,16 +10,6 @@ export interface RuleContext {
 
   commercialCode?: string
 
-  /*
-   * Compatibilidad temporal.
-   * Se eliminarán al finalizar la migración.
-   */
-  affiliateCode?: string
-
-  referralCode?: string
-
-  couponCode?: string
-
 }
 
 export interface RuleResult {

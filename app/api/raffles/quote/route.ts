@@ -23,7 +23,7 @@ export async function POST(
         quantity:
           Number(body.quantity),
 
-        tracking: {
+        tracking:{
 
   commercialCode:
     body.commercialCode,

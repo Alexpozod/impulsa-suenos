@@ -8,42 +8,36 @@ export function createTrackingContext(
 
     return {
 
-        source:
-            data.source ?? null,
+    source:
+        data.source ?? null,
 
-        referrer:
-            data.referrer ?? null,
+    referrer:
+        data.referrer ?? null,
 
-        affiliateCode:
-            data.affiliateCode ?? null,
+    commercialCode:
+        data.commercialCode ?? null,
 
-        referralCode:
-            data.referralCode ?? null,
+    utm_source:
+        data.utm_source ?? null,
 
-        couponCode:
-            data.couponCode ?? null,
+    utm_medium:
+        data.utm_medium ?? null,
 
-        utm_source:
-            data.utm_source ?? null,
+    utm_campaign:
+        data.utm_campaign ?? null,
 
-        utm_medium:
-            data.utm_medium ?? null,
+    utm_content:
+        data.utm_content ?? null,
 
-        utm_campaign:
-            data.utm_campaign ?? null,
+    utm_term:
+        data.utm_term ?? null,
 
-        utm_content:
-            data.utm_content ?? null,
+    ip:
+        data.ip ?? null,
 
-        utm_term:
-            data.utm_term ?? null,
+    userAgent:
+        data.userAgent ?? null
 
-        ip:
-            data.ip ?? null,
-
-        userAgent:
-            data.userAgent ?? null
-
-    }
+}
 
 }

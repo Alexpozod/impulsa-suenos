@@ -427,16 +427,7 @@ const totalCLP =
   tracking: {
 
     commercialCode:
-
       commercialCode ?? null,
-
-    commercialType:
-
-      quote.metadata?.commercialType ?? null,
-
-    commercialSource:
-
-      quote.metadata?.commercialRuleSource ?? null,
 
     source:
       source ?? null,
@@ -459,7 +450,13 @@ const totalCLP =
     utm_term:
       utm_term ?? null
 
-  }
+},
+
+commercialType:
+    quote.metadata?.commercialType ?? null,
+
+commercialRuleSource:
+    quote.metadata?.commercialRuleSource ?? null,
 
 },
 
