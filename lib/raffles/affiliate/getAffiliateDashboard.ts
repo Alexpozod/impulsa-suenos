@@ -93,8 +93,11 @@ const { data: affiliatePayments } =
     .select(`
       id,
       order_id,
+      provider,
+      provider_payment_id,
       amount_clp,
-      status
+      status,
+      created_at
     `)
 
 /* =========================================
@@ -316,16 +319,24 @@ const paymentMap =
           order.status,
 
         paymentStatus:
-          payment?.status ?? null,
+  payment?.status ?? null,
 
-        paymentAmount:
-          Number(
-            payment?.amount_clp || 0
-          ),
+paymentProvider:
+  payment?.provider ?? null,
 
-        createdAt:
-          order.created_at
+paymentReference:
+  payment?.provider_payment_id ?? null,
 
+paymentAmount:
+  Number(
+    payment?.amount_clp || 0
+  ),
+
+paymentCreatedAt:
+  payment?.created_at ?? null,
+
+createdAt:
+  order.created_at
       }
 
     })
