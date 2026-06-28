@@ -1254,30 +1254,69 @@ Exportar CSV
 
   </div>
 
-  <input
+  <div
+className="
+grid
+grid-cols-1
+lg:grid-cols-[1fr_auto]
+gap-4
+mb-5
+"
+>
 
-    value={searchSales}
+<input
 
-    onChange={(e)=>
-      setSearchSales(
-        e.target.value
-      )
-    }
+value={searchSales}
 
-    placeholder="Buscar cliente, email o referencia..."
+onChange={(e)=>
 
-    className="
-      w-full
-      mb-5
-      bg-slate-950
-      border
-      border-slate-700
-      rounded-2xl
-      px-4
-      py-3
-    "
+setSearchSales(
+e.target.value
+)
 
-  />
+}
+
+placeholder="Buscar cliente, email o referencia..."
+
+className="
+w-full
+bg-slate-950
+border
+border-slate-700
+rounded-2xl
+px-4
+py-3
+"
+
+/>
+
+<button
+
+type="button"
+
+onClick={()=>
+setSearchSales("")
+}
+
+disabled={!searchSales}
+
+className="
+px-5
+py-3
+rounded-2xl
+bg-slate-800
+hover:bg-slate-700
+disabled:bg-slate-900
+disabled:text-slate-600
+"
+
+>
+
+Limpiar búsqueda
+
+</button>
+
+</div>
 
   <div className="overflow-x-auto">
 
