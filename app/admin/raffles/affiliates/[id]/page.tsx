@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   Copy,
@@ -19,7 +19,62 @@ export default function AffiliateDetailPage() {
   const params = useParams();
 
   const affiliateId = params.id as string;
-  const [buyerModalOpen, setBuyerModalOpen] = useState(false);
+
+const [buyerModalOpen, setBuyerModalOpen] = useState(false);
+
+const [dashboard, setDashboard] = useState<any>(null);
+
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+
+  async function loadDashboard() {
+
+    try {
+
+      const response =
+        await fetch(
+          `/api/admin/raffles/affiliates/${affiliateId}`
+        );
+
+      const json =
+        await response.json();
+
+      setDashboard(json);
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+    }
+
+    finally {
+
+      setLoading(false);
+
+    }
+
+  }
+
+  loadDashboard();
+
+}, [affiliateId]);
+
+if (loading) {
+
+  return (
+
+    <div className="p-10">
+
+      Cargando...
+
+    </div>
+
+  );
+
+}
 
   return (
     <div className="space-y-8">
