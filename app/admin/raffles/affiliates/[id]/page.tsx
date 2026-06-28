@@ -106,63 +106,7 @@ export default function AffiliateDetailPage() {
 
 </div>
 
-      {/* Información */}
-
-      <div className="rounded-xl border p-6">
-
-        <div className="grid md:grid-cols-2 gap-6">
-
-          <div>
-
-            <div className="text-sm text-muted-foreground">
-              Nombre
-            </div>
-
-            <div className="text-xl font-semibold mt-1">
-              --
-            </div>
-
-          </div>
-
-          <div>
-
-            <div className="text-sm text-muted-foreground">
-              Código Comercial
-            </div>
-
-            <div className="text-xl font-semibold mt-1">
-              --
-            </div>
-
-          </div>
-
-          <div>
-
-            <div className="text-sm text-muted-foreground">
-              Comisión
-            </div>
-
-            <div className="text-xl font-semibold mt-1">
-              --
-            </div>
-
-          </div>
-
-          <div>
-
-            <div className="text-sm text-muted-foreground">
-              Estado
-            </div>
-
-            <div className="text-xl font-semibold mt-1 text-green-400">
-              Activo
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
+      {/* Información del influencer ya incluida en el Header */}
 
       {/* KPIs */}
 
