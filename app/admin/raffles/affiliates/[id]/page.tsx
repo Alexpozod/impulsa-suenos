@@ -110,7 +110,7 @@ export default function AffiliateDetailPage() {
 
       {/* KPIs */}
 
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
 
         <Card
           title="Ventas"
@@ -125,13 +125,13 @@ export default function AffiliateDetailPage() {
         />
 
         <Card
-          title="Comisión"
+          title="Comisión Generada"
           value="$0"
           icon={<DollarSign className="w-5 h-5" />}
         />
 
         <Card
-          title="Pendiente"
+          title="Pendiente Pago"
           value="$0"
           icon={<Clock className="w-5 h-5" />}
         />
@@ -141,6 +141,18 @@ export default function AffiliateDetailPage() {
           value="$0"
           icon={<Users className="w-5 h-5" />}
         />
+
+        <Card
+            title="CTR"
+            value="0%"
+            icon={<TrendingUp className="w-5 h-5" />}
+            />
+
+            <Card
+            title="Conversión"
+            value="0%"
+            icon={<TrendingUp className="w-5 h-5" />}
+            />
 
       </div>
 
