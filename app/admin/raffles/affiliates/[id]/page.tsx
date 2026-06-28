@@ -1295,6 +1295,7 @@ ventas
 
 <button
 type="button"
+title="Exportar ventas filtradas"
 onClick={exportSalesCsv}
 disabled={filteredSales.length===0}
 className="
@@ -1302,7 +1303,10 @@ px-4
 py-2
 rounded-xl
 bg-emerald-600
+hover:bg-emerald-500
+transition-colors
 disabled:bg-slate-700
+disabled:hover:bg-slate-700
 "
 >
 
@@ -1354,6 +1358,8 @@ py-3
 
 type="button"
 
+title="Limpiar filtro"
+
 onClick={()=>
 setSearchSales("")
 }
@@ -1366,10 +1372,11 @@ py-3
 rounded-2xl
 bg-slate-800
 hover:bg-slate-700
+transition-colors
 disabled:bg-slate-900
 disabled:text-slate-600
+disabled:hover:bg-slate-900
 "
-
 >
 
 Limpiar búsqueda
@@ -1600,15 +1607,33 @@ sale.paymentStatus==="approved"
 
               <td className="text-center">
 
-                {sale.paymentProvider ?? "-"}
+<span
+className="
+inline-flex
+items-center
+justify-center
+px-3
+h-8
+rounded-full
+bg-slate-800
+text-xs
+font-medium
+uppercase
+"
+>
 
-              </td>
+{sale.paymentProvider ?? "-"}
+
+</span>
+
+</td>
 
               <td
 className="
 font-mono
 text-xs
-max-w-[180px]
+max-w-[220px]
+px-2
 "
 title={sale.paymentReference ?? ""}
 >
@@ -1616,6 +1641,8 @@ title={sale.paymentReference ?? ""}
 <div
 className="
 truncate
+font-medium
+text-slate-200
 "
 >
 
@@ -1771,12 +1798,16 @@ className="
 flex
 gap-2
 justify-center
+items-center
+flex-wrap
 "
 >
 
 <button
 
 type="button"
+
+title="Copiar ID de la orden"
 
 onClick={() => {
 
@@ -1796,6 +1827,7 @@ py-1
 rounded-lg
 bg-slate-800
 hover:bg-slate-700
+transition-colors
 text-xs
 "
 
@@ -1812,6 +1844,8 @@ sale.paymentReference && (
 <button
 
 type="button"
+
+title="Copiar referencia del pago"
 
 onClick={() => {
 
@@ -1831,6 +1865,7 @@ py-1
 rounded-lg
 bg-emerald-700
 hover:bg-emerald-600
+transition-colors
 text-xs
 "
 
@@ -1952,11 +1987,25 @@ ledger.length===0
 
         ) : (
 
-          <div className="overflow-x-auto">
+          <div
+  className="
+    overflow-x-auto
+    rounded-2xl
+    border
+    border-slate-800
+  "
+>
 
             <table className="w-full">
 
-              <thead>
+              <thead
+  className="
+    bg-slate-950/70
+    sticky
+    top-0
+    z-10
+  "
+>
 
                 <tr className="border-b border-slate-800">
 
