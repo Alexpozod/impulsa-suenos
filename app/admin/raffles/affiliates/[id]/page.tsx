@@ -409,9 +409,13 @@ export default function AffiliateDetailPage() {
 
                 <th className="pb-4 text-right">Débito</th>
 
-                <th className="pb-4 text-right">Crédito</th>
+                <th className="pb-4 text-right pr-8">
+  Crédito
+</th>
 
-                <th className="pb-4">Estado</th>
+                <th className="pb-4 pl-4">
+  Estado
+</th>
 
                 <th className="pb-4 text-center">Detalle</th>
 
@@ -519,15 +523,123 @@ export default function AffiliateDetailPage() {
 
       <Section title="Historial de Pagos">
 
-        <EmptyTable
-          columns={[
-            "Fecha",
-            "Monto",
-            "Método",
-            "Referencia",
-            "Administrador",
-          ]}
-        />
+        <div className="overflow-auto">
+
+          <table className="w-full">
+
+            <thead>
+
+              <tr className="border-b text-left text-sm text-muted-foreground">
+
+                <th className="pb-4">Fecha</th>
+
+                <th className="pb-4">Período</th>
+
+                <th className="pb-4 text-right">Monto</th>
+
+                <th className="pb-4">Método</th>
+
+                <th className="pb-4">Referencia</th>
+
+                <th className="pb-4">Estado</th>
+
+                <th className="pb-4 text-center">Comprobante</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {[
+                {
+                  date: "30/06/2026",
+                  period: "Junio 2026",
+                  amount: "$42.000",
+                  method: "Transferencia",
+                  reference: "TRX-88542",
+                  status: "Pagado",
+                },
+                {
+                  date: "31/07/2026",
+                  period: "Julio 2026",
+                  amount: "$18.000",
+                  method: "Pendiente",
+                  reference: "-",
+                  status: "Pendiente",
+                },
+              ].map((payment, index) => (
+
+                <tr
+                  key={index}
+                  className="border-b border-white/5 hover:bg-white/5"
+                >
+
+                  <td className="py-4">
+
+                    {payment.date}
+
+                  </td>
+
+                  <td>
+
+                    {payment.period}
+
+                  </td>
+
+                  <td className="text-right font-semibold text-green-400">
+
+                    {payment.amount}
+
+                  </td>
+
+                  <td>
+
+                    {payment.method}
+
+                  </td>
+
+                  <td className="font-mono text-sm">
+
+                    {payment.reference}
+
+                  </td>
+
+                  <td>
+
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs ${
+                        payment.status === "Pagado"
+                          ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                          : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+                      }`}
+                    >
+
+                      {payment.status}
+
+                    </span>
+
+                  </td>
+
+                  <td className="text-center">
+
+                    <button className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5">
+
+                      PDF
+
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </Section>
 
