@@ -42,6 +42,11 @@ useEffect(() => {
 
       setDashboard(json);
 
+      console.log(
+  "Affiliate Dashboard",
+  json
+);
+
     }
 
     catch (error) {
