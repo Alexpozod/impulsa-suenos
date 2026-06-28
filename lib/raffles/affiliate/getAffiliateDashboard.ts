@@ -371,6 +371,12 @@ const lastSale =
       id:
         affiliate.id,
 
+      name:
+        affiliate.name ??
+        affiliate.owner_name ??
+        affiliate.owner_email ??
+        affiliate.code,
+
       code:
         affiliate.code,
 
@@ -383,9 +389,16 @@ const lastSale =
         ),
 
       active:
-  affiliate.active,
+        affiliate.active,
 
-raffle:
+      referralType:
+        affiliate.referral_type ??
+        "affiliate",
+
+      createdAt:
+        affiliate.created_at,
+
+      raffle:
   affiliate.raffles
     ? {
         id:
