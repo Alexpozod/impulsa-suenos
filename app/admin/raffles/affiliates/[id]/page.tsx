@@ -1235,9 +1235,21 @@ Slug
     "
   >
 
-    <h2 className="text-xl font-semibold">
-      Ventas atribuidas
-    </h2>
+    <div>
+
+<h2 className="text-xl font-semibold">
+
+Ventas atribuidas
+
+</h2>
+
+<div className="text-sm text-slate-400 mt-1">
+
+Historial completo de conversiones atribuidas al influencer
+
+</div>
+
+</div>
 
     <div
 className="
@@ -1366,33 +1378,65 @@ Limpiar búsqueda
 
 </div>
 
-  <div className="overflow-x-auto">
+  <div
+  className="
+    overflow-x-auto
+    rounded-2xl
+    border
+    border-slate-800
+  "
+>
 
     <table className="min-w-full text-sm">
 
-      <thead>
+      <thead
+  className="
+    bg-slate-950/70
+    sticky
+    top-0
+    z-10
+  "
+>
 
-        <tr className="border-b border-slate-800">
+<tr className="border-b border-slate-800">
 
-          <th className="text-left py-3">Cliente</th>
+          <th className="text-left py-3 px-4">
+Cliente
+</th>
 
           <th className="text-left">Email</th>
 
-          <th>Tickets</th>
+          <th className="text-center w-[90px]">
+Tickets
+</th>
 
-          <th>Monto</th>
+          <th className="text-right w-[140px]">
+Monto
+</th>
 
-          <th>Estado Pago</th>
+          <th className="text-center w-[140px]">
+Estado Pago
+</th>
 
-          <th>Proveedor</th>
+          <th className="text-center w-[120px]">
+Proveedor
+</th>
 
-          <th>Referencia</th>
+          <th className="text-left w-[220px]">
+Referencia
+</th>
 
-          <th>Estado Orden</th>
+          <th className="text-center w-[140px]">
+Estado Orden
+</th>
 
-          <th>Fecha</th>
+          <th className="text-left w-[170px]">
+Fecha
+</th>
 
-          <th>Acciones</th>
+          <th className="text-center w-[120px]">
+Acciones
+</th>
 
         </tr>
 
@@ -1430,7 +1474,7 @@ Limpiar búsqueda
               className="border-b border-slate-800"
             >
 
-             <td className="py-3 whitespace-nowrap">
+             <td className="py-3 px-4 whitespace-nowrap">
 
 <div className="font-medium">
 
@@ -1446,7 +1490,7 @@ Limpiar búsqueda
 
 </td>
 
-              <td className="whitespace-nowrap">
+              <td className="whitespace-nowrap text-sm">
 
 <div>
 
@@ -1477,12 +1521,13 @@ className="
 inline-flex
 items-center
 justify-center
-min-w-[42px]
-px-2
-py-1
+min-w-[48px]
+h-8
+px-3
 rounded-full
 bg-slate-800
 font-semibold
+text-sm
 "
 >
 
@@ -1494,7 +1539,7 @@ font-semibold
 
               <td className="text-right whitespace-nowrap">
 
-<div className="font-semibold">
+<div className="font-semibold text-emerald-400">
 
 $
 
@@ -1504,7 +1549,7 @@ sale.total
 
 </div>
 
-<div className="text-xs text-slate-500">
+<div className="text-xs text-slate-500 mt-1">
 
 {sale.quantity}
 
@@ -1657,7 +1702,7 @@ sale.orderStatus==="paid"
 
               <td className="whitespace-nowrap">
 
-<div>
+<div className="font-medium">
 
 {
 
