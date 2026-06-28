@@ -30,8 +30,24 @@ const [ledger, setLedger] =
   const sales =
   dashboard?.sales ?? []
 
+  const [searchSales, setSearchSales] =
+  useState("")
+
   const lastSale =
   dashboard?.lastSale ?? null
+
+  const paymentSummary =
+  dashboard?.paymentSummary ?? {
+
+    total: 0,
+
+    successful: 0,
+
+    pending: 0,
+
+    failed: 0
+
+  }
 
   const totalSalesAmount =
   sales.reduce(
@@ -58,6 +74,23 @@ sales.length > 0
   )
 
 : 0
+
+const filteredSales =
+  sales.filter((sale:any)=>{
+
+    if(!searchSales.trim()){
+
+      return true
+
+    }
+
+    return JSON.stringify(sale)
+      .toLowerCase()
+      .includes(
+        searchSales.toLowerCase()
+      )
+
+  })
 
   const [requesting,setRequesting]=
 useState(false)
@@ -341,6 +374,21 @@ setWallet(
 <StatCard
   title="Ticket Promedio"
   value={`$${averageTicket.toLocaleString("es-CL")}`}
+/>
+
+<StatCard
+  title="Pagos Exitosos"
+  value={`${paymentSummary.successful}/${paymentSummary.total}`}
+/>
+
+<StatCard
+  title="Pendientes"
+  value={paymentSummary.pending}
+/>
+
+<StatCard
+  title="Fallidos"
+  value={paymentSummary.failed}
 />
 
 <div
@@ -1028,6 +1076,33 @@ Ventas atribuidas
 
 </h2>
 
+<input
+
+value={searchSales}
+
+onChange={(e)=>
+
+setSearchSales(
+e.target.value
+)
+
+}
+
+placeholder="Buscar cliente, email, referencia..."
+
+className="
+w-full
+mb-5
+bg-slate-950
+border
+border-slate-700
+rounded-2xl
+px-4
+py-3
+"
+
+/>
+
 <div className="overflow-auto">
 
 <table className="w-full text-sm">
@@ -1108,7 +1183,7 @@ Acciones
 
 <tbody>
 
-{sales.length===0 && (
+{filteredSales.length===0 && (
 
 <tr>
 
@@ -1125,7 +1200,7 @@ Sin ventas todavía
 
 )}
 
-{sales.map((sale:any)=>(
+{filteredSales.map((sale:any)=>(
 
 <tr
 key={sale.id}
