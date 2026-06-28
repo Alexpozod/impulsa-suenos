@@ -50,33 +50,71 @@ export async function getAffiliateDashboard(
       affiliate.code || ""
     ).toUpperCase()
 
-  const { data: events } =
-    await supabase
-      .schema("raffles")
-      .from("analytics_events")
-      .select("*")
+    /* =========================================
+   ANALYTICS
+========================================= */
 
-  const { data: ledger } =
-    await supabase
-      .schema("raffles")
-      .from("ledger")
-      .select("*")
-      .eq(
-        "type",
-        "affiliate_commission"
-      )
-      .contains(
-        "metadata",
-        {
-          affiliateId
-        }
-      )
+const { data: events } =
+  await supabase
+    .schema("raffles")
+    .from("analytics_events")
+    .select("*")
 
+/* =========================================
+   ORDERS
+========================================= */
+
+const { data: affiliateOrders } =
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .select(`
+      id,
+      total_clp,
+      status,
+      metadata
+    `)
+
+/* =========================================
+   PAYMENTS
+========================================= */
+
+const { data: affiliatePayments } =
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .select(`
+      id,
+      order_id,
+      amount_clp,
+      status
+    `)
+
+/* =========================================
+   LEDGER
+========================================= */
+
+const { data: ledger } =
+  await supabase
+    .schema("raffles")
+    .from("ledger")
+    .select("*")
+    .eq(
+      "type",
+      "affiliate_commission"
+    )
+    .contains(
+      "metadata",
+      {
+        affiliateId
+      }
+    )
+    
   let clicks = 0
   let beginCheckout = 0
-  let orders = 0
-  let paidOrders = 0
-  let revenue = 0
+  let totalOrders = 0
+let paidOrders = 0
+let revenue = 0
 
   for (const event of events || []) {
 
@@ -128,7 +166,7 @@ case "page_view":
 
       case "affiliate_conversion":
 
-        orders++
+        totalOrders++
 
         break
 
@@ -223,7 +261,7 @@ case "page_view":
 
       beginCheckout,
 
-      orders,
+      orders: totalOrders,
 
       paidOrders,
 
