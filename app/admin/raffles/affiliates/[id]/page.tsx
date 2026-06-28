@@ -30,6 +30,9 @@ const [ledger, setLedger] =
   const sales =
   dashboard?.sales ?? []
 
+  const lastSale =
+  dashboard?.lastSale ?? null
+
   const [requesting,setRequesting]=
 useState(false)
 
@@ -437,6 +440,104 @@ wallet?.available??0
 </div>
 
 </div>
+
+</div>
+
+<div
+  className="
+    bg-emerald-950/40
+    border
+    border-emerald-700
+    rounded-3xl
+    p-6
+  "
+>
+
+<h2 className="text-xl font-semibold mb-4">
+
+Última venta registrada
+
+</h2>
+
+{
+
+lastSale
+
+?
+
+<div className="space-y-2">
+
+<div>
+
+<strong>Cliente:</strong>
+
+{" "}
+
+{lastSale.buyerName}
+
+</div>
+
+<div>
+
+<strong>Email:</strong>
+
+{" "}
+
+{lastSale.buyerEmail}
+
+</div>
+
+<div>
+
+<strong>Monto:</strong>
+
+{" "}
+
+$
+
+{Number(
+lastSale.total ?? 0
+).toLocaleString("es-CL")}
+
+</div>
+
+<div>
+
+<strong>Fecha:</strong>
+
+{" "}
+
+{
+
+lastSale.paymentCreatedAt
+
+?
+
+new Date(
+lastSale.paymentCreatedAt
+).toLocaleString("es-CL")
+
+:
+
+new Date(
+lastSale.createdAt
+).toLocaleString("es-CL")
+
+}
+
+</div>
+
+</div>
+
+:
+
+<div className="text-slate-400">
+
+Sin ventas registradas
+
+</div>
+
+}
 
 </div>
 
@@ -943,7 +1044,13 @@ Referencia
 
 <th>
 
-Estado
+Pago
+
+</th>
+
+<th>
+
+Orden
 
 </th>
 
