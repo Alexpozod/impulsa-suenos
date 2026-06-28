@@ -658,10 +658,17 @@ wallet?.available??0
 
           <div>
 
-            <strong>Cliente:</strong>{" "}
-            {lastSale.buyerName}
+<strong>Cliente:</strong>{" "}
 
-          </div>
+{lastSale.buyerName}
+
+<div className="text-xs text-slate-400 mt-1">
+
+{lastSale.buyerEmail}
+
+</div>
+
+</div>
 
           <div>
 
@@ -672,32 +679,73 @@ wallet?.available??0
 
           <div>
 
-            <strong>Monto:</strong>{" "}
-            ${Number(
-              lastSale.total ?? 0
-            ).toLocaleString("es-CL")}
+<strong>Monto:</strong>{" "}
 
-          </div>
+${Number(
+lastSale.total ?? 0
+).toLocaleString("es-CL")}
+
+<div className="text-xs text-slate-400 mt-1">
+
+{lastSale.quantity}
+
+{lastSale.quantity===1
+? " ticket"
+: " tickets"}
+
+</div>
+
+</div>
 
           <div>
 
-            <strong>Fecha:</strong>{" "}
+<strong>Fecha:</strong>
 
-            {
+<div className="mt-1">
 
-              lastSale.paymentCreatedAt
+{
 
-              ? new Date(
-                  lastSale.paymentCreatedAt
-                ).toLocaleString("es-CL")
+lastSale.paymentCreatedAt
 
-              : new Date(
-                  lastSale.createdAt
-                ).toLocaleString("es-CL")
+?
 
-            }
+new Date(
+lastSale.paymentCreatedAt
+).toLocaleDateString("es-CL")
 
-          </div>
+:
+
+new Date(
+lastSale.createdAt
+).toLocaleDateString("es-CL")
+
+}
+
+</div>
+
+<div className="text-xs text-slate-400">
+
+{
+
+lastSale.paymentCreatedAt
+
+?
+
+new Date(
+lastSale.paymentCreatedAt
+).toLocaleTimeString("es-CL")
+
+:
+
+new Date(
+lastSale.createdAt
+).toLocaleTimeString("es-CL")
+
+}
+
+</div>
+
+</div>
 
         </div>
 
@@ -1424,9 +1472,25 @@ sale.buyerPhone && (
 
               <td className="text-center">
 
-                {sale.quantity}
+<div
+className="
+inline-flex
+items-center
+justify-center
+min-w-[42px]
+px-2
+py-1
+rounded-full
+bg-slate-800
+font-semibold
+"
+>
 
-              </td>
+{sale.quantity}
+
+</div>
+
+</td>
 
               <td className="text-right whitespace-nowrap">
 
@@ -1518,11 +1582,31 @@ truncate
 
 sale.paymentReference && (
 
-<div className="text-slate-500 mt-1">
+<div
+className="
+text-xs
+text-slate-500
+flex
+justify-between
+mt-1
+"
+>
+
+<span>
 
 ...
 
 {sale.paymentReference.slice(-8)}
+
+</span>
+
+<span>
+
+{sale.paymentReference.length}
+
+car.
+
+</span>
 
 </div>
 
