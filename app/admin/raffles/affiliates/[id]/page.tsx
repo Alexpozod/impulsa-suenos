@@ -27,6 +27,9 @@ const [ledger, setLedger] =
   const [wallet, setWallet] =
   useState<any>(null)
 
+  const sales =
+  dashboard?.sales ?? []
+
   const [requesting,setRequesting]=
 useState(false)
 
@@ -818,6 +821,174 @@ wallet?.available??0
             </div>
 
           </div>
+
+<div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+  "
+>
+
+<h2 className="text-xl font-semibold mb-5">
+
+Ventas atribuidas
+
+</h2>
+
+<div className="overflow-auto">
+
+<table className="w-full text-sm">
+
+<thead>
+
+<tr className="border-b border-slate-800">
+
+<th className="text-left py-3">
+
+Cliente
+
+</th>
+
+<th className="text-left">
+
+Email
+
+</th>
+
+<th>
+
+Tickets
+
+</th>
+
+<th>
+
+Monto
+
+</th>
+
+<th>
+
+Pago
+
+</th>
+
+<th>
+
+Estado
+
+</th>
+
+<th>
+
+Fecha
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{sales.length===0 && (
+
+<tr>
+
+<td
+colSpan={7}
+className="py-8 text-center text-slate-500"
+>
+
+Sin ventas todavía
+
+</td>
+
+</tr>
+
+)}
+
+{sales.map((sale:any)=>(
+
+<tr
+key={sale.id}
+className="border-b border-slate-800"
+>
+
+<td className="py-3">
+
+{sale.buyerName}
+
+</td>
+
+<td>
+
+{sale.buyerEmail}
+
+</td>
+
+<td className="text-center">
+
+{sale.quantity}
+
+</td>
+
+<td className="text-right">
+
+$
+
+{Number(
+sale.total
+).toLocaleString("es-CL")}
+
+</td>
+
+<td className="text-center">
+
+{sale.paymentStatus ?? "-"}
+
+</td>
+
+<td className="text-center">
+
+{sale.orderStatus}
+
+</td>
+
+<td className="text-center whitespace-nowrap">
+
+{
+
+sale.createdAt
+
+?
+
+new Date(
+sale.createdAt
+).toLocaleDateString("es-CL")
+
+:
+
+"-"
+
+}
+
+</td>
+
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
 
         </div>
 
