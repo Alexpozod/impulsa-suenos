@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import {
   ArrowLeft,
   Copy,
@@ -18,6 +19,7 @@ export default function AffiliateDetailPage() {
   const params = useParams();
 
   const affiliateId = params.id as string;
+  const [buyerModalOpen, setBuyerModalOpen] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -101,6 +103,17 @@ export default function AffiliateDetailPage() {
         Copiar Link
 
       </button>
+
+      <button
+  onClick={() => setBuyerModalOpen(true)}
+  className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
+>
+
+  <Eye className="w-4 h-4" />
+
+  Ver Modal
+
+</button>
 
     </div>
 
@@ -237,11 +250,11 @@ export default function AffiliateDetailPage() {
 
         <tbody>
 
-          <tr>
+         <tr>
 
             <td
-              colSpan={10}
-              className="py-20 text-center"
+                colSpan={9}
+                className="py-20 text-center"
             >
 
               <div className="flex flex-col items-center gap-4">
@@ -302,7 +315,7 @@ export default function AffiliateDetailPage() {
 
       </Section>
 
-      {/* Pagos */}
+            {/* Pagos */}
 
       <Section title="Historial de Pagos">
 
@@ -317,6 +330,54 @@ export default function AffiliateDetailPage() {
         />
 
       </Section>
+
+      {buyerModalOpen && (
+
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
+
+          <div className="w-full max-w-3xl rounded-xl border bg-[#090d18] shadow-2xl">
+
+            <div className="flex items-center justify-between border-b px-6 py-4">
+
+              <h2 className="text-xl font-semibold">
+
+                Detalle del Comprador
+
+              </h2>
+
+              <button
+                onClick={() => setBuyerModalOpen(false)}
+                className="text-muted-foreground hover:text-white"
+              >
+
+                ✕
+
+              </button>
+
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 p-6">
+
+              <Info label="Nombre" value="Carlos Morales" />
+              <Info label="Email" value="carlos@email.com" />
+              <Info label="Teléfono" value="+56 9 1111 1111" />
+              <Info label="Sorteo" value="iPhone 17 Pro" />
+              <Info label="Tickets" value="000124 · 000125 · 000126" />
+              <Info label="Compra" value="$30.000" />
+              <Info label="Comisión" value="$3.000" />
+              <Info label="Order ID" value="ORD-000001" />
+              <Info label="Payment ID" value="PAY-000001" />
+              <Info label="Flow Payment" value="123456789" />
+              <Info label="Commercial Code" value="LESLES10" />
+              <Info label="Commercial Type" value="Affiliate" />
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </div>
   );
@@ -425,5 +486,33 @@ function EmptyTable({
       </table>
 
     </div>
+  );
+}
+
+function Info({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+
+    <div>
+
+      <div className="text-sm text-muted-foreground">
+
+        {label}
+
+      </div>
+
+      <div className="font-medium mt-1 break-all">
+
+        {value}
+
+      </div>
+
+    </div>
+
   );
 }
