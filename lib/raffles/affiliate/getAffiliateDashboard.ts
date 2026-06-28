@@ -111,96 +111,111 @@ const { data: ledger } =
     )
     
   let clicks = 0
-  let beginCheckout = 0
-  let totalOrders = 0
+let beginCheckout = 0
+let totalOrders = 0
 let paidOrders = 0
 let revenue = 0
 
-  for (const event of events || []) {
+/* =========================================
+   ANALYTICS
+========================================= */
 
-    const metadata =
-      (event.metadata || {}) as any
+for (const event of events || []) {
 
-    const code =
-  String(
-    metadata.commercialCode ??
-    metadata.affiliateCode ??
-    ""
-  ).toUpperCase()
+  const metadata =
+    (event.metadata || {}) as any
 
-    if (code !== affiliateCode) {
+  const code =
+    String(
+      metadata.commercialCode ??
+      metadata.affiliateCode ??
+      ""
+    ).toUpperCase()
 
-      continue
+  if (code !== affiliateCode) {
 
-    }
+    continue
 
-    switch (event.event_type) {
-
-      case "affiliate_click":
-
-  clicks++
-
-  break
-
-case "page_view":
+  }
 
   if (
-
-    metadata.commercialCode ||
-
-    metadata.affiliateCode
-
+    event.event_type === "affiliate_click" ||
+    event.event_type === "page_view"
   ) {
 
     clicks++
 
   }
 
-  break
-
-      case "begin_checkout":
-
-        beginCheckout++
-
-        break
-
-      case "affiliate_conversion":
-
-        totalOrders++
-
-        break
-
-      case "payment_success":
-
   if (
-
-    metadata.commercialCode ||
-
-    metadata.affiliateCode
-
+    event.event_type === "begin_checkout"
   ) {
 
-    paidOrders++
+    beginCheckout++
 
-    revenue += Number(
+  }
 
-      metadata.amount ??
+}
 
-      metadata.total ??
+/* =========================================
+   ORDERS
+========================================= */
 
-      metadata.amount_clp ??
+const orders =
+  (affiliateOrders || []).filter(order => {
 
-      0
+    const tracking =
+      ((order.metadata || {}) as any)
+        ?.tracking || {}
 
+    return (
+      String(
+        tracking.commercialCode ?? ""
+      ).toUpperCase() === affiliateCode
     )
 
+  })
+
+totalOrders =
+  orders.length
+
+const paidOrderIds =
+  new Set<string>()
+
+for (const payment of affiliatePayments || []) {
+
+  if (
+    payment.status !== "paid" &&
+    payment.status !== "approved"
+  ) {
+
+    continue
+
   }
 
-  break
+  if (
+    !orders.some(
+      order =>
+        order.id === payment.order_id
+    )
+  ) {
 
-    }
+    continue
 
   }
+
+  paidOrderIds.add(
+    payment.order_id
+  )
+
+  revenue += Number(
+    payment.amount_clp || 0
+  )
+
+}
+
+paidOrders =
+  paidOrderIds.size
 
   const paidCommission =
     (ledger || []).reduce(
