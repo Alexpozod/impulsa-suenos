@@ -42,22 +42,24 @@ export default function AffiliateDetailPage() {
 
       <div className="flex items-center gap-3">
 
-        <h1 className="text-4xl font-bold">
-          Influencer
-        </h1>
+        <div className="flex items-center gap-3">
 
-        <span className="rounded-full bg-green-500/15 text-green-400 px-3 py-1 text-xs font-semibold border border-green-500/30">
-          ACTIVO
-        </span>
+  <h1 className="text-4xl font-bold">
 
-      </div>
+    LesLes
 
-      <div className="text-2xl font-semibold">
+  </h1>
 
-  LesLes
+  <span className="rounded-full bg-green-500/15 text-green-400 px-3 py-1 text-xs font-semibold border border-green-500/30">
+
+    ACTIVO
+
+  </span>
 
 </div>
 
+      </div>
+      
 <div className="flex flex-wrap gap-3">
 
   <span className="rounded-full border px-3 py-1 text-xs">
@@ -231,11 +233,7 @@ export default function AffiliateDetailPage() {
 
             <th className="pb-4">Fecha</th>
 
-            <th className="pb-4">Comprador</th>
-
-            <th className="pb-4">Email</th>
-
-            <th className="pb-4">Teléfono</th>
+            <th className="pb-4">Cliente</th>
 
             <th className="pb-4">Sorteo</th>
 
@@ -300,25 +298,45 @@ export default function AffiliateDetailPage() {
         {sale.date}
       </td>
 
-      <td className="font-medium">
-        {sale.buyer}
-      </td>
-
       <td>
-        {sale.email}
-      </td>
 
-      <td>
-        {sale.phone}
-      </td>
+  <div className="space-y-1">
+
+    <div className="font-semibold">
+
+      {sale.buyer}
+
+    </div>
+
+    <div className="text-sm text-muted-foreground">
+
+      {sale.email}
+
+    </div>
+
+    <div className="text-xs text-muted-foreground">
+
+      {sale.phone}
+
+    </div>
+
+  </div>
+
+</td>
 
       <td>
         {sale.raffle}
       </td>
 
-      <td className="text-center">
-        {sale.tickets}
-      </td>
+      <td>
+
+  <span className="rounded-full border px-3 py-1 text-xs">
+
+    {sale.tickets} Tickets
+
+  </span>
+
+</td>
 
       <td className="font-medium">
         {sale.total}
@@ -345,13 +363,15 @@ export default function AffiliateDetailPage() {
       <td className="text-center">
 
         <button
-          onClick={() => setBuyerModalOpen(true)}
-          className="rounded-lg border p-2 hover:bg-white/5"
-        >
+  onClick={() => setBuyerModalOpen(true)}
+  className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5 flex items-center gap-2"
+>
 
-          <Eye className="w-4 h-4" />
+  <Eye className="w-4 h-4" />
 
-        </button>
+  Detalles
+
+</button>
 
       </td>
 
