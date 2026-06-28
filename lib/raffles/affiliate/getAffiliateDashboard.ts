@@ -9,13 +9,20 @@ export async function getAffiliateDashboard(
   affiliateId: string
 ) {
 
-  const { data: affiliate } =
-    await supabase
-      .schema("raffles")
-      .from("raffle_referrals")
-      .select("*")
-      .eq("id", affiliateId)
-      .maybeSingle()
+ const { data: affiliate } =
+  await supabase
+    .schema("raffles")
+    .from("raffle_referrals")
+    .select(`
+      *,
+      raffles(
+        id,
+        title,
+        slug
+      )
+    `)
+    .eq("id", affiliateId)
+    .maybeSingle()
 
   if (!affiliate) {
 
@@ -360,7 +367,21 @@ createdAt:
         ),
 
       active:
-        affiliate.active
+  affiliate.active,
+
+raffle:
+  affiliate.raffles
+    ? {
+        id:
+          affiliate.raffles.id,
+
+        title:
+          affiliate.raffles.title,
+
+        slug:
+          affiliate.raffles.slug
+      }
+    : null
 
     },
 
