@@ -52,37 +52,50 @@ export default function AffiliateDetailPage() {
 
       </div>
 
-      <div className="text-lg font-semibold">
-        --
-      </div>
+      <div className="text-2xl font-semibold">
 
-      <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+  LesLes
 
-        <div>
+</div>
 
-          <span className="font-medium text-white">
-            Código:
-          </span>{" "}
-          --
+<div className="flex flex-wrap gap-3">
 
-        </div>
+  <span className="rounded-full border px-3 py-1 text-xs">
 
-        <div>
+    Affiliate
 
-          <span className="font-medium text-white">
-            Comisión:
-          </span>{" "}
-          --
+  </span>
 
-        </div>
+  <span className="rounded-full border px-3 py-1 text-xs">
 
-      </div>
+    Comisión 10%
 
-      <div className="font-mono text-sm text-sky-400 break-all">
+  </span>
 
-        https://impulsasuenos.com/r/--
+  <span className="rounded-full border px-3 py-1 text-xs">
 
-      </div>
+    Código LESLES10
+
+  </span>
+
+</div>
+
+<div className="font-mono text-sky-400 text-sm break-all">
+
+  https://impulsasuenos.com/r/LESLES10
+
+</div>
+
+<div className="text-sm text-muted-foreground">
+
+  Última venta:
+  <span className="text-white ml-2">
+
+    Hace 2 horas
+
+  </span>
+
+</div>
 
     </div>
 
