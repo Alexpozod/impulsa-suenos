@@ -1126,7 +1126,36 @@ sale.total
 
 <td className="text-center">
 
+<span
+className={
+
+sale.paymentStatus === "paid" ||
+
+sale.paymentStatus === "approved"
+
+?
+
+"text-emerald-400"
+
+:
+
+sale.paymentStatus === "pending"
+
+?
+
+"text-yellow-400"
+
+:
+
+"text-red-400"
+
+}
+
+>
+
 {sale.paymentStatus ?? "-"}
+
+</span>
 
 </td>
 
@@ -1153,7 +1182,34 @@ title={sale.paymentReference ?? ""}
 
 <td className="text-center">
 
+<span
+className={
+
+sale.orderStatus === "paid"
+
+?
+
+"text-emerald-400"
+
+:
+
+sale.orderStatus === "pending"
+
+?
+
+"text-yellow-400"
+
+:
+
+"text-slate-300"
+
+}
+
+>
+
 {sale.orderStatus}
+
+</span>
 
 </td>
 
