@@ -33,6 +33,32 @@ const [ledger, setLedger] =
   const lastSale =
   dashboard?.lastSale ?? null
 
+  const totalSalesAmount =
+  sales.reduce(
+
+    (sum:number,sale:any)=>
+
+      sum+
+
+      Number(
+        sale.total ?? 0
+      ),
+
+    0
+
+  )
+
+  const averageTicket =
+
+sales.length > 0
+
+? Math.round(
+    totalSalesAmount /
+    sales.length
+  )
+
+: 0
+
   const [requesting,setRequesting]=
 useState(false)
 
@@ -305,6 +331,16 @@ setWallet(
   value={`$${Number(
     wallet?.pending ?? 0
   ).toLocaleString("es-CL")}`}
+/>
+
+<StatCard
+  title="Ventas Totales"
+  value={`$${totalSalesAmount.toLocaleString("es-CL")}`}
+/>
+
+<StatCard
+  title="Ticket Promedio"
+  value={`$${averageTicket.toLocaleString("es-CL")}`}
 />
 
 <div
