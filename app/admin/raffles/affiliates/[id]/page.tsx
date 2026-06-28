@@ -10,6 +10,8 @@ import {
   ShoppingCart,
   TrendingUp,
   Clock,
+  Search,
+  Eye,
 } from "lucide-react";
 
 export default function AffiliateDetailPage() {
@@ -158,23 +160,131 @@ export default function AffiliateDetailPage() {
 
       {/* Historial Comercial */}
 
-      <Section title="Historial Comercial">
+<Section title="Historial Comercial">
 
-        <EmptyTable
-          columns={[
-            "Fecha",
-            "Orden",
-            "Sorteo",
-            "Comprador",
-            "Tickets",
-            "Compra",
-            "Comisión",
-            "Estado",
-            "Acciones",
-          ]}
+  <div className="space-y-5">
+
+    <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+
+      <div className="relative w-full lg:max-w-md">
+
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+        <input
+          placeholder="Buscar por nombre, correo, teléfono, Order o Payment..."
+          className="w-full rounded-lg border bg-transparent pl-10 pr-4 py-2 outline-none focus:ring-2 focus:ring-primary"
         />
 
-      </Section>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+
+        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
+          Todos
+        </button>
+
+        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
+          Pendientes
+        </button>
+
+        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
+          Pagados
+        </button>
+
+        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
+          Fallidos
+        </button>
+
+        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
+          Reembolsados
+        </button>
+
+      </div>
+
+    </div>
+
+    <div className="overflow-auto">
+
+      <table className="w-full">
+
+        <thead>
+
+          <tr className="text-left text-sm text-muted-foreground border-b">
+
+            <th className="pb-4">Fecha</th>
+
+            <th className="pb-4">Comprador</th>
+
+            <th className="pb-4">Email</th>
+
+            <th className="pb-4">Teléfono</th>
+
+            <th className="pb-4">Sorteo</th>
+
+            <th className="pb-4">Tickets</th>
+
+            <th className="pb-4">Compra</th>
+
+            <th className="pb-4">Comisión</th>
+
+            <th className="pb-4">Estado</th>
+
+            <th className="pb-4 text-center">Ver</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <tr>
+
+            <td
+              colSpan={10}
+              className="py-20 text-center"
+            >
+
+              <div className="flex flex-col items-center gap-4">
+
+                <div className="text-5xl">
+                  🧾
+                </div>
+
+                <div className="space-y-2">
+
+                  <h3 className="text-lg font-semibold">
+
+                    Todavía no existen compras
+                    atribuidas a este influencer.
+
+                  </h3>
+
+                  <p className="text-muted-foreground max-w-md">
+
+                    Cuando un cliente compre utilizando
+                    su código comercial o su enlace de
+                    seguimiento, el historial aparecerá
+                    automáticamente aquí.
+
+                  </p>
+
+                </div>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</Section>
 
       {/* Ledger */}
 
