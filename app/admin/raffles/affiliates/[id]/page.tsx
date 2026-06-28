@@ -605,6 +605,59 @@ wallet?.available??0
 
               <div>
 
+  <span className="text-slate-400">
+
+    Sorteo asignado
+
+  </span>
+
+  <div>
+
+    {
+
+      dashboard?.affiliate?.raffle
+
+      ?
+
+      dashboard.affiliate.raffle.title
+
+      :
+
+      "Todos"
+
+    }
+
+  </div>
+
+</div>
+
+{
+
+dashboard?.affiliate?.raffle && (
+
+<div>
+
+<span className="text-slate-400">
+
+Slug
+
+</span>
+
+<div className="font-mono text-sm">
+
+/raffles/
+
+{dashboard.affiliate.raffle.slug}
+
+</div>
+
+</div>
+
+)
+}
+
+              <div>
+
                 <span className="text-slate-400">
 
                   Estado
@@ -878,6 +931,18 @@ Pago
 
 <th>
 
+Proveedor
+
+</th>
+
+<th>
+
+Referencia
+
+</th>
+
+<th>
+
 Estado
 
 </th>
@@ -954,6 +1019,27 @@ sale.total
 
 <td className="text-center">
 
+{sale.paymentProvider ?? "-"}
+
+</td>
+
+<td
+className="
+text-center
+font-mono
+text-xs
+max-w-[180px]
+truncate
+"
+title={sale.paymentReference ?? ""}
+>
+
+{sale.paymentReference ?? "-"}
+
+</td>
+
+<td className="text-center">
+
 {sale.orderStatus}
 
 </td>
@@ -962,13 +1048,23 @@ sale.total
 
 {
 
+sale.paymentCreatedAt
+
+?
+
+new Date(
+sale.paymentCreatedAt
+).toLocaleString("es-CL")
+
+:
+
 sale.createdAt
 
 ?
 
 new Date(
 sale.createdAt
-).toLocaleDateString("es-CL")
+).toLocaleString("es-CL")
 
 :
 
