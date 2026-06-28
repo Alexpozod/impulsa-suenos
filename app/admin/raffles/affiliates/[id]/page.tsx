@@ -389,19 +389,129 @@ export default function AffiliateDetailPage() {
 
 </Section>
 
-      {/* Ledger */}
+          {/* Ledger */}
 
       <Section title="Ledger Comercial">
 
-        <EmptyTable
-          columns={[
-            "Fecha",
-            "Movimiento",
-            "Orden",
-            "Monto",
-            "Estado",
-          ]}
-        />
+        <div className="overflow-auto">
+
+          <table className="w-full">
+
+            <thead>
+
+              <tr className="border-b text-left text-sm text-muted-foreground">
+
+                <th className="pb-4">Fecha</th>
+
+                <th className="pb-4">Tipo</th>
+
+                <th className="pb-4">Referencia</th>
+
+                <th className="pb-4 text-right">Débito</th>
+
+                <th className="pb-4 text-right">Crédito</th>
+
+                <th className="pb-4">Estado</th>
+
+                <th className="pb-4 text-center">Detalle</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {[
+                {
+                  date: "28/06/2026",
+                  type: "Comisión",
+                  ref: "ORD-1254",
+                  debit: "-",
+                  credit: "$3.000",
+                  status: "Pendiente",
+                },
+                {
+                  date: "30/06/2026",
+                  type: "Pago",
+                  ref: "PAY-8854",
+                  debit: "$3.000",
+                  credit: "-",
+                  status: "Pagado",
+                },
+              ].map((item, index) => (
+
+                <tr
+                  key={index}
+                  className="border-b border-white/5 hover:bg-white/5"
+                >
+
+                  <td className="py-4">
+                    {item.date}
+                  </td>
+
+                  <td>
+
+                    <span className="font-medium">
+
+                      {item.type}
+
+                    </span>
+
+                  </td>
+
+                  <td className="font-mono text-sm">
+
+                    {item.ref}
+
+                  </td>
+
+                  <td className="text-right text-red-400">
+
+                    {item.debit}
+
+                  </td>
+
+                  <td className="text-right text-green-400">
+
+                    {item.credit}
+
+                  </td>
+
+                  <td>
+
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs ${
+                        item.status === "Pagado"
+                          ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                          : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+                      }`}
+                    >
+
+                      {item.status}
+
+                    </span>
+
+                  </td>
+
+                  <td className="text-center">
+
+                    <button className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5">
+
+                      Ver
+
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </Section>
 
