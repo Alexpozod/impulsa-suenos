@@ -247,6 +247,65 @@ paidOrders =
 
     )
 
+    /* =========================================
+   PAYMENT INDEX
+========================================= */
+
+const paymentMap =
+  new Map(
+    (affiliatePayments || []).map(
+      payment => [
+        payment.order_id,
+        payment
+      ]
+    )
+  )
+
+/* =========================================
+   SALES DETAIL
+========================================= */
+
+const sales =
+  orders.map(order => ({
+
+    id:
+      order.id,
+
+    buyerName:
+      order.buyer_name ?? null,
+
+    buyerEmail:
+      order.buyer_email ?? null,
+
+    buyerPhone:
+      order.buyer_phone ?? null,
+
+    quantity:
+      order.quantity ?? 0,
+
+    total:
+      Number(
+        order.total_clp ?? 0
+      ),
+
+    status:
+      order.status,
+
+    paymentStatus:
+      paymentMap.get(order.id)
+        ?.status ?? null,
+
+    paymentAmount:
+      Number(
+        paymentMap.get(order.id)
+          ?.amount_clp ?? 0
+      ),
+
+    createdAt:
+      order.created_at
+
+  }))
+
   return {
 
     affiliate: {
@@ -286,7 +345,10 @@ paidOrders =
 
       paidCommission
 
-    }
+    },
+
+sales
+
 
   }
 
