@@ -1191,22 +1191,66 @@ Slug
       Ventas atribuidas
     </h2>
 
-    <button
-      type="button"
-      onClick={exportSalesCsv}
-      disabled={filteredSales.length===0}
-      className="
-        px-4
-        py-2
-        rounded-xl
-        bg-emerald-600
-        disabled:bg-slate-700
-      "
-    >
+    <div
+className="
+flex
+items-center
+gap-3
+flex-wrap
+"
+>
 
-      Exportar CSV
+<div
+className="
+text-sm
+text-slate-400
+"
+>
 
-    </button>
+Mostrando
+
+{" "}
+
+<strong>
+
+{filteredSales.length}
+
+</strong>
+
+{" "}
+
+de
+
+{" "}
+
+<strong>
+
+{sales.length}
+
+</strong>
+
+ventas
+
+</div>
+
+<button
+type="button"
+onClick={exportSalesCsv}
+disabled={filteredSales.length===0}
+className="
+px-4
+py-2
+rounded-xl
+bg-emerald-600
+disabled:bg-slate-700
+"
+>
+
+Exportar CSV
+
+</button>
+
+</div>
 
   </div>
 
