@@ -348,6 +348,15 @@ createdAt:
 
     })
 
+    /* =========================================
+   LAST SALE
+========================================= */
+
+const lastSale =
+  sales.length > 0
+    ? sales[0]
+    : null
+
   return {
 
     affiliate: {
@@ -401,10 +410,14 @@ raffle:
 
       paidCommission
 
-    },
+        },
 
-sales
+lastSale,
 
+sales,
+
+generatedAt:
+  new Date().toISOString()
 
   }
 
