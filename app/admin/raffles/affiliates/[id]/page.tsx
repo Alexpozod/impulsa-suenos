@@ -92,6 +92,102 @@ const filteredSales =
 
   })
 
+  function exportSalesCsv() {
+
+  if (filteredSales.length === 0) {
+
+    return
+
+  }
+
+  const rows = [
+
+    [
+
+      "Cliente",
+
+      "Email",
+
+      "Tickets",
+
+      "Monto",
+
+      "Estado Orden",
+
+      "Estado Pago",
+
+      "Proveedor",
+
+      "Referencia",
+
+      "Fecha"
+
+    ],
+
+    ...filteredSales.map((sale:any)=>[
+
+      sale.buyerName ?? "",
+
+      sale.buyerEmail ?? "",
+
+      sale.quantity ?? "",
+
+      sale.total ?? "",
+
+      sale.orderStatus ?? "",
+
+      sale.paymentStatus ?? "",
+
+      sale.paymentProvider ?? "",
+
+      sale.paymentReference ?? "",
+
+      sale.paymentCreatedAt ??
+
+      sale.createdAt ??
+
+      ""
+
+    ])
+
+  ]
+
+  const csv =
+    rows
+      .map(
+        row =>
+          row
+            .map(value => `"${String(value ?? "").replace(/"/g,'""')}"`)
+            .join(",")
+      )
+      .join("\n")
+
+  const blob =
+    new Blob(
+      [csv],
+      {
+        type:
+          "text/csv;charset=utf-8;"
+      }
+    )
+
+  const url =
+    URL.createObjectURL(blob)
+
+  const link =
+    document.createElement("a")
+
+  link.href = url
+
+  link.download =
+    `affiliate-${dashboard?.affiliate?.code}-sales.csv`
+
+  link.click()
+
+  URL.revokeObjectURL(url)
+
+}  
+
   const [requesting,setRequesting]=
 useState(false)
 
@@ -529,195 +625,189 @@ wallet?.available??0
 
 <div
   className="
-    bg-emerald-950/40
-    border
-    border-emerald-700
-    rounded-3xl
-    p-6
+    grid
+    grid-cols-1
+    xl:grid-cols-3
+    gap-6
   "
 >
 
-<h2 className="text-xl font-semibold mb-4">
+  <div
+    className="
+      bg-emerald-950/40
+      border
+      border-emerald-700
+      rounded-3xl
+      p-6
+    "
+  >
 
-Última venta registrada
+    <h2 className="text-xl font-semibold mb-4">
+      Última venta registrada
+    </h2>
 
-</h2>
+    {
 
-{
+      lastSale
 
-lastSale
+      ? (
 
-?
+        <div className="space-y-2">
 
-<div className="space-y-2">
+          <div>
 
-<div>
+            <strong>Cliente:</strong>{" "}
+            {lastSale.buyerName}
 
-<strong>Cliente:</strong>
+          </div>
 
-{" "}
+          <div>
 
-{lastSale.buyerName}
+            <strong>Email:</strong>{" "}
+            {lastSale.buyerEmail}
 
-</div>
+          </div>
 
-<div>
+          <div>
 
-<strong>Email:</strong>
+            <strong>Monto:</strong>{" "}
+            ${Number(
+              lastSale.total ?? 0
+            ).toLocaleString("es-CL")}
 
-{" "}
+          </div>
 
-{lastSale.buyerEmail}
+          <div>
 
-</div>
+            <strong>Fecha:</strong>{" "}
 
-<div>
+            {
 
-<strong>Monto:</strong>
+              lastSale.paymentCreatedAt
 
-{" "}
+              ? new Date(
+                  lastSale.paymentCreatedAt
+                ).toLocaleString("es-CL")
 
-$
+              : new Date(
+                  lastSale.createdAt
+                ).toLocaleString("es-CL")
 
-{Number(
-lastSale.total ?? 0
-).toLocaleString("es-CL")}
+            }
 
-</div>
+          </div>
 
-<div>
+        </div>
 
-<strong>Fecha:</strong>
+      )
 
-{" "}
+      :
 
-{
+      (
 
-lastSale.paymentCreatedAt
+        <div className="text-slate-400">
 
-?
+          Sin ventas registradas
 
-new Date(
-lastSale.paymentCreatedAt
-).toLocaleString("es-CL")
+        </div>
 
-:
+      )
 
-new Date(
-lastSale.createdAt
-).toLocaleString("es-CL")
+    }
 
-}
+  </div>
 
-</div>
+  <div
+    className="
+      bg-slate-900
+      border
+      border-slate-800
+      rounded-3xl
+      p-6
+    "
+  >
 
-</div>
+    <h2 className="text-xl font-semibold mb-4">
 
-:
+      Evolución de Comisiones
 
-<div className="text-slate-400">
+    </h2>
 
-Sin ventas registradas
+    {
 
-</div>
+      chartData.length === 0
 
-}
+      ? (
 
-</div>
+        <div className="text-slate-500">
 
-<div
-  className="
-    bg-slate-900
-    border
-    border-slate-800
-    rounded-3xl
-    p-6
-  "
->
+          Sin datos disponibles
 
-  <h2 className="text-xl font-semibold mb-4">
+        </div>
 
-    Evolución de Comisiones
+      )
 
-  </h2>
+      : (
 
-  {
+        <div className="space-y-2">
 
-    chartData.length === 0
+          {
 
-    ? (
+            chartData.slice(-10).map((item:any,index:number)=>(
 
-      <div className="text-slate-500">
+              <div
+                key={index}
+                className="
+                  flex
+                  justify-between
+                  border-b
+                  border-slate-800
+                  py-2
+                "
+              >
 
-        Sin datos disponibles
+                <span>
 
-      </div>
+                  {
 
-    )
-
-    : (
-
-      <div className="space-y-2">
-
-        {
-
-          chartData.slice(-10).map((item:any,index:number)=>(
-
-            <div
-              key={index}
-              className="
-                flex
-                justify-between
-                border-b
-                border-slate-800
-                py-2
-              "
-            >
-
-              <span>
-
-                {
-
-                  item.date
-
-                  ?
-
-                  new Date(
                     item.date
-                  ).toLocaleDateString("es-CL")
 
-                  :
+                    ? new Date(
+                        item.date
+                      ).toLocaleDateString("es-CL")
 
-                  "-"
+                    : "-"
 
-                }
+                  }
 
-              </span>
+                </span>
 
-              <span className="font-semibold">
+                <span className="font-semibold">
 
-                $
+                  $
 
-                {Number(
-                  item.amount || 0
-                ).toLocaleString("es-CL")}
+                  {Number(
+                    item.amount || 0
+                  ).toLocaleString("es-CL")}
 
-              </span>
+                </span>
 
-            </div>
+              </div>
 
-          ))
+            ))
 
-        }
+          }
 
-      </div>
+        </div>
 
-    )
+      )
 
-  }
+    }
+
+  </div>
 
 </div>
-
+  
       <div
         className="
           bg-slate-900
@@ -728,7 +818,15 @@ Sin ventas registradas
         "
       >
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div
+  className="
+    grid
+    grid-cols-1
+    xl:grid-cols-2
+    gap-6
+    items-start
+  "
+>
 
           <div>
 
@@ -1058,9 +1156,287 @@ Slug
 
             </div>
 
-          </div>
+                    </div>
+
+        </div>
+
+      </div>
 
 <div
+  className="
+    bg-slate-900
+    border
+    border-slate-800
+    rounded-3xl
+    p-6
+    overflow-hidden
+  "
+>
+
+  <div
+    className="
+      flex
+      flex-col
+      md:flex-row
+      md:justify-between
+      md:items-center
+      gap-4
+      mb-5
+    "
+  >
+
+    <h2 className="text-xl font-semibold">
+      Ventas atribuidas
+    </h2>
+
+    <button
+      type="button"
+      onClick={exportSalesCsv}
+      disabled={filteredSales.length===0}
+      className="
+        px-4
+        py-2
+        rounded-xl
+        bg-emerald-600
+        disabled:bg-slate-700
+      "
+    >
+
+      Exportar CSV
+
+    </button>
+
+  </div>
+
+  <input
+
+    value={searchSales}
+
+    onChange={(e)=>
+      setSearchSales(
+        e.target.value
+      )
+    }
+
+    placeholder="Buscar cliente, email o referencia..."
+
+    className="
+      w-full
+      mb-5
+      bg-slate-950
+      border
+      border-slate-700
+      rounded-2xl
+      px-4
+      py-3
+    "
+
+  />
+
+  <div className="overflow-x-auto">
+
+    <table className="min-w-full text-sm">
+
+      <thead>
+
+        <tr className="border-b border-slate-800">
+
+          <th className="text-left py-3">Cliente</th>
+
+          <th className="text-left">Email</th>
+
+          <th>Tickets</th>
+
+          <th>Monto</th>
+
+          <th>Estado Pago</th>
+
+          <th>Proveedor</th>
+
+          <th>Referencia</th>
+
+          <th>Estado Orden</th>
+
+          <th>Fecha</th>
+
+          <th>Acciones</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {
+
+          filteredSales.length===0
+
+          &&
+
+          <tr>
+
+            <td
+              colSpan={10}
+              className="py-8 text-center text-slate-500"
+            >
+
+              Sin ventas todavía
+
+            </td>
+
+          </tr>
+
+        }
+
+        {
+
+          filteredSales.map((sale:any)=>(
+
+            <tr
+              key={sale.id}
+              className="border-b border-slate-800"
+            >
+
+              <td className="py-3 whitespace-nowrap">
+
+                {sale.buyerName ?? "-"}
+
+              </td>
+
+              <td className="whitespace-nowrap">
+
+                {sale.buyerEmail ?? "-"}
+
+              </td>
+
+              <td className="text-center">
+
+                {sale.quantity}
+
+              </td>
+
+              <td className="text-right whitespace-nowrap">
+
+                $
+
+                {Number(
+                  sale.total
+                ).toLocaleString("es-CL")}
+
+              </td>
+
+              <td className="text-center">
+
+                {sale.paymentStatus ?? "-"}
+
+              </td>
+
+              <td className="text-center">
+
+                {sale.paymentProvider ?? "-"}
+
+              </td>
+
+              <td
+                className="
+                  font-mono
+                  text-xs
+                  max-w-[180px]
+                  truncate
+                "
+                title={sale.paymentReference ?? ""}
+              >
+
+                {sale.paymentReference ?? "-"}
+
+              </td>
+
+              <td className="text-center">
+
+                {sale.orderStatus}
+
+              </td>
+
+              <td className="whitespace-nowrap">
+
+                {
+
+                  sale.paymentCreatedAt
+
+                  ?
+
+                  new Date(
+                    sale.paymentCreatedAt
+                  ).toLocaleString("es-CL")
+
+                  :
+
+                  sale.createdAt
+
+                  ?
+
+                  new Date(
+                    sale.createdAt
+                  ).toLocaleString("es-CL")
+
+                  :
+
+                  "-"
+
+                }
+
+              </td>
+
+              <td className="text-center">
+
+                <button
+
+                  type="button"
+
+                  onClick={() => {
+
+                    navigator.clipboard.writeText(
+                      sale.id
+                    )
+
+                    alert(
+                      "ID de orden copiado"
+                    )
+
+                  }}
+
+                  className="
+                    px-3
+                    py-1
+                    rounded-lg
+                    bg-slate-800
+                    hover:bg-slate-700
+                    text-xs
+                  "
+
+                >
+
+                  Copiar ID
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          ))
+
+        }
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+      <div
   className="
     bg-slate-900
     border
@@ -1070,352 +1446,7 @@ Slug
   "
 >
 
-<h2 className="text-xl font-semibold mb-5">
-
-Ventas atribuidas
-
-</h2>
-
-<input
-
-value={searchSales}
-
-onChange={(e)=>
-
-setSearchSales(
-e.target.value
-)
-
-}
-
-placeholder="Buscar cliente, email, referencia..."
-
-className="
-w-full
-mb-5
-bg-slate-950
-border
-border-slate-700
-rounded-2xl
-px-4
-py-3
-"
-
-/>
-
-<div className="overflow-auto">
-
-<table className="w-full text-sm">
-
-<thead>
-
-<tr className="border-b border-slate-800">
-
-<th className="text-left py-3">
-
-Cliente
-
-</th>
-
-<th className="text-left">
-
-Email
-
-</th>
-
-<th>
-
-Tickets
-
-</th>
-
-<th>
-
-Monto
-
-</th>
-
-<th>
-
-Pago
-
-</th>
-
-<th>
-
-Proveedor
-
-</th>
-
-<th>
-
-Referencia
-
-</th>
-
-<th>
-
-Pago
-
-</th>
-
-<th>
-
-Orden
-
-</th>
-
-<th>
-
-Fecha
-
-</th>
-
-<th>
-
-Acciones
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{filteredSales.length===0 && (
-
-<tr>
-
-<td
-colSpan={8}
-className="py-8 text-center text-slate-500"
->
-
-Sin ventas todavía
-
-</td>
-
-</tr>
-
-)}
-
-{filteredSales.map((sale:any)=>(
-
-<tr
-key={sale.id}
-className="border-b border-slate-800"
->
-
-<td className="py-3">
-
-{sale.buyerName}
-
-</td>
-
-<td>
-
-{sale.buyerEmail}
-
-</td>
-
-<td className="text-center">
-
-{sale.quantity}
-
-</td>
-
-<td className="text-right">
-
-$
-
-{Number(
-sale.total
-).toLocaleString("es-CL")}
-
-</td>
-
-<td className="text-center">
-
-<span
-className={
-
-sale.paymentStatus === "paid" ||
-
-sale.paymentStatus === "approved"
-
-?
-
-"text-emerald-400"
-
-:
-
-sale.paymentStatus === "pending"
-
-?
-
-"text-yellow-400"
-
-:
-
-"text-red-400"
-
-}
-
->
-
-{sale.paymentStatus ?? "-"}
-
-</span>
-
-</td>
-
-<td className="text-center">
-
-{sale.paymentProvider ?? "-"}
-
-</td>
-
-<td
-className="
-text-center
-font-mono
-text-xs
-max-w-[180px]
-truncate
-"
-title={sale.paymentReference ?? ""}
->
-
-{sale.paymentReference ?? "-"}
-
-</td>
-
-<td className="text-center">
-
-<span
-className={
-
-sale.orderStatus === "paid"
-
-?
-
-"text-emerald-400"
-
-:
-
-sale.orderStatus === "pending"
-
-?
-
-"text-yellow-400"
-
-:
-
-"text-slate-300"
-
-}
-
->
-
-{sale.orderStatus}
-
-</span>
-
-</td>
-
-<td className="text-center whitespace-nowrap">
-
-{
-
-sale.paymentCreatedAt
-
-?
-
-new Date(
-sale.paymentCreatedAt
-).toLocaleString("es-CL")
-
-:
-
-sale.createdAt
-
-?
-
-new Date(
-sale.createdAt
-).toLocaleString("es-CL")
-
-:
-
-"-"
-
-}
-
-</td>
-
-<td className="text-center">
-
-<button
-
-type="button"
-
-onClick={() => {
-
-navigator.clipboard.writeText(
-sale.id
-)
-
-alert(
-"ID de orden copiado"
-)
-
-}}
-
-className="
-px-3
-py-1
-rounded-lg
-bg-slate-800
-hover:bg-slate-700
-text-xs
-"
-
->
-
-Copiar ID
-
-</button>
-
-</td>
-
-</tr>
-
-))}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-        </div>
-
-      </div>
-
-      <div
-        className="
-          bg-slate-900
-          border
-          border-slate-800
-          rounded-3xl
-          p-6
-        "
-      >
-
-        <div className="flex items-center justify-between mb-4">
+<div className="flex items-center justify-between mb-4">
 
   <h2 className="text-xl font-semibold">
     Movimientos Ledger
