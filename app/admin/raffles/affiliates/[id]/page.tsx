@@ -5,2104 +5,501 @@ import { useParams } from "next/navigation"
 
 export default function AffiliateDetailPage() {
 
-  const params = useParams()
+const { id } =
+useParams()
 
-const id = String(params.id)
+const [loading,setLoading]=
+useState(true)
 
-  const [loading, setLoading] =
-    useState(true)
+const [data,setData]=
+useState<any>(null)
 
-  const [dashboard, setDashboard] =
-    useState<any>(null)
+useEffect(()=>{
 
-    const [summary, setSummary] =
-  useState<any>(null)
+load()
 
-const [ledger, setLedger] =
-  useState<any[]>([])
+},[])
 
-  const [chartData, setChartData] =
-  useState<any[]>([])
+async function load(){
 
-  const [wallet, setWallet] =
-  useState<any>(null)
-
-  const sales =
-  dashboard?.sales ?? []
-
-  const [searchSales, setSearchSales] =
-  useState("")
-
-  const lastSale =
-  dashboard?.lastSale ?? null
-
-  const paymentSummary =
-  dashboard?.paymentSummary ?? {
-
-    total: 0,
-
-    successful: 0,
-
-    pending: 0,
-
-    failed: 0
-
-  }
-
-  const totalSalesAmount =
-  sales.reduce(
-
-    (sum:number,sale:any)=>
-
-      sum+
-
-      Number(
-        sale.total ?? 0
-      ),
-
-    0
-
-  )
-
-  const averageTicket =
-
-sales.length > 0
-
-? Math.round(
-    totalSalesAmount /
-    sales.length
-  )
-
-: 0
-
-const filteredSales =
-  sales.filter((sale:any)=>{
-
-    if(!searchSales.trim()){
-
-      return true
-
-    }
-
-    return JSON.stringify(sale)
-      .toLowerCase()
-      .includes(
-        searchSales.toLowerCase()
-      )
-
-  })
-
-  function exportSalesCsv() {
-
-  if (filteredSales.length === 0) {
-
-    return
-
-  }
-
-  const rows = [
-
-    [
-
-      "Cliente",
-
-      "Email",
-
-      "Tickets",
-
-      "Monto",
-
-      "Estado Orden",
-
-      "Estado Pago",
-
-      "Proveedor",
-
-      "Referencia",
-
-      "Fecha"
-
-    ],
-
-    ...filteredSales.map((sale:any)=>[
-
-      sale.buyerName ?? "",
-
-      sale.buyerEmail ?? "",
-
-      sale.quantity ?? "",
-
-      sale.total ?? "",
-
-      sale.orderStatus ?? "",
-
-      sale.paymentStatus ?? "",
-
-      sale.paymentProvider ?? "",
-
-      sale.paymentReference ?? "",
-
-      sale.paymentCreatedAt ??
-
-      sale.createdAt ??
-
-      ""
-
-    ])
-
-  ]
-
-  const csv =
-    rows
-      .map(
-        row =>
-          row
-            .map((value: string | number | null | undefined) =>
-  `"${String(value ?? "").replace(/"/g, '""')}"`
-)
-            .join(",")
-      )
-      .join("\n")
-
-  const blob =
-    new Blob(
-      [csv],
-      {
-        type:
-          "text/csv;charset=utf-8;"
-      }
-    )
-
-  const url =
-    URL.createObjectURL(blob)
-
-  const link =
-    document.createElement("a")
-
-  link.href = url
-
-  link.download =
-    `affiliate-${dashboard?.affiliate?.code}-sales.csv`
-
-  link.click()
-
-  URL.revokeObjectURL(url)
-
-}  
-
-  const [requesting,setRequesting]=
-useState(false)
-
-  const [showLedger, setShowLedger] =
-  useState(true)
-
-  const [searchLedger, setSearchLedger] =
-  useState("")
-
-  const filteredLedger =
-  [...ledger]
-
-    .filter((item: any) => {
-
-      if (!searchLedger.trim()) {
-
-        return true
-
-      }
-
-      return JSON.stringify(item)
-        .toLowerCase()
-        .includes(
-          searchLedger.toLowerCase()
-        )
-
-    })
-
-    .sort((a: any, b: any) => {
-
-      const da =
-        new Date(
-          a.created_at ?? 0
-        ).getTime()
-
-      const db =
-        new Date(
-          b.created_at ?? 0
-        ).getTime()
-
-      return db - da
-
-    })
-
-  useEffect(() => {
-
-    load()
-
-  }, [])
-
-  async function load() {
-
-    try {
-
-      setLoading(true)
-
-      const [
-
-  dashboardRes,
-
-  summaryRes,
-
-  ledgerRes,
-
-  chartRes,
-
-  walletRes
-
-] = await Promise.all([
-
-  fetch(
-    `/api/admin/raffles/affiliates/${id}`
-  ),
-
-  fetch(
-    `/api/admin/raffles/affiliates/${id}/summary`
-  ),
-
-  fetch(
-    `/api/admin/raffles/affiliates/${id}/ledger`
-  ),
-
-  fetch(
-    `/api/admin/raffles/affiliates/${id}/chart`
-    ),
-
-fetch(
-  `/api/admin/raffles/affiliates/${id}/wallet`
-)
-
-])
-
-const dashboardJson =
-  await dashboardRes.json()
-
-const summaryJson =
-  await summaryRes.json()
-
-const ledgerJson =
-  await ledgerRes.json()
-
-  const chartJson =
-  await chartRes.json()
-
-  const walletJson =
-  await walletRes.json()
-
-setDashboard(
-  dashboardJson
-)
-
-setSummary(
-  summaryJson
-)
-
-setLedger(
-  ledgerJson.ledger || []
-)
-
-setChartData(
-  chartJson.chart || []
-)
-
-setWallet(
-  walletJson.wallet || null
-)
-
-    }
-
-    catch (error) {
-
-      console.error(error)
-
-    }
-
-    finally {
-
-      setLoading(false)
-
-    }
-
-  }
-
-  if (loading) {
-
-    return (
-
-      <div className="space-y-6">
-
-        <h1 className="text-3xl font-bold">
-
-          ⭐ Detalle Influencer
-
-        </h1>
-
-        <div
-          className="
-            bg-slate-900
-            border
-            border-slate-800
-            rounded-3xl
-            p-6
-          "
-        >
-
-          Cargando...
-
-        </div>
-
-      </div>
-
-    )
-
-  }
-
-  return (
-
-    <div className="space-y-6">
-
-      <div>
-
-        <h1 className="text-3xl font-bold">
-
-          ⭐ Detalle Influencer
-
-        </h1>
-
-        <p className="text-slate-400 mt-2">
-
-          ID: {String(id)}
-
-        </p>
-
-      </div>
-
-<div
-  className="
-    grid
-    grid-cols-1
-    md:grid-cols-2
-    xl:grid-cols-4
-    2xl:grid-cols-8
-    gap-4
-"
->
-
-  <StatCard
-    title="Comisión Confirmada"
-    value={`$${Number(
-      summary?.totalCommission || 0
-    ).toLocaleString("es-CL")}`}
-  />
-
-  <StatCard
-    title="Movimientos"
-    value={
-      summary?.transactions || 0
-    }
-  />
-
-  <StatCard
-    title="Registros Ledger"
-    value={ledger.length}
-  />
-
-<StatCard
-  title="Total Ledger"
-
-  value={`$${filteredLedger
-    .reduce(
-
-      (sum:any,item:any)=>
-
-        sum+
-        Math.abs(
-          Number(
-            item.amount_clp||0
-          )
-        ),
-
-      0
-
-    )
-    .toLocaleString("es-CL")}`}
-/>
-
-<StatCard
-  title="Wallet Generado"
-  value={`$${Number(
-    wallet?.generated ?? 0
-  ).toLocaleString("es-CL")}`}
-/>
-
-<StatCard
-  title="Disponible"
-  value={`$${Number(
-    wallet?.available ?? 0
-  ).toLocaleString("es-CL")}`}
-/>
-
-<StatCard
-  title="Pagado"
-  value={`$${Number(
-    wallet?.paid ?? 0
-  ).toLocaleString("es-CL")}`}
-/>
-
-<StatCard
-  title="Pendiente"
-  value={`$${Number(
-    wallet?.pending ?? 0
-  ).toLocaleString("es-CL")}`}
-/>
-
-<StatCard
-  title="Ventas Totales"
-  value={`$${totalSalesAmount.toLocaleString("es-CL")}`}
-/>
-
-<StatCard
-  title="Ticket Promedio"
-  value={`$${averageTicket.toLocaleString("es-CL")}`}
-/>
-
-<StatCard
-  title="Pagos Exitosos"
-  value={`${paymentSummary.successful}/${paymentSummary.total}`}
-/>
-
-<StatCard
-  title="Pendientes"
-  value={paymentSummary.pending}
-/>
-
-<StatCard
-  title="Fallidos"
-  value={paymentSummary.failed}
-/>
-
-<div
-  className="
-    bg-slate-900
-    border
-    border-slate-800
-    rounded-3xl
-    p-6
-  "
->
-
-<h2 className="text-xl font-semibold mb-4">
-
-Solicitar retiro
-
-</h2>
-
-<button
-
-disabled={
-requesting ||
-Number(wallet?.available ?? 0)<=0
-}
-
-className={
-
-`px-4 py-3 rounded-xl ${
-requesting ||
-Number(wallet?.available ?? 0)<=0
-?
-"bg-slate-700 cursor-not-allowed"
-:
-"bg-emerald-600"
-}`
-
-}
-
-onClick={async()=>{
-
-try{
-
-setRequesting(true)
-
-const response=
-
+const res=
 await fetch(
-
-`/api/admin/raffles/affiliates/${id}/request-payout`,
-
-{
-
-method:"POST"
-
-}
-
+`/api/admin/raffles/affiliates/${id}`
 )
 
 const json=
+await res.json()
 
-await response.json()
+setData(json)
 
-if(json.success){
+setLoading(false)
 
-alert(
+}
 
-"Solicitud enviada correctamente"
+if(loading){
+
+return(
+
+<div className="p-8">
+
+Cargando...
+
+</div>
 
 )
 
 }
 
-else{
+return(
 
-alert(
+<div className="space-y-8 p-8">
 
-json.error
+{/* HEADER */}
 
-??
-
-"Error"
-
-)
-
-}
-
-await load()
-
-}
-
-finally{
-
-setRequesting(false)
-
-}
-
-}}
-
->
-
-{
-
-requesting
-
-?
-
-"Procesando..."
-
-:
-
-"💰 Solicitar retiro"
-
-}
-
-</button>
-
-<div className="mt-3 text-sm text-slate-400">
-
-Saldo disponible:
-
-<strong>
-
-{" "}
-
-${Number(
-
-wallet?.available??0
-
-).toLocaleString("es-CL")}
-
-</strong>
-
-</div>
-
-</div>
-
-</div>
-
-<div
-  className="
-    grid
-    grid-cols-1
-    xl:grid-cols-3
-    gap-6
-  "
->
-
-  <div
-    className="
-      bg-emerald-950/40
-      border
-      border-emerald-700
-      rounded-3xl
-      p-6
-    "
-  >
-
-    <h2 className="text-xl font-semibold mb-4">
-      Última venta registrada
-    </h2>
-
-    {
-
-      lastSale
-
-      ? (
-
-        <div className="space-y-2">
-
-          <div>
-
-<strong>Cliente:</strong>{" "}
-
-{lastSale.buyerName}
-
-<div className="text-xs text-slate-400 mt-1">
-
-{lastSale.buyerEmail}
-
-</div>
-
-</div>
-
-          <div>
-
-            <strong>Email:</strong>{" "}
-            {lastSale.buyerEmail}
-
-          </div>
-
-          <div>
-
-<strong>Monto:</strong>{" "}
-
-${Number(
-lastSale.total ?? 0
-).toLocaleString("es-CL")}
-
-<div className="text-xs text-slate-400 mt-1">
-
-{lastSale.quantity}
-
-{lastSale.quantity===1
-? " ticket"
-: " tickets"}
-
-</div>
-
-</div>
-
-          <div>
-
-<strong>Fecha:</strong>
-
-<div className="mt-1">
-
-{
-
-lastSale.paymentCreatedAt
-
-?
-
-new Date(
-lastSale.paymentCreatedAt
-).toLocaleDateString("es-CL")
-
-:
-
-new Date(
-lastSale.createdAt
-).toLocaleDateString("es-CL")
-
-}
-
-</div>
-
-<div className="text-xs text-slate-400">
-
-{
-
-lastSale.paymentCreatedAt
-
-?
-
-new Date(
-lastSale.paymentCreatedAt
-).toLocaleTimeString("es-CL")
-
-:
-
-new Date(
-lastSale.createdAt
-).toLocaleTimeString("es-CL")
-
-}
-
-</div>
-
-</div>
-
-        </div>
-
-      )
-
-      :
-
-      (
-
-        <div className="text-slate-400">
-
-          Sin ventas registradas
-
-        </div>
-
-      )
-
-    }
-
-  </div>
-
-  <div
-    className="
-      bg-slate-900
-      border
-      border-slate-800
-      rounded-3xl
-      p-6
-    "
-  >
-
-    <h2 className="text-xl font-semibold mb-4">
-
-      Evolución de Comisiones
-
-    </h2>
-
-    {
-
-      chartData.length === 0
-
-      ? (
-
-        <div className="text-slate-500">
-
-          Sin datos disponibles
-
-        </div>
-
-      )
-
-      : (
-
-        <div className="space-y-2">
-
-          {
-
-            chartData.slice(-10).map((item:any,index:number)=>(
-
-              <div
-                key={index}
-                className="
-                  flex
-                  justify-between
-                  border-b
-                  border-slate-800
-                  py-2
-                "
-              >
-
-                <span>
-
-                  {
-
-                    item.date
-
-                    ? new Date(
-                        item.date
-                      ).toLocaleDateString("es-CL")
-
-                    : "-"
-
-                  }
-
-                </span>
-
-                <span className="font-semibold">
-
-                  $
-
-                  {Number(
-                    item.amount || 0
-                  ).toLocaleString("es-CL")}
-
-                </span>
-
-              </div>
-
-            ))
-
-          }
-
-        </div>
-
-      )
-
-    }
-
-  </div>
-
-</div>
-  
-      <div
-        className="
-          bg-slate-900
-          border
-          border-slate-800
-          rounded-3xl
-          p-6
-        "
-      >
-
-        <div
-  className="
-    grid
-    grid-cols-1
-    xl:grid-cols-2
-    gap-6
-    items-start
-  "
->
-
-          <div>
-
-            <h2 className="text-xl font-semibold">
-
-              Información
-
-            </h2>
-
-            <div className="mt-4 space-y-3">
-
-              <div>
-
-                <span className="text-slate-400">
-
-                  Código
-
-                </span>
-
-                <div>
-
-                  {dashboard?.affiliate?.code ?? "-"}
-
-                </div>
-
-              </div>
-
-              <div>
-
-                <span className="text-slate-400">
-
-                  Email
-
-                </span>
-
-                <div>
-
-                  {dashboard?.affiliate?.email ?? "-"}
-
-                </div>
-
-              </div>
-
-              <div>
-
-                <span className="text-slate-400">
-
-                  Comisión
-
-                </span>
-
-                <div>
-
-                  {dashboard?.affiliate?.commissionPercent ?? 0}%
-
-                </div>
-
-              </div>
-
-              <div>
-
-  <span className="text-slate-400">
-
-    Sorteo asignado
-
-  </span>
-
-  <div>
-
-    {
-
-      dashboard?.affiliate?.raffle
-
-      ?
-
-      dashboard.affiliate.raffle.title
-
-      :
-
-      "Todos"
-
-    }
-
-  </div>
-
-</div>
-
-{
-
-dashboard?.affiliate?.raffle && (
+<div className="flex items-center justify-between">
 
 <div>
 
-<span className="text-slate-400">
+<h1 className="text-4xl font-bold">
 
-Slug
+Influencer
+
+</h1>
+
+<p className="text-slate-400 mt-2">
+
+{data?.affiliate?.owner_name}
+
+</p>
+
+</div>
+
+<div>
+
+<span
+className={
+data?.affiliate?.active
+?
+"px-4 py-2 rounded-full bg-emerald-600"
+:
+"px-4 py-2 rounded-full bg-red-600"
+}
+>
+
+{
+
+data?.affiliate?.active
+
+?
+
+"Activo"
+
+:
+
+"Inactivo"
+
+}
 
 </span>
 
-<div className="font-mono text-sm">
-
-/raffles/
-
-{dashboard.affiliate.raffle.slug}
-
 </div>
 
 </div>
 
-)
+{/* TARJETAS */}
+
+<div className="grid xl:grid-cols-4 gap-5">
+
+<Card
+title="Código"
+value={
+data?.affiliate?.code
 }
+/>
 
-              <div>
+<Card
+title="Comisión"
+value={`${data?.affiliate?.commissionPercent}%`}
+/>
 
-                <span className="text-slate-400">
+<Card
+title="Clicks"
+value={
+data?.stats?.clicks
+}
+/>
 
-                  Estado
+<Card
+title="Ventas"
+value={
+data?.stats?.paidOrders
+}
+/>
 
-                </span>
+<Card
+title="Revenue"
+value={`$${Number(
+data?.stats?.revenue??0
+).toLocaleString("es-CL")}`}
+/>
 
-                <div>
+<Card
+title="Comisión Generada"
+value={`$${Number(
+data?.wallet?.generated??0
+).toLocaleString("es-CL")}`}
+/>
 
-                  {dashboard?.affiliate?.active
-                    ? "🟢 Activo"
-                    : "🔴 Inactivo"}
+<Card
+title="Disponible"
+value={`$${Number(
+data?.wallet?.available??0
+).toLocaleString("es-CL")}`}
+/>
 
-                </div>
-
-              </div>
-
-<hr className="my-4 border-slate-800" />
-
-<div>
-
-  <span className="text-slate-400">
-
-    Enlace del Influencer
-
-  </span>
-
-  <div className="mt-2 break-all text-sm">
-
-    {`${window.location.origin}/raffles?aff=${dashboard?.affiliate?.code ?? ""}`}
-
-  </div>
-
-</div>
-
-<div className="flex flex-wrap gap-2 mt-3">
-
-  <button
-
-    onClick={() => {
-
-      navigator.clipboard.writeText(
-
-        dashboard?.affiliate?.code ?? ""
-
-      )
-
-    }}
-
-    className="px-3 py-2 rounded-lg bg-slate-800"
-
-  >
-
-    📋 Copiar código
-
-  </button>
-
-  <button
-
-    onClick={() => {
-
-      navigator.clipboard.writeText(
-
-`${window.location.origin}/raffles?aff=${dashboard?.affiliate?.code ?? ""}`
-
-)
-
-    }}
-
-    className="px-3 py-2 rounded-lg bg-slate-800"
-
-  >
-
-    🔗 Copiar enlace
-
-  </button>
-
-  <button
-
-    onClick={() => {
-
-      window.open(
-
-`${window.location.origin}/raffles?aff=${dashboard?.affiliate?.code ?? ""}`,
-
-"_blank"
-
-)
-
-    }}
-
-    className="px-3 py-2 rounded-lg bg-emerald-600"
-
-  >
-
-    🚀 Abrir enlace
-
-  </button>
+<Card
+title="Pagado"
+value={`$${Number(
+data?.wallet?.paid??0
+).toLocaleString("es-CL")}`}
+/>
 
 </div>
 
-            </div>
-
-          </div>
-
-          <div>
-
-            <h2 className="text-xl font-semibold">
-
-              Estadísticas
-
-            </h2>
-
-            <div className="mt-4 space-y-3">
-
-              <div>
-
-                Clicks:
-                {" "}
-                {dashboard?.stats?.clicks ?? 0}
-
-              </div>
-
-              <div>
-
-                Begin Checkout:
-                {" "}
-                {dashboard?.stats?.beginCheckout ?? 0}
-
-              </div>
-
-              <div>
-
-                Órdenes:
-                {" "}
-                {dashboard?.stats?.orders ?? 0}
-
-              </div>
-
-              <div>
-
-  Conversión:
-  {" "}
-
-  {
-
-    Number(
-      dashboard?.stats?.clicks || 0
-    ) > 0
-
-      ? (
-
-          (
-            Number(
-              dashboard?.stats?.paidOrders || 0
-            ) /
-
-            Number(
-              dashboard?.stats?.clicks || 1
-            )
-
-          ) * 100
-
-        ).toFixed(2)
-
-      : "0"
-
-  }
-
-  %
-
-</div>
-
-              <div>
-
-                Pagadas:
-                {" "}
-                {dashboard?.stats?.paidOrders ?? 0}
-
-              </div>
-
-              <div>
-
-                Revenue:
-                {" "}
-                $
-                {Number(
-                  dashboard?.stats?.revenue ?? 0
-                ).toLocaleString("es-CL")}
-
-              </div>
-
-              <div>
-
-                Comisión estimada:
-                {" "}
-                $
-                {Number(
-                  dashboard?.stats?.estimatedCommission ?? 0
-                ).toLocaleString("es-CL")}
-
-              </div>
-
-              <div>
-
-                Comisión pagada:
-                {" "}
-                $
-                {Number(
-                  dashboard?.stats?.paidCommission ?? 0
-                ).toLocaleString("es-CL")}
-
-              </div>
-
-            </div>
-
-                    </div>
-
-        </div>
-
-      </div>
+{/* INFORMACIÓN */}
 
 <div
-  className="
-    bg-slate-900
-    border
-    border-slate-800
-    rounded-3xl
-    p-6
-    overflow-hidden
-  "
->
+className="
+rounded-3xl
+border
+border-slate-800
+bg-slate-900
+p-8
+space-y-6
+">
 
-  <div
-    className="
-      flex
-      flex-col
-      md:flex-row
-      md:justify-between
-      md:items-center
-      gap-4
-      mb-5
-    "
-  >
+<h2 className="text-2xl font-semibold">
 
-    <div>
-
-<h2 className="text-xl font-semibold">
-
-Ventas atribuidas
+Información
 
 </h2>
 
-<div className="text-sm text-slate-400 mt-1">
-
-Historial completo de conversiones atribuidas al influencer
-
-</div>
-
-</div>
-
-    <div
-className="
-flex
-items-center
-gap-3
-flex-wrap
-"
->
-
-<div
-className="
-text-sm
-text-slate-400
-"
->
-
-Mostrando
-
-{" "}
-
-<strong>
-
-{filteredSales.length}
-
-</strong>
-
-{" "}
-
-de
-
-{" "}
-
-<strong>
-
-{sales.length}
-
-</strong>
-
-ventas
-
-</div>
-
-<button
-type="button"
-title="Exportar ventas filtradas"
-onClick={exportSalesCsv}
-disabled={filteredSales.length===0}
-className="
-px-4
-py-2
-rounded-xl
-bg-emerald-600
-hover:bg-emerald-500
-transition-colors
-disabled:bg-slate-700
-disabled:hover:bg-slate-700
-"
->
-
-Exportar CSV
-
-</button>
-
-</div>
-
-  </div>
-
-  <div
-className="
-grid
-grid-cols-1
-lg:grid-cols-[1fr_auto]
-gap-4
-mb-5
-"
->
-
-<input
-
-value={searchSales}
-
-onChange={(e)=>
-
-setSearchSales(
-e.target.value
-)
-
-}
-
-placeholder="Buscar cliente, email o referencia..."
-
-className="
-w-full
-bg-slate-950
-border
-border-slate-700
-rounded-2xl
-px-4
-py-3
-"
-
+<Row
+label="Código"
+value={data?.affiliate?.code}
 />
 
-<button
+<Row
+label="Email"
+value={data?.affiliate?.email}
+/>
 
-type="button"
+<Row
+label="Comisión"
+value={`${data?.affiliate?.commissionPercent}%`}
+/>
 
-title="Limpiar filtro"
-
-onClick={()=>
-setSearchSales("")
+<Row
+label="Estado"
+value={
+data?.affiliate?.active
+?
+"Activo"
+:
+"Inactivo"
 }
+/>
 
-disabled={!searchSales}
-
-className="
-px-5
-py-3
-rounded-2xl
-bg-slate-800
-hover:bg-slate-700
-transition-colors
-disabled:bg-slate-900
-disabled:text-slate-600
-disabled:hover:bg-slate-900
-"
->
-
-Limpiar búsqueda
-
-</button>
-
-</div>
-
-  <div
-  className="
-    overflow-x-auto
-    rounded-2xl
-    border
-    border-slate-800
-  "
->
-
-    <table className="min-w-full text-sm">
-
-      <thead
-  className="
-    bg-slate-950/70
-    sticky
-    top-0
-    z-10
-  "
->
-
-<tr className="border-b border-slate-800">
-
-          <th className="text-left py-3 px-4">
-Cliente
-</th>
-
-          <th className="text-left">Email</th>
-
-          <th className="text-center w-[90px]">
-Tickets
-</th>
-
-          <th className="text-right w-[140px]">
-Monto
-</th>
-
-          <th className="text-center w-[140px]">
-Estado Pago
-</th>
-
-          <th className="text-center w-[120px]">
-Proveedor
-</th>
-
-          <th className="text-left w-[220px]">
-Referencia
-</th>
-
-          <th className="text-center w-[140px]">
-Estado Orden
-</th>
-
-          <th className="text-left w-[170px]">
-Fecha
-</th>
-
-          <th className="text-center w-[120px]">
-Acciones
-</th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-        {
-
-          filteredSales.length===0
-
-          &&
-
-          <tr>
-
-            <td
-              colSpan={10}
-              className="py-8 text-center text-slate-500"
-            >
-
-              Sin ventas todavía
-
-            </td>
-
-          </tr>
-
-        }
-
-        {
-
-          filteredSales.map((sale:any)=>(
-
-            <tr
-              key={sale.id}
-              className="border-b border-slate-800"
-            >
-
-             <td className="py-3 px-4 whitespace-nowrap">
-
-<div className="font-medium">
-
-{sale.buyerName ?? "-"}
-
-</div>
-
-<div className="text-xs text-slate-500">
-
-#{sale.id.slice(0,8)}
-
-</div>
-
-</td>
-
-              <td className="whitespace-nowrap text-sm">
+<Row
+label="Sorteo"
+value={
+data?.affiliate?.raffle?.title
+??
+"Todos"
+}
+/>
 
 <div>
 
-{sale.buyerEmail ?? "-"}
+<div className="text-slate-400 mb-2">
+
+Enlace
 
 </div>
 
-{
+<div className="font-mono break-all">
 
-sale.buyerPhone && (
-
-<div className="text-xs text-slate-500 mt-1">
-
-📞 {sale.buyerPhone}
+{`${window.location.origin}/raffles?aff=${data?.affiliate?.code}`}
 
 </div>
 
-)
-
-}
-
-</td>
-
-              <td className="text-center">
-
-<div
-className="
-inline-flex
-items-center
-justify-center
-min-w-[48px]
-h-8
-px-3
-rounded-full
-bg-slate-800
-font-semibold
-text-sm
-"
->
-
-{sale.quantity}
-
 </div>
 
-</td>
-
-              <td className="text-right whitespace-nowrap">
-
-<div className="font-semibold text-emerald-400">
-
-$
-
-{Number(
-sale.total
-).toLocaleString("es-CL")}
-
-</div>
-
-<div className="text-xs text-slate-500 mt-1">
-
-{sale.quantity}
-
-{sale.quantity===1
-? " ticket"
-: " tickets"}
-
-</div>
-
-</td>
-
-             <td className="text-center">
-
-<span
-className={`
-px-2
-py-1
-rounded-full
-text-xs
-font-medium
-
-${
-sale.paymentStatus==="paid" ||
-
-sale.paymentStatus==="approved"
-
-? "bg-emerald-900 text-emerald-300"
-
-: sale.paymentStatus==="pending"
-
-? "bg-amber-900 text-amber-300"
-
-: sale.paymentStatus==="failed"
-
-? "bg-red-900 text-red-300"
-
-: "bg-slate-800 text-slate-300"
-
-}
-`}
->
-
-{sale.paymentStatus ?? "-"}
-
-</span>
-
-</td>
-
-              <td className="text-center">
-
-<span
-className="
-inline-flex
-items-center
-justify-center
-px-3
-h-8
-rounded-full
-bg-slate-800
-text-xs
-font-medium
-uppercase
-"
->
-
-{sale.paymentProvider ?? "-"}
-
-</span>
-
-</td>
-
-              <td
-className="
-font-mono
-text-xs
-max-w-[220px]
-px-2
-"
-title={sale.paymentReference ?? ""}
->
-
-<div
-className="
-truncate
-font-medium
-text-slate-200
-"
->
-
-{sale.paymentReference ?? "-"}
-
-</div>
-
-{
-
-sale.paymentReference && (
-
-<div
-className="
-text-xs
-text-slate-500
-flex
-justify-between
-mt-1
-"
->
-
-<span>
-
-...
-
-{sale.paymentReference.slice(-8)}
-
-</span>
-
-<span>
-
-{sale.paymentReference.length}
-
-car.
-
-</span>
-
-</div>
-
-)
-
-}
-
-</td>
-
-              <td className="text-center">
-
-<span
-className={`
-px-2
-py-1
-rounded-full
-text-xs
-font-medium
-
-${
-sale.orderStatus==="paid"
-
-? "bg-emerald-900 text-emerald-300"
-
-: sale.orderStatus==="pending"
-
-? "bg-amber-900 text-amber-300"
-
-: sale.orderStatus==="cancelled"
-
-? "bg-red-900 text-red-300"
-
-: sale.orderStatus==="expired"
-
-? "bg-slate-700 text-slate-300"
-
-: "bg-slate-800 text-slate-300"
-
-}
-`}
->
-
-{sale.orderStatus}
-
-</span>
-
-</td>
-
-              <td className="whitespace-nowrap">
-
-<div className="font-medium">
-
-{
-
-sale.paymentCreatedAt
-
-?
-
-new Date(
-sale.paymentCreatedAt
-).toLocaleDateString("es-CL")
-
-:
-
-sale.createdAt
-
-?
-
-new Date(
-sale.createdAt
-).toLocaleDateString("es-CL")
-
-:
-
-"-"
-
-}
-
-</div>
-
-<div className="text-xs text-slate-500">
-
-{
-
-sale.paymentCreatedAt
-
-?
-
-new Date(
-sale.paymentCreatedAt
-).toLocaleTimeString("es-CL")
-
-:
-
-sale.createdAt
-
-?
-
-new Date(
-sale.createdAt
-).toLocaleTimeString("es-CL")
-
-:
-
-""
-
-}
-
-</div>
-
-</td>
-
-              <td className="text-center">
-
-                <div
-className="
-flex
-gap-2
-justify-center
-items-center
-flex-wrap
-"
->
+<div className="flex gap-3">
 
 <button
-
-type="button"
-
-title="Copiar ID de la orden"
-
-onClick={() => {
+className="px-5 py-3 rounded-xl bg-slate-800"
+onClick={()=>{
 
 navigator.clipboard.writeText(
-sale.id
-)
-
-alert(
-"ID de orden copiado"
+data?.affiliate?.code
 )
 
 }}
-
-className="
-px-3
-py-1
-rounded-lg
-bg-slate-800
-hover:bg-slate-700
-transition-colors
-text-xs
-"
-
 >
 
-ID
+Copiar código
 
 </button>
 
-{
-
-sale.paymentReference && (
-
 <button
-
-type="button"
-
-title="Copiar referencia del pago"
-
-onClick={() => {
+className="px-5 py-3 rounded-xl bg-slate-800"
+onClick={()=>{
 
 navigator.clipboard.writeText(
-sale.paymentReference
-)
-
-alert(
-"Referencia copiada"
+`${window.location.origin}/raffles?aff=${data?.affiliate?.code}`
 )
 
 }}
-
-className="
-px-3
-py-1
-rounded-lg
-bg-emerald-700
-hover:bg-emerald-600
-transition-colors
-text-xs
-"
-
 >
 
-Ref
+Copiar enlace
 
 </button>
 
+<button
+className="px-5 py-3 rounded-xl bg-emerald-600"
+onClick={()=>{
+
+window.open(
+`${window.location.origin}/raffles?aff=${data?.affiliate?.code}`
 )
 
-}
-
-</div>
-
-              </td>
-
-            </tr>
-
-          ))
-
-        }
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</div>
-
-      <div
-  className="
-    bg-slate-900
-    border
-    border-slate-800
-    rounded-3xl
-    p-6
-  "
+}}
 >
 
-<div className="flex items-center justify-between mb-4">
+Abrir enlace
 
-  <h2 className="text-xl font-semibold">
-    Movimientos Ledger
-  </h2>
-
-  <button
-    type="button"
-    onClick={() =>
-      setShowLedger(!showLedger)
-    }
-    className="
-      px-3
-      py-2
-      rounded-xl
-      bg-slate-800
-      hover:bg-slate-700
-      text-sm
-    "
-  >
-    {
-      showLedger
-        ? "Ocultar"
-        : "Mostrar"
-    }
-  </button>
+</button>
 
 </div>
 
-<input
+</div>
 
-  value={searchLedger}
+{/* WALLET */}
 
-  onChange={(e) =>
-    setSearchLedger(
-      e.target.value
-    )
-  }
+<div
+className="
+rounded-3xl
+border
+border-slate-800
+bg-slate-900
+p-8
+">
 
-  placeholder="Buscar movimiento..."
+<h2 className="text-2xl font-semibold mb-6">
 
-  className="
-    w-full
-    mb-4
-    bg-slate-950
-    border
-    border-slate-700
-    rounded-2xl
-    px-4
-    py-3
-  "
+Wallet del Influencer
 
+</h2>
+
+<div className="grid xl:grid-cols-4 gap-5">
+
+<Card
+title="Generado"
+value={`$${Number(
+data?.wallet?.generated??0
+).toLocaleString("es-CL")}`}
 />
 
-        {
+<Card
+title="Disponible"
+value={`$${Number(
+data?.wallet?.available??0
+).toLocaleString("es-CL")}`}
+/>
 
-!showLedger
+<Card
+title="Pendiente"
+value={`$${Number(
+data?.wallet?.pending??0
+).toLocaleString("es-CL")}`}
+/>
 
-? (
+<Card
+title="Pagado"
+value={`$${Number(
+data?.wallet?.paid??0
+).toLocaleString("es-CL")}`}
+/>
 
-<div className="text-slate-500">
+</div>
 
-Tabla oculta
+</div>
+
+{/* LEDGER */}
+
+<div
+className="
+rounded-3xl
+border
+border-slate-800
+bg-slate-900
+overflow-hidden
+">
+
+<div className="p-6 text-2xl font-semibold">
+
+Ledger
+
+</div>
+
+<table className="w-full">
+
+<thead>
+
+<tr className="border-b border-slate-800">
+
+<th className="text-left p-4">
+
+Tipo
+
+</th>
+
+<th className="text-left">
+
+Monto
+
+</th>
+
+<th className="text-left">
+
+Fecha
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{
+
+(data?.ledger??[]).map((item:any)=>(
+
+<tr
+key={item.id}
+className="border-b border-slate-800"
+>
+
+<td className="p-4">
+
+{item.type}
+
+</td>
+
+<td>
+
+${Number(
+item.amount_clp
+).toLocaleString("es-CL")}
+
+</td>
+
+<td>
+
+{
+
+new Date(
+item.created_at
+).toLocaleString("es-CL")
+
+}
+
+</td>
+
+</tr>
+
+))
+
+}
+
+</tbody>
+
+</table>
+
+</div>
 
 </div>
 
 )
 
-:
+}
 
-ledger.length===0
+function Card({
 
-? (
+title,
 
-          <div className="text-slate-500">
-            Sin movimientos registrados
-          </div>
+value
 
-        ) : (
+}:any){
 
-          <div
-  className="
-    overflow-x-auto
-    rounded-2xl
-    border
-    border-slate-800
-  "
->
+return(
 
-            <table className="w-full">
+<div
+className="
+rounded-3xl
+bg-slate-900
+border
+border-slate-800
+p-6
+">
 
-              <thead
-  className="
-    bg-slate-950/70
-    sticky
-    top-0
-    z-10
-  "
->
+<div className="text-slate-400">
 
-                <tr className="border-b border-slate-800">
+{title}
 
-                  <th className="text-left py-2">
-                    Tipo
-                  </th>
+</div>
 
-                  <th className="text-left py-2">
-                    Monto
-                  </th>
+<div className="text-3xl font-bold mt-4">
 
-                  <th className="text-left py-2">
-                    Fecha
-                  </th>
+{value}
 
-                </tr>
+</div>
 
-              </thead>
+</div>
 
-              <tbody>
-
-                {filteredLedger.map((item: any) => (
-
-                  <tr
-                    key={item.id}
-                    className="border-b border-slate-800"
-                  >
-
-                    <td className="py-3">
-                      {item.type}
-                    </td>
-
-                    <td className="py-3">
-                      $
-                      {Number(
-                        item.amount_clp ?? 0
-                      ).toLocaleString("es-CL")}
-                    </td>
-
-                    <td className="py-3">
-                      {item.created_at
-                        ? new Date(
-                            item.created_at
-                          ).toLocaleString()
-                        : "-"}
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        )}
-
-      </div>
-
-  </div>
-
-  )
+)
 
 }
 
-function StatCard({
+function Row({
 
-  title,
+label,
 
-  value
+value
 
-}: any) {
+}:any){
 
-  return (
+return(
 
-    <div
-      className="
-        bg-slate-900
-        border
-        border-slate-800
-        rounded-3xl
-        p-5
-      "
-    >
+<div>
 
-      <div className="text-slate-400 text-sm">
-        {title}
-      </div>
+<div className="text-slate-400">
 
-      <div className="text-3xl font-bold mt-3">
-        {value}
-      </div>
+{label}
 
-    </div>
+</div>
 
-  )
+<div className="mt-1">
+
+{value}
+
+</div>
+
+</div>
+
+)
 
 }
