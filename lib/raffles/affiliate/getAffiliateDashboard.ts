@@ -70,8 +70,13 @@ const { data: affiliateOrders } =
     .from("orders")
     .select(`
       id,
+      buyer_name,
+      buyer_email,
+      buyer_phone,
+      quantity,
       total_clp,
       status,
+      created_at,
       metadata
     `)
 
