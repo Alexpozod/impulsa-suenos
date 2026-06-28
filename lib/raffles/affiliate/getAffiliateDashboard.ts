@@ -278,6 +278,13 @@ const paymentMap =
     )
   )
 
+  const successfulPayments =
+  (affiliatePayments || []).filter(
+    payment =>
+      payment.status === "paid" ||
+      payment.status === "approved"
+  )
+
   const sales =
   orders
     .sort((a, b) => {
@@ -417,7 +424,29 @@ lastSale,
 sales,
 
 generatedAt:
-  new Date().toISOString()
+  new Date().toISOString(),
+
+paymentSummary: {
+
+  total:
+    affiliatePayments?.length ?? 0,
+
+  successful:
+    successfulPayments.length,
+
+  pending:
+    (affiliatePayments || []).filter(
+      payment =>
+        payment.status === "pending"
+    ).length,
+
+  failed:
+    (affiliatePayments || []).filter(
+      payment =>
+        payment.status === "failed"
+    ).length
+
+}
 
   }
 
