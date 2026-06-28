@@ -157,7 +157,9 @@ const filteredSales =
       .map(
         row =>
           row
-            .map(value => `"${String(value ?? "").replace(/"/g,'""')}"`)
+            .map((value: string | number | null | undefined) =>
+  `"${String(value ?? "").replace(/"/g, '""')}"`
+)
             .join(",")
       )
       .join("\n")
