@@ -255,46 +255,111 @@ export default function AffiliateDetailPage() {
 
         <tbody>
 
-         <tr>
+  {[
+    {
+      buyer: "Carlos Morales",
+      email: "carlos@email.com",
+      phone: "+56 9 1111 1111",
+      raffle: "iPhone 17 Pro",
+      tickets: 3,
+      total: "$30.000",
+      commission: "$3.000",
+      status: "Pagado",
+      date: "27/06/2026",
+    },
+    {
+      buyer: "María Soto",
+      email: "maria@email.com",
+      phone: "+56 9 2222 2222",
+      raffle: "PlayStation 6",
+      tickets: 1,
+      total: "$10.000",
+      commission: "$1.000",
+      status: "Pendiente",
+      date: "28/06/2026",
+    },
+    {
+      buyer: "Pedro Rojas",
+      email: "pedro@email.com",
+      phone: "+56 9 3333 3333",
+      raffle: "Viaje Europa",
+      tickets: 5,
+      total: "$50.000",
+      commission: "$5.000",
+      status: "Pagado",
+      date: "28/06/2026",
+    },
+  ].map((sale, index) => (
 
-            <td
-                colSpan={9}
-                className="py-20 text-center"
-            >
+    <tr
+      key={index}
+      className="border-b border-white/5 hover:bg-white/5 transition-colors"
+    >
 
-              <div className="flex flex-col items-center gap-4">
+      <td className="py-4">
+        {sale.date}
+      </td>
 
-                <div className="text-5xl">
-                  🧾
-                </div>
+      <td className="font-medium">
+        {sale.buyer}
+      </td>
 
-                <div className="space-y-2">
+      <td>
+        {sale.email}
+      </td>
 
-                  <h3 className="text-lg font-semibold">
+      <td>
+        {sale.phone}
+      </td>
 
-                    Todavía no existen compras
-                    atribuidas a este influencer.
+      <td>
+        {sale.raffle}
+      </td>
 
-                  </h3>
+      <td className="text-center">
+        {sale.tickets}
+      </td>
 
-                  <p className="text-muted-foreground max-w-md">
+      <td className="font-medium">
+        {sale.total}
+      </td>
 
-                    Cuando un cliente compre utilizando
-                    su código comercial o su enlace de
-                    seguimiento, el historial aparecerá
-                    automáticamente aquí.
+      <td className="text-green-400 font-medium">
+        {sale.commission}
+      </td>
 
-                  </p>
+      <td>
 
-                </div>
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            sale.status === "Pagado"
+              ? "bg-green-500/15 text-green-400 border border-green-500/30"
+              : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+          }`}
+        >
+          {sale.status}
+        </span>
 
-              </div>
+      </td>
 
-            </td>
+      <td className="text-center">
 
-          </tr>
+        <button
+          onClick={() => setBuyerModalOpen(true)}
+          className="rounded-lg border p-2 hover:bg-white/5"
+        >
 
-        </tbody>
+          <Eye className="w-4 h-4" />
+
+        </button>
+
+      </td>
+
+    </tr>
+
+  ))}
+
+</tbody>
 
       </table>
 
