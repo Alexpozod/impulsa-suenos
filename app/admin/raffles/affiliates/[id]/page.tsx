@@ -117,16 +117,8 @@ export default function AffiliateDetailPage() {
 
       </button>
 
-      <button
-  onClick={() => setBuyerModalOpen(true)}
-  className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
->
-
-  <Eye className="w-4 h-4" />
-
-  Ver Modal
-
-</button>
+      {/* Botón temporal eliminado.
+   El modal se abrirá desde la tabla de compras. */}
 
     </div>
 
@@ -406,20 +398,38 @@ function Card({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border p-5">
+    <div className="rounded-xl border p-5 hover:border-white/30 transition-colors">
 
-      <div className="flex justify-between items-center">
+      <div className="flex items-start justify-between">
 
-        <div className="text-sm text-muted-foreground">
-          {title}
+        <div>
+
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+
+            {title}
+
+          </div>
+
+          <div className="text-3xl font-bold mt-3">
+
+            {value}
+
+          </div>
+
         </div>
 
-        {icon}
+        <div className="text-muted-foreground">
+
+          {icon}
+
+        </div>
 
       </div>
 
-      <div className="text-2xl font-bold mt-4">
-        {value}
+      <div className="mt-4 h-1 rounded-full bg-white/10 overflow-hidden">
+
+        <div className="h-full w-0 bg-green-500 rounded-full" />
+
       </div>
 
     </div>
