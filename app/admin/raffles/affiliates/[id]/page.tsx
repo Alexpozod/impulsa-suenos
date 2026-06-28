@@ -22,43 +22,89 @@ export default function AffiliateDetailPage() {
 
       {/* Header */}
 
-      <div className="flex items-start justify-between">
+      <div className="space-y-5">
+
+  <Link
+    href="/admin/raffles/affiliates"
+    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white"
+  >
+    <ArrowLeft className="h-4 w-4" />
+    Volver
+  </Link>
+
+  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+    <div className="space-y-3">
+
+      <div className="flex items-center gap-3">
+
+        <h1 className="text-4xl font-bold">
+          Influencer
+        </h1>
+
+        <span className="rounded-full bg-green-500/15 text-green-400 px-3 py-1 text-xs font-semibold border border-green-500/30">
+          ACTIVO
+        </span>
+
+      </div>
+
+      <div className="text-lg font-semibold">
+        --
+      </div>
+
+      <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
 
         <div>
 
-          <Link
-            href="/admin/raffles/affiliates"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white mb-5"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver
-          </Link>
-
-          <h1 className="text-3xl font-bold">
-            Influencer
-          </h1>
-
-          <p className="text-muted-foreground mt-2">
-            ID: {affiliateId}
-          </p>
+          <span className="font-medium text-white">
+            Código:
+          </span>{" "}
+          --
 
         </div>
 
-        <div className="flex gap-3">
+        <div>
 
-          <button className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5">
-            <Copy className="w-4 h-4" />
-            Copiar Código
-          </button>
-
-          <button className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5">
-            <Copy className="w-4 h-4" />
-            Copiar Link
-          </button>
+          <span className="font-medium text-white">
+            Comisión:
+          </span>{" "}
+          --
 
         </div>
 
       </div>
+
+      <div className="font-mono text-sm text-sky-400 break-all">
+
+        https://impulsasuenos.com/r/--
+
+      </div>
+
+    </div>
+
+    <div className="flex flex-wrap gap-3">
+
+      <button className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5">
+
+        <Copy className="w-4 h-4" />
+
+        Copiar Código
+
+      </button>
+
+      <button className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5">
+
+        <Copy className="w-4 h-4" />
+
+        Copiar Link
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
       {/* Información */}
 
