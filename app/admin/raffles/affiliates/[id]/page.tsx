@@ -1382,17 +1382,45 @@ Limpiar búsqueda
               className="border-b border-slate-800"
             >
 
-              <td className="py-3 whitespace-nowrap">
+             <td className="py-3 whitespace-nowrap">
 
-                {sale.buyerName ?? "-"}
+<div className="font-medium">
 
-              </td>
+{sale.buyerName ?? "-"}
+
+</div>
+
+<div className="text-xs text-slate-500">
+
+#{sale.id.slice(0,8)}
+
+</div>
+
+</td>
 
               <td className="whitespace-nowrap">
 
-                {sale.buyerEmail ?? "-"}
+<div>
 
-              </td>
+{sale.buyerEmail ?? "-"}
+
+</div>
+
+{
+
+sale.buyerPhone && (
+
+<div className="text-xs text-slate-500 mt-1">
+
+📞 {sale.buyerPhone}
+
+</div>
+
+)
+
+}
+
+</td>
 
               <td className="text-center">
 
@@ -1402,19 +1430,64 @@ Limpiar búsqueda
 
               <td className="text-right whitespace-nowrap">
 
-                $
+<div className="font-semibold">
 
-                {Number(
-                  sale.total
-                ).toLocaleString("es-CL")}
+$
 
-              </td>
+{Number(
+sale.total
+).toLocaleString("es-CL")}
 
-              <td className="text-center">
+</div>
 
-                {sale.paymentStatus ?? "-"}
+<div className="text-xs text-slate-500">
 
-              </td>
+{sale.quantity}
+
+{sale.quantity===1
+? " ticket"
+: " tickets"}
+
+</div>
+
+</td>
+
+             <td className="text-center">
+
+<span
+className={`
+px-2
+py-1
+rounded-full
+text-xs
+font-medium
+
+${
+sale.paymentStatus==="paid" ||
+
+sale.paymentStatus==="approved"
+
+? "bg-emerald-900 text-emerald-300"
+
+: sale.paymentStatus==="pending"
+
+? "bg-amber-900 text-amber-300"
+
+: sale.paymentStatus==="failed"
+
+? "bg-red-900 text-red-300"
+
+: "bg-slate-800 text-slate-300"
+
+}
+`}
+>
+
+{sale.paymentStatus ?? "-"}
+
+</span>
+
+</td>
 
               <td className="text-center">
 
@@ -1438,9 +1511,42 @@ Limpiar búsqueda
 
               <td className="text-center">
 
-                {sale.orderStatus}
+<span
+className={`
+px-2
+py-1
+rounded-full
+text-xs
+font-medium
 
-              </td>
+${
+sale.orderStatus==="paid"
+
+? "bg-emerald-900 text-emerald-300"
+
+: sale.orderStatus==="pending"
+
+? "bg-amber-900 text-amber-300"
+
+: sale.orderStatus==="cancelled"
+
+? "bg-red-900 text-red-300"
+
+: sale.orderStatus==="expired"
+
+? "bg-slate-700 text-slate-300"
+
+: "bg-slate-800 text-slate-300"
+
+}
+`}
+>
+
+{sale.orderStatus}
+
+</span>
+
+</td>
 
               <td className="whitespace-nowrap">
 
