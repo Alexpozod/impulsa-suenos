@@ -1,505 +1,317 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import {
+  ArrowLeft,
+  Copy,
+  DollarSign,
+  Users,
+  ShoppingCart,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
 
 export default function AffiliateDetailPage() {
+  const params = useParams();
 
-const { id } =
-useParams()
+  const affiliateId = params.id as string;
 
-const [loading,setLoading]=
-useState(true)
+  return (
+    <div className="space-y-8">
 
-const [data,setData]=
-useState<any>(null)
+      {/* Header */}
 
-useEffect(()=>{
+      <div className="flex items-start justify-between">
 
-load()
+        <div>
 
-},[])
+          <Link
+            href="/admin/raffles/affiliates"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white mb-5"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Volver
+          </Link>
 
-async function load(){
+          <h1 className="text-3xl font-bold">
+            Influencer
+          </h1>
 
-const res=
-await fetch(
-`/api/admin/raffles/affiliates/${id}`
-)
+          <p className="text-muted-foreground mt-2">
+            ID: {affiliateId}
+          </p>
 
-const json=
-await res.json()
+        </div>
 
-setData(json)
+        <div className="flex gap-3">
 
-setLoading(false)
+          <button className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5">
+            <Copy className="w-4 h-4" />
+            Copiar Código
+          </button>
 
-}
+          <button className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5">
+            <Copy className="w-4 h-4" />
+            Copiar Link
+          </button>
 
-if(loading){
+        </div>
 
-return(
+      </div>
 
-<div className="p-8">
+      {/* Información */}
 
-Cargando...
+      <div className="rounded-xl border p-6">
 
-</div>
+        <div className="grid md:grid-cols-2 gap-6">
 
-)
+          <div>
 
-}
+            <div className="text-sm text-muted-foreground">
+              Nombre
+            </div>
 
-return(
+            <div className="text-xl font-semibold mt-1">
+              --
+            </div>
 
-<div className="space-y-8 p-8">
+          </div>
 
-{/* HEADER */}
+          <div>
 
-<div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Código Comercial
+            </div>
 
-<div>
+            <div className="text-xl font-semibold mt-1">
+              --
+            </div>
 
-<h1 className="text-4xl font-bold">
+          </div>
 
-Influencer
+          <div>
 
-</h1>
+            <div className="text-sm text-muted-foreground">
+              Comisión
+            </div>
 
-<p className="text-slate-400 mt-2">
+            <div className="text-xl font-semibold mt-1">
+              --
+            </div>
 
-{data?.affiliate?.owner_name}
+          </div>
 
-</p>
+          <div>
 
-</div>
+            <div className="text-sm text-muted-foreground">
+              Estado
+            </div>
 
-<div>
+            <div className="text-xl font-semibold mt-1 text-green-400">
+              Activo
+            </div>
 
-<span
-className={
-data?.affiliate?.active
-?
-"px-4 py-2 rounded-full bg-emerald-600"
-:
-"px-4 py-2 rounded-full bg-red-600"
-}
->
+          </div>
 
-{
-
-data?.affiliate?.active
-
-?
-
-"Activo"
-
-:
-
-"Inactivo"
-
-}
-
-</span>
-
-</div>
-
-</div>
-
-{/* TARJETAS */}
-
-<div className="grid xl:grid-cols-4 gap-5">
-
-<Card
-title="Código"
-value={
-data?.affiliate?.code
-}
-/>
-
-<Card
-title="Comisión"
-value={`${data?.affiliate?.commissionPercent}%`}
-/>
-
-<Card
-title="Clicks"
-value={
-data?.stats?.clicks
-}
-/>
-
-<Card
-title="Ventas"
-value={
-data?.stats?.paidOrders
-}
-/>
-
-<Card
-title="Revenue"
-value={`$${Number(
-data?.stats?.revenue??0
-).toLocaleString("es-CL")}`}
-/>
-
-<Card
-title="Comisión Generada"
-value={`$${Number(
-data?.wallet?.generated??0
-).toLocaleString("es-CL")}`}
-/>
-
-<Card
-title="Disponible"
-value={`$${Number(
-data?.wallet?.available??0
-).toLocaleString("es-CL")}`}
-/>
-
-<Card
-title="Pagado"
-value={`$${Number(
-data?.wallet?.paid??0
-).toLocaleString("es-CL")}`}
-/>
-
-</div>
-
-{/* INFORMACIÓN */}
-
-<div
-className="
-rounded-3xl
-border
-border-slate-800
-bg-slate-900
-p-8
-space-y-6
-">
-
-<h2 className="text-2xl font-semibold">
-
-Información
-
-</h2>
-
-<Row
-label="Código"
-value={data?.affiliate?.code}
-/>
-
-<Row
-label="Email"
-value={data?.affiliate?.email}
-/>
-
-<Row
-label="Comisión"
-value={`${data?.affiliate?.commissionPercent}%`}
-/>
-
-<Row
-label="Estado"
-value={
-data?.affiliate?.active
-?
-"Activo"
-:
-"Inactivo"
-}
-/>
-
-<Row
-label="Sorteo"
-value={
-data?.affiliate?.raffle?.title
-??
-"Todos"
-}
-/>
-
-<div>
-
-<div className="text-slate-400 mb-2">
-
-Enlace
-
-</div>
-
-<div className="font-mono break-all">
-
-{`${window.location.origin}/raffles?aff=${data?.affiliate?.code}`}
-
-</div>
-
-</div>
-
-<div className="flex gap-3">
-
-<button
-className="px-5 py-3 rounded-xl bg-slate-800"
-onClick={()=>{
-
-navigator.clipboard.writeText(
-data?.affiliate?.code
-)
-
-}}
->
-
-Copiar código
-
-</button>
-
-<button
-className="px-5 py-3 rounded-xl bg-slate-800"
-onClick={()=>{
-
-navigator.clipboard.writeText(
-`${window.location.origin}/raffles?aff=${data?.affiliate?.code}`
-)
-
-}}
->
-
-Copiar enlace
-
-</button>
-
-<button
-className="px-5 py-3 rounded-xl bg-emerald-600"
-onClick={()=>{
-
-window.open(
-`${window.location.origin}/raffles?aff=${data?.affiliate?.code}`
-)
-
-}}
->
-
-Abrir enlace
-
-</button>
-
-</div>
-
-</div>
-
-{/* WALLET */}
-
-<div
-className="
-rounded-3xl
-border
-border-slate-800
-bg-slate-900
-p-8
-">
-
-<h2 className="text-2xl font-semibold mb-6">
-
-Wallet del Influencer
-
-</h2>
-
-<div className="grid xl:grid-cols-4 gap-5">
-
-<Card
-title="Generado"
-value={`$${Number(
-data?.wallet?.generated??0
-).toLocaleString("es-CL")}`}
-/>
-
-<Card
-title="Disponible"
-value={`$${Number(
-data?.wallet?.available??0
-).toLocaleString("es-CL")}`}
-/>
-
-<Card
-title="Pendiente"
-value={`$${Number(
-data?.wallet?.pending??0
-).toLocaleString("es-CL")}`}
-/>
-
-<Card
-title="Pagado"
-value={`$${Number(
-data?.wallet?.paid??0
-).toLocaleString("es-CL")}`}
-/>
-
-</div>
-
-</div>
-
-{/* LEDGER */}
-
-<div
-className="
-rounded-3xl
-border
-border-slate-800
-bg-slate-900
-overflow-hidden
-">
-
-<div className="p-6 text-2xl font-semibold">
-
-Ledger
-
-</div>
-
-<table className="w-full">
-
-<thead>
-
-<tr className="border-b border-slate-800">
-
-<th className="text-left p-4">
-
-Tipo
-
-</th>
-
-<th className="text-left">
-
-Monto
-
-</th>
-
-<th className="text-left">
-
-Fecha
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{
-
-(data?.ledger??[]).map((item:any)=>(
-
-<tr
-key={item.id}
-className="border-b border-slate-800"
->
-
-<td className="p-4">
-
-{item.type}
-
-</td>
-
-<td>
-
-${Number(
-item.amount_clp
-).toLocaleString("es-CL")}
-
-</td>
-
-<td>
-
-{
-
-new Date(
-item.created_at
-).toLocaleString("es-CL")
-
-}
-
-</td>
-
-</tr>
-
-))
-
-}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-)
-
+        </div>
+
+      </div>
+
+      {/* KPIs */}
+
+      <div className="grid gap-4 md:grid-cols-5">
+
+        <Card
+          title="Ventas"
+          value="0"
+          icon={<ShoppingCart className="w-5 h-5" />}
+        />
+
+        <Card
+          title="Revenue"
+          value="$0"
+          icon={<TrendingUp className="w-5 h-5" />}
+        />
+
+        <Card
+          title="Comisión"
+          value="$0"
+          icon={<DollarSign className="w-5 h-5" />}
+        />
+
+        <Card
+          title="Pendiente"
+          value="$0"
+          icon={<Clock className="w-5 h-5" />}
+        />
+
+        <Card
+          title="Pagado"
+          value="$0"
+          icon={<Users className="w-5 h-5" />}
+        />
+
+      </div>
+
+      {/* Historial Comercial */}
+
+      <Section title="Historial Comercial">
+
+        <EmptyTable
+          columns={[
+            "Fecha",
+            "Orden",
+            "Sorteo",
+            "Comprador",
+            "Tickets",
+            "Compra",
+            "Comisión",
+            "Estado",
+            "Acciones",
+          ]}
+        />
+
+      </Section>
+
+      {/* Ledger */}
+
+      <Section title="Ledger Comercial">
+
+        <EmptyTable
+          columns={[
+            "Fecha",
+            "Movimiento",
+            "Orden",
+            "Monto",
+            "Estado",
+          ]}
+        />
+
+      </Section>
+
+      {/* Pagos */}
+
+      <Section title="Historial de Pagos">
+
+        <EmptyTable
+          columns={[
+            "Fecha",
+            "Monto",
+            "Método",
+            "Referencia",
+            "Administrador",
+          ]}
+        />
+
+      </Section>
+
+    </div>
+  );
 }
 
 function Card({
+  title,
+  value,
+  icon,
+}: {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border p-5">
 
-title,
+      <div className="flex justify-between items-center">
 
-value
+        <div className="text-sm text-muted-foreground">
+          {title}
+        </div>
 
-}:any){
+        {icon}
 
-return(
+      </div>
 
-<div
-className="
-rounded-3xl
-bg-slate-900
-border
-border-slate-800
-p-6
-">
+      <div className="text-2xl font-bold mt-4">
+        {value}
+      </div>
 
-<div className="text-slate-400">
-
-{title}
-
-</div>
-
-<div className="text-3xl font-bold mt-4">
-
-{value}
-
-</div>
-
-</div>
-
-)
-
+    </div>
+  );
 }
 
-function Row({
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border overflow-hidden">
 
-label,
+      <div className="border-b px-6 py-4">
 
-value
+        <h2 className="font-semibold text-lg">
+          {title}
+        </h2>
 
-}:any){
+      </div>
 
-return(
+      <div className="p-6">
 
-<div>
+        {children}
 
-<div className="text-slate-400">
+      </div>
 
-{label}
+    </div>
+  );
+}
 
-</div>
+function EmptyTable({
+  columns,
+}: {
+  columns: string[];
+}) {
+  return (
+    <div className="overflow-auto">
 
-<div className="mt-1">
+      <table className="w-full">
 
-{value}
+        <thead>
 
-</div>
+          <tr>
 
-</div>
+            {columns.map((column) => (
+              <th
+                key={column}
+                className="text-left text-sm font-medium text-muted-foreground pb-4"
+              >
+                {column}
+              </th>
+            ))}
 
-)
+          </tr>
 
+        </thead>
+
+        <tbody>
+
+          <tr>
+
+            <td
+              colSpan={columns.length}
+              className="py-10 text-center text-muted-foreground"
+            >
+              Sin información disponible
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+  );
 }
