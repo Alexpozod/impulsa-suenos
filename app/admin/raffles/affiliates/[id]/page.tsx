@@ -953,6 +953,12 @@ Fecha
 
 </th>
 
+<th>
+
+Acciones
+
+</th>
+
 </tr>
 
 </thead>
@@ -964,7 +970,7 @@ Fecha
 <tr>
 
 <td
-colSpan={7}
+colSpan={8}
 className="py-8 text-center text-slate-500"
 >
 
@@ -1071,6 +1077,41 @@ sale.createdAt
 "-"
 
 }
+
+</td>
+
+<td className="text-center">
+
+<button
+
+type="button"
+
+onClick={() => {
+
+navigator.clipboard.writeText(
+sale.id
+)
+
+alert(
+"ID de orden copiado"
+)
+
+}}
+
+className="
+px-3
+py-1
+rounded-lg
+bg-slate-800
+hover:bg-slate-700
+text-xs
+"
+
+>
+
+Copiar ID
+
+</button>
 
 </td>
 
