@@ -1496,18 +1496,41 @@ sale.paymentStatus==="approved"
               </td>
 
               <td
-                className="
-                  font-mono
-                  text-xs
-                  max-w-[180px]
-                  truncate
-                "
-                title={sale.paymentReference ?? ""}
-              >
+className="
+font-mono
+text-xs
+max-w-[180px]
+"
+title={sale.paymentReference ?? ""}
+>
 
-                {sale.paymentReference ?? "-"}
+<div
+className="
+truncate
+"
+>
 
-              </td>
+{sale.paymentReference ?? "-"}
+
+</div>
+
+{
+
+sale.paymentReference && (
+
+<div className="text-slate-500 mt-1">
+
+...
+
+{sale.paymentReference.slice(-8)}
+
+</div>
+
+)
+
+}
+
+</td>
 
               <td className="text-center">
 
@@ -1550,66 +1573,149 @@ sale.orderStatus==="paid"
 
               <td className="whitespace-nowrap">
 
-                {
+<div>
 
-                  sale.paymentCreatedAt
+{
 
-                  ?
+sale.paymentCreatedAt
 
-                  new Date(
-                    sale.paymentCreatedAt
-                  ).toLocaleString("es-CL")
+?
 
-                  :
+new Date(
+sale.paymentCreatedAt
+).toLocaleDateString("es-CL")
 
-                  sale.createdAt
+:
 
-                  ?
+sale.createdAt
 
-                  new Date(
-                    sale.createdAt
-                  ).toLocaleString("es-CL")
+?
 
-                  :
+new Date(
+sale.createdAt
+).toLocaleDateString("es-CL")
 
-                  "-"
+:
 
-                }
+"-"
 
-              </td>
+}
+
+</div>
+
+<div className="text-xs text-slate-500">
+
+{
+
+sale.paymentCreatedAt
+
+?
+
+new Date(
+sale.paymentCreatedAt
+).toLocaleTimeString("es-CL")
+
+:
+
+sale.createdAt
+
+?
+
+new Date(
+sale.createdAt
+).toLocaleTimeString("es-CL")
+
+:
+
+""
+
+}
+
+</div>
+
+</td>
 
               <td className="text-center">
 
-                <button
+                <div
+className="
+flex
+gap-2
+justify-center
+"
+>
 
-                  type="button"
+<button
 
-                  onClick={() => {
+type="button"
 
-                    navigator.clipboard.writeText(
-                      sale.id
-                    )
+onClick={() => {
 
-                    alert(
-                      "ID de orden copiado"
-                    )
+navigator.clipboard.writeText(
+sale.id
+)
 
-                  }}
+alert(
+"ID de orden copiado"
+)
 
-                  className="
-                    px-3
-                    py-1
-                    rounded-lg
-                    bg-slate-800
-                    hover:bg-slate-700
-                    text-xs
-                  "
+}}
 
-                >
+className="
+px-3
+py-1
+rounded-lg
+bg-slate-800
+hover:bg-slate-700
+text-xs
+"
 
-                  Copiar ID
+>
 
-                </button>
+ID
+
+</button>
+
+{
+
+sale.paymentReference && (
+
+<button
+
+type="button"
+
+onClick={() => {
+
+navigator.clipboard.writeText(
+sale.paymentReference
+)
+
+alert(
+"Referencia copiada"
+)
+
+}}
+
+className="
+px-3
+py-1
+rounded-lg
+bg-emerald-700
+hover:bg-emerald-600
+text-xs
+"
+
+>
+
+Ref
+
+</button>
+
+)
+
+}
+
+</div>
 
               </td>
 
