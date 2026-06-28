@@ -21,27 +21,29 @@ export async function getAffiliateDashboard(
 
     return {
 
-      affiliate: null,
+  affiliate: null,
 
-      stats: {
+  stats: {
 
-        clicks: 0,
+    clicks: 0,
 
-        beginCheckout: 0,
+    beginCheckout: 0,
 
-        orders: 0,
+    orders: 0,
 
-        paidOrders: 0,
+    paidOrders: 0,
 
-        revenue: 0,
+    revenue: 0,
 
-        estimatedCommission: 0,
+    estimatedCommission: 0,
 
-        paidCommission: 0
+    paidCommission: 0
 
-      }
+  },
 
-    }
+  sales: []
+
+}
 
   }
 
@@ -266,50 +268,67 @@ const paymentMap =
     )
   )
 
-/* =========================================
-   SALES DETAIL
-========================================= */
+  const sales =
+  orders
+    .sort((a, b) => {
 
-const sales =
-  orders.map(order => ({
+      return (
+        new Date(
+          b.created_at ?? 0
+        ).getTime() -
 
-    id:
-      order.id,
+        new Date(
+          a.created_at ?? 0
+        ).getTime()
 
-    buyerName:
-      order.buyer_name ?? null,
+      )
 
-    buyerEmail:
-      order.buyer_email ?? null,
+    })
 
-    buyerPhone:
-      order.buyer_phone ?? null,
+    .map(order => {
 
-    quantity:
-      order.quantity ?? 0,
-
-    total:
-      Number(
-        order.total_clp ?? 0
-      ),
-
-    status:
-      order.status,
-
-    paymentStatus:
-      paymentMap.get(order.id)
-        ?.status ?? null,
-
-    paymentAmount:
-      Number(
+      const payment =
         paymentMap.get(order.id)
-          ?.amount_clp ?? 0
-      ),
 
-    createdAt:
-      order.created_at
+      return {
 
-  }))
+        id:
+          order.id,
+
+        buyerName:
+          order.buyer_name,
+
+        buyerEmail:
+          order.buyer_email,
+
+        buyerPhone:
+          order.buyer_phone,
+
+        quantity:
+          order.quantity,
+
+        total:
+          Number(
+            order.total_clp || 0
+          ),
+
+        orderStatus:
+          order.status,
+
+        paymentStatus:
+          payment?.status ?? null,
+
+        paymentAmount:
+          Number(
+            payment?.amount_clp || 0
+          ),
+
+        createdAt:
+          order.created_at
+
+      }
+
+    })
 
   return {
 
