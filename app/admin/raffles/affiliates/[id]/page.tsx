@@ -26,6 +26,8 @@ const [dashboard, setDashboard] = useState<any>(null);
 
 const [loading, setLoading] = useState(true);
 
+const [selectedSale, setSelectedSale] = useState<any>(null);
+
 useEffect(() => {
 
   async function loadDashboard() {
@@ -339,131 +341,122 @@ if (loading) {
 
         <tbody>
 
-  {[
-    {
-      buyer: "Carlos Morales",
-      email: "carlos@email.com",
-      phone: "+56 9 1111 1111",
-      raffle: "iPhone 17 Pro",
-      tickets: 3,
-      total: "$30.000",
-      commission: "$3.000",
-      status: "Pagado",
-      date: "27/06/2026",
-    },
-    {
-      buyer: "María Soto",
-      email: "maria@email.com",
-      phone: "+56 9 2222 2222",
-      raffle: "PlayStation 6",
-      tickets: 1,
-      total: "$10.000",
-      commission: "$1.000",
-      status: "Pendiente",
-      date: "28/06/2026",
-    },
-    {
-      buyer: "Pedro Rojas",
-      email: "pedro@email.com",
-      phone: "+56 9 3333 3333",
-      raffle: "Viaje Europa",
-      tickets: 5,
-      total: "$50.000",
-      commission: "$5.000",
-      status: "Pagado",
-      date: "28/06/2026",
-    },
-  ].map((sale, index) => (
+{dashboard?.sales?.map((sale: any) => (
 
-    <tr
-      key={index}
-      className="border-b border-white/5 hover:bg-white/5 transition-colors"
-    >
-
-      <td className="py-4">
-        {sale.date}
-      </td>
-
-      <td>
-
-  <div className="space-y-1">
-
-    <div className="font-semibold">
-
-      {sale.buyer}
-
-    </div>
-
-    <div className="text-sm text-muted-foreground">
-
-      {sale.email}
-
-    </div>
-
-    <div className="text-xs text-muted-foreground">
-
-      {sale.phone}
-
-    </div>
-
-  </div>
-
-</td>
-
-      <td>
-        {sale.raffle}
-      </td>
-
-      <td>
-
-  <span className="rounded-full border px-3 py-1 text-xs">
-
-    {sale.tickets} Tickets
-
-  </span>
-
-</td>
-
-      <td className="font-medium">
-        {sale.total}
-      </td>
-
-      <td className="text-green-400 font-medium">
-        {sale.commission}
-      </td>
-
-      <td>
-
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-medium ${
-            sale.status === "Pagado"
-              ? "bg-green-500/15 text-green-400 border border-green-500/30"
-              : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
-          }`}
-        >
-          {sale.status}
-        </span>
-
-      </td>
-
-      <td className="text-center">
-
-        <button
-  onClick={() => setBuyerModalOpen(true)}
-  className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5 flex items-center gap-2"
+<tr
+  key={sale.id}
+  className="border-b border-white/5 hover:bg-white/5 transition-colors"
 >
 
-  <Eye className="w-4 h-4" />
+<td className="py-4">
 
-  Detalles
+{new Date(sale.createdAt).toLocaleDateString("es-CL")}
+
+</td>
+
+<td>
+
+<div className="space-y-1">
+
+<div className="font-semibold">
+
+{sale.buyerName}
+
+</div>
+
+<div className="text-sm text-muted-foreground">
+
+{sale.buyerEmail}
+
+</div>
+
+<div className="text-xs text-muted-foreground">
+
+{sale.buyerPhone}
+
+</div>
+
+</div>
+
+</td>
+
+<td>
+
+{dashboard?.affiliate?.raffle?.title}
+
+</td>
+
+<td>
+
+<span className="rounded-full border px-3 py-1 text-xs">
+
+{sale.quantity} Tickets
+
+</span>
+
+</td>
+
+<td className="font-medium">
+
+{"$" + Number(sale.total).toLocaleString("es-CL")}
+
+</td>
+
+<td className="text-green-400 font-medium">
+
+{"$" + Math.round(
+
+sale.total *
+
+dashboard.affiliate.commissionPercent /
+
+100
+
+).toLocaleString("es-CL")}
+
+</td>
+
+<td>
+
+<span
+className={`rounded-full px-3 py-1 text-xs ${
+sale.paymentStatus === "paid" ||
+sale.paymentStatus === "approved"
+? "bg-green-500/15 text-green-400 border border-green-500/30"
+: "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+}`}
+>
+
+{sale.paymentStatus}
+
+</span>
+
+</td>
+
+<td className="text-center">
+
+<button
+onClick={() => {
+
+setSelectedSale(sale);
+
+setBuyerModalOpen(true);
+
+}}
+className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5 flex items-center gap-2"
+>
+
+<Eye className="w-4 h-4"/>
+
+Detalles
 
 </button>
 
-      </td>
+</td>
 
-    </tr>
+</tr>
 
-  ))}
+))}
 
 </tbody>
 
