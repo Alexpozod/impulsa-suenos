@@ -1068,7 +1068,10 @@ Detalles
 
             <div className="grid md:grid-cols-2 gap-6 p-6">
 
-              <Info label="ID" value={selectedPayout.id} />
+              <Info
+                label="Solicitud"
+                value={selectedPayout.id.substring(0,8).toUpperCase()}
+                />
 
               <Info
                 label="Monto"
