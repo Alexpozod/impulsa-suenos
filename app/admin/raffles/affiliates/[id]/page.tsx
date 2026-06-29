@@ -652,89 +652,106 @@ Detalles
 
             <tbody>
 
-              {[
-                {
-                  date: "30/06/2026",
-                  period: "Junio 2026",
-                  amount: "$42.000",
-                  method: "Transferencia",
-                  reference: "TRX-88542",
-                  status: "Pagado",
-                },
-                {
-                  date: "31/07/2026",
-                  period: "Julio 2026",
-                  amount: "$18.000",
-                  method: "Pendiente",
-                  reference: "-",
-                  status: "Pendiente",
-                },
-              ].map((payment, index) => (
+              {dashboard?.payouts?.length ? (
 
-                <tr
-                  key={index}
-                  className="border-b border-white/5 hover:bg-white/5"
-                >
+                    dashboard.payouts.map((payment:any)=>(
 
-                  <td className="py-4">
-
-                    {payment.date}
-
-                  </td>
-
-                  <td>
-
-                    {payment.period}
-
-                  </td>
-
-                  <td className="text-right font-semibold text-green-400">
-
-                    {payment.amount}
-
-                  </td>
-
-                  <td>
-
-                    {payment.method}
-
-                  </td>
-
-                  <td className="font-mono text-sm">
-
-                    {payment.reference}
-
-                  </td>
-
-                  <td>
-
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs ${
-                        payment.status === "Pagado"
-                          ? "bg-green-500/15 text-green-400 border border-green-500/30"
-                          : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
-                      }`}
+                    <tr
+                    key={payment.id}
+                    className="border-b border-white/5 hover:bg-white/5"
                     >
 
-                      {payment.status}
+                    <td className="py-4">
+
+                    {new Date(payment.createdAt)
+                    .toLocaleDateString("es-CL")}
+
+                    </td>
+
+                    <td>
+
+                    {new Date(payment.createdAt)
+                    .toLocaleDateString("es-CL",{
+                    month:"long",
+                    year:"numeric"
+                    })}
+
+                    </td>
+
+                    <td className="text-right font-semibold text-green-400">
+
+                    {"$"+payment.amount.toLocaleString("es-CL")}
+
+                    </td>
+
+                    <td>
+
+                    Transferencia
+
+                    </td>
+
+                    <td className="font-mono text-sm">
+
+                    {payment.id.slice(0,8).toUpperCase()}
+
+                    </td>
+
+                    <td>
+
+                    <span
+                    className={`rounded-full px-3 py-1 text-xs ${
+                    payment.status==="approved"
+                    ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                    : payment.status==="pending"
+                    ? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+                    : "bg-red-500/15 text-red-400 border border-red-500/30"
+                    }`}
+                    >
+
+                    {payment.status==="approved"
+                    ? "Pagado"
+                    : payment.status==="pending"
+                    ? "Pendiente"
+                    : payment.status==="rejected"
+                    ? "Rechazado"
+                    : payment.status}
 
                     </span>
 
-                  </td>
+                    </td>
 
-                  <td className="text-center">
+                    <td className="text-center">
 
-                    <button className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5">
+                    <button
+                    className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5"
+                    >
 
-                      PDF
+                    Ver
 
                     </button>
 
-                  </td>
+                    </td>
 
-                </tr>
+                    </tr>
 
-              ))}
+                    ))
+
+                    ) : (
+
+                    <tr>
+
+                    <td
+                    colSpan={7}
+                    className="py-12 text-center text-muted-foreground"
+                    >
+
+                    Sin solicitudes de pago
+
+                    </td>
+
+                    </tr>
+
+                    )}
 
             </tbody>
 
