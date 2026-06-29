@@ -134,14 +134,11 @@ created_at,
 type,
 amount_clp,
 status,
-reference_id,
 metadata
 `)
-.contains(
-"metadata",
-{
-affiliateId
-}
+.eq(
+"type",
+"affiliate_commission"
 )
 .order(
 "created_at",
@@ -150,6 +147,43 @@ ascending:false
 }
 )
     
+const ledgerEntries =
+(ledger || [])
+.filter((entry: any) => {
+
+  const metadata =
+    (entry.metadata || {}) as any
+
+  return metadata.affiliateId === affiliateId
+
+})
+.map((entry: any) => ({
+
+  id: entry.id,
+
+  createdAt: entry.created_at,
+
+  type: entry.type,
+
+  reference: "-",
+
+  status: entry.status,
+
+  amount:
+    Number(entry.amount_clp || 0),
+
+  credit:
+    Number(entry.amount_clp) > 0
+      ? Number(entry.amount_clp)
+      : 0,
+
+  debit:
+    Number(entry.amount_clp) < 0
+      ? Math.abs(Number(entry.amount_clp))
+      : 0
+
+}))
+
   let clicks = 0
 let beginCheckout = 0
 let totalOrders = 0
@@ -258,21 +292,15 @@ paidOrders =
   paidOrderIds.size
 
   const paidCommission =
-    (ledger || []).reduce(
+ledgerEntries.reduce(
 
-      (sum: number, row: any) =>
+  (sum: number, row: any) =>
 
-        sum +
+    sum + row.debit,
 
-        Math.abs(
-          Number(
-            row.amount_clp || 0
-          )
-        ),
+  0
 
-      0
-
-    )
+)
 
   const estimatedCommission =
     Math.round(
@@ -363,38 +391,6 @@ const paymentMap =
     /* =========================================
    LAST SALE
 ========================================= */
-
-const ledgerEntries =
-(ledger || []).map(entry => ({
-
-id: entry.id,
-
-createdAt: entry.created_at,
-
-type: entry.type,
-
-reference:
-entry.reference_id,
-
-status:
-entry.status,
-
-amount:
-Number(
-entry.amount_clp || 0
-),
-
-credit:
-Number(entry.amount_clp) > 0
-? Number(entry.amount_clp)
-: 0,
-
-debit:
-Number(entry.amount_clp) < 0
-? Math.abs(Number(entry.amount_clp))
-: 0
-
-}))
 
 const lastSale =
   sales.length > 0
