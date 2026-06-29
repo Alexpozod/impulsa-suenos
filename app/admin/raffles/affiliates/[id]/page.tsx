@@ -470,133 +470,137 @@ Detalles
 
           {/* Ledger */}
 
-      <Section title="Ledger Comercial">
+     <Section title="Ledger Comercial">
 
-        <div className="overflow-auto">
+  <div className="overflow-auto">
 
-          <table className="w-full">
+    <table className="w-full">
 
-            <thead>
+      <thead>
 
-              <tr className="border-b text-left text-sm text-muted-foreground">
+        <tr className="border-b text-left text-sm text-muted-foreground">
 
-                <th className="pb-4">Fecha</th>
+          <th className="pb-4">Fecha</th>
 
-                <th className="pb-4">Tipo</th>
+          <th className="pb-4">Tipo</th>
 
-                <th className="pb-4">Referencia</th>
+          <th className="pb-4">Referencia</th>
 
-                <th className="pb-4 text-right">Débito</th>
+          <th className="pb-4 text-right">Débito</th>
 
-                <th className="pb-4 text-right pr-8">
-  Crédito
-</th>
+          <th className="pb-4 text-right">Crédito</th>
 
-                <th className="pb-4 pl-4">
-  Estado
-</th>
+          <th className="pb-4">Estado</th>
 
-                <th className="pb-4 text-center">Detalle</th>
+          <th className="pb-4 text-center">Detalle</th>
 
-              </tr>
+        </tr>
 
-            </thead>
+      </thead>
 
-            <tbody>
+      <tbody>
 
-              {[
-                {
-                  date: "28/06/2026",
-                  type: "Comisión",
-                  ref: "ORD-1254",
-                  debit: "-",
-                  credit: "$3.000",
-                  status: "Pendiente",
-                },
-                {
-                  date: "30/06/2026",
-                  type: "Pago",
-                  ref: "PAY-8854",
-                  debit: "$3.000",
-                  credit: "-",
-                  status: "Pagado",
-                },
-              ].map((item, index) => (
+        {dashboard?.ledger?.length ? (
 
-                <tr
-                  key={index}
-                  className="border-b border-white/5 hover:bg-white/5"
+          dashboard.ledger.map((item: any) => (
+
+            <tr
+              key={item.id}
+              className="border-b border-white/5 hover:bg-white/5"
+            >
+
+              <td className="py-4">
+
+                {new Date(item.createdAt)
+                  .toLocaleDateString("es-CL")}
+
+              </td>
+
+              <td className="capitalize">
+
+                {String(item.type)
+                  .replaceAll("_"," ")}
+
+              </td>
+
+              <td className="font-mono text-xs">
+
+                {item.reference ?? "-"}
+
+              </td>
+
+              <td className="text-right text-red-400">
+
+                {item.debit
+                  ? `$${item.debit.toLocaleString("es-CL")}`
+                  : "-"}
+
+              </td>
+
+              <td className="text-right text-green-400">
+
+                {item.credit
+                  ? `$${item.credit.toLocaleString("es-CL")}`
+                  : "-"}
+
+              </td>
+
+              <td>
+
+                <span
+                  className={`rounded-full px-3 py-1 text-xs ${
+                    item.status === "paid"
+                      ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                      : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+                  }`}
                 >
 
-                  <td className="py-4">
-                    {item.date}
-                  </td>
+                  {item.status}
 
-                  <td>
+                </span>
 
-                    <span className="font-medium">
+              </td>
 
-                      {item.type}
+              <td className="text-center">
 
-                    </span>
+                <button
+                  className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5"
+                >
 
-                  </td>
+                  Ver
 
-                  <td className="font-mono text-sm">
+                </button>
 
-                    {item.ref}
+              </td>
 
-                  </td>
+            </tr>
 
-                  <td className="text-right text-red-400">
+          ))
 
-                    {item.debit}
+        ) : (
 
-                  </td>
+          <tr>
 
-                  <td className="text-right text-green-400">
+            <td
+              colSpan={7}
+              className="py-12 text-center text-muted-foreground"
+            >
 
-                    {item.credit}
+              Sin movimientos
 
-                  </td>
+            </td>
 
-                  <td>
+          </tr>
 
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs ${
-                        item.status === "Pagado"
-                          ? "bg-green-500/15 text-green-400 border border-green-500/30"
-                          : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
-                      }`}
-                    >
+        )}
 
-                      {item.status}
+      </tbody>
 
-                    </span>
+    </table>
 
-                  </td>
+  </div>
 
-                  <td className="text-center">
-
-                    <button className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5">
-
-                      Ver
-
-                    </button>
-
-                  </td>
-
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </Section>
+</Section>
 
             {/* Pagos */}
 
