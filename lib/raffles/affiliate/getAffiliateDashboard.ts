@@ -432,6 +432,9 @@ const paymentMap =
         paymentCreatedAt:
           payment?.created_at ?? null,
 
+          paymentId:
+            payment?.id ?? null,
+
         createdAt:
   order.created_at,
 
