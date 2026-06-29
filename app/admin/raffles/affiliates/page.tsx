@@ -415,7 +415,7 @@ className="border-b border-slate-800"
 
 item.shareUrl ??
 
-`${window.location.origin}/raffles?aff=${item.code}`
+`https://sorteos.impulsasuenos.com/r/${item.code}`
 
 }
 
@@ -462,7 +462,7 @@ navigator.clipboard.writeText(
 
 item.shareUrl ??
 
-`${window.location.origin}/raffles?aff=${item.code}`
+`https://sorteos.impulsasuenos.com/r/${item.code}`
 
 )
 
@@ -531,12 +531,15 @@ text-xs
 href={`/admin/raffles/affiliates/${item.id}`}
 
 className="
-px-3
+px-4
 py-2
 rounded-xl
-bg-blue-600
-hover:bg-blue-500
+bg-sky-600
+hover:bg-sky-500
+text-white
+font-medium
 text-sm
+transition-colors
 "
 
 >
