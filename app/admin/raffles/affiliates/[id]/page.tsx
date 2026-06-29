@@ -146,11 +146,16 @@ if (loading) {
 
 </div>
 
-<div className="font-mono text-sky-400 text-sm break-all">
+<a
+href={`https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`}
+target="_blank"
+rel="noopener noreferrer"
+className="font-mono text-sky-400 text-sm break-all hover:underline"
+>
 
-  {`https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`}
+{`https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`}
 
-</div>
+</a>
 
 <div className="text-sm text-muted-foreground">
 
