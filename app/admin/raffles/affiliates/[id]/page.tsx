@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Copy,
@@ -236,13 +237,17 @@ dashboard.generatedAt
     <div className="flex flex-wrap gap-3">
 
       <button
-        onClick={()=>
-        navigator.clipboard.writeText(
+  onClick={async () => {
+
+    await navigator.clipboard.writeText(
         dashboard?.affiliate?.code ?? ""
-        )
-        }
-        className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
-        >
+        );
+
+        toast.success("Código copiado al portapapeles");
+
+    }}
+    className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
+    >
 
         <Copy className="w-4 h-4"/>
 
@@ -251,13 +256,17 @@ dashboard.generatedAt
         </button>
 
       <button
-            onClick={()=>
-            navigator.clipboard.writeText(
-            `https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`
-            )
-            }
-            className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
-            >
+  onClick={async () => {
+
+        await navigator.clipboard.writeText(
+        `https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`
+        );
+
+        toast.success("Link copiado al portapapeles");
+
+    }}
+    className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
+    >
 
             <Copy className="w-4 h-4"/>
 
