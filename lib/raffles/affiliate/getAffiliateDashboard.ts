@@ -82,35 +82,46 @@ const { data: events } =
    ORDERS
 ========================================= */
 
-const { data: affiliateOrders } =
-  await supabase
-    .schema("raffles")
-    .from("orders")
-    .select(`
+const {
+
+  data: affiliateOrders,
+
+  error: ordersError
+
+} =
+await supabase
+  .schema("raffles")
+  .from("orders")
+  .select(`
+    id,
+    raffle_id,
+    buyer_name,
+    buyer_email,
+    buyer_phone,
+    quantity,
+    total_clp,
+    status,
+    created_at,
+    metadata,
+
+    raffles(
       id,
-      raffle_id,
-      buyer_name,
-      buyer_email,
-      buyer_phone,
-      quantity,
-      total_clp,
-      status,
-      created_at,
-      metadata,
+      title
+    ),
 
-      raffles(
-        id,
-        title
-      ),
-
-      order_tickets(
-        ticket_inventory(
-          visible_number,
-          ticket_number,
-          code
-        )
+    order_tickets(
+      ticket_inventory(
+        visible_number,
+        ticket_number,
+        code
       )
-    `);
+    )
+  `);
+
+console.log(
+  "ordersError",
+  ordersError
+);
 
 /* =========================================
    PAYMENTS
@@ -365,7 +376,7 @@ const tickets =
 
         createdAt:
   order.created_at,
-  
+
 raffleTitle:
       raffle?.title ?? null,
 
