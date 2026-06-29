@@ -894,8 +894,20 @@ Detalles
                 />
 
                 <Info
-                label="ID Pago Flow"
-                value={selectedSale?.paymentReference ?? "-"}
+                label="Flow Order"
+                value={
+                selectedSale?.paymentReference
+                ? selectedSale.paymentReference
+                : "-"
+                }
+                />
+
+                <Info
+                label="Payment ID"
+                value={
+                selectedSale?.paymentId
+                ?? "-"
+                }
                 />
 
                 <Info
