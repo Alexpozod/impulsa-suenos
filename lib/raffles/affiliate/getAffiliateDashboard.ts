@@ -96,15 +96,7 @@ const { data: affiliateOrders } =
   total_clp,
   status,
   created_at,
-  metadata,
-  raffles(
-    id,
-    title
-  ),
-  order_tickets(
-    ticket_number,
-    visible_number
-  )
+  metadata
 `)
 
 /* =========================================
@@ -308,70 +300,52 @@ const paymentMap =
     .sort((a, b) => {
 
       return (
-        new Date(
-          b.created_at ?? 0
-        ).getTime() -
-
-        new Date(
-          a.created_at ?? 0
-        ).getTime()
-
-      )
+        new Date(b.created_at ?? 0).getTime() -
+        new Date(a.created_at ?? 0).getTime()
+      );
 
     })
 
     .map(order => {
 
       const payment =
-        paymentMap.get(order.id)
+        paymentMap.get(order.id);
 
       return {
 
-        id:
-          order.id,
+        id: order.id,
 
-        buyerName:
-          order.buyer_name,
+        buyerName: order.buyer_name,
 
-        buyerEmail:
-          order.buyer_email,
+        buyerEmail: order.buyer_email,
 
-        buyerPhone:
-          order.buyer_phone,
+        buyerPhone: order.buyer_phone,
 
-        quantity:
-          order.quantity,
+        quantity: order.quantity,
 
-        total:
-          Number(
-            order.total_clp || 0
-          ),
+        total: Number(order.total_clp || 0),
 
-        orderStatus:
-          order.status,
+        orderStatus: order.status,
 
-        paymentStatus:
-  payment?.status ?? null,
+        paymentStatus: payment?.status ?? null,
 
-paymentProvider:
-  payment?.provider ?? null,
+        paymentProvider: payment?.provider ?? null,
 
-paymentReference:
-  payment?.provider_payment_id ?? null,
+        paymentReference:
+          payment?.provider_payment_id ?? null,
 
-paymentAmount:
-  Number(
-    payment?.amount_clp || 0
-  ),
+        paymentAmount:
+          Number(payment?.amount_clp || 0),
 
-paymentCreatedAt:
-  payment?.created_at ?? null,
+        paymentCreatedAt:
+          payment?.created_at ?? null,
 
-createdAt:
-  order.created_at
-      }
+        createdAt:
+  order.created_at,
 
-    })
+      };
+
+    });
 
     /* =========================================
    LAST SALE
@@ -414,19 +388,7 @@ const lastSale =
       createdAt:
         affiliate.created_at,
 
-      raffle:
-  affiliate.raffles
-    ? {
-        id:
-          affiliate.raffles.id,
-
-        title:
-          affiliate.raffles.title,
-
-        slug:
-          affiliate.raffles.slug
-      }
-    : null
+      raffle: null,
 
     },
 
