@@ -388,19 +388,46 @@ dashboard.lastSale.createdAt
 
 ?.filter((sale:any)=>{
 
+if(statusFilter==="Pagados"){
+
+if(
+sale.paymentStatus!=="paid" &&
+sale.paymentStatus!=="approved"
+){
+return false
+}
+
+}
+
+if(statusFilter==="Pendientes"){
+
+if(sale.paymentStatus!=="pending"){
+return false
+}
+
+}
+
+if(statusFilter==="Fallidos"){
+
+if(sale.paymentStatus!=="failed"){
+return false
+}
+
+}
+
 const q=search.toLowerCase()
 
 if(!q) return true
 
-return (
+return(
 
-sale.buyerName?.toLowerCase().includes(q) ||
+sale.buyerName?.toLowerCase().includes(q)||
 
-sale.buyerEmail?.toLowerCase().includes(q) ||
+sale.buyerEmail?.toLowerCase().includes(q)||
 
-sale.buyerPhone?.toLowerCase().includes(q) ||
+sale.buyerPhone?.toLowerCase().includes(q)||
 
-sale.id?.toLowerCase().includes(q) ||
+sale.id?.toLowerCase().includes(q)||
 
 sale.paymentReference?.toLowerCase().includes(q)
 
