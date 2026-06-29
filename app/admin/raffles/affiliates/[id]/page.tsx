@@ -28,6 +28,8 @@ const [loading, setLoading] = useState(true);
 
 const [selectedSale, setSelectedSale] = useState<any>(null);
 
+const [selectedPayout, setSelectedPayout] = useState<any>(null);
+
 useEffect(() => {
 
   async function loadDashboard() {
@@ -723,12 +725,15 @@ Detalles
                     <td className="text-center">
 
                     <button
-                    className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5"
-                    >
+                        onClick={()=>{
+                        setSelectedPayout(payment)
+                        }}
+                        className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5"
+                        >
 
-                    Ver
+                        Ver
 
-                    </button>
+                        </button>
 
                     </td>
 
@@ -881,6 +886,85 @@ Detalles
                 label="Código Comercial"
                 value={dashboard?.affiliate?.code ?? "-"}
                 />
+
+            </div>
+
+          </div>
+
+        </div>
+
+         )}
+
+      {selectedPayout && (
+
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
+
+          <div className="w-full max-w-xl rounded-xl border bg-[#090d18] shadow-2xl">
+
+            <div className="flex items-center justify-between border-b px-6 py-4">
+
+              <h2 className="text-xl font-semibold">
+
+                Detalle del Pago
+
+              </h2>
+
+              <button
+                onClick={() => setSelectedPayout(null)}
+                className="text-muted-foreground hover:text-white"
+              >
+
+                ✕
+
+              </button>
+
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 p-6">
+
+              <Info label="ID" value={selectedPayout.id} />
+
+              <Info
+                label="Monto"
+                value={`$${selectedPayout.amount.toLocaleString("es-CL")}`}
+              />
+
+              <Info
+                    label="Estado"
+                    value={
+                    selectedPayout.status==="approved"
+                    ? "Pagado"
+                    : selectedPayout.status==="pending"
+                    ? "Pendiente"
+                    : selectedPayout.status==="rejected"
+                    ? "Rechazado"
+                    : selectedPayout.status
+                    }
+                    />
+
+              <Info
+                label="Solicitado"
+                value={new Date(selectedPayout.createdAt).toLocaleString("es-CL")}
+              />
+
+              <Info
+                label="Procesado por"
+                value={selectedPayout.processedBy ?? "-"}
+              />
+
+              <Info
+                label="Fecha proceso"
+                value={
+                  selectedPayout.processedAt
+                    ? new Date(selectedPayout.processedAt).toLocaleString("es-CL")
+                    : "-"
+                }
+              />
+
+              <Info
+                label="Motivo rechazo"
+                value={selectedPayout.rejectionReason ?? "-"}
+              />
 
             </div>
 
