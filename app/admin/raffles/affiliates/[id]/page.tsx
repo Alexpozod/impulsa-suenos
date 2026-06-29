@@ -163,21 +163,39 @@ className="font-mono text-sky-400 text-sm break-all hover:underline"
 
 </a>
 
-<div className="text-sm text-muted-foreground">
+<div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
 
-Última venta:
+<div>
+
+Última venta
 
 <span className="text-white ml-2">
 
 {dashboard?.lastSale?.createdAt
-
 ? new Date(
 dashboard.lastSale.createdAt
 ).toLocaleString("es-CL")
-
 : "Sin ventas"}
 
 </span>
+
+</div>
+
+<div>
+
+Actualizado
+
+<span className="text-white ml-2">
+
+{dashboard?.generatedAt
+? new Date(
+dashboard.generatedAt
+).toLocaleString("es-CL")
+: "-"}
+
+</span>
+
+</div>
 
 </div>
 
@@ -514,14 +532,26 @@ dashboard.affiliate.commissionPercent /
 
 <span
 className={`rounded-full px-3 py-1 text-xs ${
-sale.paymentStatus === "paid" ||
-sale.paymentStatus === "approved"
+sale.paymentStatus==="paid" ||
+sale.paymentStatus==="approved"
 ? "bg-green-500/15 text-green-400 border border-green-500/30"
-: "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+: sale.paymentStatus==="pending"
+? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+: "bg-red-500/15 text-red-400 border border-red-500/30"
 }`}
 >
 
-{sale.paymentStatus}
+{sale.paymentStatus==="approved"
+? "Pagado"
+: sale.paymentStatus==="paid"
+? "Pagado"
+: sale.paymentStatus==="pending"
+? "Pendiente"
+: sale.paymentStatus==="failed"
+? "Fallido"
+: sale.paymentStatus==="cancelled"
+? "Cancelado"
+: sale.paymentStatus}
 
 </span>
 
