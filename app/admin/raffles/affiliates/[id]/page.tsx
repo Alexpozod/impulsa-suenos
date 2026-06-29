@@ -32,6 +32,8 @@ const [selectedPayout, setSelectedPayout] = useState<any>(null);
 
 const [search, setSearch] = useState("");
 
+const [statusFilter, setStatusFilter] = useState("Todos");
+
 useEffect(() => {
 
   async function loadDashboard() {
@@ -321,25 +323,32 @@ dashboard.lastSale.createdAt
 
       <div className="flex flex-wrap gap-2">
 
-        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
-          Todos
-        </button>
+        <div className="flex flex-wrap gap-2">
 
-        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
-          Pendientes
-        </button>
+            {[
+                "Todos",
+                "Pagados",
+                "Pendientes",
+                "Fallidos"
+                ].map(status=>(
 
-        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
-          Pagados
-        </button>
+                <button
+                key={status}
+                onClick={()=>setStatusFilter(status)}
+                className={`rounded-full border px-4 py-2 text-sm transition ${
+                statusFilter===status
+                ? "bg-sky-600 border-sky-500 text-white"
+                : "hover:bg-white/5"
+                }`}
+                >
 
-        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
-          Fallidos
-        </button>
+                {status}
 
-        <button className="rounded-full border px-4 py-2 text-sm hover:bg-white/5">
-          Reembolsados
-        </button>
+                </button>
+
+                ))}
+           
+            </div>
 
       </div>
 
