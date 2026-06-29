@@ -106,13 +106,13 @@ if (loading) {
 
   <h1 className="text-4xl font-bold">
 
-    LesLes
+    {dashboard?.affiliate?.name}
 
   </h1>
 
   <span className="rounded-full bg-green-500/15 text-green-400 px-3 py-1 text-xs font-semibold border border-green-500/30">
 
-    ACTIVO
+    {dashboard?.affiliate?.active ? "ACTIVO" : "INACTIVO"}
 
   </span>
 
@@ -130,13 +130,13 @@ if (loading) {
 
   <span className="rounded-full border px-3 py-1 text-xs">
 
-    Comisión 10%
+    Comisión {dashboard?.affiliate?.commissionPercent}%
 
   </span>
 
   <span className="rounded-full border px-3 py-1 text-xs">
 
-    Código LESLES10
+    Código {dashboard?.affiliate?.code}
 
   </span>
 
@@ -144,7 +144,7 @@ if (loading) {
 
 <div className="font-mono text-sky-400 text-sm break-all">
 
-  https://impulsasuenos.com/r/LESLES10
+  {`https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`}
 
 </div>
 
