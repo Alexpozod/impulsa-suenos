@@ -518,14 +518,21 @@ Detalles
 
               <td className="capitalize">
 
-                {String(item.type)
-                  .replaceAll("_"," ")}
+                {item.type === "affiliate_commission"
+                    ? "Comisión Afiliado"
+                    : item.type === "referral_reward"
+                    ? "Recompensa Referido"
+                    : item.type === "payment"
+                    ? "Pago"
+                    : item.type === "payout"
+                    ? "Retiro"
+                    : String(item.type).replaceAll("_", " ")}
 
-              </td>
+                </td>
 
               <td className="font-mono text-xs">
 
-                {item.reference ?? "-"}
+                {item.id?.slice(0, 8).toUpperCase() ?? "-"}
 
               </td>
 
@@ -548,16 +555,27 @@ Detalles
               <td>
 
                 <span
-                  className={`rounded-full px-3 py-1 text-xs ${
-                    item.status === "paid"
-                      ? "bg-green-500/15 text-green-400 border border-green-500/30"
-                      : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
-                  }`}
-                >
+                    className={`rounded-full px-3 py-1 text-xs ${
+                        item.status === "paid" ||
+                        item.status === "confirmed"
+                        ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                        : item.status === "pending"
+                        ? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
+                        : "bg-red-500/15 text-red-400 border border-red-500/30"
+                    }`}
+                    >
 
-                  {item.status}
+                    {item.status === "confirmed"
+                        ? "Confirmado"
+                        : item.status === "paid"
+                        ? "Pagado"
+                        : item.status === "pending"
+                        ? "Pendiente"
+                        : item.status === "cancelled"
+                        ? "Cancelado"
+                        : item.status}
 
-                </span>
+                    </span>
 
               </td>
 
