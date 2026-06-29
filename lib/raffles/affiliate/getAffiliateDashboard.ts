@@ -125,20 +125,30 @@ const { data: affiliatePayments } =
 ========================================= */
 
 const { data: ledger } =
-  await supabase
-    .schema("raffles")
-    .from("ledger")
-    .select("*")
-    .eq(
-      "type",
-      "affiliate_commission"
-    )
-    .contains(
-      "metadata",
-      {
-        affiliateId
-      }
-    )
+await supabase
+.schema("raffles")
+.from("ledger")
+.select(`
+id,
+created_at,
+type,
+amount_clp,
+status,
+reference_id,
+metadata
+`)
+.contains(
+"metadata",
+{
+affiliateId
+}
+)
+.order(
+"created_at",
+{
+ascending:false
+}
+)
     
   let clicks = 0
 let beginCheckout = 0
@@ -354,6 +364,38 @@ const paymentMap =
    LAST SALE
 ========================================= */
 
+const ledgerEntries =
+(ledger || []).map(entry => ({
+
+id: entry.id,
+
+createdAt: entry.created_at,
+
+type: entry.type,
+
+reference:
+entry.reference_id,
+
+status:
+entry.status,
+
+amount:
+Number(
+entry.amount_clp || 0
+),
+
+credit:
+Number(entry.amount_clp) > 0
+? Number(entry.amount_clp)
+: 0,
+
+debit:
+Number(entry.amount_clp) < 0
+? Math.abs(Number(entry.amount_clp))
+: 0
+
+}))
+
 const lastSale =
   sales.length > 0
     ? sales[0]
@@ -416,6 +458,10 @@ const lastSale =
 lastSale,
 
 sales,
+
+ledger:
+
+ledgerEntries,
 
 generatedAt:
   new Date().toISOString(),
