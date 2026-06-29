@@ -34,6 +34,38 @@ const [search, setSearch] = useState("");
 
 const [statusFilter, setStatusFilter] = useState("Todos");
 
+const filteredSales =
+dashboard?.sales?.filter((sale:any)=>{
+
+if(statusFilter==="Pagados"){
+if(
+sale.paymentStatus!=="paid" &&
+sale.paymentStatus!=="approved"
+)return false
+}
+
+if(statusFilter==="Pendientes"){
+if(sale.paymentStatus!=="pending") return false
+}
+
+if(statusFilter==="Fallidos"){
+if(sale.paymentStatus!=="failed") return false
+}
+
+const q=search.toLowerCase()
+
+if(!q) return true
+
+return(
+sale.buyerName?.toLowerCase().includes(q)||
+sale.buyerEmail?.toLowerCase().includes(q)||
+sale.buyerPhone?.toLowerCase().includes(q)||
+sale.id?.toLowerCase().includes(q)||
+sale.paymentReference?.toLowerCase().includes(q)
+)
+
+}) ?? [];
+
 useEffect(() => {
 
   async function loadDashboard() {
@@ -402,58 +434,7 @@ dashboard.generatedAt
 
         <tbody>
 
-{dashboard?.sales
-
-?.filter((sale:any)=>{
-
-if(statusFilter==="Pagados"){
-
-if(
-sale.paymentStatus!=="paid" &&
-sale.paymentStatus!=="approved"
-){
-return false
-}
-
-}
-
-if(statusFilter==="Pendientes"){
-
-if(sale.paymentStatus!=="pending"){
-return false
-}
-
-}
-
-if(statusFilter==="Fallidos"){
-
-if(sale.paymentStatus!=="failed"){
-return false
-}
-
-}
-
-const q=search.toLowerCase()
-
-if(!q) return true
-
-return(
-
-sale.buyerName?.toLowerCase().includes(q)||
-
-sale.buyerEmail?.toLowerCase().includes(q)||
-
-sale.buyerPhone?.toLowerCase().includes(q)||
-
-sale.id?.toLowerCase().includes(q)||
-
-sale.paymentReference?.toLowerCase().includes(q)
-
-)
-
-})
-
-.map((sale:any)=>(
+{filteredSales.map((sale:any)=>(
 
 <tr
   key={sale.id}
