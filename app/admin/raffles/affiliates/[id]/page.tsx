@@ -1172,29 +1172,64 @@ selectedLedger.credit
 />
 
 <Info
-label="Código Comercial"
-value={dashboard?.affiliate?.code ?? "-"}
+label="Cliente"
+value={selectedLedger.buyerName ?? "-"}
 />
 
 <Info
-label="Comisión"
-value={`${dashboard?.affiliate?.commissionPercent ?? 0}%`}
+label="Email"
+value={selectedLedger.buyerEmail ?? "-"}
 />
 
 <Info
-label="Saldo Pendiente"
-value={`$${Math.max(
-0,
-Number(dashboard?.stats?.estimatedCommission??0)-
-Number(dashboard?.stats?.paidCommission??0)
-).toLocaleString("es-CL")}`}
+label="Teléfono"
+value={selectedLedger.buyerPhone ?? "-"}
 />
 
 <Info
-label="Total Pagado"
+label="Sorteo"
+value={selectedLedger.raffleTitle ?? "-"}
+/>
+
+<Info
+label="Compra"
 value={`$${Number(
-dashboard?.stats?.paidCommission??0
+selectedLedger.purchaseAmount ?? 0
 ).toLocaleString("es-CL")}`}
+/>
+
+<Info
+label="Tickets"
+value={
+selectedLedger.quantity
+? `${selectedLedger.quantity}`
+: "-"
+}
+/>
+
+<Info
+label="Order ID"
+value={
+selectedLedger.orderId
+? selectedLedger.orderId.substring(0,8).toUpperCase()
+: "-"
+}
+/>
+
+<Info
+label="Payment ID"
+value={
+selectedLedger.paymentId
+? selectedLedger.paymentId.substring(0,8).toUpperCase()
+: "-"
+}
+/>
+
+<Info
+label="Flow Order"
+value={
+selectedLedger.paymentReference ?? "-"
+}
 />
 
 <Info
