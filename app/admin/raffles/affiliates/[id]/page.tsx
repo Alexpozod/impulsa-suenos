@@ -195,44 +195,70 @@ if (loading) {
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
 
         <Card
-          title="Ventas"
-          value="0"
+        title="Ventas"
+        value={String(dashboard?.stats?.paidOrders ?? 0)}
           icon={<ShoppingCart className="w-5 h-5" />}
         />
 
         <Card
-          title="Revenue"
-          value="$0"
+            title="Revenue"
+            value={`$${Number(
+                dashboard?.stats?.revenue ?? 0
+            ).toLocaleString("es-CL")}`}
           icon={<TrendingUp className="w-5 h-5" />}
         />
 
         <Card
-          title="Comisión Generada"
-          value="$0"
+            title="Comisión Generada"
+            value={`$${Number(
+                dashboard?.stats?.estimatedCommission ?? 0
+            ).toLocaleString("es-CL")}`}
           icon={<DollarSign className="w-5 h-5" />}
         />
 
         <Card
-          title="Pendiente Pago"
-          value="$0"
+            title="Pendiente Pago"
+            value={`$${Math.max(
+                0,
+                Number(dashboard?.stats?.estimatedCommission ?? 0) -
+                Number(dashboard?.stats?.paidCommission ?? 0)
+            ).toLocaleString("es-CL")}`}
           icon={<Clock className="w-5 h-5" />}
         />
 
         <Card
-          title="Pagado"
-          value="$0"
+                title="Pagado"
+                value={`$${Number(
+                    dashboard?.stats?.paidCommission ?? 0
+                ).toLocaleString("es-CL")}`}
           icon={<Users className="w-5 h-5" />}
         />
 
         <Card
-            title="CTR"
-            value="0%"
+                title="CTR"
+                value={`${
+                    dashboard?.stats?.clicks
+                    ? Math.round(
+                        (dashboard.stats.beginCheckout /
+                            dashboard.stats.clicks) *
+                            100
+                        )
+                    : 0
+                }%`}
             icon={<TrendingUp className="w-5 h-5" />}
             />
 
             <Card
-            title="Conversión"
-            value="0%"
+                title="Conversión"
+                value={`${
+                    dashboard?.stats?.clicks
+                    ? Math.round(
+                        (dashboard.stats.paidOrders /
+                            dashboard.stats.clicks) *
+                            100
+                        )
+                    : 0
+                }%`}
             icon={<TrendingUp className="w-5 h-5" />}
             />
 
