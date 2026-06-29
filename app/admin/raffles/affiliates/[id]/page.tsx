@@ -749,18 +749,71 @@ Detalles
 
             <div className="grid md:grid-cols-2 gap-6 p-6">
 
-              <Info label="Nombre" value="Carlos Morales" />
-              <Info label="Email" value="carlos@email.com" />
-              <Info label="Teléfono" value="+56 9 1111 1111" />
-              <Info label="Sorteo" value="iPhone 17 Pro" />
-              <Info label="Tickets" value="000124 · 000125 · 000126" />
-              <Info label="Compra" value="$30.000" />
-              <Info label="Comisión" value="$3.000" />
-              <Info label="Order ID" value="ORD-000001" />
-              <Info label="Payment ID" value="PAY-000001" />
-              <Info label="Flow Payment" value="123456789" />
-              <Info label="Commercial Code" value="LESLES10" />
-              <Info label="Commercial Type" value="Affiliate" />
+              <Info
+                label="Nombre"
+                value={selectedSale?.buyerName ?? "-"}
+                />
+
+                <Info
+                label="Email"
+                value={selectedSale?.buyerEmail ?? "-"}
+                />
+
+                <Info
+                label="Teléfono"
+                value={selectedSale?.buyerPhone ?? "-"}
+                />
+
+                <Info
+                label="Sorteo"
+                value={dashboard?.affiliate?.raffle?.title ?? "-"}
+                />
+
+                <Info
+                label="Tickets"
+                value={`${selectedSale?.quantity ?? 0} Tickets`}
+                />
+
+                <Info
+                label="Compra"
+                value={`$${Number(
+                selectedSale?.total ?? 0
+                ).toLocaleString("es-CL")}`}
+                />
+
+                <Info
+                label="Comisión"
+                value={`$${Math.round(
+                (selectedSale?.total ?? 0) *
+                dashboard?.affiliate?.commissionPercent /
+                100
+                ).toLocaleString("es-CL")}`}
+                />
+
+                <Info
+                label="Order ID"
+                value={selectedSale?.id ?? "-"}
+                />
+
+                <Info
+                label="Payment Provider"
+                value={selectedSale?.paymentProvider ?? "-"}
+                />
+
+                <Info
+                label="Payment ID"
+                value={selectedSale?.paymentReference ?? "-"}
+                />
+
+                <Info
+                label="Estado"
+                value={selectedSale?.paymentStatus ?? "-"}
+                />
+
+                <Info
+                label="Código Comercial"
+                value={dashboard?.affiliate?.code ?? "-"}
+                />
 
             </div>
 
