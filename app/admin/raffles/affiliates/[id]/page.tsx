@@ -30,6 +30,8 @@ const [selectedSale, setSelectedSale] = useState<any>(null);
 
 const [selectedPayout, setSelectedPayout] = useState<any>(null);
 
+const [search, setSearch] = useState("");
+
 useEffect(() => {
 
   async function loadDashboard() {
@@ -128,9 +130,11 @@ if (loading) {
 
   <span className="rounded-full border px-3 py-1 text-xs">
 
-    Affiliate
+    {dashboard?.affiliate?.referralType === "affiliate"
+    ? "Afiliado"
+    : "Referido"}
 
-  </span>
+    </span>
 
   <span className="rounded-full border px-3 py-1 text-xs">
 
@@ -307,9 +311,11 @@ dashboard.lastSale.createdAt
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 
         <input
-          placeholder="Buscar por nombre, correo, teléfono, Order o Payment..."
-          className="w-full rounded-lg border bg-transparent pl-10 pr-4 py-2 outline-none focus:ring-2 focus:ring-primary"
-        />
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
+            placeholder="Buscar por nombre, correo, teléfono, Order o Payment..."
+            className="w-full rounded-lg border bg-transparent pl-10 pr-4 py-2 outline-none focus:ring-2 focus:ring-primary"
+            />
 
       </div>
 
@@ -369,7 +375,31 @@ dashboard.lastSale.createdAt
 
         <tbody>
 
-{dashboard?.sales?.map((sale: any) => (
+{dashboard?.sales
+
+?.filter((sale:any)=>{
+
+const q=search.toLowerCase()
+
+if(!q) return true
+
+return (
+
+sale.buyerName?.toLowerCase().includes(q) ||
+
+sale.buyerEmail?.toLowerCase().includes(q) ||
+
+sale.buyerPhone?.toLowerCase().includes(q) ||
+
+sale.id?.toLowerCase().includes(q) ||
+
+sale.paymentReference?.toLowerCase().includes(q)
+
+)
+
+})
+
+.map((sale:any)=>(
 
 <tr
   key={sale.id}
