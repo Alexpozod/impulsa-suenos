@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+
 import {
   ArrowLeft,
   Copy,
@@ -15,6 +15,44 @@ import {
   Search,
   Eye,
 } from "lucide-react";
+
+function showCopied(message: string) {
+
+  if ("Notification" in window) {
+
+    if (Notification.permission === "granted") {
+
+      new Notification(message);
+
+      return;
+
+    }
+
+    if (Notification.permission !== "denied") {
+
+      Notification.requestPermission().then(permission => {
+
+        if (permission === "granted") {
+
+          new Notification(message);
+
+        } else {
+
+          alert(message);
+
+        }
+
+      });
+
+      return;
+
+    }
+
+  }
+
+  alert(message);
+
+}
 
 export default function AffiliateDetailPage() {
   const params = useParams();
@@ -240,12 +278,12 @@ dashboard.generatedAt
   onClick={async () => {
 
     await navigator.clipboard.writeText(
-        dashboard?.affiliate?.code ?? ""
-        );
+      dashboard?.affiliate?.code ?? ""
+    );
 
-        toast.success("Código copiado al portapapeles");
+    showCopied("Código copiado al portapapeles");
 
-    }}
+}}
     className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
     >
 
@@ -258,13 +296,13 @@ dashboard.generatedAt
       <button
   onClick={async () => {
 
-        await navigator.clipboard.writeText(
-        `https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`
-        );
+    await navigator.clipboard.writeText(
+      `https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`
+    );
 
-        toast.success("Link copiado al portapapeles");
+    showCopied("Link copiado al portapapeles");
 
-    }}
+}}
     className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
     >
 
