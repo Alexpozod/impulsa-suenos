@@ -869,6 +869,15 @@ Detalles
                 />
 
                 <Info
+                label="Payment ID"
+                value={
+                selectedSale?.paymentId
+                ? selectedSale.paymentId.substring(0,8).toUpperCase()
+                : "-"
+                }
+                />
+
+                <Info
                 label="Fecha Compra"
                 value={
                     selectedSale?.createdAt
