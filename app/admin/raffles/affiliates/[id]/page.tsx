@@ -766,12 +766,16 @@ Detalles
 
                 <Info
                 label="Sorteo"
-                value={dashboard?.affiliate?.raffle?.title ?? "-"}
+                value={selectedSale?.raffleTitle ?? "-"}
                 />
 
                 <Info
                 label="Tickets"
-                value={`${selectedSale?.quantity ?? 0} Tickets`}
+                value={
+                selectedSale?.tickets?.length
+                ? selectedSale.tickets.join(" · ")
+                : "-"
+                }
                 />
 
                 <Info

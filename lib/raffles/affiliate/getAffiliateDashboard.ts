@@ -86,17 +86,26 @@ const { data: affiliateOrders } =
   await supabase
     .schema("raffles")
     .from("orders")
-    .select(`
-      id,
-      buyer_name,
-      buyer_email,
-      buyer_phone,
-      quantity,
-      total_clp,
-      status,
-      created_at,
-      metadata
-    `)
+   .select(`
+  id,
+  raffle_id,
+  buyer_name,
+  buyer_email,
+  buyer_phone,
+  quantity,
+  total_clp,
+  status,
+  created_at,
+  metadata,
+  raffles(
+    id,
+    title
+  ),
+  order_tickets(
+    ticket_number,
+    visible_number
+  )
+`)
 
 /* =========================================
    PAYMENTS
