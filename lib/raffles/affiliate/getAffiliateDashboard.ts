@@ -83,11 +83,8 @@ const { data: events } =
 ========================================= */
 
 const {
-
   data: affiliateOrders,
-
   error: ordersError
-
 } =
 await supabase
   .schema("raffles")
@@ -102,26 +99,8 @@ await supabase
     total_clp,
     status,
     created_at,
-    metadata,
-
-    raffles(
-      id,
-      title
-    ),
-
-    order_tickets(
-      ticket_inventory(
-        visible_number,
-        ticket_number,
-        code
-      )
-    )
+    metadata
   `);
-
-console.log(
-  "ordersError",
-  ordersError
-);
 
 /* =========================================
    PAYMENTS
@@ -335,16 +314,6 @@ const paymentMap =
       const payment =
         paymentMap.get(order.id);
 
-const raffle =
-  Array.isArray((order as any).raffles)
-    ? (order as any).raffles[0]
-    : (order as any).raffles;
-
-const tickets =
-  ((order as any).order_tickets || [])
-    .map((item: any) => item.ticket_inventory)
-    .filter(Boolean);
-
       return {
 
         id: order.id,
@@ -377,16 +346,7 @@ const tickets =
         createdAt:
   order.created_at,
 
-raffleTitle:
-      raffle?.title ?? null,
-
-    tickets:
-      tickets.map((ticket: any) => ({
-        visibleNumber: ticket.visible_number,
-        ticketNumber: ticket.ticket_number,
-        code: ticket.code,
-      })),
-  };
+      };
 
 })
 
