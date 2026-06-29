@@ -593,9 +593,13 @@ Detalles
 
           <th className="pb-4 text-right">Débito</th>
 
-          <th className="pb-4 text-right">Crédito</th>
+          <th className="pb-4 text-right pr-8">
+            Crédito
+            </th>
 
-          <th className="pb-4">Estado</th>
+            <th className="pb-4 pl-8">
+            Estado
+            </th>
 
           <th className="pb-4 text-center">Detalle</th>
 
