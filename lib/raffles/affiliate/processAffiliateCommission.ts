@@ -33,6 +33,11 @@ export async function processAffiliateCommission({
 
       )
 
+      console.log(
+  "AFFILIATE COMMISSION",
+  commission
+);
+
     if(
 
       !shouldCreateAffiliateCommission(
@@ -76,6 +81,11 @@ export async function processAffiliateCommission({
   await insertAffiliateLedgerEntry(
     ledgerEntry
   )
+
+  console.log(
+  "LEDGER ENTRY",
+  ledgerEntry
+);
 
 console.log(
 
