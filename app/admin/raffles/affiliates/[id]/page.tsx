@@ -1112,6 +1112,104 @@ Detalles
 
       )}
 
+{selectedLedger && (
+
+<div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
+
+<div className="w-full max-w-2xl rounded-xl border bg-[#090d18] shadow-2xl">
+
+<div className="flex items-center justify-between border-b px-6 py-4">
+
+<h2 className="text-xl font-semibold">
+
+Movimiento Contable
+
+</h2>
+
+<button
+onClick={()=>setSelectedLedger(null)}
+className="text-muted-foreground hover:text-white"
+>
+
+✕
+
+</button>
+
+</div>
+
+<div className="grid md:grid-cols-2 gap-6 p-6">
+
+<Info
+label="Tipo"
+value={
+selectedLedger.type==="affiliate_commission"
+? "Comisión Afiliado"
+: selectedLedger.type
+}
+/>
+
+<Info
+label="Estado"
+value={selectedLedger.status}
+/>
+
+<Info
+label="Fecha"
+value={
+new Date(
+selectedLedger.createdAt
+).toLocaleString("es-CL")
+}
+/>
+
+<Info
+label="Movimiento"
+value={
+selectedLedger.credit
+? `+$${selectedLedger.credit.toLocaleString("es-CL")}`
+: `-$${selectedLedger.debit.toLocaleString("es-CL")}`
+}
+/>
+
+<Info
+label="Código Comercial"
+value={dashboard?.affiliate?.code ?? "-"}
+/>
+
+<Info
+label="Comisión"
+value={`${dashboard?.affiliate?.commissionPercent ?? 0}%`}
+/>
+
+<Info
+label="Saldo Pendiente"
+value={`$${Math.max(
+0,
+Number(dashboard?.stats?.estimatedCommission??0)-
+Number(dashboard?.stats?.paidCommission??0)
+).toLocaleString("es-CL")}`}
+/>
+
+<Info
+label="Total Pagado"
+value={`$${Number(
+dashboard?.stats?.paidCommission??0
+).toLocaleString("es-CL")}`}
+/>
+
+<Info
+label="Ledger ID"
+value={selectedLedger.id}
+/>
+
+</div>
+
+</div>
+
+</div>
+
+)}
+
     </div>
   );
 }
