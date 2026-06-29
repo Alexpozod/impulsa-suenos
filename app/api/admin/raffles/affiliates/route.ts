@@ -34,7 +34,7 @@ export async function GET() {
   }
 
   const baseUrl =
-  "https://impulsasuenos.com"
+  "https://sorteos.impulsasuenos.com"
 
 const { data: raffles } =
   await supabase
@@ -52,7 +52,7 @@ const affiliates =
       item.code,
 
     shareUrl:
-  `${baseUrl}/raffles?aff=${item.code}`,
+`${baseUrl}/r/${item.code}`,
 
     raffleLinks:
 
