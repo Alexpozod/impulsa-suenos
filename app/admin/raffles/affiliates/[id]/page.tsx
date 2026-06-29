@@ -30,6 +30,8 @@ const [selectedSale, setSelectedSale] = useState<any>(null);
 
 const [selectedPayout, setSelectedPayout] = useState<any>(null);
 
+const [selectedLedger, setSelectedLedger] = useState<any>(null);
+
 const [search, setSearch] = useState("");
 
 const [statusFilter, setStatusFilter] = useState("Todos");
@@ -691,15 +693,17 @@ Detalles
               <td className="text-center">
 
                 <button
-                onClick={()=>{
-                navigator.clipboard.writeText(item.id)
-                }}
-                className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5"
-                >
+                    onClick={()=>{
+                    setSelectedLedger(item)
+                    }}
+                    className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5 flex items-center gap-2"
+                    >
 
-                Copiar ID
+                    <Eye className="w-4 h-4"/>
 
-                </button>
+                    Detalle
+
+                    </button>
 
                 </td>
 
