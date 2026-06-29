@@ -405,7 +405,7 @@ dashboard.lastSale.createdAt
 
 <td>
 
-{dashboard?.affiliate?.raffle?.title}
+{sale.raffleTitle ?? "-"}
 
 </td>
 
@@ -835,10 +835,10 @@ Detalles
                 />
 
                 <Info
-                label="Tickets"
+                label="Cantidad Tickets"
                 value={
-                selectedSale?.tickets?.length
-                ? selectedSale.tickets.join(" · ")
+                selectedSale?.quantity
+                ? `${selectedSale.quantity} ticket${selectedSale.quantity > 1 ? "s" : ""}`
                 : "-"
                 }
                 />
