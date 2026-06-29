@@ -676,14 +676,17 @@ Detalles
               <td className="text-center">
 
                 <button
-                  className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5"
+                onClick={()=>{
+                navigator.clipboard.writeText(item.id)
+                }}
+                className="rounded-lg border px-3 py-2 text-sm hover:bg-white/5"
                 >
 
-                  Ver
+                Copiar ID
 
                 </button>
 
-              </td>
+                </td>
 
             </tr>
 
