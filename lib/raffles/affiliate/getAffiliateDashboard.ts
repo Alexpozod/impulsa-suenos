@@ -168,15 +168,30 @@ return metadata.affiliateId===affiliateId
 const metadata =
 (entry.metadata || {}) as any
 
+const orderId =
+metadata.orderId ??
+metadata.order_id ??
+metadata.order ??
+metadata.orderUUID ??
+null
+
 const order =
 (affiliateOrders || []).find(
-o=>o.id===metadata.orderId
+o=>o.id===orderId
 )
 
 const payment =
 (affiliatePayments || []).find(
-p=>p.order_id===metadata.orderId
+p=>p.order_id===orderId
 )
+
+const paymentReference =
+payment?.provider_payment_id ??
+metadata.flowOrder ??
+metadata.flow_order ??
+metadata.paymentReference ??
+metadata.providerPaymentId ??
+null
 
 const raffle =
 Array.isArray((order as any)?.raffles)
@@ -227,8 +242,7 @@ order?.id ?? null,
 paymentId:
 payment?.id ?? null,
 
-paymentReference:
-payment?.provider_payment_id ?? null
+paymentReference
 
 }
 
