@@ -154,40 +154,85 @@ ascending:false
     
 const ledgerEntries =
 (ledger || [])
-.filter((entry: any) => {
+.filter((entry:any)=>{
 
-  const metadata =
-    (entry.metadata || {}) as any
+const metadata =
+(entry.metadata || {}) as any
 
-  return metadata.affiliateId === affiliateId
+return metadata.affiliateId===affiliateId
 
 })
-.map((entry: any) => ({
 
-  id: entry.id,
+.map((entry:any)=>{
 
-  createdAt: entry.created_at,
+const metadata =
+(entry.metadata || {}) as any
 
-  type: entry.type,
+const order =
+(affiliateOrders || []).find(
+o=>o.id===metadata.orderId
+)
 
-  reference: "-",
+const payment =
+(affiliatePayments || []).find(
+p=>p.order_id===metadata.orderId
+)
 
-  status: entry.status,
+const raffle =
+Array.isArray((order as any)?.raffles)
+? (order as any).raffles[0]
+: (order as any)?.raffles
 
-  amount:
-    Number(entry.amount_clp || 0),
+return{
 
-  credit:
-    Number(entry.amount_clp) > 0
-      ? Number(entry.amount_clp)
-      : 0,
+id:entry.id,
 
-  debit:
-    Number(entry.amount_clp) < 0
-      ? Math.abs(Number(entry.amount_clp))
-      : 0
+createdAt:entry.created_at,
 
-}))
+type:entry.type,
+
+status:entry.status,
+
+credit:
+Number(entry.amount_clp)>0
+?Number(entry.amount_clp)
+:0,
+
+debit:
+Number(entry.amount_clp)<0
+?Math.abs(Number(entry.amount_clp))
+:0,
+
+buyerName:
+order?.buyer_name ?? null,
+
+buyerEmail:
+order?.buyer_email ?? null,
+
+buyerPhone:
+order?.buyer_phone ?? null,
+
+purchaseAmount:
+Number(order?.total_clp ?? 0),
+
+quantity:
+order?.quantity ?? 0,
+
+raffleTitle:
+raffle?.title ?? null,
+
+orderId:
+order?.id ?? null,
+
+paymentId:
+payment?.id ?? null,
+
+paymentReference:
+payment?.provider_payment_id ?? null
+
+}
+
+})
 
 /* =========================================
    PAYOUT REQUESTS
