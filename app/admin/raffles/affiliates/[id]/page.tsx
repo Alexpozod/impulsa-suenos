@@ -796,22 +796,46 @@ Detalles
 
                 <Info
                 label="Order ID"
-                value={selectedSale?.id ?? "-"}
+                value={
+                    selectedSale?.id
+                    ? selectedSale.id.substring(0, 8).toUpperCase()
+                    : "-"
+                }
                 />
 
                 <Info
-                label="Payment Provider"
-                value={selectedSale?.paymentProvider ?? "-"}
+                label="Fecha Compra"
+                value={
+                    selectedSale?.createdAt
+                    ? new Date(selectedSale.createdAt).toLocaleString("es-CL")
+                    : "-"
+                }
                 />
 
                 <Info
-                label="Payment ID"
+                label="Proveedor"
+                value={
+                    selectedSale?.paymentProvider?.toUpperCase() ?? "-"
+                }
+                />
+
+                <Info
+                label="ID Pago Flow"
                 value={selectedSale?.paymentReference ?? "-"}
                 />
 
                 <Info
                 label="Estado"
-                value={selectedSale?.paymentStatus ?? "-"}
+                value={
+                    selectedSale?.paymentStatus === "approved" ||
+                    selectedSale?.paymentStatus === "paid"
+                    ? "Pagado"
+                    : selectedSale?.paymentStatus === "pending"
+                    ? "Pendiente"
+                    : selectedSale?.paymentStatus === "failed"
+                    ? "Fallido"
+                    : selectedSale?.paymentStatus ?? "-"
+                }
                 />
 
                 <Info
