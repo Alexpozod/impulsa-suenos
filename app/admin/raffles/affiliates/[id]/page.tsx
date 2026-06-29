@@ -174,21 +174,35 @@ dashboard.lastSale.createdAt
 
     <div className="flex flex-wrap gap-3">
 
-      <button className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5">
+      <button
+        onClick={()=>
+        navigator.clipboard.writeText(
+        dashboard?.affiliate?.code ?? ""
+        )
+        }
+        className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
+        >
 
-        <Copy className="w-4 h-4" />
+        <Copy className="w-4 h-4"/>
 
         Copiar Código
 
-      </button>
+        </button>
 
-      <button className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5">
+      <button
+            onClick={()=>
+            navigator.clipboard.writeText(
+            `https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`
+            )
+            }
+            className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
+            >
 
-        <Copy className="w-4 h-4" />
+            <Copy className="w-4 h-4"/>
 
-        Copiar Link
+            Copiar Link
 
-      </button>
+            </button>
 
       {/* Botón temporal eliminado.
    El modal se abrirá desde la tabla de compras. */}
