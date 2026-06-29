@@ -184,6 +184,47 @@ const ledgerEntries =
 
 }))
 
+/* =========================================
+   PAYOUT REQUESTS
+========================================= */
+
+const { data: payoutRequests } =
+await supabase
+  .schema("raffles")
+  .from("affiliate_payout_requests")
+  .select(`
+    id,
+    amount_clp,
+    status,
+    processed_by,
+    processed_at,
+    rejection_reason,
+    created_at
+  `)
+  .eq("affiliate_id", affiliateId)
+  .order("created_at", {
+    ascending: false
+  })
+
+const payouts =
+(payoutRequests || []).map((item:any)=>({
+
+  id:item.id,
+
+  createdAt:item.created_at,
+
+  amount:Number(item.amount_clp || 0),
+
+  status:item.status,
+
+  processedBy:item.processed_by,
+
+  processedAt:item.processed_at,
+
+  rejectionReason:item.rejection_reason
+
+}))
+
   let clicks = 0
 let beginCheckout = 0
 let totalOrders = 0
@@ -458,6 +499,8 @@ sales,
 ledger:
 
 ledgerEntries,
+
+payouts,
 
 generatedAt:
   new Date().toISOString(),
