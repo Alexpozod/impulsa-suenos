@@ -99,7 +99,12 @@ await supabase
     total_clp,
     status,
     created_at,
-    metadata
+    metadata,
+    raffles(
+      id,
+      title,
+      slug
+    )
   `);
 
 /* =========================================
@@ -393,6 +398,11 @@ const paymentMap =
       const payment =
         paymentMap.get(order.id);
 
+        const raffle =
+        Array.isArray((order as any).raffles)
+        ? (order as any).raffles[0]
+        : (order as any).raffles
+
       return {
 
         id: order.id,
@@ -424,6 +434,12 @@ const paymentMap =
 
         createdAt:
   order.created_at,
+
+  raffleTitle:
+raffle?.title ?? null,
+
+raffleSlug:
+raffle?.slug ?? null,
 
       };
 
