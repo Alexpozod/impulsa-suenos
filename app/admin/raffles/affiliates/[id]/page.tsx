@@ -154,12 +154,19 @@ if (loading) {
 
 <div className="text-sm text-muted-foreground">
 
-  Última venta:
-  <span className="text-white ml-2">
+Última venta:
 
-    Hace 2 horas
+<span className="text-white ml-2">
 
-  </span>
+{dashboard?.lastSale?.createdAt
+
+? new Date(
+dashboard.lastSale.createdAt
+).toLocaleString("es-CL")
+
+: "Sin ventas"}
+
+</span>
 
 </div>
 
