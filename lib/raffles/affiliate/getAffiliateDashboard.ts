@@ -9,20 +9,29 @@ export async function getAffiliateDashboard(
   affiliateId: string
 ) {
 
- const { data: affiliate } =
+ const {
+
+  data: affiliate,
+
+  error: affiliateError
+
+} =
   await supabase
     .schema("raffles")
     .from("raffle_referrals")
-    .select(`
-      *,
-      raffles(
-        id,
-        title,
-        slug
-      )
-    `)
+    .select("*")
     .eq("id", affiliateId)
-    .maybeSingle()
+    .maybeSingle();
+
+console.log(
+  "affiliate",
+  affiliate
+);
+
+console.log(
+  "affiliateError",
+  affiliateError
+);
 
   if (!affiliate) {
 
@@ -371,9 +380,7 @@ const lastSale =
       id:
         affiliate.id,
 
-      name:
-        affiliate.name ??
-        affiliate.owner_name ??
+     name:
         affiliate.owner_email ??
         affiliate.code,
 
