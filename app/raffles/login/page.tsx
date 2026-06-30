@@ -36,7 +36,16 @@ export default function Login() {
 
     const role = profile?.role
 
-    const intent = localStorage.getItem('donation_intent')
+const { data: partner } = await supabase
+  .schema("raffles")
+  .from("raffle_referrals")
+  .select("id")
+  .eq("owner_email", user.email?.toLowerCase())
+  .maybeSingle()
+
+const isPartner = !!partner
+
+const intent = localStorage.getItem('donation_intent')
 
     if (intent) {
       try {
@@ -55,11 +64,16 @@ export default function Login() {
     }
 
     if (redirect) {
-      window.location.href = redirect
-      return
-    }
+  window.location.href = redirect
+  return
+}
 
-    window.location.href = "/raffles"
+if (isPartner) {
+  window.location.href = "/raffles/partners/dashboard"
+  return
+}
+
+window.location.href = "/raffles"
   }
 
   useEffect(() => {
