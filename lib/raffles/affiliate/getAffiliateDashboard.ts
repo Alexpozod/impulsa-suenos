@@ -1,5 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 
+import { calculateAffiliateWallet }
+from "./calculateAffiliateWallet"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -516,6 +519,11 @@ const lastSale =
     ? sales[0]
     : null
 
+    const wallet =
+  await calculateAffiliateWallet(
+    affiliate.id
+  )
+
   return {
 
     affiliate: {
@@ -551,25 +559,7 @@ const lastSale =
       raffle: null,
 
     },
-
-    stats: {
-
-      clicks,
-
-      beginCheckout,
-
-      orders: totalOrders,
-
-      paidOrders,
-
-      revenue,
-
-      estimatedCommission,
-
-      paidCommission
-
-        },
-
+    
 lastSale,
 
 sales,
