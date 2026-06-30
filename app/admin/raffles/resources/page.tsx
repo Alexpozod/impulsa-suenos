@@ -830,6 +830,10 @@ async function duplicateResource(resource:any){
 
             }
 
+            </button>
+
+            </div>
+
             <div
 className="
 rounded-3xl
@@ -985,11 +989,7 @@ new Date(item.created_at)
 
 </div>
 
-            </button>
-
-            </div>
-
-      <div
+<div
         className="
           rounded-3xl
           border
