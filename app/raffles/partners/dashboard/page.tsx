@@ -13,6 +13,11 @@ export default function RafflePartnerDashboardPage() {
   const [loading, setLoading] =
     useState(true)
 
+    const [page, setPage] =
+  useState(1)
+
+const PER_PAGE = 10
+
   useEffect(() => {
 
     load()
@@ -68,7 +73,7 @@ export default function RafflePartnerDashboardPage() {
 
   if (!data?.affiliate) {
 
-    return (
+       return (
 
       <div className="p-6">
 
@@ -85,6 +90,36 @@ export default function RafflePartnerDashboardPage() {
     )
 
   }
+
+const sales =
+  data.sales || []
+
+const totalPages =
+  Math.max(
+    1,
+    Math.ceil(
+      sales.length / PER_PAGE
+    )
+  )
+
+const paginatedSales =
+  sales.slice(
+    (page - 1) * PER_PAGE,
+    page * PER_PAGE
+  )
+
+  useEffect(() => {
+
+  if (page > totalPages) {
+
+    setPage(totalPages)
+
+  }
+
+}, [
+  page,
+  totalPages
+])
 
   return (
 
@@ -252,8 +287,10 @@ export default function RafflePartnerDashboardPage() {
           mt-10
           rounded-3xl
           border
-          border-slate-800
-          bg-slate-900
+          border-slate-200
+          bg-white
+          shadow-xl
+          shadow-slate-200/60
           overflow-hidden
         "
       >
@@ -263,7 +300,7 @@ export default function RafflePartnerDashboardPage() {
             px-6
             py-5
             border-b
-            border-slate-800
+            border-slate-200
           "
         >
 
@@ -271,7 +308,7 @@ export default function RafflePartnerDashboardPage() {
             className="
               text-2xl
               font-bold
-              text-white
+              text-slate-900
             "
           >
 
@@ -305,8 +342,10 @@ export default function RafflePartnerDashboardPage() {
               <tr
                 className="
                   border-b
-                  border-slate-800
-                  bg-slate-950
+                  border-slate-200
+                  bg-gradient-to-r
+                    from-cyan-50
+                    to-violet-50
                 "
               >
 
@@ -338,11 +377,51 @@ export default function RafflePartnerDashboardPage() {
 
               {
 
-                (data.sales || [])
+                paginatedSales.length === 0
 
-                .slice(0,10)
+?
 
-                .map((sale:any)=>(
+(
+
+<tr>
+
+<td
+colSpan={5}
+className="
+p-10
+text-center
+text-slate-500
+"
+>
+
+<div
+className="
+flex
+flex-col
+items-center
+justify-center
+"
+>
+
+<div className="text-lg font-semibold">
+Todavía no existen compras con tu código.
+</div>
+
+<div className="mt-2 text-sm">
+Comparte tus enlaces para comenzar a generar ventas.
+</div>
+
+</div>
+
+</td>
+
+</tr>
+
+)
+
+:
+
+paginatedSales.map((sale:any)=>(
 
                   <tr
 
@@ -350,7 +429,9 @@ export default function RafflePartnerDashboardPage() {
 
                     className="
                       border-b
-                      border-slate-800
+                      border-slate-200
+                      hover:bg-cyan-50
+                      transition-colors
                     "
 
                   >
@@ -375,13 +456,13 @@ export default function RafflePartnerDashboardPage() {
 
                       </div>
 
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-slate-500">
 
                         {sale.buyerEmail}
 
                       </div>
 
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-400">
 
                         {sale.buyerPhone}
 
@@ -436,6 +517,113 @@ export default function RafflePartnerDashboardPage() {
             </tbody>
 
           </table>
+
+          <div
+  className="
+    flex
+    items-center
+    justify-between
+    px-6
+    py-4
+    border-t
+    border-slate-200
+    bg-slate-50
+  "
+>
+
+  <button
+
+    disabled={page === 1}
+
+    onClick={() =>
+      setPage(page - 1)
+    }
+
+    className="
+      px-4
+      py-2
+      rounded-lg
+      border
+      border-slate-300
+      disabled:opacity-40
+      disabled:cursor-not-allowed
+    "
+
+  >
+
+    ← Anterior
+
+  </button>
+
+  <div
+  className="
+    text-center
+  "
+>
+
+  <div
+    className="
+      text-sm
+      font-semibold
+      text-slate-700
+    "
+  >
+
+    Página {page} de {totalPages}
+
+  </div>
+
+  <div
+    className="
+      text-xs
+      text-slate-500
+      mt-1
+    "
+  >
+
+    Mostrando
+
+    {" "}
+
+    {paginatedSales.length}
+
+    {" de "}
+
+    {sales.length}
+
+    compras
+
+  </div>
+
+</div>
+
+  <button
+
+    disabled={
+page >= totalPages
+}
+
+    onClick={() =>
+      setPage(page + 1)
+    }
+
+    className="
+      px-4
+      py-2
+      rounded-lg
+      border
+      border-slate-300
+      disabled:opacity-40
+      disabled:cursor-not-allowed
+    "
+
+  >
+
+    Siguiente →
+
+  </button>
+
+</div>
 
         </div>
 
