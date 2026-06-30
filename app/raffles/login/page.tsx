@@ -40,53 +40,70 @@ export default function Login() {
 
     const role = profile?.role
 
-let isPartner = false
+const {
+  data: { session }
+} =
+await supabase.auth.getSession()
 
-const { data: partner } = await supabase
-  .schema("raffles")
-  .from("raffle_referrals")
-  .select(`
-    id,
-    owner_user_id,
-    active
-  `)
-  .eq("owner_email", user.email?.toLowerCase())
-  .maybeSingle()
+const response =
+await fetch(
 
-if (partner?.active) {
+  "/api/raffles/partners/me",
 
-    console.log("PARTNER ACTIVO")
+  {
 
-  isPartner = true
+    headers:{
 
-  if (!partner.owner_user_id) {
-
-    console.log("ACTUALIZANDO OWNER USER ID")
-
-    const { error } = await supabase
-      .schema("raffles")
-      .from("raffle_referrals")
-      .update({
-
-        owner_user_id: user.id
-
-      })
-      .eq("id", partner.id)
-
-    if (error) {
-
-      console.error(
-        "Error vinculando Partner:",
-        error
-      )
+      Authorization:
+      `Bearer ${session?.access_token}`
 
     }
 
   }
 
-}
+)
 
-console.log("PARTNER", partner)
+const json =
+await response.json()
+
+const affiliate =
+json.affiliate
+
+const isPartner =
+!!affiliate?.active
+
+if (
+
+  affiliate &&
+
+  !affiliate.owner_user_id
+
+){
+
+  await fetch(
+
+    "/api/raffles/partners/profile",
+
+    {
+
+      method:"PUT",
+
+      headers:{
+
+        "Content-Type":"application/json",
+
+        Authorization:
+        `Bearer ${session?.access_token}`
+
+      },
+
+      body:JSON.stringify({})
+
+    }
+
+  )
+
+}
 
 const intent = localStorage.getItem('donation_intent')
 
