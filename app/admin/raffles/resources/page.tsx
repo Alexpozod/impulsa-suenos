@@ -27,6 +27,8 @@ export default function ResourcesPage() {
 
   const [saving, setSaving] = useState(false)
 
+  const [filterCategory, setFilterCategory] = useState("Todas")
+
   useEffect(() => {
 
     loadResources()
@@ -396,10 +398,80 @@ export default function ResourcesPage() {
                 text-white
             "
             >
-            Recursos ({resources.length})
+            Recursos ({
+
+                resources.filter(resource =>
+
+                filterCategory === "Todas"
+
+                    ? true
+
+                    : resource.category === filterCategory
+
+                ).length
+
+                })
             </h2>
 
         </div>
+
+            <div
+            className="
+                px-6
+                py-4
+                border-b
+                border-slate-800
+                flex
+                gap-3
+                flex-wrap
+            "
+            >
+
+            {[
+                "Todas",
+                "Logos",
+                "Videos",
+                "Instagram",
+                "TikTok",
+                "Facebook",
+                "Documentos"
+            ].map(category => (
+
+                <button
+
+                key={category}
+
+                type="button"
+
+                onClick={() =>
+                    setFilterCategory(category)
+                }
+
+                className={`
+                    px-4
+                    py-2
+                    rounded-xl
+                    text-sm
+                    font-medium
+
+                    ${
+                    filterCategory === category
+
+                        ? "bg-cyan-500 text-slate-950"
+
+                        : "bg-slate-950 border border-slate-700"
+                    }
+                `}
+
+                >
+
+                {category}
+
+                </button>
+
+            ))}
+
+            </div>
 
         <div
           className="
@@ -474,7 +546,15 @@ export default function ResourcesPage() {
 
                 :
 
-                resources.length === 0
+                resources.filter(resource =>
+
+                filterCategory === "Todas"
+
+                    ? true
+
+                    : resource.category === filterCategory
+
+                ).length === 0
 
                 ?
 
@@ -495,7 +575,19 @@ export default function ResourcesPage() {
 
                 :
 
-                resources.map(resource=>(
+                resources
+
+                .filter(resource =>
+
+                filterCategory === "Todas"
+
+                    ? true
+
+                    : resource.category === filterCategory
+
+                )
+
+                .map(resource=>(
 
                   <tr
                     key={resource.id}
