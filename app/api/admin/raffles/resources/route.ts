@@ -86,6 +86,118 @@ export async function GET(req: Request) {
 
 }
 
+export async function POST(req: Request) {
+
+  try {
+
+    const auth =
+      await requireAdminAccess(req);
+
+    if (
+      !auth.authorized ||
+      !auth.user
+    ) {
+
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      );
+
+    }
+
+    const body =
+      await req.json();
+
+    const {
+
+      title,
+
+      description,
+
+      category,
+
+      storage_path,
+
+      file_name,
+
+      mime_type,
+
+      file_size,
+
+      sort_order
+
+    } = body;
+
+    const {
+      data,
+      error
+    } =
+      await supabase
+        .schema("raffles")
+        .from("partner_resources")
+        .insert({
+
+          title,
+
+          description,
+
+          category,
+
+          storage_path,
+
+          file_name,
+
+          mime_type,
+
+          file_size,
+
+          sort_order:
+            sort_order ?? 0,
+
+          created_by:
+            auth.user.id
+
+        })
+
+        .select()
+
+        .single();
+
+    if (error) {
+
+      throw error;
+
+    }
+
+    return NextResponse.json({
+
+      ok: true,
+
+      resource: data
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        error: "server_error"
+      },
+      {
+        status: 500
+      }
+    );
+
+  }
+
+}
+
 export async function PUT(req: Request) {
 
   try {
