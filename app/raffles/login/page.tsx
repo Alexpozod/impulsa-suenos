@@ -36,15 +36,47 @@ export default function Login() {
 
     const role = profile?.role
 
+let isPartner = false
+
 const { data: partner } = await supabase
   .schema("raffles")
-  .from("affiliates")
-  .select("id")
-  .eq("user_id", user.id)
-  .eq("status", "active")
+  .from("raffle_referrals")
+  .select(`
+    id,
+    owner_user_id,
+    active
+  `)
+  .eq("owner_email", user.email?.toLowerCase())
   .maybeSingle()
 
-const isPartner = !!partner
+if (partner?.active) {
+
+  isPartner = true
+
+  if (!partner.owner_user_id) {
+
+    const { error } = await supabase
+      .schema("raffles")
+      .from("raffle_referrals")
+      .update({
+
+        owner_user_id: user.id
+
+      })
+      .eq("id", partner.id)
+
+    if (error) {
+
+      console.error(
+        "Error vinculando Partner:",
+        error
+      )
+
+    }
+
+  }
+
+}
 
 const intent = localStorage.getItem('donation_intent')
 
