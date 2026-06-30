@@ -14,63 +14,38 @@ export default function PartnersLayout({
 
   const menu = [
 
-    {
-      href:
-        "/raffles/partners/dashboard",
+  {
+    href: "/raffles/partners/dashboard",
+    label: "Dashboard",
+    icon: "📊"
+  },
 
-      label:
-        "Dashboard",
+  {
+    href: "/raffles/partners/links",
+    label: "Links",
+    icon: "🔗"
+  },
 
-      icon:
-        "📊"
-    },
+  {
+    href: "/raffles/partners/resources",
+    label: "Recursos",
+    icon: "📦"
+  },
 
-    {
-      href:
-        "/raffles/partners/links",
+  {
+    href: "/raffles/partners/profile",
+    label: "Perfil",
+    icon: "👤"
+  },
 
-      label:
-        "Links",
+  {
+    href: "/raffles/partners/payouts",
+    label: "Pagos",
+    icon: "💰"
+  }
 
-      icon:
-        "🔗"
-    },
-
-    {
-      href:
-        "/raffles/partners/profile",
-
-      label:
-        "Perfil",
-
-      icon:
-        "👤"
-    },
-
-        {
-      href:
-        "/raffles/partners/payouts",
-
-      label:
-        "Pagos",
-
-      icon:
-        "💰"
-    },
-
-    {
-      href:
-        "/raffles/partners/resources",
-
-      label:
-        "Recursos",
-
-      icon:
-        "📦"
-    }
-
-  ]
-
+]
+   
   return (
 
     <div
