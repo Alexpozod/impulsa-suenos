@@ -43,11 +43,15 @@ const [sendEmail, setSendEmail] = useState(false)
 
 const [sendingNotification, setSendingNotification] = useState(false)
 
+const [notifications,setNotifications]=useState<any[]>([])
+
   useEffect(() => {
 
-    loadResources()
+  loadResources()
 
-  }, [])
+  loadNotifications()
+
+}, [])
 
   async function loadResources() {
 
@@ -87,6 +91,50 @@ const [sendingNotification, setSendingNotification] = useState(false)
     }
 
   }
+
+  async function loadNotifications(){
+
+  try{
+
+    const {
+      data:{session}
+    }=
+    await supabase.auth.getSession()
+
+    const res=
+      await fetch(
+
+        "/api/admin/raffles/partner-notifications",
+
+        {
+
+          headers:{
+
+            Authorization:
+            `Bearer ${session?.access_token}`
+
+          }
+
+        }
+
+      )
+
+    const json=
+      await res.json()
+
+    setNotifications(
+      json.notifications || []
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+  }
+
+}
 
   async function saveResource() {
 
@@ -172,6 +220,69 @@ const [sendingNotification, setSendingNotification] = useState(false)
   } finally {
 
     setSaving(false)
+
+  }
+
+}
+
+async function duplicateResource(resource:any){
+
+  try{
+
+    const {
+      data:{session}
+    }=
+    await supabase.auth.getSession()
+
+    await fetch(
+
+      "/api/admin/raffles/resources",
+
+      {
+
+        method:"POST",
+
+        headers:{
+
+          "Content-Type":"application/json",
+
+          Authorization:
+          `Bearer ${session?.access_token}`
+
+        },
+
+        body:JSON.stringify({
+
+          title:`${resource.title} (Copia)`,
+
+          description:resource.description,
+
+          category:resource.category,
+
+          storage_path:resource.storage_path,
+
+          file_name:resource.file_name,
+
+          mime_type:resource.mime_type,
+
+          file_size:resource.file_size,
+
+          sort_order:
+          (resource.sort_order || 0)+1
+
+        })
+
+      }
+
+    )
+
+    await loadResources()
+
+  }
+
+  catch(error){
+
+    console.error(error)
 
   }
 
@@ -672,6 +783,8 @@ const [sendingNotification, setSendingNotification] = useState(false)
 
             setSendEmail(false)
 
+            await loadNotifications()
+
             alert("Notificación creada")
 
             }
@@ -716,6 +829,161 @@ const [sendingNotification, setSendingNotification] = useState(false)
             "📢 Publicar Aviso"
 
             }
+
+            <div
+className="
+rounded-3xl
+border
+border-slate-800
+bg-slate-900
+overflow-hidden
+"
+>
+
+<div
+className="
+px-6
+py-5
+border-b
+border-slate-800
+"
+>
+
+<h2
+className="
+text-xl
+font-semibold
+text-white
+"
+>
+
+📜 Historial de Avisos
+
+</h2>
+
+</div>
+
+<table className="w-full">
+
+<thead>
+
+<tr
+className="
+bg-slate-950
+border-b
+border-slate-800
+"
+>
+
+<th className="p-4 text-left">
+Título
+</th>
+
+<th className="p-4 text-left">
+Email
+</th>
+
+<th className="p-4 text-left">
+Fecha
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{
+
+notifications.length===0
+
+?
+
+<tr>
+
+<td
+colSpan={3}
+className="
+p-8
+text-center
+text-slate-500
+"
+>
+
+Sin avisos
+
+</td>
+
+</tr>
+
+:
+
+notifications.map(item=>(
+
+<tr
+key={item.id}
+className="
+border-b
+border-slate-800
+"
+>
+
+<td className="p-4">
+
+<div className="font-semibold">
+
+{item.title}
+
+</div>
+
+<div className="text-sm text-slate-500">
+
+{item.message}
+
+</div>
+
+</td>
+
+<td className="p-4">
+
+{
+
+item.send_email
+
+?
+
+"✅ Sí"
+
+:
+
+"—"
+
+}
+
+</td>
+
+<td className="p-4">
+
+{
+
+new Date(item.created_at)
+.toLocaleString("es-CL")
+
+}
+
+</td>
+
+</tr>
+
+))
+
+}
+
+</tbody>
+
+</table>
+
+</div>
 
             </button>
 
@@ -1210,6 +1478,29 @@ font-semibold
 >
 
 Editar
+
+</button>
+
+<button
+
+type="button"
+
+onClick={()=>
+duplicateResource(resource)
+}
+
+className="
+px-3
+py-1
+rounded-lg
+bg-violet-600
+text-white
+font-semibold
+"
+
+>
+
+Duplicar
 
 </button>
 
