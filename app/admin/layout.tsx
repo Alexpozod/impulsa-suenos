@@ -270,7 +270,7 @@ export default function AdminLayout({ children }: any) {
 
                   <SubItem
                     href="/admin/raffles/resources"
-                    label="📦 Recurso"
+                    label="📦 Recursos"
                   />
 
                   <SubItem

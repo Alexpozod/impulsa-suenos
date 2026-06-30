@@ -38,9 +38,10 @@ export default function Login() {
 
 const { data: partner } = await supabase
   .schema("raffles")
-  .from("raffle_referrals")
+  .from("affiliates")
   .select("id")
-  .eq("owner_email", user.email?.toLowerCase())
+  .eq("user_id", user.id)
+  .eq("status", "active")
   .maybeSingle()
 
 const isPartner = !!partner
