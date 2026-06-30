@@ -504,6 +504,10 @@ export default function ResourcesPage() {
                     </th>
 
                     <th className="p-4 text-left">
+                    Vista
+                    </th>
+
+                    <th className="p-4 text-left">
                     Descargas
                     </th>
 
@@ -532,7 +536,7 @@ export default function ResourcesPage() {
                 <tr>
 
                   <td
-                    colSpan={4}
+                    colSpan={7}
                     className="
                       p-8
                       text-center
@@ -561,7 +565,7 @@ export default function ResourcesPage() {
                 <tr>
 
                   <td
-                    colSpan={4}
+                    colSpan={7}
                     className="
                       p-8
                       text-center
@@ -668,6 +672,71 @@ export default function ResourcesPage() {
                         }
 
                         </td>
+
+                        <td className="p-4">
+
+                            {
+
+                            resource.mime_type?.startsWith("image/")
+
+                            ?
+
+                            <img
+
+                            src={`/api/raffles/partners/download?path=${encodeURIComponent(resource.storage_path)}`}
+
+                            className="
+                            w-20
+                            h-20
+                            object-cover
+                            rounded-xl
+                            border
+                            border-slate-700
+                            "
+
+                            />
+
+                            :
+
+                            resource.mime_type === "application/pdf"
+
+                            ?
+
+                            <div
+                            className="
+                            text-4xl
+                            "
+                            >
+                            📄
+                            </div>
+
+                            :
+
+                            resource.mime_type?.startsWith("video/")
+
+                            ?
+
+                            <div
+                            className="
+                            text-4xl
+                            "
+                            >
+                            🎥
+                            </div>
+
+                            :
+
+                            <div
+                            className="
+                            text-4xl
+                            "
+                            >
+                            📦
+                            </div>
+
+                            }
+
+                            </td>
 
                     <td className="p-4">
 
