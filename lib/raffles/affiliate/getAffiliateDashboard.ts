@@ -526,12 +526,12 @@ const lastSale =
 
   return {
 
-    affiliate: {
+        affiliate: {
 
       id:
         affiliate.id,
 
-     name:
+      name:
         affiliate.owner_email ??
         affiliate.code,
 
@@ -559,7 +559,28 @@ const lastSale =
       raffle: null,
 
     },
-    
+
+    stats: {
+
+      clicks,
+
+      beginCheckout,
+
+      orders: totalOrders,
+
+      paidOrders,
+
+      revenue,
+
+      estimatedCommission,
+
+      paidCommission,
+
+      availableCommission:
+        wallet.available
+
+    },
+
 lastSale,
 
 sales,
