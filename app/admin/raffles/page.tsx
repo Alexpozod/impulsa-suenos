@@ -86,6 +86,12 @@ const sections = [
   description: "Bundles y cupones",
   icon: "🎉",
   href: "/admin/raffles/promotions"
+},
+{
+  title: "Recursos",
+  description: "Material Partners",
+  icon: "📦",
+  href: "/admin/raffles/resources"
 }
 ]
 
