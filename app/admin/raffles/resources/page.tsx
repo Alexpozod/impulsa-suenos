@@ -31,6 +31,10 @@ export default function ResourcesPage() {
 
   const [filterCategory, setFilterCategory] = useState("Todas")
 
+  const [search, setSearch] = useState("")
+
+  const [sortOrder, setSortOrder] = useState(0)
+
   useEffect(() => {
 
     loadResources()
@@ -121,7 +125,9 @@ export default function ResourcesPage() {
 
             mime_type: mimeType,
 
-            file_size: fileSize
+            file_size: fileSize,
+
+            sort_order: sortOrder
 
           })
         }
@@ -142,6 +148,7 @@ export default function ResourcesPage() {
     setFileName("")
     setMimeType("")
     setFileSize(0)
+    setSortOrder(0)
     setEditingId("")
 
     await loadResources()
@@ -328,22 +335,127 @@ export default function ResourcesPage() {
 
         <input
 
-          type="file"
+        type="number"
 
-          onChange={(e)=>{
+        placeholder="Orden"
 
-            const file =
-              e.target.files?.[0]
+        value={sortOrder}
+
+        onChange={(e)=>
+        setSortOrder(
+        Number(e.target.value)
+        )
+        }
+
+        className="
+        bg-slate-950
+        border
+        border-slate-700
+        rounded-xl
+        p-3
+        w-full
+        "
+        />
+
+        <div
+
+            onDragOver={(e)=>{
+
+            e.preventDefault()
+
+            }}
+
+            onDrop={(e)=>{
+
+            e.preventDefault()
+
+            const file=
+            e.dataTransfer.files?.[0]
 
             if(file){
 
-              uploadFile(file)
+            uploadFile(file)
 
             }
 
-          }}
+            }}
 
-        />
+            className="
+            border-2
+            border-dashed
+            border-slate-700
+            rounded-2xl
+            p-8
+            text-center
+            hover:border-cyan-500
+            transition
+            "
+
+            >
+
+            <p className="text-slate-400 mb-4">
+
+            Arrastra un archivo aquí
+
+            </p>
+
+            <p className="text-slate-500 text-sm mb-4">
+
+            o selecciónalo manualmente
+
+            </p>
+
+            <input
+
+            type="file"
+
+            onChange={(e)=>{
+
+            const file=
+            e.target.files?.[0]
+
+            if(file){
+
+            uploadFile(file)
+
+            }
+
+            }}
+
+            />
+
+            </div>
+
+            {
+
+            storagePath && (
+
+            <div
+            className="
+            rounded-xl
+            bg-emerald-950
+            border
+            border-emerald-800
+            p-4
+            text-emerald-300
+            "
+            >
+
+            ✅ Archivo cargado correctamente
+
+            <br/>
+
+            <span className="text-sm">
+
+            {fileName}
+
+            </span>
+
+            </div>
+
+            )
+
+            }
 
         <button
 
@@ -423,6 +535,41 @@ export default function ResourcesPage() {
             </h2>
 
         </div>
+
+        <div
+            className="
+            px-6
+            pt-5
+            "
+            >
+
+            <input
+
+            type="text"
+
+            placeholder="Buscar recurso..."
+
+            value={search}
+
+            onChange={(e)=>
+            setSearch(
+            e.target.value
+            )
+            }
+
+            className="
+            w-full
+            bg-slate-950
+            border
+            border-slate-700
+            rounded-xl
+            px-4
+            py-3
+            "
+
+            />
+
+            </div>
 
             <div
             className="
@@ -559,7 +706,9 @@ export default function ResourcesPage() {
 
                 :
 
-                resources.filter(resource =>
+                resources
+
+                .filter(resource =>
 
                 filterCategory === "Todas"
 
@@ -567,7 +716,37 @@ export default function ResourcesPage() {
 
                     : resource.category === filterCategory
 
-                ).length === 0
+                )
+
+                .filter(resource=>{
+
+                const q=
+                search
+                .toLowerCase()
+
+                return(
+
+                resource.title
+                .toLowerCase()
+                .includes(q)
+
+                ||
+
+                (resource.description || "")
+                .toLowerCase()
+                .includes(q)
+
+                ||
+
+                resource.file_name
+                .toLowerCase()
+                .includes(q)
+
+                )
+
+                })
+
+                .length===0
 
                 ?
 
@@ -590,17 +769,45 @@ export default function ResourcesPage() {
 
                 resources
 
-                .filter(resource =>
+                    .filter(resource =>
 
-                filterCategory === "Todas"
+                    filterCategory === "Todas"
 
-                    ? true
+                        ? true
 
-                    : resource.category === filterCategory
+                        : resource.category === filterCategory
 
-                )
+                    )
 
-                .map(resource=>(
+                    .filter(resource=>{
+
+                    const q=
+                    search
+                    .toLowerCase()
+
+                    return(
+
+                    resource.title
+                    .toLowerCase()
+                    .includes(q)
+
+                    ||
+
+                    (resource.description || "")
+                    .toLowerCase()
+                    .includes(q)
+
+                    ||
+
+                    resource.file_name
+                    .toLowerCase()
+                    .includes(q)
+
+                    )
+
+                    })
+
+                    .map(resource=>(
 
                   <tr
                     key={resource.id}
@@ -759,7 +966,7 @@ setFileName(resource.file_name)
 
 setMimeType(resource.mime_type)
 
-setFileSize(resource.file_size)
+setSortOrder(resource.sort_order || 0)
 
 }}
 
