@@ -239,12 +239,206 @@ export default function RafflePartnerDashboardPage() {
         />
 
        <Card
-          title="Disponible para Retirar"
-          value={`$${Number(
-            data.stats.availableCommission || 0
-          ).toLocaleString()}`}
-        />
-        
+  title="Disponible para Retirar"
+  value={`$${Number(
+    data.stats.availableCommission || 0
+  ).toLocaleString()}`}
+/>
+
+      </div>
+
+      <div
+        className="
+          mt-10
+          rounded-3xl
+          border
+          border-slate-800
+          bg-slate-900
+          overflow-hidden
+        "
+      >
+
+        <div
+          className="
+            px-6
+            py-5
+            border-b
+            border-slate-800
+          "
+        >
+
+          <h2
+            className="
+              text-2xl
+              font-bold
+              text-white
+            "
+          >
+
+            🛒 Últimas Compras con tu Código
+
+          </h2>
+
+          <p
+            className="
+              text-slate-400
+              mt-1
+            "
+          >
+
+            Solo se muestran las compras atribuidas a tu código o enlace.
+
+          </p>
+
+        </div>
+
+        <div
+          className="
+            overflow-x-auto
+          "
+        >
+
+          <table className="w-full">
+
+            <thead>
+
+              <tr
+                className="
+                  border-b
+                  border-slate-800
+                  bg-slate-950
+                "
+              >
+
+                <th className="p-4 text-left">
+                  Fecha
+                </th>
+
+                <th className="p-4 text-left">
+                  Cliente
+                </th>
+
+                <th className="p-4 text-left">
+                  Tickets
+                </th>
+
+                <th className="p-4 text-left">
+                  Compra
+                </th>
+
+                <th className="p-4 text-left">
+                  Estado
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {
+
+                (data.sales || [])
+
+                .slice(0,10)
+
+                .map((sale:any)=>(
+
+                  <tr
+
+                    key={sale.id}
+
+                    className="
+                      border-b
+                      border-slate-800
+                    "
+
+                  >
+
+                    <td className="p-4">
+
+                      {
+
+                        new Date(
+                          sale.createdAt
+                        ).toLocaleString("es-CL")
+
+                      }
+
+                    </td>
+
+                    <td className="p-4">
+
+                      <div className="font-semibold">
+
+                        {sale.buyerName}
+
+                      </div>
+
+                      <div className="text-xs text-slate-400">
+
+                        {sale.buyerEmail}
+
+                      </div>
+
+                      <div className="text-xs text-slate-500">
+
+                        {sale.buyerPhone}
+
+                      </div>
+
+                    </td>
+
+                    <td className="p-4">
+
+                      {sale.quantity}
+
+                    </td>
+
+                    <td className="p-4">
+
+                      $
+
+                      {Number(
+                        sale.total
+                      ).toLocaleString()}
+
+                    </td>
+
+                    <td className="p-4">
+
+                      {
+
+                        sale.paymentStatus === "paid"
+
+                        ||
+
+                        sale.paymentStatus === "approved"
+
+                        ?
+
+                        "✅ Pagado"
+
+                        :
+
+                        sale.paymentStatus
+
+                      }
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
       </div>
 
     </div>
