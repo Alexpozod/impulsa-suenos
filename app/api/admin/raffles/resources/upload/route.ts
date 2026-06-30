@@ -16,18 +16,21 @@ export async function POST(req: Request) {
     const auth =
       await requireAdminAccess(req);
 
-    if (!auth.authorized) {
+    if (
+  !auth.authorized ||
+  !auth.user
+) {
 
-      return NextResponse.json(
-        {
-          error: "unauthorized"
-        },
-        {
-          status: 401
-        }
-      );
-
+  return NextResponse.json(
+    {
+      error: "unauthorized"
+    },
+    {
+      status: 401
     }
+  );
+
+}
 
     const form =
       await req.formData();
