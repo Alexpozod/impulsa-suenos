@@ -107,20 +107,7 @@ const paginatedSales =
     (page - 1) * PER_PAGE,
     page * PER_PAGE
   )
-
-  useEffect(() => {
-
-  if (page > totalPages) {
-
-    setPage(totalPages)
-
-  }
-
-}, [
-  page,
-  totalPages
-])
-
+  
   return (
 
     <div className="p-6 space-y-8">
@@ -536,8 +523,10 @@ paginatedSales.map((sale:any)=>(
     disabled={page === 1}
 
     onClick={() =>
-      setPage(page - 1)
-    }
+  setPage(
+    Math.max(page - 1, 1)
+  )
+}
 
     className="
       px-4
@@ -604,8 +593,10 @@ page >= totalPages
 }
 
     onClick={() =>
-      setPage(page + 1)
-    }
+  setPage(
+    Math.min(page + 1, totalPages)
+  )
+}
 
     className="
       px-4
