@@ -35,6 +35,14 @@ export default function ResourcesPage() {
 
   const [sortOrder, setSortOrder] = useState(0)
 
+  const [notifyTitle, setNotifyTitle] = useState("")
+
+const [notifyMessage, setNotifyMessage] = useState("")
+
+const [sendEmail, setSendEmail] = useState(false)
+
+const [sendingNotification, setSendingNotification] = useState(false)
+
   useEffect(() => {
 
     loadResources()
@@ -459,37 +467,257 @@ export default function ResourcesPage() {
 
         <button
 
-  type="button"
+            type="button"
 
-  disabled={
-    uploading ||
-    saving
-  }
+            disabled={
+                uploading ||
+                saving
+            }
 
-  onClick={saveResource}
+            onClick={saveResource}
 
-  className="
-    px-6
-    py-3
-    rounded-xl
-    bg-cyan-500
-    text-slate-950
-    font-bold
-  "
+            className="
+                px-6
+                py-3
+                rounded-xl
+                bg-cyan-500
+                text-slate-950
+                font-bold
+            "
 
->
+            >
 
-{
-  saving
-    ? "Guardando..."
-    : editingId
+            {
+            saving
+                ? "Guardando..."
+                : editingId
 
-? "Guardar Cambios"
+            ? "Guardar Cambios"
 
-: "Guardar Recurso"
-}
+            : "Guardar Recurso"
+            }
 
-</button>
+            </button>
+
+                        </div>
+
+                        <div
+            className="
+            rounded-3xl
+            border
+            border-slate-800
+            bg-slate-900
+            p-6
+            space-y-4
+            "
+            >
+
+            <h2
+            className="
+            text-xl
+            font-semibold
+            text-white
+            "
+            >
+
+            📢 Avisar a Partners
+
+            </h2>
+
+            <input
+
+            placeholder="Título"
+
+            value={notifyTitle}
+
+            onChange={(e)=>
+
+            setNotifyTitle(
+            e.target.value
+            )
+
+            }
+
+            className="
+            w-full
+            bg-slate-950
+            border
+            border-slate-700
+            rounded-xl
+            p-3
+            "
+
+            />
+
+            <textarea
+
+            placeholder="Mensaje"
+
+            value={notifyMessage}
+
+            onChange={(e)=>
+
+            setNotifyMessage(
+            e.target.value
+            )
+
+            }
+
+            className="
+            w-full
+            h-32
+            bg-slate-950
+            border
+            border-slate-700
+            rounded-xl
+            p-3
+            "
+
+            />
+
+            <label
+            className="
+            flex
+            items-center
+            gap-3
+            "
+            >
+
+            <input
+
+            type="checkbox"
+
+            checked={sendEmail}
+
+            onChange={(e)=>
+
+            setSendEmail(
+            e.target.checked
+            )
+
+            }
+
+            />
+
+            <span>
+
+            Enviar también por email
+
+            </span>
+
+            </label>
+
+            <button
+
+            type="button"
+
+            disabled={sendingNotification}
+
+            onClick={async()=>{
+
+            try{
+
+            setSendingNotification(true)
+
+            const {
+            data:{session}
+            }
+            =
+            await supabase.auth.getSession()
+
+            const response=
+            await fetch(
+
+            "/api/admin/raffles/partner-notifications",
+
+            {
+
+            method:"POST",
+
+            headers:{
+
+            "Content-Type":"application/json",
+
+            Authorization:
+            `Bearer ${session?.access_token}`
+
+            },
+
+            body:JSON.stringify({
+
+            title:notifyTitle,
+
+            message:notifyMessage,
+
+            send_email:sendEmail
+
+            })
+
+            }
+
+            )
+
+            const json=
+            await response.json()
+
+            if(!json.ok){
+
+            throw new Error()
+
+            }
+
+            setNotifyTitle("")
+
+            setNotifyMessage("")
+
+            setSendEmail(false)
+
+            alert("Notificación creada")
+
+            }
+
+            catch(error){
+
+            console.error(error)
+
+            alert("Error")
+
+            }
+
+            finally{
+
+            setSendingNotification(false)
+
+            }
+
+            }}
+
+            className="
+            px-6
+            py-3
+            rounded-xl
+            bg-emerald-600
+            text-white
+            font-bold
+            "
+
+            >
+
+            {
+
+            sendingNotification
+
+            ?
+
+            "Enviando..."
+
+            :
+
+            "📢 Publicar Aviso"
+
+            }
+
+            </button>
 
             </div>
 
