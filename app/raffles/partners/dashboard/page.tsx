@@ -225,21 +225,28 @@ export default function RafflePartnerDashboardPage() {
         />
 
         <Card
-          title="Revenue"
+          title="Ventas Generadas"
           value={`$${Number(
             data.stats.revenue || 0
           ).toLocaleString()}`}
         />
 
         <Card
-          title="Comisión Estimada"
+          title="Comisión Generada"
           value={`$${Number(
             data.stats.estimatedCommission || 0
           ).toLocaleString()}`}
         />
 
+       <Card
+          title="Disponible para Retirar"
+          value={`$${Number(
+            data.stats.availableCommission || 0
+          ).toLocaleString()}`}
+        />
+
         <Card
-          title="Comisión Pagada"
+          title="Comisión Retirada"
           value={`$${Number(
             data.stats.paidCommission || 0
           ).toLocaleString()}`}
