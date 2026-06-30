@@ -5,7 +5,7 @@ export async function canRequestAffiliatePayout(
 
   affiliateId: string,
 
-  minimumAmount = 10000
+  minimumAmount = 0
 
 ){
 
