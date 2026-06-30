@@ -21,7 +21,11 @@ export default function Login() {
   ========================= */
   const handlePostLoginRedirect = async () => {
 
+    console.log("LOGIN 1")
+
     const { data: { user } } = await supabase.auth.getUser()
+
+    console.log("LOGIN USER", user)
 
     if (!user) {
   window.location.href = "/raffles/login"
@@ -51,9 +55,13 @@ const { data: partner } = await supabase
 
 if (partner?.active) {
 
+    console.log("PARTNER ACTIVO")
+
   isPartner = true
 
   if (!partner.owner_user_id) {
+
+    console.log("ACTUALIZANDO OWNER USER ID")
 
     const { error } = await supabase
       .schema("raffles")
@@ -77,6 +85,8 @@ if (partner?.active) {
   }
 
 }
+
+console.log("PARTNER", partner)
 
 const intent = localStorage.getItem('donation_intent')
 
