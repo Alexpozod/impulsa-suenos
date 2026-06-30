@@ -52,7 +52,7 @@ const affiliates =
       item.code,
 
     shareUrl:
-`${baseUrl}/r/${item.code}`,
+`${baseUrl}/raffles?aff=${item.code}`,
 
     raffleLinks:
 
@@ -68,7 +68,7 @@ const affiliates =
           raffle.slug,
 
         url:
-          `${baseUrl}/raffles/${raffle.slug}?aff=${item.code}`
+`${baseUrl}/raffles/${raffle.slug}?ref=${item.code}`
 
       }))
 
