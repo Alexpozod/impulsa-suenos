@@ -391,13 +391,13 @@ export default function ResourcesPage() {
 
           <h2
             className="
-              text-xl
-              font-semibold
-              text-white
+                text-xl
+                font-semibold
+                text-white
             "
-          >
-            Recursos
-          </h2>
+            >
+            Recursos ({resources.length})
+            </h2>
 
         </div>
 
@@ -428,14 +428,22 @@ export default function ResourcesPage() {
                 </th>
 
                 <th className="p-4 text-left">
-                  Archivo
-                </th>
+                    Archivo
+                    </th>
 
-                <th className="p-4 text-left">
-                  Estado
-                </th>
+                    <th className="p-4 text-left">
+                    Descargas
+                    </th>
 
-                <th className="p-4 text-left">
+                    <th className="p-4 text-left">
+                    Publicado
+                    </th>
+
+                    <th className="p-4 text-left">
+                    Estado
+                    </th>
+
+                    <th className="p-4 text-left">
                     Acciones
                     </th>
 
@@ -509,23 +517,65 @@ export default function ResourcesPage() {
 
                     </td>
 
-                    <td className="p-4">
+                   <td className="p-4">
 
-                      {resource.file_name}
+                        <div className="flex items-center gap-3">
 
-                    </td>
+                            <span className="text-xl">
 
-                    <td className="p-4">
+                            {
+                                resource.mime_type?.startsWith("image/")
+                                ? "🖼️"
+                                : resource.mime_type?.startsWith("video/")
+                                ? "🎥"
+                                : resource.mime_type === "application/pdf"
+                                ? "📄"
+                                : "📦"
+                            }
 
-                      {
-                        resource.is_active
-                        ?
-                        "✅ Activo"
-                        :
-                        "❌ Inactivo"
-                      }
+                            </span>
 
-                    </td>
+                            <div>
+
+                            <div className="font-medium">
+
+                                {resource.file_name}
+
+                            </div>
+
+                            <div className="text-xs text-slate-500">
+
+                                {(resource.file_size / 1024 / 1024).toFixed(2)} MB
+
+                            </div>
+
+                            </div>
+
+                        </div>
+
+                        </td>
+
+                        <td className="p-4">
+
+                        {resource.download_count || 0}
+
+                        </td>
+
+                        <td className="p-4">
+
+                        {new Date(resource.created_at).toLocaleDateString("es-CL")}
+
+                        </td>
+
+                        <td className="p-4">
+
+                        {
+                            resource.is_active
+                            ? "✅ Activo"
+                            : "❌ Inactivo"
+                        }
+
+                        </td>
 
                     <td className="p-4">
 
