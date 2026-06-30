@@ -435,6 +435,10 @@ export default function ResourcesPage() {
                   Estado
                 </th>
 
+                <th className="p-4 text-left">
+                    Acciones
+                    </th>
+
               </tr>
 
             </thead>
@@ -522,6 +526,70 @@ export default function ResourcesPage() {
                       }
 
                     </td>
+
+                    <td className="p-4">
+
+  <button
+
+    type="button"
+
+    onClick={async()=>{
+
+      try{
+
+        const {
+          data:{session}
+        }
+        =
+        await supabase.auth.getSession()
+
+        await fetch(
+
+          `/api/admin/raffles/resources?id=${resource.id}`,
+
+          {
+
+            method:"DELETE",
+
+            headers:{
+
+              Authorization:
+              `Bearer ${session?.access_token}`
+
+            }
+
+          }
+
+        )
+
+        await loadResources()
+
+      }
+
+      catch(error){
+
+        console.error(error)
+
+      }
+
+    }}
+
+    className="
+      px-3
+      py-1
+      rounded-lg
+      bg-red-500
+      text-white
+      font-semibold
+    "
+
+  >
+
+    Eliminar
+
+  </button>
+
+</td>
 
                   </tr>
 
