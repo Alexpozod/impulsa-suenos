@@ -25,6 +25,8 @@ export default function ResourcesPage() {
 
   const [fileSize, setFileSize] = useState(0)
 
+  const [saving, setSaving] = useState(false)
+
   useEffect(() => {
 
     loadResources()
@@ -69,6 +71,89 @@ export default function ResourcesPage() {
     }
 
   }
+
+  async function saveResource() {
+
+  if (!storagePath) {
+
+    alert("Primero sube un archivo")
+
+    return
+
+  }
+
+  try {
+
+    setSaving(true)
+
+    const {
+      data: { session }
+    } =
+      await supabase.auth.getSession()
+
+    const res =
+      await fetch(
+        "/api/admin/raffles/resources",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify({
+
+            title,
+
+            description,
+
+            category,
+
+            storage_path: storagePath,
+
+            file_name: fileName,
+
+            mime_type: mimeType,
+
+            file_size: fileSize
+
+          })
+        }
+      )
+
+    const json =
+      await res.json()
+
+    if (!json.ok) {
+
+      throw new Error()
+
+    }
+
+    setTitle("")
+    setDescription("")
+    setStoragePath("")
+    setFileName("")
+    setMimeType("")
+    setFileSize(0)
+
+    await loadResources()
+
+    alert("Recurso creado")
+
+  } catch (error) {
+
+    console.error(error)
+
+    alert("Error al guardar")
+
+  } finally {
+
+    setSaving(false)
+
+  }
+
+}
 
   async function uploadFile(
     file: File
@@ -252,6 +337,36 @@ export default function ResourcesPage() {
           }}
 
         />
+
+        <button
+
+  type="button"
+
+  disabled={
+    uploading ||
+    saving
+  }
+
+  onClick={saveResource}
+
+  className="
+    px-6
+    py-3
+    rounded-xl
+    bg-cyan-500
+    text-slate-950
+    font-bold
+  "
+
+>
+
+{
+  saving
+    ? "Guardando..."
+    : "Guardar Recurso"
+}
+
+</button>
 
       </div>
 
