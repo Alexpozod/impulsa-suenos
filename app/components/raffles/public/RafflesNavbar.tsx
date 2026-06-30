@@ -1,11 +1,52 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { supabase } from "@/src/lib/supabase"
 
 export default function RafflesNavbar() {
 
   const [open, setOpen] = useState(false)
+
+  const [logged, setLogged] = useState(false)
+
+useEffect(() => {
+
+  async function loadSession() {
+
+    const {
+      data:{session}
+    } =
+    await supabase.auth.getSession()
+
+    setLogged(
+      !!session
+    )
+
+  }
+
+  loadSession()
+
+  const {
+    data:listener
+  } =
+  supabase.auth.onAuthStateChange(
+    (_event, session)=>{
+
+      setLogged(
+        !!session
+      )
+
+    }
+  )
+
+  return ()=>{
+
+    listener.subscription.unsubscribe()
+
+  }
+
+},[])
 
   return (
 
@@ -80,12 +121,55 @@ export default function RafflesNavbar() {
 
           <div className="hidden lg:flex items-center gap-4">
 
-            <Link
-              href="/raffles/login"
-              className="text-slate-300 hover:text-white transition"
-            >
+            {
+
+              logged
+
+              ?
+
+              <>
+
+              <Link
+                href="/raffles/partners/dashboard"
+                className="text-slate-300 hover:text-white transition"
+              >
+
+              Dashboard
+
+              </Link>
+
+              <button
+
+              onClick={async()=>{
+
+              await supabase.auth.signOut()
+
+              window.location.href="/raffles"
+
+              }}
+
+              className="text-red-400 hover:text-red-300 transition"
+
+              >
+
+              Cerrar sesión
+
+              </button>
+
+              </>
+
+              :
+
+              <Link
+                href="/raffles/login"
+                className="text-slate-300 hover:text-white transition"
+              >
+
               Entrar
-            </Link>
+
+              </Link>
+
+              }
 
             <Link
               href="#sorteos-activos"
@@ -155,20 +239,72 @@ text-slate-950
             </Link>
 
             <Link
-  href="/raffles/faq"
-  onClick={() => setOpen(false)}
-  className="text-white"
->
-  FAQ
-</Link>
+              href="/raffles/faq"
+              onClick={() => setOpen(false)}
+              className="text-white"
+            >
+              FAQ
+            </Link>
+
+                        {
+
+            logged
+
+            ?
+
+            <>
 
             <Link
-              href="/raffles/login"
-              onClick={() => setOpen(false)}
-              className="text-slate-300"
+
+            href="/raffles/partners/dashboard"
+
+            onClick={()=>setOpen(false)}
+
+            className="text-white"
+
             >
-              Entrar
+
+            Dashboard
+
             </Link>
+
+            <button
+
+            onClick={async()=>{
+
+            await supabase.auth.signOut()
+
+            window.location.href="/raffles"
+
+            }}
+
+            className="text-left text-red-400"
+
+            >
+
+            Cerrar sesión
+
+            </button>
+
+            </>
+
+            :
+
+            <Link
+
+            href="/raffles/login"
+
+            onClick={()=>setOpen(false)}
+
+            className="text-slate-300"
+
+            >
+
+            Entrar
+
+            </Link>
+
+            }
 
             <Link
               href="#sorteos-activos"
