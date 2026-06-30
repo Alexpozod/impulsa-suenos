@@ -784,57 +784,100 @@ type="button"
 
 onClick={async()=>{
 
-try{
+  try{
 
-const {
-data:{session}
-}
-=
-await supabase.auth.getSession()
+    const {
+      data:{session}
+    }
+    =
+    await supabase.auth.getSession()
 
-await fetch(
+    await fetch(
 
-`/api/admin/raffles/resources?id=${resource.id}`,
+      "/api/admin/raffles/resources",
 
-{
+      {
 
-method:"DELETE",
+        method:"PUT",
 
-headers:{
+        headers:{
 
-Authorization:
-`Bearer ${session?.access_token}`
+          "Content-Type":"application/json",
 
-}
+          Authorization:
+          `Bearer ${session?.access_token}`
 
-}
+        },
 
-)
+        body:JSON.stringify({
 
-await loadResources()
+          id:resource.id,
 
-}
+          title:resource.title,
 
-catch(error){
+          description:resource.description,
 
-console.error(error)
+          category:resource.category,
 
-}
+          sort_order:resource.sort_order,
+
+          is_active:!resource.is_active
+
+        })
+
+      }
+
+    )
+
+    await loadResources()
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+  }
 
 }}
 
-className="
+className={`
 px-3
 py-1
 rounded-lg
-bg-red-500
 text-white
 font-semibold
-"
+${
+
+resource.is_active
+
+?
+
+" bg-red-500 "
+
+:
+
+" bg-emerald-600 "
+
+}
+
+`}
 
 >
 
-Eliminar
+{
+
+resource.is_active
+
+?
+
+"Desactivar"
+
+:
+
+"Activar"
+
+}
 
 </button>
 
