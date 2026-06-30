@@ -364,7 +364,11 @@ export async function DELETE(req: Request) {
       await supabase
         .schema("raffles")
         .from("partner_resources")
-        .delete()
+        .update({
+
+          is_active: false
+
+        })
         .eq(
           "id",
           id
