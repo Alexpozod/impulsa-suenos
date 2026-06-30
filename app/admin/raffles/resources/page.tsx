@@ -27,6 +27,8 @@ export default function ResourcesPage() {
 
   const [saving, setSaving] = useState(false)
 
+  const [editingId, setEditingId] = useState("")
+
   const [filterCategory, setFilterCategory] = useState("Todas")
 
   useEffect(() => {
@@ -97,13 +99,15 @@ export default function ResourcesPage() {
       await fetch(
         "/api/admin/raffles/resources",
         {
-          method: "POST",
+          method: editingId ? "PUT" : "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization:
               `Bearer ${session?.access_token}`
           },
           body: JSON.stringify({
+
+            id: editingId || undefined,
 
             title,
 
@@ -138,6 +142,7 @@ export default function ResourcesPage() {
     setFileName("")
     setMimeType("")
     setFileSize(0)
+    setEditingId("")
 
     await loadResources()
 
@@ -365,7 +370,11 @@ export default function ResourcesPage() {
 {
   saving
     ? "Guardando..."
-    : "Guardar Recurso"
+    : editingId
+
+? "Guardar Cambios"
+
+: "Guardar Recurso"
 }
 
 </button>
@@ -653,152 +662,181 @@ export default function ResourcesPage() {
 
                         <td className="p-4">
 
-                        {resource.download_count || 0}
+{
 
-                        </td>
+resource.mime_type?.startsWith("image/")
 
-                        <td className="p-4">
+?
 
-                        {new Date(resource.created_at).toLocaleDateString("es-CL")}
+<img
 
-                        </td>
+src={`/api/raffles/partners/download?path=${encodeURIComponent(resource.storage_path)}`}
 
-                        <td className="p-4">
+className="
+w-20
+h-20
+object-cover
+rounded-xl
+border
+border-slate-700
+"
 
-                        {
-                            resource.is_active
-                            ? "✅ Activo"
-                            : "❌ Inactivo"
-                        }
+/>
 
-                        </td>
+:
 
-                        <td className="p-4">
+resource.mime_type === "application/pdf"
 
-                            {
+?
 
-                            resource.mime_type?.startsWith("image/")
+<div className="text-4xl">
+📄
+</div>
 
-                            ?
+:
 
-                            <img
+resource.mime_type?.startsWith("video/")
 
-                            src={`/api/raffles/partners/download?path=${encodeURIComponent(resource.storage_path)}`}
+?
 
-                            className="
-                            w-20
-                            h-20
-                            object-cover
-                            rounded-xl
-                            border
-                            border-slate-700
-                            "
+<div className="text-4xl">
+🎥
+</div>
 
-                            />
+:
 
-                            :
+<div className="text-4xl">
+📦
+</div>
 
-                            resource.mime_type === "application/pdf"
+}
 
-                            ?
+</td>
 
-                            <div
-                            className="
-                            text-4xl
-                            "
-                            >
-                            📄
-                            </div>
+<td className="p-4">
 
-                            :
+{resource.download_count || 0}
 
-                            resource.mime_type?.startsWith("video/")
+</td>
 
-                            ?
+<td className="p-4">
 
-                            <div
-                            className="
-                            text-4xl
-                            "
-                            >
-                            🎥
-                            </div>
+{new Date(resource.created_at).toLocaleDateString("es-CL")}
 
-                            :
+</td>
 
-                            <div
-                            className="
-                            text-4xl
-                            "
-                            >
-                            📦
-                            </div>
+<td className="p-4">
 
-                            }
+{
+resource.is_active
+?
+"✅ Activo"
+:
+"❌ Inactivo"
+}
 
-                            </td>
+</td>
 
-                    <td className="p-4">
+                    <td className="p-4 flex gap-2">
 
-  <button
+<button
 
-    type="button"
+type="button"
 
-    onClick={async()=>{
+onClick={()=>{
 
-      try{
+setEditingId(resource.id)
 
-        const {
-          data:{session}
-        }
-        =
-        await supabase.auth.getSession()
+setTitle(resource.title)
 
-        await fetch(
+setDescription(resource.description || "")
 
-          `/api/admin/raffles/resources?id=${resource.id}`,
+setCategory(resource.category)
 
-          {
+setStoragePath(resource.storage_path)
 
-            method:"DELETE",
+setFileName(resource.file_name)
 
-            headers:{
+setMimeType(resource.mime_type)
 
-              Authorization:
-              `Bearer ${session?.access_token}`
+setFileSize(resource.file_size)
 
-            }
+}}
 
-          }
+className="
+px-3
+py-1
+rounded-lg
+bg-cyan-500
+text-slate-950
+font-semibold
+"
 
-        )
+>
 
-        await loadResources()
+Editar
 
-      }
+</button>
 
-      catch(error){
+<button
 
-        console.error(error)
+type="button"
 
-      }
+onClick={async()=>{
 
-    }}
+try{
 
-    className="
-      px-3
-      py-1
-      rounded-lg
-      bg-red-500
-      text-white
-      font-semibold
-    "
+const {
+data:{session}
+}
+=
+await supabase.auth.getSession()
 
-  >
+await fetch(
 
-    Eliminar
+`/api/admin/raffles/resources?id=${resource.id}`,
 
-  </button>
+{
+
+method:"DELETE",
+
+headers:{
+
+Authorization:
+`Bearer ${session?.access_token}`
+
+}
+
+}
+
+)
+
+await loadResources()
+
+}
+
+catch(error){
+
+console.error(error)
+
+}
+
+}}
+
+className="
+px-3
+py-1
+rounded-lg
+bg-red-500
+text-white
+font-semibold
+"
+
+>
+
+Eliminar
+
+</button>
 
 </td>
 
