@@ -35,6 +35,33 @@ export async function GET(req: Request) {
 
     }
 
+    const { data: resource } =
+      await supabase
+        .schema("raffles")
+        .from("partner_resources")
+        .select("id,download_count")
+        .eq("storage_path", path)
+        .maybeSingle()
+
+    if (resource) {
+
+      await supabase
+        .schema("raffles")
+        .from("partner_resources")
+        .update({
+
+          download_count:
+            (resource.download_count || 0) + 1
+
+        })
+
+        .eq(
+          "id",
+          resource.id
+        )
+
+    }
+
     const { data, error } =
       await supabase.storage
         .from("partner-resources")
@@ -59,16 +86,16 @@ export async function GET(req: Request) {
 
   }
 
-  catch(error){
+  catch (error) {
 
     console.error(error)
 
     return NextResponse.json(
       {
-        error:"server_error"
+        error: "server_error"
       },
       {
-        status:500
+        status: 500
       }
     )
 
