@@ -368,6 +368,173 @@ export default function ResourcesPage() {
 
 </button>
 
+            </div>
+
+      <div
+        className="
+          rounded-3xl
+          border
+          border-slate-800
+          bg-slate-900
+          overflow-hidden
+        "
+      >
+
+        <div
+          className="
+            px-6
+            py-5
+            border-b
+            border-slate-800
+          "
+        >
+
+          <h2
+            className="
+              text-xl
+              font-semibold
+              text-white
+            "
+          >
+            Recursos
+          </h2>
+
+        </div>
+
+        <div
+          className="
+            overflow-x-auto
+          "
+        >
+
+          <table className="w-full">
+
+            <thead>
+
+              <tr
+                className="
+                  bg-slate-950
+                  border-b
+                  border-slate-800
+                "
+              >
+
+                <th className="p-4 text-left">
+                  Título
+                </th>
+
+                <th className="p-4 text-left">
+                  Categoría
+                </th>
+
+                <th className="p-4 text-left">
+                  Archivo
+                </th>
+
+                <th className="p-4 text-left">
+                  Estado
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {
+                loading
+                ?
+
+                <tr>
+
+                  <td
+                    colSpan={4}
+                    className="
+                      p-8
+                      text-center
+                      text-slate-500
+                    "
+                  >
+                    Cargando...
+                  </td>
+
+                </tr>
+
+                :
+
+                resources.length === 0
+
+                ?
+
+                <tr>
+
+                  <td
+                    colSpan={4}
+                    className="
+                      p-8
+                      text-center
+                      text-slate-500
+                    "
+                  >
+                    Sin recursos
+                  </td>
+
+                </tr>
+
+                :
+
+                resources.map(resource=>(
+
+                  <tr
+                    key={resource.id}
+                    className="
+                      border-b
+                      border-slate-800
+                    "
+                  >
+
+                    <td className="p-4">
+
+                      {resource.title}
+
+                    </td>
+
+                    <td className="p-4">
+
+                      {resource.category}
+
+                    </td>
+
+                    <td className="p-4">
+
+                      {resource.file_name}
+
+                    </td>
+
+                    <td className="p-4">
+
+                      {
+                        resource.is_active
+                        ?
+                        "✅ Activo"
+                        :
+                        "❌ Inactivo"
+                      }
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
       </div>
 
     </div>
