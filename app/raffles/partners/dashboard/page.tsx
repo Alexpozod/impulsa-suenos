@@ -244,14 +244,7 @@ export default function RafflePartnerDashboardPage() {
             data.stats.availableCommission || 0
           ).toLocaleString()}`}
         />
-
-        <Card
-          title="Comisión Retirada"
-          value={`$${Number(
-            data.stats.paidCommission || 0
-          ).toLocaleString()}`}
-        />
-
+        
       </div>
 
     </div>
