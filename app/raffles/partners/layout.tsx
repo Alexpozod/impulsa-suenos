@@ -47,7 +47,7 @@ export default function PartnersLayout({
         "👤"
     },
 
-    {
+        {
       href:
         "/raffles/partners/payouts",
 
@@ -56,6 +56,17 @@ export default function PartnersLayout({
 
       icon:
         "💰"
+    },
+
+    {
+      href:
+        "/raffles/partners/resources",
+
+      label:
+        "Recursos",
+
+      icon:
+        "📦"
     }
 
   ]
