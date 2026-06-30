@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-import { requireRaffleAdmin } from "@/lib/auth/requireUser";
+import { requireRaffleAdmin } from "@/lib/raffles/auth/requireRaffleAdmin";
 
 export const runtime = "nodejs";
 
