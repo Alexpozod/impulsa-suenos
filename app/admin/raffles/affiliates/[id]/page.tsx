@@ -224,13 +224,13 @@ if (loading) {
 </div>
 
 <a
-href={`https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`}
+href={`https://sorteos.impulsasuenos.com/raffles?aff=${dashboard?.affiliate?.code}`}
 target="_blank"
 rel="noopener noreferrer"
 className="font-mono text-sky-400 text-sm break-all hover:underline"
 >
 
-{`https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`}
+{`https://sorteos.impulsasuenos.com/raffles?aff=${dashboard?.affiliate?.code}`}
 
 </a>
 
@@ -297,8 +297,8 @@ dashboard.generatedAt
   onClick={async () => {
 
     await navigator.clipboard.writeText(
-      `https://sorteos.impulsasuenos.com/r/${dashboard?.affiliate?.code}`
-    );
+`https://sorteos.impulsasuenos.com/raffles?aff=${dashboard?.affiliate?.code}`
+);
 
     showCopied("Link copiado al portapapeles");
 
