@@ -268,7 +268,6 @@ export default function AdminLayout({ children }: any) {
                     label="⭐ Influencers"
                   />
 
-
                   <SubItem
                     href="/admin/raffles/resources"
                     label="📦 Recursos"
