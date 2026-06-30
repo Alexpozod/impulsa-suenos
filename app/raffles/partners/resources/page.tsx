@@ -141,6 +141,43 @@ export default function PartnerResourcesPage() {
 
                   href="#"
 
+                    onClick={async(e)=>{
+
+                    e.preventDefault()
+
+                    const {
+                        data:{session}
+                    }=
+                    await supabase.auth.getSession()
+
+                    const res=
+                    await fetch(
+
+                        `/api/raffles/partners/download?path=${encodeURIComponent(resource.storage_path)}`,
+
+                        {
+                        headers:{
+                            Authorization:
+                            `Bearer ${session?.access_token}`
+                        }
+                        }
+
+                    )
+
+                    const json=
+                    await res.json()
+
+                    if(json.url){
+
+                        window.open(
+                        json.url,
+                        "_blank"
+                        )
+
+                    }
+
+                    }}
+
                   className="
                     px-5
                     py-3
