@@ -126,9 +126,17 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
 
-      ok: true
+  ok: true,
 
-    });
+  storage_path: path,
+
+  file_name: file.name,
+
+  mime_type: file.type,
+
+  file_size: file.size
+
+});
 
   } catch (error: any) {
 
