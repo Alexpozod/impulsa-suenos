@@ -167,9 +167,25 @@ new Date().toISOString()
 id
 )
 
-if(updateError){
+if (updateError) {
 
-throw updateError
+  throw updateError
+
+}
+
+const { data: verify, error: verifyError } =
+await supabase
+.schema("raffles")
+.from("affiliate_payout_requests")
+.select("id,status,processed_at")
+.eq("id", id)
+.single()
+
+console.log("VERIFY UPDATE", verify)
+
+if (verifyError) {
+
+  console.error("VERIFY ERROR", verifyError)
 
 }
 
