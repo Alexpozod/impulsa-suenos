@@ -301,14 +301,28 @@ if (!otpVerified) {
 
       if (!json.ok) {
 
-        alert(
-          json.error ||
-          "No fue posible crear la solicitud."
-        )
+  if (json.error === "minimum_not_reached") {
 
-        return
+    alert(
+`El monto mínimo para solicitar un retiro es de $15.000 CLP.
 
-      }
+Todas las solicitudes de retiro son revisadas manualmente.
+
+El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`
+    )
+
+    return
+
+  }
+
+  alert(
+    json.error ||
+    "No fue posible crear la solicitud."
+  )
+
+  return
+
+}
 
       alert(
         "Solicitud enviada correctamente."
@@ -569,6 +583,46 @@ setOtpVerified(false)
                 wallet?.available || 0
               ).toLocaleString("es-CL")}
             </p>
+
+            <div
+  className="
+    mt-5
+    rounded-2xl
+    border
+    border-amber-200
+    bg-amber-50
+    p-4
+  "
+>
+
+  <div className="font-semibold text-amber-900">
+    Información importante
+  </div>
+
+  <div
+    className="
+      mt-2
+      text-sm
+      text-amber-800
+      space-y-1
+    "
+  >
+
+    <div>
+      • El monto mínimo para solicitar un retiro es de <strong>$15.000 CLP</strong>.
+    </div>
+
+    <div>
+      • Todas las solicitudes de retiro son revisadas manualmente.
+    </div>
+
+    <div>
+      • El plazo estimado de procesamiento es de <strong>24 a 72 horas hábiles</strong>.
+    </div>
+
+  </div>
+
+</div>
 
           </div>
 
