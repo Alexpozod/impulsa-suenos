@@ -574,10 +574,17 @@ const lastSale =
 
       estimatedCommission,
 
-      paidCommission,
+      generatedCommission:
+      wallet.generated,
 
-      availableCommission:
-        wallet.available
+    pendingCommission:
+      wallet.pending,
+
+    paidCommission:
+      wallet.paid,
+
+    availableCommission:
+      wallet.available
 
     },
 

@@ -344,20 +344,18 @@ dashboard.generatedAt
         <Card
             title="Comisión Generada"
             value={`$${Number(
-                dashboard?.stats?.estimatedCommission ?? 0
+                dashboard?.stats?.generatedCommission ?? 0
             ).toLocaleString("es-CL")}`}
           icon={<DollarSign className="w-5 h-5" />}
         />
 
         <Card
-            title="Pendiente Pago"
-            value={`$${Math.max(
-                0,
-                Number(dashboard?.stats?.estimatedCommission ?? 0) -
-                Number(dashboard?.stats?.paidCommission ?? 0)
-            ).toLocaleString("es-CL")}`}
-          icon={<Clock className="w-5 h-5" />}
-        />
+                title="Pendiente Pago"
+                value={`$${Number(
+                  dashboard?.stats?.pendingCommission ?? 0
+                ).toLocaleString("es-CL")}`}
+                icon={<Clock className="w-5 h-5" />}
+              />
 
         <Card
                 title="Pagado"
