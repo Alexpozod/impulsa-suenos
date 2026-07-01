@@ -16,24 +16,20 @@ export async function GET(){
 
 try{
 
-const { data,error } =
+const { data, error } =
 await supabase
 .schema("raffles")
 .from("affiliate_payout_requests")
-.select(`
-*,
-raffle_referrals(
-id,
-code,
-owner_email
-)
-`)
+.select("*")
 .order(
 "created_at",
 {
 ascending:false
 }
 )
+
+console.log(data)
+console.log(error)
 
 console.log("ERROR", error)
 
