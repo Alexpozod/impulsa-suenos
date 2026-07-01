@@ -35,6 +35,16 @@ ascending:false
 }
 )
 
+console.log("ERROR", error)
+
+console.log(
+  JSON.stringify(
+    data,
+    null,
+    2
+  )
+)
+
 if(error){
 
 throw error
