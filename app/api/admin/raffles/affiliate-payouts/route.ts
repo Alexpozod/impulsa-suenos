@@ -62,13 +62,19 @@ data ?? []
 
 catch(error){
 
+console.error(
+  "AFFILIATE PAYOUTS ERROR"
+)
+
 console.error(error)
 
 return NextResponse.json(
 
 {
 
-requests:[]
+requests:[],
+
+error:String(error)
 
 },
 
