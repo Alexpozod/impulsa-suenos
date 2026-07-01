@@ -156,7 +156,7 @@ await supabase
 .from("affiliate_payout_requests")
 .update({
 
-status:"paid",
+status:"approved",
 
 processed_at:
 new Date().toISOString()
