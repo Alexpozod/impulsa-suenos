@@ -181,7 +181,7 @@ border-slate-800
 {
 
 item
-.raffle_referrals
+.affiliate
 ?.code
 
 ??
@@ -197,7 +197,7 @@ item
 {
 
 item
-.raffle_referrals
+.affiliate
 ?.owner_email
 
 ??

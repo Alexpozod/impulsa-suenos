@@ -28,6 +28,16 @@ ascending:false
 }
 )
 
+const { data: affiliates } =
+await supabase
+.schema("raffles")
+.from("raffle_referrals")
+.select(`
+id,
+code,
+owner_email
+`)
+
 console.log(data)
 console.log(error)
 
@@ -47,10 +57,28 @@ throw error
 
 }
 
+const requests =
+(data ?? []).map((request:any)=>{
+
+const affiliate =
+(affiliates ?? []).find(
+(a:any)=>
+a.id === request.affiliate_id
+)
+
+return{
+
+...request,
+
+affiliate
+
+}
+
+})
+
 return NextResponse.json({
 
-requests:
-data ?? []
+requests
 
 })
 
