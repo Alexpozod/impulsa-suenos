@@ -19,7 +19,7 @@ export default function RafflesRecoverPage() {
         email,
         {
           redirectTo:
-            `${location.origin}/update-password`
+         "https://sorteos.impulsasuenos.com/update-password"
         }
       )
 
