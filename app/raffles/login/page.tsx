@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/src/lib/supabase'
+import PasswordInput from "@/app/components/ui/PasswordInput"
 
 export default function Login() {
 
@@ -293,26 +294,27 @@ outline-none
         />
 
         {/* PASSWORD */}
-        <input
-          type="password"
+
+        <PasswordInput
           placeholder="Contraseña"
-          className="
-w-full
-rounded-lg
-border
-border-slate-700
-bg-slate-800
-text-white
-placeholder:text-slate-500
-p-3
-mb-1
-focus:border-cyan-400
-focus:ring-2
-focus:ring-cyan-500/30
-outline-none
-"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          className="
+        w-full
+        rounded-lg
+        border
+        border-slate-700
+        bg-slate-800
+        text-white
+        placeholder:text-slate-500
+        p-3
+        mb-1
+        focus:border-cyan-400
+        focus:ring-2
+        focus:ring-cyan-500/30
+        outline-none
+        "
         />
 
         {/* PASSWORD INFO */}
