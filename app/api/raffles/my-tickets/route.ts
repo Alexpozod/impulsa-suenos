@@ -50,11 +50,11 @@ export async function GET(
           created_at,
           raffle_id
         `)
-        .eq(
-          "buyer_email",
-          email
-        )
-        .in(
+        .ilike(
+  "buyer_email",
+  email
+)
+.in(
   "status",
   [
     "paid",
