@@ -99,29 +99,41 @@ const [activeMedia, setActiveMedia] =
 
 useEffect(() => {
 
-  const aff =
-    searchParams.get("aff")
+  const commercial =
 
-  if (aff) {
+  searchParams.get("code")
 
-    sessionStorage.setItem(
-      "raffle_affiliate",
-      aff
-    )
+  ??
 
-  }
+  searchParams.get("coupon")
 
-  const ref =
-    searchParams.get("ref")
+  ??
 
-  if (ref) {
+  searchParams.get("aff")
 
-    sessionStorage.setItem(
-      "raffle_referral",
-      ref
-    )
+  ??
 
-  }
+  searchParams.get("ref")
+
+if (commercial) {
+
+  const normalized =
+
+    commercial
+      .trim()
+      .toUpperCase()
+
+  sessionStorage.setItem(
+    "raffle_commercial",
+    normalized
+  )
+
+  localStorage.setItem(
+    "raffle_commercial",
+    normalized
+  )
+
+}
 
 }, [searchParams])
 
