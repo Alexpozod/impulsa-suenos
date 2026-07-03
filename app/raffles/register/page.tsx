@@ -43,10 +43,17 @@ const signUp = async () => {
 
   const { error } = await supabase.auth.signUp({
 
-    email,
-    password
+  email,
+  password,
 
-  })
+  options: {
+
+    emailRedirectTo:
+      `${location.origin}/raffles/login`
+
+  }
+
+})
 
   if (error) {
 
