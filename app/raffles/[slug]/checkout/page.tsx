@@ -197,6 +197,10 @@ searchParams.get("coupon")
 
 searchParams.get("aff")
 
+??
+
+searchParams.get("ref")
+
 if (commercial) {
 
   localStorage.setItem(
