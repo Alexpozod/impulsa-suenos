@@ -446,6 +446,15 @@ try {
 
   setProcessing(true)
   
+console.log(
+  "BUY TICKETS",
+  {
+    commercialCode,
+    buyerEmail,
+    quantity
+  }
+)
+
   const res =
     await fetch(
       "/api/raffles/create-payment",
