@@ -162,6 +162,39 @@ const paymentStatus =
 const orderStatus =
   payment.orders?.status
 
+  if (
+  paymentStatus === "failed" ||
+  paymentStatus === "rejected" ||
+  paymentStatus === "cancelled"
+) {
+
+  console.log(
+    "MARKING ORDER AS FAILED FROM RETURN"
+  )
+
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .update({
+      status: "failed"
+    })
+    .eq("id", payment.id)
+
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .update({
+      status: "cancelled"
+    })
+    .eq("id", payment.orders.id)
+
+  return NextResponse.redirect(
+    "https://sorteos.impulsasuenos.com/raffles/payment/failure",
+    303
+  )
+
+}
+
   console.log(
   "PAYMENT RETURN STATUS",
   {
