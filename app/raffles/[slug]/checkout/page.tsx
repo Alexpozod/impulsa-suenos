@@ -184,6 +184,21 @@ async function loadQuote() {
   
   useEffect(() => {
 
+    console.log(
+  "URL SEARCH",
+  window.location.search
+)
+
+console.log(
+  "URL CODE",
+  searchParams.get("code")
+)
+
+console.log(
+  "URL AFF",
+  searchParams.get("aff")
+)
+
   loadRaffle()
 
 const qty =
@@ -317,7 +332,7 @@ Number(savedQuantity)
 
 }
 
-}, [])
+}, [searchParams])
 
 useEffect(() => {
 
