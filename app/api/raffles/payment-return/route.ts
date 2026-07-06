@@ -112,10 +112,12 @@ if (!token) {
 
   return NextResponse.redirect(
 
-    "https://sorteos.impulsasuenos.com/raffles/payment/check",
+    "https://sorteos.impulsasuenos.com/raffles/payment/failure",
 
     303
+
   )
+
 }
 
     /* =========================
@@ -146,9 +148,13 @@ if (
   )
 
   return NextResponse.redirect(
-    "https://sorteos.impulsasuenos.com/raffles/payment/success",
+
+    `https://sorteos.impulsasuenos.com/raffles/payment/success?order=${payment.orders.id}`,
+
     303
+
   )
+
 }
 
 if (
@@ -161,9 +167,13 @@ if (
   )
 
   return NextResponse.redirect(
-    "https://sorteos.impulsasuenos.com/raffles/payment/check",
+
+    `https://sorteos.impulsasuenos.com/raffles/payment/check?order=${payment.orders.id}`,
+
     303
+
   )
+
 }
 
 console.log(
