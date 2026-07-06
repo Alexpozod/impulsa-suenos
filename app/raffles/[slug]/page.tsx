@@ -919,7 +919,15 @@ md:grid-cols-3
 raffle.status === "active" ? (
 
 <Link
-  href={`/raffles/${raffle.slug}/checkout?qty=${selectedQty}`}
+  href={`/raffles/${raffle.slug}/checkout?qty=${selectedQty}${
+    searchParams.get("ref")
+      ? `&ref=${encodeURIComponent(searchParams.get("ref")!)}`
+      : searchParams.get("aff")
+      ? `&aff=${encodeURIComponent(searchParams.get("aff")!)}`
+      : searchParams.get("code")
+      ? `&code=${encodeURIComponent(searchParams.get("code")!)}`
+      : ""
+  }`}
   className="
     w-full
     block
