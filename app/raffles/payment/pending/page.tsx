@@ -39,11 +39,15 @@ export default function PendingPage() {
 
       if (
 
-  json.order_status === "paid" &&
+        json.order_status === "paid" &&
 
-  json.payment_status === "approved"
+        (
+          json.payment_status === "paid" ||
 
-) {
+          json.payment_status === "approved"
+        )
+
+      ) {
 
         router.replace(
           "/raffles/payment/success"

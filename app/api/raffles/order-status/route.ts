@@ -67,19 +67,27 @@ export async function GET(
       )
     }
 
-    const paymentStatus =
-      order.payments?.[0]?.status ||
-      "pending"
-
-    return NextResponse.json({
-
-      order_status:
-        order.status,
-
-      payment_status:
-        paymentStatus
-
+    const { data: payment } =
+  await supabase
+    .schema("raffles")
+    .from("payments")
+    .select("status")
+    .eq("order_id", orderId)
+    .order("created_at", {
+      ascending: false
     })
+    .limit(1)
+    .maybeSingle()
+
+return NextResponse.json({
+
+  order_status:
+    order.status,
+
+  payment_status:
+    payment?.status ?? "pending"
+
+})
 
   } catch (error) {
 
