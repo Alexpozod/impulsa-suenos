@@ -79,6 +79,38 @@ if (!token) {
     "FLOW RETURN WITHOUT TOKEN"
   )
 
+  const flowOrder =
+    searchParams.get("flowOrder") ??
+    searchParams.get("flow_order") ??
+    searchParams.get("order") ??
+    searchParams.get("flowOrderNumber")
+
+  console.log(
+    "FLOW RETURN ORDER",
+    flowOrder
+  )
+
+  if (flowOrder) {
+
+    const { data: payment } =
+      await supabase
+        .schema("raffles")
+        .from("payments")
+        .select(`
+          *,
+          orders (*)
+        `)
+        .contains("metadata", {
+          flow_order: Number(flowOrder)
+        })
+        .maybeSingle()
+
+    console.log(
+      "FLOW PAYMENT FOUND",
+      payment?.id
+    )
+  }
+
   return NextResponse.redirect(
     "https://sorteos.impulsasuenos.com/raffles/payment/check",
     303

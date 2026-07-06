@@ -639,10 +639,13 @@ quote.finalQuantity
 
       metadata: {
 
-        flow_payment_url:
-          flow.url
+  flow_payment_url:
+    flow.url,
 
-      }
+  flow_order:
+    flow.flowOrder
+
+}
 
     })
     .select()
