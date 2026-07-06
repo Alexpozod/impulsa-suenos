@@ -1,40 +1,43 @@
 "use client"
 
-import { useEffect } from "react"
+import {
+  Suspense,
+  useEffect
+} from "react"
 
 import {
   useRouter,
   useSearchParams
 } from "next/navigation"
 
-export default function PaymentCheckPage() {
+function PaymentCheckContent() {
 
   const router = useRouter()
 
   const searchParams =
-  useSearchParams()
+    useSearchParams()
 
   useEffect(() => {
 
     async function verify() {
 
       const orderId =
-  searchParams.get("order")
+        searchParams.get("order")
 
-console.log(
-  "ORDER FROM URL",
-  orderId
-)
+      console.log(
+        "ORDER FROM URL",
+        orderId
+      )
 
-if (!orderId) {
+      if (!orderId) {
 
-  router.replace(
-    "/raffles/payment/failure"
-  )
+        router.replace(
+          "/raffles/payment/failure"
+        )
 
-  return
+        return
 
-}
+      }
 
       try {
 
@@ -46,10 +49,10 @@ if (!orderId) {
         const json =
           await res.json()
 
-          console.log(
-  "ORDER STATUS",
-  json
-)
+        console.log(
+          "ORDER STATUS",
+          json
+        )
 
         if (
           json.payment_status === "approved" &&
@@ -57,10 +60,11 @@ if (!orderId) {
         ) {
 
           router.replace(
-  `/raffles/payment/success?order=${orderId}`
-)
+            `/raffles/payment/success?order=${orderId}`
+          )
 
           return
+
         }
 
         if (
@@ -73,6 +77,7 @@ if (!orderId) {
           )
 
           return
+
         }
 
         router.replace(
@@ -86,15 +91,37 @@ if (!orderId) {
         )
 
       }
+
     }
 
     verify()
 
-  }, [router])
+  }, [router, searchParams])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       Verificando pago...
     </div>
   )
+
+}
+
+export default function Page() {
+
+  return (
+
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Verificando...
+        </div>
+      }
+    >
+
+      <PaymentCheckContent />
+
+    </Suspense>
+
+  )
+
 }
