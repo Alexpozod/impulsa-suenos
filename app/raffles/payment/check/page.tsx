@@ -49,6 +49,11 @@ function PaymentCheckContent() {
         const json =
           await res.json()
 
+          console.log(
+            "CHECK PAGE STATUS",
+            json
+          )
+
         console.log(
           "ORDER STATUS",
           json
