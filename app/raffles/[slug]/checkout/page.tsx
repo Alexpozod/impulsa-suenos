@@ -99,38 +99,57 @@ async function loadQuote() {
 
   try {
 
-    setLoadingQuote(true)
+  setLoadingQuote(true)
 
-    const res =
-      await fetch(
+  console.log("LOAD QUOTE", {
 
-        "/api/raffles/quote",
+    commercialCode,
 
-        {
+    search:
+      window.location.search,
 
-          method: "POST",
+    localStorage:
+      localStorage.getItem(
+        "raffle_commercial"
+      ),
 
-          headers: {
-
-            "Content-Type":
-              "application/json"
-
-          },
-
-          body: JSON.stringify({
-
-            raffle_id:
-              raffle.id,
-
-            quantity,
-
-            commercialCode
-
-          })
-
-        }
-
+    sessionStorage:
+      sessionStorage.getItem(
+        "raffle_commercial"
       )
+
+  })
+
+  const res =
+  await fetch(
+
+    "/api/raffles/quote",
+
+    {
+
+      method: "POST",
+
+      headers: {
+
+        "Content-Type":
+          "application/json"
+
+      },
+
+      body: JSON.stringify({
+
+        raffle_id:
+          raffle.id,
+
+        quantity,
+
+        commercialCode
+
+      })
+
+    }
+
+  )
 
     if (!res.ok) {
 
