@@ -17,6 +17,11 @@ export default function PendingPage() {
         "last_raffle_order_id"
       )
 
+      console.log(
+"LOCAL ORDER",
+orderId
+)
+
     if (!orderId) {
       return
     }
@@ -36,6 +41,11 @@ export default function PendingPage() {
 
       const json =
         await res.json()
+
+        console.log(
+"STATUS RESPONSE",
+json
+)
 
       if (
 
