@@ -73,6 +73,11 @@ console.log(
    consultar el estado.
 ========================= */
 
+console.log(
+  "RAW RETURN URL",
+  req.url
+)
+
 if (!token) {
 
   console.log(
