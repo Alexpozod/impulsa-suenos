@@ -13,21 +13,20 @@ import {
 function PaymentCheckContent() {
 
   const router = useRouter()
-
-  const searchParams =
-    useSearchParams()
-
+  
   useEffect(() => {
 
     async function verify() {
 
       const orderId =
-        searchParams.get("order")
+  localStorage.getItem(
+    "last_raffle_order_id"
+  )
 
-      console.log(
-        "ORDER FROM URL",
-        orderId
-      )
+console.log(
+  "CHECK PAGE ORDER",
+  orderId
+)
 
       if (!orderId) {
 
@@ -101,7 +100,7 @@ function PaymentCheckContent() {
 
     verify()
 
-  }, [router, searchParams])
+  }, [router])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
