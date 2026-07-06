@@ -17,8 +17,13 @@ function SuccessContent() {
   const router =
     useRouter()
 
-  const token =
-    searchParams.get("token")
+  const orderId =
+  searchParams.get("order")
+
+console.log(
+  "SUCCESS ORDER",
+  orderId
+)
 
   return (
 
