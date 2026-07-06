@@ -1,29 +1,40 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+
+import {
+  useRouter,
+  useSearchParams
+} from "next/navigation"
 
 export default function PaymentCheckPage() {
 
   const router = useRouter()
+
+  const searchParams =
+  useSearchParams()
 
   useEffect(() => {
 
     async function verify() {
 
       const orderId =
-        localStorage.getItem(
-          "last_raffle_order_id"
-        )
+  searchParams.get("order")
 
-      if (!orderId) {
+console.log(
+  "ORDER FROM URL",
+  orderId
+)
 
-        router.replace(
-          "/raffles/payment/pending"
-        )
+if (!orderId) {
 
-        return
-      }
+  router.replace(
+    "/raffles/payment/failure"
+  )
+
+  return
+
+}
 
       try {
 
@@ -46,8 +57,8 @@ export default function PaymentCheckPage() {
         ) {
 
           router.replace(
-            "/raffles/payment/success"
-          )
+  `/raffles/payment/success?order=${orderId}`
+)
 
           return
         }
