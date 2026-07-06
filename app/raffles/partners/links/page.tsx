@@ -145,7 +145,7 @@ lg:grid-cols-2
           (raffle: any) => {
 
             const link =
-`https://impulsasuenos.com/raffles/${raffle.slug}?aff=${data.affiliate.code}`
+`https://sorteos.impulsasuenos.com/raffles/${raffle.slug}?aff=${data.affiliate.code}`
 
             return (
 
