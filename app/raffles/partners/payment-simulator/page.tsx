@@ -523,6 +523,62 @@ Dependiendo de la situación tributaria del contribuyente, esta retención podr�
 
 }
 
+<div className="border-t border-white/20 pt-6 mt-6">
+
+<div className="rounded-xl bg-white/5 p-5">
+
+<div className="text-cyan-300 font-semibold mb-4">
+
+Simulación Referencial
+
+</div>
+
+<div className="space-y-2 text-sm text-slate-300">
+
+<div className="flex justify-between">
+
+<span>IVA Venta</span>
+
+<strong>19%</strong>
+
+</div>
+
+<div className="flex justify-between">
+
+<span>Comisión Pasarela</span>
+
+<strong>3,19%</strong>
+
+</div>
+
+<div className="flex justify-between">
+
+<span>IVA Comisión Pasarela</span>
+
+<strong>19%</strong>
+
+</div>
+
+<div className="flex justify-between">
+
+<span>Retención Boleta 2026</span>
+
+<strong>15,25%</strong>
+
+</div>
+
+</div>
+
+<p className="mt-5 text-xs leading-6 text-slate-400">
+
+Esta simulación es únicamente referencial y tiene como objetivo ayudar al afiliado a estimar el monto de su comisión. Los valores pueden presentar pequeñas diferencias por redondeos, cambios tributarios futuros o condiciones comerciales vigentes al momento del pago.
+
+</p>
+
+</div>
+
+</div>
+
 </div>
 
 </div>
