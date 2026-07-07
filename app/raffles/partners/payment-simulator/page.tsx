@@ -6,17 +6,17 @@ export default function PaymentSimulatorPage() {
 
       {/* Configuración */}
 
-      <div className="rounded-2xl border bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border bg-white p-5 shadow-sm">
 
         <h2 className="text-xl font-bold mb-1">
           Configuración
         </h2>
 
-        <p className="text-gray-500 mb-6">
+        <p className="text-gray-500 mb-4">
           Ingresa tus datos para estimar cuánto recibirás.
         </p>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-3 gap-4">
 
           <div>
 
@@ -26,7 +26,7 @@ export default function PaymentSimulatorPage() {
 
             <input
               type="number"
-              className="w-full rounded-lg border p-3"
+              className="w-full rounded-lg border px-3 py-2"
               placeholder="$1.000.000"
             />
 
@@ -70,9 +70,9 @@ export default function PaymentSimulatorPage() {
 
 <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
 
-  <div className="px-6 py-5 border-b">
+  <div className="px-5 py-4 border-b">
 
-    <h2 className="text-2xl font-bold">
+    <h2 className="text-xl font-bold">
       Resumen del Pago
     </h2>
 
@@ -88,61 +88,61 @@ export default function PaymentSimulatorPage() {
     <tbody>
 
       <tr className="border-b">
-        <td className="p-4 font-medium">
+        <td className="px-4 py-3 font-medium">
           Venta ingresada
         </td>
 
-        <td className="text-right p-4 font-semibold">
+        <td className="text-right px-4 py-3 font-semibold">
           $1.000.000
         </td>
       </tr>
 
       <tr className="border-b">
-        <td className="p-4">
+        <td className="px-4 py-3">
           IVA incluido en la venta
         </td>
 
-        <td className="text-right p-4 text-red-600">
+        <td className="text-right px-4 py-3 text-red-600">
           -$159.664
         </td>
       </tr>
 
       <tr className="border-b bg-slate-50">
-        <td className="p-4 font-semibold">
+        <td className="px-4 py-3 font-semibold">
           Venta sin IVA
         </td>
 
-        <td className="text-right p-4 font-semibold">
+        <td className="text-right px-4 py-3 font-semibold">
           $840.336
         </td>
       </tr>
 
       <tr className="border-b">
-        <td className="p-4">
+        <td className="px-4 py-3">
           Comisión afiliado (10%)
         </td>
 
-        <td className="text-right p-4">
+        <td className="text-right px-4 py-3">
           $84.034
         </td>
       </tr>
 
       <tr className="border-b">
-        <td className="p-4">
+        <td className="px-4 py-3">
           Comisión Flow (3,19% + IVA)
         </td>
 
-        <td className="text-right p-4 text-red-600">
+        <td className="text-right px-4 py-3 text-red-600">
           -$37.961
         </td>
       </tr>
 
       <tr className="bg-cyan-50 border-b">
-        <td className="p-4 font-bold">
+        <td className="px-4 py-3 font-bold">
           Base de Pago
         </td>
 
-        <td className="text-right p-4 font-bold text-cyan-700">
+        <td className="text-right px-4 py-3 font-bold text-cyan-700">
           $46.073
         </td>
       </tr>
@@ -153,13 +153,13 @@ export default function PaymentSimulatorPage() {
 
   <div className="grid md:grid-cols-2">
 
-    <div className="border-r p-6">
+    <div className="border-r p-5">
 
       <h3 className="font-bold text-xl mb-5">
         Factura
       </h3>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
 
         <div className="flex justify-between">
           <span>Monto bruto factura</span>
@@ -181,13 +181,13 @@ export default function PaymentSimulatorPage() {
 
         </div>
 
-        <div className="mt-6 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
+        <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
 
           <div className="text-sm text-gray-500">
             La empresa pagará
           </div>
 
-          <div className="text-3xl font-bold text-emerald-700">
+          <div className="text-2xl font-bold text-emerald-700">
 
             $46.073
 
@@ -199,13 +199,13 @@ export default function PaymentSimulatorPage() {
 
     </div>
 
-    <div className="p-6">
+    <div className="p-5">
 
       <h3 className="font-bold text-xl mb-5">
         Boleta de Honorarios
       </h3>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
 
         <div className="flex justify-between">
           <span>Monto bruto boleta</span>
@@ -219,7 +219,7 @@ export default function PaymentSimulatorPage() {
           </strong>
         </div>
 
-        <div className="mt-6 rounded-xl bg-cyan-50 border border-cyan-200 p-5">
+        <div className="mt-4 rounded-xl bg-cyan-50 border border-cyan-200 p-5">
 
           <div className="text-sm text-gray-500">
             Recibirás
