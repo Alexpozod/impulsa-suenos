@@ -230,7 +230,7 @@ const formatMoney = (value: number) =>
         </td>
 
         <td className="text-right px-4 py-3 text-red-600">
-          -$159.664
+          {formatMoney(simulation.saleVat)}
         </td>
       </tr>
 
@@ -240,7 +240,7 @@ const formatMoney = (value: number) =>
         </td>
 
         <td className="text-right px-4 py-3 font-semibold">
-          $840.336
+          {formatMoney(simulation.netSale)}
         </td>
       </tr>
 
@@ -250,7 +250,7 @@ const formatMoney = (value: number) =>
         </td>
 
         <td className="text-right px-4 py-3">
-          $84.034
+          {formatMoney(simulation.affiliateCommission)}
         </td>
       </tr>
 
@@ -260,7 +260,7 @@ const formatMoney = (value: number) =>
         </td>
 
         <td className="text-right px-4 py-3 text-red-600">
-          -$37.961
+          {formatMoney(simulation.flowCommission)}
         </td>
       </tr>
 
@@ -270,7 +270,7 @@ const formatMoney = (value: number) =>
         </td>
 
         <td className="text-right px-4 py-3 font-bold text-cyan-700">
-          $46.073
+          {formatMoney(simulation.paymentBase)}
         </td>
       </tr>
 
@@ -290,12 +290,16 @@ const formatMoney = (value: number) =>
 
         <div className="flex justify-between">
           <span>Monto bruto factura</span>
-          <strong>$46.073</strong>
+          <strong>
+            {formatMoney(simulation.paymentBase)}
+            </strong>
         </div>
 
         <div className="flex justify-between">
           <span>IVA factura</span>
-          <strong>$8.754</strong>
+          <strong>
+            {formatMoney(simulation.invoiceVat)}
+            </strong>
         </div>
 
         <div className="flex justify-between border-t pt-4 text-lg">
@@ -303,7 +307,7 @@ const formatMoney = (value: number) =>
           <span>Total factura</span>
 
           <strong>
-            $54.827
+            {formatMoney(simulation.invoiceTotal)}
           </strong>
 
         </div>
@@ -316,7 +320,7 @@ const formatMoney = (value: number) =>
 
           <div className="text-2xl font-bold text-emerald-700">
 
-            $46.073
+            {formatMoney(simulation.paymentBase)}
 
           </div>
 
@@ -336,13 +340,13 @@ const formatMoney = (value: number) =>
 
         <div className="flex justify-between">
           <span>Monto bruto boleta</span>
-          <strong>$46.073</strong>
+          <strong>{formatMoney(simulation.paymentBase)}</strong>
         </div>
 
         <div className="flex justify-between">
           <span>Retención SII</span>
           <strong className="text-red-600">
-            -$6.219
+            {formatMoney(simulation.retention)}
           </strong>
         </div>
 
@@ -354,7 +358,7 @@ const formatMoney = (value: number) =>
 
           <div className="text-3xl font-bold text-cyan-700">
 
-            $39.854
+            {formatMoney(simulation.honorariosNet)}
 
           </div>
 
