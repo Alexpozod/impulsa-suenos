@@ -944,9 +944,7 @@ Detalles
               <div className="flex items-center justify-between border-b px-6 py-4">
 
                 <h2 className="text-xl font-semibold">
-
                   👤 Perfil del Afiliado
-
                 </h2>
 
                 <button
@@ -960,92 +958,91 @@ Detalles
 
               <div className="grid md:grid-cols-2 gap-6 p-6">
 
-                  <Info
-                    label="Tipo de Perfil"
-                    value={
-                      dashboard?.partnerProfile?.affiliate_type === "company"
-                        ? "Empresa"
-                        : "Persona Natural"
-                    }
-                  />
+                <Info
+                  label="Tipo de Perfil"
+                  value={
+                    dashboard?.partnerProfile?.affiliate_type === "company"
+                      ? "Empresa"
+                      : "Persona Natural"
+                  }
+                />
 
-                  <Info
-                    label="Nombre"
-                    value={dashboard?.partnerProfile?.first_name ?? "-"}
-                  />
+                <Info
+                  label="Nombre"
+                  value={dashboard?.partnerProfile?.first_name ?? "-"}
+                />
 
-                  <Info
-                    label="Apellido"
-                    value={dashboard?.partnerProfile?.last_name ?? "-"}
-                  />
+                <Info
+                  label="Apellido"
+                  value={dashboard?.partnerProfile?.last_name ?? "-"}
+                />
 
-                  <Info
-                    label="RUT"
-                    value={dashboard?.partnerProfile?.rut ?? "-"}
-                  />
+                <Info
+                  label="RUT"
+                  value={dashboard?.partnerProfile?.rut ?? "-"}
+                />
 
-                  <Info
-                    label="Teléfono"
-                    value={dashboard?.partnerProfile?.phone ?? "-"}
-                  />
+                <Info
+                  label="Teléfono"
+                  value={dashboard?.partnerProfile?.phone ?? "-"}
+                />
 
-                  <Info
-                    label="Banco"
-                    value={dashboard?.partnerProfile?.bank_name ?? "-"}
-                  />
+                <Info
+                  label="Banco"
+                  value={dashboard?.partnerProfile?.bank_name ?? "-"}
+                />
 
-                  <Info
-                    label="Tipo de Cuenta"
-                    value={dashboard?.partnerProfile?.account_type ?? "-"}
-                  />
+                <Info
+                  label="Tipo de Cuenta"
+                  value={dashboard?.partnerProfile?.account_type ?? "-"}
+                />
 
-                  <Info
-                    label="Número de Cuenta"
-                    value={dashboard?.partnerProfile?.account_number ?? "-"}
-                  />
+                <Info
+                  label="Número de Cuenta"
+                  value={dashboard?.partnerProfile?.account_number ?? "-"}
+                />
 
-                  <Info
-                    label="Titular de la Cuenta"
-                    value={dashboard?.partnerProfile?.account_holder ?? "-"}
-                  />
+                <Info
+                  label="Titular de la Cuenta"
+                  value={dashboard?.partnerProfile?.account_holder ?? "-"}
+                />
 
-      {dashboard?.partnerProfile?.affiliate_type === "company" && (
-  <>
+                {dashboard?.partnerProfile?.affiliate_type === "company" && (
+                  <>
+                    <Info
+                      label="Razón Social"
+                      value={dashboard?.partnerProfile?.company_name ?? "-"}
+                    />
 
-    <Info
-      label="Razón Social"
-      value={dashboard?.partnerProfile?.company_name ?? "-"}
-    />
+                    <Info
+                      label="RUT Empresa"
+                      value={dashboard?.partnerProfile?.company_rut ?? "-"}
+                    />
 
-    <Info
-      label="RUT Empresa"
-      value={dashboard?.partnerProfile?.company_rut ?? "-"}
-    />
+                    <Info
+                      label="Giro"
+                      value={dashboard?.partnerProfile?.company_business ?? "-"}
+                    />
 
-    <Info
-      label="Giro"
-      value={dashboard?.partnerProfile?.company_business ?? "-"}
-    />
+                    <Info
+                      label="Representante Legal"
+                      value={dashboard?.partnerProfile?.legal_representative ?? "-"}
+                    />
 
-    <Info
-      label="Representante Legal"
-      value={dashboard?.partnerProfile?.legal_representative ?? "-"}
-    />
+                    <Info
+                      label="Correo Empresa"
+                      value={dashboard?.partnerProfile?.company_email ?? "-"}
+                    />
+                  </>
+                )}
 
-    <Info
-      label="Correo Empresa"
-      value={dashboard?.partnerProfile?.company_email ?? "-"}
-    />
+              </div>
 
-  </>
-)}             
-              </div> {/* grid */}
+            </div>
 
-            </div> {/* modal */}
+          </div>
 
-          </div> {/* overlay */}
-
-      )}
+        )}
 
       {selectedPayout && (
 
