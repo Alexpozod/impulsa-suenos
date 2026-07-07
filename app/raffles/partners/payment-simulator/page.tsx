@@ -209,6 +209,16 @@ Resultado
 
 <div className="space-y-4 text-lg">
 
+<div className="mb-6">
+
+<div className="text-cyan-300 text-sm font-semibold uppercase mb-3">
+
+Venta
+
+</div>
+
+<div className="space-y-3">
+
 <div className="flex justify-between">
 
 <span>Venta Bruta</span>
@@ -219,17 +229,63 @@ Resultado
 
 <div className="flex justify-between">
 
+<span>IVA Venta</span>
+
+<strong>
+
+{money(result.gross - result.netSale)}
+
+</strong>
+
+</div>
+
+<div className="flex justify-between font-semibold">
+
 <span>Venta Neta</span>
 
 <strong>{money(result.netSale)}</strong>
 
 </div>
 
+</div>
+
+</div>
+
+<div className="border-t border-white/20 pt-6 mb-6">
+
+<div className="text-cyan-300 text-sm font-semibold uppercase mb-3">
+
+Pasarela de Pago
+
+</div>
+
+<div className="space-y-3">
+
 <div className="flex justify-between">
 
-<span>Comisión Flow</span>
+<span>Comisión (3,19%)</span>
+
+<strong>{money(result.flowBase)}</strong>
+
+</div>
+
+<div className="flex justify-between">
+
+<span>IVA Comisión</span>
+
+<strong>{money(result.flowVat)}</strong>
+
+</div>
+
+<div className="flex justify-between font-semibold">
+
+<span>Total Comisión Pasarela</span>
 
 <strong>{money(result.flowTotal)}</strong>
+
+</div>
+
+</div>
 
 </div>
 
