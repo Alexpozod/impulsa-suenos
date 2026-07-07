@@ -443,6 +443,8 @@ El IVA forma parte del documento tributario emitido por el afiliado y deberá se
 
 </div>
 
+</div>
+
 :
 
 <>
