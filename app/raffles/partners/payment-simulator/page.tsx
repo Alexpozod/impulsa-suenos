@@ -230,7 +230,7 @@ const formatMoney = (value: number) =>
         </td>
 
         <td className="text-right px-4 py-3 text-red-600">
-          {formatMoney(simulation.saleVat)}
+          -{formatMoney(simulation.saleVat)}
         </td>
       </tr>
 
@@ -260,13 +260,13 @@ const formatMoney = (value: number) =>
         </td>
 
         <td className="text-right px-4 py-3 text-red-600">
-          {formatMoney(simulation.flowCommission)}
+          {formatMoney(simulation.retention)}
         </td>
       </tr>
 
       <tr className="bg-cyan-50 border-b">
         <td className="px-4 py-3 font-bold">
-          Base de Pago
+          Comisión antes del documento tributario
         </td>
 
         <td className="text-right px-4 py-3 font-bold text-cyan-700">
@@ -278,90 +278,39 @@ const formatMoney = (value: number) =>
 
   </table>
 
-  <div className="grid md:grid-cols-2">
+  {documentType === "factura" ? (
 
-    <div className="border-r p-5">
+  <div className="p-5">
 
-      <h3 className="font-bold text-xl mb-5">
-        Factura
-      </h3>
+    <h3 className="font-bold text-xl mb-5">
+      Factura
+    </h3>
 
-      <div className="space-y-3">
+    <div className="space-y-3">
 
-        <div className="flex justify-between">
-          <span>Monto bruto factura</span>
-          <strong>
-            {formatMoney(simulation.paymentBase)}
-            </strong>
-        </div>
-
-        <div className="flex justify-between">
-          <span>IVA factura</span>
-          <strong>
-            {formatMoney(simulation.invoiceVat)}
-            </strong>
-        </div>
-
-        <div className="flex justify-between border-t pt-4 text-lg">
-
-          <span>Total factura</span>
-
-          <strong>
-            {formatMoney(simulation.invoiceTotal)}
-          </strong>
-
-        </div>
-
-        <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
-
-          <div className="text-sm text-gray-500">
-            La empresa pagará
-          </div>
-
-          <div className="text-2xl font-bold text-emerald-700">
-
-            {formatMoney(simulation.paymentBase)}
-
-          </div>
-
-        </div>
-
+      <div className="flex justify-between">
+        <span>Monto bruto factura</span>
+        <strong>{formatMoney(simulation.paymentBase)}</strong>
       </div>
 
-    </div>
+      <div className="flex justify-between">
+        <span>IVA factura</span>
+        <strong>{formatMoney(simulation.invoiceVat)}</strong>
+      </div>
 
-    <div className="p-5">
+      <div className="flex justify-between border-t pt-4 text-lg">
+        <span>Total factura</span>
+        <strong>{formatMoney(simulation.invoiceTotal)}</strong>
+      </div>
 
-      <h3 className="font-bold text-xl mb-5">
-        Boleta de Honorarios
-      </h3>
+      <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
 
-      <div className="space-y-3">
-
-        <div className="flex justify-between">
-          <span>Monto bruto boleta</span>
-          <strong>{formatMoney(simulation.paymentBase)}</strong>
+        <div className="text-sm text-gray-500">
+          La empresa pagará
         </div>
 
-        <div className="flex justify-between">
-          <span>Retención SII</span>
-          <strong className="text-red-600">
-            {formatMoney(simulation.retention)}
-          </strong>
-        </div>
-
-        <div className="mt-4 rounded-xl bg-cyan-50 border border-cyan-200 p-5">
-
-          <div className="text-sm text-gray-500">
-            Recibirás
-          </div>
-
-          <div className="text-3xl font-bold text-cyan-700">
-
-            {formatMoney(simulation.honorariosNet)}
-
-          </div>
-
+        <div className="text-3xl font-bold text-emerald-700">
+          {formatMoney(simulation.paymentBase)}
         </div>
 
       </div>
@@ -370,8 +319,49 @@ const formatMoney = (value: number) =>
 
   </div>
 
-</div>
+) : (
+
+  <div className="p-5">
+
+    <h3 className="font-bold text-xl mb-5">
+      Boleta de Honorarios
+    </h3>
+
+    <div className="space-y-3">
+
+      <div className="flex justify-between">
+        <span>Monto bruto boleta</span>
+        <strong>{formatMoney(simulation.paymentBase)}</strong>
+      </div>
+
+      <div className="flex justify-between">
+        <span>Retención SII</span>
+        <strong className="text-red-600">
+          {formatMoney(simulation.retention)}
+        </strong>
+      </div>
+
+      <div className="mt-4 rounded-xl bg-cyan-50 border border-cyan-200 p-5">
+
+        <div className="text-sm text-gray-500">
+          Recibirás
+        </div>
+
+        <div className="text-3xl font-bold text-cyan-700">
+          {formatMoney(simulation.honorariosNet)}
+        </div>
+
+      </div>
 
     </div>
-  );
+
+  </div>
+
+)}
+
+</div>
+
+</div>
+
+);
 }
