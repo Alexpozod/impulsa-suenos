@@ -200,14 +200,14 @@ const formatMoney = (value: number) =>
   <div className="px-5 py-4 border-b">
 
     <h2 className="text-xl font-bold">
-      Resumen del Pago
-    </h2>
+        Simulación del Pago
+        </h2>
 
     <p className="text-gray-500 mt-1">
-      El cálculo se realiza automáticamente considerando IVA,
-      comisión de Flow y el tipo de documento tributario.
-    </p>
-
+        Calculamos automáticamente tu comisión considerando IVA,
+        comisión de la pasarela de pago y el documento tributario
+        seleccionado.
+        </p>
   </div>
 
   <table className="w-full">
@@ -256,7 +256,7 @@ const formatMoney = (value: number) =>
 
       <tr className="border-b">
         <td className="px-4 py-3">
-          Comisión Flow (3,19% + IVA)
+          Comisión pasarela de pago (3,19% + IVA)
         </td>
 
         <td className="text-right px-4 py-3 text-red-600">
@@ -266,7 +266,7 @@ const formatMoney = (value: number) =>
 
       <tr className="bg-cyan-50 border-b">
         <td className="px-4 py-3 font-bold">
-          Comisión antes del documento tributario
+          Comisión disponible para pago
         </td>
 
         <td className="text-right px-4 py-3 font-bold text-cyan-700">
@@ -306,7 +306,7 @@ const formatMoney = (value: number) =>
       <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
 
         <div className="text-sm text-gray-500">
-          La empresa pagará
+          Monto bruto de tu factura
         </div>
 
         <div className="text-3xl font-bold text-emerald-700">
@@ -344,7 +344,7 @@ const formatMoney = (value: number) =>
       <div className="mt-4 rounded-xl bg-cyan-50 border border-cyan-200 p-5">
 
         <div className="text-sm text-gray-500">
-          Recibirás
+          Recibirás en tu cuenta
         </div>
 
         <div className="text-3xl font-bold text-cyan-700">
