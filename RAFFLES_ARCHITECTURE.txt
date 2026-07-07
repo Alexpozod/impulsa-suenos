@@ -1,0 +1,505 @@
+========== APP ==========
+app/admin/raffles
+app/admin/raffles/[id]
+app/admin/raffles/[id]/page.tsx
+app/admin/raffles/affiliate-payouts
+app/admin/raffles/affiliate-payouts/page.tsx
+app/admin/raffles/affiliates
+app/admin/raffles/affiliates/[id]
+app/admin/raffles/affiliates/[id]/page.tsx
+app/admin/raffles/affiliates/page.tsx
+app/admin/raffles/analytics
+app/admin/raffles/analytics/page.tsx
+app/admin/raffles/audit
+app/admin/raffles/audit/page.tsx
+app/admin/raffles/create
+app/admin/raffles/create/page.tsx
+app/admin/raffles/edit
+app/admin/raffles/edit/[id]
+app/admin/raffles/edit/[id]/page.tsx
+app/admin/raffles/exports
+app/admin/raffles/exports/page.tsx
+app/admin/raffles/fraud
+app/admin/raffles/fraud/page.tsx
+app/admin/raffles/live
+app/admin/raffles/live/page.tsx
+app/admin/raffles/manage
+app/admin/raffles/manage/page.tsx
+app/admin/raffles/orders
+app/admin/raffles/orders/page.tsx
+app/admin/raffles/page.tsx
+app/admin/raffles/payments
+app/admin/raffles/payments/[id]
+app/admin/raffles/payments/[id]/page.tsx
+app/admin/raffles/payments/page.tsx
+app/admin/raffles/promotions
+app/admin/raffles/promotions/page.tsx
+app/admin/raffles/referrals
+app/admin/raffles/referrals/[id]
+app/admin/raffles/referrals/[id]/page.tsx
+app/admin/raffles/referrals/page.tsx
+app/admin/raffles/resources
+app/admin/raffles/resources/page.tsx
+app/admin/raffles/results
+app/admin/raffles/results/[id]
+app/admin/raffles/results/[id]/page.tsx
+app/admin/raffles/results/page.tsx
+app/admin/raffles/system
+app/admin/raffles/system/page.tsx
+app/admin/raffles/tickets
+app/admin/raffles/tickets/[id]
+app/admin/raffles/tickets/[id]/page.tsx
+app/admin/raffles/tickets/page.tsx
+app/api/admin/raffles
+app/api/admin/raffles/[id]
+app/api/admin/raffles/[id]/route.ts
+app/api/admin/raffles/[id]/update
+app/api/admin/raffles/[id]/update/route.ts
+app/api/admin/raffles/affiliate-payouts
+app/api/admin/raffles/affiliate-payouts/[id]
+app/api/admin/raffles/affiliate-payouts/[id]/approve
+app/api/admin/raffles/affiliate-payouts/[id]/approve/route.ts
+app/api/admin/raffles/affiliate-payouts/[id]/reject
+app/api/admin/raffles/affiliate-payouts/[id]/reject/route.ts
+app/api/admin/raffles/affiliate-payouts/route.ts
+app/api/admin/raffles/affiliates
+app/api/admin/raffles/affiliates/[id]
+app/api/admin/raffles/affiliates/[id]/chart
+app/api/admin/raffles/affiliates/[id]/chart/route.ts
+app/api/admin/raffles/affiliates/[id]/ledger
+app/api/admin/raffles/affiliates/[id]/ledger/route.ts
+app/api/admin/raffles/affiliates/[id]/request-payout
+app/api/admin/raffles/affiliates/[id]/request-payout/route.ts
+app/api/admin/raffles/affiliates/[id]/route.ts
+app/api/admin/raffles/affiliates/[id]/stats
+app/api/admin/raffles/affiliates/[id]/stats/route.ts
+app/api/admin/raffles/affiliates/[id]/summary
+app/api/admin/raffles/affiliates/[id]/summary/route.ts
+app/api/admin/raffles/affiliates/[id]/wallet
+app/api/admin/raffles/affiliates/[id]/wallet/route.ts
+app/api/admin/raffles/affiliates/route.ts
+app/api/admin/raffles/analytics
+app/api/admin/raffles/analytics/route.ts
+app/api/admin/raffles/audit
+app/api/admin/raffles/audit/route.ts
+app/api/admin/raffles/create
+app/api/admin/raffles/create/route.ts
+app/api/admin/raffles/delete
+app/api/admin/raffles/delete/route.ts
+app/api/admin/raffles/end
+app/api/admin/raffles/end/route.ts
+app/api/admin/raffles/export
+app/api/admin/raffles/export-excel
+app/api/admin/raffles/export-excel/route.ts
+app/api/admin/raffles/export/route.ts
+app/api/admin/raffles/financial-plan
+app/api/admin/raffles/financial-plan/[raffleId]
+app/api/admin/raffles/financial-plan/[raffleId]/route.ts
+app/api/admin/raffles/fraud
+app/api/admin/raffles/fraud/route.ts
+app/api/admin/raffles/list
+app/api/admin/raffles/list/route.ts
+app/api/admin/raffles/live
+app/api/admin/raffles/live/route.ts
+app/api/admin/raffles/media
+app/api/admin/raffles/media/upload
+app/api/admin/raffles/media/upload/route.ts
+app/api/admin/raffles/orders
+app/api/admin/raffles/orders/route.ts
+app/api/admin/raffles/partner-notifications
+app/api/admin/raffles/partner-notifications/route.ts
+app/api/admin/raffles/pause
+app/api/admin/raffles/pause/route.ts
+app/api/admin/raffles/payments
+app/api/admin/raffles/payments/[id]
+app/api/admin/raffles/payments/[id]/route.ts
+app/api/admin/raffles/payments/route.ts
+app/api/admin/raffles/promotions
+app/api/admin/raffles/promotions/route.ts
+app/api/admin/raffles/publish
+app/api/admin/raffles/publish/route.ts
+app/api/admin/raffles/reconcile-payment
+app/api/admin/raffles/reconcile-payment/route.ts
+app/api/admin/raffles/referrals
+app/api/admin/raffles/referrals/[id]
+app/api/admin/raffles/referrals/[id]/ledger
+app/api/admin/raffles/referrals/[id]/ledger/route.ts
+app/api/admin/raffles/referrals/[id]/route.ts
+app/api/admin/raffles/referrals/[id]/summary
+app/api/admin/raffles/referrals/[id]/summary/route.ts
+app/api/admin/raffles/referrals/[id]/toggle
+app/api/admin/raffles/referrals/[id]/toggle/route.ts
+app/api/admin/raffles/referrals/route.ts
+app/api/admin/raffles/resources
+app/api/admin/raffles/resources/route.ts
+app/api/admin/raffles/resources/upload
+app/api/admin/raffles/resources/upload/route.ts
+app/api/admin/raffles/results
+app/api/admin/raffles/results/[id]
+app/api/admin/raffles/results/[id]/route.ts
+app/api/admin/raffles/results/route.ts
+app/api/admin/raffles/results/upload
+app/api/admin/raffles/results/upload/route.ts
+app/api/admin/raffles/resume
+app/api/admin/raffles/resume/route.ts
+app/api/admin/raffles/tickets
+app/api/admin/raffles/tickets/[id]
+app/api/admin/raffles/tickets/[id]/route.ts
+app/api/admin/raffles/tickets/route.ts
+app/api/internal/raffles
+app/api/internal/raffles/cleanup
+app/api/internal/raffles/cleanup/route.ts
+app/api/internal/raffles/financial-extra-prizes
+app/api/internal/raffles/financial-extra-prizes/[id]
+app/api/internal/raffles/financial-extra-prizes/[id]/route.ts
+app/api/internal/raffles/financial-extra-prizes/route.ts
+app/api/internal/raffles/financial-plan
+app/api/internal/raffles/financial-plan-progress
+app/api/internal/raffles/financial-plan-progress/[raffleId]
+app/api/internal/raffles/financial-plan-progress/[raffleId]/route.ts
+app/api/internal/raffles/financial-plan/[raffleId]
+app/api/internal/raffles/financial-plan/[raffleId]/route.ts
+app/api/internal/raffles/financial-plan/save
+app/api/internal/raffles/financial-plan/save/route.ts
+app/api/internal/raffles/prize-scenarios
+app/api/internal/raffles/prize-scenarios/[raffleId]
+app/api/internal/raffles/prize-scenarios/[raffleId]/route.ts
+app/api/internal/raffles/reconcile-payments
+app/api/internal/raffles/reconcile-payments/route.ts
+app/api/internal/raffles/release-reservations
+app/api/internal/raffles/release-reservations/route.ts
+app/api/internal/raffles/repair-stuck-payments
+app/api/internal/raffles/repair-stuck-payments/route.ts
+app/api/internal/raffles/revenue-anomalies
+app/api/internal/raffles/revenue-anomalies/route.ts
+app/api/internal/raffles/system-health
+app/api/internal/raffles/system-health/route.ts
+app/api/raffles
+app/api/raffles/[slug]
+app/api/raffles/[slug]/route.ts
+app/api/raffles/create-payment
+app/api/raffles/create-payment/route.ts
+app/api/raffles/my-tickets
+app/api/raffles/my-tickets/route.ts
+app/api/raffles/order-status
+app/api/raffles/order-status/route.ts
+app/api/raffles/partners
+app/api/raffles/partners/dashboard
+app/api/raffles/partners/dashboard/route.ts
+app/api/raffles/partners/download
+app/api/raffles/partners/download/route.ts
+app/api/raffles/partners/links
+app/api/raffles/partners/links/route.ts
+app/api/raffles/partners/me
+app/api/raffles/partners/me/route.ts
+app/api/raffles/partners/payouts
+app/api/raffles/partners/payouts/route.ts
+app/api/raffles/partners/profile
+app/api/raffles/partners/profile/route.ts
+app/api/raffles/partners/profile/unlock
+app/api/raffles/partners/profile/unlock/route.ts
+app/api/raffles/partners/resources
+app/api/raffles/partners/resources/route.ts
+app/api/raffles/payment-return
+app/api/raffles/payment-return/route.ts
+app/api/raffles/quote
+app/api/raffles/quote/route.ts
+app/api/raffles/route.ts
+app/api/raffles/track-event
+app/api/raffles/track-event/route.ts
+app/api/raffles/validate-ticket
+app/api/raffles/validate-ticket/route.ts
+app/api/raffles/webhook
+app/api/raffles/webhook/route.ts
+app/api/raffles/webhook/route.ts.bak
+app/api/raffles/winners
+app/api/raffles/winners/route.ts
+app/components/raffles
+app/components/raffles/admin
+app/components/raffles/admin/MetricCard.tsx
+app/components/raffles/admin/PageHeader.tsx
+app/components/raffles/admin/StatusBadge.tsx
+app/components/raffles/admin/TableContainer.tsx
+app/components/raffles/layout
+app/components/raffles/layout/RafflesLayoutWrapper.tsx
+app/components/raffles/public
+app/components/raffles/public/AffiliateTracker.tsx
+app/components/raffles/public/FinalCTA.tsx
+app/components/raffles/public/HowItWorks.tsx
+app/components/raffles/public/RaffleCheckoutForm.tsx
+app/components/raffles/public/RafflesFooter.tsx
+app/components/raffles/public/RafflesGrid.tsx
+app/components/raffles/public/RafflesNavbar.tsx
+app/components/raffles/public/ReferralTracker.tsx
+app/components/raffles/public/TrustSection.tsx
+app/components/raffles/public/WinnersPreview.tsx
+app/raffles
+app/raffles/[slug]
+app/raffles/[slug]/checkout
+app/raffles/[slug]/checkout/page.tsx
+app/raffles/[slug]/page.tsx
+app/raffles/bases
+app/raffles/bases/page.tsx
+app/raffles/como-funciona
+app/raffles/como-funciona/page.tsx
+app/raffles/cookies
+app/raffles/cookies/page.tsx
+app/raffles/faq
+app/raffles/faq/page.tsx
+app/raffles/layout.tsx
+app/raffles/login
+app/raffles/login/page.tsx
+app/raffles/my-tickets
+app/raffles/my-tickets/page.tsx
+app/raffles/page.tsx
+app/raffles/partners
+app/raffles/partners/dashboard
+app/raffles/partners/dashboard/page.tsx
+app/raffles/partners/layout.tsx
+app/raffles/partners/links
+app/raffles/partners/links/page.tsx
+app/raffles/partners/payouts
+app/raffles/partners/payouts/page.tsx
+app/raffles/partners/profile
+app/raffles/partners/profile/page.tsx
+app/raffles/partners/resources
+app/raffles/partners/resources/page.tsx
+app/raffles/payment
+app/raffles/payment/check
+app/raffles/payment/check/page.tsx
+app/raffles/payment/failure
+app/raffles/payment/failure/page.tsx
+app/raffles/payment/pending
+app/raffles/payment/pending/page.tsx
+app/raffles/payment/success
+app/raffles/payment/success/page.tsx
+app/raffles/privacidad
+app/raffles/privacidad/page.tsx
+app/raffles/recover
+app/raffles/recover/page.tsx
+app/raffles/register
+app/raffles/register/page.tsx
+app/raffles/terminos
+app/raffles/terminos/page.tsx
+app/raffles/update-password
+app/raffles/update-password/page.tsx
+app/raffles/winners
+app/raffles/winners/page.tsx
+
+========== LIB ==========
+lib/raffles
+lib/raffles/admin
+lib/raffles/admin/createAuditLog.ts
+lib/raffles/admin/requireAdminAccess.ts
+lib/raffles/affiliate
+lib/raffles/affiliate/buildAffiliateLedgerEntry.ts
+lib/raffles/affiliate/calculateAffiliateCommission.ts
+lib/raffles/affiliate/calculateAffiliateWallet.ts
+lib/raffles/affiliate/canRequestAffiliatePayout.ts
+lib/raffles/affiliate/createAffiliatePayoutRequest.ts
+lib/raffles/affiliate/findAffiliateByCode.ts
+lib/raffles/affiliate/getAffiliateCommissionContext.ts
+lib/raffles/affiliate/getAffiliateDashboard.ts
+lib/raffles/affiliate/index.ts
+lib/raffles/affiliate/insertAffiliateLedgerEntry.ts
+lib/raffles/affiliate/interfaces.ts
+lib/raffles/affiliate/isValidAffiliateCode.ts
+lib/raffles/affiliate/loadAffiliateFromOrder.ts
+lib/raffles/affiliate/normalizeAffiliateCode.ts
+lib/raffles/affiliate/processAffiliateCommission.ts
+lib/raffles/affiliate/resolveAffiliate.ts
+lib/raffles/affiliate/resolveAffiliateCommission.ts
+lib/raffles/affiliate/shouldCreateAffiliateCommission.ts
+lib/raffles/affiliate/types.ts
+lib/raffles/analytics
+lib/raffles/analytics/trackEvent.ts
+lib/raffles/auth
+lib/raffles/auth/requireRaffleAdmin.ts
+lib/raffles/business
+lib/raffles/business/createQuoteSnapshot.ts
+lib/raffles/business/index.ts
+lib/raffles/business/modules
+lib/raffles/business/modules/BaseModule.ts
+lib/raffles/business/modules/index.ts
+lib/raffles/business/modules/types.ts
+lib/raffles/business/processQuote.ts
+lib/raffles/business/types.ts
+lib/raffles/commercial
+lib/raffles/commercial/index.ts
+lib/raffles/commercial/normalizeCommercialCode.ts
+lib/raffles/commercial/priority.ts
+lib/raffles/commercial/resolveCommercial.ts
+lib/raffles/commercial/types.ts
+lib/raffles/coupon
+lib/raffles/coupon/resolveCoupon.ts
+lib/raffles/emails
+lib/raffles/emails/sendRaffleConfirmationEmail.ts
+lib/raffles/emails/sendTicketsEmail.ts
+lib/raffles/flow
+lib/raffles/flow/createFlowPayment.ts
+lib/raffles/flow/validateFlowSignature.ts
+lib/raffles/ledger
+lib/raffles/ledger/processRafflePayment.ts
+lib/raffles/payment
+lib/raffles/payment/context
+lib/raffles/payment/context/buildPaymentContext.ts
+lib/raffles/payment/context/index.ts
+lib/raffles/payment/guard
+lib/raffles/payment/guard/checkExecutionGuard.ts
+lib/raffles/payment/guard/index.ts
+lib/raffles/payment/guard/types.ts
+lib/raffles/payment/handler
+lib/raffles/payment/handler/handleApprovedPayment.ts
+lib/raffles/payment/handler/index.ts
+lib/raffles/payment/index.ts
+lib/raffles/payment/processPayment.ts
+lib/raffles/payment/steps
+lib/raffles/payment/steps/approvePayment.ts
+lib/raffles/payment/steps/assignTickets.ts
+lib/raffles/payment/steps/createLedger.ts
+lib/raffles/payment/steps/finalizePayment.ts
+lib/raffles/payment/steps/index.ts
+lib/raffles/payment/steps/lockPayment.ts
+lib/raffles/payment/steps/processAffiliateCommission.ts
+lib/raffles/payment/steps/processCommercialReward.ts
+lib/raffles/payment/steps/processReferralReward.ts
+lib/raffles/payment/steps/sendNotifications.ts
+lib/raffles/payment/steps/trackAnalytics.ts
+lib/raffles/payment/steps/validatePayment.ts
+lib/raffles/payment/types.ts
+lib/raffles/promotion
+lib/raffles/promotion/applyPromotions.ts
+lib/raffles/promotion/promotionTypes.ts
+lib/raffles/quote
+lib/raffles/quote/calculateQuote.ts
+lib/raffles/quote/types.ts
+lib/raffles/referral
+lib/raffles/referral/buildReferralLedgerEntry.ts
+lib/raffles/referral/calculateReferralReward.ts
+lib/raffles/referral/findReferralByCode.ts
+lib/raffles/referral/getReferralRewardContext.ts
+lib/raffles/referral/insertReferralLedgerEntry.ts
+lib/raffles/referral/loadReferralFromOrder.ts
+lib/raffles/referral/processReferralReward.ts
+lib/raffles/referral/resolveReferral.ts
+lib/raffles/referral/resolveReferralReward.ts
+lib/raffles/referral/types.ts
+lib/raffles/rules
+lib/raffles/rules/priority.ts
+lib/raffles/rules/resolveBusinessRules.ts
+lib/raffles/rules/types.ts
+lib/raffles/security
+lib/raffles/security/checkRateLimit.ts
+lib/raffles/tickets
+lib/raffles/tickets/allocator
+lib/raffles/tickets/allocator/allocateTickets.ts
+lib/raffles/tickets/allocator/index.ts
+lib/raffles/tickets/allocator/reserveSelectedTickets.ts
+lib/raffles/tickets/allocator/selectAvailableTickets.ts
+lib/raffles/tickets/allocator/types.ts
+lib/raffles/tickets/allocator/validateReservation.ts
+lib/raffles/tickets/assignReservedTickets.ts
+lib/raffles/tickets/createTicketInventory.ts
+lib/raffles/tickets/ensureTicketInventory.ts
+lib/raffles/tickets/generateTickets.ts
+lib/raffles/tickets/recalculateRaffleCounters.ts
+lib/raffles/tickets/releaseExpiredReservations.ts
+lib/raffles/tickets/releaseOrderReservations.ts
+lib/raffles/tickets/reserveTickets.ts
+lib/raffles/tracking
+lib/raffles/tracking/createTrackingContext.ts
+lib/raffles/tracking/types.ts
+
+========== APIS ==========
+app/api/raffles/[slug]/route.ts
+app/api/raffles/create-payment/route.ts
+app/api/raffles/my-tickets/route.ts
+app/api/raffles/order-status/route.ts
+app/api/raffles/partners/dashboard/route.ts
+app/api/raffles/partners/download/route.ts
+app/api/raffles/partners/links/route.ts
+app/api/raffles/partners/me/route.ts
+app/api/raffles/partners/payouts/route.ts
+app/api/raffles/partners/profile/route.ts
+app/api/raffles/partners/profile/unlock/route.ts
+app/api/raffles/partners/resources/route.ts
+app/api/raffles/payment-return/route.ts
+app/api/raffles/quote/route.ts
+app/api/raffles/route.ts
+app/api/raffles/track-event/route.ts
+app/api/raffles/validate-ticket/route.ts
+app/api/raffles/webhook/route.ts
+app/api/raffles/webhook/route.ts.bak
+app/api/raffles/winners/route.ts
+
+========== FUNCTIONS ==========
+export async function allocateTickets
+export async function applyPromotions
+export async function approvePayment
+export async function assignReservedTickets
+export async function assignTickets
+export async function buildPaymentContext
+export async function calculateAffiliateWallet
+export async function calculateQuote
+export async function canRequestAffiliatePayout
+export async function checkExecutionGuard
+export async function createAffiliatePayoutRequest
+export async function createFlowPayment
+export async function createLedger
+export async function createTicketInventory
+export async function ensureTicketInventory
+export async function finalizePayment
+export async function findAffiliateByCode
+export async function findReferralByCode
+export async function generateTickets
+export async function getAffiliateCommissionContext
+export async function getAffiliateDashboard
+export async function getReferralRewardContext
+export async function handleApprovedPayment
+export async function insertAffiliateLedgerEntry
+export async function insertReferralLedgerEntry
+export async function loadAffiliateFromOrder
+export async function loadReferralFromOrder
+export async function lockPayment
+export async function processAffiliateCommission
+export async function processCommercialReward
+export async function processPayment
+export async function processQuote
+export async function processRafflePayment
+export async function processReferralReward
+export async function recalculateRaffleCounters
+export async function releaseExpiredReservations
+export async function releaseOrderReservations
+export async function requireRaffleAdmin
+export async function reserveSelectedTickets
+export async function reserveTickets
+export async function resolveAffiliate
+export async function resolveAffiliateCommission
+export async function resolveBusinessRules
+export async function resolveCommercial
+export async function resolveCoupon
+export async function resolveReferral
+export async function resolveReferralReward
+export async function selectAvailableTickets
+export async function sendNotifications
+export async function sendRaffleConfirmationEmail
+export async function sendTicketsEmail
+export async function trackAnalytics
+export async function trackEvent
+export async function validatePayment
+export async function validateReservation
+export const COMMERCIAL_PRIORITY
+export function buildAffiliateLedgerEntry
+export function buildReferralLedgerEntry
+export function calculateAffiliateCommission
+export function calculateReferralReward
+export function compareCommercialPriority
+export function createQuoteSnapshot
+export function createTrackingContext
+export function isValidAffiliateCode
+export function normalizeAffiliateCode
+export function normalizeCommercialCode
+export function shouldCreateAffiliateCommission
+export function validateFlowSignature
+function randomNumber
+function signParams

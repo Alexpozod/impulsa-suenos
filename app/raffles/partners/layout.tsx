@@ -44,6 +44,14 @@ export default function PartnersLayout({
     icon: "💰"
   }
 
+  ,
+
+{
+  href: "/raffles/partners/payment-simulator",
+  label: "Simulador",
+  icon: "🧮"
+}
+
 ]
    
   return (
