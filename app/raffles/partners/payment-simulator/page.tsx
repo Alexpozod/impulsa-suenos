@@ -449,9 +449,31 @@ El IVA forma parte del documento tributario emitido por el afiliado y deberá se
 
 <>
 
+<div className="border-t border-white/20 pt-6 mt-6">
+
+<div className="text-amber-300 text-sm font-semibold uppercase mb-3">
+
+Boleta de Honorarios
+
+</div>
+
+<div className="space-y-3">
+
 <div className="flex justify-between">
 
-<span>Retención</span>
+<span>Monto Bruto Boleta</span>
+
+<strong>
+
+{money(result.affiliateCommission)}
+
+</strong>
+
+</div>
+
+<div className="flex justify-between">
+
+<span>Retención 2026 (15,25%)</span>
 
 <strong>
 
@@ -461,7 +483,9 @@ El IVA forma parte del documento tributario emitido por el afiliado y deberá se
 
 </div>
 
-<div className="flex justify-between text-green-400">
+<div className="border-t border-white/10 pt-3"/>
+
+<div className="flex justify-between text-green-400 font-semibold text-xl">
 
 <span>Pago Líquido</span>
 
@@ -470,6 +494,28 @@ El IVA forma parte del documento tributario emitido por el afiliado y deberá se
 {money(result.liquid)}
 
 </strong>
+
+</div>
+
+</div>
+
+<div className="mt-5 rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 text-sm leading-6 text-amber-100">
+
+<strong>Importante</strong>
+
+<br/><br/>
+
+La retención corresponde a un anticipo del Impuesto a la Renta establecido por la legislación chilena.
+
+<br/><br/>
+
+Este monto no es retenido por ImpulsaSueños para sí. La empresa lo declara y lo paga al Servicio de Impuestos Internos (SII) a nombre del prestador del servicio.
+
+<br/><br/>
+
+Dependiendo de la situación tributaria del contribuyente, esta retención podrá utilizarse como crédito en la Declaración Anual de Impuesto a la Renta del año siguiente.
+
+</div>
 
 </div>
 
