@@ -22,6 +22,9 @@ const formatMoney = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
+  const formatInput = (value: number) =>
+  new Intl.NumberFormat("es-CL").format(value);
+
   const simulation = useMemo(() => {
 
   const VAT_RATE = 0.19;
@@ -134,11 +137,16 @@ const formatMoney = (value: number) =>
             </label>
 
             <input
-                type="number"
-                value={sales}
-                onChange={(e) =>
-                    setSales(Number(e.target.value) || 0)
-                }
+                type="text"
+                value={`$${formatInput(sales)}`}
+                onChange={(e) => {
+
+                    const onlyNumbers =
+                    e.target.value.replace(/\D/g, "");
+
+                    setSales(Number(onlyNumbers) || 0);
+
+                }}
                 className="w-full rounded-lg border px-3 py-2"
                 />
 
