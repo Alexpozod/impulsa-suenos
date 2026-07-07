@@ -958,12 +958,89 @@ Detalles
 
               </div>
 
-              <div className="p-6 text-muted-foreground">
+              <div className="grid md:grid-cols-2 gap-6 p-6">
 
-                Próximo paso: aquí mostraremos todos los datos personales,
-                bancarios y tributarios del afiliado.
+                  <Info
+                    label="Tipo de Perfil"
+                    value={
+                      dashboard?.partnerProfile?.affiliate_type === "company"
+                        ? "Empresa"
+                        : "Persona Natural"
+                    }
+                  />
 
-              </div>
+                  <Info
+                    label="Nombre"
+                    value={dashboard?.partnerProfile?.first_name ?? "-"}
+                  />
+
+                  <Info
+                    label="Apellido"
+                    value={dashboard?.partnerProfile?.last_name ?? "-"}
+                  />
+
+                  <Info
+                    label="RUT"
+                    value={dashboard?.partnerProfile?.rut ?? "-"}
+                  />
+
+                  <Info
+                    label="Teléfono"
+                    value={dashboard?.partnerProfile?.phone ?? "-"}
+                  />
+
+                  <Info
+                    label="Banco"
+                    value={dashboard?.partnerProfile?.bank_name ?? "-"}
+                  />
+
+                  <Info
+                    label="Tipo de Cuenta"
+                    value={dashboard?.partnerProfile?.account_type ?? "-"}
+                  />
+
+                  <Info
+                    label="Número de Cuenta"
+                    value={dashboard?.partnerProfile?.account_number ?? "-"}
+                  />
+
+                  <Info
+                    label="Titular de la Cuenta"
+                    value={dashboard?.partnerProfile?.account_holder ?? "-"}
+                  />
+
+                  {dashboard?.partnerProfile?.affiliate_type === "company" && (
+                    <>
+
+                      <Info
+                        label="Razón Social"
+                        value={dashboard?.partnerProfile?.company_name ?? "-"}
+                      />
+
+                      <Info
+                        label="RUT Empresa"
+                        value={dashboard?.partnerProfile?.company_rut ?? "-"}
+                      />
+
+                      <Info
+                        label="Giro"
+                        value={dashboard?.partnerProfile?.company_business ?? "-"}
+                      />
+
+                      <Info
+                        label="Representante Legal"
+                        value={dashboard?.partnerProfile?.legal_representative ?? "-"}
+                      />
+
+                      <Info
+                        label="Correo Empresa"
+                        value={dashboard?.partnerProfile?.company_email ?? "-"}
+                      />
+
+                    </>
+                  )}
+
+                </div>
 
             </div>
 
