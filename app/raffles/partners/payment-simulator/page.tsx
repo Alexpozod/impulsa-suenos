@@ -85,11 +85,17 @@ export default function PaymentSimulatorPage() {
 
   return (
 
-<div className="space-y-8">
+<div
+className="
+max-w-7xl
+mx-auto
+space-y-6
+"
+>
 
 <div>
 
-<h1 className="text-4xl font-bold">
+<h1 className="text-3xl lg:text-4xl font-bold">
 
 Simulador de Pago
 
@@ -103,9 +109,25 @@ Calcula cuánto recibirás como afiliado.
 
 </div>
 
-<div className="grid grid-cols-2 gap-8">
+<div
+className="
+grid
+grid-cols-1
+xl:grid-cols-12
+gap-6
+items-start
+"
+>
 
-<div className="rounded-3xl bg-white shadow-lg p-8 space-y-6">
+<div className="
+xl:col-span-4
+rounded-3xl
+bg-white
+shadow-lg
+p-6
+lg:p-7
+space-y-5
+">
 
 <div>
 
@@ -123,7 +145,16 @@ value={grossSale}
 
 onChange={e=>setGrossSale(e.target.value)}
 
-className="w-full rounded-xl border p-3 text-lg"
+className="
+w-full
+h-11
+rounded-xl
+border
+px-4
+text-base
+font-semibold
+text-right
+"
 
 />
 
@@ -145,7 +176,16 @@ value={commissionPercent}
 
 onChange={e=>setCommissionPercent(e.target.value)}
 
-className="w-full rounded-xl border p-3 text-lg"
+className="
+w-full
+h-12
+rounded-xl
+border
+px-4
+text-base
+font-semibold
+text-right
+"
 
 />
 
@@ -159,8 +199,14 @@ Documento Tributario
 
 </label>
 
-<div className="space-y-3">
-
+<div className="
+grid
+grid-cols-1
+sm:grid-cols-2
+gap-x-6
+gap-y-2
+text-sm
+">
 <label className="flex items-center gap-3">
 
 <input
@@ -199,25 +245,90 @@ Boleta Honorarios
 
 </div>
 
-<div className="rounded-3xl bg-slate-900 text-white p-8">
+<div
+className="
+xl:col-span-8
+rounded-3xl
+bg-slate-900
+text-white
+p-6
+lg:p-7
+">
 
-<h2 className="text-2xl font-bold mb-6">
+<div
+className="
+mb-3
+rounded-2xl
+bg-cyan-500/10
+border
+border-cyan-400/20
+shadow-lg
+backdrop-blur-sm
+p-5
+"
+>
 
-Resultado
+<div className="text-sm text-cyan-300 uppercase font-semibold">
 
-</h2>
+Resultado Estimado
 
-<div className="space-y-4 text-lg">
+</div>
 
-<div className="mb-6">
+<div className="mt-2 text-3xl lg:text-4xl font-bold text-white">
 
-<div className="text-cyan-300 text-sm font-semibold uppercase mb-3">
+{
+
+documentType==="invoice"
+
+? money(result.affiliateCommission)
+
+: money(result.liquid)
+
+}
+
+</div>
+
+<div className="text-sm text-slate-300 mt-1">
+
+{
+
+documentType==="invoice"
+
+? "Pago que realizará la empresa"
+
+: "Pago líquido luego de la retención"
+
+}
+
+</div>
+
+</div>
+
+<div className="space-y-3 text-base">
+
+<div
+className="
+rounded-xl
+bg-white/5
+p-4
+mb-4
+"
+>
+
+<div className="text-cyan-300 text-xs tracking-wider uppercase font-semibold mb-3">
 
 Venta
 
 </div>
 
-<div className="space-y-3">
+<div className="
+flex
+flex-col
+gap-3
+gap-x-6
+gap-y-2
+text-sm
+">
 
 <div className="flex justify-between">
 
@@ -251,15 +362,22 @@ Venta
 
 </div>
 
-<div className="border-t border-white/20 pt-6 mb-6">
+<div className="border-t border-white/20 pt-3 mb-3">
 
-<div className="text-cyan-300 text-sm font-semibold uppercase mb-3">
+<div className="text-cyan-300 text-xs tracking-wider uppercase font-semibold mb-3">
 
 Pasarela de Pago
 
 </div>
 
-<div className="space-y-3">
+<div className="
+grid
+grid-cols-1
+sm:grid-cols-2
+gap-x-6
+gap-y-2
+text-sm
+">
 
 <div className="flex justify-between">
 
@@ -289,15 +407,22 @@ Pasarela de Pago
 
 </div>
 
-<div className="border-t border-white/20 pt-6 mb-6">
+<div className="border-t border-white/20 pt-3 mb-3">
 
-<div className="text-cyan-300 text-sm font-semibold uppercase mb-3">
+<div className="text-cyan-300 text-xs tracking-wider uppercase font-semibold mb-3">
 
 Base Comisión
 
 </div>
 
-<div className="space-y-3">
+<div className="
+grid
+grid-cols-1
+sm:grid-cols-2
+gap-x-6
+gap-y-2
+text-sm
+">
 
 <div className="flex justify-between">
 
@@ -327,23 +452,28 @@ Base Comisión
 
 </div>
 
-<div className="border-t border-white/20 pt-4"/>
+<div className="border-t border-white/20 pt-3">
 
-<div className="border-t border-white/20 pt-6">
-
-<div className="text-cyan-300 text-sm font-semibold uppercase mb-3">
+<div className="text-cyan-300 text-xs tracking-wider uppercase font-semibold mb-3">
 
 Comisión Afiliado
 
 </div>
 
-<div className="space-y-3">
+<div className="
+grid
+grid-cols-1
+sm:grid-cols-2
+gap-x-6
+gap-y-2
+text-sm
+">
 
 <div className="flex justify-between">
 
 <span>Comisión Aplicada</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {commissionPercent}%
 
@@ -351,11 +481,11 @@ Comisión Afiliado
 
 </div>
 
-<div className="flex justify-between text-2xl">
+<div className="flex justify-between text-xl lg:text-2xl">
 
 <span>Monto Comisión</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {money(result.affiliateCommission)}
 
@@ -373,21 +503,28 @@ documentType==="invoice"
 
 ?
 
-<div className="border-t border-white/20 pt-6 mt-6">
+<div className="border-t border-white/20 pt-3 mt-3">
 
-<div className="text-emerald-300 text-sm font-semibold uppercase mb-3">
+<div className="text-emerald-300 text-xs tracking-wider uppercase font-semibold mb-3">
 
 Factura Electrónica
 
 </div>
 
-<div className="space-y-3">
+<div className="
+grid
+grid-cols-1
+sm:grid-cols-2
+gap-x-6
+gap-y-2
+text-sm
+">
 
 <div className="flex justify-between">
 
 <span>Monto Bruto Factura</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {money(result.affiliateCommission)}
 
@@ -399,7 +536,7 @@ Factura Electrónica
 
 <span>IVA Factura (19%)</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {money(result.affiliateCommission * 0.19)}
 
@@ -411,7 +548,7 @@ Factura Electrónica
 
 <span>Total Documento</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {money(result.affiliateCommission * 1.19)}
 
@@ -425,7 +562,7 @@ Factura Electrónica
 
 <span>Pago Empresa</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {money(result.affiliateCommission)}
 
@@ -449,21 +586,28 @@ El IVA forma parte del documento tributario emitido por el afiliado y deberá se
 
 <>
 
-<div className="border-t border-white/20 pt-6 mt-6">
+<div className="border-t border-white/20 pt-3 mt-3">
 
-<div className="text-amber-300 text-sm font-semibold uppercase mb-3">
+<div className="text-amber-300 text-xs tracking-wider uppercase font-semibold mb-3">
 
 Boleta de Honorarios
 
 </div>
 
-<div className="space-y-3">
+<div className="
+grid
+grid-cols-1
+sm:grid-cols-2
+gap-x-6
+gap-y-2
+text-sm
+">
 
 <div className="flex justify-between">
 
 <span>Monto Bruto Boleta</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {money(result.affiliateCommission)}
 
@@ -475,7 +619,7 @@ Boleta de Honorarios
 
 <span>Retención 2026 (15,25%)</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {money(result.withholding)}
 
@@ -489,7 +633,7 @@ Boleta de Honorarios
 
 <span>Pago Líquido</span>
 
-<strong>
+<strong className="text-right whitespace-nowrap">
 
 {money(result.liquid)}
 
@@ -523,11 +667,11 @@ Dependiendo de la situación tributaria del contribuyente, esta retención podr�
 
 }
 
-<div className="border-t border-white/20 pt-6 mt-6">
+<div className="border-t border-white/20 pt-3 mt-3">
 
 <div className="rounded-xl bg-white/5 p-5">
 
-<div className="text-cyan-300 font-semibold mb-4">
+<div className="text-cyan-300 font-semibold mb-3">
 
 Simulación Referencial
 
