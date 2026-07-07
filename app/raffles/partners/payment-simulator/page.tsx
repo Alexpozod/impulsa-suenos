@@ -1,6 +1,27 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 export default function PaymentSimulatorPage() {
+
+    const [sales, setSales] =
+  useState(1000000);
+
+const [commission, setCommission] =
+  useState(10);
+
+const [documentType, setDocumentType] =
+  useState<"boleta" | "factura">(
+    "boleta"
+  );
+
+const formatMoney = (value: number) =>
+  new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    maximumFractionDigits: 0,
+  }).format(value);
+
   return (
     <div className="space-y-6">
 
@@ -25,10 +46,13 @@ export default function PaymentSimulatorPage() {
             </label>
 
             <input
-              type="number"
-              className="w-full rounded-lg border px-3 py-2"
-              placeholder="$1.000.000"
-            />
+                type="number"
+                value={sales}
+                onChange={(e) =>
+                    setSales(Number(e.target.value) || 0)
+                }
+                className="w-full rounded-lg border px-3 py-2"
+                />
 
           </div>
 
@@ -39,10 +63,13 @@ export default function PaymentSimulatorPage() {
             </label>
 
             <input
-              type="number"
-              className="w-full rounded-lg border p-3"
-              placeholder="10"
-            />
+                type="number"
+                value={commission}
+                onChange={(e) =>
+                    setCommission(Number(e.target.value) || 0)
+                }
+                className="w-full rounded-lg border px-3 py-2"
+                />
 
           </div>
 
@@ -52,13 +79,25 @@ export default function PaymentSimulatorPage() {
               Documento Tributario
             </label>
 
-            <select className="w-full rounded-lg border p-3">
+            <select
+                value={documentType}
+                onChange={(e) =>
+                    setDocumentType(
+                    e.target.value as "boleta" | "factura"
+                    )
+                }
+                className="w-full rounded-lg border px-3 py-2"
+                >
 
-              <option>Boleta</option>
+                <option value="boleta">
+                    Boleta
+                </option>
 
-              <option>Factura</option>
+                <option value="factura">
+                    Factura
+                </option>
 
-            </select>
+                </select>
 
           </div>
 
@@ -93,7 +132,7 @@ export default function PaymentSimulatorPage() {
         </td>
 
         <td className="text-right px-4 py-3 font-semibold">
-          $1.000.000
+          {formatMoney(sales)}
         </td>
       </tr>
 
@@ -119,7 +158,7 @@ export default function PaymentSimulatorPage() {
 
       <tr className="border-b">
         <td className="px-4 py-3">
-          Comisión afiliado (10%)
+          Comisión afiliado ({commission}%)
         </td>
 
         <td className="text-right px-4 py-3">
