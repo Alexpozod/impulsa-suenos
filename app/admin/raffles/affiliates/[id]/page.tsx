@@ -1009,44 +1009,45 @@ Detalles
                     value={dashboard?.partnerProfile?.account_holder ?? "-"}
                   />
 
-                  {dashboard?.partnerProfile?.affiliate_type === "company" && (
-                    <>
+      {dashboard?.partnerProfile?.affiliate_type === "company" && (
+  <>
 
-                      <Info
-                        label="Razón Social"
-                        value={dashboard?.partnerProfile?.company_name ?? "-"}
-                      />
+    <Info
+      label="Razón Social"
+      value={dashboard?.partnerProfile?.company_name ?? "-"}
+    />
 
-                      <Info
-                        label="RUT Empresa"
-                        value={dashboard?.partnerProfile?.company_rut ?? "-"}
-                      />
+    <Info
+      label="RUT Empresa"
+      value={dashboard?.partnerProfile?.company_rut ?? "-"}
+    />
 
-                      <Info
-                        label="Giro"
-                        value={dashboard?.partnerProfile?.company_business ?? "-"}
-                      />
+    <Info
+      label="Giro"
+      value={dashboard?.partnerProfile?.company_business ?? "-"}
+    />
 
-                      <Info
-                        label="Representante Legal"
-                        value={dashboard?.partnerProfile?.legal_representative ?? "-"}
-                      />
+    <Info
+      label="Representante Legal"
+      value={dashboard?.partnerProfile?.legal_representative ?? "-"}
+    />
 
-                      <Info
-                        label="Correo Empresa"
-                        value={dashboard?.partnerProfile?.company_email ?? "-"}
-                      />
+    <Info
+      label="Correo Empresa"
+      value={dashboard?.partnerProfile?.company_email ?? "-"}
+    />
 
-                    </>
-                  )}
+  </>
+)}
+              </div> {/* grid */}
 
-                </div>
+            </div> {/* space-y */}
 
-            </div>
+          </div> {/* modal */}
 
-          </div>
+        </div> {/* overlay */}
 
-          )}
+      )}
 
       {selectedPayout && (
 
