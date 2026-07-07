@@ -289,7 +289,33 @@ Pasarela de Pago
 
 </div>
 
+<div className="border-t border-white/20 pt-6 mb-6">
+
+<div className="text-cyan-300 text-sm font-semibold uppercase mb-3">
+
+Base Comisión
+
+</div>
+
+<div className="space-y-3">
+
 <div className="flex justify-between">
+
+<span>Venta Neta</span>
+
+<strong>{money(result.netSale)}</strong>
+
+</div>
+
+<div className="flex justify-between">
+
+<span>(-) Comisión Pasarela</span>
+
+<strong>{money(result.flowTotal)}</strong>
+
+</div>
+
+<div className="flex justify-between font-semibold">
 
 <span>Base Comisión</span>
 
@@ -297,17 +323,47 @@ Pasarela de Pago
 
 </div>
 
+</div>
+
+</div>
+
 <div className="border-t border-white/20 pt-4"/>
+
+<div className="border-t border-white/20 pt-6">
+
+<div className="text-cyan-300 text-sm font-semibold uppercase mb-3">
+
+Comisión Afiliado
+
+</div>
+
+<div className="space-y-3">
+
+<div className="flex justify-between">
+
+<span>Comisión Aplicada</span>
+
+<strong>
+
+{commissionPercent}%
+
+</strong>
+
+</div>
 
 <div className="flex justify-between text-2xl">
 
-<span>Comisión Afiliado</span>
+<span>Monto Comisión</span>
 
 <strong>
 
 {money(result.affiliateCommission)}
 
 </strong>
+
+</div>
+
+</div>
 
 </div>
 
@@ -317,7 +373,55 @@ documentType==="invoice"
 
 ?
 
+<div className="border-t border-white/20 pt-6 mt-6">
+
+<div className="text-emerald-300 text-sm font-semibold uppercase mb-3">
+
+Factura Electrónica
+
+</div>
+
+<div className="space-y-3">
+
 <div className="flex justify-between">
+
+<span>Monto Bruto Factura</span>
+
+<strong>
+
+{money(result.affiliateCommission)}
+
+</strong>
+
+</div>
+
+<div className="flex justify-between">
+
+<span>IVA Factura (19%)</span>
+
+<strong>
+
+{money(result.affiliateCommission * 0.19)}
+
+</strong>
+
+</div>
+
+<div className="flex justify-between">
+
+<span>Total Documento</span>
+
+<strong>
+
+{money(result.affiliateCommission * 1.19)}
+
+</strong>
+
+</div>
+
+<div className="border-t border-white/10 pt-3"/>
+
+<div className="flex justify-between text-green-400 font-semibold text-xl">
 
 <span>Pago Empresa</span>
 
@@ -326,6 +430,16 @@ documentType==="invoice"
 {money(result.affiliateCommission)}
 
 </strong>
+
+</div>
+
+</div>
+
+<div className="mt-5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-sm leading-6 text-emerald-100">
+
+El pago de la empresa corresponde al <strong>monto bruto de la factura</strong>.
+
+El IVA forma parte del documento tributario emitido por el afiliado y deberá ser declarado conforme a la normativa tributaria vigente.
 
 </div>
 
