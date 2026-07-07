@@ -1038,14 +1038,12 @@ Detalles
     />
 
   </>
-)}
+)}             
               </div> {/* grid */}
 
-            </div> {/* space-y */}
+            </div> {/* modal */}
 
-          </div> {/* modal */}
-
-        </div> {/* overlay */}
+          </div> {/* overlay */}
 
       )}
 
