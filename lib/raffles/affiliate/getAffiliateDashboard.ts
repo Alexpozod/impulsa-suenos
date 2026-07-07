@@ -36,6 +36,17 @@ console.log(
   affiliateError
 );
 
+const { data: partnerProfile } =
+  await supabase
+    .schema("raffles")
+    .from("partner_profiles")
+    .select("*")
+    .eq(
+      "affiliate_id",
+      affiliateId
+    )
+    .maybeSingle()
+
   if (!affiliate) {
 
     return {
@@ -524,9 +535,11 @@ const lastSale =
     affiliate.id
   )
 
-  return {
+return {
 
-        affiliate: {
+  partnerProfile,
+
+  affiliate: {
 
       id:
         affiliate.id,
