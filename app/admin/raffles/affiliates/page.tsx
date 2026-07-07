@@ -425,63 +425,7 @@ item.shareUrl ??
 
 <div className="flex flex-wrap gap-2">
 
-<button
-
-onClick={()=>{
-
-navigator.clipboard.writeText(
-
-item.code
-
-)
-
-}}
-
-className="
-px-3
-py-2
-rounded-xl
-bg-slate-800
-hover:bg-slate-700
-text-sm
-"
-
->
-
-📋 Código
-
-</button>
-
 <div className="flex flex-wrap gap-2">
-
-<button
-
-onClick={()=>{
-
-navigator.clipboard.writeText(
-
-item.shareUrl ??
-
-`https://sorteos.impulsasuenos.com/r/${item.code}`
-
-)
-
-}}
-
-className="
-px-3
-py-2
-rounded-xl
-bg-slate-800
-hover:bg-slate-700
-text-sm
-"
-
->
-
-🔗 General
-
-</button>
 
 {
 
