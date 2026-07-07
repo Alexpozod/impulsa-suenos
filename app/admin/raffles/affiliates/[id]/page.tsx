@@ -61,6 +61,9 @@ export default function AffiliateDetailPage() {
 
 const [buyerModalOpen, setBuyerModalOpen] = useState(false);
 
+const [profileModalOpen, setProfileModalOpen] =
+useState(false);
+
 const [dashboard, setDashboard] = useState<any>(null);
 
 const [loading, setLoading] = useState(true);
@@ -294,21 +297,41 @@ dashboard.generatedAt
         </button>
 
       <button
-  onClick={async () => {
+          onClick={async () => {
 
-    await navigator.clipboard.writeText(
-`https://sorteos.impulsasuenos.com/raffles?aff=${dashboard?.affiliate?.code}`
-);
+            await navigator.clipboard.writeText(
+        `https://sorteos.impulsasuenos.com/raffles?aff=${dashboard?.affiliate?.code}`
+        );
 
-    showCopied("Link copiado al portapapeles");
+            showCopied("Link copiado al portapapeles");
 
-}}
-    className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
-    >
+        }}
+            className="border rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
+            >
 
             <Copy className="w-4 h-4"/>
 
             Copiar Link
+
+            </button>
+
+            <button
+              onClick={() => setProfileModalOpen(true)}
+              className="
+                border
+                rounded-lg
+                px-4
+                py-2
+                flex
+                items-center
+                gap-2
+                hover:bg-white/5
+              "
+            >
+
+                <Users className="w-4 h-4"/>
+
+                Perfil
 
             </button>
 
@@ -911,6 +934,42 @@ Detalles
         </div>
 
          )}
+
+         {profileModalOpen && (
+
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
+
+            <div className="w-full max-w-3xl rounded-xl border bg-[#090d18] shadow-2xl">
+
+              <div className="flex items-center justify-between border-b px-6 py-4">
+
+                <h2 className="text-xl font-semibold">
+
+                  👤 Perfil del Afiliado
+
+                </h2>
+
+                <button
+                  onClick={() => setProfileModalOpen(false)}
+                  className="text-muted-foreground hover:text-white"
+                >
+                  ✕
+                </button>
+
+              </div>
+
+              <div className="p-6 text-muted-foreground">
+
+                Próximo paso: aquí mostraremos todos los datos personales,
+                bancarios y tributarios del afiliado.
+
+              </div>
+
+            </div>
+
+          </div>
+
+          )}
 
       {selectedPayout && (
 
