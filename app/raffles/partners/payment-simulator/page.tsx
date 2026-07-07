@@ -22,6 +22,94 @@ const formatMoney = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
+  const simulation = useMemo(() => {
+
+  const VAT_RATE = 0.19;
+
+  const FLOW_PERCENT = 0.0319;
+
+  const FLOW_VAT = 1.19;
+
+  // Retención vigente 2026
+  const HONORARIOS_RETENTION = 0.1375;
+
+  // Venta neta (sin IVA)
+
+  const netSale =
+    sales / 1.19;
+
+  // IVA contenido en la venta
+
+  const saleVat =
+    sales - netSale;
+
+  // Comisión del afiliado
+
+  const affiliateCommission =
+    netSale *
+    (commission / 100);
+
+  // Comisión Flow calculada
+  // sobre la venta BRUTA
+
+  const flowCommission =
+    sales *
+    FLOW_PERCENT *
+    FLOW_VAT;
+
+  // Base de pago
+
+  const paymentBase =
+    affiliateCommission -
+    flowCommission;
+
+  // Factura
+
+  const invoiceVat =
+    paymentBase *
+    VAT_RATE;
+
+  const invoiceTotal =
+    paymentBase +
+    invoiceVat;
+
+  // Boleta
+
+  const retention =
+    paymentBase *
+    HONORARIOS_RETENTION;
+
+  const honorariosNet =
+    paymentBase -
+    retention;
+
+  return {
+
+    saleVat,
+
+    netSale,
+
+    affiliateCommission,
+
+    flowCommission,
+
+    paymentBase,
+
+    invoiceVat,
+
+    invoiceTotal,
+
+    retention,
+
+    honorariosNet
+
+  };
+
+}, [
+  sales,
+  commission
+]);
+
   return (
     <div className="space-y-6">
 
