@@ -316,6 +316,26 @@ dashboard.generatedAt
             </button>
 
             <button
+              onClick={() =>
+                setProfileModalOpen(true)
+              }
+              className="
+                border
+                rounded-lg
+                px-4
+                py-2
+                flex
+                items-center
+                gap-2
+                hover:bg-white/5
+              "
+            >
+
+              👤 Datos Personales
+
+            </button>
+
+            <button
               onClick={() => setProfileModalOpen(true)}
               className="
                 border
