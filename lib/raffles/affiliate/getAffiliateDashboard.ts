@@ -26,6 +26,14 @@ export async function getAffiliateDashboard(
     .eq("id", affiliateId)
     .maybeSingle();
 
+    const { data: partnerProfile } =
+  await supabase
+    .schema("raffles")
+    .from("partner_profiles")
+    .select("*")
+    .eq("affiliate_id", affiliateId)
+    .maybeSingle();
+
 console.log(
   "affiliate",
   affiliate
@@ -35,17 +43,6 @@ console.log(
   "affiliateError",
   affiliateError
 );
-
-const { data: partnerProfile } =
-  await supabase
-    .schema("raffles")
-    .from("partner_profiles")
-    .select("*")
-    .eq(
-      "affiliate_id",
-      affiliateId
-    )
-    .maybeSingle()
 
   if (!affiliate) {
 
@@ -537,8 +534,6 @@ const lastSale =
 
 return {
 
-  partnerProfile,
-
   affiliate: {
 
       id:
@@ -610,6 +605,8 @@ ledger:
 ledgerEntries,
 
 payouts,
+
+partnerProfile,
 
 generatedAt:
   new Date().toISOString(),
