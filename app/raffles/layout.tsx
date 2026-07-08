@@ -29,50 +29,33 @@ export default async function RafflesLayout({
   children: ReactNode
 }) {
 
-    const {
-
+  const {
     data: settings
-
   } =
     await supabase
-
       .schema("raffles")
-
       .from("public_site_settings")
-
       .select("site_mode")
-
       .eq(
         "id",
         "00000000-0000-0000-0000-000000000001"
       )
-
       .single()
 
-  if (
-
-  settings?.site_mode ===
-  "landing"
-
-) {
-
-  return children
-
-}
-
-return (
+  return (
     <>
-  <AffiliateTracker />
+      <AffiliateTracker />
 
-  <ReferralTracker />
+      <ReferralTracker />
 
-  <RafflesNavbar />
+      <RafflesNavbar />
 
-  <main className="min-h-screen">
-    {children}
-  </main>
+      <main className="min-h-screen">
+        {children}
+      </main>
 
-  <RafflesFooter />
-</>
+      <RafflesFooter />
+    </>
   )
+
 }
