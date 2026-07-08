@@ -13,6 +13,9 @@ export default function PublicSitePage() {
   const [loading, setLoading] =
     useState(true);
 
+    const [saving, setSaving] =
+  useState(false);
+
   useEffect(() => {
 
     load();
@@ -50,6 +53,55 @@ export default function PublicSitePage() {
     }
 
   }
+
+  async function save() {
+
+  try {
+
+    setSaving(true);
+
+    const res =
+      await fetch(
+        "/api/admin/raffles/public-site",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify(form)
+        }
+      );
+
+    if (!res.ok) {
+
+      throw new Error();
+
+    }
+
+    alert(
+      "Configuración guardada."
+    );
+
+    setSettings(form);
+
+  }
+
+  catch {
+
+    alert(
+      "No fue posible guardar."
+    );
+
+  }
+
+  finally {
+
+    setSaving(false);
+
+  }
+
+}
 
   return (
 
@@ -169,6 +221,40 @@ export default function PublicSitePage() {
     </div>
 
   )}
+
+  <div className="pt-2">
+
+  <button
+
+    onClick={save}
+
+    disabled={saving}
+
+    className="
+      px-5
+      py-3
+      rounded-xl
+      bg-cyan-600
+      hover:bg-cyan-500
+      disabled:opacity-50
+      font-semibold
+    "
+
+  >
+
+    {
+
+      saving
+
+      ? "Guardando..."
+
+      : "Guardar cambios"
+
+    }
+
+  </button>
+
+</div>
 
 </div>
 
