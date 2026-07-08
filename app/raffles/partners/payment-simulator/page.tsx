@@ -353,10 +353,10 @@ const invoiceTotal =
         </strong>
       </div>
 
-      <div className="flex justify-between border-t pt-4 text-lg">
-        <span>Monto total</span>
-        <strong>{formatMoney(simulation.paymentBase)}</strong>
-        </div>
+      <div className="flex justify-between border-t pt-4 text-lg font-semibold">
+            <span>Monto total</span>
+            <strong>{formatMoney(simulation.honorariosNet)}</strong>
+            </div>
 
       <div className="mt-4 rounded-xl bg-cyan-50 border border-cyan-200 p-5">
 
