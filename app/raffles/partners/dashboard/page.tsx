@@ -22,6 +22,12 @@ export default function RafflePartnerDashboardPage() {
 const [period, setPeriod] =
   useState("all")
 
+  const [fromDate, setFromDate] =
+  useState("")
+
+const [toDate, setToDate] =
+  useState("")
+
 const PER_PAGE = 10
 
   useEffect(() => {
@@ -115,16 +121,44 @@ const filteredSales =
       text.includes(
         search.toLowerCase()
       )
+        
+    const created =
+      new Date(sale.createdAt)
 
-    if (period === "all") {
+      if (fromDate) {
+
+  const from = new Date(fromDate)
+
+  from.setHours(0, 0, 0, 0)
+
+  if (created < from) {
+
+    return false
+
+  }
+
+}
+
+if (toDate) {
+
+  const to = new Date(toDate)
+
+  to.setHours(23, 59, 59, 999)
+
+  if (created > to) {
+
+    return false
+
+  }
+
+}
+
+if (period === "all") {
 
       return matchesSearch
 
     }
-
-    const created =
-      new Date(sale.createdAt)
-
+      
     const now =
       new Date()
 
@@ -415,14 +449,18 @@ const paginatedSales =
   />
 
   <select
-    value={period}
-    onChange={(e) => {
+  value={period}
+  onChange={(e) => {
 
-      setPeriod(e.target.value)
+    setPeriod(e.target.value)
 
-      setPage(1)
+    setFromDate("")
 
-    }}
+    setToDate("")
+
+    setPage(1)
+
+  }}
     className="
       rounded-xl
       border
@@ -445,6 +483,59 @@ const paginatedSales =
     </option>
 
   </select>
+
+  <div
+  className="
+    flex
+    flex-col
+    md:flex-row
+    gap-3
+  "
+>
+
+  <input
+    type="date"
+    value={fromDate}
+    onChange={(e) => {
+
+  setFromDate(e.target.value)
+
+  setPeriod("all")
+
+  setPage(1)
+
+}}
+    className="
+      rounded-xl
+      border
+      border-slate-300
+      px-4
+      py-2
+    "
+  />
+
+  <input
+    type="date"
+    value={toDate}
+    onChange={(e) => {
+
+  setToDate(e.target.value)
+
+  setPeriod("all")
+
+  setPage(1)
+
+}}
+    className="
+      rounded-xl
+      border
+      border-slate-300
+      px-4
+      py-2
+    "
+  />
+
+</div>
 
 </div>
 
