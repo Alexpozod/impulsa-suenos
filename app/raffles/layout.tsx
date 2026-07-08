@@ -42,6 +42,24 @@ export default async function RafflesLayout({
       )
       .single()
 
+    if (
+
+    settings?.site_mode === "landing"
+
+  ) {
+
+    return (
+
+      <main className="min-h-screen">
+
+        {children}
+
+      </main>
+
+    )
+
+  }
+
   return (
     <>
       <AffiliateTracker />
