@@ -7,6 +7,9 @@ export default function PublicSitePage() {
   const [settings, setSettings] =
     useState<any>(null);
 
+    const [form, setForm] =
+  useState<any>(null);
+
   const [loading, setLoading] =
     useState(true);
 
@@ -29,6 +32,8 @@ export default function PublicSitePage() {
         await res.json();
 
       setSettings(json);
+
+      setForm(json);
 
     }
 
@@ -196,8 +201,13 @@ export default function PublicSitePage() {
         </label>
 
         <input
-          value={settings?.title ?? ""}
-          readOnly
+          value={form?.title ?? ""}
+            onChange={(e)=>
+            setForm({
+                ...form,
+                title:e.target.value
+            })
+            }          
           className="
             w-full
             rounded-xl
@@ -218,8 +228,13 @@ export default function PublicSitePage() {
         </label>
 
         <input
-          value={settings?.subtitle ?? ""}
-          readOnly
+          value={form?.subtitle ?? ""}
+            onChange={(e)=>
+            setForm({
+                ...form,
+                subtitle:e.target.value
+            })
+            }
           className="
             w-full
             rounded-xl
@@ -240,8 +255,13 @@ export default function PublicSitePage() {
         </label>
 
         <textarea
-          value={settings?.description ?? ""}
-          readOnly
+          value={form?.description ?? ""}
+            onChange={(e)=>
+            setForm({
+                ...form,
+                description:e.target.value
+            })
+            }          
           rows={4}
           className="
             w-full
