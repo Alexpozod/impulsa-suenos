@@ -86,15 +86,80 @@ export default function PublicSitePage() {
 
     <div className="mt-6 rounded-xl bg-slate-950 p-4">
 
-      <pre className="text-xs overflow-auto">
+      <div className="mt-4 space-y-4">
 
-        {JSON.stringify(
-          settings,
-          null,
-          2
-        )}
+  <div className="flex items-center justify-between">
 
-      </pre>
+    <span className="font-medium">
+      Modo del sitio
+    </span>
+
+    <span
+      className={`
+        px-3
+        py-1
+        rounded-full
+        text-sm
+        font-semibold
+
+        ${
+          settings?.site_mode === "active"
+
+            ? "bg-emerald-600 text-white"
+
+            : "bg-amber-500 text-black"
+
+        }
+      `}
+    >
+
+      {
+
+        settings?.site_mode === "active"
+
+        ? "Sitio Activo"
+
+        : "Landing Especial"
+
+      }
+
+    </span>
+
+  </div>
+
+  <div>
+
+    <div className="text-sm text-slate-400">
+
+      Título
+
+    </div>
+
+    <div className="mt-1 font-semibold">
+
+      {settings?.title || "-"}
+
+    </div>
+
+  </div>
+
+  <div>
+
+    <div className="text-sm text-slate-400">
+
+      Subtítulo
+
+    </div>
+
+    <div className="mt-1">
+
+      {settings?.subtitle || "-"}
+
+    </div>
+
+  </div>
+
+</div>
 
     </div>
 
