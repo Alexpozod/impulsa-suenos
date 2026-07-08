@@ -76,6 +76,14 @@ const [search, setSearch] = useState("");
 
 const [statusFilter, setStatusFilter] = useState("Todos");
 
+const [sales, setSales] = useState<any[]>([]);
+
+const [salesPage, setSalesPage] = useState(1);
+
+const [salesTotalPages, setSalesTotalPages] = useState(1);
+
+const [salesLoading, setSalesLoading] = useState(false);
+
 const filteredSales =
 dashboard?.sales?.filter((sale:any)=>{
 
@@ -108,30 +116,68 @@ sale.paymentReference?.toLowerCase().includes(q)
 
 }) ?? [];
 
+async function loadSales(page: number) {
+
+  setSalesLoading(true);
+
+  try {
+
+    const response =
+      await fetch(
+        `/api/admin/raffles/affiliates/${affiliateId}/sales?page=${page}`
+      );
+
+    const json =
+      await response.json();
+
+    setSales(json.rows ?? []);
+
+    setSalesPage(json.page ?? 1);
+
+    setSalesTotalPages(json.totalPages ?? 1);
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+  }
+
+  finally {
+
+    setSalesLoading(false);
+
+  }
+
+}
+
 useEffect(() => {
 
   async function loadDashboard() {
 
-    try {
+  try {
 
-      const response =
-        await fetch(
-          `/api/admin/raffles/affiliates/${affiliateId}`
-        );
+    const response =
+      await fetch(
+        `/api/admin/raffles/affiliates/${affiliateId}`
+      );
 
-      const json =
-        await response.json();
+    const json =
+      await response.json();
 
-      setDashboard(json);
+    setDashboard(json);
 
-      console.log(
-  "Affiliate Dashboard",
-  json
-);
+    await loadSales(1);   // <-- AGREGAR ESTA LÍNEA
 
-    }
+    console.log(
+      "Affiliate Dashboard",
+      json
+    );
 
-    catch (error) {
+  }
+
+  catch (error) {
 
       console.error(error);
 
