@@ -1,3 +1,9 @@
+import { redirect }
+from "next/navigation"
+
+import { createClient }
+from "@supabase/supabase-js"
+
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"
@@ -36,6 +42,44 @@ async function getFeaturedRaffle() {
 }
 
 export default async function RafflesHomePage() {
+
+  const supabase = createClient(
+
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+  )
+
+  const {
+
+    data: settings
+
+  } =
+    await supabase
+
+      .schema("raffles")
+
+      .from("public_site_settings")
+
+      .select("site_mode")
+
+      .eq(
+        "id",
+        "00000000-0000-0000-0000-000000000001"
+      )
+
+      .single()
+
+  if (
+
+    settings?.site_mode === "landing"
+
+  ) {
+
+    redirect("/raffles/landing")
+
+  }
 
   const featuredRaffle =
     await getFeaturedRaffle()
