@@ -85,36 +85,50 @@ const [salesTotalPages, setSalesTotalPages] = useState(1);
 const [salesLoading, setSalesLoading] = useState(false);
 
 const filteredSales =
-dashboard?.sales?.filter((sale:any)=>{
+sales.filter((sale:any)=>{
 
 if(statusFilter==="Pagados"){
-if(
-sale.paymentStatus!=="paid" &&
-sale.paymentStatus!=="approved"
-)return false
+
+return sale.paymentStatus==="paid" ||
+sale.paymentStatus==="approved"
+
 }
 
 if(statusFilter==="Pendientes"){
-if(sale.paymentStatus!=="pending") return false
+
+return sale.paymentStatus==="pending"
+
 }
 
 if(statusFilter==="Fallidos"){
-if(sale.paymentStatus!=="failed") return false
+
+return sale.paymentStatus==="failed"
+
 }
 
-const q=search.toLowerCase()
+return true
+
+}).filter((sale:any)=>{
+
+const q = search.toLowerCase()
 
 if(!q) return true
 
 return(
-sale.buyerName?.toLowerCase().includes(q)||
-sale.buyerEmail?.toLowerCase().includes(q)||
-sale.buyerPhone?.toLowerCase().includes(q)||
-sale.id?.toLowerCase().includes(q)||
+
+sale.buyerName?.toLowerCase().includes(q) ||
+
+sale.buyerEmail?.toLowerCase().includes(q) ||
+
+sale.buyerPhone?.toLowerCase().includes(q) ||
+
+sale.id?.toLowerCase().includes(q) ||
+
 sale.paymentReference?.toLowerCase().includes(q)
+
 )
 
-}) ?? [];
+})
 
 async function loadSales(page: number) {
 
