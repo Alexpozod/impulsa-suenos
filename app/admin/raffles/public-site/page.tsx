@@ -151,36 +151,97 @@ export default function PublicSitePage() {
       Modo del sitio
     </span>
 
-    <span
-      className={`
-        px-3
-        py-1
-        rounded-full
-        text-sm
-        font-semibold
+    <div className="flex gap-3">
 
-        ${
-          settings?.site_mode === "active"
+  <button
 
-            ? "bg-emerald-600 text-white"
+    onClick={()=>
 
-            : "bg-amber-500 text-black"
+      setForm({
 
-        }
-      `}
-    >
+        ...form,
 
-      {
+        site_mode:"active"
 
-        settings?.site_mode === "active"
+      })
 
-        ? "Sitio Activo"
+    }
 
-        : "Landing Especial"
+    className={`
+
+      px-4
+
+      py-2
+
+      rounded-xl
+
+      font-semibold
+
+      transition
+
+      ${
+
+        form?.site_mode==="active"
+
+        ? "bg-emerald-600 text-white"
+
+        : "bg-slate-800 text-slate-400"
 
       }
 
-    </span>
+    `}
+
+  >
+
+    Sitio Activo
+
+  </button>
+
+  <button
+
+    onClick={()=>
+
+      setForm({
+
+        ...form,
+
+        site_mode:"landing"
+
+      })
+
+    }
+
+    className={`
+
+      px-4
+
+      py-2
+
+      rounded-xl
+
+      font-semibold
+
+      transition
+
+      ${
+
+        form?.site_mode==="landing"
+
+        ? "bg-amber-500 text-black"
+
+        : "bg-slate-800 text-slate-400"
+
+      }
+
+    `}
+
+  >
+
+    Landing Especial
+
+  </button>
+
+</div>
 
   </div>
 

@@ -78,6 +78,9 @@ export async function POST(
           description:
             body.description,
 
+            site_mode:
+            body.site_mode,
+
           updated_at:
             new Date().toISOString()
 
