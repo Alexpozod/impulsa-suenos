@@ -283,6 +283,11 @@ export default function AdminLayout({ children }: any) {
                     label="🎁 Referidos"
                   />
 
+                  <SubItem
+                    href="/admin/raffles/public-site"
+                    label="🌐 Sitio Público"
+                  />
+
                 </div>
               )}
 
