@@ -104,11 +104,12 @@ const filteredSales =
   sales.filter((sale: any) => {
 
     const text = (
-      `${sale.buyerName ?? ""} ` +
-      `${sale.buyerEmail ?? ""} ` +
-      `${sale.buyerPhone ?? ""} ` +
-      `${sale.quantity ?? ""}`
-    ).toLowerCase()
+  `${sale.buyerName ?? ""} ` +
+  `${sale.buyerEmail ?? ""} ` +
+  `${sale.buyerPhone ?? ""} ` +
+  `${sale.quantity ?? ""} ` +
+  `${sale.total ?? ""}`
+).toLowerCase()
 
     const matchesSearch =
       text.includes(
