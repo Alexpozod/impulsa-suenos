@@ -353,6 +353,11 @@ const invoiceTotal =
         </strong>
       </div>
 
+      <div className="flex justify-between border-t pt-4 text-lg">
+        <span>Monto total</span>
+        <strong>{formatMoney(simulation.paymentBase)}</strong>
+        </div>
+
       <div className="mt-4 rounded-xl bg-cyan-50 border border-cyan-200 p-5">
 
         <div className="text-sm text-gray-500">
@@ -364,6 +369,12 @@ const invoiceTotal =
         </div>
 
       </div>
+
+      <p className="mt-4 text-sm text-slate-600 leading-6">
+            La retención realizada por el SII no se pierde. Ese monto quedará registrado
+            a tu favor y podrá ser considerado en tu declaración anual de impuestos del
+            próximo año, según tu situación tributaria.
+            </p>
 
     </div>
 
