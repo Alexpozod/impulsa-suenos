@@ -221,41 +221,7 @@ export default function PublicSitePage() {
     </div>
 
   )}
-
-  <div className="pt-2">
-
-  <button
-
-    onClick={save}
-
-    disabled={saving}
-
-    className="
-      px-5
-      py-3
-      rounded-xl
-      bg-cyan-600
-      hover:bg-cyan-500
-      disabled:opacity-50
-      font-semibold
-    "
-
-  >
-
-    {
-
-      saving
-
-      ? "Guardando..."
-
-      : "Guardar cambios"
-
-    }
-
-  </button>
-
-</div>
-
+  
 </div>
 
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
@@ -391,6 +357,41 @@ export default function PublicSitePage() {
       </p>
 
     </div>
+
+    <div className="flex justify-end">
+
+  <button
+
+    onClick={save}
+
+    disabled={saving}
+
+    className="
+      px-6
+      py-3
+      rounded-xl
+      bg-cyan-600
+      hover:bg-cyan-500
+      disabled:opacity-50
+      font-semibold
+      text-white
+    "
+
+  >
+
+    {
+
+      saving
+
+      ? "Guardando cambios..."
+
+      : "Guardar configuración"
+
+    }
+
+  </button>
+
+</div>
 
   </div>
 
