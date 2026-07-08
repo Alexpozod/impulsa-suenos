@@ -43,22 +43,18 @@ const flowCommission =
   FLOW_PERCENT *
   FLOW_VAT;
 
-// Venta después de Flow
-
-const saleAfterFlow =
-  sales -
-  flowCommission;
-
-// Base comisionable (sin IVA)
-
-const commissionBase =
-  saleAfterFlow / 1.19;
-
-// IVA contenido en la base
+// IVA contenido en la venta BRUTA
 
 const saleVat =
-  saleAfterFlow -
-  commissionBase;
+  sales -
+  (sales / 1.19);
+
+// Base comisionable
+
+const commissionBase =
+  sales -
+  flowCommission -
+  saleVat;
 
 // Comisión afiliado
 
@@ -94,8 +90,6 @@ const paymentBase =
   return {
 
   saleVat,
-
-  saleAfterFlow,
 
   commissionBase,
 
@@ -219,9 +213,7 @@ const paymentBase =
         </h2>
 
     <p className="text-gray-500 mt-1">
-        Calculamos automáticamente tu comisión considerando IVA,
-        comisión de la pasarela de pago y el documento tributario
-        seleccionado.
+        La base comisionable se obtiene descontando la comisión de la pasarela de pago y el IVA de la venta. Sobre esa base se calcula tu comisión.
         </p>
   </div>
 
@@ -261,7 +253,7 @@ const paymentBase =
 
             <tr className="border-b bg-slate-50">
             <td className="px-4 py-3 font-semibold">
-                Base comisionable (sin IVA)
+                Base comisionable
             </td>
 
             <td className="text-right px-4 py-3 font-semibold">
