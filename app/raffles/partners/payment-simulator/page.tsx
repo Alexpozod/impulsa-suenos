@@ -68,14 +68,17 @@ const paymentBase =
   affiliateCommission;
 
   // Factura
+// paymentBase corresponde al TOTAL que recibirá el afiliado
+// (incluye IVA si emite factura)
 
-  const invoiceVat =
-    paymentBase *
-    VAT_RATE;
+const invoiceNet =
+  paymentBase / (1 + VAT_RATE);
 
-  const invoiceTotal =
-    paymentBase +
-    invoiceVat;
+const invoiceVat =
+  paymentBase - invoiceNet;
+
+const invoiceTotal =
+  paymentBase;
 
   // Boleta
 
@@ -98,6 +101,8 @@ const paymentBase =
   flowCommission,
 
   paymentBase,
+
+  invoiceNet,
 
   invoiceVat,
 
@@ -297,7 +302,7 @@ const paymentBase =
 
       <div className="flex justify-between">
         <span>Monto neto factura</span>
-        <strong>{formatMoney(simulation.paymentBase)}</strong>
+        <strong>{formatMoney(simulation.invoiceNet)}</strong>
       </div>
 
       <div className="flex justify-between">
