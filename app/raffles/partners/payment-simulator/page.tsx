@@ -36,35 +36,40 @@ const formatMoney = (value: number) =>
   // Retención vigente 2026
   const HONORARIOS_RETENTION = 0.1375;
 
-  // Venta neta (sin IVA)
+  // Comisión Flow (sobre la venta bruta)
 
-  const netSale =
-    sales / 1.19;
+const flowCommission =
+  sales *
+  FLOW_PERCENT *
+  FLOW_VAT;
 
-  // IVA contenido en la venta
+// Venta después de Flow
 
-  const saleVat =
-    sales - netSale;
+const saleAfterFlow =
+  sales -
+  flowCommission;
 
-  // Comisión del afiliado
+// Base comisionable (sin IVA)
 
-  const affiliateCommission =
-    netSale *
-    (commission / 100);
+const commissionBase =
+  saleAfterFlow / 1.19;
 
-  // Comisión Flow calculada
-  // sobre la venta BRUTA
+// IVA contenido en la base
 
-  const flowCommission =
-    sales *
-    FLOW_PERCENT *
-    FLOW_VAT;
+const saleVat =
+  saleAfterFlow -
+  commissionBase;
 
-  // Base de pago
+// Comisión afiliado
 
-  const paymentBase =
-    affiliateCommission -
-    flowCommission;
+const affiliateCommission =
+  commissionBase *
+  (commission / 100);
+
+// Pago disponible
+
+const paymentBase =
+  affiliateCommission;
 
   // Factura
 
@@ -88,25 +93,27 @@ const formatMoney = (value: number) =>
 
   return {
 
-    saleVat,
+  saleVat,
 
-    netSale,
+  saleAfterFlow,
 
-    affiliateCommission,
+  commissionBase,
 
-    flowCommission,
+  affiliateCommission,
 
-    paymentBase,
+  flowCommission,
 
-    invoiceVat,
+  paymentBase,
 
-    invoiceTotal,
+  invoiceVat,
 
-    retention,
+  invoiceTotal,
 
-    honorariosNet
+  retention,
 
-  };
+  honorariosNet,
+
+};
 
 }, [
   sales,
@@ -231,26 +238,36 @@ const formatMoney = (value: number) =>
           {formatMoney(sales)}
         </td>
       </tr>
-
+      
       <tr className="border-b">
-        <td className="px-4 py-3">
-          IVA incluido en la venta
-        </td>
+            <td className="px-4 py-3">
+                Comisión pasarela de pago (3,19% + IVA)
+            </td>
 
-        <td className="text-right px-4 py-3 text-red-600">
-          -{formatMoney(simulation.saleVat)}
-        </td>
-      </tr>
+            <td className="text-right px-4 py-3 text-red-600">
+                -{formatMoney(simulation.flowCommission)}
+            </td>
+            </tr>
 
-      <tr className="border-b bg-slate-50">
-        <td className="px-4 py-3 font-semibold">
-          Venta sin IVA
-        </td>
+            <tr className="border-b">
+            <td className="px-4 py-3">
+                IVA incluido
+            </td>
 
-        <td className="text-right px-4 py-3 font-semibold">
-          {formatMoney(simulation.netSale)}
-        </td>
-      </tr>
+            <td className="text-right px-4 py-3 text-red-600">
+                -{formatMoney(simulation.saleVat)}
+            </td>
+            </tr>
+
+            <tr className="border-b bg-slate-50">
+            <td className="px-4 py-3 font-semibold">
+                Base comisionable (sin IVA)
+            </td>
+
+            <td className="text-right px-4 py-3 font-semibold">
+                {formatMoney(simulation.commissionBase)}
+            </td>
+            </tr>
 
       <tr className="border-b">
         <td className="px-4 py-3">
@@ -261,17 +278,7 @@ const formatMoney = (value: number) =>
           {formatMoney(simulation.affiliateCommission)}
         </td>
       </tr>
-
-      <tr className="border-b">
-        <td className="px-4 py-3">
-          Comisión pasarela de pago (3,19% + IVA)
-        </td>
-
-        <td className="text-right px-4 py-3 text-red-600">
-          {formatMoney(simulation.retention)}
-        </td>
-      </tr>
-
+      
       <tr className="bg-cyan-50 border-b">
         <td className="px-4 py-3 font-bold">
           Comisión disponible para pago
