@@ -313,12 +313,12 @@ const paymentBase =
       <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
 
         <div className="text-sm text-gray-500">
-            Monto neto de tu factura
+            Monto bruto de tu factura
             </div>
 
-        <div className="text-3xl font-bold text-emerald-700">
-          {formatMoney(simulation.paymentBase)}
-        </div>
+            <div className="text-3xl font-bold text-emerald-700">
+            {formatMoney(simulation.invoiceTotal)}
+            </div>
 
       </div>
 
