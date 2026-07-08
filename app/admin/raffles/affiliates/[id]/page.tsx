@@ -697,6 +697,39 @@ Detalles
 
     </div>
 
+    <div className="mt-6 flex items-center justify-between">
+
+  <div className="text-sm text-muted-foreground">
+
+    Página {salesPage} de {salesTotalPages}
+
+  </div>
+
+  <div className="flex gap-2">
+
+    <button
+      disabled={salesPage <= 1 || salesLoading}
+      onClick={() => loadSales(salesPage - 1)}
+      className="rounded-lg border px-4 py-2 disabled:opacity-40 hover:bg-white/5"
+    >
+      Anterior
+    </button>
+
+    <button
+      disabled={
+        salesPage >= salesTotalPages ||
+        salesLoading
+      }
+      onClick={() => loadSales(salesPage + 1)}
+      className="rounded-lg border px-4 py-2 disabled:opacity-40 hover:bg-white/5"
+    >
+      Siguiente
+    </button>
+
+  </div>
+
+</div>
+
   </div>
 
 </Section>
