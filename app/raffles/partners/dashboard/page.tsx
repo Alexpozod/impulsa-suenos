@@ -16,6 +16,12 @@ export default function RafflePartnerDashboardPage() {
     const [page, setPage] =
   useState(1)
 
+  const [search, setSearch] =
+  useState("")
+
+const [period, setPeriod] =
+  useState("all")
+
 const PER_PAGE = 10
 
   useEffect(() => {
@@ -94,16 +100,73 @@ const PER_PAGE = 10
 const sales =
   data.sales || []
 
+const filteredSales =
+  sales.filter((sale: any) => {
+
+    const text = (
+      `${sale.buyerName ?? ""} ` +
+      `${sale.buyerEmail ?? ""} ` +
+      `${sale.buyerPhone ?? ""} ` +
+      `${sale.quantity ?? ""}`
+    ).toLowerCase()
+
+    const matchesSearch =
+      text.includes(
+        search.toLowerCase()
+      )
+
+    if (period === "all") {
+
+      return matchesSearch
+
+    }
+
+    const created =
+      new Date(sale.createdAt)
+
+    const now =
+      new Date()
+
+    if (period === "month") {
+
+      if (
+        created.getMonth() !== now.getMonth() ||
+        created.getFullYear() !== now.getFullYear()
+      ) {
+
+        return false
+
+      }
+
+    }
+
+    if (period === "today") {
+
+      if (
+        created.toDateString() !==
+        now.toDateString()
+      ) {
+
+        return false
+
+      }
+
+    }
+
+    return matchesSearch
+
+  })
+
 const totalPages =
   Math.max(
     1,
     Math.ceil(
-      sales.length / PER_PAGE
+      filteredSales.length / PER_PAGE
     )
   )
 
 const paginatedSales =
-  sales.slice(
+  filteredSales.slice(
     (page - 1) * PER_PAGE,
     page * PER_PAGE
   )
@@ -315,6 +378,74 @@ const paginatedSales =
           </p>
 
         </div>
+
+        <div
+  className="
+    flex
+    flex-col
+    md:flex-row
+    gap-3
+    px-6
+    py-4
+    border-b
+    border-slate-200
+  "
+>
+
+  <input
+    type="text"
+    placeholder="Buscar por nombre, correo, teléfono o tickets..."
+    value={search}
+    onChange={(e) => {
+
+      setSearch(e.target.value)
+
+      setPage(1)
+
+    }}
+    className="
+      flex-1
+      rounded-xl
+      border
+      border-slate-300
+      px-4
+      py-2
+    "
+  />
+
+  <select
+    value={period}
+    onChange={(e) => {
+
+      setPeriod(e.target.value)
+
+      setPage(1)
+
+    }}
+    className="
+      rounded-xl
+      border
+      border-slate-300
+      px-4
+      py-2
+    "
+  >
+
+    <option value="all">
+      Todo
+    </option>
+
+    <option value="today">
+      Hoy
+    </option>
+
+    <option value="month">
+      Este mes
+    </option>
+
+  </select>
+
+</div>
 
         <div
           className="
@@ -578,7 +709,7 @@ paginatedSales.map((sale:any)=>(
 
     {" de "}
 
-    {sales.length}
+    {filteredSales.length}
 
     compras
 
