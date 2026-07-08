@@ -169,15 +169,98 @@ export default function PublicSitePage() {
 
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 
-      <h2 className="text-xl font-semibold">
-        Contenido
-      </h2>
+  <h2 className="text-xl font-semibold">
+    Contenido
+  </h2>
 
-      <p className="text-slate-400 mt-2">
-        Personaliza títulos, descripciones y botones.
-      </p>
+  <p className="text-slate-400 mt-2">
+    Personaliza los textos visibles en la landing pública.
+  </p>
+
+  {loading ? (
+
+    <div className="mt-6 text-slate-500">
+
+      Cargando...
 
     </div>
+
+  ) : (
+
+    <div className="mt-6 space-y-5">
+
+      <div>
+
+        <label className="block text-sm mb-2">
+          Título
+        </label>
+
+        <input
+          value={settings?.title ?? ""}
+          readOnly
+          className="
+            w-full
+            rounded-xl
+            bg-slate-950
+            border
+            border-slate-700
+            px-4
+            py-3
+          "
+        />
+
+      </div>
+
+      <div>
+
+        <label className="block text-sm mb-2">
+          Subtítulo
+        </label>
+
+        <input
+          value={settings?.subtitle ?? ""}
+          readOnly
+          className="
+            w-full
+            rounded-xl
+            bg-slate-950
+            border
+            border-slate-700
+            px-4
+            py-3
+          "
+        />
+
+      </div>
+
+      <div>
+
+        <label className="block text-sm mb-2">
+          Descripción
+        </label>
+
+        <textarea
+          value={settings?.description ?? ""}
+          readOnly
+          rows={4}
+          className="
+            w-full
+            rounded-xl
+            bg-slate-950
+            border
+            border-slate-700
+            px-4
+            py-3
+          "
+        />
+
+      </div>
+
+    </div>
+
+  )}
+
+</div>
 
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 
