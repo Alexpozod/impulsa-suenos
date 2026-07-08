@@ -296,7 +296,7 @@ const paymentBase =
     <div className="space-y-3">
 
       <div className="flex justify-between">
-        <span>Monto bruto factura</span>
+        <span>Monto neto factura</span>
         <strong>{formatMoney(simulation.paymentBase)}</strong>
       </div>
 
@@ -313,8 +313,8 @@ const paymentBase =
       <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
 
         <div className="text-sm text-gray-500">
-          Monto bruto de tu factura
-        </div>
+            Monto neto de tu factura
+            </div>
 
         <div className="text-3xl font-bold text-emerald-700">
           {formatMoney(simulation.paymentBase)}
