@@ -454,6 +454,123 @@ export default function PublicSitePage() {
 
 </div>
 
+<div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
+  <h2 className="text-xl font-semibold">
+    Leads capturados
+  </h2>
+
+  <p className="text-slate-400 mt-2">
+    Personas registradas para ser notificadas del lanzamiento.
+  </p>
+
+  {
+
+    loading
+
+    ?
+
+    <div className="mt-6 text-slate-500">
+
+      Cargando...
+
+    </div>
+
+    :
+
+    <>
+
+      <div
+        className="
+          mt-6
+          inline-flex
+          items-center
+          rounded-xl
+          bg-cyan-600
+          px-5
+          py-3
+          text-2xl
+          font-bold
+        "
+      >
+
+        {settings?.lead_count ?? 0}
+
+      </div>
+
+      <div className="mt-8 overflow-hidden rounded-xl border border-slate-800">
+
+        <table className="w-full">
+
+          <thead className="bg-slate-950">
+
+            <tr>
+
+              <th className="px-4 py-3 text-left">
+                Email
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Fecha
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {
+
+              settings?.recent_leads?.map(
+
+                (lead: any) => (
+
+                  <tr
+                    key={lead.email}
+                    className="border-t border-slate-800"
+                  >
+
+                    <td className="px-4 py-3">
+
+                      {lead.email}
+
+                    </td>
+
+                    <td className="px-4 py-3 text-slate-400">
+
+                      {
+
+                        new Date(
+                          lead.created_at
+                        ).toLocaleString(
+                          "es-CL"
+                        )
+
+                      }
+
+                    </td>
+
+                  </tr>
+
+                )
+
+              )
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </>
+
+  }
+
+</div>
+
   </div>
 
 </div>
