@@ -65,22 +65,17 @@ export default function LandingSocials({
   return(
 
     <div
-
-      className="
-
-        mt-10
-
-        flex
-
-        flex-wrap
-
-        justify-center
-
-        gap-4
-
-      "
-
-    >
+  className="
+    mt-10
+    flex
+    flex-wrap
+    justify-center
+    gap-4
+    animate-in
+    fade-in
+    duration-700
+  "
+>
 
       {instagram && (
 
@@ -117,6 +112,10 @@ export default function LandingSocials({
             hover:text-pink-400
 
             transition-all
+            duration-200
+            hover:scale-105
+            hover:shadow-lg
+            active:scale-95
 
           "
 
@@ -169,6 +168,10 @@ export default function LandingSocials({
             hover:text-blue-400
 
             transition-all
+            duration-200
+            hover:scale-105
+            hover:shadow-lg
+            active:scale-95
 
           "
 
@@ -221,7 +224,10 @@ export default function LandingSocials({
             hover:text-cyan-300
 
             transition-all
-
+            duration-200
+            hover:scale-105
+            hover:shadow-lg
+            active:scale-95
           "
 
         >
@@ -273,6 +279,10 @@ export default function LandingSocials({
             hover:text-red-400
 
             transition-all
+            duration-200
+            hover:scale-105
+            hover:shadow-lg
+            active:scale-95
 
           "
 
