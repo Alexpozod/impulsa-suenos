@@ -29,7 +29,9 @@ export default async function LandingPage() {
 
       <div className="max-w-3xl w-full px-6 text-center">
 
-       <div className="flex flex-col items-center mb-8">
+       {data?.show_logo && (
+
+<div className="flex flex-col items-center mb-8">
 
   <img
     src="/logo-icon.png"
@@ -67,13 +69,23 @@ export default async function LandingPage() {
 
 </div>
 
-        <p className="mt-6 text-xl text-slate-300">
-          {data?.subtitle}
-        </p>
+)}
 
-        <p className="mt-8 text-slate-400 whitespace-pre-line">
-          {data?.description}
-        </p>
+        {data?.show_subtitle && (
+
+          <p className="mt-6 text-xl text-slate-300">
+            {data?.subtitle}
+          </p>
+
+          )}
+
+        {data?.show_description && (
+
+          <p className="mt-8 text-slate-400 whitespace-pre-line">
+            {data?.description}
+          </p>
+
+          )}
 
         {/* Botón eliminado.
    El CTA principal es el formulario de registro. */}
