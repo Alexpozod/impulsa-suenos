@@ -594,6 +594,209 @@ export default function PublicSitePage() {
 
 </div>
 
+<div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
+  <h2 className="text-xl font-semibold">
+    Redes Sociales
+  </h2>
+
+  <p className="text-slate-400 mt-2">
+    Configura las redes sociales visibles en la landing.
+  </p>
+
+  <div className="mt-6 space-y-5">
+
+    <label className="flex items-center justify-between">
+
+      <span>
+        Mostrar redes sociales
+      </span>
+
+      <input
+
+        type="checkbox"
+
+        checked={
+          form?.show_socials ?? false
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            show_socials:
+              e.target.checked
+
+          })
+
+        }
+
+      />
+
+    </label>
+
+    <div>
+
+      <label className="block mb-2">
+        Instagram
+      </label>
+
+      <input
+
+        value={
+          form?.instagram_url ?? ""
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            instagram_url:
+              e.target.value
+
+          })
+
+        }
+
+        className="
+          w-full
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+
+      />
+
+    </div>
+
+    <div>
+
+      <label className="block mb-2">
+        Facebook
+      </label>
+
+      <input
+
+        value={
+          form?.facebook_url ?? ""
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            facebook_url:
+              e.target.value
+
+          })
+
+        }
+
+        className="
+          w-full
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+
+      />
+
+    </div>
+
+    <div>
+
+      <label className="block mb-2">
+        TikTok
+      </label>
+
+      <input
+
+        value={
+          form?.tiktok_url ?? ""
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            tiktok_url:
+              e.target.value
+
+          })
+
+        }
+
+        className="
+          w-full
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+
+      />
+
+    </div>
+
+    <div>
+
+      <label className="block mb-2">
+        YouTube
+      </label>
+
+      <input
+
+        value={
+          form?.youtube_url ?? ""
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            youtube_url:
+              e.target.value
+
+          })
+
+        }
+
+        className="
+          w-full
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+
+      />
+
+    </div>
+
+  </div>
+
+</div>
+
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 
       <h2 className="text-xl font-semibold">
