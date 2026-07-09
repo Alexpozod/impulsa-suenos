@@ -27,14 +27,10 @@ export default async function LandingPage() {
       <div className="max-w-3xl w-full px-6 text-center">
 
         <img
-
-  src="/favicon-removebg-preview.png"
-
-  alt="ImpulsaSueños"
-
-  className="w-24 h-24 mx-auto mb-8"
-
-/>
+        src="/logo.png"
+        alt="ImpulsaSueños"
+        className="h-20 w-auto mx-auto mb-8"
+        />
 
 <h1 className="text-5xl md:text-6xl font-black">
           {data?.title}
