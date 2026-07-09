@@ -397,15 +397,112 @@ export default function PublicSitePage() {
 
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 
-      <h2 className="text-xl font-semibold">
-        Opciones
-      </h2>
+  <h2 className="text-xl font-semibold">
+    Landing
+  </h2>
 
-      <p className="text-slate-400 mt-2">
-        Activa contador, formulario, redes sociales y otros elementos.
-      </p>
+  <p className="text-slate-400 mt-2">
+    Controla qué elementos se muestran en la landing.
+  </p>
 
-    </div>
+  <div className="mt-6 space-y-5">
+
+    <label className="flex items-center justify-between">
+
+      <span>
+        Mostrar logo
+      </span>
+
+      <input
+
+        type="checkbox"
+
+        checked={
+          form?.show_logo ?? true
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            show_logo:
+              e.target.checked
+
+          })
+
+        }
+
+      />
+
+    </label>
+
+    <label className="flex items-center justify-between">
+
+      <span>
+        Mostrar subtítulo
+      </span>
+
+      <input
+
+        type="checkbox"
+
+        checked={
+          form?.show_subtitle ?? true
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            show_subtitle:
+              e.target.checked
+
+          })
+
+        }
+
+      />
+
+    </label>
+
+    <label className="flex items-center justify-between">
+
+      <span>
+        Mostrar descripción
+      </span>
+
+      <input
+
+        type="checkbox"
+
+        checked={
+          form?.show_description ?? true
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            show_description:
+              e.target.checked
+
+          })
+
+        }
+
+      />
+
+    </label>
+
+  </div>
+
+</div>
 
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 
