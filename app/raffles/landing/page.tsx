@@ -31,7 +31,7 @@ export default async function LandingPage() {
   <img
     src="/logo-icon.png"
     alt="ImpulsaSueños"
-    className="w-24 h-24"
+    className="w-36 h-36"
   />
 
   <div className="mt-5 text-center">
@@ -63,10 +63,6 @@ export default async function LandingPage() {
   </div>
 
 </div>
-
-<h1 className="text-5xl md:text-6xl font-black">
-          {data?.title}
-        </h1>
 
         <p className="mt-6 text-xl text-slate-300">
           {data?.subtitle}
