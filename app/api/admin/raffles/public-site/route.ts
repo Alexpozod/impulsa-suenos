@@ -123,8 +123,38 @@ export async function POST(
           description:
             body.description,
 
-            site_mode:
+          site_mode:
             body.site_mode,
+
+          show_logo:
+            body.show_logo,
+
+          show_subtitle:
+            body.show_subtitle,
+
+          show_description:
+            body.show_description,
+
+          show_countdown:
+            body.show_countdown,
+
+          countdown_date:
+            body.countdown_date,
+
+          show_socials:
+            body.show_socials,
+
+          instagram_url:
+            body.instagram_url,
+
+          facebook_url:
+            body.facebook_url,
+
+          tiktok_url:
+            body.tiktok_url,
+
+          youtube_url:
+            body.youtube_url,
 
           updated_at:
             new Date().toISOString()
