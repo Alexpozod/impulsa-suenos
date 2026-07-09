@@ -75,32 +75,8 @@ export default async function LandingPage() {
           {data?.description}
         </p>
 
-        {data?.show_button && (
-
-        <a
-
-            href={data.button_url || "#"}
-
-            className="
-            inline-flex
-            mt-10
-            px-8
-            py-4
-            rounded-2xl
-            bg-cyan-500
-            hover:bg-cyan-400
-            text-slate-950
-            font-bold
-            transition
-            "
-
-        >
-
-            {data.button_text || "Más información"}
-
-        </a>
-
-        )}
+        {/* Botón eliminado.
+   El CTA principal es el formulario de registro. */}
 
         {data?.show_form && (
 
