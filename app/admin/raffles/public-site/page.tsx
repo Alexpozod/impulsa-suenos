@@ -419,7 +419,29 @@ export default function PublicSitePage() {
 
     </div>
 
-    <div className="flex justify-end">
+    <div className="flex justify-between items-center">
+
+  <a
+
+    href="/api/admin/raffles/public-site/export"
+
+    className="
+      px-6
+      py-3
+      rounded-xl
+      border
+      border-slate-700
+      hover:bg-slate-800
+      transition
+      font-semibold
+      text-white
+    "
+
+  >
+
+    📥 Exportar CSV
+
+  </a>
 
   <button
 
