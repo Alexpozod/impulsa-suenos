@@ -18,8 +18,13 @@ export default function LaunchCountdown({
       const now=
         new Date().getTime()
 
-      const end=
-        new Date(target).getTime()
+      const normalizedTarget =
+        target.replace(" ", "T")
+
+        const end =
+        new Date(
+            normalizedTarget
+        ).getTime()
 
       const diff=
         end-now
