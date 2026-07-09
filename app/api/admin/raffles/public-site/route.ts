@@ -76,15 +76,7 @@ export async function GET() {
         recentLeads ?? []
 
     })
-
-    if (error) {
-
-      throw error
-
-    }
-
-    return NextResponse.json(data)
-
+    
   }
 
   catch (error) {
