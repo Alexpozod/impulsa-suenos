@@ -307,52 +307,6 @@ export default function PublicSitePage() {
 
     <div className="mt-6 space-y-5">
 
-<div>
-
-  <label className="block text-sm mb-2">
-    Modo del sitio
-  </label>
-
-  <select
-
-    value={form?.site_mode ?? "active"}
-
-    onChange={(e)=>
-
-      setForm({
-
-        ...form,
-
-        site_mode: e.target.value
-
-      })
-
-    }
-
-    className="
-      w-full
-      rounded-xl
-      bg-slate-950
-      border
-      border-slate-700
-      px-4
-      py-3
-    "
-
-  >
-
-    <option value="active">
-      Sitio Activo
-    </option>
-
-    <option value="landing">
-      Landing Especial
-    </option>
-
-  </select>
-
-</div>
-
       <div>
 
         <label className="block text-sm mb-2">
