@@ -75,6 +75,81 @@ export default async function LandingPage() {
 
         )}
 
+        {data?.show_form && (
+
+            <div
+                className="
+                mt-12
+                max-w-xl
+                mx-auto
+                "
+            >
+
+                <div className="text-lg font-semibold">
+
+                Sé de los primeros en enterarte.
+
+                </div>
+
+                <p className="text-slate-400 mt-2 mb-6">
+
+                Déjanos tu correo y te avisaremos apenas el sitio esté disponible.
+
+                </p>
+
+                <form
+                className="
+                    flex
+                    flex-col
+                    md:flex-row
+                    gap-3
+                "
+                >
+
+                <input
+
+                    type="email"
+
+                    placeholder="tu@email.com"
+
+                    className="
+                    flex-1
+                    rounded-xl
+                    border
+                    border-slate-700
+                    bg-slate-900
+                    px-5
+                    py-4
+                    outline-none
+                    "
+
+                />
+
+                <button
+
+                    type="submit"
+
+                    className="
+                    rounded-xl
+                    bg-white
+                    text-black
+                    font-semibold
+                    px-6
+                    py-4
+                    "
+
+                >
+
+                    Quiero ser avisado
+
+                </button>
+
+                </form>
+
+            </div>
+
+            )}
+
       </div>
 
     </div>
