@@ -504,6 +504,96 @@ export default function PublicSitePage() {
 
 </div>
 
+<div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
+  <h2 className="text-xl font-semibold">
+    Lanzamiento
+  </h2>
+
+  <p className="text-slate-400 mt-2">
+    Configura el contador regresivo de la landing.
+  </p>
+
+  <div className="mt-6 space-y-5">
+
+    <label className="flex items-center justify-between">
+
+      <span>
+        Mostrar contador
+      </span>
+
+      <input
+
+        type="checkbox"
+
+        checked={
+          form?.show_countdown ?? false
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            show_countdown:
+              e.target.checked
+
+          })
+
+        }
+
+      />
+
+    </label>
+
+    <div>
+
+      <label className="block mb-2">
+        Fecha y hora del lanzamiento
+      </label>
+
+      <input
+
+        type="datetime-local"
+
+        value={
+          form?.countdown_date
+            ? form.countdown_date.substring(0,16)
+            : ""
+        }
+
+        onChange={(e)=>
+
+          setForm({
+
+            ...form,
+
+            countdown_date:
+              e.target.value
+
+          })
+
+        }
+
+        className="
+          w-full
+          rounded-xl
+          bg-slate-950
+          border
+          border-slate-700
+          px-4
+          py-3
+        "
+
+      />
+
+    </div>
+
+  </div>
+
+</div>
+
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 
       <h2 className="text-xl font-semibold">
