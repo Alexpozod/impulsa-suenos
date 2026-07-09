@@ -26,11 +26,43 @@ export default async function LandingPage() {
 
       <div className="max-w-3xl w-full px-6 text-center">
 
-        <img
-        src="/logo.png"
-        alt="ImpulsaSueños"
-        className="h-20 w-auto mx-auto mb-8"
-        />
+       <div className="flex flex-col items-center mb-8">
+
+  <img
+    src="/logo-icon.png"
+    alt="ImpulsaSueños"
+    className="w-24 h-24"
+  />
+
+  <div className="mt-5 text-center">
+
+    <div
+      className="
+        text-5xl
+        font-black
+        leading-none
+        text-white
+      "
+    >
+      ImpulsaSueños
+    </div>
+
+    <div
+      className="
+        mt-2
+        text-cyan-400
+        text-sm
+        font-bold
+        tracking-[0.45em]
+        uppercase
+      "
+    >
+      Sorteos
+    </div>
+
+  </div>
+
+</div>
 
 <h1 className="text-5xl md:text-6xl font-black">
           {data?.title}
