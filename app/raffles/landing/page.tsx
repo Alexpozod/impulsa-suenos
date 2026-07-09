@@ -24,9 +24,19 @@ export default async function LandingPage() {
 
     <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
 
-      <div className="max-w-2xl w-full px-6 text-center">
+      <div className="max-w-3xl w-full px-6 text-center">
 
-        <h1 className="text-5xl font-black">
+        <img
+
+  src="/favicon-removebg-preview.png"
+
+  alt="ImpulsaSueños"
+
+  className="w-24 h-24 mx-auto mb-8"
+
+/>
+
+<h1 className="text-5xl md:text-6xl font-black">
           {data?.title}
         </h1>
 
@@ -37,6 +47,33 @@ export default async function LandingPage() {
         <p className="mt-8 text-slate-400 whitespace-pre-line">
           {data?.description}
         </p>
+
+        {data?.show_button && (
+
+        <a
+
+            href={data.button_url || "#"}
+
+            className="
+            inline-flex
+            mt-10
+            px-8
+            py-4
+            rounded-2xl
+            bg-cyan-500
+            hover:bg-cyan-400
+            text-slate-950
+            font-bold
+            transition
+            "
+
+        >
+
+            {data.button_text || "Más información"}
+
+        </a>
+
+        )}
 
       </div>
 
