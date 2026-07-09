@@ -1,5 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 
+import LaunchCountdown
+from "@/app/components/raffles/public/LaunchCountdown"
+
 import LandingLeadForm
 from "@/app/components/raffles/public/LandingLeadForm"
 
@@ -89,6 +92,20 @@ export default async function LandingPage() {
 
         {/* Botón eliminado.
    El CTA principal es el formulario de registro. */}
+
+            {data?.show_countdown &&
+
+        data?.countdown_date && (
+
+          <LaunchCountdown
+
+            target={
+              data.countdown_date
+            }
+
+          />
+
+        )}
 
         {data?.show_form && (
 
