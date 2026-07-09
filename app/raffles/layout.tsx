@@ -60,20 +60,40 @@ export default async function RafflesLayout({
 
   }
 
+  if (settings?.site_mode === "landing") {
+
   return (
-    <>
-      <AffiliateTracker />
 
-      <ReferralTracker />
+    <main className="min-h-screen">
 
-      <RafflesNavbar />
+      {children}
 
-      <main className="min-h-screen">
-        {children}
-      </main>
+    </main>
 
-      <RafflesFooter />
-    </>
   )
+
+}
+
+return (
+
+  <>
+
+    <AffiliateTracker />
+
+    <ReferralTracker />
+
+    <RafflesNavbar />
+
+    <main className="min-h-screen">
+
+      {children}
+
+    </main>
+
+    <RafflesFooter />
+
+  </>
+
+)
 
 }
