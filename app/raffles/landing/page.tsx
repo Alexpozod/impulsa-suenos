@@ -6,6 +6,9 @@ from "@/app/components/raffles/public/LaunchCountdown"
 import LandingLeadForm
 from "@/app/components/raffles/public/LandingLeadForm"
 
+import LandingSocials
+from "@/app/components/raffles/public/LandingSocials"
+
 export const runtime = "nodejs"
 
 const supabase = createClient(
@@ -110,6 +113,30 @@ export default async function LandingPage() {
         {data?.show_form && (
 
   <LandingLeadForm />
+
+)}
+
+{data?.show_socials && (
+
+  <LandingSocials
+
+    instagram={
+      data.instagram_url
+    }
+
+    facebook={
+      data.facebook_url
+    }
+
+    tiktok={
+      data.tiktok_url
+    }
+
+    youtube={
+      data.youtube_url
+    }
+
+  />
 
 )}
 
