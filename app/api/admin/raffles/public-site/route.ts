@@ -30,6 +30,59 @@ export async function GET() {
 
     }
 
+    const {
+
+      count
+
+    } =
+      await supabase
+        .schema("raffles")
+        .from("landing_leads")
+        .select(
+          "*",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+
+    const {
+
+      data: recentLeads
+
+    } =
+      await supabase
+        .schema("raffles")
+        .from("landing_leads")
+        .select(
+          "email, created_at"
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        )
+        .limit(10)
+
+    return NextResponse.json({
+
+      ...data,
+
+      lead_count:
+        count ?? 0,
+
+      recent_leads:
+        recentLeads ?? []
+
+    })
+
+    if (error) {
+
+      throw error
+
+    }
+
     return NextResponse.json(data)
 
   }
