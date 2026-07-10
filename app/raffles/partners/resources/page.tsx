@@ -133,18 +133,17 @@ export default function PartnerResourcesPage() {
 
                 <img
 
-                  src={`/api/raffles/partners/download?path=${encodeURIComponent(resource.storage_path)}`}
+  src={`/api/raffles/partners/preview?path=${encodeURIComponent(resource.storage_path)}`}
 
-                  alt={resource.title}
+  alt={resource.title}
 
-                  className="
-                    max-w-full
-                    max-h-full
-                    object-contain
-                    p-3
-                  "
+  className="
+    w-full
+    h-full
+    object-contain
+  "
 
-                />
+/>
 
               </div>
 
