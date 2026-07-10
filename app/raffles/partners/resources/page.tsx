@@ -113,54 +113,93 @@ export default function PartnerResourcesPage() {
 
             >
 
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col md:flex-row gap-8 items-start">
 
-                <div>
+              <div
+                className="
+                  w-40
+                  h-40
+                  rounded-2xl
+                  bg-slate-100
+                  border
+                  border-slate-200
+                  flex
+                  items-center
+                  justify-center
+                  overflow-hidden
+                  shrink-0
+                "
+              >
 
-                  <div className="text-sm text-slate-500">
+                <img
 
-                    {resource.category}
+                  src={`/api/raffles/partners/download?path=${encodeURIComponent(resource.storage_path)}`}
 
-                  </div>
+                  alt={resource.title}
 
-                  <h2 className="text-2xl font-bold mt-1">
+                  className="
+                    max-w-full
+                    max-h-full
+                    object-contain
+                    p-3
+                  "
 
-                    {resource.title}
+                />
 
-                  </h2>
+              </div>
 
-                  <p className="mt-2 text-slate-600">
+              <div className="flex-1">
 
-                    {resource.description}
+                <div className="text-sm text-slate-500">
 
-                  </p>
+                  {resource.category}
 
                 </div>
+
+                <h2 className="text-2xl font-bold mt-1">
+
+                  {resource.title}
+
+                </h2>
+
+                <p className="mt-2 text-slate-600">
+
+                  {resource.description}
+
+                </p>
+
+              </div>
+
+              <div className="shrink-0">
 
                 <a
 
                   href="#"
 
-                    onClick={async(e)=>{
+                  onClick={async(e)=>{
 
                     e.preventDefault()
 
                     const {
-                        data:{session}
+                      data:{session}
                     }=
                     await supabase.auth.getSession()
 
                     const res=
                     await fetch(
 
-                        `/api/raffles/partners/download?path=${encodeURIComponent(resource.storage_path)}`,
+                      `/api/raffles/partners/download?path=${encodeURIComponent(resource.storage_path)}`,
 
-                        {
+                      {
+
                         headers:{
-                            Authorization:
-                            `Bearer ${session?.access_token}`
+
+                          Authorization:
+                          `Bearer ${session?.access_token}`
+
                         }
-                        }
+
+                      }
 
                     )
 
@@ -169,22 +208,24 @@ export default function PartnerResourcesPage() {
 
                     if(json.url){
 
-                        window.open(
+                      window.open(
                         json.url,
                         "_blank"
-                        )
+                      )
 
                     }
 
-                    }}
+                  }}
 
                   className="
                     px-5
                     py-3
                     rounded-xl
                     bg-cyan-500
+                    hover:bg-cyan-400
                     text-white
                     font-bold
+                    transition
                   "
 
                 >
@@ -194,6 +235,8 @@ export default function PartnerResourcesPage() {
                 </a>
 
               </div>
+
+            </div>
 
             </div>
 
