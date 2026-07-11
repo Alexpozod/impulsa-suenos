@@ -94,7 +94,7 @@ if (!partner) {
     } =
       await supabase
         .storage
-        .from("raffles-partner-resources")
+        .from("partner-resources")
         .createSignedUrl(
           path,
           60 * 10
