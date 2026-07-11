@@ -102,9 +102,12 @@ export async function GET(req: NextRequest) {
 
     }
 
-    return NextResponse.redirect(
-      data.signedUrl
-    )
+    return NextResponse.json({
+
+  url:
+    data.signedUrl
+
+})
 
   }
 
