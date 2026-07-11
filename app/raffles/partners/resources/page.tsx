@@ -8,6 +8,10 @@ export default function PartnerResourcesPage() {
   const [loading,setLoading]=useState(true)
   const [resources,setResources]=useState<any[]>([])
 
+  const [previewUrls,setPreviewUrls]=useState<
+  Record<string,string>
+>({})
+
   useEffect(()=>{
 
     load()
@@ -43,6 +47,64 @@ export default function PartnerResourcesPage() {
       setResources(
         json.resources || []
       )
+
+      if(session){
+
+  const previews:
+    Record<string,string>={}
+
+  for(const resource of json.resources || []){
+
+    if(
+      !resource.storage_path
+    ) continue
+
+    try{
+
+      const res=
+      await fetch(
+
+        `/api/raffles/partners/preview?path=${encodeURIComponent(resource.storage_path)}`,
+
+        {
+
+          headers:{
+
+            Authorization:
+            `Bearer ${session.access_token}`
+
+          }
+
+        }
+
+      )
+
+      const data=
+      await res.json()
+
+      if(data.url){
+
+        previews[
+          resource.id
+        ]=data.url
+
+      }
+
+    }
+
+    catch(error){
+
+      console.error(error)
+
+    }
+
+  }
+
+  setPreviewUrls(
+    previews
+  )
+
+}
 
     }
 
@@ -133,7 +195,11 @@ export default function PartnerResourcesPage() {
 
                 <img
 
-  src={`/api/raffles/partners/preview?path=${encodeURIComponent(resource.storage_path)}`}
+  src={
+  previewUrls[
+    resource.id
+  ]
+}
 
   alt={resource.title}
 
