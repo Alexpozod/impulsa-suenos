@@ -8,6 +8,10 @@ import {
   processReferralReward
 } from "@/lib/raffles/referral/processReferralReward"
 
+import {
+  calculateCommercialNet
+} from "@/lib/raffles/commercial/calculateCommercialNet"
+
 export async function processCommercialReward(
 
   context: PaymentProcessingContext
@@ -34,6 +38,27 @@ export async function processCommercialReward(
 
     "none"
 
+    const commercial =
+  calculateCommercialNet({
+
+    grossAmount:
+
+      Number(
+
+        context.payment.amount_clp ??
+
+        context.payment.amount ??
+
+        0
+
+      ),
+
+    vatPercent: 19,
+
+    gatewayPercent: 2.95
+
+  })
+
   switch (commercialType) {
 
     case "affiliate":
@@ -54,15 +79,7 @@ export async function processCommercialReward(
 
         amount:
 
-          Number(
-
-            context.payment.amount_clp ??
-
-            context.payment.amount ??
-
-            0
-
-          )
+            commercial.netCommercialAmount
 
       })
 
