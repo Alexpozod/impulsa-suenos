@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 
 import { createClient } from "@supabase/supabase-js"
 
+import { requireUser } from "@/lib/auth/requireUser"
+
 export const runtime = "nodejs"
 
 const supabase = createClient(
@@ -13,58 +15,63 @@ export async function GET(req: NextRequest) {
 
   try {
 
-    const token =
-      req.headers
-        .get("authorization")
-        ?.replace("Bearer ", "")
+    const user =
+  await requireUser(req)
 
-    if (!token) {
+const email =
+  user.email?.toLowerCase()
 
-      return NextResponse.json(
-        { error: "unauthorized" },
-        { status: 401 }
-      )
+const {
+  data: affiliate
+} =
+  await supabase
+    .schema("raffles")
+    .from("raffle_referrals")
+    .select("id")
+    .eq(
+      "owner_email",
+      email
+    )
+    .maybeSingle()
 
+if (!affiliate) {
+
+  return NextResponse.json(
+    {
+      error: "affiliate_not_found"
+    },
+    {
+      status: 403
     }
+  )
 
-    const {
+}
 
-      data: { user },
+const {
+  data: partner
+} =
+  await supabase
+    .schema("raffles")
+    .from("partner_profiles")
+    .select("id")
+    .eq(
+      "affiliate_id",
+      affiliate.id
+    )
+    .maybeSingle()
 
-      error: authError
+if (!partner) {
 
-    } =
-      await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-
-      return NextResponse.json(
-        { error: "unauthorized" },
-        { status: 401 }
-      )
-
+  return NextResponse.json(
+    {
+      error: "partner_not_found"
+    },
+    {
+      status: 403
     }
+  )
 
-    const {
-
-      data: partner
-
-    } =
-      await supabase
-        .schema("raffles")
-        .from("partner_profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .single()
-
-    if (!partner) {
-
-      return NextResponse.json(
-        { error: "forbidden" },
-        { status: 403 }
-      )
-
-    }
+}
 
     const path =
       req.nextUrl.searchParams.get("path")
