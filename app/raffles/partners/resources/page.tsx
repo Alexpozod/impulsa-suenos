@@ -82,6 +82,18 @@ export default function PartnerResourcesPage() {
       const data=
       await res.json()
 
+      console.log(
+
+  "Preview",
+
+  resource.title,
+
+  res.status,
+
+  data
+
+)
+
       if(data.url){
 
         previews[
