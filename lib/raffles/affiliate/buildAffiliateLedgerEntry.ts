@@ -30,21 +30,25 @@ commercial
 
   commercial?:{
 
-    grossAmount:number
+  grossAmount:number
 
-    vatPercent:number
+  vatPercent:number
 
-    vatAmount:number
+  vatAmount:number
 
-    gatewayPercent:number
+  gatewayPercent:number
 
-    gatewayFee:number
+  gatewayNetFee:number
 
-    netCommercialAmount:number
+  gatewayVat:number
 
-    commissionPercent:number
+  gatewayTotalFee:number
 
-  }
+  netCommercialAmount:number
+
+  commissionPercent:number
+
+}
 
 }){
 
