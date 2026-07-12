@@ -8,7 +8,9 @@ export async function processAffiliateCommission({
   payment_id,
   order_id,
   raffle_id,
-  amount
+  amount,
+
+commercial
 
 }:{
 
@@ -19,6 +21,22 @@ export async function processAffiliateCommission({
   raffle_id:string
 
   amount:number
+
+  commercial?:{
+
+    grossAmount:number
+
+    vatAmount:number
+
+    vatPercent:number
+
+    gatewayFee:number
+
+    gatewayPercent:number
+
+    netCommercialAmount:number
+
+  }
 
 }){
 
@@ -72,8 +90,21 @@ export async function processAffiliateCommission({
           commission!.affiliate.code,
 
         commission_amount:
-          commission!.calculation
-            .commissionAmount
+        commission!.calculation
+          .commissionAmount,
+
+      commercial:
+        commercial
+        ? {
+
+            ...commercial,
+
+            commissionPercent:
+              commission!.calculation
+                .commissionPercent
+
+          }
+        : undefined
 
       })
 

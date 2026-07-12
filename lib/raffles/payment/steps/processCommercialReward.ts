@@ -83,7 +83,11 @@ export async function processCommercialReward(
 
         amount:
 
-            commercial.netCommercialAmount
+            commercial.netCommercialAmount,
+
+        commercial:
+
+          commercial
 
       })
 
