@@ -42,3 +42,25 @@ export interface CommercialResolution {
   commissionPercent: number
 
 }
+
+export interface CommercialBreakdown {
+
+  grossAmount: number
+
+  vatPercent: number
+
+  vatAmount: number
+
+  gatewayPercent: number
+
+  gatewayNetFee: number
+
+  gatewayVat: number
+
+  gatewayTotalFee: number
+
+  netCommercialAmount: number
+
+  commissionPercent?: number
+
+}
