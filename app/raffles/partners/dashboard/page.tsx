@@ -576,6 +576,10 @@ const paginatedSales =
                 </th>
 
                 <th className="p-4 text-left">
+                  Mi Comisión
+                </th>
+
+                <th className="p-4 text-left">
                   Estado
                 </th>
 
@@ -596,7 +600,7 @@ const paginatedSales =
 <tr>
 
 <td
-colSpan={5}
+colSpan={6}
 className="
 p-10
 text-center
@@ -693,6 +697,25 @@ paginatedSales.map((sale:any)=>(
                       {Number(
                         sale.total
                       ).toLocaleString()}
+
+                    </td>
+
+                    <td className="p-4">
+
+                      <span
+                        className="
+                          font-semibold
+                          text-emerald-600
+                        "
+                      >
+
+                        $
+
+                        {Number(
+                          sale.commission || 0
+                        ).toLocaleString()}
+
+                      </span>
 
                     </td>
 

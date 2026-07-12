@@ -387,6 +387,19 @@ const paymentMap =
       payment.status === "approved"
   )
 
+  const commissionMap =
+  new Map(
+
+    ledgerEntries.map(entry => [
+
+      entry.orderId,
+
+      entry.debit
+
+    ])
+
+  )
+
   const sales =
   orders
     .sort((a, b) => {
@@ -421,6 +434,10 @@ const paymentMap =
         quantity: order.quantity,
 
         total: Number(order.total_clp || 0),
+
+        commission:
+
+          commissionMap.get(order.id) ?? 0,
 
         orderStatus: order.status,
 
