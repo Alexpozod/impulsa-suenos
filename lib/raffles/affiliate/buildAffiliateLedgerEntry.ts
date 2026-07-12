@@ -56,6 +56,16 @@ CommercialBreakdown
 
     metadata:{
 
+  schemaVersion:1,
+
+  createdBy:
+
+    "affiliate_engine",
+
+  createdAt:
+
+    new Date().toISOString(),
+
   affiliateId:
 
     affiliate_id,
