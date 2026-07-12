@@ -12,6 +12,10 @@ import {
   calculateCommercialNet
 } from "@/lib/raffles/commercial/calculateCommercialNet"
 
+import {
+  getFinancialSettings
+} from "@/lib/raffles/commercial/getFinancialSettings"
+
 export async function processCommercialReward(
 
   context: PaymentProcessingContext
@@ -38,24 +42,24 @@ export async function processCommercialReward(
 
     "none"
 
+    const settings =
+  await getFinancialSettings()
+
     const commercial =
   calculateCommercialNet({
 
     grossAmount:
-
       Number(
-
         context.payment.amount_clp ??
-
         context.payment.amount ??
-
         0
-
       ),
 
-    vatPercent: 19,
+    vatPercent:
+      settings.vatPercent,
 
-    gatewayPercent: 2.95
+    gatewayPercent:
+      settings.flowFeePercent
 
   })
 
