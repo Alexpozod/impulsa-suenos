@@ -1,9 +1,6 @@
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import {
+  supabaseAdmin
+} from "@/lib/raffles/supabase/admin"
 
 export async function getAffiliateByEmail(
 
@@ -18,7 +15,7 @@ export async function getAffiliateByEmail(
     error
 
   } =
-  await supabase
+  await supabaseAdmin
     .schema("raffles")
     .from("raffle_referrals")
     .select("*")
