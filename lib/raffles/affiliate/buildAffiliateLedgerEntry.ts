@@ -1,3 +1,7 @@
+import type {
+  CommercialBreakdown
+} from "@/lib/raffles/commercial/types"
+
 export function buildAffiliateLedgerEntry({
 
   raffle_id,
@@ -28,27 +32,9 @@ commercial
 
   commission_amount:number
 
-  commercial?:{
+  commercial?:
 
-  grossAmount:number
-
-  vatPercent:number
-
-  vatAmount:number
-
-  gatewayPercent:number
-
-  gatewayNetFee:number
-
-  gatewayVat:number
-
-  gatewayTotalFee:number
-
-  netCommercialAmount:number
-
-  commissionPercent:number
-
-}
+CommercialBreakdown
 
 }){
 
