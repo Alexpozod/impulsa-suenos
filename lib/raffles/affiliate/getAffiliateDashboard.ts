@@ -52,33 +52,37 @@ console.log(
 
   if (!affiliate) {
 
-    return {
+  return {
 
-  affiliate: null,
+    affiliate: null,
 
-  stats: {
+    stats: {
 
-    clicks: 0,
+      clicks: 0,
 
-    beginCheckout: 0,
+      beginCheckout: 0,
 
-    orders: 0,
+      orders: 0,
 
-    paidOrders: 0,
+      paidOrders: 0,
 
-    revenue: 0,
+      revenue: 0,
 
-    estimatedCommission: 0,
+      generatedCommission: 0,
 
-    paidCommission: 0
+      pendingCommission: 0,
 
-  },
+      paidCommission: 0,
 
-  sales: []
+      availableCommission: 0
 
-}
+    },
+
+    sales: []
 
   }
+
+}
 
   const affiliateCode =
     String(
@@ -361,20 +365,7 @@ ledgerEntries.reduce(
   0
 
 )
-
-  const estimatedCommission =
-    Math.round(
-
-      revenue *
-
-      Number(
-        affiliate.commission_percent || 0
-      ) /
-
-      100
-
-    )
-
+  
     /* =========================================
    PAYMENT INDEX
 ========================================= */
@@ -514,20 +505,18 @@ return {
 
     stats: {
 
-      clicks,
+  clicks,
 
-      beginCheckout,
+  beginCheckout,
 
-      orders: totalOrders,
+  orders: totalOrders,
 
-      paidOrders,
+  paidOrders,
 
-      revenue,
+  revenue,
 
-      estimatedCommission,
-
-      generatedCommission:
-      wallet.generated,
+  generatedCommission:
+    wallet.generated,
 
     pendingCommission:
       wallet.pending,

@@ -354,7 +354,7 @@ const paginatedSales =
         <Card
           title="Comisión Generada"
           value={`$${Number(
-            data.stats.estimatedCommission || 0
+            data.stats.generatedCommission || 0
           ).toLocaleString()}`}
         />
 
