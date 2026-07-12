@@ -12,7 +12,11 @@ export interface CommercialNetResult {
 
   grossAmount: number
 
+  vatPercent: number
+
   vatAmount: number
+
+  gatewayPercent: number
 
   gatewayFee: number
 
@@ -74,14 +78,18 @@ export function calculateCommercialNet(
 
   return {
 
-    grossAmount,
+  grossAmount,
 
-    vatAmount,
+  vatPercent,
 
-    gatewayFee,
+  vatAmount,
 
-    netCommercialAmount
+  gatewayPercent,
 
-  }
+  gatewayFee,
+
+  netCommercialAmount
+
+}
 
 }
