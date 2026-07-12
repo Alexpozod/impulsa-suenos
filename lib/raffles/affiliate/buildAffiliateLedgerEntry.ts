@@ -10,7 +10,9 @@ export function buildAffiliateLedgerEntry({
 
   affiliate_code,
 
-  commission_amount
+  commission_amount,
+
+commercial
 
 }:{
 
@@ -25,6 +27,24 @@ export function buildAffiliateLedgerEntry({
   affiliate_code:string
 
   commission_amount:number
+
+  commercial?:{
+
+    grossAmount:number
+
+    vatPercent:number
+
+    vatAmount:number
+
+    gatewayPercent:number
+
+    gatewayFee:number
+
+    netCommercialAmount:number
+
+    commissionPercent:number
+
+  }
 
 }){
 
@@ -46,15 +66,17 @@ export function buildAffiliateLedgerEntry({
 
     metadata:{
 
-      affiliateId:
+  affiliateId:
 
-        affiliate_id,
+    affiliate_id,
 
-      affiliateCode:
+  affiliateCode:
 
-        affiliate_code
+    affiliate_code,
 
-    }
+  commercial
+
+}
 
   }
 
