@@ -24,19 +24,23 @@ commercial
 
   commercial?:{
 
-    grossAmount:number
+  grossAmount:number
 
-    vatAmount:number
+  vatPercent:number
 
-    vatPercent:number
+  vatAmount:number
 
-    gatewayFee:number
+  gatewayPercent:number
 
-    gatewayPercent:number
+  gatewayNetFee:number
 
-    netCommercialAmount:number
+  gatewayVat:number
 
-  }
+  gatewayTotalFee:number
+
+  netCommercialAmount:number
+
+}
 
 }){
 
