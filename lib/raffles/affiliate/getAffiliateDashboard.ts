@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js"
 import { calculateAffiliateWallet }
 from "./calculateAffiliateWallet"
 
+import { getAffiliateAnalytics }
+from "./getAffiliateAnalytics"
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -78,17 +81,7 @@ console.log(
     String(
       affiliate.code || ""
     ).toUpperCase()
-
-    /* =========================================
-   ANALYTICS
-========================================= */
-
-const { data: events } =
-  await supabase
-    .schema("raffles")
-    .from("analytics_events")
-    .select("*")
-
+    
 /* =========================================
    ORDERS
 ========================================= */
@@ -306,46 +299,16 @@ let totalOrders = 0
 let paidOrders = 0
 let revenue = 0
 
-/* =========================================
-   ANALYTICS
-========================================= */
+const analytics =
+  await getAffiliateAnalytics(
+    affiliateCode
+  )
 
-for (const event of events || []) {
+clicks =
+  analytics.clicks
 
-  const metadata =
-    (event.metadata || {}) as any
-
-  const code =
-    String(
-      metadata.commercialCode ??
-      metadata.affiliateCode ??
-      ""
-    ).toUpperCase()
-
-  if (code !== affiliateCode) {
-
-    continue
-
-  }
-
-  if (
-    event.event_type === "affiliate_click" ||
-    event.event_type === "page_view"
-  ) {
-
-    clicks++
-
-  }
-
-  if (
-    event.event_type === "begin_checkout"
-  ) {
-
-    beginCheckout++
-
-  }
-
-}
+beginCheckout =
+  analytics.beginCheckout
 
 /* =========================================
    ORDERS
