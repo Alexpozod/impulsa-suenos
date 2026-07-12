@@ -18,7 +18,11 @@ export interface CommercialNetResult {
 
   gatewayPercent: number
 
-  gatewayFee: number
+  gatewayNetFee: number
+
+  gatewayVat: number
+
+  gatewayTotalFee: number
 
   netCommercialAmount: number
 
@@ -62,19 +66,30 @@ export function calculateCommercialNet(
       grossAmount - taxableBase
     )
 
-  const gatewayFee =
-    Math.round(
-      grossAmount *
-      gatewayPercent /
-      100
-    )
+  const gatewayNetFee =
+  Math.round(
+    grossAmount *
+    gatewayPercent /
+    100
+  )
+
+const gatewayVat =
+  Math.round(
+    gatewayNetFee *
+    vatPercent /
+    100
+  )
+
+const gatewayTotalFee =
+  gatewayNetFee +
+  gatewayVat
 
   const netCommercialAmount =
-    Math.round(
-      grossAmount -
-      vatAmount -
-      gatewayFee
-    )
+  Math.round(
+    grossAmount -
+    vatAmount -
+    gatewayTotalFee
+  )
 
   return {
 
@@ -86,7 +101,11 @@ export function calculateCommercialNet(
 
   gatewayPercent,
 
-  gatewayFee,
+  gatewayNetFee,
+
+  gatewayVat,
+
+  gatewayTotalFee,
 
   netCommercialAmount
 
