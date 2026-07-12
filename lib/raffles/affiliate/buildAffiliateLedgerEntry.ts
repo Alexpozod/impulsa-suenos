@@ -56,7 +56,7 @@ CommercialBreakdown
 
     metadata:{
 
-  schemaVersion:1,
+  schemaVersion:2,
 
   createdBy:
 
@@ -73,6 +73,22 @@ CommercialBreakdown
   affiliateCode:
 
     affiliate_code,
+
+  orderId:
+
+    order_id,
+
+  paymentId:
+
+    payment_id,
+
+  raffleId:
+
+    raffle_id,
+
+  commissionAmount:
+
+    commission_amount,
 
   commercial
 
