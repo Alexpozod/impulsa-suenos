@@ -344,10 +344,17 @@ const paginatedSales =
           value={data.stats.paidOrders}
         />
 
-        <Card
+       <Card
           title="Ventas Generadas"
           value={`$${Number(
             data.stats.revenue || 0
+          ).toLocaleString()}`}
+        />
+
+        <Card
+          title="Venta Neta Comisionable"
+          value={`$${Number(
+            data.stats.netCommissionableSales || 0
           ).toLocaleString()}`}
         />
 
