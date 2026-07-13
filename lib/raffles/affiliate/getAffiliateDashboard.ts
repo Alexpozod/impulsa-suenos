@@ -365,6 +365,24 @@ ledgerEntries.reduce(
   0
 
 )
+
+const netCommissionableSales =
+  ledgerEntries.reduce(
+
+    (sum: number, row: any) =>
+
+      sum +
+
+      Number(
+
+        row.metadata?.commercial
+          ?.netCommercialAmount ?? 0
+
+      ),
+
+    0
+
+  )
   
     /* =========================================
    PAYMENT INDEX
@@ -532,8 +550,10 @@ return {
 
   revenue,
 
-  generatedCommission:
-    wallet.generated,
+    netCommissionableSales,
+
+    generatedCommission:
+      wallet.generated,
 
     pendingCommission:
       wallet.pending,
