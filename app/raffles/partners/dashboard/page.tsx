@@ -327,6 +327,7 @@ const paginatedSales =
         <Card
           title="Comisión"
           value={`${data.affiliate.commissionPercent}%`}
+          description="Este porcentaje se aplica sobre la Venta Neta Comisionable."
         />
 
         <Card
@@ -352,11 +353,12 @@ const paginatedSales =
         />
 
         <Card
-          title="Venta Neta Comisionable"
-          value={`$${Number(
-            data.stats.netCommissionableSales || 0
-          ).toLocaleString()}`}
-        />
+            title="Venta Neta Comisionable"
+            value={`$${Number(
+              data.stats.netCommissionableSales || 0
+            ).toLocaleString()}`}
+            description="Venta menos IVA y costos de la pasarela de pago."
+          />
 
         <Card
           title="Comisión Generada"
@@ -881,7 +883,8 @@ page >= totalPages
 
 function Card({
   title,
-  value
+  value,
+  description
 }: any) {
 
   return (
@@ -909,14 +912,31 @@ function Card({
 
       <h3
         className="
-        text-3xl
-        font-bold
-        mt-3
-        text-white
-      "
+          text-3xl
+          font-bold
+          mt-3
+          text-white
+        "
       >
         {value}
       </h3>
+
+      {
+        description && (
+
+          <p
+            className="
+              mt-3
+              text-xs
+              leading-5
+              text-slate-300
+            "
+          >
+            {description}
+          </p>
+
+        )
+      }
 
     </div>
 
