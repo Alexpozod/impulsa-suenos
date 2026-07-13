@@ -80,6 +80,61 @@ export async function getAffiliateSales(
       created_at
     `);
 
+    /* =========================================
+   LEDGER
+========================================= */
+
+const { data: ledger } =
+  await supabase
+    .schema("raffles")
+    .from("ledger")
+    .select(`
+      amount_clp,
+      metadata
+    `)
+    .eq(
+      "type",
+      "affiliate_commission"
+    )
+
+const commissionMap =
+  new Map(
+
+    (ledger || [])
+
+      .filter((entry: any) => {
+
+        const metadata =
+          entry.metadata || {}
+
+        return (
+          metadata.affiliateId ===
+          affiliateId
+        )
+
+      })
+
+      .map((entry: any) => {
+
+        const metadata =
+          entry.metadata || {}
+
+        return [
+
+          metadata.orderId,
+
+          metadata.commissionAmount ??
+
+          Math.abs(
+            Number(entry.amount_clp)
+          )
+
+        ]
+
+      })
+
+  )
+
   const filteredOrders =
     (orders || []).filter(order => {
 
@@ -166,13 +221,7 @@ export async function getAffiliateSales(
           raffle?.slug ?? null,
 
         commission:
-          Math.round(
-            Number(order.total_clp ?? 0) *
-            Number(
-              affiliate.commission_percent
-            ) /
-            100
-          ),
+  commissionMap.get(order.id) ?? 0,
 
       };
 
