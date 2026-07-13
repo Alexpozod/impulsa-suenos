@@ -182,12 +182,12 @@ useEffect(() => {
 
     setDashboard(json);
 
-    await loadSales(1);   // <-- AGREGAR ESTA LÍNEA
+console.log(
+  "ADMIN DASHBOARD",
+  json.stats
+);
 
-    console.log(
-      "Affiliate Dashboard",
-      json
-    );
+await loadSales(1);
 
   }
 
