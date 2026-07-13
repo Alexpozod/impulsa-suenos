@@ -625,14 +625,8 @@ dashboard.generatedAt
 
 <td className="text-green-400 font-medium">
 
-{"$" + Math.round(
-
-sale.total *
-
-dashboard.affiliate.commissionPercent /
-
-100
-
+{"$" + Number(
+  sale.commission ?? 0
 ).toLocaleString("es-CL")}
 
 </td>
@@ -943,10 +937,8 @@ Detalles
 
                 <Info
                 label="Comisión"
-                value={`$${Math.round(
-                (selectedSale?.total ?? 0) *
-                dashboard?.affiliate?.commissionPercent /
-                100
+                value={`$${Number(
+                selectedSale?.commission ?? 0
                 ).toLocaleString("es-CL")}`}
                 />
 
