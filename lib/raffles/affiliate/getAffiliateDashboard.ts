@@ -231,7 +231,12 @@ order?.id ?? null,
 paymentId:
 payment?.id ?? null,
 
-paymentReference
+paymentReference,
+
+metadata,
+
+commercial:
+  metadata.commercial ?? null
 
 }
 
@@ -374,10 +379,8 @@ const netCommissionableSales =
       sum +
 
       Number(
-
-        row.metadata?.commercial
+        row.commercial
           ?.netCommercialAmount ?? 0
-
       ),
 
     0
