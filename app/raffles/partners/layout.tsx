@@ -106,13 +106,14 @@ export default function PartnersLayout({
             >
 
               <img
-                src="/favicon-removebg-preview.png"
-                alt="Partners"
+                src="/logo-email.png"
+                alt="ImpulsaSueños Partners"
                 className="
                   w-10
                   h-10
                   object-contain
                 "
+                draggable={false}
               />
 
               <div>
