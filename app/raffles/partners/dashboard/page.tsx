@@ -224,11 +224,12 @@ const paginatedSales =
 
   <div className="flex items-center gap-4">
 
-    <img
-      src="/favicon-removebg-preview.png"
-      alt="Partners"
-      className="w-12 h-12"
-    />
+   <img
+  src="/logo-email.png"
+  alt="ImpulsaSueños Partners"
+  className="w-12 h-12 object-contain"
+  draggable={false}
+/>
 
     <div>
 
