@@ -10,7 +10,8 @@ export async function sendTicketsEmail({
 
   email,
   raffleTitle,
-  tickets
+  tickets,
+  digitalResources = []
 
 }: {
 
@@ -19,6 +20,18 @@ export async function sendTicketsEmail({
   raffleTitle: string
 
   tickets: any[]
+
+  digitalResources?: {
+
+    title: string
+
+    description: string
+
+    downloadUrl: string
+
+    expiresInDays: number
+
+  }[]
 
 }) {
 
