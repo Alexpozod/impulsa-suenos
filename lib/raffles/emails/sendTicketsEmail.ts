@@ -112,6 +112,62 @@ ${list}
 
 </div>
 
+${
+digitalResources.length > 0
+? `
+
+<div style="margin-top:32px;padding:24px;background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;">
+
+<div style="font-size:22px;font-weight:bold;color:#111827;margin-bottom:10px;">
+🎁 Tus recursos digitales
+</div>
+
+<p style="color:#475569;font-size:15px;line-height:1.7;margin-bottom:22px;">
+Como agradecimiento por tu participación, hemos preparado estos recursos digitales para ti.
+Los enlaces de descarga estarán disponibles durante <strong>7 días</strong>.
+Te recomendamos descargar y guardar los archivos en tu dispositivo antes de que expire el período de acceso.
+</p>
+
+${digitalResources.map(resource => `
+
+<div style="padding:16px;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:14px;">
+
+<div style="font-size:18px;font-weight:bold;color:#0f172a;">
+${resource.title}
+</div>
+
+<div style="margin-top:6px;color:#64748b;font-size:15px;line-height:1.6;">
+${resource.description}
+</div>
+
+<div style="margin-top:18px;">
+
+<a
+href="${resource.downloadUrl}"
+style="
+display:inline-block;
+background:#0891b2;
+color:#ffffff;
+text-decoration:none;
+padding:12px 22px;
+border-radius:10px;
+font-weight:bold;
+">
+⬇ Descargar
+</a>
+
+</div>
+
+</div>
+
+`).join("")}
+
+</div>
+
+`
+: ""
+}
+
 <div style="margin-top:35px;text-align:center;">
 
 <a
