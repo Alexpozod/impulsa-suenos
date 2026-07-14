@@ -8,6 +8,10 @@ import {
   sendTicketsEmail
 } from "@/lib/raffles/emails/sendTicketsEmail"
 
+import {
+  getResourcesForQuantity
+} from "@/lib/raffles/purchase-resources"
+
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -68,24 +72,31 @@ export async function sendNotifications(
   try {
 
     if (
-      context.order.buyer_email
-    ) {
+  context.order.buyer_email
+) {
 
-      await sendTicketsEmail({
+  const digitalResources =
+    await getResourcesForQuantity(
+      context.order.quantity
+    )
 
-        email:
-          context.order.buyer_email,
+  await sendTicketsEmail({
 
-        raffleTitle:
-          context.raffle.title ||
-          "Sorteo",
+    email:
+      context.order.buyer_email,
 
-        tickets:
-  context.tickets ?? []
+    raffleTitle:
+      context.raffle.title ||
+      "Sorteo",
 
-      })
+    tickets:
+      context.tickets ?? [],
 
-    }
+    digitalResources
+
+  })
+
+}
 
   } catch (error) {
 
