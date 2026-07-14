@@ -11,14 +11,27 @@ export const PURCHASE_RESOURCES:
   1: [
 
     {
-      title:
-        "Guía Principal",
+      title: "Manual de Educación Financiera",
+      description: "Aprende conceptos fundamentales para mejorar tu organización financiera.",
+      storagePath: "Manual_Educacion_Financiera_ImpulsaSuenos.pdf"
+    },
 
-      description:
-        "Aprende a sacar el máximo provecho a tu participación.",
+    {
+      title: "Planificador Financiero en Excel",
+      description: "Planifica ingresos, gastos y objetivos utilizando una plantilla práctica.",
+      storagePath: "Planificador_Excel_ImpulsaSuenos_2.0.xlsx"
+    },
 
-      storagePath:
-        "guia-principal.pdf"
+    {
+      title: "Guía y Carta de Negociación de Deudas",
+      description: "Modelo práctico para preparar conversaciones y negociaciones con tus acreedores.",
+      storagePath: "Guia_y_Carta_Negociacion_Deudas.pdf"
+    },
+
+    {
+      title: "Planificador de Hábitos",
+      description: "Herramienta para crear hábitos financieros positivos y hacer seguimiento de tu progreso.",
+      storagePath: "Planificador_Habitos_ImpulsaSuenos.pdf"
     }
 
   ],
@@ -26,25 +39,27 @@ export const PURCHASE_RESOURCES:
   3: [
 
     {
-      title:
-        "Guía Principal",
-
-      description:
-        "Aprende a sacar el máximo provecho a tu participación.",
-
-      storagePath:
-        "guia-principal.pdf"
+      title: "Manual de Educación Financiera",
+      description: "Aprende conceptos fundamentales para mejorar tu organización financiera.",
+      storagePath: "Manual_Educacion_Financiera_ImpulsaSuenos.pdf"
     },
 
     {
-      title:
-        "Checklist",
+      title: "Planificador Financiero en Excel",
+      description: "Planifica ingresos, gastos y objetivos utilizando una plantilla práctica.",
+      storagePath: "Planificador_Excel_ImpulsaSuenos_2.0.xlsx"
+    },
 
-      description:
-        "Lista práctica para organizar tus objetivos.",
+    {
+      title: "Guía y Carta de Negociación de Deudas",
+      description: "Modelo práctico para preparar conversaciones y negociaciones con tus acreedores.",
+      storagePath: "Guia_y_Carta_Negociacion_Deudas.pdf"
+    },
 
-      storagePath:
-        "checklist.pdf"
+    {
+      title: "Planificador de Hábitos",
+      description: "Herramienta para crear hábitos financieros positivos y hacer seguimiento de tu progreso.",
+      storagePath: "Planificador_Habitos_ImpulsaSuenos.pdf"
     }
 
   ],
@@ -52,36 +67,27 @@ export const PURCHASE_RESOURCES:
   5: [
 
     {
-      title:
-        "Guía Principal",
-
-      description:
-        "Aprende a sacar el máximo provecho a tu participación.",
-
-      storagePath:
-        "guia-principal.pdf"
+      title: "Manual de Educación Financiera",
+      description: "Aprende conceptos fundamentales para mejorar tu organización financiera.",
+      storagePath: "Manual_Educacion_Financiera_ImpulsaSuenos.pdf"
     },
 
     {
-      title:
-        "Checklist",
-
-      description:
-        "Lista práctica para organizar tus objetivos.",
-
-      storagePath:
-        "checklist.pdf"
+      title: "Planificador Financiero en Excel",
+      description: "Planifica ingresos, gastos y objetivos utilizando una plantilla práctica.",
+      storagePath: "Planificador_Excel_ImpulsaSuenos_2.0.xlsx"
     },
 
     {
-      title:
-        "Plantillas",
+      title: "Guía y Carta de Negociación de Deudas",
+      description: "Modelo práctico para preparar conversaciones y negociaciones con tus acreedores.",
+      storagePath: "Guia_y_Carta_Negociacion_Deudas.pdf"
+    },
 
-      description:
-        "Recursos adicionales para complementar tu compra.",
-
-      storagePath:
-        "plantillas.pdf"
+    {
+      title: "Planificador de Hábitos",
+      description: "Herramienta para crear hábitos financieros positivos y hacer seguimiento de tu progreso.",
+      storagePath: "Planificador_Habitos_ImpulsaSuenos.pdf"
     }
 
   ]
