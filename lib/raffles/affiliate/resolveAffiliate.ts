@@ -63,7 +63,22 @@ export async function resolveAffiliate(
       ),
 
     commissionAmount:
-      0
+      0,
+
+    bonusQuantity1:
+      Number(
+        data.bonus_quantity_1 ?? 0
+      ),
+
+    bonusQuantity3:
+      Number(
+        data.bonus_quantity_3 ?? 0
+      ),
+
+    bonusQuantity5:
+      Number(
+        data.bonus_quantity_5 ?? 0
+      )
 
   }
 
