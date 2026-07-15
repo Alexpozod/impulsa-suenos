@@ -14,4 +14,10 @@ export interface AffiliateResult {
 
   commissionAmount?: number
 
+  bonusQuantity1?: number
+
+  bonusQuantity3?: number
+
+  bonusQuantity5?: number
+
 }
