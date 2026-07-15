@@ -543,12 +543,11 @@ if (commercial) {
   <h2
   className="
     text-3xl
-      md:text-[40px]
-      font-black
-      leading-none
-      tracking-tight
-      mb-4
-    mb-3
+    md:text-[40px]
+    font-black
+    leading-none
+    tracking-tight
+    mb-4
   "
 >
     {raffle.prize_title}
@@ -564,8 +563,8 @@ if (commercial) {
         border-slate-800
         bg-slate-950/40
         p-4
-        text-[13px]
-        leading-7
+        text-[14px]
+        leading-8
         text-slate-300
         whitespace-pre-line
       "
@@ -704,22 +703,25 @@ text-slate-950
               className="
                 mt-5
                 text-slate-300
-                text-[15px]
-                leading-8
-                tracking-[0.01em]
-                max-w-[680px]
+                text-[14px]
+                leading-7
+                max-w-[640px]
               "
             >
   
-<p>
-  {raffle.description}
-</p>
+    <p
+      className="
+        whitespace-pre-line
+      "
+    >
+      {raffle.description}
+    </p>
 
   {raffle.end_date && (
 
   <div
     className="
-      mt-5
+      mt-7
       inline-flex
       items-center
       px-4
