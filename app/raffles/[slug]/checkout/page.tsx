@@ -69,6 +69,9 @@ const [marketingConsent, setMarketingConsent] =
 const [loadingQuote, setLoadingQuote] =
   useState(false)
 
+  const [packQuotes, setPackQuotes] =
+useState<any[]>([])
+
 useEffect(() => {
 
   if (!raffle?.id) {
@@ -77,7 +80,9 @@ useEffect(() => {
 
   }
 
-  loadQuote()
+loadQuote()
+
+loadPackQuotes()
 
 }, [
 
@@ -177,6 +182,71 @@ async function loadQuote() {
   finally {
 
     setLoadingQuote(false)
+
+  }
+
+}
+
+async function loadPackQuotes() {
+
+  if (!raffle?.id) {
+
+    return
+
+  }
+
+  try {
+
+    const res =
+      await fetch(
+
+        "/api/raffles/quote/options",
+
+        {
+
+          method:"POST",
+
+          headers:{
+
+            "Content-Type":"application/json"
+
+          },
+
+          body:JSON.stringify({
+
+            raffle_id:
+              raffle.id,
+
+            commercialCode
+
+          })
+
+        }
+
+      )
+
+    if (!res.ok) {
+
+      setPackQuotes([])
+
+      return
+
+    }
+
+    const json =
+      await res.json()
+
+    setPackQuotes(
+      json.packs ?? []
+    )
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+    setPackQuotes([])
 
   }
 
