@@ -551,6 +551,21 @@ if (commercial) {
 >
     {raffle.prize_title}
   </h2>
+
+  {raffle.prize_description && (
+
+  <h2
+    className="
+      text-xl
+      font-semibold
+      text-slate-200
+      mb-4
+    "
+  >
+    {raffle.prize_description}
+  </h2>
+
+)}
   
 </div>
 
@@ -675,30 +690,15 @@ text-slate-950
 </h1>
 
              <div
-  className="
-    mt-6
-    text-slate-300
-    text-lg
-    leading-relaxed
-    max-w-xl
-  "
->
-
-  {raffle.prize_description && (
-
-  <h2
-    className="
-      text-xl
-      font-semibold
-      text-slate-200
-      mb-4
-    "
-  >
-    {raffle.prize_description}
-  </h2>
-
-)}
-
+              className="
+                mt-6
+                text-slate-300
+                text-base
+                leading-relaxed
+                max-w-xl
+              "
+            >
+  
 <p>
   {raffle.description}
 </p>
