@@ -543,9 +543,11 @@ if (commercial) {
   <h2
   className="
     text-3xl
-    md:text-4xl
-    font-black
-    leading-tight
+      md:text-[40px]
+      font-black
+      leading-none
+      tracking-tight
+      mb-4
     mb-3
   "
 >
@@ -562,9 +564,8 @@ if (commercial) {
         border-slate-800
         bg-slate-950/40
         p-4
-        text-xs
-        md:text-sm
-        leading-6
+        text-[13px]
+        leading-7
         text-slate-300
         whitespace-pre-line
       "
@@ -705,7 +706,8 @@ text-slate-950
                 text-slate-300
                 text-[15px]
                 leading-8
-                max-w-2xl
+                tracking-[0.01em]
+                max-w-[680px]
               "
             >
   
