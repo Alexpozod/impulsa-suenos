@@ -26,6 +26,12 @@ useState("")
 const [bonusQuantity,setBonusQuantity] =
 useState("1")
 
+const [discountType,setDiscountType] =
+useState("fixed")
+
+const [discountValue,setDiscountValue] =
+useState("0")
+
 const [minQuantity,setMinQuantity] =
 useState("1")
 
@@ -509,6 +515,16 @@ rule.bonus_quantity || 0
 )
 )
 
+setDiscountType(
+rule.discount_type || "fixed"
+)
+
+setDiscountValue(
+String(
+rule.discount_value || 0
+)
+)
+
 setMinQuantity(
 String(
 rule.min_quantity || 1
@@ -803,6 +819,47 @@ p-3
 "
 />
 
+<select
+value={discountType}
+onChange={(e)=>
+setDiscountType(
+e.target.value
+)
+}
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-xl
+p-3
+"
+>
+
+<option value="fixed">
+Descuento fijo
+</option>
+
+<option value="percentage">
+Descuento %
+</option>
+
+</select>
+
+<input
+placeholder="Valor descuento"
+value={discountValue}
+onChange={(e)=>
+setDiscountValue(
+e.target.value
+)
+}
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-xl
+p-3
+"/>
 <input
 placeholder="Compra mínima requerida"
 value={minQuantity}
@@ -902,6 +959,14 @@ Number(
 bonusQuantity
 ),
 
+discount_type:
+discountType,
+
+discount_value:
+Number(
+discountValue
+),
+
 min_quantity:
 Number(
 minQuantity
@@ -920,6 +985,12 @@ priority
 
 setCode("")
 setName("")
+
+setBonusQuantity("1")
+
+setDiscountType("fixed")
+
+setDiscountValue("0")
 
 setEditingId("")
 
