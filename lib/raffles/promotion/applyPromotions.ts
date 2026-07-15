@@ -156,10 +156,55 @@ Number(
 selectedRule?.bonus_quantity || 0
 )
 
+let discount = 0
+
+if (
+
+selectedRule?.discount_type === "fixed"
+
+) {
+
+discount = Number(
+
+selectedRule.discount_value || 0
+
+)
+
+}
+
+else if (
+
+selectedRule?.discount_type === "percentage"
+
+) {
+
+discount =
+
+Math.round(
+
+context.subtotal *
+
+(
+
+Number(
+
+selectedRule.discount_value || 0
+
+) / 100
+
+)
+
+)
+
+}
+
 return {
 
 applied:
-totalBonus > 0,
+
+totalBonus > 0 ||
+
+discount > 0,
 
 promotionId:
 selectedRule?.id,
@@ -173,7 +218,7 @@ selectedRule?.name,
 bonusQuantity:
 totalBonus,
 
-discount:0
+discount
 
 }
 
