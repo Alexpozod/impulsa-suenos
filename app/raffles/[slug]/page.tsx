@@ -687,24 +687,25 @@ text-slate-950
 </div>
 
               <h1
-  className="
-    text-3xl
-    md:text-4xl
-    lg:text-4xl
-    font-black
-    leading-tight
-  "
->
+                className="
+                  text-3xl
+                  md:text-[44px]
+                  font-black
+                  leading-none
+                  tracking-tight
+                  mb-5
+                "
+              >
   {raffle.title}
 </h1>
 
              <div
               className="
-                mt-6
+                mt-5
                 text-slate-300
-                text-base
-                leading-relaxed
-                max-w-xl
+                text-[15px]
+                leading-8
+                max-w-2xl
               "
             >
   
