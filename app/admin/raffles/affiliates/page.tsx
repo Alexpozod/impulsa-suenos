@@ -20,6 +20,15 @@ useState("")
 const [commission, setCommission] =
 useState("10")
 
+const [bonus1, setBonus1] =
+useState("1")
+
+const [bonus3, setBonus3] =
+useState("2")
+
+const [bonus5, setBonus5] =
+useState("5")
+
 const [saving, setSaving] =
 useState(false)
 
@@ -81,7 +90,16 @@ async function createAffiliate() {
             owner_email: email,
 
             commission_percent:
-              Number(commission)
+            Number(commission),
+
+            bonus_quantity_1:
+            Number(bonus1),
+
+            bonus_quantity_3:
+            Number(bonus3),
+
+            bonus_quantity_5:
+            Number(bonus5)
 
           })
 
@@ -105,6 +123,11 @@ async function createAffiliate() {
     setCode("")
     setEmail("")
     setCommission("10")
+    setBonus1("1")
+
+    setBonus3("2")
+
+    setBonus5("5")
 
     await load()
 
@@ -172,7 +195,7 @@ Nuevo Influencer
 <div
 className="
 grid
-md:grid-cols-3
+md:grid-cols-6
 gap-3
 "
 >
@@ -238,6 +261,68 @@ px-4
 py-3
 "
 
+/>
+
+<input
+
+value={bonus1}
+
+onChange={(e)=>
+setBonus1(e.target.value)
+}
+
+placeholder="Bonus compra 1"
+
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-2xl
+px-4
+py-3
+"
+
+/>
+
+<input
+
+value={bonus3}
+
+onChange={(e)=>
+setBonus3(e.target.value)
+}
+
+placeholder="Bonus compra 3"
+
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-2xl
+px-4
+py-3
+"
+
+/>
+
+<input
+
+value={bonus5}
+
+onChange={(e)=>
+setBonus5(e.target.value)
+}
+
+placeholder="Bonus compra 5"
+
+className="
+bg-slate-950
+border
+border-slate-700
+rounded-2xl
+px-4
+py-3
+"
 />
 
 </div>

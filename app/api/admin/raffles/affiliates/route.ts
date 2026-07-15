@@ -95,7 +95,13 @@ export async function POST(
 
       code,
       owner_email,
-      commission_percent
+      commission_percent,
+
+      bonus_quantity_1,
+
+      bonus_quantity_3,
+
+      bonus_quantity_5
 
     } = body
 
@@ -111,6 +117,15 @@ String(owner_email)
 
 const normalizedCommission =
 Number(commission_percent)
+
+const normalizedBonus1 =
+Number(bonus_quantity_1 ?? 0)
+
+const normalizedBonus3 =
+Number(bonus_quantity_3 ?? 0)
+
+const normalizedBonus5 =
+Number(bonus_quantity_5 ?? 0)
 
 if (
 
@@ -215,7 +230,16 @@ owner_email:
   normalizedEmail,
 
           commission_percent:
-normalizedCommission,
+          normalizedCommission,
+
+          bonus_quantity_1:
+          normalizedBonus1,
+
+          bonus_quantity_3:
+          normalizedBonus3,
+
+          bonus_quantity_5:
+          normalizedBonus5,
 
           active: true
 
