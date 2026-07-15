@@ -401,6 +401,24 @@ Comisión
 
 </th>
 
+<th className="p-4 text-center">
+
++1
+
+</th>
+
+<th className="p-4 text-center">
+
++3
+
+</th>
+
+<th className="p-4 text-center">
+
++5
+
+</th>
+
 <th className="p-4 text-left">
 
 Estado
@@ -430,7 +448,7 @@ Acciones
 <tr>
 
 <td
-colSpan={6}
+colSpan={9}
 className="p-10 text-center text-slate-500"
 >
 
@@ -448,7 +466,7 @@ affiliates.length===0 && (
 <tr>
 
 <td
-colSpan={6}
+colSpan={9}
 className="p-10 text-center text-slate-500"
 >
 
@@ -483,6 +501,24 @@ className="border-b border-slate-800"
 <td className="p-4">
 
 {item.commission_percent}%
+
+</td>
+
+<td className="p-4 text-center">
+
++{item.bonus_quantity_1}
+
+</td>
+
+<td className="p-4 text-center">
+
++{item.bonus_quantity_3}
+
+</td>
+
+<td className="p-4 text-center">
+
++{item.bonus_quantity_5}
 
 </td>
 
