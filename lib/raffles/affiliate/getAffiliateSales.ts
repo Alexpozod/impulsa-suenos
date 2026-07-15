@@ -189,7 +189,13 @@ const commissionMap =
 
         buyerPhone: order.buyer_phone,
 
-        quantity: order.quantity,
+        quantity:
+
+        ((order.metadata as any)?.quote?.finalQuantity)
+
+        ??
+
+        order.quantity,
 
         total: Number(order.total_clp ?? 0),
 
