@@ -554,18 +554,27 @@ if (commercial) {
 
   {raffle.prize_description && (
 
-  <h2
-    className="
-      text-xl
-      font-semibold
-      text-slate-200
-      mb-4
-    "
-  >
-    {raffle.prize_description}
-  </h2>
+    <div
+      className="
+        mt-5
+        rounded-xl
+        border
+        border-slate-800
+        bg-slate-950/40
+        p-4
+        text-xs
+        md:text-sm
+        leading-6
+        text-slate-300
+        whitespace-pre-line
+      "
+    >
 
-)}
+    {raffle.prize_description}
+
+    </div>
+
+    )}
   
 </div>
 
