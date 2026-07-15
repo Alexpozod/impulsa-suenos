@@ -73,9 +73,21 @@ const bonusQuantity =
 
 Math.max(
 
-rules.promotion.bonusQuantity,
+  rules.promotion.bonusQuantity,
 
-rules.coupon?.bonusQuantity ?? 0
+  rules.coupon?.bonusQuantity ?? 0,
+
+  rules.affiliate?.found
+    ? (
+        input.quantity === 1
+          ? (rules.affiliate.bonusQuantity1 ?? 0)
+        : input.quantity === 3
+          ? (rules.affiliate.bonusQuantity3 ?? 0)
+        : input.quantity === 5
+          ? (rules.affiliate.bonusQuantity5 ?? 0)
+        : 0
+      )
+    : 0
 
 )
 
