@@ -829,31 +829,149 @@ if (!res.ok) {
                   >
 
   <>
-  <div className="text-sm">
 
-    {value === 1
-  ? "Básico"
-  : value === 3
-  ? "Popular ⭐"
-  : "Recomendado 🔥"}
+{(() => {
 
-  </div>
+const pack =
 
-  <div
-  className={`
-    text-xs
-    mt-1
-    ${
-      active
+packQuotes.find(
+
+(p:any)=>
+
+p.requestedQuantity === value
+
+)
+
+const subtotal =
+Number(
+pack?.subtotal ??
+Number(
+raffle.ticket_price_clp
+) * value
+)
+
+const discount =
+Number(
+pack?.discount ?? 0
+)
+
+const total =
+Number(
+pack?.total ?? subtotal
+)
+
+return (
+
+<>
+
+<div className="text-sm font-bold">
+
+{value === 1
+
+? "Básico"
+
+: value === 3
+
+? "Popular ⭐"
+
+: "Recomendado 🔥"}
+
+</div>
+
+<div
+className={`
+text-xs
+mt-1
+${
+active
+
 ? "text-slate-800"
-        : "text-slate-400"
-    }
-  `}
+
+: "text-slate-400"
+}
+`}
 >
 
-    {value} participación{value > 1 ? "es" : ""}
+{value} participación{value>1?"es":""}
 
-  </div>
+</div>
+
+{
+
+discount > 0 && (
+
+<div
+className={`
+text-[11px]
+line-through
+mt-2
+${
+active
+
+? "text-slate-700"
+
+: "text-slate-500"
+}
+`}
+>
+
+$
+
+{subtotal.toLocaleString("es-CL")}
+
+</div>
+
+)
+
+}
+
+{
+
+discount > 0 && (
+
+<div
+className={`
+text-[11px]
+font-semibold
+${
+active
+
+? "text-emerald-800"
+
+: "text-emerald-400"
+}
+`}
+>
+
+💰 Ahorras $
+
+{discount.toLocaleString("es-CL")}
+
+</div>
+
+)
+
+}
+
+<div
+className="
+text-lg
+font-black
+mt-1
+"
+>
+
+$
+
+{total.toLocaleString("es-CL")}
+
+</div>
+
+</>
+
+)
+
+})()}
 
 </>
 
