@@ -128,6 +128,20 @@ const formValid =
   coverImageValid &&
   datesValid
 
+  console.table({
+  titleValid,
+  slugValid,
+  descriptionValid,
+  prizeTitleValid,
+  prizeDescriptionValid,
+  ticketPriceValid,
+  ticketRangeValid,
+  minGoalValid,
+  coverImageValid,
+  datesValid,
+  formValid
+})
+
     async function uploadCoverImage(
   file: File
 ) {
