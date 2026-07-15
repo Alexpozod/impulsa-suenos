@@ -236,6 +236,8 @@ async function loadPackQuotes() {
     const json =
       await res.json()
 
+      console.log("PACK QUOTES", json)
+
     setPackQuotes(
       json.packs ?? []
     )
