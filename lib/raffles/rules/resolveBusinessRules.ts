@@ -192,9 +192,16 @@ const coupon =
           : undefined,
 
       bonusQuantity:
-        winningRule === "promotion"
+
+        (winningRule === "promotion"
           ? promotion.bonusQuantity
-          : 0,
+          : 0)
+
+        +
+
+        (affiliate?.found
+          ? commercial.bonusQuantity
+          : 0),
 
       discount:
         winningRule === "promotion"
@@ -205,7 +212,7 @@ const coupon =
 
     affiliate:
 
-      winningRule === "affiliate"
+      affiliate?.found
         ? affiliate
         : null,
 
