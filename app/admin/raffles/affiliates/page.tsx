@@ -32,6 +32,12 @@ useState("5")
 const [saving, setSaving] =
 useState(false)
 
+const [editingId, setEditingId] =
+useState("")
+
+const [active, setActive] =
+useState(true)
+
 useEffect(() => {
 
   load()
@@ -74,9 +80,20 @@ async function createAffiliate() {
 
     const res =
       await fetch(
-        "/api/admin/raffles/affiliates",
+
+      editingId
+
+      ? `/api/admin/raffles/affiliates/${editingId}/update`
+
+      : "/api/admin/raffles/affiliates",
         {
-          method: "POST",
+          method:
+
+          editingId
+
+          ? "PUT"
+
+          : "POST",
 
           headers: {
             "Content-Type":
@@ -99,7 +116,9 @@ async function createAffiliate() {
             Number(bonus3),
 
             bonus_quantity_5:
-            Number(bonus5)
+            Number(bonus5),
+
+            active
 
           })
 
@@ -128,6 +147,10 @@ async function createAffiliate() {
     setBonus3("2")
 
     setBonus5("5")
+
+    setEditingId("")
+
+    setActive(true)
 
     await load()
 
@@ -325,6 +348,36 @@ py-3
 "
 />
 
+<div
+className="
+flex
+items-center
+gap-3
+"
+>
+
+<input
+
+type="checkbox"
+
+checked={active}
+
+onChange={(e)=>
+setActive(
+e.target.checked
+)
+}
+
+/>
+
+<label>
+
+Influencer activo
+
+</label>
+
+</div>
+
 </div>
 
 <div className="flex gap-3">
@@ -347,8 +400,6 @@ disabled:opacity-50
 
 >
 
-{
-
 saving
 
 ?
@@ -357,11 +408,62 @@ saving
 
 :
 
+editingId
+
+?
+
+"💾 Guardar cambios"
+
+:
+
 "➕ Crear Influencer"
 
-}
+</button>
+
+{
+
+editingId && (
+
+<button
+
+onClick={()=>{
+
+setEditingId("")
+
+setCode("")
+
+setEmail("")
+
+setCommission("10")
+
+setBonus1("1")
+
+setBonus3("2")
+
+setBonus5("5")
+
+setActive(true)
+
+}}
+
+className="
+bg-slate-700
+hover:bg-slate-600
+px-5
+py-3
+rounded-2xl
+font-semibold
+"
+
+>
+
+Cancelar
 
 </button>
+
+)
+
+}
 
 </div>
 
@@ -590,6 +692,78 @@ text-xs
 }
 
 </div>
+
+<button
+
+onClick={()=>{
+
+setEditingId(
+item.id
+)
+
+setCode(
+item.code
+)
+
+setEmail(
+item.owner_email
+)
+
+setCommission(
+String(
+item.commission_percent
+)
+)
+
+setBonus1(
+String(
+item.bonus_quantity_1 ?? 0
+)
+)
+
+setBonus3(
+String(
+item.bonus_quantity_3 ?? 0
+)
+)
+
+setBonus5(
+String(
+item.bonus_quantity_5 ?? 0
+)
+)
+
+setActive(
+item.active
+)
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+})
+
+}}
+
+className="
+px-4
+py-2
+rounded-xl
+bg-amber-600
+hover:bg-amber-500
+text-white
+font-medium
+text-sm
+transition-colors
+"
+
+>
+
+✏️ Editar
+
+</button>
 
 <Link
 
