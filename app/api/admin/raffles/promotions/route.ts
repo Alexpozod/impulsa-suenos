@@ -126,6 +126,9 @@ export async function POST(
 
       bonus_quantity,
 
+      discount_type,
+      discount_value,
+
       min_quantity,
       max_quantity,
 
@@ -170,6 +173,12 @@ export async function POST(
 
           bonus_quantity:
             bonus_quantity ?? 0,
+
+          discount_type:
+            discount_type ?? null,
+
+          discount_value:
+            discount_value ?? 0,
 
           min_quantity:
             min_quantity ?? 1,
@@ -274,6 +283,9 @@ export async function PUT(
 
       bonus_quantity,
 
+      discount_type,
+      discount_value,
+
       min_quantity,
       max_quantity,
 
@@ -298,7 +310,7 @@ export async function PUT(
       await supabase
         .schema("raffles")
         .from("business_rules")
-        .update({
+                .update({
 
           type,
           code,
@@ -316,6 +328,9 @@ export async function PUT(
           value,
 
           bonus_quantity,
+
+          discount_type,
+          discount_value,
 
           min_quantity,
           max_quantity,
