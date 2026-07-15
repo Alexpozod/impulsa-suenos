@@ -63,47 +63,47 @@ export async function processCommercialReward(
 
   })
 
-  switch (commercialType) {
+  const affiliateCode =
 
-    case "affiliate":
+context.order.metadata?.tracking?.commercialCode
 
-      await processAffiliateCommission({
+??
 
-        payment_id:
+context.order.metadata?.quote?.affiliate?.code
 
-          context.payment.id,
+??
 
-        raffle_id:
+null
 
-          context.order.raffle_id,
+if (affiliateCode) {
 
-        order_id:
+  await processAffiliateCommission({
 
-          context.order.id,
+    payment_id:
+      context.payment.id,
 
-        amount:
+    raffle_id:
+      context.order.raffle_id,
 
-            commercial.netCommercialAmount,
+    order_id:
+      context.order.id,
 
-        commercial:
+    amount:
+      commercial.netCommercialAmount,
 
-          commercial
+    commercial
 
-      })
+  })
 
-      break
+}
 
-    case "referral":
+if (commercialType === "referral") {
 
-      await processReferralReward(
+  await processReferralReward(
+    context
+  )
 
-        context
-
-      )
-
-      break
-
-  }
+}
 
   return context
 
