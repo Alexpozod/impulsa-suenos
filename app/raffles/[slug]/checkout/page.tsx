@@ -591,15 +591,12 @@ console.log(
 
 if (json?.url) {
 
-  localStorage.setItem(
-    "last_raffle_order_id",
-    json.order_id
-  )
+  console.log("FLOW RESPONSE", json)
 
-  window.location.href =
-    `${json.url}?token=${json.token}`
+  alert(json.url)
 
   return
+
 }
 
 if (!res.ok) {
