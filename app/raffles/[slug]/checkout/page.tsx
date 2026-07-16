@@ -771,28 +771,7 @@ if (!res.ok) {
   </div>
 
 </div>
-
-          <div
-            className="
-              bg-slate-950
-              border
-              border-slate-800
-              rounded-2xl
-              p-4
-            "
-          >
-
-            <div className="text-slate-400 text-sm">
-              Valor participación
-            </div>
-
-            <div className="text-3xl font-black mt-2 mb-6">
-              $
-              {Number(
-                raffle.ticket_price_clp
-              ).toLocaleString("es-CL")}
-            </div>
-
+          
             <div
   className="
     grid
@@ -984,85 +963,10 @@ $
               })}
 
             </div>
-
-            <div
-              className="
-                mt-6
-                border
-                border-slate-800
-                rounded-2xl
-                p-4
-              "
-            >
-
-<div className="flex justify-between text-slate-400 mb-2">
-
-  <span>
-    Premio
-  </span>
-
-  <span
-    className="
-      max-w-[180px]
-      text-right
-      truncate
-    "
-  >
-    {raffle.prize_title}
-  </span>
-
-</div>
-
-<div className="flex justify-between text-slate-400 mb-2">
-
-  <span>
-    Valor participación
-  </span>
-
-  <span>
-
-    $
-    {Number(
-      raffle.ticket_price_clp
-    ).toLocaleString("es-CL")}
-
-  </span>
-
-</div>
-              
+                          
             </div>
 
           </div>
-
-<div
-  className="
-    mt-6
-    bg-slate-950
-    border
-    border-slate-800
-    rounded-2xl
-    p-4
-    space-y-3
-  "
->
-
-  <div>
-    🔒 Pago seguro mediante Flow
-  </div>
-
-  <div>
-    🎟️ Participaciones asignadas automáticamente
-  </div>
-
-  <div>
-    📧 Confirmación enviada por correo
-  </div>
-
-  <div>
-    🏆 Sorteo verificable y ganador público
-  </div>
-
-</div>
 
           <div
             className="
