@@ -795,11 +795,11 @@ if (!res.ok) {
                       setQuantity(value)
                     }
                    className={`
-  py-4
-  px-3
-  rounded-xl
-  border
-  font-bold
+                      py-4
+                      px-3
+                      rounded-xl
+                      border
+                      font-bold
 
                       ${
                         active
@@ -809,164 +809,160 @@ if (!res.ok) {
                     `}
                   >
 
-  <>
+                    <>
 
-{(() => {
+                  {(() => {
 
-const pack =
+                  const pack =
 
-packQuotes.find(
+                  packQuotes.find(
 
-(p:any)=>
+                  (p:any)=>
 
-p.requestedQuantity === value
+                  p.requestedQuantity === value
 
-)
+                  )
 
-const subtotal =
-Number(
-pack?.subtotal ??
-Number(
-raffle.ticket_price_clp
-) * value
-)
+                  const subtotal =
+                  Number(
+                  pack?.subtotal ??
+                  Number(
+                  raffle.ticket_price_clp
+                  ) * value
+                  )
 
-const discount =
-Number(
-pack?.discount ?? 0
-)
+                  const discount =
+                  Number(
+                  pack?.discount ?? 0
+                  )
 
-const total =
-Number(
-pack?.total ?? subtotal
-)
+                  const total =
+                  Number(
+                  pack?.total ?? subtotal
+                  )
 
-return (
+                  return (
 
-<>
+                  <>
 
-<div className="text-sm font-bold">
+                  <div className="text-sm font-bold">
 
-{value === 1
+                  {value === 1
 
-? "Básico"
+                  ? "Básico"
 
-: value === 3
+                  : value === 3
 
-? "Popular ⭐"
+                  ? "Popular ⭐"
 
-: "Recomendado 🔥"}
+                  : "Recomendado 🔥"}
 
-</div>
+                  </div>
 
-<div
-className={`
-text-xs
-mt-1
-${
-active
+                  <div
+                  className={`
+                  text-xs
+                  mt-1
+                  ${
+                  active
 
-? "text-slate-800"
+                  ? "text-slate-800"
 
-: "text-slate-400"
-}
-`}
->
+                  : "text-slate-400"
+                  }
+                  `}
+                  >
 
-{value} participación{value>1?"es":""}
+                  {value} participación{value>1?"es":""}
 
-</div>
+                  </div>
 
-{
+                  {
 
-discount > 0 && (
+                  discount > 0 && (
 
-<div
-className={`
-text-[11px]
-line-through
-mt-2
-${
-active
+                  <div
+                  className={`
+                  text-[11px]
+                  line-through
+                  mt-2
+                  ${
+                  active
 
-? "text-slate-700"
+                  ? "text-slate-700"
 
-: "text-slate-500"
-}
-`}
->
+                  : "text-slate-500"
+                  }
+                  `}
+                  >
 
-$
+                  $
 
-{subtotal.toLocaleString("es-CL")}
+                  {subtotal.toLocaleString("es-CL")}
 
-</div>
+                  </div>
 
-)
+                  )
 
-}
+                  }
 
-{
+                  {
 
-discount > 0 && (
+                  discount > 0 && (
 
-<div
-className={`
-text-[11px]
-font-semibold
-${
-active
+                  <div
+                  className={`
+                  text-[11px]
+                  font-semibold
+                  ${
+                  active
 
-? "text-emerald-800"
+                  ? "text-emerald-800"
 
-: "text-emerald-400"
-}
-`}
->
+                  : "text-emerald-400"
+                  }
+                  `}
+                  >
 
-💰 Ahorras $
+                  💰 Ahorras $
 
-{discount.toLocaleString("es-CL")}
+                  {discount.toLocaleString("es-CL")}
 
-</div>
+                  </div>
 
-)
+                  )
 
-}
+                  }
 
-<div
-className="
-text-lg
-font-black
-mt-1
-"
->
+                  <div
+                  className="
+                  text-lg
+                  font-black
+                  mt-1
+                  "
+                  >
 
-$
+                  $
 
-{total.toLocaleString("es-CL")}
+                  {total.toLocaleString("es-CL")}
 
-</div>
+                  </div>
 
-</>
+                  </>
 
-)
+                  )
 
-})()}
+                  })()}
 
-</>
+                  </>
 
-</button>
+                  </button>
 
                 )
 
               })}
 
-            </div>
-                          
-            </div>
-
-          </div>
+                        </div>
 
           <div
             className="
