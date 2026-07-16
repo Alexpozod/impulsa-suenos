@@ -133,6 +133,16 @@ const s =
     `${process.env.FLOW_BASE_URL}/payment/create`
   )
 
+  console.log(
+  "FLOW API KEY",
+  process.env.FLOW_API_KEY?.substring(0,8)
+)
+
+console.log(
+  "FLOW BASE URL",
+  process.env.FLOW_BASE_URL
+)
+
   let response
 
   try {
