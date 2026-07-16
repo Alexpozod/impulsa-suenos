@@ -131,7 +131,17 @@ const s =
   console.log(
     "FLOW URL",
     `${process.env.FLOW_BASE_URL}/payment/create`
-  )
+    )
+
+    console.log(
+  "FLOW BASE URL",
+  process.env.FLOW_BASE_URL
+)
+
+console.log(
+  "FLOW API KEY",
+  process.env.FLOW_API_KEY?.substring(0, 8)
+)
 
   console.log(
   "FLOW API KEY",
@@ -212,5 +222,15 @@ console.log(
 
 }
 
-  return response.data
+  console.log(
+  "FLOW RESPONSE URL",
+  response.data.url
+)
+
+console.log(
+  "FLOW RESPONSE",
+  JSON.stringify(response.data, null, 2)
+)
+
+return response.data
 }
