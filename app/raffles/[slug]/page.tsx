@@ -91,6 +91,9 @@ const [selectedQty, setSelectedQty] =
 const [activeMedia, setActiveMedia] =
   useState(0)
 
+const [packQuotes, setPackQuotes] =
+  useState<any[]>([])
+
   useEffect(() => {
 
   loadRaffle()
@@ -208,6 +211,88 @@ if (commercial) {
 
   const winners =
   data?.winners || []
+
+async function loadPackQuotes() {
+
+  if (!raffle?.id) {
+
+    return
+
+  }
+
+  try {
+
+    const res =
+      await fetch(
+
+        "/api/raffles/quote/options",
+
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type": "application/json"
+
+          },
+
+          body: JSON.stringify({
+
+            raffle_id: raffle.id,
+
+            commercialCode:
+
+              searchParams.get("code")
+
+              ??
+
+              searchParams.get("aff")
+
+              ??
+
+              searchParams.get("ref")
+
+              ??
+
+              undefined
+
+          })
+
+        }
+
+      )
+
+    if (!res.ok) {
+
+      setPackQuotes([])
+
+      return
+
+    }
+
+    const json =
+      await res.json()
+
+    setPackQuotes(
+      json.packs ?? []
+    )
+
+  }
+
+  catch {
+
+    setPackQuotes([])
+
+  }
+
+}
+
+useEffect(() => {
+
+  loadPackQuotes()
+
+}, [raffle?.id])
     
   const countdown =
     useMemo(() => {
@@ -822,111 +907,174 @@ md:grid-cols-3
   "
 >
 
-  <button
-    type="button"
-    onClick={() => setSelectedQty(1)}
-    className={`rounded-xl py-3 px-3 border transition ${
-      selectedQty === 1
-  ? "bg-cyan-500 border-cyan-400 text-slate-950"
-        : "bg-slate-950 border-slate-800"
-    }`}
-  >
-    <div className="text-sm font-bold">
-      Básico
-    </div>
+  {[1, 3, 5].map(value => {
 
-    <div
-  className={`
-    text-xs
-    mt-1
-    ${
-      selectedQty === 1
-        ? "text-slate-700"
-        : "text-slate-400"
-    }
-  `}
+const active =
+  selectedQty === value
+
+const pack =
+  packQuotes.find(
+    (p:any)=>
+      p.requestedQuantity === value
+  )
+
+const subtotal =
+Number(
+  pack?.subtotal ??
+  Number(
+    raffle.ticket_price_clp
+  ) * value
+)
+
+const discount =
+Number(
+  pack?.discount ?? 0
+)
+
+const total =
+Number(
+  pack?.total ??
+  subtotal
+)
+
+return (
+
+<button
+key={value}
+type="button"
+onClick={() =>
+  setSelectedQty(value)
+}
+className={`
+rounded-xl
+py-3
+px-3
+border
+transition
+
+${
+active
+? "bg-cyan-500 border-cyan-400 text-slate-950"
+: "bg-slate-950 border-slate-800 text-slate-300"
+}
+`}
 >
-      1 participación
-    </div>
 
-   <div className="mt-2 font-black">
-      $
-      {Number(
-        raffle.ticket_price_clp
-      ).toLocaleString("es-CL")}
-    </div>
-  </button>
+<div className="text-sm font-bold">
 
-  <button
-    type="button"
-    onClick={() => setSelectedQty(3)}
-    className={`rounded-xl py-3 px-3 border transition ${
-      selectedQty === 3
-  ? "bg-cyan-500 border-cyan-400 text-slate-950"
-        : "bg-slate-950 border-slate-800"
-    }`}
-  >
-    <div className="text-sm font-bold">
-      Popular ⭐
-    </div>
+{value === 1
 
-    <div
-  className={`
-    text-xs
-    mt-1
-    ${
-      selectedQty === 3
-        ? "text-slate-700"
-        : "text-slate-400"
-    }
-  `}
+? "Básico"
+
+: value === 3
+
+? "Popular ⭐"
+
+: "Recomendado 🔥"}
+
+</div>
+
+<div
+className={`
+text-xs
+mt-1
+
+${
+active
+
+? "text-slate-700"
+
+: "text-slate-400"
+
+}
+`}
 >
-      3 participaciones
-    </div>
 
-    <div className="mt-2 font-black">
-      $
-      {Number(
-        raffle.ticket_price_clp * 3
-      ).toLocaleString("es-CL")}
-    </div>
-  </button>
+{value} participación{value>1?"es":""}
 
-  <button
-    type="button"
-    onClick={() => setSelectedQty(5)}
-    className={`rounded-xl py-3 px-3 border transition ${
-      selectedQty === 5
-  ? "bg-cyan-500 border-cyan-400 text-slate-950"
-        : "bg-slate-950 border-slate-800"
-    }`}
-  >
-    <div className="text-sm font-bold">
-      Recomendado 🔥
-    </div>
+</div>
 
-    <div
-  className={`
-    text-xs
-    mt-1
-    ${
-      selectedQty === 5
-        ? "text-slate-700"
-        : "text-slate-400"
-    }
-  `}
+{
+
+discount > 0 && (
+
+<div
+className={`
+text-[11px]
+line-through
+mt-2
+
+${
+active
+
+? "text-slate-700"
+
+: "text-slate-500"
+
+}
+`}
 >
-      5 participaciones
-    </div>
 
-    <div className="mt-2 font-black">
-      $
-      {Number(
-        raffle.ticket_price_clp * 5
-      ).toLocaleString("es-CL")}
-    </div>
-  </button>
-  
+$
+
+{subtotal.toLocaleString("es-CL")}
+
+</div>
+
+)
+
+}
+
+{
+
+discount > 0 && (
+
+<div
+className={`
+text-[11px]
+font-semibold
+
+${
+active
+
+? "text-emerald-800"
+
+: "text-emerald-400"
+
+}
+`}
+>
+
+💰 Ahorras $
+
+{discount.toLocaleString("es-CL")}
+
+</div>
+
+)
+
+}
+
+<div
+className="
+mt-1
+text-lg
+font-black
+"
+>
+
+$
+
+{total.toLocaleString("es-CL")}
+
+</div>
+
+</button>
+
+)
+
+})}
+
 </div>
 
 {
