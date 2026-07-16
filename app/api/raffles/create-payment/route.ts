@@ -818,22 +818,25 @@ if (commercialCode) {
 
     return NextResponse.json({
 
-      payment_id:
-        payment?.id,
+  payment_id:
+    payment?.id,
 
-      order_id:
-        order.id,
+  order_id:
+    order.id,
 
-      url:
-        flow.url,
+  url:
+    flow.url,
 
-      token:
-        flow.token,
+  token:
+    flow.token,
 
-      flowOrder:
-        flow.flowOrder
+  flowOrder:
+    flow.flowOrder,
 
-    })
+  debug:
+    flow.debug
+
+})
 
    } catch (error: any) {
 
