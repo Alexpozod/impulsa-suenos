@@ -565,21 +565,47 @@ quote.finalQuantity
     ========================================= */
 
     const flow =
-      await createFlowPayment({
+  await createFlowPayment({
 
-        orderId:
-          order.id,
+    orderId:
+      order.id,
 
-        amount:
-          totalCLP,
+    amount:
+      totalCLP,
 
-        email:
-          buyer_email,
+    email:
+      buyer_email,
 
-        subject:
-          `Compra tickets ${raffle.title}`
+    subject:
+      `Compra tickets ${raffle.title}`
 
-      })
+  })
+
+if ((flow as any)?.error) {
+
+  await releaseOrderReservations(
+    order.id
+  )
+
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .update({
+
+      status:
+        "cancelled"
+
+    })
+    .eq("id", order.id)
+
+  return NextResponse.json(
+    flow,
+    {
+      status: 500
+    }
+  )
+
+}
 
     if (!flow?.token) {
 

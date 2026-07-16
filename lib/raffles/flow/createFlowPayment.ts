@@ -168,36 +168,39 @@ console.log(
 
   } catch (error: any) {
 
-    console.error(
-      "FLOW AXIOS ERROR DATA",
+  console.error(
+    "FLOW AXIOS ERROR DATA",
+    error?.response?.data
+  )
+
+  console.error(
+    "FLOW AXIOS ERROR STATUS",
+    error?.response?.status
+  )
+
+  console.error(
+    "FLOW AXIOS ERROR HEADERS",
+    error?.response?.headers
+  )
+
+  console.error(
+    "FLOW AXIOS FULL ERROR",
+    error
+  )
+
+  return {
+
+    error: true,
+
+    status:
+      error?.response?.status,
+
+    data:
       error?.response?.data
-    )
 
-    console.error(
-      "FLOW AXIOS ERROR STATUS",
-      error?.response?.status
-    )
-
-    console.error(
-      "FLOW AXIOS ERROR HEADERS",
-      error?.response?.headers
-    )
-
-    console.error(
-      "FLOW AXIOS FULL ERROR",
-      error
-    )
-
-    throw new Error(
-      JSON.stringify({
-        data:
-          error?.response?.data,
-
-        status:
-          error?.response?.status
-      })
-    )
   }
+
+}
 
   return response.data
 }
