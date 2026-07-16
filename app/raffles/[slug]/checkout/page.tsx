@@ -727,10 +727,11 @@ if (!res.ok) {
       border
       border-slate-800
       rounded-xl
-      py-3
-      px-3
+      py-2
+      px-2
       text-center
-      text-sm
+      text-[13px]
+      leading-5
       text-slate-300
     "
   >
@@ -744,10 +745,11 @@ if (!res.ok) {
       border
       border-slate-800
       rounded-xl
-      py-3
-      px-3
+      py-2
+      px-2
       text-center
-      text-sm
+      text-[13px]
+      leading-5
       text-slate-300
     "
   >
@@ -760,10 +762,11 @@ if (!res.ok) {
       border
       border-slate-800
       rounded-xl
-      py-3
-      px-3
+      py-2
+      px-2
       text-center
-      text-sm
+      text-[13px]
+      leading-5
       text-slate-300
     "
   >
@@ -795,8 +798,8 @@ if (!res.ok) {
                       setQuantity(value)
                     }
                    className={`
-                      py-4
-                      px-3
+                      py-3
+                      px-2
                       rounded-xl
                       border
                       font-bold
@@ -862,7 +865,7 @@ if (!res.ok) {
                   <div
                   className={`
                   text-xs
-                  mt-1
+                  mt-0.5
                   ${
                   active
 
@@ -885,7 +888,7 @@ if (!res.ok) {
                   className={`
                   text-[11px]
                   line-through
-                  mt-2
+                  mt-1
                   ${
                   active
 
@@ -938,7 +941,7 @@ if (!res.ok) {
                   className="
                   text-lg
                   font-black
-                  mt-1
+                  mt-0.5
                   "
                   >
 
