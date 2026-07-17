@@ -589,6 +589,18 @@ console.log(
   json
 )
 
+if (json?.order_id) {
+
+  localStorage.setItem(
+
+    "last_raffle_order_id",
+
+    json.order_id
+
+  )
+
+}
+
 if (json?.url) {
 
   console.log("FLOW RESPONSE", json)
