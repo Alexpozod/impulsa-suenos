@@ -593,7 +593,8 @@ if (json?.url) {
 
   console.log("FLOW RESPONSE", json)
 
-  window.location.href = json.url
+  window.location.href =
+    `${json.url}?token=${json.token}`
 
   return
 
