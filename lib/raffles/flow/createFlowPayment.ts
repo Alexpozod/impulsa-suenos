@@ -157,19 +157,7 @@ console.log(
 
   try {
 
-    console.error("FLOW DEBUG", {
-  baseUrl: process.env.FLOW_BASE_URL,
-  apiKey: process.env.FLOW_API_KEY?.substring(0, 8),
-  endpoint: `${process.env.FLOW_BASE_URL}/payment/create`
-})
-
-console.error("FLOW DEBUG", {
-  baseUrl: process.env.FLOW_BASE_URL,
-  apiKey: process.env.FLOW_API_KEY?.substring(0, 8),
-  endpoint: `${process.env.FLOW_BASE_URL}/payment/create`
-})
-
-response =
+    response =
   await axios.post(
 
     `${process.env.FLOW_BASE_URL}/payment/create`,
