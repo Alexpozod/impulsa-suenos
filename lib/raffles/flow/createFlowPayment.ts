@@ -177,6 +177,46 @@ console.log(
   JSON.stringify(response.data, null, 2)
 )
 
+try {
+
+  const status = await axios.get(
+
+    `${process.env.FLOW_BASE_URL}/payment/getStatus`,
+
+    {
+
+      params: {
+
+        apiKey: process.env.FLOW_API_KEY,
+
+        token: response.data.token
+
+      }
+
+    }
+
+  )
+
+  console.log(
+
+    "FLOW STATUS",
+
+    JSON.stringify(status.data, null, 2)
+
+  )
+
+} catch (e: any) {
+
+  console.log(
+
+    "FLOW STATUS ERROR",
+
+    e?.response?.data
+
+  )
+
+}
+
 console.log(
   "FLOW ORDER DEBUG",
   {
