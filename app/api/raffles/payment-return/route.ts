@@ -97,29 +97,45 @@ if (!token) {
 
   if (flowOrder) {
 
-    const { data: payment } =
-      await supabase
-        .schema("raffles")
-        .from("payments")
-        .select(`
-          *,
-          orders (*)
-        `)
-        .contains("metadata", {
-          flow_order: Number(flowOrder)
-        })
-        .maybeSingle()
+  const { data: payment } =
+    await supabase
+      .schema("raffles")
+      .from("payments")
+      .select(`
+        *,
+        orders (*)
+      `)
+      .contains("metadata", {
+        flow_order: Number(flowOrder)
+      })
+      .maybeSingle()
 
-    console.log(
-      "FLOW PAYMENT FOUND",
-      payment?.id
+  console.log(
+    "FLOW PAYMENT FOUND",
+    payment?.id
+  )
+
+  if (payment?.orders?.id) {
+
+    return NextResponse.redirect(
+
+      `https://sorteos.impulsasuenos.com/raffles/payment/check?order=${payment.orders.id}`,
+
+      303
+
     )
+
   }
 
-  return NextResponse.redirect(
-    "https://sorteos.impulsasuenos.com/raffles/payment/check",
-    303
-  )
+}
+
+return NextResponse.redirect(
+
+  "https://sorteos.impulsasuenos.com/raffles/payment/check",
+
+  303
+
+)
 
 }
 
