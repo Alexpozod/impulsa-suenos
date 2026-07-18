@@ -28,15 +28,27 @@ console.log(
   orderId
 )
 
+console.log(
+  "LOCAL STORAGE",
+  {
+    orderId,
+    allKeys: Object.keys(localStorage)
+  }
+)
+
       if (!orderId) {
 
-        router.replace(
-          "/raffles/payment/failure"
-        )
+  console.error(
+    "NO last_raffle_order_id EN LOCAL STORAGE"
+  )
 
-        return
+  router.replace(
+    "/raffles/payment/failure"
+  )
 
-      }
+  return
+
+}
 
       try {
 
