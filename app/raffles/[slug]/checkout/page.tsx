@@ -599,6 +599,13 @@ if (json?.order_id) {
 
   )
 
+  console.log(
+  "ORDER SAVED",
+  localStorage.getItem(
+    "last_raffle_order_id"
+  )
+)
+
 }
 
 if (json?.url) {
