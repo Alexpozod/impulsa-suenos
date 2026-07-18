@@ -18,13 +18,13 @@ async function getFeaturedRaffle() {
 
   try {
 
-    const res =
+   const res =
   await fetch(
-  "https://impulsasuenos.com/api/raffles",
-  {
-    cache: "no-store"
-  }
-)
+    "/api/raffles",
+    {
+      cache: "no-store"
+    }
+  )
 
     const data =
       await res.json()
