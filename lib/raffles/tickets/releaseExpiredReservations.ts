@@ -23,7 +23,8 @@ export async function releaseExpiredReservations() {
       .from("ticket_inventory")
       .select(`
         id,
-        raffle_id
+        raffle_id,
+        order_id
       `)
       .eq("status", "reserved")
       .lt("reserved_until", now)
@@ -46,14 +47,30 @@ export async function releaseExpiredReservations() {
   ) {
 
     return {
-      released: 0
+      released: 0,
+      expiredOrders: 0
     }
   }
 
   const ticketIds =
     expiredTickets.map(
-      t => t.id
+      ticket => ticket.id
     )
+
+  const orderIds =
+    [...new Set(
+      expiredTickets
+        .map(
+          ticket => ticket.order_id
+        )
+        .filter(
+          (
+            orderId
+          ): orderId is string =>
+            typeof orderId === "string" &&
+            orderId.length > 0
+        )
+    )]
 
   /* =========================================
      RELEASE INVENTORY
@@ -65,17 +82,17 @@ export async function releaseExpiredReservations() {
       .from("ticket_inventory")
       .update({
 
-  status: "available",
+        status: "available",
 
-  reserved_until: null,
+        reserved_until: null,
 
-  order_id: null,
+        order_id: null,
 
-  buyer_email: null,
+        buyer_email: null,
 
-  reservation_token: null
+        reservation_token: null
 
-})
+      })
       .in("id", ticketIds)
       .eq("status", "reserved")
 
@@ -92,13 +109,53 @@ export async function releaseExpiredReservations() {
   }
 
   /* =========================================
+     EXPIRE ASSOCIATED ORDERS
+  ========================================= */
+
+  let expiredOrders = 0
+
+  if (orderIds.length > 0) {
+
+    const {
+      data: updatedOrders,
+      error: orderUpdateError
+    } =
+      await supabase
+        .schema("raffles")
+        .from("orders")
+        .update({
+          status: "expired",
+          updated_at:
+            new Date().toISOString()
+        })
+        .in("id", orderIds)
+        .eq("status", "pending")
+        .select("id")
+
+    if (orderUpdateError) {
+
+      console.error(
+        "releaseExpiredReservations order update error",
+        orderUpdateError
+      )
+
+      throw new Error(
+        "expired_orders_update_failed"
+      )
+    }
+
+    expiredOrders =
+      updatedOrders?.length ?? 0
+  }
+
+  /* =========================================
      RECALCULATE COUNTERS
   ========================================= */
 
   const raffleIds =
     [...new Set(
       expiredTickets.map(
-        t => t.raffle_id
+        ticket => ticket.raffle_id
       )
     )]
 
@@ -109,9 +166,22 @@ export async function releaseExpiredReservations() {
     })
   }
 
+  console.log(
+    "EXPIRED RESERVATIONS RELEASED",
+    {
+      releasedTickets:
+        expiredTickets.length,
+
+      expiredOrders
+    }
+  )
+
   return {
 
     released:
-      expiredTickets.length
+      expiredTickets.length,
+
+    expiredOrders
+
   }
 }
