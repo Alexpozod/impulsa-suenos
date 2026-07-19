@@ -4,6 +4,12 @@ import {
   processRafflePayment
 } from "@/lib/raffles/ledger/processRafflePayment"
 
+const FLOW_FEE_RATE =
+  0.0319
+
+const IVA_RATE =
+  0.19
+
 export async function createLedger(
   context: PaymentProcessingContext
 ) {
@@ -14,6 +20,34 @@ export async function createLedger(
   ) {
     return context
   }
+
+  const amount =
+    Number(
+      context.payment.amount_clp ??
+      context.payment.amount ??
+      0
+    )
+
+  const reportedProviderFee =
+    Number(
+      context.providerFee ??
+      context.payment.provider_fee ??
+      0
+    )
+
+  const internalProviderFee =
+    Number(
+      (
+        amount *
+        FLOW_FEE_RATE *
+        (1 + IVA_RATE)
+      ).toFixed(2)
+    )
+
+  const providerFee =
+    reportedProviderFee > 0
+      ? reportedProviderFee
+      : internalProviderFee
 
   await processRafflePayment({
 
@@ -26,19 +60,10 @@ export async function createLedger(
     order_id:
       context.order.id,
 
-    amount:
-      Number(
-        context.payment.amount_clp ??
-        context.payment.amount ??
-        0
-      ),
+    amount,
 
     provider_fee:
-      Number(
-        context.providerFee ??
-        context.payment.provider_fee ??
-        0
-      )
+      providerFee
 
   })
 
