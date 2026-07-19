@@ -16,6 +16,281 @@ const supabase =
       .SUPABASE_SERVICE_ROLE_KEY!
   )
 
+function buildRedirectUrl(
+  req: Request,
+  path: string
+) {
+
+  return new URL(
+    path,
+    req.url
+  )
+
+}
+
+async function processPaymentReturn({
+
+  req,
+  token,
+  params
+
+}: {
+
+  req: Request
+  token: string | null
+  params: Record<string, string>
+
+}) {
+
+  console.log(
+    "PAYMENT RETURN FULL URL",
+    req.url
+  )
+
+  console.log(
+    "PAYMENT RETURN METHOD",
+    req.method
+  )
+
+  console.log(
+    "PAYMENT RETURN PARAMS",
+    params
+  )
+
+  console.log(
+    "PAYMENT RETURN HIT",
+    {
+      token,
+      params
+    }
+  )
+
+  /* =========================================
+     RETURN WITHOUT TOKEN
+  ========================================= */
+
+  if (!token) {
+
+    console.log(
+      "FLOW RETURN WITHOUT TOKEN"
+    )
+
+    return NextResponse.redirect(
+
+      buildRedirectUrl(
+        req,
+        "/raffles/payment/check"
+      ),
+
+      303
+
+    )
+
+  }
+
+  /* =========================================
+     LOAD PAYMENT
+  ========================================= */
+
+  const {
+    data: payment,
+    error: paymentError
+  } =
+    await supabase
+      .schema("raffles")
+      .from("payments")
+      .select(`
+        *,
+        orders (*)
+      `)
+      .eq(
+        "provider_payment_id",
+        token
+      )
+      .maybeSingle()
+
+  if (paymentError) {
+
+    console.error(
+      "PAYMENT RETURN LOAD ERROR",
+      paymentError
+    )
+
+    return NextResponse.redirect(
+
+      buildRedirectUrl(
+        req,
+        "/raffles/payment/check"
+      ),
+
+      303
+
+    )
+
+  }
+
+  /* =========================================
+     PAYMENT NOT FOUND
+  ========================================= */
+
+  if (!payment) {
+
+    console.log(
+      "PAYMENT RETURN PAYMENT NOT FOUND",
+      {
+        token
+      }
+    )
+
+    return NextResponse.redirect(
+
+      buildRedirectUrl(
+        req,
+        "/raffles/payment/check"
+      ),
+
+      303
+
+    )
+
+  }
+
+  const order =
+    Array.isArray(payment.orders)
+      ? payment.orders[0]
+      : payment.orders
+
+  if (!order?.id) {
+
+    console.error(
+      "PAYMENT RETURN ORDER NOT FOUND",
+      {
+        paymentId:
+          payment.id,
+
+        token
+      }
+    )
+
+    return NextResponse.redirect(
+
+      buildRedirectUrl(
+        req,
+        "/raffles/payment/check"
+      ),
+
+      303
+
+    )
+
+  }
+
+  const paymentStatus =
+    payment.status
+
+  const orderStatus =
+    order.status
+
+  console.log(
+    "PAYMENT RETURN STATUS",
+    {
+      paymentId:
+        payment.id,
+
+      orderId:
+        order.id,
+
+      paymentStatus,
+
+      orderStatus
+    }
+  )
+
+  /* =========================================
+     SUCCESS
+  ========================================= */
+
+  if (
+    paymentStatus === "approved" &&
+    orderStatus === "paid"
+  ) {
+
+    console.log(
+      "REDIRECTING SUCCESS"
+    )
+
+    return NextResponse.redirect(
+
+      buildRedirectUrl(
+        req,
+        `/raffles/payment/success?order=${encodeURIComponent(
+          order.id
+        )}`
+      ),
+
+      303
+
+    )
+
+  }
+
+  /* =========================================
+     FAILED
+  ========================================= */
+
+  if (
+    paymentStatus === "failed" ||
+    paymentStatus === "rejected" ||
+    paymentStatus === "cancelled" ||
+    orderStatus === "cancelled"
+  ) {
+
+    console.log(
+      "REDIRECTING FAILURE"
+    )
+
+    return NextResponse.redirect(
+
+      buildRedirectUrl(
+        req,
+        `/raffles/payment/failure?order=${encodeURIComponent(
+          order.id
+        )}`
+      ),
+
+      303
+
+    )
+
+  }
+
+  /* =========================================
+     PENDING / WEBHOOK STILL PROCESSING
+  ========================================= */
+
+  console.log(
+    "REDIRECTING CHECK"
+  )
+
+  return NextResponse.redirect(
+
+    buildRedirectUrl(
+      req,
+      `/raffles/payment/check?order=${encodeURIComponent(
+        order.id
+      )}`
+    ),
+
+    303
+
+  )
+
+}
+
+/* =========================================
+   GET RETURN
+========================================= */
+
 export async function GET(
   req: Request
 ) {
@@ -23,233 +298,149 @@ export async function GET(
   try {
 
     const url =
-  new URL(req.url)
+      new URL(req.url)
 
-const searchParams =
-  url.searchParams
-
-console.log(
-  "PAYMENT RETURN FULL URL",
-  req.url
-)
-
-console.log(
-  "PAYMENT RETURN SEARCH",
-  Object.fromEntries(
-    searchParams.entries()
-  )
-)
-
-      console.log(
-  "PAYMENT RETURN URL",
-  req.url
-)
-
-const token =
-  searchParams.get("token")
-
-console.log(
-  "PAYMENT RETURN HIT",
-  {
-    token,
-    params:
+    const params =
       Object.fromEntries(
-        searchParams.entries()
+        url.searchParams.entries()
       )
-  }
-)
 
-/* =========================
-   FLOW RETURN
+    const token =
+      url.searchParams.get(
+        "token"
+      )
 
-   Flow normalmente NO envía
-   el token en el navegador.
+    return await processPaymentReturn({
 
-   El webhook ya procesa
-   completamente el pago.
+      req,
+      token,
+      params
 
-   La página /payment/check
-   será la encargada de
-   consultar el estado.
-========================= */
-
-console.log(
-  "RAW RETURN URL",
-  req.url
-)
-
-if (!token) {
-
-  console.log(
-    "FLOW RETURN WITHOUT TOKEN"
-  )
-
-  return NextResponse.redirect(
-
-    "https://sorteos.impulsasuenos.com/raffles/payment/check",
-
-    303
-
-  )
-
-}
-
-    /* =========================
-       LOAD PAYMENT
-    ========================= */
-
-    const { data: payment } =
-      await supabase
-        .schema("raffles")
-        .from("payments")
-        .select(`
-          *,
-          orders (*)
-        `)
-        .eq(
-          "provider_payment_id",
-          token
-        )
-        .maybeSingle()
-
-    /* =========================
-       PAYMENT NOT FOUND
-    ========================= */
-
-    if (!payment) {
-
-  return NextResponse.redirect(
-
-    "https://sorteos.impulsasuenos.com/raffles/payment/failure",
-
-    303
-
-  )
-
-}
-
-    /* =========================
-   STATUS REDIRECT
-========================= */
-
-const paymentStatus =
-  payment.status
-
-const orderStatus =
-  payment.orders?.status
-
-  if (
-  paymentStatus === "failed" ||
-  paymentStatus === "rejected" ||
-  paymentStatus === "cancelled"
-) {
-
-  console.log(
-    "MARKING ORDER AS FAILED FROM RETURN"
-  )
-
-  await supabase
-    .schema("raffles")
-    .from("payments")
-    .update({
-      status: "failed"
     })
-    .eq("id", payment.id)
 
-  await supabase
-    .schema("raffles")
-    .from("orders")
-    .update({
-      status: "cancelled"
-    })
-    .eq("id", payment.orders.id)
+  } catch (error) {
 
-  return NextResponse.redirect(
-    "https://sorteos.impulsasuenos.com/raffles/payment/failure",
-    303
-  )
+    console.error(
+      "PAYMENT RETURN GET ERROR",
+      error
+    )
 
-}
+    return NextResponse.redirect(
 
-  console.log(
-  "PAYMENT RETURN STATUS",
-  {
-    paymentStatus,
-    orderStatus
+      buildRedirectUrl(
+        req,
+        "/raffles/payment/check"
+      ),
+
+      303
+
+    )
+
   }
-)
-
-if (
-  paymentStatus === "approved" &&
-  orderStatus === "paid"
-) {
-
-  console.log(
-    "REDIRECTING SUCCESS"
-  )
-
-  return NextResponse.redirect(
-
-    `https://sorteos.impulsasuenos.com/raffles/payment/success?order=${payment.orders.id}`,
-
-    303
-
-  )
 
 }
 
-if (
-  paymentStatus === "pending" &&
-  orderStatus !== "cancelled"
-) {
-
-  console.log(
-    "REDIRECTING PENDING"
-  )
-
-  return NextResponse.redirect(
-
-    `https://sorteos.impulsasuenos.com/raffles/payment/check?order=${payment.orders.id}`,
-
-    303
-
-  )
-
-}
-
-console.log(
-  "REDIRECTING FAILURE"
-)
-
-return NextResponse.redirect(
-  "https://sorteos.impulsasuenos.com/raffles/payment/failure",
-  303
-)
-
-} catch (error) {
-
-  console.error(
-    "payment-return error",
-    error
-  )
-
-  /* =========================
-     FALLBACK REDIRECT
-  ========================= */
-
-  return NextResponse.redirect(
-
-    "https://sorteos.impulsasuenos.com/raffles/payment/check",
-
-    303
-  )
-}
-
-}
+/* =========================================
+   POST RETURN FROM FLOW
+========================================= */
 
 export async function POST(
   req: Request
 ) {
 
-  return GET(req)
+  try {
+
+    const contentType =
+      req.headers.get(
+        "content-type"
+      ) || ""
+
+    let params:
+      Record<string, string> = {}
+
+    if (
+      contentType.includes(
+        "application/x-www-form-urlencoded"
+      ) ||
+      contentType.includes(
+        "multipart/form-data"
+      )
+    ) {
+
+      const formData =
+        await req.formData()
+
+      params =
+        Object.fromEntries(
+
+          Array
+            .from(
+              formData.entries()
+            )
+            .map(
+              ([key, value]) => [
+
+                key,
+
+                typeof value === "string"
+                  ? value
+                  : value.name
+
+              ]
+            )
+
+        )
+
+    } else {
+
+      const body =
+        await req.text()
+
+      params =
+        Object.fromEntries(
+
+          new URLSearchParams(
+            body
+          ).entries()
+
+        )
+
+    }
+
+    const token =
+      params.token || null
+
+    console.log(
+      "PAYMENT RETURN POST BODY",
+      params
+    )
+
+    return await processPaymentReturn({
+
+      req,
+      token,
+      params
+
+    })
+
+  } catch (error) {
+
+    console.error(
+      "PAYMENT RETURN POST ERROR",
+      error
+    )
+
+    return NextResponse.redirect(
+
+      buildRedirectUrl(
+        req,
+        "/raffles/payment/check"
+      ),
+
+      303
+
+    )
+
+  }
+
 }
