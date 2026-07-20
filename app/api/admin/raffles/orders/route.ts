@@ -24,54 +24,54 @@ export async function GET(
 
   try {
 
-  /* =========================
-   AUTH
-========================= */
+    /* =========================
+       AUTH
+    ========================= */
 
-const authHeader =
-  req.headers.get(
-    "authorization"
-  )
+    const authHeader =
+      req.headers.get(
+        "authorization"
+      )
 
-const token =
-  authHeader?.replace(
-    "Bearer ",
-    ""
-  )
+    const token =
+      authHeader?.replace(
+        "Bearer ",
+        ""
+      )
 
-if (!token) {
+    if (!token) {
 
-  return NextResponse.json(
-    {
-      error: "unauthorized"
-    },
-    {
-      status: 401
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
     }
-  )
-}
 
-const {
-  data: { user }
-} =
-  await supabase.auth
-    .getUser(token)
+    const {
+      data: { user }
+    } =
+      await supabase.auth
+        .getUser(token)
 
-if (!user) {
+    if (!user) {
 
-  return NextResponse.json(
-    {
-      error: "unauthorized"
-    },
-    {
-      status: 401
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
     }
-  )
-}
 
-await requireRaffleAdmin({
-  user_id: user.id
-})
+    await requireRaffleAdmin({
+      user_id: user.id
+    })
 
     /* =========================
        QUERY PARAMS
@@ -81,23 +81,33 @@ await requireRaffleAdmin({
       new URL(req.url)
 
     const page =
-      Number(
-        searchParams.get("page") || 1
+      Math.max(
+        Number(
+          searchParams.get("page") || 1
+        ),
+        1
       )
 
     const limit =
-      Number(
-        searchParams.get("limit") || 20
+      Math.min(
+        Math.max(
+          Number(
+            searchParams.get("limit") || 20
+          ),
+          1
+        ),
+        100
       )
 
     const status =
-    searchParams.get("status")
+      searchParams.get("status")
 
     const search =
-    searchParams.get("search")
+      searchParams.get("search")
+        ?.trim()
 
     const raffle_id =
-    searchParams.get("raffle_id")
+      searchParams.get("raffle_id")
 
     const from =
       (page - 1) * limit
@@ -106,7 +116,209 @@ await requireRaffleAdmin({
       from + limit - 1
 
     /* =========================
-       QUERY
+       GLOBAL STATS
+    ========================= */
+
+    let totalOrdersQuery =
+      supabase
+        .schema("raffles")
+        .from("orders")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+
+    let paidOrdersQuery =
+      supabase
+        .schema("raffles")
+        .from("orders")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+        .eq(
+          "status",
+          "paid"
+        )
+
+    let pendingOrdersQuery =
+      supabase
+        .schema("raffles")
+        .from("orders")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+        .eq(
+          "status",
+          "pending"
+        )
+
+    if (raffle_id) {
+
+      totalOrdersQuery =
+        totalOrdersQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+
+      paidOrdersQuery =
+        paidOrdersQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+
+      pendingOrdersQuery =
+        pendingOrdersQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+    }
+
+    const [
+      totalOrdersResult,
+      paidOrdersResult,
+      pendingOrdersResult
+    ] =
+      await Promise.all([
+        totalOrdersQuery,
+        paidOrdersQuery,
+        pendingOrdersQuery
+      ])
+
+    if (
+      totalOrdersResult.error ||
+      paidOrdersResult.error ||
+      pendingOrdersResult.error
+    ) {
+
+      console.error(
+        "orders stats error",
+        {
+          total:
+            totalOrdersResult.error,
+
+          paid:
+            paidOrdersResult.error,
+
+          pending:
+            pendingOrdersResult.error
+        }
+      )
+
+      return NextResponse.json(
+        {
+          error: "orders_stats_error"
+        },
+        {
+          status: 500
+        }
+      )
+    }
+
+    /* =========================
+       CONFIRMED REVENUE
+    ========================= */
+
+    const revenueBatchSize =
+      1000
+
+    let revenueOffset =
+      0
+
+    let confirmedRevenue =
+      0
+
+    while (true) {
+
+      let revenueQuery =
+        supabase
+          .schema("raffles")
+          .from("orders")
+          .select(
+            "total_clp"
+          )
+          .eq(
+            "status",
+            "paid"
+          )
+          .range(
+            revenueOffset,
+            revenueOffset +
+              revenueBatchSize -
+              1
+          )
+
+      if (raffle_id) {
+
+        revenueQuery =
+          revenueQuery.eq(
+            "raffle_id",
+            raffle_id
+          )
+      }
+
+      const {
+        data: revenueRows,
+        error: revenueError
+      } =
+        await revenueQuery
+
+      if (revenueError) {
+
+        console.error(
+          "orders revenue error",
+          revenueError
+        )
+
+        return NextResponse.json(
+          {
+            error: "orders_revenue_error"
+          },
+          {
+            status: 500
+          }
+        )
+      }
+
+      const rows =
+        revenueRows || []
+
+      confirmedRevenue +=
+        rows.reduce(
+          (
+            sum,
+            order
+          ) =>
+            sum +
+            Number(
+              order.total_clp || 0
+            ),
+          0
+        )
+
+      if (
+        rows.length <
+        revenueBatchSize
+      ) {
+        break
+      }
+
+      revenueOffset +=
+        revenueBatchSize
+    }
+
+    /* =========================
+       PAGINATED ORDERS
     ========================= */
 
     let query =
@@ -131,43 +343,56 @@ await requireRaffleAdmin({
         {
           count: "exact"
         })
-
         .order(
           "created_at",
           {
             ascending: false
           }
         )
-
-        .range(from, to)
+        .range(
+          from,
+          to
+        )
 
     if (raffle_id) {
 
-        query =
-            query.eq(
-            "raffle_id",
-            raffle_id
-            )
-        }
+      query =
+        query.eq(
+          "raffle_id",
+          raffle_id
+        )
+    }
+
+    if (status) {
+
+      query =
+        query.eq(
+          "status",
+          status
+        )
+    }
 
     if (search) {
 
       query =
-        query.or(`
-          buyer_email.ilike.%${search}%,
-          buyer_name.ilike.%${search}%
-        `)
+        query.or(
+          `buyer_email.ilike.%${search}%,buyer_name.ilike.%${search}%,id.eq.${search}`
+        )
     }
 
     const {
       data: orders,
       error,
       count
-    } = await query
+    } =
+      await query
 
     if (error) {
 
-      console.error(error)
+      console.error(
+        "orders query error",
+        error
+      )
 
       return NextResponse.json(
         {
@@ -186,6 +411,20 @@ await requireRaffleAdmin({
       orders:
         orders || [],
 
+      stats: {
+
+        totalOrders:
+          totalOrdersResult.count || 0,
+
+        confirmedRevenue,
+
+        paidOrders:
+          paidOrdersResult.count || 0,
+
+        pendingOrders:
+          pendingOrdersResult.count || 0
+      },
+
       pagination: {
 
         page,
@@ -197,7 +436,8 @@ await requireRaffleAdmin({
 
         totalPages:
           Math.ceil(
-            (count || 0) / limit
+            (count || 0) /
+            limit
           )
       }
 
@@ -205,7 +445,10 @@ await requireRaffleAdmin({
 
   } catch (error) {
 
-    console.error(error)
+    console.error(
+      "orders server error",
+      error
+    )
 
     return NextResponse.json(
       {
