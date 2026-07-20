@@ -28,8 +28,16 @@ export default function RaffleTicketsPage() {
   const [tickets, setTickets] =
     useState<any[]>([])
 
-  const [pagination, setPagination] =
+   const [pagination, setPagination] =
     useState<any>(null)
+
+  const [stats, setStats] =
+    useState({
+      totalTickets: 0,
+      availableTickets: 0,
+      reservedTickets: 0,
+      paidTickets: 0
+    })
 
   const [page, setPage] =
     useState(1)
@@ -91,8 +99,17 @@ export default function RaffleTicketsPage() {
         json?.tickets || []
       )
 
-      setPagination(
+            setPagination(
         json?.pagination || null
+      )
+
+      setStats(
+        json?.stats || {
+          totalTickets: 0,
+          availableTickets: 0,
+          reservedTickets: 0,
+          paidTickets: 0
+        }
       )
 
     } catch (error) {
@@ -125,46 +142,31 @@ export default function RaffleTicketsPage() {
         "
       >
 
-        <MetricCard
-  title="Total"
-  value={
-    pagination?.total || 0
-  }
-/>
+                <MetricCard
+          title="Total"
+          value={
+            stats.totalTickets
+          }
+        />
 
         <MetricCard
           title="Available"
           value={
-            tickets.filter(
-
-              ticket =>
-                ticket.status === "available"
-
-            ).length
+            stats.availableTickets
           }
         />
 
         <MetricCard
           title="Reserved"
           value={
-            tickets.filter(
-
-              ticket =>
-                ticket.status === "reserved"
-
-            ).length
+            stats.reservedTickets
           }
         />
 
         <MetricCard
           title="Paid"
           value={
-            tickets.filter(
-
-              ticket =>
-                ticket.status === "paid"
-
-            ).length
+            stats.paidTickets
           }
         />
 
@@ -209,11 +211,14 @@ export default function RaffleTicketsPage() {
 
           <select
             value={status}
-            onChange={(e) =>
+                        onChange={(e) => {
+
+              setPage(1)
+
               setStatus(
                 e.target.value
               )
-            }
+            }}
             className="
               bg-slate-950
               border border-slate-700
@@ -312,7 +317,7 @@ export default function RaffleTicketsPage() {
                 <tr>
 
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="
                       p-10
                       text-center
@@ -331,7 +336,7 @@ export default function RaffleTicketsPage() {
                 <tr>
 
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="
                       p-10
                       text-center
