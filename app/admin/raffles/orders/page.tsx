@@ -331,7 +331,7 @@ Buscar nombre, email o ID...
                 <tr>
 
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="
                       p-10
                       text-center
@@ -350,7 +350,7 @@ Buscar nombre, email o ID...
                 <tr>
 
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="
                       p-10
                       text-center
@@ -464,20 +464,26 @@ Buscar nombre, email o ID...
 
                   <td className="p-4">
 
-  <button
-    className="
-      px-3 py-2
-      rounded-xl
-      bg-slate-800
-      hover:bg-slate-700
-      text-sm
-      transition
-    "
-  >
-    👁 Ver
-  </button>
+                  <button
+                    onClick={() => {
 
-</td>
+                      window.location.href =
+                        `/admin/raffles/orders/${order.id}`
+
+                    }}
+                    className="
+                      px-3 py-2
+                      rounded-xl
+                      bg-blue-600
+                      hover:bg-blue-500
+                      text-sm
+                      transition
+                    "
+                  >
+                    👁 Ver
+                  </button>
+
+              </td>
 
                 </tr>
 
