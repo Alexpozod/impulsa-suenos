@@ -69,9 +69,9 @@ export async function GET(
       )
     }
 
-await requireRaffleAdmin({
-  user_id: user.id
-})
+    await requireRaffleAdmin({
+      user_id: user.id
+    })
 
     /* =========================
        PARAMS
@@ -81,23 +81,33 @@ await requireRaffleAdmin({
       new URL(req.url)
 
     const page =
-      Number(
-        searchParams.get("page") || 1
+      Math.max(
+        Number(
+          searchParams.get("page") || 1
+        ),
+        1
       )
 
     const limit =
-      Number(
-        searchParams.get("limit") || 50
+      Math.min(
+        Math.max(
+          Number(
+            searchParams.get("limit") || 50
+          ),
+          1
+        ),
+        100
       )
 
     const status =
-  searchParams.get("status")
+      searchParams.get("status")
 
-const search =
-  searchParams.get("search")
+    const search =
+      searchParams.get("search")
+        ?.trim()
 
-const raffle_id =
-  searchParams.get("raffle_id")
+    const raffle_id =
+      searchParams.get("raffle_id")
 
     const from =
       (page - 1) * limit
@@ -106,7 +116,145 @@ const raffle_id =
       from + limit - 1
 
     /* =========================
-       QUERY
+       GLOBAL STATS
+    ========================= */
+
+    let totalTicketsQuery =
+      supabase
+        .schema("raffles")
+        .from("ticket_inventory")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+
+    let availableTicketsQuery =
+      supabase
+        .schema("raffles")
+        .from("ticket_inventory")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+        .eq(
+          "status",
+          "available"
+        )
+
+    let reservedTicketsQuery =
+      supabase
+        .schema("raffles")
+        .from("ticket_inventory")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+        .eq(
+          "status",
+          "reserved"
+        )
+
+    let paidTicketsQuery =
+      supabase
+        .schema("raffles")
+        .from("ticket_inventory")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+        .eq(
+          "status",
+          "paid"
+        )
+
+    if (raffle_id) {
+
+      totalTicketsQuery =
+        totalTicketsQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+
+      availableTicketsQuery =
+        availableTicketsQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+
+      reservedTicketsQuery =
+        reservedTicketsQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+
+      paidTicketsQuery =
+        paidTicketsQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+    }
+
+    const [
+      totalTicketsResult,
+      availableTicketsResult,
+      reservedTicketsResult,
+      paidTicketsResult
+    ] =
+      await Promise.all([
+        totalTicketsQuery,
+        availableTicketsQuery,
+        reservedTicketsQuery,
+        paidTicketsQuery
+      ])
+
+    if (
+      totalTicketsResult.error ||
+      availableTicketsResult.error ||
+      reservedTicketsResult.error ||
+      paidTicketsResult.error
+    ) {
+
+      console.error(
+        "tickets stats error",
+        {
+          total:
+            totalTicketsResult.error,
+
+          available:
+            availableTicketsResult.error,
+
+          reserved:
+            reservedTicketsResult.error,
+
+          paid:
+            paidTicketsResult.error
+        }
+      )
+
+      return NextResponse.json(
+        {
+          error: "tickets_stats_error"
+        },
+        {
+          status: 500
+        }
+      )
+    }
+
+    /* =========================
+       PAGINATED TICKETS
     ========================= */
 
     let query =
@@ -129,15 +277,16 @@ const raffle_id =
         {
           count: "exact"
         })
-
         .order(
           "ticket_number",
           {
             ascending: true
           }
         )
-
-        .range(from, to)
+        .range(
+          from,
+          to
+        )
 
     if (status) {
 
@@ -148,33 +297,36 @@ const raffle_id =
         )
     }
 
-if (raffle_id) {
+    if (raffle_id) {
 
-  query =
-    query.eq(
-      "raffle_id",
-      raffle_id
-    )
-}
+      query =
+        query.eq(
+          "raffle_id",
+          raffle_id
+        )
+    }
 
     if (search) {
 
       query =
-        query.or(`
-          ticket_code.ilike.%${search}%,
-          buyer_email.ilike.%${search}%
-        `)
+        query.or(
+          `ticket_code.ilike.%${search}%,buyer_email.ilike.%${search}%`
+        )
     }
 
     const {
       data: tickets,
       error,
       count
-    } = await query
+    } =
+      await query
 
     if (error) {
 
-      console.error(error)
+      console.error(
+        "tickets query error",
+        error
+      )
 
       return NextResponse.json(
         {
@@ -193,6 +345,21 @@ if (raffle_id) {
       tickets:
         tickets || [],
 
+      stats: {
+
+        totalTickets:
+          totalTicketsResult.count || 0,
+
+        availableTickets:
+          availableTicketsResult.count || 0,
+
+        reservedTickets:
+          reservedTicketsResult.count || 0,
+
+        paidTickets:
+          paidTicketsResult.count || 0
+      },
+
       pagination: {
 
         page,
@@ -204,7 +371,8 @@ if (raffle_id) {
 
         totalPages:
           Math.ceil(
-            (count || 0) / limit
+            (count || 0) /
+            limit
           )
       }
 
@@ -212,7 +380,10 @@ if (raffle_id) {
 
   } catch (error) {
 
-    console.error(error)
+    console.error(
+      "tickets server error",
+      error
+    )
 
     return NextResponse.json(
       {
