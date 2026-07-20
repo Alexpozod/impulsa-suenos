@@ -141,6 +141,70 @@ export default function TicketDetailPage() {
 
       </Section>
 
+            {ticket.status ===
+        "complimentary" && (
+
+        <Section title="🎁 Asignación promocional">
+
+          <Info
+            label="Tipo"
+            value="Ticket promocional"
+          />
+
+          <Info
+            label="Origen"
+            value={
+              ticket.metadata
+                ?.assignment_source ===
+                "admin"
+                ? "Asignación administrativa"
+                : ticket.metadata
+                    ?.assignment_source
+            }
+          />
+
+          <Info
+            label="Campaña o promoción"
+            value={
+              ticket.metadata
+                ?.campaign_name
+            }
+          />
+
+          <Info
+            label="Motivo"
+            value={
+              ticket.metadata
+                ?.reason
+            }
+          />
+
+          <Info
+            label="Administrador"
+            value={
+              ticket.metadata
+                ?.assigned_by_admin_user_id
+            }
+          />
+
+          <Info
+            label="Fecha de asignación"
+            value={
+              ticket.metadata
+                ?.assigned_at
+                ? new Date(
+                    ticket.metadata
+                      .assigned_at
+                  ).toLocaleString()
+                : "-"
+            }
+          />
+
+        </Section>
+
+      )}
+
+
       {/* COMPRADOR */}
 
       <Section title="Comprador">
@@ -166,9 +230,33 @@ export default function TicketDetailPage() {
           value={order?.quantity}
         />
 
-        <Info
+               <Info
           label="Estado"
           value={order?.status}
+        />
+
+        <Info
+          label="Origen"
+          value={
+            order?.source ===
+              "admin_complimentary"
+              ? "Asignación promocional"
+              : order?.source
+          }
+        />
+
+        <Info
+          label="Nombre comprador"
+          value={
+            order?.buyer_name
+          }
+        />
+
+        <Info
+          label="Teléfono"
+          value={
+            order?.buyer_phone
+          }
         />
 
         <Info
@@ -191,42 +279,75 @@ export default function TicketDetailPage() {
 
       </Section>
 
-      {/* PAGO */}
+            {/* PAGO */}
 
-      <Section title="Pago">
+      {ticket.status ===
+        "complimentary" ? (
 
-        <Info
-          label="Payment ID"
-          value={ticket.payment_id}
-        />
+        <Section title="Pago">
 
-        <Info
-          label="Provider"
-          value={payment?.provider}
-        />
+          <Info
+            label="Tipo"
+            value="Sin pago"
+          />
 
-        <Info
-          label="Provider Payment ID"
-          value={
-            payment?.provider_payment_id
-          }
-        />
+          <Info
+            label="Monto"
+            value="$0"
+          />
 
-        <Info
-          label="Monto"
-          value={
-            `$${Number(
-              payment?.amount_clp || 0
-            ).toLocaleString()}`
-          }
-        />
+          <Info
+            label="Proveedor"
+            value="No aplica"
+          />
 
-        <Info
-          label="Estado"
-          value={payment?.status}
-        />
+          <Info
+            label="Ingreso financiero"
+            value="No generado"
+          />
 
-      </Section>
+        </Section>
+
+      ) : (
+
+        <Section title="Pago">
+
+          <Info
+            label="Payment ID"
+            value={ticket.payment_id}
+          />
+
+          <Info
+            label="Provider"
+            value={payment?.provider}
+          />
+
+          <Info
+            label="Provider Payment ID"
+            value={
+              payment
+                ?.provider_payment_id
+            }
+          />
+
+          <Info
+            label="Monto"
+            value={
+              `$${Number(
+                payment?.amount_clp ||
+                0
+              ).toLocaleString()}`
+            }
+          />
+
+          <Info
+            label="Estado"
+            value={payment?.status}
+          />
+
+        </Section>
+
+      )}
 
       {/* SORTEO */}
 

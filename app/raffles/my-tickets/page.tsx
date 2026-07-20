@@ -287,8 +287,12 @@ Consulta todas tus participaciones utilizando el mismo correo electrónico con e
         {group.tickets.map(
   (ticket: any) => {
 
-    const isWinner =
+        const isWinner =
       ticket.status === "winner"
+
+    const isComplimentary =
+      ticket.status ===
+      "complimentary"
 
     return (
 
@@ -301,15 +305,17 @@ Consulta todas tus participaciones utilizando el mismo correo electrónico con e
           border
           text-sm
 
-          ${
+                    ${
             isWinner
               ? "bg-yellow-500/20 border-yellow-500 text-yellow-300 font-bold"
-              : "bg-slate-950 border-slate-700"
+              : isComplimentary
+                ? "bg-cyan-500/10 border-cyan-500/60 text-cyan-200"
+                : "bg-slate-950 border-slate-700"
           }
         `}
       >
 
-        {isWinner && (
+                {isWinner && (
           <div
             className="
               text-xs
@@ -317,6 +323,19 @@ Consulta todas tus participaciones utilizando el mismo correo electrónico con e
             "
           >
             🏆 GANADOR
+          </div>
+        )}
+
+        {isComplimentary && (
+          <div
+            className="
+              text-xs
+              mb-1
+              font-bold
+              text-cyan-300
+            "
+          >
+            🎁 PROMOCIONAL
           </div>
         )}
 
