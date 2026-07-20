@@ -28,8 +28,16 @@ export default function RaffleOrdersPage() {
   const [orders, setOrders] =
     useState<any[]>([])
 
-  const [pagination, setPagination] =
+    const [pagination, setPagination] =
     useState<any>(null)
+
+  const [stats, setStats] =
+    useState({
+      totalOrders: 0,
+      confirmedRevenue: 0,
+      paidOrders: 0,
+      pendingOrders: 0
+    })
 
   const [page, setPage] =
     useState(1)
@@ -91,8 +99,17 @@ export default function RaffleOrdersPage() {
         json?.orders || []
       )
 
-      setPagination(
+            setPagination(
         json?.pagination || null
+      )
+
+      setStats(
+        json?.stats || {
+          totalOrders: 0,
+          confirmedRevenue: 0,
+          paidOrders: 0,
+          pendingOrders: 0
+        }
       )
 
     } catch (error) {
@@ -104,20 +121,7 @@ export default function RaffleOrdersPage() {
       setLoading(false)
     }
   }
-
-  const totalRevenue =
-    orders.reduce(
-
-      (sum, order) =>
-
-        sum +
-        Number(
-          order.total_clp || 0
-        ),
-
-      0
-    )
-
+  
   return (
 
     <div className="space-y-5">
@@ -140,35 +144,35 @@ export default function RaffleOrdersPage() {
         "
       >
 
-        <MetricCard
+                <MetricCard
           title="Orders"
-          value={orders.length}
+          value={
+            stats.totalOrders
+          }
         />
 
         <MetricCard
           title="Revenue"
-          value={`$${totalRevenue.toLocaleString()}`}
+          value={
+            `$${Number(
+              stats.confirmedRevenue || 0
+            ).toLocaleString("es-CL")}`
+          }
         />
 
         <MetricCard
-  title="Paid Orders"
-  value={
-    orders.filter(
-      order =>
-        order.status === "paid"
-    ).length
-  }
-/>
+          title="Paid Orders"
+          value={
+            stats.paidOrders
+          }
+        />
 
-<MetricCard
-  title="Pending"
-  value={
-    orders.filter(
-      order =>
-        order.status === "pending"
-    ).length
-  }
-/>
+        <MetricCard
+          title="Pending"
+          value={
+            stats.pendingOrders
+          }
+        />
 
       </div>
 
@@ -213,11 +217,14 @@ Buscar nombre, email o ID...
 
           <select
             value={status}
-            onChange={(e) =>
+                        onChange={(e) => {
+
+              setPage(1)
+
               setStatus(
                 e.target.value
               )
-            }
+            }}
             className="
               bg-slate-950
               border border-slate-700
@@ -241,6 +248,10 @@ Buscar nombre, email o ID...
 
             <option value="cancelled">
               Cancelled
+            </option>
+
+                        <option value="expired">
+              Expired
             </option>
 
           </select>
