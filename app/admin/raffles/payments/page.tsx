@@ -28,8 +28,16 @@ export default function RafflePaymentsPage() {
   const [payments, setPayments] =
     useState<any[]>([])
 
-  const [pagination, setPagination] =
+    const [pagination, setPagination] =
     useState<any>(null)
+
+  const [stats, setStats] =
+    useState({
+      totalPayments: 0,
+      approvedRevenue: 0,
+      approvedPayments: 0,
+      failedPayments: 0
+    })
 
   const [page, setPage] =
     useState(1)
@@ -86,8 +94,17 @@ export default function RafflePaymentsPage() {
         json?.payments || []
       )
 
-      setPagination(
+            setPagination(
         json?.pagination || null
+      )
+
+      setStats(
+        json?.stats || {
+          totalPayments: 0,
+          approvedRevenue: 0,
+          approvedPayments: 0,
+          failedPayments: 0
+        }
       )
 
     } catch (error) {
@@ -100,20 +117,7 @@ export default function RafflePaymentsPage() {
     }
   }
 
-  const totalRevenue =
-    payments.reduce(
-
-      (sum, payment) =>
-
-        sum +
-        Number(
-          payment.amount_clp || 0
-        ),
-
-      0
-    )
-
-  return (
+    return (
 
     <div className="space-y-5">
 
@@ -134,36 +138,35 @@ xl:grid-cols-4
         "
       >
 
-        <MetricCard
+                <MetricCard
           title="Payments"
-          value={payments.length}
+          value={
+            stats.totalPayments
+          }
         />
 
         <MetricCard
           title="Revenue"
-          value={`$${totalRevenue.toLocaleString()}`}
+          value={
+            `$${Number(
+              stats.approvedRevenue || 0
+            ).toLocaleString("es-CL")}`
+          }
         />
 
         <MetricCard
-  title="Approved"
-  value={
-    payments.filter(
-      payment =>
-        payment.status === "approved" ||
-        payment.status === "paid"
-    ).length
-  }
-/>
+          title="Approved"
+          value={
+            stats.approvedPayments
+          }
+        />
 
-<MetricCard
-  title="Failed"
-  value={
-    payments.filter(
-      payment =>
-        payment.status === "failed"
-    ).length
-  }
-/>
+        <MetricCard
+          title="Failed"
+          value={
+            stats.failedPayments
+          }
+        />
 
       </div>
 
@@ -189,11 +192,14 @@ xl:grid-cols-4
 
           <select
             value={status}
-            onChange={(e) =>
+                        onChange={(e) => {
+
+              setPage(1)
+
               setStatus(
                 e.target.value
               )
-            }
+            }}
             className="
               bg-slate-950
               border border-slate-700
@@ -211,16 +217,16 @@ xl:grid-cols-4
               Pending
             </option>
 
-            <option value="paid">
-              Paid
+                        <option value="approved">
+              Approved
             </option>
 
             <option value="failed">
               Failed
             </option>
 
-            <option value="cancelled">
-              Cancelled
+            <option value="refunded">
+              Refunded
             </option>
 
           </select>

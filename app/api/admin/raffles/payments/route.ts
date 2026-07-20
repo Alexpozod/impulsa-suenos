@@ -69,9 +69,9 @@ export async function GET(
       )
     }
 
-await requireRaffleAdmin({
-  user_id: user.id
-})
+    await requireRaffleAdmin({
+      user_id: user.id
+    })
 
     /* =========================
        PARAMS
@@ -81,20 +81,29 @@ await requireRaffleAdmin({
       new URL(req.url)
 
     const page =
-      Number(
-        searchParams.get("page") || 1
+      Math.max(
+        Number(
+          searchParams.get("page") || 1
+        ),
+        1
       )
 
     const limit =
-      Number(
-        searchParams.get("limit") || 20
+      Math.min(
+        Math.max(
+          Number(
+            searchParams.get("limit") || 20
+          ),
+          1
+        ),
+        100
       )
 
     const status =
-    searchParams.get("status")
+      searchParams.get("status")
 
     const raffle_id =
-    searchParams.get("raffle_id")
+      searchParams.get("raffle_id")
 
     const from =
       (page - 1) * limit
@@ -103,7 +112,209 @@ await requireRaffleAdmin({
       from + limit - 1
 
     /* =========================
-       QUERY
+       GLOBAL STATS
+    ========================= */
+
+    let totalPaymentsQuery =
+      supabase
+        .schema("raffles")
+        .from("payments")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+
+    let approvedPaymentsQuery =
+      supabase
+        .schema("raffles")
+        .from("payments")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+        .eq(
+          "status",
+          "approved"
+        )
+
+    let failedPaymentsQuery =
+      supabase
+        .schema("raffles")
+        .from("payments")
+        .select(
+          "id",
+          {
+            count: "exact",
+            head: true
+          }
+        )
+        .eq(
+          "status",
+          "failed"
+        )
+
+    if (raffle_id) {
+
+      totalPaymentsQuery =
+        totalPaymentsQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+
+      approvedPaymentsQuery =
+        approvedPaymentsQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+
+      failedPaymentsQuery =
+        failedPaymentsQuery.eq(
+          "raffle_id",
+          raffle_id
+        )
+    }
+
+    const [
+      totalPaymentsResult,
+      approvedPaymentsResult,
+      failedPaymentsResult
+    ] =
+      await Promise.all([
+        totalPaymentsQuery,
+        approvedPaymentsQuery,
+        failedPaymentsQuery
+      ])
+
+    if (
+      totalPaymentsResult.error ||
+      approvedPaymentsResult.error ||
+      failedPaymentsResult.error
+    ) {
+
+      console.error(
+        "payments stats error",
+        {
+          total:
+            totalPaymentsResult.error,
+
+          approved:
+            approvedPaymentsResult.error,
+
+          failed:
+            failedPaymentsResult.error
+        }
+      )
+
+      return NextResponse.json(
+        {
+          error: "payments_stats_error"
+        },
+        {
+          status: 500
+        }
+      )
+    }
+
+    /* =========================
+       APPROVED REVENUE
+    ========================= */
+
+    const revenueBatchSize =
+      1000
+
+    let revenueOffset =
+      0
+
+    let approvedRevenue =
+      0
+
+    while (true) {
+
+      let revenueQuery =
+        supabase
+          .schema("raffles")
+          .from("payments")
+          .select(
+            "amount_clp"
+          )
+          .eq(
+            "status",
+            "approved"
+          )
+          .range(
+            revenueOffset,
+            revenueOffset +
+              revenueBatchSize -
+              1
+          )
+
+      if (raffle_id) {
+
+        revenueQuery =
+          revenueQuery.eq(
+            "raffle_id",
+            raffle_id
+          )
+      }
+
+      const {
+        data: revenueRows,
+        error: revenueError
+      } =
+        await revenueQuery
+
+      if (revenueError) {
+
+        console.error(
+          "payments revenue error",
+          revenueError
+        )
+
+        return NextResponse.json(
+          {
+            error: "payments_revenue_error"
+          },
+          {
+            status: 500
+          }
+        )
+      }
+
+      const rows =
+        revenueRows || []
+
+      approvedRevenue +=
+        rows.reduce(
+          (
+            sum,
+            payment
+          ) =>
+            sum +
+            Number(
+              payment.amount_clp || 0
+            ),
+          0
+        )
+
+      if (
+        rows.length <
+        revenueBatchSize
+      ) {
+        break
+      }
+
+      revenueOffset +=
+        revenueBatchSize
+    }
+
+    /* =========================
+       PAGINATED PAYMENTS
     ========================= */
 
     let query =
@@ -132,15 +343,16 @@ await requireRaffleAdmin({
         {
           count: "exact"
         })
-
         .order(
           "created_at",
           {
             ascending: false
           }
         )
-
-        .range(from, to)
+        .range(
+          from,
+          to
+        )
 
     if (status) {
 
@@ -151,24 +363,28 @@ await requireRaffleAdmin({
         )
     }
 
-if (raffle_id) {
+    if (raffle_id) {
 
-  query =
-    query.eq(
-      "raffle_id",
-      raffle_id
-    )
-}
+      query =
+        query.eq(
+          "raffle_id",
+          raffle_id
+        )
+    }
 
     const {
       data: payments,
       error,
       count
-    } = await query
+    } =
+      await query
 
     if (error) {
 
-      console.error(error)
+      console.error(
+        "payments query error",
+        error
+      )
 
       return NextResponse.json(
         {
@@ -187,6 +403,20 @@ if (raffle_id) {
       payments:
         payments || [],
 
+      stats: {
+
+        totalPayments:
+          totalPaymentsResult.count || 0,
+
+        approvedRevenue,
+
+        approvedPayments:
+          approvedPaymentsResult.count || 0,
+
+        failedPayments:
+          failedPaymentsResult.count || 0
+      },
+
       pagination: {
 
         page,
@@ -198,7 +428,8 @@ if (raffle_id) {
 
         totalPages:
           Math.ceil(
-            (count || 0) / limit
+            (count || 0) /
+            limit
           )
       }
 
@@ -206,7 +437,10 @@ if (raffle_id) {
 
   } catch (error) {
 
-    console.error(error)
+    console.error(
+      "payments server error",
+      error
+    )
 
     return NextResponse.json(
       {
