@@ -450,9 +450,10 @@ export async function POST(
       )
     }
 
-    await requireRaffleAdmin({
-      user_id: user.id
-    })
+    const admin =
+      await requireRaffleAdmin({
+        user_id: user.id
+      })
 
     /* =========================
        BODY
@@ -626,7 +627,7 @@ export async function POST(
         reason,
 
         admin_user_id:
-          user.id
+        admin.id
 
       })
 

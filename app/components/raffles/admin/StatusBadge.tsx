@@ -44,8 +44,11 @@ export default function StatusBadge({
     available:
       "bg-green-900/30 text-green-300",
 
-    reserved:
+        reserved:
       "bg-yellow-900/30 text-yellow-300",
+
+    complimentary:
+      "bg-cyan-900/30 text-cyan-300",
 
     low:
       "bg-green-900/30 text-green-300",
