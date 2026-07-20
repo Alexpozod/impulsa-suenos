@@ -7,6 +7,9 @@ from "@supabase/supabase-js"
 import { requireRaffleAdmin }
 from "@/lib/raffles/auth/requireRaffleAdmin"
 
+import { assignComplimentaryTickets }
+from "@/lib/raffles/tickets/assignComplimentaryTickets"
+
 export const runtime = "nodejs"
 
 const supabase =
@@ -388,6 +391,356 @@ export async function GET(
     return NextResponse.json(
       {
         error: "server_error"
+      },
+      {
+        status: 500
+      }
+    )
+  }
+}
+
+export async function POST(
+  req: Request
+) {
+
+  try {
+
+    /* =========================
+       AUTH
+    ========================= */
+
+    const authHeader =
+      req.headers.get(
+        "authorization"
+      )
+
+    const token =
+      authHeader?.replace(
+        "Bearer ",
+        ""
+      )
+
+    if (!token) {
+
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
+    }
+
+    const {
+      data: { user }
+    } =
+      await supabase.auth
+        .getUser(token)
+
+    if (!user) {
+
+      return NextResponse.json(
+        {
+          error: "unauthorized"
+        },
+        {
+          status: 401
+        }
+      )
+    }
+
+    await requireRaffleAdmin({
+      user_id: user.id
+    })
+
+    /* =========================
+       BODY
+    ========================= */
+
+    let body: any
+
+    try {
+
+      body =
+        await req.json()
+
+    } catch {
+
+      return NextResponse.json(
+        {
+          error: "invalid_json"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    const raffle_id =
+      String(
+        body?.raffle_id || ""
+      )
+        .trim()
+
+    const buyer_name =
+      String(
+        body?.buyer_name || ""
+      )
+        .trim()
+
+    const buyer_email =
+      String(
+        body?.buyer_email || ""
+      )
+        .trim()
+        .toLowerCase()
+
+    const buyer_phone =
+      body?.buyer_phone
+        ? String(
+            body.buyer_phone
+          ).trim()
+        : undefined
+
+    const campaign_name =
+      body?.campaign_name
+        ? String(
+            body.campaign_name
+          ).trim()
+        : undefined
+
+    const reason =
+      body?.reason
+        ? String(
+            body.reason
+          ).trim()
+        : undefined
+
+    const quantity =
+      Number(
+        body?.quantity
+      )
+
+    /* =========================
+       VALIDATION
+    ========================= */
+
+    if (!raffle_id) {
+
+      return NextResponse.json(
+        {
+          error:
+            "raffle_id_required"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    if (!buyer_name) {
+
+      return NextResponse.json(
+        {
+          error:
+            "buyer_name_required"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    if (!buyer_email) {
+
+      return NextResponse.json(
+        {
+          error:
+            "buyer_email_required"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    const emailPattern =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (
+      !emailPattern.test(
+        buyer_email
+      )
+    ) {
+
+      return NextResponse.json(
+        {
+          error:
+            "invalid_buyer_email"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    if (
+      !Number.isInteger(
+        quantity
+      ) ||
+      quantity < 1 ||
+      quantity > 100
+    ) {
+
+      return NextResponse.json(
+        {
+          error:
+            "invalid_quantity"
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    /* =========================
+       ASSIGNMENT
+    ========================= */
+
+    const result =
+      await assignComplimentaryTickets({
+
+        raffle_id,
+
+        buyer_name,
+
+        buyer_email,
+
+        buyer_phone,
+
+        quantity,
+
+        campaign_name,
+
+        reason,
+
+        admin_user_id:
+          user.id
+
+      })
+
+    return NextResponse.json(
+      {
+
+        ok: true,
+
+        message:
+          "complimentary_tickets_assigned",
+
+        raffle:
+          result.raffle,
+
+        order:
+          result.order,
+
+        tickets:
+          result.tickets
+
+      },
+      {
+        status: 201
+      }
+    )
+
+  } catch (error) {
+
+    console.error(
+      "complimentary tickets POST error",
+      error
+    )
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : "server_error"
+
+    if (
+      message ===
+        "raffle_admin_required" ||
+      message ===
+        "raffle_admin_forbidden"
+    ) {
+
+      return NextResponse.json(
+        {
+          error: message
+        },
+        {
+          status: 403
+        }
+      )
+    }
+
+    if (
+      message ===
+        "raffle_id_required" ||
+      message ===
+        "buyer_name_required" ||
+      message ===
+        "buyer_email_required" ||
+      message ===
+        "invalid_quantity"
+    ) {
+
+      return NextResponse.json(
+        {
+          error: message
+        },
+        {
+          status: 400
+        }
+      )
+    }
+
+    if (
+      message ===
+      "raffle_not_found"
+    ) {
+
+      return NextResponse.json(
+        {
+          error: message
+        },
+        {
+          status: 404
+        }
+      )
+    }
+
+    if (
+      message ===
+        "raffle_not_assignable" ||
+      message ===
+        "not_enough_tickets_available" ||
+      message ===
+        "complimentary_ticket_assignment_conflict"
+    ) {
+
+      return NextResponse.json(
+        {
+          error: message
+        },
+        {
+          status: 409
+        }
+      )
+    }
+
+    return NextResponse.json(
+      {
+        error:
+          "complimentary_assignment_failed"
       },
       {
         status: 500
