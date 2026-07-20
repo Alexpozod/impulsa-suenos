@@ -645,8 +645,11 @@ export async function POST(
         order:
           result.order,
 
-        tickets:
-          result.tickets
+                tickets:
+          result.tickets,
+
+        email_sent:
+          result.email_sent
 
       },
       {

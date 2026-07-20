@@ -58,7 +58,8 @@ export async function GET(
   "status",
   [
     "paid",
-    "winner"
+    "winner",
+    "complimentary"
   ]
 )
         .order(

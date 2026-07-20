@@ -389,8 +389,10 @@ export default function RaffleTicketsPage() {
         json?.tickets || []
       )
 
-      setAssignmentSuccess(
-        `${json?.tickets?.length || quantity} tickets promocionales asignados correctamente.`
+            setAssignmentSuccess(
+        json?.email_sent
+          ? `${json?.tickets?.length || quantity} tickets promocionales asignados correctamente y correo enviado.`
+          : `${json?.tickets?.length || quantity} tickets promocionales asignados correctamente, pero el correo no pudo enviarse.`
       )
 
       setAssignmentForm({

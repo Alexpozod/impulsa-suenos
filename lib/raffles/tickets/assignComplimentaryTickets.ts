@@ -13,6 +13,10 @@ from "@/lib/raffles/tickets/recalculateRaffleCounters"
 import { createAuditLog }
 from "@/lib/raffles/admin/createAuditLog"
 
+import {
+  sendComplimentaryTicketsEmail
+} from "@/lib/raffles/emails/sendComplimentaryTicketsEmail"
+
 const supabase =
   createClient(
     process.env
@@ -486,7 +490,7 @@ assignComplimentaryTickets({
        AUDIT
     ========================================= */
 
-    await createAuditLog({
+       await createAuditLog({
 
       admin_user_id,
 
@@ -541,14 +545,55 @@ assignComplimentaryTickets({
 
     })
 
-    return {
+    let emailSent =
+      false
+
+    try {
+
+      await sendComplimentaryTicketsEmail({
+
+        email:
+          normalizedEmail,
+
+        buyerName:
+          normalizedName,
+
+        raffleTitle:
+          raffle.title,
+
+        tickets:
+          assignedTickets,
+
+        campaignName:
+          normalizedCampaignName,
+
+        reason:
+          normalizedReason
+
+      })
+
+      emailSent =
+        true
+
+    } catch (emailError) {
+
+      console.error(
+        "complimentary assignment email error",
+        emailError
+      )
+    }
+
+       return {
 
       raffle,
 
       order,
 
       tickets:
-        assignedTickets
+        assignedTickets,
+
+      email_sent:
+        emailSent
 
     }
 
