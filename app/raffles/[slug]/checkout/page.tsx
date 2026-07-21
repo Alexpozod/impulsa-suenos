@@ -45,7 +45,13 @@ useSearchParams()
   const [buyerEmail, setBuyerEmail] =
     useState("")
 
-  const [buyerPhone, setBuyerPhone] =
+    const [buyerPhone, setBuyerPhone] =
+    useState("")
+
+  const [
+    studentDebtAmount,
+    setStudentDebtAmount
+  ] =
     useState("")
 
     const [buyerRut, setBuyerRut] =
@@ -357,9 +363,14 @@ else {
       "raffle_buyer_email"
     )
 
-  const savedPhone =
+    const savedPhone =
     localStorage.getItem(
       "raffle_buyer_phone"
+    )
+
+  const savedStudentDebtAmount =
+    localStorage.getItem(
+      "raffle_student_debt_amount"
     )
 
     const savedRut =
@@ -380,8 +391,16 @@ localStorage.getItem(
     setBuyerEmail(savedEmail)
   }
 
-  if (savedPhone) {
+    if (savedPhone) {
     setBuyerPhone(savedPhone)
+  }
+
+  if (savedStudentDebtAmount) {
+
+    setStudentDebtAmount(
+      savedStudentDebtAmount
+    )
+
   }
 
   if(savedRut){
@@ -432,6 +451,16 @@ useEffect(() => {
   )
 
 }, [buyerPhone])
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "raffle_student_debt_amount",
+    studentDebtAmount
+  )
+
+}, [studentDebtAmount])
+
 
 useEffect(()=>{
 
@@ -511,13 +540,46 @@ async function buyTickets() {
 
     }
 
-  if (!buyerPhone.trim()) {
+    if (!buyerPhone.trim()) {
 
     alert(
       "Ingresa tu teléfono"
     )
 
     return
+  }
+
+  const normalizedStudentDebtAmount =
+    Number(
+      studentDebtAmount
+    )
+
+  if (
+    !Number.isInteger(
+      normalizedStudentDebtAmount
+    ) ||
+    normalizedStudentDebtAmount <= 0
+  ) {
+
+    alert(
+      "Ingresa el monto aproximado de tu deuda estudiantil"
+    )
+
+    return
+
+  }
+
+  if (
+    normalizedStudentDebtAmount >
+    999999999999
+  ) {
+
+    alert(
+      "El monto de deuda ingresado no es válido"
+    )
+
+    return
+
   }
 
   if (!acceptTerms) {
@@ -569,8 +631,11 @@ console.log(
   buyer_rut:
     buyerRut,
 
-  buyer_phone:
+    buyer_phone:
     buyerPhone,
+
+  student_debt_amount_clp:
+    normalizedStudentDebtAmount,
 
   source:
 "web",
@@ -1063,7 +1128,7 @@ placeholder="RUT"
                 "
                 />
 
-            <input
+                       <input
 type="tel"
 autoComplete="tel"
 placeholder="Teléfono móvil"
@@ -1083,6 +1148,123 @@ placeholder="Teléfono móvil"
                 py-3
               "
             />
+
+            <div
+              className="
+                w-full
+                bg-slate-900
+                border
+                border-slate-700
+                rounded-2xl
+                px-4
+                py-3
+              "
+            >
+
+              <label
+                htmlFor="student-debt-amount"
+                className="
+                  block
+                  text-sm
+                  font-semibold
+                  text-white
+                  mb-1
+                "
+              >
+                Monto aproximado de tu deuda estudiantil
+              </label>
+
+              <p
+                className="
+                  text-xs
+                  text-slate-400
+                  mb-3
+                "
+              >
+                Este monto será verificado únicamente si
+                resultas ganador.
+              </p>
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
+
+                <span
+                  className="
+                    text-lg
+                    font-bold
+                    text-slate-300
+                  "
+                >
+                  $
+                </span>
+
+                <input
+                  id="student-debt-amount"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="Ejemplo: 3.500.000"
+                  value={
+                    studentDebtAmount
+                      ? Number(
+                          studentDebtAmount
+                        ).toLocaleString(
+                          "es-CL"
+                        )
+                      : ""
+                  }
+                  onChange={(e) => {
+
+                    const digits =
+                      e.target.value
+                        .replace(
+                          /\D/g,
+                          ""
+                        )
+                        .slice(
+                          0,
+                          12
+                        )
+
+                    setStudentDebtAmount(
+                      digits
+                    )
+
+                  }}
+                  className="
+                    w-full
+                    bg-transparent
+                    outline-none
+                    text-white
+                    text-lg
+                    font-semibold
+                  "
+                />
+
+              </div>
+
+              <p
+                className="
+                  text-xs
+                  text-amber-300
+                  mt-3
+                  leading-relaxed
+                "
+              >
+                ImpulsaSueños pagará hasta un máximo de
+                <strong>
+                  {" "}$5.000.000 CLP{" "}
+                </strong>
+                por ganador, aunque la deuda declarada sea
+                superior.
+              </p>
+
+            </div>
 
             <div
 className="

@@ -73,8 +73,14 @@ const schema = z.object({
   buyer_name:
     z.string().min(2),
 
-  buyer_phone:
+    buyer_phone:
     z.string().optional(),
+
+  student_debt_amount_clp:
+    z.number()
+      .int()
+      .positive()
+      .max(999999999999),
 
   source:
     z.string().optional(),
@@ -207,9 +213,11 @@ if (
   raffle_id,
   quantity,
 
-  buyer_email,
+    buyer_email,
   buyer_name,
   buyer_phone,
+
+  student_debt_amount_clp,
 
   source,
   referrer,
@@ -413,7 +421,9 @@ const totalCLP =
 
           buyer_email,
 
-          buyer_phone,
+                    buyer_phone,
+
+          student_debt_amount_clp,
 
           quantity,
 
