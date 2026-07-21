@@ -209,6 +209,113 @@ await requireRaffleAdmin({
       )
     }
 
+        /* =========================================
+       LOAD PARTICIPANT ORDERS
+    ========================================= */
+
+    const {
+      data: participantOrdersData,
+      error: participantOrdersError
+    } =
+      await supabase
+        .schema("raffles")
+        .from("orders")
+        .select(`
+          id,
+          buyer_name,
+          buyer_email,
+          buyer_phone,
+          student_debt_amount_clp
+        `)
+        .eq("raffle_id", raffle_id)
+        .limit(5000)
+
+    if (participantOrdersError) {
+
+      console.error(
+        "export participant orders error",
+        participantOrdersError
+      )
+
+      return NextResponse.json(
+        {
+          error:
+            "participant_orders_load_failed"
+        },
+        {
+          status: 500
+        }
+      )
+    }
+
+    const participantOrders =
+      participantOrdersData || []
+
+    const participantOrderMap =
+      new Map(
+        participantOrders.map(
+          order => [
+            order.id,
+            order
+          ]
+        )
+      )
+
+    const enrichedTickets =
+      (tickets || []).map(
+        ticket => {
+
+          const order =
+            participantOrderMap.get(
+              ticket.order_id
+            )
+
+          const declaredDebt =
+            order
+              ?.student_debt_amount_clp ==
+            null
+              ? null
+              : Number(
+                  order
+                    .student_debt_amount_clp
+                )
+
+          const maximumPayable =
+            declaredDebt == null
+              ? null
+              : Math.min(
+                  declaredDebt,
+                  5000000
+                )
+
+          return {
+
+            ...ticket,
+
+            buyer_name:
+              order?.buyer_name ??
+              null,
+
+            buyer_email:
+              order?.buyer_email ??
+              ticket.buyer_email ??
+              null,
+
+            buyer_phone:
+              order?.buyer_phone ??
+              null,
+
+            student_debt_amount_clp:
+              declaredDebt,
+
+            maximum_payable_clp:
+              maximumPayable
+
+          }
+
+        }
+      )
+
     /* =========================================
        EXPORT SNAPSHOT
     ========================================= */
@@ -244,8 +351,8 @@ await requireRaffleAdmin({
 
       },
 
-      tickets:
-        tickets || []
+            tickets:
+        enrichedTickets
 
     }
 

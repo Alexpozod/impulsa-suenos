@@ -216,6 +216,58 @@ await requireRaffleAdmin({
     }
 
 /* =========================================
+   LOAD PARTICIPANT ORDERS
+========================================= */
+
+const {
+  data: participantOrdersData,
+  error: participantOrdersError
+} =
+  await supabase
+    .schema("raffles")
+    .from("orders")
+    .select(`
+      id,
+      buyer_name,
+      buyer_email,
+      buyer_phone,
+      student_debt_amount_clp
+    `)
+    .eq("raffle_id", raffle_id)
+    .limit(5000)
+
+if (participantOrdersError) {
+
+  console.error(
+    "export excel participant orders error",
+    participantOrdersError
+  )
+
+  return NextResponse.json(
+    {
+      error:
+        "participant_orders_load_failed"
+    },
+    {
+      status: 500
+    }
+  )
+}
+
+const participantOrders =
+  participantOrdersData || []
+
+const participantOrderMap =
+  new Map(
+    participantOrders.map(
+      order => [
+        order.id,
+        order
+      ]
+    )
+  )
+
+/* =========================================
    LOAD FINANCIAL DATA
 ========================================= */
 
@@ -275,14 +327,17 @@ if (
        EXPORT HASH
     ========================================= */
 
-    const exportPayload = {
+        const exportPayload = {
 
       raffle_id,
 
       exported_at:
         new Date().toISOString(),
 
-      tickets
+      tickets,
+
+      participant_orders:
+        participantOrders
 
     }
 
@@ -300,28 +355,71 @@ if (
        EXCEL ROWS
     ========================================= */
 
-    const rows = (tickets || [])
-      .map(ticket => ({
+        const rows = (tickets || [])
+      .map(ticket => {
 
-        ticket_code:
-          ticket.ticket_code,
+        const order =
+          participantOrderMap.get(
+            ticket.order_id
+          )
 
-        internal_ticket_number:
-          ticket.ticket_number,
+        const declaredDebt =
+          order
+            ?.student_debt_amount_clp ==
+          null
+            ? null
+            : Number(
+                order
+                  .student_debt_amount_clp
+              )
 
-        buyer_email:
-          ticket.buyer_email,
+        const maximumPayable =
+          declaredDebt == null
+            ? null
+            : Math.min(
+                declaredDebt,
+                5000000
+              )
 
-        order_id:
-          ticket.order_id,
+        return {
 
-        payment_id:
-          ticket.payment_id,
+          ticket_code:
+            ticket.ticket_code,
 
-        created_at:
-          ticket.created_at
+          internal_ticket_number:
+            ticket.ticket_number,
 
-      }))
+          buyer_name:
+            order?.buyer_name ??
+            null,
+
+          buyer_email:
+            order?.buyer_email ??
+            ticket.buyer_email ??
+            null,
+
+          buyer_phone:
+            order?.buyer_phone ??
+            null,
+
+          student_debt_amount_clp:
+            declaredDebt,
+
+          maximum_payable_clp:
+            maximumPayable,
+
+          order_id:
+            ticket.order_id,
+
+          payment_id:
+            ticket.payment_id,
+
+          created_at:
+            ticket.created_at
+
+        }
+
+      })
 
     /* =========================================
        WORKBOOK
