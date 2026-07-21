@@ -166,7 +166,7 @@ await requireRaffleAdmin({
     }
 
     /* =========================================
-       LOAD VALID TICKETS
+       LOAD VALID TICKET
     ========================================= */
 
     const { data: tickets, error } =
