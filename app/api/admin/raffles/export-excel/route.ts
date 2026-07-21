@@ -188,8 +188,11 @@ await requireRaffleAdmin({
           order_id,
           payment_id
         `)
-        .eq("raffle_id", raffle_id)
-        .eq("status", "paid")
+                .eq("raffle_id", raffle_id)
+        .in("status", [
+          "paid",
+          "complimentary"
+        ])
         .order(
           "ticket_number",
           {
