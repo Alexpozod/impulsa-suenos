@@ -18,27 +18,74 @@ async function getFeaturedRaffle() {
 
   try {
 
-   const res =
-  await fetch(
-    "/api/raffles",
-    {
-      cache: "no-store"
+    const supabase =
+      createClient(
+
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+      )
+
+    const {
+      data,
+      error
+    } =
+      await supabase
+
+        .schema("raffles")
+
+        .from("raffles")
+
+        .select(`
+          id,
+          slug,
+          title,
+          description,
+          short_description,
+          cover_image,
+          ticket_price_clp,
+          end_date,
+          status
+        `)
+
+        .eq(
+          "status",
+          "active"
+        )
+
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        )
+
+        .limit(1)
+
+        .maybeSingle()
+
+    if (error) {
+
+      console.error(
+        "featured raffle error",
+        error
+      )
+
+      return null
     }
-  )
 
-    const data =
-      await res.json()
-
-    return data?.raffles?.[0] || null
+    return data || null
 
   } catch (error) {
 
-    console.error(error)
+    console.error(
+      "featured raffle server error",
+      error
+    )
 
     return null
-
   }
-
 }
 
 export default async function RafflesHomePage() {
