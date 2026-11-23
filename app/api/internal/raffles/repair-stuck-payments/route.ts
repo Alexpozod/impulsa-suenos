@@ -34,10 +34,7 @@ export async function POST(
         "authorization"
       )
 
-    if (
-      authHeader !==
-      `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`
-    ) {
+    if (!process.env.RAFFLES_INTERNAL_API_KEY || authHeader !== `Bearer ${process.env.RAFFLES_INTERNAL_API_KEY}`) {
 
       return NextResponse.json(
         {
