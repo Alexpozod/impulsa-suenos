@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { requireRaffleAdmin } from "@/lib/raffles/auth/requireRaffleAdmin"
+import { projectAffiliatePayoutRequest } from "@/lib/raffles/affiliate/createAffiliatePayoutRequest"
 
 export const runtime = "nodejs"
 
@@ -12,9 +14,30 @@ process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 )
 
-export async function GET(){
+export async function GET(req: Request){
 
 try{
+
+  const token = req.headers.get("authorization")?.match(/^Bearer +([^\s]+)$/i)?.[1]
+  if (!token) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+  }
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+  if (authError || !user) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+  }
+
+  try {
+    await requireRaffleAdmin({ user_id: user.id })
+  } catch (error) {
+    if (error instanceof Error &&
+        (error.message === "raffle_admin_required" || error.message === "raffle_admin_forbidden")) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 })
+    }
+
+    throw error
+  }
 
 const { data, error } =
 await supabase
@@ -38,19 +61,6 @@ code,
 owner_email
 `)
 
-console.log(data)
-console.log(error)
-
-console.log("ERROR", error)
-
-console.log(
-  JSON.stringify(
-    data,
-    null,
-    2
-  )
-)
-
 if(error){
 
 throw error
@@ -58,17 +68,17 @@ throw error
 }
 
 const requests =
-(data ?? []).map((request:any)=>{
+(data ?? []).map((request)=>{
 
 const affiliate =
 (affiliates ?? []).find(
-(a:any)=>
+(a)=>
 a.id === request.affiliate_id
 )
 
 return{
 
-...request,
+...projectAffiliatePayoutRequest(request),
 
 affiliate
 
@@ -84,13 +94,11 @@ requests
 
 }
 
-catch(error){
+catch {
 
 console.error(
   "AFFILIATE PAYOUTS ERROR"
 )
-
-console.error(error)
 
 return NextResponse.json(
 
@@ -98,7 +106,7 @@ return NextResponse.json(
 
 requests:[],
 
-error:String(error)
+error:"server_error"
 
 },
 

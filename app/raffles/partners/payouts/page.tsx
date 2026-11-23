@@ -2,11 +2,45 @@
 
 import {
   useEffect,
+  useRef,
   useState
 } from "react"
 
 import { supabase }
 from "@/src/lib/supabase"
+
+const uncertainPayoutMessage =
+  "No se pudo confirmar el retiro. Reintenta la misma solicitud para comprobar su resultado."
+
+type Wallet = {
+  available: number
+  generated: number
+  paid: number
+  pending: number
+}
+
+type PayoutRequest = {
+  id: string
+  amount_clp: number
+  status: string
+  created_at: string
+}
+
+function payoutIntentStorageKey(userId: string) {
+  return `raffles:payout-intent:${userId}`
+}
+
+function readPayoutIntent(storageKey: string): string | null {
+  const stored = sessionStorage.getItem(storageKey)
+  if (!stored) return null
+
+  const intent = JSON.parse(stored)
+  if (intent?.status !== "uncertain" || typeof intent.id !== "string") {
+    throw new Error("Invalid payout intention")
+  }
+
+  return intent.id
+}
 
 export default function PayoutsPage() {
 
@@ -15,6 +49,9 @@ export default function PayoutsPage() {
 
   const [requesting, setRequesting] =
     useState(false)
+
+  const payoutInFlight = useRef(false)
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null)
 
     const [sendingOtp, setSendingOtp] =
   useState(false)
@@ -29,18 +66,18 @@ const [otp, setOtp] =
   useState("")
 
   const [wallet, setWallet] =
-    useState<any>(null)
+    useState<Wallet | null>(null)
 
   const [requests, setRequests] =
-    useState<any[]>([])
+    useState<PayoutRequest[]>([])
 
   useEffect(() => {
 
-    loadData()
+    void loadData(true)
 
   }, [])
 
-  async function loadData() {
+  async function loadData(restoreIntent = false) {
 
     try {
 
@@ -48,6 +85,16 @@ const [otp, setOtp] =
         data: { session }
       } =
         await supabase.auth.getSession()
+
+      if (restoreIntent && session?.user.id) {
+        try {
+          if (readPayoutIntent(payoutIntentStorageKey(session.user.id))) {
+            setRecoveryMessage(uncertainPayoutMessage)
+          }
+        } catch {
+          // Storage availability must not prevent the history from loading.
+        }
+      }
 
       const res =
         await fetch(
@@ -232,121 +279,118 @@ async function validateOtp() {
 
 }
   
-  async function requestPayout() {
+  async function requestPayout(recover = false) {
+    if (payoutInFlight.current) return
 
-    console.log("REQUEST_PAYOUT_CLICK")
-
-if (!otpVerified) {
-
-  alert(
-    "Debes validar OTP antes de solicitar un retiro."
-  )
-
-  return
-
-}
-
-    const confirmAction =
-      confirm(
-        "¿Solicitar retiro de saldo disponible?"
-      )
-
-    if (!confirmAction) {
-
+    if (!recover && !otpVerified) {
+      alert("Debes validar OTP antes de solicitar un retiro.")
       return
-
     }
 
+    if (!recover && !confirm("¿Solicitar retiro de saldo disponible?")) return
+
+    payoutInFlight.current = true
+    setRequesting(true)
+    let submitted = false
+
     try {
+      const { data: { session }, error } = await supabase.auth.getSession()
+      if (error || !session?.access_token || !session.user.id) {
+        alert("Inicia sesión para solicitar o recuperar un retiro.")
+        return
+      }
 
-      setRequesting(true)
+      const storageKey = payoutIntentStorageKey(session.user.id)
+      const existingIntent = readPayoutIntent(storageKey)
+      if (existingIntent && !recover) {
+        setRecoveryMessage(uncertainPayoutMessage)
+        return
+      }
+      if (recover && !existingIntent) {
+        setRecoveryMessage(null)
+        alert("No hay una solicitud por recuperar para esta cuenta.")
+        return
+      }
 
-      const {
-        data: { session }
-      } =
-        await supabase.auth.getSession()
+      const idempotencyKey = existingIntent ?? crypto.randomUUID()
+      if (!existingIntent) {
+        sessionStorage.setItem(storageKey, JSON.stringify({ id: idempotencyKey, status: "uncertain" }))
+      }
 
-      const res =
-        await fetch(
-  "/api/raffles/partners/payouts",
-  {
-    method:"POST",
+      submitted = true
+      const res = await fetch("/api/raffles/partners/payouts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          "Idempotency-Key": idempotencyKey
+        },
+        body: JSON.stringify(otpVerified ? { otp: otp.trim() } : {})
+      })
+      const json = await res.json()
 
-    headers:{
+      if (!res.redirected && res.status === 200 && json?.ok === true &&
+          typeof json.request?.id === "string" && json.request.id.length > 0) {
+        sessionStorage.removeItem(storageKey)
+        setRecoveryMessage(null)
+        alert("Solicitud enviada correctamente.")
+        setOtp("")
+        setOtpVerified(false)
+        await loadData()
+        return
+      }
 
-      "Content-Type":
-        "application/json",
+      if (!res.redirected && res.status === 400 && json?.ok === false &&
+          json.error === "invalid_otp") {
+        setOtpVerified(false)
+        if (recover) {
+          setRecoveryMessage("Valida un OTP vigente y reintenta la misma solicitud.")
+        } else {
+          sessionStorage.removeItem(storageKey)
+          alert("invalid_otp")
+        }
+        return
+      }
 
-      Authorization:
-        `Bearer ${session?.access_token}`
+      const confirmedRejection = json?.ok === false && !res.redirected && (
+        (res.status === 400 &&
+          ["minimum_not_reached", "pending_request_exists"].includes(json.error)) ||
+        (res.status === 409 && ["payout_inconsistent", "payout_amount_not_representable"].includes(json.error)) ||
+        (!recover && (
+          (res.status === 400 && ["invalid_idempotency_key", "invalid_request"].includes(json.error)) ||
+          (res.status === 404 && json.error === "affiliate_not_found")
+        ))
+      )
 
-    },
-
-    body: JSON.stringify({
-
-      otp
-
-    })
-
-  }
-)
-
-      const json =
-        await res.json()
-
-        console.log(
-  "PAYOUT_RESPONSE",
-  json
-)
-
-      if (!json.ok) {
-
-  if (json.error === "minimum_not_reached") {
-
-    alert(
-`El monto mínimo para solicitar un retiro es de $15.000 CLP.
+      if (confirmedRejection) {
+        sessionStorage.removeItem(storageKey)
+        setRecoveryMessage(null)
+        if (json.error === "minimum_not_reached") {
+          alert(`El monto mínimo para solicitar un retiro es de $15.000 CLP.
 
 Todas las solicitudes de retiro son revisadas manualmente.
 
-El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`
-    )
+El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
+        } else if (json.error === "pending_request_exists") {
+          alert("Ya tienes una solicitud de retiro pendiente.")
+          await loadData()
+        } else {
+          alert(json.error)
+        }
+        return
+      }
 
-    return
-
-  }
-
-  alert(
-    json.error ||
-    "No fue posible crear la solicitud."
-  )
-
-  return
-
-}
-
-      alert(
-        "Solicitud enviada correctamente."
-      )
-
-      setOtp("")
-setOtpVerified(false)
-
-      await loadData()
-
-    } catch (error) {
-
-      console.error(error)
-
-      alert(
-        "Error procesando solicitud."
-      )
-
+      setRecoveryMessage(uncertainPayoutMessage)
+    } catch {
+      if (submitted) {
+        setRecoveryMessage(uncertainPayoutMessage)
+      } else {
+        alert("No se pudo preparar la solicitud de retiro. Intenta nuevamente.")
+      }
     } finally {
-
+      payoutInFlight.current = false
       setRequesting(false)
-
     }
-
   }
 
   if (loading) {
@@ -509,11 +553,11 @@ setOtpVerified(false)
     maxLength={6}
     placeholder="Código OTP"
     value={otp}
-    onChange={(e)=>
-      setOtp(
-        e.target.value
-      )
-    }
+    disabled={requesting || validatingOtp}
+    onChange={(e) => {
+      setOtp(e.target.value)
+      setOtpVerified(false)
+    }}
     className="
       border
       rounded-2xl
@@ -526,7 +570,7 @@ setOtpVerified(false)
     type="button"
     onClick={validateOtp}
     disabled={
-      validatingOtp ||
+      requesting || validatingOtp ||
       otp.length !== 6
     }
     className="
@@ -627,9 +671,9 @@ setOtpVerified(false)
           </div>
 
           <button
-            onClick={requestPayout}
+            onClick={() => void requestPayout()}
             disabled={
-              requesting ||
+              requesting || Boolean(recoveryMessage) ||
               Number(
                 wallet?.available || 0
               ) <= 0
@@ -659,6 +703,20 @@ setOtpVerified(false)
           </button>
 
         </div>
+
+        {recoveryMessage && (
+          <div className="mt-4 space-y-2">
+            <p role="alert" className="text-sm text-amber-800">{recoveryMessage}</p>
+            <button
+              type="button"
+              onClick={() => void requestPayout(true)}
+              disabled={requesting}
+              className="rounded-2xl border px-5 py-3 font-semibold disabled:opacity-50"
+            >
+              Reintentar la misma solicitud
+            </button>
+          </div>
+        )}
 
       </div>
 
@@ -780,7 +838,7 @@ function Card({
 
   value
 
-}: any) {
+}: { title: string; value: string }) {
 
   return (
 
@@ -822,10 +880,10 @@ function StatusBadge({
 
   status
 
-}: any) {
+}: { status: string }) {
 
   if (
-    status === "approved"
+    status === "approved" || status === "paid"
   ) {
 
     return (
@@ -841,7 +899,7 @@ function StatusBadge({
           font-semibold
         "
       >
-        Aprobado
+        {status === "paid" ? "Pagado" : "Aprobado"}
       </span>
 
     )

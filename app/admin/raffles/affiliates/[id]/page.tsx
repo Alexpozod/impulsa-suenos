@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "@/src/lib/supabase";
 
 import {
   ArrowLeft,
@@ -67,6 +68,7 @@ useState(false);
 const [dashboard, setDashboard] = useState<any>(null);
 
 const [loading, setLoading] = useState(true);
+const [dashboardError, setDashboardError] = useState<string | null>(null);
 
 const [selectedSale, setSelectedSale] = useState<any>(null);
 
@@ -130,7 +132,7 @@ sale.paymentReference?.toLowerCase().includes(q)
 
 })
 
-async function loadSales(page: number) {
+const loadSales = useCallback(async (page: number) => {
 
   setSalesLoading(true);
 
@@ -164,50 +166,56 @@ async function loadSales(page: number) {
 
   }
 
-}
+}, [affiliateId]);
 
 useEffect(() => {
+  const controller = new AbortController();
 
   async function loadDashboard() {
+    setLoading(true);
+    setDashboardError(null);
 
-  try {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session?.access_token) {
+        throw new Error("Inicia sesión para ver el detalle del afiliado.");
+      }
 
-    const response =
-      await fetch(
-        `/api/admin/raffles/affiliates/${affiliateId}`
+      const response = await fetch(
+        `/api/admin/raffles/affiliates/${affiliateId}`,
+        {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          signal: controller.signal,
+        }
       );
 
-    const json =
-      await response.json();
+      if (response.status === 401) {
+        throw new Error("Tu sesión no es válida. Vuelve a iniciar sesión.");
+      }
+      if (response.status === 403) {
+        throw new Error("No tienes permiso para ver el detalle del afiliado.");
+      }
+      if (!response.ok) {
+        throw new Error("No se pudo cargar el detalle del afiliado.");
+      }
 
-    setDashboard(json);
+      const json = await response.json();
+      if (controller.signal.aborted) return;
 
-console.log(
-  "ADMIN DASHBOARD",
-  json.stats
-);
-
-await loadSales(1);
-
+      setDashboard(json);
+      await loadSales(1);
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      setDashboard(null);
+      setDashboardError(error instanceof Error ? error.message : "No se pudo cargar el detalle del afiliado.");
+    } finally {
+      if (!controller.signal.aborted) setLoading(false);
+    }
   }
 
-  catch (error) {
-
-      console.error(error);
-
-    }
-
-    finally {
-
-      setLoading(false);
-
-    }
-
-  }
-
-  loadDashboard();
-
-}, [affiliateId]);
+  void loadDashboard();
+  return () => controller.abort();
+}, [affiliateId, loadSales]);
 
 if (loading) {
 
@@ -222,6 +230,21 @@ if (loading) {
   );
 
 }
+
+  if (dashboardError) {
+    return (
+      <div className="space-y-4 p-10">
+        <Link
+          href="/admin/raffles/affiliates"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Volver
+        </Link>
+        <p role="alert">{dashboardError}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
