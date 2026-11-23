@@ -1,3 +1,4 @@
+import { guardRaffleAdminRequest } from "@/lib/raffles/auth/guardRaffleAdminRequest"
 import { createClient } from "@supabase/supabase-js"
 
 export const runtime = "nodejs"
@@ -7,7 +8,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+export async function GET(req: Request) {
+  const accessDenied = await guardRaffleAdminRequest(req)
+  if (accessDenied) return accessDenied
+
 
   const { data, error } =
     await supabase
