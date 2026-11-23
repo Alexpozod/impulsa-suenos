@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-
 import { requireUser } from "@/lib/auth/requireUser"
 
 export const runtime = "nodejs"
@@ -11,145 +10,63 @@ const supabase = createClient(
 )
 
 export async function POST(req: Request) {
-
+  let user: Awaited<ReturnType<typeof requireUser>>
   try {
-
-    const user =
-      await requireUser(req)
-
-    const email =
-      user.email?.toLowerCase()
-
-    const { otp } =
-      await req.json()
-
-    if (!otp) {
-
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "otp_required"
-        },
-        {
-          status: 400
-        }
-      )
-
-    }
-
-    const { data: code } =
-      await supabase
-        .from("otp_codes")
-        .select("*")
-        .eq("user_email", email)
-        .eq("code", otp)
-        .eq("verified", true)
-        .eq("used", false)
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
-        )
-        .limit(1)
-        .maybeSingle()
-
-    if (!code) {
-
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "invalid_otp"
-        },
-        {
-          status: 400
-        }
-      )
-
-    }
-
-    await supabase
-      .from("otp_codes")
-      .update({
-        used: true
-      })
-      .eq("id", code.id)
-
-    const { data: affiliate } =
-      await supabase
-        .schema("raffles")
-        .from("raffle_referrals")
-        .select("id")
-        .eq(
-          "owner_email",
-          email
-        )
-        .maybeSingle()
-
-    if (!affiliate) {
-
-      return NextResponse.json(
-        {
-          ok: false,
-          error:
-            "affiliate_not_found"
-        },
-        {
-          status: 404
-        }
-      )
-
-    }
-
-    const unlockUntil =
-      new Date(
-        Date.now() +
-        15 * 60 * 1000
-      ).toISOString()
-
-    await supabase
-      .schema("raffles")
-      .from("partner_profiles")
-      .update({
-
-        profile_locked:
-          false,
-
-        edit_window_until:
-          unlockUntil,
-
-        profile_verified_at:
-          new Date()
-            .toISOString()
-
-      })
-      .eq(
-        "affiliate_id",
-        affiliate.id
-      )
-
-    return NextResponse.json({
-
-      ok: true,
-
-      unlockUntil
-
-    })
-
-  } catch (error: any) {
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error?.message ||
-          "server_error"
-      },
-      {
-        status: 500
-      }
-    )
-
+    user = await requireUser(req)
+  } catch {
+    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 })
   }
 
+  const email = user.email?.trim().toLowerCase()
+  if (!email) {
+    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 })
+  }
+
+  let otp: unknown
+  try {
+    const body = await req.json()
+    otp = body?.otp
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid_request" }, { status: 400 })
+  }
+
+  if (typeof otp !== "string" || otp.trim().length < 4 || otp.trim().length > 32) {
+    return NextResponse.json({ ok: false, error: "otp_required" }, { status: 400 })
+  }
+
+  try {
+    const { data: affiliate, error: affiliateError } = await supabase
+      .schema("raffles")
+      .from("raffle_referrals")
+      .select("id")
+      .eq("owner_email", email)
+      .maybeSingle()
+
+    if (affiliateError) throw affiliateError
+    if (!affiliate) {
+      return NextResponse.json({ ok: false, error: "affiliate_not_found" }, { status: 404 })
+    }
+
+    const { data, error } = await supabase
+      .schema("raffles")
+      .rpc("unlock_partner_profile", {
+        p_affiliate_id: affiliate.id,
+        p_email: email,
+        p_otp: otp.trim()
+      })
+
+    if (error) throw error
+
+    if (data?.outcome === "unlocked" && typeof data.unlockUntil === "string") {
+      return NextResponse.json({ ok: true, unlockUntil: data.unlockUntil })
+    }
+
+    const outcome = typeof data?.outcome === "string" ? data.outcome : "server_error"
+    const status = outcome === "invalid_otp" || outcome === "invalid_request" ? 400
+      : outcome === "affiliate_not_found" || outcome === "profile_not_found" ? 404 : 500
+    return NextResponse.json({ ok: false, error: outcome }, { status })
+  } catch {
+    console.error("raffles_partner_profile_unlock_failed")
+    return NextResponse.json({ ok: false, error: "server_error" }, { status: 500 })
+  }
 }

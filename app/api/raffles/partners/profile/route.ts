@@ -121,48 +121,18 @@ export async function POST(req: Request) {
     )
     .maybeSingle()
 
-if (
-  existing?.profile_locked
-) {
-
-  return NextResponse.json(
-    {
-      ok: false,
-      error: "profile_locked"
-    },
-    {
-      status: 403
-    }
-  )
-
-}
-
-if (
-  existing?.edit_window_until
-) {
-
-  const expiresAt =
-    new Date(
-      existing.edit_window_until
-    ).getTime()
-
-  if (
-    Date.now() > expiresAt
-  ) {
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "edit_window_expired"
-      },
-      {
-        status: 403
+// Existing bank profiles may only be changed during an OTP-approved window.
+    // The initial creation of an absent profile remains supported.
+    if (existing) {
+      if (existing.profile_locked !== false) {
+        return NextResponse.json({ ok: false, error: "profile_locked" }, { status: 403 })
       }
-    )
-
-  }
-
-}
+      const expiry = existing.edit_window_until
+        ? new Date(existing.edit_window_until).getTime() : NaN
+      if (!Number.isFinite(expiry) || expiry <= Date.now()) {
+        return NextResponse.json({ ok: false, error: "edit_window_expired" }, { status: 403 })
+      }
+    }
 
     const payload = {
 

@@ -62,15 +62,13 @@ requireAdminAccess(
       await supabase
         .schema("raffles")
         .from("admin_users")
-        .select("id")
+        .select("id,role")
         .eq(
           "user_id",
           user.id
         )
-        .eq(
-          "active",
-          true
-        )
+        .eq("active", true)
+        .eq("role", "raffle_admin")
         .maybeSingle()
 
     if (!adminUser) {
