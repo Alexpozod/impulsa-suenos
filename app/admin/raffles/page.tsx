@@ -1,4 +1,5 @@
 "use client"
+import { raffleAdminFetch } from "@/lib/raffles/admin/raffleAdminFetch"
 
 import Link from "next/link"
 import { useState } from "react"
@@ -290,7 +291,7 @@ async function loadDashboard(){
       await supabase.auth.getSession()
 
     const response =
-      await fetch(
+      await raffleAdminFetch(
 
         "/api/admin/raffles/analytics",
 
@@ -330,7 +331,7 @@ async function loadRaffles() {
       await supabase.auth.getSession()
 
     const response =
-      await fetch(
+      await raffleAdminFetch(
 
         "/api/admin/raffles/list?page=1&limit=100",
 
@@ -374,7 +375,7 @@ async function loadFinancialPlan(
   try {
 
     const response =
-      await fetch(
+      await raffleAdminFetch(
 
         `/api/internal/raffles/financial-plan/${raffleId}`
 
@@ -473,7 +474,7 @@ async function saveFinancialPlan() {
     setSaveMessage("")
 
     const response =
-      await fetch(
+      await raffleAdminFetch(
 
         "/api/internal/raffles/financial-plan/save",
 
@@ -573,7 +574,7 @@ async function loadExtraPrizes(
   try{
 
     const response =
-      await fetch(
+      await raffleAdminFetch(
 
 `/api/internal/raffles/financial-extra-prizes?raffle_id=${raffleId}`
 
@@ -605,7 +606,7 @@ async function loadScenarios(
   try{
 
     const response =
-      await fetch(
+      await raffleAdminFetch(
 
 `/api/internal/raffles/prize-scenarios/${raffleId}`
 
@@ -651,7 +652,7 @@ console.log({
   try{
 
    const response =
-  await fetch(
+  await raffleAdminFetch(
 
 "/api/internal/raffles/financial-extra-prizes",
 
@@ -735,7 +736,7 @@ async function deleteExtraPrize(
 
   try{
 
-    await fetch(
+    await raffleAdminFetch(
 
 `/api/internal/raffles/financial-extra-prizes/${id}`,
 
@@ -774,7 +775,7 @@ async function loadFinancialProgress(
   try{
 
     const response =
-      await fetch(
+      await raffleAdminFetch(
 
 `/api/internal/raffles/financial-plan-progress/${raffleId}`
 
