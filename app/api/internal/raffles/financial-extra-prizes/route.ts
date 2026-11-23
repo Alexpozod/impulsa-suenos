@@ -1,3 +1,4 @@
+import { guardRaffleAdminRequest } from "@/lib/raffles/auth/guardRaffleAdminRequest"
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -9,6 +10,9 @@ const supabase = createClient(
 export async function POST(
   req: NextRequest
 ) {
+  const accessDenied = await guardRaffleAdminRequest(req)
+  if (accessDenied) return accessDenied
+
 
   try {
 
@@ -102,6 +106,9 @@ console.log(
 export async function GET(
   req: NextRequest
 ) {
+  const accessDenied = await guardRaffleAdminRequest(req)
+  if (accessDenied) return accessDenied
+
 
   try {
 
