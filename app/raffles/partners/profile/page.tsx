@@ -136,30 +136,23 @@ async function sendOtp() {
 
     setSendingOtp(true)
 
-    const {
-      data: { user }
-    } =
-      await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) {
+      alert("Inicia sesión para solicitar el código.")
+      return
+    }
 
-    const res =
-      await fetch(
-        "/api/otp/send",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-
-            email:
-              user?.email
-
-          })
-        }
-      )
+    const res = await fetch(
+      "/api/raffles/partners/otp/send",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({})
+      }
+    )
 
     const json =
       await res.json()
