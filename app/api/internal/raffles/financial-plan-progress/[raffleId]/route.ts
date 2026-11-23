@@ -1,3 +1,4 @@
+import { guardRaffleAdminRequest } from "@/lib/raffles/auth/guardRaffleAdminRequest"
 import { NextRequest, NextResponse }
 from "next/server"
 
@@ -26,6 +27,9 @@ raffleId:string
 }
 
 ){
+  const accessDenied = await guardRaffleAdminRequest(req)
+  if (accessDenied) return accessDenied
+
 
 try{
 
