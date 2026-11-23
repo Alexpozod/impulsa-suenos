@@ -47,9 +47,9 @@ const token =
 let authorized = false
 
 if (
-  token ===
-  process.env
-    .RAFFLES_INTERNAL_API_KEY
+  token &&
+  process.env.RAFFLES_INTERNAL_API_KEY &&
+  token === process.env.RAFFLES_INTERNAL_API_KEY
 ) {
   authorized = true
 }
@@ -78,10 +78,8 @@ if (
           "user_id",
           user.id
         )
-        .eq(
-          "active",
-          true
-        )
+        .eq("active", true)
+        .eq("role", "raffle_admin")
         .maybeSingle()
 
     if (adminUser) {
