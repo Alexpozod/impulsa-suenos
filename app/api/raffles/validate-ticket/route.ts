@@ -107,7 +107,8 @@ if (
     if (
       !ticket ||
       ticket.length < 3 ||
-      ticket.length > 50
+      ticket.length > 50 ||
+      !/^[A-Z0-9\/-]+$/.test(ticket)
     ) {
 
       return NextResponse.json(

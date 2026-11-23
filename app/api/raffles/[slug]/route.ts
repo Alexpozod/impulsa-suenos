@@ -136,32 +136,6 @@ export async function GET(
         raffle.ticket_price_clp || 0
       )
 
-    /* =========================
-       INVENTORY PREVIEW
-    ========================= */
-
-    const {
-      data: previewTickets
-    } =
-      await supabase
-        .schema("raffles")
-        .from("ticket_inventory")
-        .select(`
-          ticket_code,
-          status
-        `)
-        .eq(
-          "raffle_id",
-          raffle.id
-        )
-        .order(
-          "ticket_number",
-          {
-            ascending: true
-          }
-        )
-        .limit(30)
-
 /* =========================
    WINNERS
 ========================= */
@@ -226,9 +200,6 @@ const {
         revenue
 
       },
-
-      preview_tickets:
-        previewTickets || [],
 
         winners:
         winners || []

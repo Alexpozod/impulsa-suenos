@@ -1,3 +1,4 @@
+import { requireUser } from "@/lib/auth/requireUser"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -18,11 +19,29 @@ export async function GET(
     const { searchParams } =
       new URL(req.url)
 
-    const email =
-  searchParams
-    .get("email")
-    ?.trim()
-    .toLowerCase()
+    let user: Awaited<ReturnType<typeof requireUser>>
+    try {
+      user = await requireUser(req)
+    } catch {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    if (!user.email_confirmed_at) {
+      return NextResponse.json({ error: "email_unverified" }, { status: 403 })
+    }
+
+    const verifiedEmail = user.email?.trim().toLowerCase()
+    const requestedEmail = searchParams.get("email")?.trim().toLowerCase()
+
+    if (!verifiedEmail) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+    }
+
+    if (requestedEmail && requestedEmail !== verifiedEmail) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 })
+    }
+
+    const email = verifiedEmail
 
     if (!email?.length) {
 
@@ -50,10 +69,7 @@ export async function GET(
           created_at,
           raffle_id
         `)
-        .ilike(
-  "buyer_email",
-  email
-)
+        .eq("buyer_email", email)
 .in(
   "status",
   [

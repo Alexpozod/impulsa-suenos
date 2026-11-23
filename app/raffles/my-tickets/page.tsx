@@ -1,4 +1,5 @@
 "use client"
+import { supabase } from "@/src/lib/supabase"
 
 import {
   useState,
@@ -10,20 +11,13 @@ export default function MyTicketsPage() {
   const [email, setEmail] =
     useState("")
 
-    useEffect(() => {
-
-  const savedEmail =
-    localStorage.getItem(
-      "raffle_buyer_email"
-    )
-
-  if (savedEmail) {
-
-    setEmail(savedEmail)
-    
-  }
-
-}, [])
+  useEffect(() => {
+    let active = true
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (active && user?.email) setEmail(user.email.toLowerCase())
+    }).catch(() => {})
+    return () => { active = false }
+  }, [])
 
   const [loading, setLoading] =
     useState(false)
@@ -66,29 +60,30 @@ export default function MyTicketsPage() {
   async function searchTickets() {
  
 if (!email.trim()) {
-
-      alert(
-        "Ingresa tu correo"
-      )
-
+      window.location.href = "/raffles/login?redirect=%2Fraffles%2Fmy-tickets"
       return
     }
 
     try {
-
       setLoading(true)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        window.location.href = "/raffles/login?redirect=%2Fraffles%2Fmy-tickets"
+        return
+      }
 
-      const res =
-        await fetch(
-`/api/raffles/my-tickets?email=${encodeURIComponent(email)}`
-)
-
-      const data =
-        await res.json()
-
-      setTickets(
-        data || []
+      const res = await fetch(
+        `/api/raffles/my-tickets?email=${encodeURIComponent(email)}`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } }
       )
+      if (!res.ok) {
+        setTickets([])
+        alert(res.status === 403 ? "Este correo no corresponde a tu sesión." : "Inicia sesión con el correo de compra.")
+        return
+      }
+
+      const data = await res.json()
+      setTickets(Array.isArray(data) ? data : [])
 
     } catch (error) {
 
@@ -144,7 +139,7 @@ if (!email.trim()) {
   >
     🎟️ Mis participaciones
 
-Consulta todas tus participaciones utilizando el mismo correo electrónico con el que realizaste tu compra. Si participaste en distintos sorteos, aparecerán agrupados automáticamente.
+Inicia sesión con el correo que utilizaste al comprar para consultar tus participaciones de forma segura.
   </p>
 
 </div>
@@ -162,13 +157,9 @@ Consulta todas tus participaciones utilizando el mismo correo electrónico con e
 
           <input
             type="email"
-            placeholder="Correo utilizado en la compra"
+            placeholder="Correo de tu sesión"
             value={email}
-            onChange={(e) =>
-              setEmail(
-                e.target.value
-              )
-            }
+            readOnly
             className="
               w-full
               bg-slate-950

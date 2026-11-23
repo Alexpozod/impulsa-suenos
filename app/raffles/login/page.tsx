@@ -124,7 +124,14 @@ const intent = localStorage.getItem('donation_intent')
       return
     }
 
-    if (redirect) {
+    if (
+  redirect &&
+  redirect.startsWith("/raffles") &&
+  !redirect.startsWith("//") &&
+  !redirect.includes("\\") &&
+  !redirect.includes("\n") &&
+  !redirect.includes("\r")
+) {
   window.location.href = redirect
   return
 }
