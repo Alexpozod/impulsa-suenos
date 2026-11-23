@@ -123,15 +123,15 @@ export async function POST(req: Request) {
 
 // Existing bank profiles may only be changed during an OTP-approved window.
     // The initial creation of an absent profile remains supported.
-    if (existing) {
-      if (existing.profile_locked !== false) {
-        return NextResponse.json({ ok: false, error: "profile_locked" }, { status: 403 })
-      }
-      const expiry = existing.edit_window_until
-        ? new Date(existing.edit_window_until).getTime() : NaN
-      if (!Number.isFinite(expiry) || expiry <= Date.now()) {
-        return NextResponse.json({ ok: false, error: "edit_window_expired" }, { status: 403 })
-      }
+    // A first-time partner must pass OTP to create an unlocked shell via
+    // raffles.unlock_partner_profile before any bank details may be saved.
+    if (!existing || existing.profile_locked !== false) {
+      return NextResponse.json({ ok: false, error: "profile_locked" }, { status: 403 })
+    }
+    const expiry = existing.edit_window_until
+      ? new Date(existing.edit_window_until).getTime() : NaN
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) {
+      return NextResponse.json({ ok: false, error: "edit_window_expired" }, { status: 403 })
     }
 
     const payload = {
@@ -191,22 +191,23 @@ export async function POST(req: Request) {
 
 }
 
-    const { error } =
-      await supabase
-        .schema("raffles")
-        .from("partner_profiles")
-        .upsert(
-          payload,
-          {
-            onConflict:
-              "affiliate_id"
-          }
-        )
+    // Atomic predicate rechecks the 15-minute OTP window at write time.
+    const { data: saved, error } = await supabase
+      .schema("raffles")
+      .from("partner_profiles")
+      .update(payload)
+      .eq("affiliate_id", affiliate.id)
+      .eq("profile_locked", false)
+      .gt("edit_window_until", new Date().toISOString())
+      .select("id")
+      .maybeSingle()
 
-    if (error) {
-
-      throw error
-
+    if (error) throw error
+    if (!saved) {
+      return NextResponse.json(
+        { ok: false, error: "edit_window_expired" },
+        { status: 403 }
+      )
     }
 
     return NextResponse.json({
