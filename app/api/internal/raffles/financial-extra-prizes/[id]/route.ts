@@ -1,3 +1,4 @@
+import { guardRaffleAdminRequest } from "@/lib/raffles/auth/guardRaffleAdminRequest"
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
@@ -17,6 +18,9 @@ export async function DELETE(
   }
 
 ){
+  const accessDenied = await guardRaffleAdminRequest(req)
+  if (accessDenied) return accessDenied
+
 
   try{
 
