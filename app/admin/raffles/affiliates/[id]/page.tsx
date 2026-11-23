@@ -1,4 +1,5 @@
 "use client";
+import { raffleAdminFetch } from "@/lib/raffles/admin/raffleAdminFetch"
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -139,7 +140,7 @@ const loadSales = useCallback(async (page: number) => {
   try {
 
     const response =
-      await fetch(
+      await raffleAdminFetch(
         `/api/admin/raffles/affiliates/${affiliateId}/sales?page=${page}`
       );
 
@@ -181,7 +182,7 @@ useEffect(() => {
         throw new Error("Inicia sesión para ver el detalle del afiliado.");
       }
 
-      const response = await fetch(
+      const response = await raffleAdminFetch(
         `/api/admin/raffles/affiliates/${affiliateId}`,
         {
           headers: { Authorization: `Bearer ${session.access_token}` },
