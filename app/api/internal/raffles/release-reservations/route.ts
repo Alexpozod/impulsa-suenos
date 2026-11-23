@@ -186,3 +186,5 @@ await createAuditLog({
     )
   }
 }
+// The Raffles system dashboard submits POST for this state-changing operation.
+export const POST = GET
