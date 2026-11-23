@@ -55,6 +55,24 @@ export default function PublicSitePage() {
 
   }
 
+  async function downloadLeadsCsv() {
+    try {
+      const response = await raffleAdminFetch("/api/admin/raffles/public-site/export")
+      if (!response.ok) throw new Error("csv_export_failed")
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "raffles-landing-leads.csv"
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      alert("No fue posible exportar el CSV.")
+    }
+  }
+
   async function save() {
 
   try {
@@ -812,9 +830,7 @@ export default function PublicSitePage() {
 
     <div className="flex justify-between items-center">
 
-  <a
-
-    href="/api/admin/raffles/public-site/export"
+  <button type="button" onClick={downloadLeadsCsv}
 
     className="
       px-6
@@ -832,7 +848,7 @@ export default function PublicSitePage() {
 
     📥 Exportar CSV
 
-  </a>
+  </button>
 
   <button
 
