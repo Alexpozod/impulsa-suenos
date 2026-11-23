@@ -1,4 +1,5 @@
 "use client"
+import { raffleAdminFetch } from "@/lib/raffles/admin/raffleAdminFetch"
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -38,7 +39,7 @@ setLoading(true)
 
 const res=
 
-await fetch(
+await raffleAdminFetch(
 
 "/api/admin/raffles/referrals"
 
@@ -64,7 +65,7 @@ setSaving(true)
 
 const res=
 
-await fetch(
+await raffleAdminFetch(
 
 "/api/admin/raffles/referrals",
 
