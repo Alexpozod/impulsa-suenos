@@ -1,4 +1,5 @@
 "use client"
+import { raffleAdminFetch } from "@/lib/raffles/admin/raffleAdminFetch"
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
@@ -43,15 +44,15 @@ const [summary,setSummary] =
 
 ] = await Promise.all([
 
-  fetch(
+  raffleAdminFetch(
     `/api/admin/raffles/referrals/${id}`
   ),
 
-  fetch(
+  raffleAdminFetch(
     `/api/admin/raffles/referrals/${id}/summary`
   ),
 
-  fetch(
+  raffleAdminFetch(
     `/api/admin/raffles/referrals/${id}/ledger`
   )
 
@@ -270,7 +271,7 @@ setLedger(
 
     onClick={async()=>{
 
-      await fetch(
+      await raffleAdminFetch(
 
         `/api/admin/raffles/referrals/${id}/toggle`,
 
