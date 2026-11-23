@@ -1,4 +1,5 @@
 "use client";
+import { raffleAdminFetch } from "@/lib/raffles/admin/raffleAdminFetch"
 
 import { useEffect, useState } from "react";
 
@@ -27,7 +28,7 @@ export default function PublicSitePage() {
     try {
 
       const res =
-        await fetch(
+        await raffleAdminFetch(
           "/api/admin/raffles/public-site"
         );
 
@@ -61,7 +62,7 @@ export default function PublicSitePage() {
     setSaving(true);
 
     const res =
-      await fetch(
+      await raffleAdminFetch(
         "/api/admin/raffles/public-site",
         {
           method: "POST",
