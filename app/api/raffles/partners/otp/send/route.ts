@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { Resend } from "resend"
 import { requireUser } from "@/lib/auth/requireUser"
-import { rateLimit } from "@/lib/security/rateLimit"
 
 export const runtime = "nodejs"
 
@@ -32,10 +31,14 @@ export async function POST(req: Request) {
     if (affiliateError) throw affiliateError
     if (!affiliate) return NextResponse.json({ error: "affiliate_not_found" }, { status: 403 })
 
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-      || req.headers.get("x-real-ip") || ""
-    const limiter = await rateLimit(email, "otp", ip)
-    if (limiter.blocked) {
+    // A single SQL upsert serializes requests for each affiliate across
+    // serverless instances and IP addresses (5 per 60 seconds).
+    const { data: allowed, error: throttleError } = await supabase
+      .schema("raffles")
+      .rpc("claim_partner_otp_send", { p_affiliate_id: affiliate.id })
+
+    if (throttleError) throw throttleError
+    if (allowed !== true) {
       return NextResponse.json({ error: "rate_limited" }, { status: 429 })
     }
 
