@@ -1,36 +1,11 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ensayo de separación de ImpulsaSueños Sorteos
 
-## Getting Started
+Base de producción: a73e807c7d767aa1cf90303427e23a002dfe3bc3. Esta rama es un candidato de extracción. El middleware de ensayo restringe operaciones y el backend de compilación es deliberadamente inerte.
 
-First, run the development server:
+## Antes de una prueba transaccional
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Provisionar Supabase de ensayo con esquema, RPC, Auth, permisos, buckets y datos ficticios. Configurar Flow de pruebas con confirmación y retorno propios y un destino de correo de pruebas. Revisar los dominios absolutos del panel de afiliados y de los correos. Adaptar el middleware de ensayo solo para ese entorno. Restaurar la navegación administrativa específica de Sorteos y verificar los guardias de cada ruta. Contrastar las rutas del build con el inventario de producción.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Ensayo y corte
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Probar compra directa y con afiliado, packs, tickets, comisión única, notificaciones repetidas de Flow, pago pendiente, vencimiento, OTP y descarga privada. Registrar el despliegue estable y las órdenes pendientes antes del cambio. Mantener un solo receptor operativo de confirmaciones por orden y conciliar tickets, pagos y ledger antes y después. Revertir el alias a la versión estable si la conciliación falla. La migración de base de datos se ensaya por separado.
