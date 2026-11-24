@@ -19,10 +19,6 @@ export default function FinalCTA() {
           "
         >
 
-          <div className="text-4xl mb-4">
-            🎁
-          </div>
-
           <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
 
             Cada participación puede cambiar una historia.

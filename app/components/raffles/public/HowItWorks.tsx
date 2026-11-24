@@ -22,10 +22,6 @@ export default function HowItWorks() {
 
           <div className="bg-[#EDE8FD] border border-[#EDE8FD] rounded-3xl p-8 text-center">
 
-            <div className="text-4xl mb-4">
-              🎟️
-            </div>
-
             <h3 className="text-xl font-bold text-[#002314] mb-4">
               Elige tu participación
             </h3>
@@ -38,10 +34,6 @@ export default function HowItWorks() {
 
           <div className="bg-[#EDE8FD] border border-[#EDE8FD] rounded-3xl p-8 text-center">
 
-            <div className="text-4xl mb-4">
-              📧
-            </div>
-
             <h3 className="text-xl font-bold text-[#002314] mb-4">
               Confirmación inmediata
             </h3>
@@ -53,10 +45,6 @@ export default function HowItWorks() {
           </div>
 
           <div className="bg-[#EDE8FD] border border-[#EDE8FD] rounded-3xl p-8 text-center">
-
-            <div className="text-4xl mb-4">
-              🏆
-            </div>
 
             <h3 className="text-xl font-bold text-[#002314] mb-4">
               Sigue la historia

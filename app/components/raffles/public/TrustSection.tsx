@@ -22,10 +22,6 @@ export default function TrustSection() {
 
           <div className="bg-[#EDE8FD] border border-[#EDE8FD] rounded-3xl p-6 text-center">
 
-            <div className="text-4xl mb-3">
-              ⚡
-            </div>
-
             <h3 className="font-bold text-xl mb-3">
               Participación Rápida
             </h3>
@@ -37,10 +33,6 @@ export default function TrustSection() {
           </div>
 
           <div className="bg-[#EDE8FD] border border-[#EDE8FD] rounded-3xl p-6 text-center">
-
-            <div className="text-4xl mb-3">
-              📧
-            </div>
 
             <h3 className="font-bold text-xl mb-3">
               Confirmación Inmediata
@@ -54,10 +46,6 @@ export default function TrustSection() {
 
           <div className="bg-[#EDE8FD] border border-[#EDE8FD] rounded-3xl p-6 text-center">
 
-            <div className="text-4xl mb-3">
-              🔒
-            </div>
-
             <h3 className="font-bold text-xl mb-3">
               Pagos Seguros
             </h3>
@@ -69,10 +57,6 @@ export default function TrustSection() {
           </div>
 
           <div className="bg-[#EDE8FD] border border-[#EDE8FD] rounded-3xl p-6 text-center">
-
-            <div className="text-4xl mb-3">
-              🏆
-            </div>
 
             <h3 className="font-bold text-xl mb-3">
               Resultados Públicos

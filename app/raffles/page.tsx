@@ -226,16 +226,6 @@ export default async function RafflesHomePage() {
                 "
               >
 
-                <img
-  src={featuredRaffle.cover_image}
-  alt={featuredRaffle.title}
-  className="
-    w-full
-    h-[340px]
-    object-contain
-    bg-[#002314]
-  "
-/>
 
                 <div className="p-6">
 
@@ -279,6 +269,12 @@ export default async function RafflesHomePage() {
                       featuredRaffle.description
                     }
                   </p>
+
+                  <img
+                    src={featuredRaffle.cover_image}
+                    alt={featuredRaffle.title}
+                    className="mt-6 h-[340px] w-full object-contain"
+                  />
 
                   <div className="mt-6 flex items-center justify-between">
 
