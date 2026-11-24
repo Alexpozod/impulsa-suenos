@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto"
 import { NextResponse }
 from "next/server"
 
@@ -108,14 +109,6 @@ z.string().optional()
 
 })
 
-const checkoutRequests = new Map<
-  string,
-  {
-    count: number
-    timestamp: number
-  }
->()
-
 export async function POST(
   req: Request
 ) {
@@ -123,62 +116,30 @@ export async function POST(
   try {
 
     /* =========================================
-   BASIC RATE LIMIT
-========================================= */
+       ATOMIC CHECKOUT RATE LIMIT (10/IP/MINUTE)
+    ========================================= */
 
-const forwardedFor =
-  req.headers.get(
-    "x-forwarded-for"
-  )
+    const forwardedFor =
+      req.headers.get("x-vercel-forwarded-for") ||
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      "unknown"
 
-const ip =
-  forwardedFor
-    ?.split(",")[0]
-    ?.trim() || "unknown"
+    const ip = forwardedFor.split(",")[0].trim() || "unknown"
+    const ipHash = createHash("sha256").update(ip).digest("hex")
 
-const now = Date.now()
+    const { data: allowed, error: limiterError } = await supabase
+      .schema("raffles")
+      .rpc("claim_checkout_request", { p_ip_hash: ipHash })
 
-const current =
-  checkoutRequests.get(ip)
+    if (limiterError || allowed === null) {
+      console.error("raffles_checkout_throttle_failed", limiterError?.code)
+      return NextResponse.json({ error: "server_error" }, { status: 503 })
+    }
 
-if (
-  current &&
-  now - current.timestamp <
-    60_000
-) {
-
-  if (current.count >= 10) {
-
-    return NextResponse.json(
-
-      {
-        error:
-          "rate_limit"
-      },
-
-      {
-        status: 429
-      }
-    )
-  }
-
-  current.count += 1
-
-  checkoutRequests.set(
-    ip,
-    current
-  )
-
-} else {
-
-  checkoutRequests.set(ip, {
-
-    count: 1,
-
-    timestamp: now
-  })
-
-}
+    if (allowed !== true) {
+      return NextResponse.json({ error: "rate_limit" }, { status: 429 })
+    }
 
     /* =========================================
        CLEANUP EXPIRED RESERVATIONS
