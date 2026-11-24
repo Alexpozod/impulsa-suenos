@@ -262,22 +262,7 @@ async function loadPackQuotes() {
   
   useEffect(() => {
 
-    console.log(
-  "URL SEARCH",
-  window.location.search
-)
-
-console.log(
-  "URL CODE",
-  searchParams.get("code")
-)
-
-console.log(
-  "URL AFF",
-  searchParams.get("aff")
-)
-
-  loadRaffle()
+      loadRaffle()
 
 const qty =
 Number(
@@ -294,62 +279,6 @@ if (
 ) {
 
 setQuantity(qty)
-
-}
-
-const commercial =
-
-searchParams.get("code")
-
-??
-
-searchParams.get("coupon")
-
-??
-
-searchParams.get("aff")
-
-??
-
-searchParams.get("ref")
-
-if (commercial) {
-
-  localStorage.setItem(
-    "raffle_commercial",
-    commercial.toUpperCase()
-  )
-
-  sessionStorage.setItem(
-    "raffle_commercial",
-    commercial.toUpperCase()
-  )
-
-  setCommercialCode(
-    commercial.toUpperCase()
-  )
-
-}
-
-else {
-
-  const saved =
-
-    localStorage.getItem(
-      "raffle_commercial"
-    )
-
-    ||
-
-    sessionStorage.getItem(
-      "raffle_commercial"
-    )
-
-  if (saved) {
-
-    setCommercialCode(saved)
-
-  }
 
 }
 
@@ -1295,15 +1224,7 @@ e.target.value
 
 setCommercialCode(value)
 
-localStorage.setItem(
-"raffle_commercial",
-value
-)
 
-sessionStorage.setItem(
-"raffle_commercial",
-value
-)
 
 }}
 className="

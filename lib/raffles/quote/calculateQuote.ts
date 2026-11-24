@@ -98,7 +98,7 @@ const couponDiscount =
 rules.coupon?.discountAmount ?? 0
 
 const discount =
-promotionDiscount + couponDiscount
+Math.min(subtotal, Math.round(Math.max(0, promotionDiscount, couponDiscount)))
 
   const total =
     subtotal - discount
@@ -154,6 +154,7 @@ rules.promotion.bonusQuantity > 0
 rules.affiliate?.found
 ?{
 
+id: rules.affiliate.affiliateId,
 code:
 rules.affiliate.affiliateCode,
 

@@ -85,7 +85,7 @@ const coupon =
     =
     "none"
 
-  if (coupon?.found) {
+  if (coupon?.found && (coupon.discountAmount ?? 0) >= promotion.discount) {
 
     highestPriority =
       COMMERCIAL_PRIORITY.coupon
@@ -222,11 +222,7 @@ const coupon =
         ? referral
         : null,
 
-    coupon:
-
-      winningRule === "coupon"
-        ? coupon
-        : null,
+    coupon: coupon?.found ? coupon : null,
 
     hasCommercialRule,
 
