@@ -1,327 +1,146 @@
-import { NextResponse }
-from "next/server"
-
+import { NextResponse } from "next/server"
 import axios from "axios"
-
-import { createClient }
-from "@supabase/supabase-js"
-
-import { releaseOrderReservations }
-from "@/lib/raffles/tickets/releaseOrderReservations"
-
-import { trackEvent }
-from "@/lib/raffles/analytics/trackEvent"
-
-import { validateFlowSignature }
-from "@/lib/raffles/flow/validateFlowSignature"
-
-import {
-  processPayment
-} from "@/lib/raffles/payment"
+import CryptoJS from "crypto-js"
+import { createClient } from "@supabase/supabase-js"
+import { processPayment } from "@/lib/raffles/payment"
+import { releaseOrderReservations } from "@/lib/raffles/tickets/releaseOrderReservations"
 
 export const runtime = "nodejs"
-
-const FLOW_STATUS_APPROVED = 2
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const FLOW_APPROVED = 2
+const FLOW_PENDING = 1
+const FLOW_REJECTED = 3
+
 export async function POST(req: Request) {
-
   try {
+    const form = await req.formData()
+    const rawToken = form.get("token")
+    const token = typeof rawToken === "string" ? rawToken.trim() : ""
 
-    const body =
-      await req.formData()
-
-    const data =
-Object.fromEntries(body.entries())
-
-console.log(
-"FLOW WEBHOOK RAW DATA",
-data
-)
-
-/* =========================
-FLOW SIGNATURE CHECK
-========================= */
-
-/*
-Flow actualmente no envía
-el parámetro "s" en este webhook.
-
-La validación se mantiene
-solo para monitoreo.
-
-La validación real del pago
-se realiza consultando
-/payment/getStatus
-directamente a Flow.
-*/
-
-const signatureValid =
-validateFlowSignature(
-data as Record<string, any>
-)
-
-console.log(
-"FLOW SIGNATURE VALID",
-signatureValid
-)
-
-
-    const token =
-      String(data.token)
-      
-    const existingWebhook =
-      await supabase
-        .schema("raffles")
-        .from("webhook_events")
-        .select("id")
-        .eq("event_id", token)
-        .maybeSingle()
-
-    if (existingWebhook.data) {
-
-      return NextResponse.json({
-        ok: true
-      })
+    if (!token || token.length > 512) {
+      return NextResponse.json({ error: "invalid_token" }, { status: 400 })
     }
 
-    const statusParams = {
-
-  apiKey:
-    process.env.FLOW_API_KEY,
-
-  token
-
-}
-
-const keys =
-  Object.keys(statusParams).sort()
-
-const toSign =
-  keys
-    .map(
-      key =>
-        `${key}${statusParams[key as keyof typeof statusParams]}`
-    )
-    .join("")
-
-const s =
-  require("crypto-js")
-    .HmacSHA256(
-
-      toSign,
-
-      process.env
-        .FLOW_SECRET_KEY!
-
-    )
-    .toString()
-
-const response =
-  await axios.get(
-
-    `${process.env.FLOW_BASE_URL}/payment/getStatus`,
-
-    {
-      params: {
-
-        apiKey:
-          process.env.FLOW_API_KEY,
-
-        token,
-
-        s
-      }
+    if (!process.env.FLOW_API_KEY || !process.env.FLOW_SECRET_KEY ||
+        !process.env.FLOW_BASE_URL) {
+      console.error("raffles_flow_webhook_configuration_missing")
+      return NextResponse.json({ error: "server_error" }, { status: 503 })
     }
-  )
 
-    const payment =
-      response.data
+    // Flow's notification is not proof of payment. Validate with getStatus.
+    const params = { apiKey: process.env.FLOW_API_KEY, token }
+    const toSign = Object.keys(params).sort()
+      .map(k => `${k}${params[k as keyof typeof params]}`).join("")
+    const s = CryptoJS.HmacSHA256(toSign, process.env.FLOW_SECRET_KEY).toString()
 
-      console.log(
-  "FLOW PAYMENT STATUS",
-  payment
-)
+    const response = await axios.get(
+      `${process.env.FLOW_BASE_URL}/payment/getStatus`,
+      { params: { ...params, s }, timeout: 15000 }
+    )
+    const flow = response.data
+    const status = Number(flow?.status)
 
-console.log(
-  "FLOW STATUS NUMBER",
-  payment.status
-)
+    if (![FLOW_PENDING, FLOW_APPROVED, FLOW_REJECTED].includes(status)) {
+      console.error("raffles_flow_status_unrecognized")
+      return NextResponse.json({ error: "provider_status_invalid" }, { status: 503 })
+    }
 
-if (payment.status === 3) {
-
-  console.log(
-    "FLOW PAYMENT REJECTED"
-  )
-}
-
-    await supabase
-      .schema("raffles")
-      .from("webhook_events")
-      .insert({
-
-        provider: "flow",
-
-        event_id: token,
-
-        event_type: "payment",
-
-        payload: payment,
-
-        processed: true
-
-      })
-
-    if (
-  payment.status !== FLOW_STATUS_APPROVED &&
-  payment.status !== 1
-) {
-
-  const { data: dbPayment } =
-    await supabase
-      .schema("raffles")
-      .from("payments")
-      .select(`
-        *,
-        orders (*)
-      `)
-      .eq(
-        "provider_payment_id",
-        token
-      )
+    const { data: dbPayment, error: paymentError } = await supabase
+      .schema("raffles").from("payments")
+      .select("id,order_id,amount_clp,status,processed_at,orders(id,raffle_id,status)")
+      .eq("provider", "flow")
+      .eq("provider_payment_id", token)
       .maybeSingle()
 
-  if (dbPayment?.orders) {
+    if (paymentError) throw paymentError
+    if (!dbPayment?.order_id) {
+      // Flow can notify before the checkout has committed its payment row.
+      console.error("raffles_flow_webhook_payment_not_found")
+      return NextResponse.json({ error: "payment_not_found" }, { status: 503 })
+    }
 
-    await trackEvent({
+    const order = Array.isArray(dbPayment.orders) ? dbPayment.orders[0] : dbPayment.orders
+    if (!order?.id) {
+      return NextResponse.json({ error: "order_not_found" }, { status: 503 })
+    }
 
-      event_type:
-        "payment_failed",
+    // Cross-check Flow against our immutable local order and payment amount.
+    if (String(flow.commerceOrder ?? "") !== String(order.id) ||
+        flow.currency !== "CLP" ||
+        !Number.isFinite(Number(flow.amount)) ||
+        Math.abs(Number(flow.amount) - Number(dbPayment.amount_clp)) > 0.01) {
+      console.error("raffles_flow_webhook_payment_mismatch")
+      return NextResponse.json({ error: "provider_payment_mismatch" }, { status: 503 })
+    }
 
-      raffle_id:
-        dbPayment.orders.raffle_id,
+    // Preserve a single audit record per Flow token; mark completed only
+    // AFTER all durable processing succeeds, not before ticket assignment.
+    const { error: eventError } = await supabase.schema("raffles")
+      .from("webhook_events")
+      .upsert({
+        provider: "flow",
+        event_id: token,
+        event_type: "payment",
+        payload: flow,
+        processed: false
+      }, { onConflict: "event_id" })
+    if (eventError) throw eventError
 
-      order_id:
-        dbPayment.orders.id,
+    if (status === FLOW_PENDING) {
+      return NextResponse.json({ ok: true, status: "pending" })
+    }
 
-      payment_id:
-        dbPayment.id,
+    if (status === FLOW_REJECTED) {
+      // Never downgrade an already approved or fulfilled payment.
+      if (dbPayment.status === "pending" && order.status === "pending") {
+        const { error: failedError } = await supabase.schema("raffles")
+          .from("payments").update({ status: "failed" })
+          .eq("id", dbPayment.id).eq("status", "pending")
+        if (failedError) throw failedError
 
-      user_email:
-        dbPayment.orders.buyer_email,
-
-      source:
-        dbPayment.orders.source,
-
-      referrer:
-        dbPayment.orders.referrer,
-
-      utm_source:
-        dbPayment.orders.utm_source,
-
-      utm_medium:
-        dbPayment.orders.utm_medium,
-
-      utm_campaign:
-        dbPayment.orders.utm_campaign,
-
-      ip:
-        dbPayment.orders.ip_address,
-
-      user_agent:
-        dbPayment.orders.user_agent,
-
-      metadata: {
-
-        provider:
-          "flow",
-
-        flow_status:
-          payment.status
-
+        const { error: cancelledError } = await supabase.schema("raffles")
+          .from("orders").update({ status: "cancelled" })
+          .eq("id", order.id).eq("status", "pending")
+        if (cancelledError) throw cancelledError
       }
-
-    })
-
-    /* =========================
-       CANCEL FAILED ORDER
-    ========================= */
-
-    await supabase
-  .schema("raffles")
-  .from("payments")
-  .update({
-
-    status: "failed"
-
-  })
-  .eq(
-    "provider_payment_id",
-    token
-  )
-
-    await supabase
-      .schema("raffles")
-      .from("orders")
-      .update({
-
-        status: "cancelled"
-
+      // A previous rejection attempt may have updated the payment/order
+      // before reservation release failed. Reconcile that state on retry.
+      if (order.status !== "paid" &&
+          (dbPayment.status === "failed" ||
+           (dbPayment.status === "pending" && order.status === "pending"))) {
+        await releaseOrderReservations(order.id)
+      }
+    } else {
+      const result = await processPayment({
+        provider: "flow",
+        providerToken: token,
+        paymentId: token,
+        providerFee: Number(flow.fee || 0)
       })
-      .eq(
-        "id",
-        dbPayment.orders.id
-      )
 
-    /* =========================
-       RELEASE RESERVED TICKETS
-    ========================= */
+      // Another worker may be finalizing this payment. Ask Flow to retry.
+      if (result.message === "already_processing" || result.message === "terminal_payment_state") {
+        return NextResponse.json({ error: "retry_processing" }, { status: 503 })
+      }
+      if (!result.success) {
+        return NextResponse.json({ error: "processing_failed" }, { status: 503 })
+      }
+    }
 
-    await releaseOrderReservations(
-      dbPayment.orders.id
-    )
+    const { error: markError } = await supabase.schema("raffles")
+      .from("webhook_events").update({ processed: true })
+      .eq("event_id", token).eq("provider", "flow")
+    if (markError) throw markError
 
-  }
-
-  return NextResponse.json({
-    ok: true
-  })
-}
-
-const pipelineResult =
-  await processPayment({
-
-    provider: "flow",
-
-    providerToken: token,
-
-    paymentId: token,
-
-    providerFee:
-      Number(payment.fee || 0)
-
-  })
-
-return NextResponse.json({
-
-  ok: true,
-
-  status:
-    pipelineResult.status
-
-})
-
-  } catch (error) {
-
-    console.error(error)
-
-    return NextResponse.json(
-      { error: "server_error" },
-      { status: 500 }
-    )
+    return NextResponse.json({ ok: true })
+  } catch (error: unknown) {
+    console.error("raffles_flow_webhook_processing_failed",
+      axios.isAxiosError(error) ? error.response?.status ?? "provider_error" : "pipeline_error")
+    return NextResponse.json({ error: "server_error" }, { status: 503 })
   }
 }

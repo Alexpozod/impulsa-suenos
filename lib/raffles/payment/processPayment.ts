@@ -14,7 +14,6 @@ import {
 import {
   validatePayment,
   lockPayment,
-  approvePayment,
   assignTickets,
   createLedger,
   processCommercialReward,
@@ -33,18 +32,8 @@ export async function processPayment(
   )
 
   if (!context.payment) {
-
-    return {
-
-      success: true,
-
-      status: "ignored",
-
-      message:
-        "payment_not_found"
-
-    }
-
+    // A Flow callback can precede the payment record; return an error so it retries.
+    throw new Error("payment_not_found")
   }
 
   const guard =
@@ -75,9 +64,6 @@ await validatePayment(context)
 
 console.log("STEP -> lockPayment")
 await lockPayment(context)
-
-console.log("STEP -> approvePayment")
-await approvePayment(context)
 
 console.log("STEP -> assignTickets")
 await assignTickets(context)

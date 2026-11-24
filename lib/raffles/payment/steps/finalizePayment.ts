@@ -1,45 +1,21 @@
-import { PaymentProcessingContext } from "../types"
-
 import { createClient } from "@supabase/supabase-js"
+import { PaymentProcessingContext } from "../types"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function finalizePayment(
-  context: PaymentProcessingContext
-) {
+export async function finalizePayment(context: PaymentProcessingContext) {
+  if (!context.payment) throw new Error("payment_not_found")
+  const { data, error } = await supabase.schema("raffles")
+    .from("payments")
+    .update({ processed_at: new Date().toISOString() })
+    .eq("id", context.payment.id)
+    .eq("status", "approved")
+    .select("id")
+    .maybeSingle()
 
-  if (!context.payment) {
-    return context
-  }
-
-  try {
-
-    await supabase
-      .schema("raffles")
-      .from("payments")
-      .update({
-
-        processed_at:
-          new Date().toISOString()
-
-      })
-      .eq(
-        "id",
-        context.payment.id
-      )
-
-  } catch (error) {
-
-    console.error(
-      "FINALIZE PAYMENT ERROR",
-      error
-    )
-
-  }
-
+  if (error || !data) throw new Error("payment_finalize_failed")
   return context
-
 }

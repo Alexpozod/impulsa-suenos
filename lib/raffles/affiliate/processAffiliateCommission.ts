@@ -117,10 +117,9 @@ commercial
     ledgerEntry
   )
 
-  console.log(
-  "LEDGER ENTRY",
-  ledgerEntry
-);
+  if (inserted.reason === "error") {
+    throw new Error("affiliate_commission_ledger_failed")
+  }
 
 console.log(
 
@@ -164,21 +163,8 @@ return {
 
   catch(error){
 
-    console.error(
-
-      "processAffiliateCommission",
-
-      error
-
-    )
-
-    return{
-
-      processed:false,
-
-      reason:"error"
-
-    }
+    console.error("raffles_affiliate_commission_failed")
+    throw error
 
   }
 

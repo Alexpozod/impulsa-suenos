@@ -92,23 +92,17 @@ export async function processReferralReward(
 
       })
 
-    await insertReferralLedgerEntry(
-
-      ledgerEntry
-
-    )
+    const inserted = await insertReferralLedgerEntry(ledgerEntry)
+    if (inserted.reason === "error") {
+      throw new Error("referral_reward_ledger_failed")
+    }
 
   }
 
   catch(error){
 
-    console.error(
-
-      "processReferralReward",
-
-      error
-
-    )
+    console.error("raffles_referral_reward_failed")
+    throw error
 
   }
 

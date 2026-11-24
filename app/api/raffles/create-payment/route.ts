@@ -520,8 +520,7 @@ commercialRuleSource:
 
   return NextResponse.json(
     {
-      error: "order_error",
-      details: orderError
+      error: "order_error"
     },
     {
       status: 500
@@ -841,10 +840,7 @@ if (commercialCode) {
     flow.token,
 
   flowOrder:
-    flow.flowOrder,
-
-  debug:
-    flow.debug
+    flow.flowOrder
 
 })
 
@@ -857,14 +853,7 @@ if (commercialCode) {
     )
 
     return NextResponse.json(
-      {
-        error:
-          error?.message ||
-          "server_error",
-
-        details:
-          JSON.stringify(error)
-      },
+      { error: "server_error" },
       {
         status: 500
       }

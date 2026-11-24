@@ -1,446 +1,72 @@
-import { NextResponse }
-from "next/server"
-
-import { createClient }
-from "@supabase/supabase-js"
+import { NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
 
 export const runtime = "nodejs"
 
-const supabase =
-  createClient(
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
-    process.env
-      .NEXT_PUBLIC_SUPABASE_URL!,
-
-    process.env
-      .SUPABASE_SERVICE_ROLE_KEY!
-  )
-
-function buildRedirectUrl(
-  req: Request,
-  path: string
-) {
-
-  return new URL(
-    path,
-    req.url
-  )
-
+function redirect(req: Request, path: string) {
+  return NextResponse.redirect(new URL(path, req.url), 303)
 }
 
-async function processPaymentReturn({
-
-  req,
-  token,
-  params
-
-}: {
-
-  req: Request
-  token: string | null
-  params: Record<string, string>
-
-}) {
-
-  console.log(
-    "PAYMENT RETURN FULL URL",
-    req.url
-  )
-
-  console.log(
-    "PAYMENT RETURN METHOD",
-    req.method
-  )
-
-  console.log(
-    "PAYMENT RETURN PARAMS",
-    params
-  )
-
-  console.log(
-    "PAYMENT RETURN HIT",
-    {
-      token,
-      params
-    }
-  )
-
-  /* =========================================
-     RETURN WITHOUT TOKEN
-  ========================================= */
-
-  if (!token) {
-
-    console.log(
-      "FLOW RETURN WITHOUT TOKEN"
-    )
-
-    return NextResponse.redirect(
-
-      buildRedirectUrl(
-        req,
-        "/raffles/payment/check"
-      ),
-
-      303
-
-    )
-
+async function processPaymentReturn(req: Request, token: string | null) {
+  if (!token || token.length > 512) {
+    return redirect(req, "/raffles/payment/check")
   }
 
-  /* =========================================
-     LOAD PAYMENT
-  ========================================= */
+  const { data: payment, error } = await supabase.schema("raffles")
+    .from("payments")
+    .select("id,status,orders(id,status)")
+    .eq("provider", "flow")
+    .eq("provider_payment_id", token)
+    .maybeSingle()
 
-  const {
-    data: payment,
-    error: paymentError
-  } =
-    await supabase
-      .schema("raffles")
-      .from("payments")
-      .select(`
-        *,
-        orders (*)
-      `)
-      .eq(
-        "provider_payment_id",
-        token
-      )
-      .maybeSingle()
-
-  if (paymentError) {
-
-    console.error(
-      "PAYMENT RETURN LOAD ERROR",
-      paymentError
-    )
-
-    return NextResponse.redirect(
-
-      buildRedirectUrl(
-        req,
-        "/raffles/payment/check"
-      ),
-
-      303
-
-    )
-
+  if (error || !payment) {
+    return redirect(req, "/raffles/payment/check")
   }
 
-  /* =========================================
-     PAYMENT NOT FOUND
-  ========================================= */
+  const order = Array.isArray(payment.orders) ? payment.orders[0] : payment.orders
+  if (!order?.id) return redirect(req, "/raffles/payment/check")
 
-  if (!payment) {
-
-    console.log(
-      "PAYMENT RETURN PAYMENT NOT FOUND",
-      {
-        token
-      }
-    )
-
-    return NextResponse.redirect(
-
-      buildRedirectUrl(
-        req,
-        "/raffles/payment/check"
-      ),
-
-      303
-
-    )
-
+  if (payment.status === "approved" && order.status === "paid") {
+    return redirect(req, `/raffles/payment/success?order=${encodeURIComponent(order.id)}`)
   }
 
-  const order =
-    Array.isArray(payment.orders)
-      ? payment.orders[0]
-      : payment.orders
-
-  if (!order?.id) {
-
-    console.error(
-      "PAYMENT RETURN ORDER NOT FOUND",
-      {
-        paymentId:
-          payment.id,
-
-        token
-      }
-    )
-
-    return NextResponse.redirect(
-
-      buildRedirectUrl(
-        req,
-        "/raffles/payment/check"
-      ),
-
-      303
-
-    )
-
+  if (["failed","refunded"].includes(payment.status) ||
+      order.status === "cancelled") {
+    return redirect(req, `/raffles/payment/failure?order=${encodeURIComponent(order.id)}`)
   }
 
-  const paymentStatus =
-    payment.status
-
-  const orderStatus =
-    order.status
-
-  console.log(
-    "PAYMENT RETURN STATUS",
-    {
-      paymentId:
-        payment.id,
-
-      orderId:
-        order.id,
-
-      paymentStatus,
-
-      orderStatus
-    }
-  )
-
-  /* =========================================
-     SUCCESS
-  ========================================= */
-
-  if (
-    paymentStatus === "approved" &&
-    orderStatus === "paid"
-  ) {
-
-    console.log(
-      "REDIRECTING SUCCESS"
-    )
-
-    return NextResponse.redirect(
-
-      buildRedirectUrl(
-        req,
-        `/raffles/payment/success?order=${encodeURIComponent(
-          order.id
-        )}`
-      ),
-
-      303
-
-    )
-
-  }
-
-  /* =========================================
-     FAILED
-  ========================================= */
-
-  if (
-    paymentStatus === "failed" ||
-    paymentStatus === "rejected" ||
-    paymentStatus === "cancelled" ||
-    orderStatus === "cancelled"
-  ) {
-
-    console.log(
-      "REDIRECTING FAILURE"
-    )
-
-    return NextResponse.redirect(
-
-      buildRedirectUrl(
-        req,
-        `/raffles/payment/failure?order=${encodeURIComponent(
-          order.id
-        )}`
-      ),
-
-      303
-
-    )
-
-  }
-
-  /* =========================================
-     PENDING / WEBHOOK STILL PROCESSING
-  ========================================= */
-
-  console.log(
-    "REDIRECTING CHECK"
-  )
-
-  return NextResponse.redirect(
-
-    buildRedirectUrl(
-      req,
-      `/raffles/payment/check?order=${encodeURIComponent(
-        order.id
-      )}`
-    ),
-
-    303
-
-  )
-
+  return redirect(req, `/raffles/payment/check?order=${encodeURIComponent(order.id)}`)
 }
 
-/* =========================================
-   GET RETURN
-========================================= */
-
-export async function GET(
-  req: Request
-) {
-
+export async function GET(req: Request) {
   try {
-
-    const url =
-      new URL(req.url)
-
-    const params =
-      Object.fromEntries(
-        url.searchParams.entries()
-      )
-
-    const token =
-      url.searchParams.get(
-        "token"
-      )
-
-    return await processPaymentReturn({
-
-      req,
-      token,
-      params
-
-    })
-
-  } catch (error) {
-
-    console.error(
-      "PAYMENT RETURN GET ERROR",
-      error
-    )
-
-    return NextResponse.redirect(
-
-      buildRedirectUrl(
-        req,
-        "/raffles/payment/check"
-      ),
-
-      303
-
-    )
-
+    return await processPaymentReturn(req, new URL(req.url).searchParams.get("token"))
+  } catch {
+    console.error("raffles_payment_return_get_failed")
+    return redirect(req, "/raffles/payment/check")
   }
-
 }
 
-/* =========================================
-   POST RETURN FROM FLOW
-========================================= */
-
-export async function POST(
-  req: Request
-) {
-
+export async function POST(req: Request) {
   try {
-
-    const contentType =
-      req.headers.get(
-        "content-type"
-      ) || ""
-
-    let params:
-      Record<string, string> = {}
-
-    if (
-      contentType.includes(
-        "application/x-www-form-urlencoded"
-      ) ||
-      contentType.includes(
-        "multipart/form-data"
-      )
-    ) {
-
-      const formData =
-        await req.formData()
-
-      params =
-        Object.fromEntries(
-
-          Array
-            .from(
-              formData.entries()
-            )
-            .map(
-              ([key, value]) => [
-
-                key,
-
-                typeof value === "string"
-                  ? value
-                  : value.name
-
-              ]
-            )
-
-        )
-
+    const type = req.headers.get("content-type") || ""
+    let token: string | null = null
+    if (type.includes("application/x-www-form-urlencoded") ||
+        type.includes("multipart/form-data")) {
+      const form = await req.formData()
+      const candidate = form.get("token")
+      token = typeof candidate === "string" ? candidate : null
     } else {
-
-      const body =
-        await req.text()
-
-      params =
-        Object.fromEntries(
-
-          new URLSearchParams(
-            body
-          ).entries()
-
-        )
-
+      token = new URLSearchParams(await req.text()).get("token")
     }
-
-    const token =
-      params.token || null
-
-    console.log(
-      "PAYMENT RETURN POST BODY",
-      params
-    )
-
-    return await processPaymentReturn({
-
-      req,
-      token,
-      params
-
-    })
-
-  } catch (error) {
-
-    console.error(
-      "PAYMENT RETURN POST ERROR",
-      error
-    )
-
-    return NextResponse.redirect(
-
-      buildRedirectUrl(
-        req,
-        "/raffles/payment/check"
-      ),
-
-      303
-
-    )
-
+    return await processPaymentReturn(req, token)
+  } catch {
+    console.error("raffles_payment_return_post_failed")
+    return redirect(req, "/raffles/payment/check")
   }
-
 }
