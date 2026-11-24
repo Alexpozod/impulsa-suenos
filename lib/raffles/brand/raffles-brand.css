@@ -1,0 +1,80 @@
+/* ImpulsaSueños Sorteos — visual identity v1
+   Source: approved Quinto brandbook + Propuesta 4.
+   Scope: /raffles/* and /admin/raffles/* only.
+   This file must not be imported by app/layout.tsx or app/globals.css.
+*/
+.raffles-brand {
+  --raffles-purple: #7048E8;
+  --raffles-green-night: #002314;
+  --raffles-green-accent: #A8C63A;
+  --raffles-cream: #FAF9F5;
+  --raffles-lavender: #EDE8FD;
+  --raffles-white: #FFFFFF;
+  --raffles-ink: var(--raffles-green-night);
+  --raffles-text-muted: #56665C;
+  --raffles-line: #DDDCD5;
+  --raffles-purple-hover: #5D36CC;
+  --raffles-radius-sm: 0.625rem;
+  --raffles-radius-md: 1rem;
+  --raffles-radius-lg: 1.5rem;
+  --raffles-heading-font: var(--font-raffles-display), "Urbanist", sans-serif;
+  --raffles-body-font: var(--font-raffles-body), "Roboto", sans-serif;
+  font-family: var(--raffles-body-font);
+}
+
+/* Scoped typography only. No global h1/body/p/button changes. */
+.raffles-brand :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--raffles-heading-font);
+  letter-spacing: -0.025em;
+}
+.raffles-brand :is(button, input, select, textarea) {
+  font-family: inherit;
+}
+
+.raffles-brand .raffles-display {
+  font-family: var(--raffles-heading-font);
+}
+.raffles-brand .raffles-surface {
+  background-color: var(--raffles-cream);
+  color: var(--raffles-green-night);
+}
+.raffles-brand .raffles-surface-dark {
+  background-color: var(--raffles-green-night);
+  color: var(--raffles-cream);
+}
+.raffles-brand .raffles-card {
+  border-radius: var(--raffles-radius-lg);
+  border: 1px solid var(--raffles-line);
+  background: var(--raffles-white);
+}
+.raffles-brand .raffles-button-primary {
+  background: var(--raffles-purple);
+  color: var(--raffles-white);
+  border-radius: var(--raffles-radius-md);
+}
+.raffles-brand .raffles-button-primary:hover {
+  background: var(--raffles-purple-hover);
+}
+.raffles-brand .raffles-button-secondary {
+  background: var(--raffles-green-night);
+  color: var(--raffles-white);
+  border-radius: var(--raffles-radius-md);
+}
+.raffles-brand .raffles-chip {
+  background: var(--raffles-lavender);
+  color: var(--raffles-purple);
+  border-radius: 9999px;
+}
+.raffles-brand .raffles-accent {
+  color: var(--raffles-green-accent);
+}
+
+/* Existing admin dark theme stays legible until page-by-page migration. */
+.raffles-brand.raffles-brand-admin {
+  color-scheme: dark;
+}
+.raffles-brand.raffles-brand-admin .raffles-card {
+  border-color: #254034;
+  background-color: #05291B;
+  color: var(--raffles-cream);
+}

@@ -1,4 +1,6 @@
 import type { ReactNode } from "react"
+import { rafflesFontVariables } from "@/lib/raffles/brand/fonts"
+import "@/lib/raffles/brand/raffles-brand.css"
 
 import { createClient }
 from "@supabase/supabase-js"
@@ -50,7 +52,7 @@ export default async function RafflesLayout({
 
     return (
 
-      <main className="min-h-screen">
+      <main className={`raffles-brand ${rafflesFontVariables} min-h-screen`}>
 
         {children}
 
@@ -64,7 +66,7 @@ export default async function RafflesLayout({
 
   return (
 
-    <main className="min-h-screen">
+    <main className={`raffles-brand ${rafflesFontVariables} min-h-screen`}>
 
       {children}
 
@@ -76,7 +78,7 @@ export default async function RafflesLayout({
 
 return (
 
-  <>
+  <div className={`raffles-brand ${rafflesFontVariables}`}>
 
     <AffiliateTracker />
 
@@ -84,7 +86,7 @@ return (
 
     <RafflesNavbar />
 
-    <main className="min-h-screen">
+    <main className={`raffles-brand ${rafflesFontVariables} min-h-screen`}>
 
       {children}
 
@@ -92,7 +94,7 @@ return (
 
     <RafflesFooter />
 
-  </>
+  </div>
 
 )
 
