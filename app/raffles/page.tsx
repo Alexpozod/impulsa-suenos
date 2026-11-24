@@ -133,7 +133,7 @@ export default async function RafflesHomePage() {
 
   return (
 
-    <div className="bg-slate-950 text-white">
+    <div className="bg-[#002314] text-white">
 
       <section className="py-16 lg:py-24">
 
@@ -145,7 +145,7 @@ export default async function RafflesHomePage() {
 
             <span
               className="
-                text-cyan-400
+                text-[#A8C63A]
                 font-semibold
                 tracking-[0.2em]
                 uppercase
@@ -161,7 +161,7 @@ export default async function RafflesHomePage() {
 
             </h1>
 
-            <p className="text-slate-300 text-lg mt-6 max-w-xl leading-relaxed">
+            <p className="text-[#EDE8FD] text-lg mt-6 max-w-xl leading-relaxed">
 
   No prometemos milagros.
 
@@ -175,8 +175,8 @@ export default async function RafflesHomePage() {
               <Link
                 href="#sorteos-activos"
                 className="
-                  bg-cyan-500
-                  hover:bg-cyan-400
+                  bg-[#7048E8]
+                  hover:bg-[#5D36CC]
                   text-slate-950
                   px-8
                   py-4
@@ -192,7 +192,7 @@ export default async function RafflesHomePage() {
                 href="/raffles/my-tickets"
                 className="
                   border
-                  border-slate-700
+                  border-[#49705F]
                   px-8
                   py-4
                   rounded-xl
@@ -219,9 +219,9 @@ export default async function RafflesHomePage() {
                   overflow-hidden
                   rounded-3xl
                   border
-                  border-slate-800
-                  bg-slate-900
-                  hover:border-cyan-500
+                  border-[#285143]
+                  bg-[#05291B]
+                  hover:border-[#7048E8]
                   transition-all
                 "
               >
@@ -233,7 +233,7 @@ export default async function RafflesHomePage() {
     w-full
     h-[340px]
     object-contain
-    bg-slate-950
+    bg-[#002314]
   "
 />
 
@@ -245,8 +245,8 @@ export default async function RafflesHomePage() {
                       px-3
                       py-1
                       rounded-full
-                      bg-cyan-500/20
-                      text-cyan-400
+                      bg-[#7048E8]/20
+                      text-[#A8C63A]
                       text-xs
                       font-semibold
                       mb-4
@@ -261,7 +261,7 @@ export default async function RafflesHomePage() {
     font-bold
     mb-3
     text-white
-    group-hover:text-cyan-400
+    group-hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -270,7 +270,7 @@ export default async function RafflesHomePage() {
 
                   <p
                     className="
-                      text-slate-400
+                      text-[#C3C8C2]
                       line-clamp-3
                     "
                   >
@@ -284,11 +284,11 @@ export default async function RafflesHomePage() {
 
                     <div>
 
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-[#B3BDB7]">
                         Participación desde
                       </p>
 
-                      <p className="text-cyan-400 font-bold text-xl">
+                      <p className="text-[#A8C63A] font-bold text-xl">
 
                         $
                         {Number(
@@ -304,8 +304,8 @@ export default async function RafflesHomePage() {
                         px-4
                         py-2
                         rounded-xl
-                        bg-cyan-500
-                        text-slate-950
+                        bg-[#7048E8]
+                        text-white
                         font-bold
                       "
                     >
@@ -324,8 +324,8 @@ export default async function RafflesHomePage() {
                 className="
                   rounded-3xl
                   border
-                  border-slate-800
-                  bg-slate-900
+                  border-[#285143]
+                  bg-[#05291B]
                   h-[500px]
                   flex
                   items-center

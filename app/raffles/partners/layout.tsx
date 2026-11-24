@@ -60,9 +60,9 @@ export default function PartnersLayout({
       className="
         min-h-screen
         bg-gradient-to-br
-        from-slate-50
-        via-white
-        to-slate-100
+        from-[#FAF9F5]
+        via-[#FAF9F5]
+        to-[#EDE8FD]
       "
     >
 
@@ -86,7 +86,7 @@ export default function PartnersLayout({
 
           <div
             className="
-              bg-white/80
+              bg-white/95
               backdrop-blur-xl
               rounded-3xl
               shadow-xl
@@ -121,7 +121,7 @@ export default function PartnersLayout({
                 <div
                   className="
                     text-sm
-                    text-slate-500
+                    text-[#56665C]
                   "
                 >
                   ImpulsaSueños
@@ -171,17 +171,14 @@ export default function PartnersLayout({
                         active
 
                           ? `
-                            bg-gradient-to-r
-                            from-blue-600
-                            via-purple-600
-                            to-cyan-500
+                            bg-[#7048E8]
                             text-white
                             shadow-lg
                           `
 
                           : `
-                            text-slate-700
-                            hover:bg-slate-100
+                            text-[#002314]
+                            hover:bg-[#EDE8FD]
                           `
                       }
                     `}

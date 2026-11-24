@@ -78,3 +78,16 @@
   background-color: #05291B;
   color: var(--raffles-cream);
 }
+
+/* The shared parent admin shell is changed only for /admin/raffles. */
+.raffles-brand-admin-shell :is(aside, main) {
+  scrollbar-color: #49705F #002314;
+}
+.raffles-brand-admin-shell aside :is(a, button):focus-visible {
+  outline: 2px solid #A8C63A;
+  outline-offset: 2px;
+}
+.raffles-brand :is(a, button, input, select, textarea):focus-visible {
+  outline-color: var(--raffles-purple);
+  outline-offset: 2px;
+}
