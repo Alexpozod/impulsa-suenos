@@ -132,7 +132,7 @@ return(
 </h1>
 
 <div
-className="bg-slate-900 rounded-3xl p-6 space-y-4"
+className="bg-[#EDE8FD] rounded-3xl p-6 space-y-4"
 >
 
 <div
@@ -155,7 +155,7 @@ e.target.value
 
 placeholder="Código"
 
-className="bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3"
+className="bg-[#FAF9F5] border border-[#002314]/20 rounded-2xl px-4 py-3"
 
 />
 
@@ -175,7 +175,7 @@ e.target.value
 
 placeholder="Email"
 
-className="bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3"
+className="bg-[#FAF9F5] border border-[#002314]/20 rounded-2xl px-4 py-3"
 
 />
 
@@ -193,7 +193,7 @@ e.target.value
 
 }
 
-className="bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3"
+className="bg-[#FAF9F5] border border-[#002314]/20 rounded-2xl px-4 py-3"
 
 >
 
@@ -227,7 +227,7 @@ e.target.value
 
 placeholder="Valor"
 
-className="bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3"
+className="bg-[#FAF9F5] border border-[#002314]/20 rounded-2xl px-4 py-3"
 
 />
 
@@ -239,7 +239,7 @@ onClick={createReferral}
 
 disabled={saving}
 
-className="bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-2xl"
+className="bg-[#7048E8] text-white hover:bg-[#002314] px-5 py-3 rounded-2xl"
 
 >
 
@@ -262,7 +262,7 @@ saving
 </div>
 
 <div
-className="bg-slate-900 rounded-3xl overflow-hidden"
+className="bg-[#EDE8FD] rounded-3xl overflow-hidden"
 >
 
 <table className="w-full">
@@ -340,7 +340,7 @@ items.map(
 
 <tr
 key={item.id}
-className="border-t border-slate-800"
+className="border-t border-[#002314]/20"
 >
 
 <td className="p-4">
@@ -393,8 +393,8 @@ item.reward_type==="percentage"
       px-3
       py-2
       rounded-xl
-      bg-blue-600
-      hover:bg-blue-500
+      bg-[#7048E8] text-white
+      hover:bg-[#002314]
       text-sm
       "
 
@@ -420,8 +420,8 @@ item.reward_type==="percentage"
       px-3
       py-2
       rounded-xl
-      bg-slate-700
-      hover:bg-slate-600
+      bg-[#EDE8FD]
+      hover:bg-[#EDE8FD]
       text-sm
       "
 
@@ -447,8 +447,8 @@ item.reward_type==="percentage"
       px-3
       py-2
       rounded-xl
-      bg-slate-700
-      hover:bg-slate-600
+      bg-[#EDE8FD]
+      hover:bg-[#EDE8FD]
       text-sm
       "
 

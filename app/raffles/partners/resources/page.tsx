@@ -160,7 +160,7 @@ export default function PartnerResourcesPage() {
 
         </h1>
 
-        <p className="text-slate-500 mt-2">
+        <p className="text-[#002314] mt-2">
 
           Descarga material oficial para promocionar ImpulsaSueños.
 
@@ -179,7 +179,7 @@ export default function PartnerResourcesPage() {
               key={resource.id}
 
               className="
-                bg-white
+                bg-[#EDE8FD]
                 rounded-3xl
                 shadow
                 p-6
@@ -196,7 +196,7 @@ export default function PartnerResourcesPage() {
                   rounded-2xl
                   bg-slate-100
                   border
-                  border-slate-200
+                  border-[#002314]/20
                   flex
                   items-center
                   justify-center
@@ -227,7 +227,7 @@ export default function PartnerResourcesPage() {
 
               <div className="flex-1">
 
-                <div className="text-sm text-slate-500">
+                <div className="text-sm text-[#002314]">
 
                   {resource.category}
 
@@ -239,7 +239,7 @@ export default function PartnerResourcesPage() {
 
                 </h2>
 
-                <p className="mt-2 text-slate-600">
+                <p className="mt-2 text-[#002314]">
 
                   {resource.description}
 
@@ -298,9 +298,9 @@ export default function PartnerResourcesPage() {
                     px-5
                     py-3
                     rounded-xl
-                    bg-cyan-500
-                    hover:bg-cyan-400
-                    text-slate-950
+                    bg-[#7048E8] text-white
+                    hover:bg-[#002314]
+                    text-white
                     font-bold
                     transition
                   "

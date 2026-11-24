@@ -97,7 +97,7 @@ export default function LandingLeadForm() {
         Sé de los primeros en enterarte.
       </div>
 
-      <p className="text-slate-400 mt-2 mb-6">
+      <p className="text-[#002314] mt-2 mb-6">
         Déjanos tu correo y te avisaremos apenas el sitio esté disponible.
       </p>
 
@@ -125,8 +125,8 @@ export default function LandingLeadForm() {
             flex-1
             rounded-xl
             border
-            border-slate-700
-            bg-slate-900
+            border-[#002314]/20
+            bg-[#EDE8FD]
             px-5
             py-4
             outline-none
@@ -167,7 +167,7 @@ export default function LandingLeadForm() {
           className="
             mt-4
             text-sm
-            text-cyan-400
+            text-[#7048E8]
           "
         >
 

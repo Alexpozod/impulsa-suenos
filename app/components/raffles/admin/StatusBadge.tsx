@@ -12,52 +12,52 @@ export default function StatusBadge({
   > = {
 
     draft:
-      "bg-slate-700 text-slate-200",
+      "bg-[#EDE8FD] text-[#002314]",
 
     scheduled:
-      "bg-blue-900/30 text-blue-300",
+      "bg-blue-100/30 text-[#7048E8]",
 
     active:
-      "bg-green-900/30 text-green-300",
+      "bg-green-100/30 text-green-800",
 
     paused:
-      "bg-yellow-900/30 text-yellow-300",
+      "bg-yellow-100/30 text-yellow-800",
 
     ended:
-      "bg-red-900/30 text-red-300",
+      "bg-red-100/30 text-red-800",
 
     completed:
-      "bg-purple-900/30 text-purple-300",
+      "bg-purple-100/30 text-[#7048E8]",
 
     pending:
-      "bg-yellow-900/30 text-yellow-300",
+      "bg-yellow-100/30 text-yellow-800",
 
     paid:
-      "bg-green-900/30 text-green-300",
+      "bg-green-100/30 text-green-800",
 
     failed:
-      "bg-red-900/30 text-red-300",
+      "bg-red-100/30 text-red-800",
 
     cancelled:
-      "bg-slate-700 text-slate-300",
+      "bg-[#EDE8FD] text-[#002314]",
 
     available:
-      "bg-green-900/30 text-green-300",
+      "bg-green-100/30 text-green-800",
 
         reserved:
-      "bg-yellow-900/30 text-yellow-300",
+      "bg-yellow-100/30 text-yellow-800",
 
     complimentary:
-      "bg-cyan-900/30 text-cyan-300",
+      "bg-cyan-100/30 text-[#7048E8]",
 
     low:
-      "bg-green-900/30 text-green-300",
+      "bg-green-100/30 text-green-800",
 
     medium:
-      "bg-yellow-900/30 text-yellow-300",
+      "bg-yellow-100/30 text-yellow-800",
 
     high:
-      "bg-red-900/30 text-red-300"
+      "bg-red-100/30 text-red-800"
 
   }
 
@@ -76,7 +76,7 @@ export default function StatusBadge({
         ${
           colors[status] ||
 
-          "bg-slate-800 text-slate-300"
+          "bg-[#EDE8FD] text-[#002314]"
         }
       `}
     >

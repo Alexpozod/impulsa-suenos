@@ -454,8 +454,8 @@ export default function RaffleTicketsPage() {
 
       <div
         className="
-          bg-slate-900
-          border border-slate-800
+          bg-[#EDE8FD]
+          border border-[#002314]/20
           rounded-xl
           p-5
           space-y-5
@@ -477,7 +477,7 @@ export default function RaffleTicketsPage() {
             className="
               mt-1
               text-sm
-              text-slate-400
+              text-[#002314]
             "
           >
             Entrega participaciones gratuitas usando inventario real, sin pago ni ingreso financiero.
@@ -500,7 +500,7 @@ export default function RaffleTicketsPage() {
             <label
               className="
                 text-sm
-                text-slate-300
+                text-[#002314]
               "
             >
               Sorteo *
@@ -519,8 +519,8 @@ export default function RaffleTicketsPage() {
               }
               className="
                 w-full
-                bg-slate-950
-                border border-slate-700
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 px-4 py-3
                 outline-none
@@ -555,7 +555,7 @@ export default function RaffleTicketsPage() {
             <label
               className="
                 text-sm
-                text-slate-300
+                text-[#002314]
               "
             >
               Nombre del participante *
@@ -575,8 +575,8 @@ export default function RaffleTicketsPage() {
               placeholder="Nombre completo"
               className="
                 w-full
-                bg-slate-950
-                border border-slate-700
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 px-4 py-3
                 outline-none
@@ -590,7 +590,7 @@ export default function RaffleTicketsPage() {
             <label
               className="
                 text-sm
-                text-slate-300
+                text-[#002314]
               "
             >
               Correo electrónico *
@@ -611,8 +611,8 @@ export default function RaffleTicketsPage() {
               placeholder="correo@ejemplo.com"
               className="
                 w-full
-                bg-slate-950
-                border border-slate-700
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 px-4 py-3
                 outline-none
@@ -626,7 +626,7 @@ export default function RaffleTicketsPage() {
             <label
               className="
                 text-sm
-                text-slate-300
+                text-[#002314]
               "
             >
               Teléfono
@@ -646,8 +646,8 @@ export default function RaffleTicketsPage() {
               placeholder="+56 9..."
               className="
                 w-full
-                bg-slate-950
-                border border-slate-700
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 px-4 py-3
                 outline-none
@@ -661,7 +661,7 @@ export default function RaffleTicketsPage() {
             <label
               className="
                 text-sm
-                text-slate-300
+                text-[#002314]
               "
             >
               Cantidad *
@@ -683,8 +683,8 @@ export default function RaffleTicketsPage() {
               }
               className="
                 w-full
-                bg-slate-950
-                border border-slate-700
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 px-4 py-3
                 outline-none
@@ -698,7 +698,7 @@ export default function RaffleTicketsPage() {
             <label
               className="
                 text-sm
-                text-slate-300
+                text-[#002314]
               "
             >
               Campaña o promoción
@@ -718,8 +718,8 @@ export default function RaffleTicketsPage() {
               placeholder="Ej: Concurso Instagram julio"
               className="
                 w-full
-                bg-slate-950
-                border border-slate-700
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 px-4 py-3
                 outline-none
@@ -735,7 +735,7 @@ export default function RaffleTicketsPage() {
           <label
             className="
               text-sm
-              text-slate-300
+              text-[#002314]
             "
           >
             Motivo o respaldo
@@ -756,8 +756,8 @@ export default function RaffleTicketsPage() {
             rows={3}
             className="
               w-full
-              bg-slate-950
-              border border-slate-700
+              bg-[#FAF9F5]
+              border border-[#002314]/20
               rounded-xl
               px-4 py-3
               outline-none
@@ -773,10 +773,10 @@ export default function RaffleTicketsPage() {
             className="
               rounded-xl
               border border-red-800
-              bg-red-950/40
+              bg-red-100/40
               px-4 py-3
               text-sm
-              text-red-300
+              text-red-800
             "
           >
             {assignmentError}
@@ -790,10 +790,10 @@ export default function RaffleTicketsPage() {
             className="
               rounded-xl
               border border-green-800
-              bg-green-950/40
+              bg-green-100/40
               px-4 py-3
               text-sm
-              text-green-300
+              text-green-800
             "
           >
             {assignmentSuccess}
@@ -807,7 +807,7 @@ export default function RaffleTicketsPage() {
             className="
               rounded-xl
               border border-cyan-900
-              bg-cyan-950/20
+              bg-cyan-100/20
               p-4
             "
           >
@@ -817,7 +817,7 @@ export default function RaffleTicketsPage() {
                 mb-3
                 text-sm
                 font-medium
-                text-cyan-300
+                text-[#7048E8]
               "
             >
               Tickets asignados
@@ -839,11 +839,11 @@ export default function RaffleTicketsPage() {
                     className="
                       rounded-lg
                       border border-cyan-800
-                      bg-slate-950
+                      bg-[#FAF9F5]
                       px-3 py-2
                       text-sm
                       font-medium
-                      text-cyan-200
+                      text-[#7048E8]
                     "
                   >
                     {ticket.ticket_code}
@@ -874,8 +874,8 @@ export default function RaffleTicketsPage() {
             className="
               px-5 py-3
               rounded-xl
-              bg-cyan-600
-              hover:bg-cyan-700
+              bg-[#7048E8] text-white
+              hover:bg-[#002314]
               disabled:opacity-50
               disabled:cursor-not-allowed
               transition
@@ -937,8 +937,8 @@ export default function RaffleTicketsPage() {
 
       <div
         className="
-          bg-slate-900
-          border border-slate-800
+          bg-[#EDE8FD]
+          border border-[#002314]/20
           rounded-xl
           p-4
         "
@@ -962,8 +962,8 @@ export default function RaffleTicketsPage() {
             }
             placeholder="Buscar ticket o email..."
             className="
-              bg-slate-950
-              border border-slate-700
+              bg-[#FAF9F5]
+              border border-[#002314]/20
               rounded-xl
               px-4 py-3
               outline-none
@@ -981,8 +981,8 @@ export default function RaffleTicketsPage() {
               )
             }}
             className="
-              bg-slate-950
-              border border-slate-700
+              bg-[#FAF9F5]
+              border border-[#002314]/20
               rounded-xl
               px-4 py-3
               outline-none
@@ -1014,8 +1014,8 @@ export default function RaffleTicketsPage() {
           <button
             onClick={load}
             className="
-              bg-blue-600
-              hover:bg-blue-500
+              bg-[#7048E8] text-white
+              hover:bg-[#002314]
               transition
               rounded-xl
               font-medium
@@ -1039,9 +1039,9 @@ export default function RaffleTicketsPage() {
     sticky
     top-0
     z-10
-    bg-slate-950
+    bg-[#FAF9F5]
     border-b
-    border-slate-800
+    border-[#002314]/20
   "
 >
 
@@ -1086,7 +1086,7 @@ export default function RaffleTicketsPage() {
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Cargando...
@@ -1105,7 +1105,7 @@ export default function RaffleTicketsPage() {
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Sin tickets
@@ -1121,8 +1121,8 @@ export default function RaffleTicketsPage() {
                   key={ticket.id}
                   className="
   border-b
-  border-slate-800
-  hover:bg-slate-900/40
+  border-[#002314]/20
+  hover:bg-[#EDE8FD]/40
   transition
 "
                 >
@@ -1135,7 +1135,7 @@ export default function RaffleTicketsPage() {
                         {ticket.ticket_code}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
                         #{ticket.ticket_number}
                       </p>
 
@@ -1151,7 +1151,7 @@ export default function RaffleTicketsPage() {
                         {ticket.raffles?.title}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
                         /{ticket.raffles?.slug}
                       </p>
 
@@ -1173,7 +1173,7 @@ export default function RaffleTicketsPage() {
 
                   </td>
 
-                  <td className="p-4 text-sm text-slate-400">
+                  <td className="p-4 text-sm text-[#002314]">
 
                     {ticket.reserved_until
                       ? new Date(
@@ -1196,8 +1196,8 @@ export default function RaffleTicketsPage() {
       px-3
       py-2
       rounded-xl
-      bg-blue-600
-      hover:bg-blue-500
+      bg-[#7048E8] text-white
+      hover:bg-[#002314]
       transition
       text-sm
     "
@@ -1228,7 +1228,7 @@ export default function RaffleTicketsPage() {
           "
         >
 
-          <p className="text-slate-500">
+          <p className="text-[#002314]">
 
             Página {pagination.page}
             {" "}de{" "}
@@ -1246,7 +1246,7 @@ export default function RaffleTicketsPage() {
               className="
                 px-4 py-2
                 rounded-xl
-                bg-slate-800
+                bg-[#EDE8FD]
                 disabled:opacity-40
               "
             >
@@ -1263,7 +1263,7 @@ export default function RaffleTicketsPage() {
               className="
                 px-4 py-2
                 rounded-xl
-                bg-slate-800
+                bg-[#EDE8FD]
                 disabled:opacity-40
               "
             >

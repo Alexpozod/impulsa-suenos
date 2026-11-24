@@ -532,7 +532,7 @@ async function registerWinner() {
 
         </h1>
 
-        <p className="text-slate-400 mt-2">
+        <p className="text-[#002314] mt-2">
 
           Sorteo:
           {" "}
@@ -544,9 +544,9 @@ async function registerWinner() {
 
       <div
         className="
-          bg-slate-900
+          bg-[#EDE8FD]
           border
-          border-slate-800
+          border-[#002314]/20
           rounded-2xl
           p-6
           space-y-4
@@ -577,9 +577,9 @@ async function registerWinner() {
               px-4
               py-3
               rounded-xl
-              bg-slate-950
+              bg-[#FAF9F5]
               border
-              border-slate-700
+              border-[#002314]/20
             "
 
             placeholder="desdecero/00115"
@@ -611,9 +611,9 @@ async function registerWinner() {
               px-4
               py-3
               rounded-xl
-              bg-slate-950
+              bg-[#FAF9F5]
               border
-              border-slate-700
+              border-[#002314]/20
             "
 
             placeholder="Primer Premio"
@@ -651,9 +651,9 @@ async function registerWinner() {
               px-4
               py-3
               rounded-xl
-              bg-slate-950
+              bg-[#FAF9F5]
               border
-              border-slate-700
+              border-[#002314]/20
             "
           />
 
@@ -683,9 +683,9 @@ async function registerWinner() {
               px-4
               py-3
               rounded-xl
-              bg-slate-950
+              bg-[#FAF9F5]
               border
-              border-slate-700
+              border-[#002314]/20
             "
           >
 
@@ -731,9 +731,9 @@ async function registerWinner() {
 
       <div
         className="
-          bg-slate-900
+          bg-[#EDE8FD]
           border
-          border-slate-800
+          border-[#002314]/20
           rounded-2xl
           p-6
         "
@@ -773,7 +773,7 @@ async function registerWinner() {
               key={result.id}
               className="
                 border-b
-                border-slate-800
+                border-[#002314]/20
                 py-4
               "
             >
@@ -857,7 +857,7 @@ async function registerWinner() {
             className="
               rounded-lg
               border
-              border-slate-700
+              border-[#002314]/20
             "
           />
 
@@ -893,7 +893,7 @@ async function registerWinner() {
               w-full
               rounded-lg
               border
-              border-slate-700
+              border-[#002314]/20
             "
           >
             <source src={video} />
@@ -976,8 +976,8 @@ async function registerWinner() {
   }
 
   className="
-    bg-blue-600
-    hover:bg-blue-500
+    bg-[#7048E8] text-white
+    hover:bg-[#002314]
     px-3
     py-2
     rounded-lg
@@ -997,8 +997,8 @@ async function registerWinner() {
   }
 
   className="
-    bg-purple-600
-    hover:bg-purple-500
+    bg-[#7048E8] text-white
+    hover:bg-[#002314]
     px-3
     py-2
     rounded-lg

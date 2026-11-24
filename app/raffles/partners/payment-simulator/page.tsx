@@ -124,13 +124,13 @@ const invoiceTotal =
 
       {/* Configuración */}
 
-      <div className="rounded-2xl border bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border bg-[#EDE8FD] p-5 shadow-sm">
 
         <h2 className="text-xl font-bold mb-1">
           Configuración
         </h2>
 
-        <p className="text-gray-500 mb-4">
+        <p className="text-[#002314] mb-4">
           Ingresa tus datos para estimar cuánto recibirás.
         </p>
 
@@ -209,7 +209,7 @@ const invoiceTotal =
 
       {/* Resultado */}
 
-<div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+<div className="rounded-2xl border bg-[#EDE8FD] shadow-sm overflow-hidden">
 
   <div className="px-5 py-4 border-b">
 
@@ -217,7 +217,7 @@ const invoiceTotal =
         Simulación del Pago
         </h2>
 
-    <p className="text-gray-500 mt-1">
+    <p className="text-[#002314] mt-1">
         La base comisionable se obtiene descontando la comisión de la pasarela de pago y el IVA de la venta. Sobre esa base se calcula tu comisión.
         </p>
   </div>
@@ -281,7 +281,7 @@ const invoiceTotal =
           Comisión disponible para pago
         </td>
 
-        <td className="text-right px-4 py-3 font-bold text-cyan-700">
+        <td className="text-right px-4 py-3 font-bold text-[#7048E8]">
           {formatMoney(simulation.paymentBase)}
         </td>
       </tr>
@@ -317,7 +317,7 @@ const invoiceTotal =
 
       <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
 
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-[#002314]">
             Monto bruto de tu factura
             </div>
 
@@ -360,17 +360,17 @@ const invoiceTotal =
 
       <div className="mt-4 rounded-xl bg-cyan-50 border border-cyan-200 p-5">
 
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-[#002314]">
           Recibirás en tu cuenta
         </div>
 
-        <div className="text-3xl font-bold text-cyan-700">
+        <div className="text-3xl font-bold text-[#7048E8]">
           {formatMoney(simulation.honorariosNet)}
         </div>
 
       </div>
 
-      <p className="mt-4 text-sm text-slate-600 leading-6">
+      <p className="mt-4 text-sm text-[#002314] leading-6">
             La retención realizada por el SII no se pierde. Ese monto quedará registrado
             a tu favor y podrá ser considerado en tu declaración anual de impuestos del
             próximo año, según tu situación tributaria.

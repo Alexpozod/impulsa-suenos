@@ -126,7 +126,7 @@ return(
 
 </h1>
 
-<p className="text-slate-400 mt-2">
+<p className="text-[#002314] mt-2">
 
 Solicitudes de pago pendientes e históricas
 
@@ -136,7 +136,7 @@ Solicitudes de pago pendientes e históricas
 
 {error && (
   <div>
-    <p role="alert" className="text-sm text-red-400">{error.message}</p>
+    <p role="alert" className="text-sm text-red-800">{error.message}</p>
     {error.kind !== "action" && (
       <button
         type="button"
@@ -152,9 +152,9 @@ Solicitudes de pago pendientes e históricas
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-3xl
 overflow-hidden
 "
@@ -163,7 +163,7 @@ overflow-hidden
 <table className="w-full">
 
 <thead
-className="bg-slate-950"
+className="bg-[#FAF9F5]"
 >
 
 <tr>
@@ -259,7 +259,7 @@ requests.map((item)=>(
 key={item.id}
 className="
 border-b
-border-slate-800
+border-[#002314]/20
 "
 >
 

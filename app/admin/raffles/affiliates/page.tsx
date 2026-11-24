@@ -189,7 +189,7 @@ return (
 
 </h1>
 
-<p className="text-slate-400 mt-2">
+<p className="text-[#002314] mt-2">
 
 Administración del programa de influencers
 
@@ -201,9 +201,9 @@ Administración del programa de influencers
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-3xl
 p-6
 space-y-4
@@ -235,9 +235,9 @@ setCode(e.target.value)
 placeholder="Código"
 
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-2xl
 px-4
 py-3
@@ -256,9 +256,9 @@ setEmail(e.target.value)
 placeholder="Email"
 
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-2xl
 px-4
 py-3
@@ -277,9 +277,9 @@ setCommission(e.target.value)
 placeholder="Comisión %"
 
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-2xl
 px-4
 py-3
@@ -298,9 +298,9 @@ setBonus1(e.target.value)
 placeholder="Bonus compra 1"
 
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-2xl
 px-4
 py-3
@@ -319,9 +319,9 @@ setBonus3(e.target.value)
 placeholder="Bonus compra 3"
 
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-2xl
 px-4
 py-3
@@ -340,9 +340,9 @@ setBonus5(e.target.value)
 placeholder="Bonus compra 5"
 
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-2xl
 px-4
 py-3
@@ -390,8 +390,8 @@ onClick={createAffiliate}
 disabled={saving}
 
 className="
-bg-blue-600
-hover:bg-blue-500
+bg-[#7048E8] text-white
+hover:bg-[#002314]
 px-5
 py-3
 rounded-2xl
@@ -452,8 +452,8 @@ setActive(true)
 }}
 
 className="
-bg-slate-700
-hover:bg-slate-600
+bg-[#EDE8FD]
+hover:bg-[#EDE8FD]
 px-5
 py-3
 rounded-2xl
@@ -476,9 +476,9 @@ Cancelar
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-3xl
 overflow-hidden
 "
@@ -486,7 +486,7 @@ overflow-hidden
 
 <table className="w-full">
 
-<thead className="bg-slate-950">
+<thead className="bg-[#FAF9F5]">
 
 <tr>
 
@@ -556,7 +556,7 @@ Acciones
 
 <td
 colSpan={9}
-className="p-10 text-center text-slate-500"
+className="p-10 text-center text-[#002314]"
 >
 
 Cargando...
@@ -574,7 +574,7 @@ affiliates.length===0 && (
 
 <td
 colSpan={9}
-className="p-10 text-center text-slate-500"
+className="p-10 text-center text-[#002314]"
 >
 
 No existen influencers registrados
@@ -590,7 +590,7 @@ affiliates.map((item)=>(
 
 <tr
 key={item.id}
-className="border-b border-slate-800"
+className="border-b border-[#002314]/20"
 >
 
 <td className="p-4 font-semibold">
@@ -679,8 +679,8 @@ className="
 px-3
 py-2
 rounded-xl
-bg-indigo-700
-hover:bg-indigo-600
+bg-[#7048E8] text-white
+hover:bg-[#002314]
 text-xs
 "
 
@@ -778,8 +778,8 @@ className="
 px-4
 py-2
 rounded-xl
-bg-sky-600
-hover:bg-sky-500
+bg-[#7048E8] text-white
+hover:bg-[#002314]
 text-white
 font-medium
 text-sm

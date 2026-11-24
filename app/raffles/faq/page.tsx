@@ -76,7 +76,7 @@ export default function RafflesFAQPage() {
   ]
 
   return (
-    <section className="bg-slate-950 text-white">
+    <section className="bg-[#FAF9F5] text-[#002314]">
 
       <div className="max-w-5xl mx-auto px-6 py-16">
 
@@ -86,7 +86,7 @@ export default function RafflesFAQPage() {
             Preguntas Frecuentes
           </h1>
 
-          <p className="text-slate-400 text-lg max-w-3xl">
+          <p className="text-[#002314] text-lg max-w-3xl">
             Resolvemos las dudas más comunes relacionadas con compras,
             participaciones, sorteos, resultados, premios y funcionamiento
             general de la plataforma.
@@ -101,9 +101,9 @@ export default function RafflesFAQPage() {
             <div
               key={index}
               className="
-                bg-slate-900
+                bg-[#EDE8FD]
                 border
-                border-slate-800
+                border-[#002314]/20
                 rounded-2xl
                 p-6
               "
@@ -113,7 +113,7 @@ export default function RafflesFAQPage() {
                 {faq.q}
               </h2>
 
-              <p className="text-slate-300 leading-relaxed">
+              <p className="text-[#002314] leading-relaxed">
                 {faq.a}
               </p>
 
@@ -129,7 +129,7 @@ export default function RafflesFAQPage() {
             rounded-2xl
             border
             border-cyan-500/30
-            bg-cyan-500/10
+            bg-[#7048E8]/10
             p-6
           "
         >
@@ -138,7 +138,7 @@ export default function RafflesFAQPage() {
             ¿No encontraste tu respuesta?
           </h3>
 
-          <p className="text-slate-300 leading-relaxed">
+          <p className="text-[#002314] leading-relaxed">
             Te recomendamos revisar nuestros Términos y Condiciones,
             Bases Generales o contactarnos mediante los canales oficiales
             publicados en la plataforma.

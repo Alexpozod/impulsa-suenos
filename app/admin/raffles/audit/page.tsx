@@ -91,7 +91,7 @@ AdminRafflesAuditPage() {
 
           <thead
             className="
-              border-b border-slate-800
+              border-b border-[#002314]/20
             "
           >
 
@@ -147,7 +147,7 @@ AdminRafflesAuditPage() {
                   key={index}
                   className="
                     border-b
-                    border-slate-800
+                    border-[#002314]/20
                   "
                 >
 

@@ -89,7 +89,7 @@ export default function RafflesUpdatePasswordPage() {
 
   return (
 
-    <main className="min-h-screen bg-slate-950 flex items-center justify-center px-6 pt-28">
+    <main className="min-h-screen bg-[#FAF9F5] flex items-center justify-center px-6 pt-28">
 
       <div
         className="
@@ -97,18 +97,18 @@ export default function RafflesUpdatePasswordPage() {
           max-w-md
           rounded-3xl
           border
-          border-slate-800
-          bg-slate-900
+          border-[#002314]/20
+          bg-[#EDE8FD]
           p-8
           shadow-2xl
         "
       >
 
-        <h1 className="text-3xl font-black text-center text-white mb-2">
+        <h1 className="text-3xl font-black text-center text-[#002314] mb-2">
           Nueva contraseña
         </h1>
 
-        <p className="text-center text-slate-400 mb-8">
+        <p className="text-center text-[#002314] mb-8">
           Crea una nueva contraseña para tu cuenta.
         </p>
 
@@ -121,11 +121,11 @@ export default function RafflesUpdatePasswordPage() {
             w-full
             rounded-xl
             border
-            border-slate-700
-            bg-slate-800
+            border-[#002314]/20
+            bg-[#EDE8FD]
             p-3
-            text-white
-            placeholder:text-slate-400
+            text-[#002314]
+            placeholder:text-[#002314]
             outline-none
             focus:border-cyan-500
             mb-4
@@ -141,18 +141,18 @@ export default function RafflesUpdatePasswordPage() {
             w-full
             rounded-xl
             border
-            border-slate-700
-            bg-slate-800
+            border-[#002314]/20
+            bg-[#EDE8FD]
             p-3
-            text-white
-            placeholder:text-slate-400
+            text-[#002314]
+            placeholder:text-[#002314]
             outline-none
             focus:border-cyan-500
             mb-4
           "
         />
 
-        <p className="text-xs text-slate-500 mb-6">
+        <p className="text-xs text-[#002314] mb-6">
           Debe tener al menos 8 caracteres, una mayúscula y un número.
         </p>
 
@@ -162,12 +162,12 @@ export default function RafflesUpdatePasswordPage() {
           className="
             w-full
             rounded-xl
-            bg-cyan-500
-            hover:bg-cyan-400
+            bg-[#7048E8] text-white
+            hover:bg-[#002314]
             transition
             py-3
             font-bold
-            text-slate-950
+            text-white
             disabled:opacity-60
           "
         >
@@ -189,8 +189,8 @@ export default function RafflesUpdatePasswordPage() {
               text-sm
               ${
                 message.startsWith("✅")
-                  ? "text-green-400"
-                  : "text-red-400"
+                  ? "text-green-800"
+                  : "text-red-800"
               }
             `}
           >

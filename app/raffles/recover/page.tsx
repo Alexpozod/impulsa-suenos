@@ -41,7 +41,7 @@ export default function RafflesRecoverPage() {
 
   return (
 
-    <main className="min-h-screen bg-slate-950 flex items-center justify-center px-6 pt-28">
+    <main className="min-h-screen bg-[#FAF9F5] flex items-center justify-center px-6 pt-28">
 
       <div
         className="
@@ -49,20 +49,20 @@ export default function RafflesRecoverPage() {
           max-w-md
           rounded-3xl
           border
-          border-slate-800
-          bg-slate-900
+          border-[#002314]/20
+          bg-[#EDE8FD]
           p-8
           shadow-2xl
         "
       >
 
-        <h1 className="text-3xl font-black text-center text-white mb-2">
+        <h1 className="text-3xl font-black text-center text-[#002314] mb-2">
 
           Recuperar contraseña
 
         </h1>
 
-        <p className="text-center text-slate-400 mb-8">
+        <p className="text-center text-[#002314] mb-8">
 
           Ingresa el correo asociado a tu cuenta.
 
@@ -82,11 +82,11 @@ export default function RafflesRecoverPage() {
             w-full
             rounded-xl
             border
-            border-slate-700
-            bg-slate-800
+            border-[#002314]/20
+            bg-[#EDE8FD]
             p-3
-            text-white
-            placeholder:text-slate-400
+            text-[#002314]
+            placeholder:text-[#002314]
             outline-none
             focus:border-cyan-500
             mb-6
@@ -103,12 +103,12 @@ export default function RafflesRecoverPage() {
           className="
             w-full
             rounded-xl
-            bg-cyan-500
-            hover:bg-cyan-400
+            bg-[#7048E8] text-white
+            hover:bg-[#002314]
             transition
             py-3
             font-bold
-            text-slate-950
+            text-white
             disabled:opacity-60
           "
 
@@ -133,8 +133,8 @@ export default function RafflesRecoverPage() {
           className="
             w-full
             mt-4
-            text-slate-400
-            hover:text-white
+            text-[#002314]
+            hover:text-[#002314]
           "
 
         >
@@ -147,7 +147,7 @@ export default function RafflesRecoverPage() {
 
           message && (
 
-            <p className="mt-6 text-center text-sm text-red-400">
+            <p className="mt-6 text-center text-sm text-red-800">
 
               {message}
 

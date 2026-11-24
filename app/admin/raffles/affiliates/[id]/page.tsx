@@ -237,7 +237,7 @@ if (loading) {
       <div className="space-y-4 p-10">
         <Link
           href="/admin/raffles/affiliates"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-[#002314]"
         >
           <ArrowLeft className="h-4 w-4" />
           Volver
@@ -256,7 +256,7 @@ if (loading) {
 
   <Link
     href="/admin/raffles/affiliates"
-    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white"
+    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-[#002314]"
   >
     <ArrowLeft className="h-4 w-4" />
     Volver
@@ -276,7 +276,7 @@ if (loading) {
 
   </h1>
 
-  <span className="rounded-full bg-green-500/15 text-green-400 px-3 py-1 text-xs font-semibold border border-green-500/30">
+  <span className="rounded-full bg-green-500/15 text-green-800 px-3 py-1 text-xs font-semibold border border-green-500/30">
 
     {dashboard?.affiliate?.active ? "ACTIVO" : "INACTIVO"}
 
@@ -314,7 +314,7 @@ if (loading) {
 href={`https://sorteos.impulsasuenos.com/raffles?aff=${dashboard?.affiliate?.code}`}
 target="_blank"
 rel="noopener noreferrer"
-className="font-mono text-sky-400 text-sm break-all hover:underline"
+className="font-mono text-[#7048E8] text-sm break-all hover:underline"
 >
 
 {`https://sorteos.impulsasuenos.com/raffles?aff=${dashboard?.affiliate?.code}`}
@@ -327,7 +327,7 @@ className="font-mono text-sky-400 text-sm break-all hover:underline"
 
 Última venta
 
-<span className="text-white ml-2">
+<span className="text-[#002314] ml-2">
 
 {dashboard?.lastSale?.createdAt
 ? new Date(
@@ -343,7 +343,7 @@ dashboard.lastSale.createdAt
 
 Actualizado
 
-<span className="text-white ml-2">
+<span className="text-[#002314] ml-2">
 
 {dashboard?.generatedAt
 ? new Date(
@@ -539,7 +539,7 @@ dashboard.generatedAt
                 onClick={()=>setStatusFilter(status)}
                 className={`rounded-full border px-4 py-2 text-sm transition ${
                 statusFilter===status
-                ? "bg-sky-600 border-sky-500 text-white"
+                ? "bg-[#7048E8] text-white border-sky-500 text-white"
                 : "hover:bg-white/5"
                 }`}
                 >
@@ -647,7 +647,7 @@ dashboard.generatedAt
 
 </td>
 
-<td className="text-green-400 font-medium">
+<td className="text-green-800 font-medium">
 
 {"$" + Number(
   sale.commission ?? 0
@@ -661,10 +661,10 @@ dashboard.generatedAt
 className={`rounded-full px-3 py-1 text-xs ${
 sale.paymentStatus==="paid" ||
 sale.paymentStatus==="approved"
-? "bg-green-500/15 text-green-400 border border-green-500/30"
+? "bg-green-500/15 text-green-800 border border-green-500/30"
 : sale.paymentStatus==="pending"
-? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
-: "bg-red-500/15 text-red-400 border border-red-500/30"
+? "bg-yellow-500/15 text-yellow-800 border border-yellow-500/30"
+: "bg-red-500/15 text-red-800 border border-red-500/30"
 }`}
 >
 
@@ -810,7 +810,7 @@ Detalles
 
                     </td>
 
-                    <td className="text-right font-semibold text-green-400">
+                    <td className="text-right font-semibold text-green-800">
 
                     {"$"+payment.amount.toLocaleString("es-CL")}
 
@@ -833,10 +833,10 @@ Detalles
                     <span
                     className={`rounded-full px-3 py-1 text-xs ${
                     payment.status==="approved"
-                    ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                    ? "bg-green-500/15 text-green-800 border border-green-500/30"
                     : payment.status==="pending"
-                    ? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30"
-                    : "bg-red-500/15 text-red-400 border border-red-500/30"
+                    ? "bg-yellow-500/15 text-yellow-800 border border-yellow-500/30"
+                    : "bg-red-500/15 text-red-800 border border-red-500/30"
                     }`}
                     >
 
@@ -898,9 +898,9 @@ Detalles
 
       {buyerModalOpen && (
 
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-50 bg-black/70 text-white flex items-center justify-center p-6">
 
-          <div className="w-full max-w-3xl rounded-xl border bg-[#002314] shadow-2xl">
+          <div className="w-full max-w-3xl rounded-xl border bg-[#FAF9F5] text-[#002314] shadow-2xl">
 
             <div className="flex items-center justify-between border-b px-6 py-4">
 
@@ -912,7 +912,7 @@ Detalles
 
               <button
                 onClick={() => setBuyerModalOpen(false)}
-                className="text-muted-foreground hover:text-white"
+                className="text-muted-foreground hover:text-[#002314]"
               >
 
                 ✕
@@ -1046,9 +1046,9 @@ Detalles
 
          {profileModalOpen && (
 
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-50 bg-black/70 text-white flex items-center justify-center p-6">
 
-            <div className="w-full max-w-3xl rounded-xl border bg-[#002314] shadow-2xl">
+            <div className="w-full max-w-3xl rounded-xl border bg-[#FAF9F5] text-[#002314] shadow-2xl">
 
               <div className="flex items-center justify-between border-b px-6 py-4">
 
@@ -1058,7 +1058,7 @@ Detalles
 
                 <button
                   onClick={() => setProfileModalOpen(false)}
-                  className="text-muted-foreground hover:text-white"
+                  className="text-muted-foreground hover:text-[#002314]"
                 >
                   ✕
                 </button>
@@ -1155,9 +1155,9 @@ Detalles
 
       {selectedPayout && (
 
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-50 bg-black/70 text-white flex items-center justify-center p-6">
 
-          <div className="w-full max-w-xl rounded-xl border bg-[#002314] shadow-2xl">
+          <div className="w-full max-w-xl rounded-xl border bg-[#FAF9F5] text-[#002314] shadow-2xl">
 
             <div className="flex items-center justify-between border-b px-6 py-4">
 
@@ -1169,7 +1169,7 @@ Detalles
 
               <button
                 onClick={() => setSelectedPayout(null)}
-                className="text-muted-foreground hover:text-white"
+                className="text-muted-foreground hover:text-[#002314]"
               >
 
                 ✕

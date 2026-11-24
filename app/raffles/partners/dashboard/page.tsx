@@ -93,7 +93,7 @@ const PER_PAGE = 10
           Partners
         </h1>
 
-        <p className="mt-4 text-slate-400">
+        <p className="mt-4 text-[#002314]">
           No tienes una cuenta de afiliado asignada.
         </p>
 
@@ -215,19 +215,16 @@ const paginatedSales =
     rounded-3xl
     p-6
     text-white
-    bg-gradient-to-r
-    from-blue-600
-    via-purple-600
-    to-[#5030AD]
+    bg-[#7048E8] text-white
   "
 >
 
   <div className="flex items-center gap-4">
 
    <img
-  src="/logo-email.png"
+  src="/raffles/brand/logo-impulsa.svg"
   alt="ImpulsaSueños Partners"
-  className="w-12 h-12 object-contain"
+  className="w-24 h-auto rounded-lg bg-[#FAF9F5] p-2 object-contain"
   draggable={false}
 />
 
@@ -285,7 +282,7 @@ const paginatedSales =
           px-5
           py-3
           rounded-xl
-          bg-white
+          bg-[#EDE8FD]
           text-black
           font-bold
         "
@@ -301,7 +298,7 @@ const paginatedSales =
     rounded-xl
     bg-white/15
     hover:bg-white/25
-    text-white
+    text-[#002314]
     font-bold
     transition
   "
@@ -382,8 +379,8 @@ const paginatedSales =
           mt-10
           rounded-3xl
           border
-          border-slate-200
-          bg-white
+          border-[#002314]/20
+          bg-[#EDE8FD]
           shadow-xl
           shadow-slate-200/60
           overflow-hidden
@@ -395,7 +392,7 @@ const paginatedSales =
             px-6
             py-5
             border-b
-            border-slate-200
+            border-[#002314]/20
           "
         >
 
@@ -403,7 +400,7 @@ const paginatedSales =
             className="
               text-2xl
               font-bold
-              text-slate-900
+              text-[#002314]
             "
           >
 
@@ -413,7 +410,7 @@ const paginatedSales =
 
           <p
             className="
-              text-slate-400
+              text-[#002314]
               mt-1
             "
           >
@@ -433,7 +430,7 @@ const paginatedSales =
     px-6
     py-4
     border-b
-    border-slate-200
+    border-[#002314]/20
   "
 >
 
@@ -452,7 +449,7 @@ const paginatedSales =
       flex-1
       rounded-xl
       border
-      border-slate-300
+      border-[#002314]/20
       px-4
       py-2
     "
@@ -474,7 +471,7 @@ const paginatedSales =
     className="
       rounded-xl
       border
-      border-slate-300
+      border-[#002314]/20
       px-4
       py-2
     "
@@ -518,7 +515,7 @@ const paginatedSales =
     className="
       rounded-xl
       border
-      border-slate-300
+      border-[#002314]/20
       px-4
       py-2
     "
@@ -539,7 +536,7 @@ const paginatedSales =
     className="
       rounded-xl
       border
-      border-slate-300
+      border-[#002314]/20
       px-4
       py-2
     "
@@ -562,7 +559,7 @@ const paginatedSales =
               <tr
                 className="
                   border-b
-                  border-slate-200
+                  border-[#002314]/20
                   bg-gradient-to-r
                     from-cyan-50
                     to-violet-50
@@ -614,7 +611,7 @@ colSpan={6}
 className="
 p-10
 text-center
-text-slate-500
+text-[#002314]
 "
 >
 
@@ -653,7 +650,7 @@ paginatedSales.map((sale:any)=>(
 
                     className="
                       border-b
-                      border-slate-200
+                      border-[#002314]/20
                       hover:bg-cyan-50
                       transition-colors
                     "
@@ -680,13 +677,13 @@ paginatedSales.map((sale:any)=>(
 
                       </div>
 
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-[#002314]">
 
                         {sale.buyerEmail}
 
                       </div>
 
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-[#002314]">
 
                         {sale.buyerPhone}
 
@@ -769,7 +766,7 @@ paginatedSales.map((sale:any)=>(
     px-6
     py-4
     border-t
-    border-slate-200
+    border-[#002314]/20
     bg-slate-50
   "
 >
@@ -789,7 +786,7 @@ paginatedSales.map((sale:any)=>(
       py-2
       rounded-lg
       border
-      border-slate-300
+      border-[#002314]/20
       disabled:opacity-40
       disabled:cursor-not-allowed
     "
@@ -810,7 +807,7 @@ paginatedSales.map((sale:any)=>(
     className="
       text-sm
       font-semibold
-      text-slate-700
+      text-[#002314]
     "
   >
 
@@ -821,7 +818,7 @@ paginatedSales.map((sale:any)=>(
   <div
     className="
       text-xs
-      text-slate-500
+      text-[#002314]
       mt-1
     "
   >
@@ -859,7 +856,7 @@ page >= totalPages
       py-2
       rounded-lg
       border
-      border-slate-300
+      border-[#002314]/20
       disabled:opacity-40
       disabled:cursor-not-allowed
     "
@@ -892,9 +889,7 @@ function Card({
 
     <div
       className="
-      bg-gradient-to-br
-      from-blue-950
-      to-purple-950
+      bg-[#002314] text-white
       border
       border-blue-800/30
       rounded-3xl
@@ -904,7 +899,7 @@ function Card({
 
       <p
         className="
-        text-slate-400
+        text-[#002314]
         text-sm
       "
       >
@@ -916,7 +911,7 @@ function Card({
           text-3xl
           font-bold
           mt-3
-          text-white
+          text-[#002314]
         "
       >
         {value}
@@ -930,7 +925,7 @@ function Card({
               mt-3
               text-xs
               leading-5
-              text-slate-300
+              text-[#002314]
             "
           >
             {description}

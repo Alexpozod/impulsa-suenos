@@ -16,40 +16,34 @@ export default function PartnersLayout({
 
   {
     href: "/raffles/partners/dashboard",
-    label: "Dashboard",
-    icon: "📊"
+    label: "Dashboard"
   },
 
   {
     href: "/raffles/partners/links",
-    label: "Links",
-    icon: "🔗"
+    label: "Links"
   },
 
   {
     href: "/raffles/partners/resources",
-    label: "Recursos",
-    icon: "📦"
+    label: "Recursos"
   },
 
   {
     href: "/raffles/partners/profile",
-    label: "Perfil",
-    icon: "👤"
+    label: "Perfil"
   },
 
   {
     href: "/raffles/partners/payouts",
-    label: "Pagos",
-    icon: "💰"
+    label: "Pagos"
   }
 
   ,
 
 {
   href: "/raffles/partners/payment-simulator",
-  label: "Simulador",
-  icon: "🧮"
+  label: "Simulador"
 }
 
 ]
@@ -59,10 +53,7 @@ export default function PartnersLayout({
     <div
       className="
         min-h-screen
-        bg-gradient-to-br
-        from-[#FAF9F5]
-        via-[#FAF9F5]
-        to-[#EDE8FD]
+        bg-[#FAF9F5]
       "
     >
 
@@ -117,7 +108,7 @@ export default function PartnersLayout({
                 <div
                   className="
                     text-sm
-                    text-[#56665C]
+                    text-[#002314]
                   "
                 >
                   ImpulsaSueños
@@ -168,7 +159,7 @@ export default function PartnersLayout({
                         active
 
                           ? `
-                            bg-[#7048E8]
+                            bg-[#7048E8] text-white
                             text-white
                             shadow-lg
                           `
@@ -180,10 +171,6 @@ export default function PartnersLayout({
                       }
                     `}
                   >
-
-                    <span>
-                      {item.icon}
-                    </span>
 
                     <span
                       className="

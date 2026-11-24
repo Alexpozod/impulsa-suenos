@@ -565,7 +565,7 @@ setUnlockUntil("")
 
       <div
         className="
-          bg-white
+          bg-[#EDE8FD]
           rounded-3xl
           border
           p-8
@@ -582,7 +582,7 @@ setUnlockUntil("")
 
     <div
       className="
-        bg-white
+        bg-[#EDE8FD]
         rounded-3xl
         border
         shadow-sm
@@ -594,7 +594,7 @@ setUnlockUntil("")
         className="
           text-4xl
           font-black
-          text-slate-900
+          text-[#002314]
         "
       >
         👤 Perfil de Afiliado
@@ -602,7 +602,7 @@ setUnlockUntil("")
 
       <p
   className="
-    text-slate-500
+    text-[#002314]
     mt-2
     mb-8
   "
@@ -636,7 +636,7 @@ setUnlockUntil("")
       ${
         affiliateType === "person"
 
-        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-[#5030AD] text-white"
+        ? "bg-[#7048E8] text-white"
 
         : "border"
       }
@@ -662,7 +662,7 @@ setUnlockUntil("")
       ${
         affiliateType === "company"
 
-        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-[#5030AD] text-white"
+        ? "bg-[#7048E8] text-white"
 
         : "border"
       }
@@ -710,7 +710,7 @@ setUnlockUntil("")
       <div
         className="
           text-sm
-          text-slate-500
+          text-[#002314]
           mt-1
         "
       >
@@ -768,10 +768,7 @@ setUnlockUntil("")
             text-white
             font-semibold
 
-            bg-gradient-to-r
-            from-blue-600
-            via-purple-600
-            to-[#5030AD]
+            bg-[#7048E8] text-white
           "
         >
 
@@ -1180,10 +1177,7 @@ affiliateType === "company" && (
           text-white
           font-bold
 
-          bg-gradient-to-r
-          from-blue-600
-          via-purple-600
-          to-[#5030AD]
+          bg-[#7048E8] text-white
         "
       >
         {

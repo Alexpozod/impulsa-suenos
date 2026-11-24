@@ -79,7 +79,7 @@ export default function PartnerLinksPage() {
 
       <div
         className="
-          bg-white
+          bg-[#EDE8FD]
           rounded-3xl
           border
           p-8
@@ -98,7 +98,7 @@ export default function PartnerLinksPage() {
 
       <div
         className="
-          bg-white
+          bg-[#EDE8FD]
           rounded-3xl
           border
           p-8
@@ -110,7 +110,7 @@ export default function PartnerLinksPage() {
           className="
             text-4xl
             font-black
-            text-slate-900
+            text-[#002314]
           "
         >
           🔗 Links de Afiliado
@@ -118,7 +118,7 @@ export default function PartnerLinksPage() {
 
         <p
           className="
-            text-slate-500
+            text-[#002314]
             mt-2
           "
         >
@@ -152,7 +152,7 @@ lg:grid-cols-2
               <div
                 key={raffle.id}
                 className="
-                  bg-white
+                  bg-[#EDE8FD]
                   rounded-3xl
                   border
                   overflow-hidden
@@ -189,7 +189,7 @@ lg:grid-cols-2
                     className="
                       text-lg
                       font-black
-                      text-slate-900
+                      text-[#002314]
                       line-clamp-2
                     "
                   >
@@ -227,7 +227,7 @@ lg:grid-cols-2
                         text-xs
                         font-semibold
                         bg-purple-100
-                        text-purple-700
+                        text-[#7048E8]
                       "
                     >
                       Afiliado
@@ -244,7 +244,7 @@ lg:grid-cols-2
                         px-3
                         py-2
                       text-xs
-                      text-slate-500
+                      text-[#002314]
                       break-all
                     "
                   >
@@ -273,10 +273,7 @@ py-2
                         font-semibold
                         text-white
 
-                        bg-gradient-to-r
-                        from-blue-600
-                        via-purple-600
-                        to-[#5030AD]
+                        bg-[#7048E8] text-white
                       "
                     >
                       Copiar Link
@@ -292,7 +289,7 @@ py-2
                         rounded-xl
                         border
                         font-semibold
-                        text-slate-700
+                        text-[#002314]
                       "
                     >
                       Abrir Sorteo

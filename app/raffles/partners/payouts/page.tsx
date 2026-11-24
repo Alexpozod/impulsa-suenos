@@ -392,7 +392,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
 
       <div
         className="
-          bg-white
+          bg-[#EDE8FD]
           rounded-3xl
           border
           p-8
@@ -411,7 +411,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
 
       <div
         className="
-          bg-white
+          bg-[#EDE8FD]
           rounded-3xl
           border
           p-8
@@ -423,7 +423,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
           className="
             text-4xl
             font-black
-            text-slate-900
+            text-[#002314]
           "
         >
           💰 Retiros
@@ -431,7 +431,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
 
         <p
           className="
-            text-slate-500
+            text-[#002314]
             mt-2
           "
         >
@@ -480,7 +480,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
 
       <div
         className="
-          bg-white
+          bg-[#EDE8FD]
           rounded-3xl
           border
           p-6
@@ -524,10 +524,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
       text-white
       font-semibold
 
-      bg-gradient-to-r
-      from-blue-600
-      via-purple-600
-      to-[#5030AD]
+      bg-[#7048E8] text-white
     "
   >
 
@@ -610,7 +607,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
             <p
               className="
                 text-sm
-                text-slate-500
+                text-[#002314]
                 mt-1
               "
             >
@@ -678,10 +675,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
               text-white
               font-bold
 
-              bg-gradient-to-r
-              from-blue-600
-              via-purple-600
-              to-[#5030AD]
+              bg-[#7048E8] text-white
             "
           >
 
@@ -715,7 +709,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
 
       <div
         className="
-          bg-white
+          bg-[#EDE8FD]
           rounded-3xl
           border
           overflow-hidden
@@ -748,7 +742,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
               className="
                 p-8
                 text-center
-                text-slate-500
+                text-[#002314]
               "
             >
               No existen solicitudes.
@@ -790,7 +784,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
                   <div
                     className="
                       text-xs
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     {
@@ -837,7 +831,7 @@ function Card({
 
     <div
       className="
-        bg-white
+        bg-[#EDE8FD]
         border
         rounded-3xl
         p-6
@@ -847,7 +841,7 @@ function Card({
       <div
         className="
           text-sm
-          text-slate-500
+          text-[#002314]
         "
       >
         {title}

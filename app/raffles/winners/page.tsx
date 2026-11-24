@@ -86,8 +86,8 @@ export default function WinnersPage() {
       <div
         className="
           min-h-screen
-          bg-slate-950
-          text-white
+          bg-[#FAF9F5]
+          text-[#002314]
           flex
           items-center
           justify-center
@@ -103,8 +103,8 @@ export default function WinnersPage() {
     <div
       className="
         min-h-screen
-        bg-slate-950
-        text-white
+        bg-[#FAF9F5]
+        text-[#002314]
       "
     >
 
@@ -133,7 +133,7 @@ export default function WinnersPage() {
       bg-emerald-500/10
       border
       border-emerald-500/30
-      text-emerald-400
+      text-emerald-800
       text-sm
       font-semibold
       mb-4
@@ -156,7 +156,7 @@ export default function WinnersPage() {
 
   <p
     className="
-      text-slate-400
+      text-[#002314]
       max-w-3xl
       leading-relaxed
     "
@@ -180,9 +180,9 @@ export default function WinnersPage() {
 
   <div
     className="
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-2xl
       p-4
     "
@@ -195,16 +195,16 @@ export default function WinnersPage() {
       Transparencia
     </div>
 
-    <div className="text-xs text-slate-400 mt-1">
+    <div className="text-xs text-[#002314] mt-1">
       Resultados públicos
     </div>
   </div>
 
   <div
     className="
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-2xl
       p-4
     "
@@ -217,16 +217,16 @@ export default function WinnersPage() {
       Verificados
     </div>
 
-    <div className="text-xs text-slate-400 mt-1">
+    <div className="text-xs text-[#002314] mt-1">
       Ganadores oficiales
     </div>
   </div>
 
   <div
     className="
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-2xl
       p-4
     "
@@ -239,16 +239,16 @@ export default function WinnersPage() {
       Evidencias
     </div>
 
-    <div className="text-xs text-slate-400 mt-1">
+    <div className="text-xs text-[#002314] mt-1">
       Entregas publicadas
     </div>
   </div>
 
   <div
     className="
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-2xl
       p-4
     "
@@ -261,7 +261,7 @@ export default function WinnersPage() {
       Sorteos
     </div>
 
-    <div className="text-xs text-slate-400 mt-1">
+    <div className="text-xs text-[#002314] mt-1">
       Procesos auditables
     </div>
   </div>
@@ -300,9 +300,9 @@ const isExpanded =
   <div
     key={winner.id}
     className="
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-3xl
       p-5
     "
@@ -329,7 +329,7 @@ const isExpanded =
           object-cover
           rounded-2xl
           border
-          border-slate-800
+          border-[#002314]/20
           shrink-0
         "
       />
@@ -342,7 +342,7 @@ const isExpanded =
 
         <div
           className="
-            text-yellow-400
+            text-yellow-800
             text-sm
             font-semibold
             uppercase
@@ -363,12 +363,12 @@ const isExpanded =
           {winner.prize_title}
         </h2>
 
-        <div className="text-slate-300 mb-2">
+        <div className="text-[#002314] mb-2">
   📦 <strong>Sorteo:</strong>{" "}
   {winner.raffle?.title || "Sorteo"}
 </div>
 
-<div className="text-slate-300 mb-2">
+<div className="text-[#002314] mb-2">
   📅 <strong>Publicado:</strong>{" "}
   {
     winner.created_at
@@ -379,14 +379,14 @@ const isExpanded =
   }
 </div>
 
-            <div className="text-slate-300 mb-2">
+            <div className="text-[#002314] mb-2">
             👤 <strong>Ganador:</strong>{" "}
             {maskWinnerName(
               winner.winner_name
             )}
             </div>
 
-            <div className="text-slate-300 mb-4">
+            <div className="text-[#002314] mb-4">
             🎟️ <strong>Ticket:</strong>{" "}
             {winner.ticket_code}
             </div>
@@ -400,7 +400,7 @@ const isExpanded =
             bg-emerald-500/20
             border
             border-emerald-500/30
-            text-emerald-300
+            text-emerald-800
             font-semibold
           "
         >
@@ -415,8 +415,8 @@ const isExpanded =
       inline-flex
       items-center
       gap-2
-      text-blue-400
-      hover:text-blue-300
+      text-[#7048E8]
+      hover:text-[#7048E8]
       font-semibold
       transition
     "
@@ -437,8 +437,8 @@ const isExpanded =
     }
     className="
       mt-4
-      text-cyan-400
-      hover:text-cyan-300
+      text-[#7048E8]
+      hover:text-[#7048E8]
       font-semibold
       transition
     "
@@ -498,7 +498,7 @@ const isExpanded =
     object-cover
     rounded-2xl
     border
-    border-slate-800
+    border-[#002314]/20
   "
 />
 
@@ -551,7 +551,7 @@ const isExpanded =
               object-cover
               rounded-2xl
               border
-              border-slate-800
+              border-[#002314]/20
             "
           >
             <source src={video} />

@@ -137,8 +137,8 @@ export default function RaffleFraudPage() {
 
             <thead
               className="
-                bg-slate-950
-                border-b border-slate-800
+                bg-[#FAF9F5]
+                border-b border-[#002314]/20
               "
             >
 
@@ -183,7 +183,7 @@ export default function RaffleFraudPage() {
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Cargando...
@@ -202,7 +202,7 @@ export default function RaffleFraudPage() {
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Sin señales de riesgo
@@ -217,7 +217,7 @@ export default function RaffleFraudPage() {
                 <tr
                   key={order.id}
                   className="
-                    border-b border-slate-800
+                    border-b border-[#002314]/20
                   "
                 >
 
@@ -229,7 +229,7 @@ export default function RaffleFraudPage() {
                         {order.buyer_name}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
                         {order.buyer_email}
                       </p>
 
@@ -251,7 +251,7 @@ export default function RaffleFraudPage() {
     className="
       max-w-md
       text-sm
-      text-slate-300
+      text-[#002314]
       break-words
     "
   >
@@ -260,7 +260,7 @@ export default function RaffleFraudPage() {
 
 </td>
 
-<td className="p-4 text-sm text-slate-400">
+<td className="p-4 text-sm text-[#002314]">
 
   {order.ip || "-"}
 
@@ -271,7 +271,7 @@ export default function RaffleFraudPage() {
   <span
     className="
       text-xs
-      text-slate-500
+      text-[#002314]
       break-all
     "
   >
@@ -280,7 +280,7 @@ export default function RaffleFraudPage() {
 
 </td>
 
-<td className="p-4 text-sm text-slate-400">
+<td className="p-4 text-sm text-[#002314]">
 
   {new Date(
     order.created_at
@@ -294,7 +294,7 @@ export default function RaffleFraudPage() {
 
                   </td>
 
-                  <td className="p-4 text-sm text-slate-400">
+                  <td className="p-4 text-sm text-[#002314]">
 
                     {order.ip_address || "-"}
 
@@ -325,8 +325,8 @@ export default function RaffleFraudPage() {
                           className="
                             px-2 py-1
                             rounded-lg
-                            bg-red-900/30
-                            text-red-300
+                            bg-red-100/30
+                            text-red-800
                             text-xs
                             border border-red-500/20
                           "

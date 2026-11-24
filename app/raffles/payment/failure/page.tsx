@@ -7,9 +7,9 @@ export default function FailurePage() {
   const router = useRouter()
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4">
+    <main className="min-h-screen bg-[#FAF9F5] text-[#002314] flex items-center justify-center px-4">
 
-      <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-10 text-center">
+      <div className="max-w-xl w-full bg-[#EDE8FD] border border-[#002314]/20 rounded-3xl p-10 text-center">
 
         <div className="text-6xl mb-6">
   ⚠️
@@ -27,7 +27,7 @@ export default function FailurePage() {
 
 <p
   className="
-    text-slate-300
+    text-[#002314]
     text-lg
     leading-relaxed
     mb-8
@@ -43,9 +43,9 @@ export default function FailurePage() {
 
 <div
   className="
-    bg-slate-950
+    bg-[#FAF9F5]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-2xl
     p-5
     mb-8
@@ -70,7 +70,7 @@ export default function FailurePage() {
 
         <button
           onClick={() => router.push("/raffles")}
-          className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold"
+          className="w-full bg-[#7048E8] text-white hover:bg-[#002314] py-4 rounded-2xl font-bold"
         >
           Volver a sorteos
         </button>

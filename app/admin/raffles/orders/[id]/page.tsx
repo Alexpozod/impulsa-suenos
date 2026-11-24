@@ -140,8 +140,8 @@ export default function OrderDetailPage() {
           className="
             px-4 py-2
             rounded-xl
-            bg-slate-800
-            hover:bg-slate-700
+            bg-[#EDE8FD]
+            hover:bg-[#EDE8FD]
             transition
           "
         >
@@ -154,8 +154,8 @@ export default function OrderDetailPage() {
             rounded-2xl
             border
             border-red-900
-            bg-red-950/30
-            text-red-300
+            bg-red-100/30
+            text-red-800
           "
         >
           {error || "Orden no encontrada"}
@@ -199,7 +199,7 @@ export default function OrderDetailPage() {
             📦 Order Detail
           </h1>
 
-          <p className="text-slate-400 mt-2">
+          <p className="text-[#002314] mt-2">
 
             Auditoría completa de orden,
             pago, tickets y ledger
@@ -218,8 +218,8 @@ export default function OrderDetailPage() {
           className="
             px-4 py-2
             rounded-xl
-            bg-slate-800
-            hover:bg-slate-700
+            bg-[#EDE8FD]
+            hover:bg-[#EDE8FD]
             transition
           "
         >
@@ -503,8 +503,8 @@ export default function OrderDetailPage() {
                   className="
                     rounded-2xl
                     border
-                    border-slate-800
-                    bg-slate-950
+                    border-[#002314]/20
+                    bg-[#FAF9F5]
                     p-4
                   "
                 >
@@ -579,8 +579,8 @@ export default function OrderDetailPage() {
                         self-end
                         px-3 py-2
                         rounded-xl
-                        bg-blue-600
-                        hover:bg-blue-500
+                        bg-[#7048E8] text-white
+                        hover:bg-[#002314]
                         transition
                         text-sm
                       "
@@ -604,7 +604,7 @@ export default function OrderDetailPage() {
             className="
               mt-4
               text-sm
-              text-green-300
+              text-green-800
             "
           >
             Existe un pago aprobado asociado
@@ -644,8 +644,8 @@ export default function OrderDetailPage() {
                   className="
                     rounded-2xl
                     border
-                    border-slate-800
-                    bg-slate-950
+                    border-[#002314]/20
+                    bg-[#FAF9F5]
                     p-4
                   "
                 >
@@ -659,7 +659,7 @@ export default function OrderDetailPage() {
                   <p
                     className="
                       text-sm
-                      text-slate-500
+                      text-[#002314]
                       mt-1
                     "
                   >
@@ -671,7 +671,7 @@ export default function OrderDetailPage() {
                   <p
                     className="
                       text-sm
-                      text-slate-400
+                      text-[#002314]
                       mt-1
                     "
                   >
@@ -691,8 +691,8 @@ export default function OrderDetailPage() {
                       mt-4
                       px-3 py-2
                       rounded-xl
-                      bg-blue-600
-                      hover:bg-blue-500
+                      bg-[#7048E8] text-white
+                      hover:bg-[#002314]
                       transition
                       text-sm
                     "
@@ -732,7 +732,7 @@ export default function OrderDetailPage() {
                   className="
                     text-left
                     border-b
-                    border-slate-800
+                    border-[#002314]/20
                   "
                 >
 
@@ -773,7 +773,7 @@ export default function OrderDetailPage() {
                       key={movement.id}
                       className="
                         border-b
-                        border-slate-800
+                        border-[#002314]/20
                       "
                     >
 
@@ -840,13 +840,13 @@ function Card({
       className="
         rounded-2xl
         border
-        border-slate-800
-        bg-slate-900
+        border-[#002314]/20
+        bg-[#EDE8FD]
         p-5
       "
     >
 
-      <p className="text-sm text-slate-400">
+      <p className="text-sm text-[#002314]">
         {title}
       </p>
 
@@ -878,8 +878,8 @@ function Section({
       className="
         rounded-3xl
         border
-        border-slate-800
-        bg-slate-900
+        border-[#002314]/20
+        bg-[#EDE8FD]
         p-6
       "
     >
@@ -927,18 +927,18 @@ function Info({
         gap-1
         md:gap-4
         border-b
-        border-slate-800
+        border-[#002314]/20
         pb-3
       "
     >
 
-      <p className="text-slate-500">
+      <p className="text-[#002314]">
         {label}
       </p>
 
       <p
         className="
-          text-slate-200
+          text-[#002314]
           break-all
         "
       >
@@ -957,7 +957,7 @@ function EmptyText({
 
   return (
 
-    <p className="text-slate-500">
+    <p className="text-[#002314]">
       {value}
     </p>
   )

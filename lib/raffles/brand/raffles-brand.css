@@ -71,12 +71,12 @@
 
 /* Existing admin dark theme stays legible until page-by-page migration. */
 .raffles-brand.raffles-brand-admin {
-  color-scheme: dark;
+  color-scheme: light;
 }
 .raffles-brand.raffles-brand-admin .raffles-card {
-  border-color: #254034;
-  background-color: #05291B;
-  color: var(--raffles-cream);
+  border-color: var(--raffles-lavender);
+  background-color: var(--raffles-lavender);
+  color: var(--raffles-ink);
 }
 
 /* The shared parent admin shell is changed only for /admin/raffles. */

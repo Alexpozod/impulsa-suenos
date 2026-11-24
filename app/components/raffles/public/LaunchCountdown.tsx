@@ -134,14 +134,14 @@ export default function LaunchCountdown({
         rounded-3xl
         border
         border-cyan-500/20
-        bg-cyan-500/5
+        bg-[#7048E8]/5
         p-8
       "
     >
 
       <div
         className="
-          text-cyan-400
+          text-[#7048E8]
           uppercase
           tracking-[0.35em]
           text-sm
@@ -203,9 +203,9 @@ function CountdownCard({
     <div
       className="
         rounded-2xl
-        bg-slate-900
+        bg-[#EDE8FD]
         border
-        border-slate-800
+        border-[#002314]/20
         py-6
       "
     >
@@ -215,7 +215,7 @@ function CountdownCard({
           text-4xl
           md:text-5xl
           font-black
-          text-white
+          text-[#002314]
         "
       >
 
@@ -229,7 +229,7 @@ function CountdownCard({
           text-xs
           uppercase
           tracking-[0.25em]
-          text-slate-400
+          text-[#002314]
         "
       >
 

@@ -507,7 +507,7 @@ async function uploadCoverImage(
       target="_blank"
       rel="noreferrer"
       className="
-        text-blue-500
+        text-[#7048E8]
         underline
       "
     >
@@ -522,7 +522,7 @@ async function uploadCoverImage(
       px-4
       py-2
       rounded-xl
-      bg-purple-600
+      bg-[#7048E8] text-white
       text-white
       cursor-pointer
     "
@@ -632,7 +632,7 @@ async function uploadCoverImage(
     px-4
     py-2
     rounded-xl
-    bg-blue-600
+    bg-[#7048E8] text-white
     text-white
     cursor-pointer
   "
@@ -789,7 +789,7 @@ async function uploadCoverImage(
         onClick={save}
         disabled={saving}
         className="
-          bg-blue-600
+          bg-[#7048E8] text-white
           text-white
           px-6
           py-3

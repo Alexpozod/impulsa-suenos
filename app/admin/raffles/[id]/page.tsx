@@ -132,7 +132,7 @@ export default function AdminRaffleDetailPage() {
 
     return (
 
-      <div className="p-6 text-white">
+      <div className="p-6 text-[#002314]">
         Cargando...
       </div>
 
@@ -416,8 +416,8 @@ export default function AdminRaffleDetailPage() {
 
             <thead
               className="
-                bg-slate-950
-                border-b border-slate-800
+                bg-[#FAF9F5]
+                border-b border-[#002314]/20
               "
             >
 
@@ -450,7 +450,7 @@ export default function AdminRaffleDetailPage() {
                 <tr
                   key={order.id}
                   className="
-                    border-b border-slate-800
+                    border-b border-[#002314]/20
                   "
                 >
 
@@ -462,7 +462,7 @@ export default function AdminRaffleDetailPage() {
                         {order.buyer_name}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
                         {order.buyer_email}
                       </p>
 
@@ -513,8 +513,8 @@ export default function AdminRaffleDetailPage() {
 
             <thead
               className="
-                bg-slate-950
-                border-b border-slate-800
+                bg-[#FAF9F5]
+                border-b border-[#002314]/20
               "
             >
 
@@ -547,7 +547,7 @@ export default function AdminRaffleDetailPage() {
                 <tr
                   key={payment.id}
                   className="
-                    border-b border-slate-800
+                    border-b border-[#002314]/20
                   "
                 >
 
@@ -603,8 +603,8 @@ export default function AdminRaffleDetailPage() {
 
             <thead
               className="
-                bg-slate-950
-                border-b border-slate-800
+                bg-[#FAF9F5]
+                border-b border-[#002314]/20
               "
             >
 
@@ -633,7 +633,7 @@ export default function AdminRaffleDetailPage() {
                 <tr
                   key={ticket.id}
                   className="
-                    border-b border-slate-800
+                    border-b border-[#002314]/20
                   "
                 >
 
@@ -675,8 +675,8 @@ export default function AdminRaffleDetailPage() {
 
             <thead
               className="
-                bg-slate-950
-                border-b border-slate-800
+                bg-[#FAF9F5]
+                border-b border-[#002314]/20
               "
             >
 
@@ -709,7 +709,7 @@ export default function AdminRaffleDetailPage() {
                 <tr
                   key={item.id}
                   className="
-                    border-b border-slate-800
+                    border-b border-[#002314]/20
                   "
                 >
 
@@ -732,13 +732,13 @@ export default function AdminRaffleDetailPage() {
                                 ? `
                                     bg-emerald-500/10
                                     border-emerald-500/20
-                                    text-emerald-300
+                                    text-emerald-800
                                 `
 
                                 : `
                                     bg-red-500/10
                                     border-red-500/20
-                                    text-red-300
+                                    text-red-800
                                 `
                             }
                             `}
@@ -757,8 +757,8 @@ export default function AdminRaffleDetailPage() {
 
                             ${
                             item.flow_type === "in"
-                                ? "text-emerald-400"
-                                : "text-red-400"
+                                ? "text-emerald-800"
+                                : "text-red-800"
                             }
                         `}
                         >
@@ -789,7 +789,7 @@ export default function AdminRaffleDetailPage() {
           <div
             className="
               border-t
-              border-slate-800
+              border-[#002314]/20
               p-5
               grid
               grid-cols-1
@@ -800,18 +800,18 @@ export default function AdminRaffleDetailPage() {
 
             <div
               className="
-                bg-slate-950
-                border border-slate-800
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 p-4
               "
             >
 
-              <p className="text-slate-400 text-sm">
+              <p className="text-[#002314] text-sm">
                 Gross Revenue
               </p>
 
-              <p className="text-2xl font-bold text-emerald-400 mt-2">
+              <p className="text-2xl font-bold text-emerald-800 mt-2">
 
                 $
                 {Number(
@@ -824,18 +824,18 @@ export default function AdminRaffleDetailPage() {
 
             <div
               className="
-                bg-slate-950
-                border border-slate-800
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 p-4
               "
             >
 
-              <p className="text-slate-400 text-sm">
+              <p className="text-[#002314] text-sm">
                 Creator Net
               </p>
 
-              <p className="text-2xl font-bold text-blue-400 mt-2">
+              <p className="text-2xl font-bold text-[#7048E8] mt-2">
 
                 $
                 {Number(
@@ -848,18 +848,18 @@ export default function AdminRaffleDetailPage() {
 
             <div
               className="
-                bg-slate-950
-                border border-slate-800
+                bg-[#FAF9F5]
+                border border-[#002314]/20
                 rounded-xl
                 p-4
               "
             >
 
-              <p className="text-slate-400 text-sm">
+              <p className="text-[#002314] text-sm">
                 Platform Net
               </p>
 
-              <p className="text-2xl font-bold text-purple-400 mt-2">
+              <p className="text-2xl font-bold text-[#7048E8] mt-2">
 
                 $
                 {Number(
@@ -886,8 +886,8 @@ export default function AdminRaffleDetailPage() {
 
             <thead
               className="
-                bg-slate-950
-                border-b border-slate-800
+                bg-[#FAF9F5]
+                border-b border-[#002314]/20
               "
             >
 
@@ -916,7 +916,7 @@ export default function AdminRaffleDetailPage() {
                 <tr
                   key={item.id}
                   className="
-                    border-b border-slate-800
+                    border-b border-[#002314]/20
                   "
                 >
 
@@ -947,10 +947,10 @@ export default function AdminRaffleDetailPage() {
                             px-2 py-1
                             rounded-lg
                             text-xs
-                            bg-red-900/30
+                            bg-red-100/30
                             border
                             border-red-500/20
-                            text-red-300
+                            text-red-800
                           "
                         >
                           {flag}
@@ -999,16 +999,16 @@ function Tab({
           active
 
             ? `
-              bg-blue-600
+              bg-[#7048E8] text-white
               border-blue-500
               text-white
             `
 
             : `
-              bg-slate-900
-              border-slate-800
-              text-slate-400
-              hover:bg-slate-800
+              bg-[#EDE8FD]
+              border-[#002314]/20
+              text-[#002314]
+              hover:bg-[#EDE8FD]
             `
         }
       `}

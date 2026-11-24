@@ -84,11 +84,11 @@ export default function AdminLayout({ children }: any) {
 
   return (
 
-    <div className={raffleMenuOpen ? "raffles-brand-admin-shell flex min-h-screen bg-[#002314] text-white" : "flex min-h-screen bg-slate-950 text-white"}>
+    <div className={raffleMenuOpen ? "raffles-brand-admin-shell flex min-h-screen bg-[#FAF9F5] text-[#002314]" : "flex min-h-screen bg-slate-950 text-white"}>
 
       {/* SIDEBAR */}
       <aside
-        className={raffleMenuOpen ? "w-72 bg-[#05291B] p-5 space-y-6 border-r border-[#285143]" : "w-72 bg-slate-900 p-5 space-y-6 border-r border-slate-800"}
+        className={raffleMenuOpen ? "w-72 text-white bg-[#002314] p-5 space-y-6 border-r border-[#285143]" : "w-72 bg-slate-900 p-5 space-y-6 border-r border-slate-800"}
       >
 
         {raffleMenuOpen ? (

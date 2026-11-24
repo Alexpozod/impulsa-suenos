@@ -180,8 +180,8 @@ export default function RaffleOrdersPage() {
 
       <div
         className="
-          bg-slate-900
-          border border-slate-800
+          bg-[#EDE8FD]
+          border border-[#002314]/20
           rounded-xl
           p-4
         "
@@ -207,8 +207,8 @@ export default function RaffleOrdersPage() {
 Buscar nombre, email o ID...
 "
             className="
-              bg-slate-950
-              border border-slate-700
+              bg-[#FAF9F5]
+              border border-[#002314]/20
               rounded-xl
               px-4 py-3
               outline-none
@@ -226,8 +226,8 @@ Buscar nombre, email o ID...
               )
             }}
             className="
-              bg-slate-950
-              border border-slate-700
+              bg-[#FAF9F5]
+              border border-[#002314]/20
               rounded-xl
               px-4 py-3
               outline-none
@@ -259,8 +259,8 @@ Buscar nombre, email o ID...
           <button
             onClick={load}
             className="
-              bg-blue-600
-              hover:bg-blue-500
+              bg-[#7048E8] text-white
+              hover:bg-[#002314]
               transition
               rounded-xl
               font-medium
@@ -281,9 +281,9 @@ Buscar nombre, email o ID...
 
             <thead
   className="
-    bg-slate-950
+    bg-[#FAF9F5]
     border-b
-    border-slate-800
+    border-[#002314]/20
     sticky
     top-0
     z-10
@@ -335,7 +335,7 @@ Buscar nombre, email o ID...
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Cargando...
@@ -354,7 +354,7 @@ Buscar nombre, email o ID...
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Sin órdenes
@@ -370,8 +370,8 @@ Buscar nombre, email o ID...
                   key={order.id}
                   className="
   border-b
-  border-slate-800
-  hover:bg-slate-900/50
+  border-[#002314]/20
+  hover:bg-[#EDE8FD]/50
   transition
 "
                 >
@@ -383,13 +383,13 @@ Buscar nombre, email o ID...
                       <p
   className="
     font-semibold
-    text-white
+    text-[#002314]
   "
 >
   👤 {order.buyer_name}
 </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
                         {order.buyer_email}
                       </p>
 
@@ -407,7 +407,7 @@ Buscar nombre, email o ID...
 
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
 
                         /{order.raffles?.slug}
 
@@ -441,7 +441,7 @@ Buscar nombre, email o ID...
 <p
   className="
     text-xs
-    text-slate-500
+    text-[#002314]
     mt-1
   "
 >
@@ -454,7 +454,7 @@ Buscar nombre, email o ID...
 
                   </td>
 
-                  <td className="p-4 text-sm text-slate-400">
+                  <td className="p-4 text-sm text-[#002314]">
 
                     {new Date(
                       order.created_at
@@ -474,8 +474,8 @@ Buscar nombre, email o ID...
                     className="
                       px-3 py-2
                       rounded-xl
-                      bg-blue-600
-                      hover:bg-blue-500
+                      bg-[#7048E8] text-white
+                      hover:bg-[#002314]
                       text-sm
                       transition
                     "
@@ -506,7 +506,7 @@ Buscar nombre, email o ID...
           "
         >
 
-          <p className="text-slate-500">
+          <p className="text-[#002314]">
 
             Página {pagination.page}
             {" "}de{" "}
@@ -524,7 +524,7 @@ Buscar nombre, email o ID...
               className="
                 px-4 py-2
                 rounded-xl
-                bg-slate-800
+                bg-[#EDE8FD]
                 disabled:opacity-40
               "
             >
@@ -541,7 +541,7 @@ Buscar nombre, email o ID...
               className="
                 px-4 py-2
                 rounded-xl
-                bg-slate-800
+                bg-[#EDE8FD]
                 disabled:opacity-40
               "
             >

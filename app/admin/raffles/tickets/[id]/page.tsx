@@ -109,7 +109,7 @@ export default function TicketDetailPage() {
           🎟️ Ticket Detail
         </h1>
 
-        <p className="text-slate-400 mt-2">
+        <p className="text-[#002314] mt-2">
           Auditoría y trazabilidad completa
         </p>
 
@@ -449,9 +449,9 @@ function Section({
 
     <div
       className="
-        bg-slate-900
+        bg-[#EDE8FD]
         border
-        border-slate-800
+        border-[#002314]/20
         rounded-3xl
         p-6
       "
@@ -492,7 +492,7 @@ function Info({
       "
     >
 
-      <span className="text-slate-400">
+      <span className="text-[#002314]">
         {label}
       </span>
 

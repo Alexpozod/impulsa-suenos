@@ -12,7 +12,7 @@ export default function RafflesAdminBrandLayout({
   children: ReactNode
 }) {
   return (
-    <div className={`raffles-brand raffles-brand-admin ${rafflesFontVariables}`}>
+    <div className={`raffles-brand raffles-brand-admin min-h-screen bg-[#FAF9F5] text-[#002314] ${rafflesFontVariables}`}>
       {children}
     </div>
   )

@@ -103,9 +103,9 @@ setLedger(
 
         <div
           className="
-          bg-slate-900
+          bg-[#EDE8FD]
           border
-          border-slate-800
+          border-[#002314]/20
           rounded-3xl
           p-6
           "
@@ -133,7 +133,7 @@ setLedger(
 
         </h1>
 
-        <p className="text-slate-400 mt-2">
+        <p className="text-[#002314] mt-2">
 
           ID: {id}
 
@@ -151,15 +151,15 @@ setLedger(
 
   <div
     className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
     "
   >
 
-    <div className="text-slate-400">
+    <div className="text-[#002314]">
 
       Total Ganado
 
@@ -179,15 +179,15 @@ setLedger(
 
   <div
     className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
     "
   >
 
-    <div className="text-slate-400">
+    <div className="text-[#002314]">
 
       Conversiones
 
@@ -205,9 +205,9 @@ setLedger(
 
       <div
         className="
-        bg-slate-900
+        bg-[#EDE8FD]
         border
-        border-slate-800
+        border-[#002314]/20
         rounded-3xl
         p-6
         space-y-3
@@ -323,15 +323,15 @@ setLedger(
 
 <div
   className="
-  bg-slate-900
+  bg-[#EDE8FD]
   border
-  border-slate-800
+  border-[#002314]/20
   rounded-3xl
   overflow-hidden
   "
 >
 
-  <div className="p-6 border-b border-slate-800">
+  <div className="p-6 border-b border-[#002314]/20">
 
     <h2 className="text-xl font-semibold">
 
@@ -390,7 +390,7 @@ setLedger(
               className="
               p-6
               text-center
-              text-slate-500
+              text-[#002314]
               "
             >
 
@@ -412,7 +412,7 @@ setLedger(
                 key={item.id}
                 className="
                 border-t
-                border-slate-800
+                border-[#002314]/20
                 "
               >
 
@@ -462,7 +462,7 @@ setLedger(
     className="
     whitespace-pre-wrap
     break-all
-    text-slate-400
+    text-[#002314]
     "
   >
 

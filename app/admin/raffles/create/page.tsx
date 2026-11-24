@@ -474,7 +474,7 @@ const res =
     🎟️ Crear Sorteo
   </h1>
 
-  <p className="text-slate-400 mt-2">
+  <p className="text-[#002314] mt-2">
     Crea un nuevo sorteo dentro del sistema.
   </p>
 
@@ -482,7 +482,7 @@ const res =
 
 <div
   className="
-    bg-blue-950/40
+    bg-blue-100/40
     border
     border-blue-800
     rounded-3xl
@@ -492,7 +492,7 @@ const res =
 
   <p
     className="
-      text-blue-300
+      text-[#7048E8]
       font-semibold
     "
   >
@@ -501,7 +501,7 @@ const res =
 
   <p
     className="
-      text-slate-300
+      text-[#002314]
       text-sm
       mt-2
     "
@@ -518,9 +518,9 @@ const res =
 
 <div
   className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
   "
@@ -539,7 +539,7 @@ const res =
 
     <p
       className="
-        text-slate-400
+        text-[#002314]
         text-sm
         mt-1
       "
@@ -569,7 +569,7 @@ const res =
       className="
         mt-2
         text-sm
-        text-red-400
+        text-red-800
       "
     >
       ⚠ El título debe tener al menos 5 caracteres
@@ -586,7 +586,7 @@ const res =
       <p
         className="
           text-xs
-          text-red-400
+          text-red-800
         "
       >
         Mínimo 10 caracteres
@@ -598,7 +598,7 @@ const res =
       <p
         className="
           text-xs
-          text-emerald-400
+          text-emerald-800
         "
       >
         ✓ Título válido
@@ -628,8 +628,8 @@ const res =
       mt-2
       rounded-xl
       border
-      border-slate-800
-      bg-slate-900
+      border-[#002314]/20
+      bg-[#EDE8FD]
       px-3
       py-2
     "
@@ -641,7 +641,7 @@ const res =
     className="
       mt-2
       text-sm
-      text-red-400
+      text-red-800
     "
   >
     ⚠ El slug debe tener al menos 3 caracteres
@@ -652,7 +652,7 @@ const res =
     <p
       className="
         text-xs
-        text-slate-400
+        text-[#002314]
       "
     >
       URL pública
@@ -661,7 +661,7 @@ const res =
     <p
       className="
         text-sm
-        text-blue-400
+        text-[#7048E8]
         break-all
       "
     >
@@ -704,7 +704,7 @@ const res =
         <p
           className="
             text-sm
-            text-red-400
+            text-red-800
           "
         >
           ⚠ La descripción debe tener al menos 30 caracteres
@@ -717,7 +717,7 @@ const res =
     <p
       className="
         text-xs
-        text-slate-500
+        text-[#002314]
       "
     >
       {form.description.length} caracteres
@@ -745,7 +745,7 @@ const res =
         <p
           className="
             text-xs
-            text-red-400
+            text-red-800
           "
         >
           Mínimo 100 caracteres
@@ -756,7 +756,7 @@ const res =
         <p
           className="
             text-xs
-            text-emerald-400
+            text-emerald-800
           "
         >
           ✓ Descripción válida
@@ -774,9 +774,9 @@ const res =
 
 <div
   className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
   "
@@ -795,7 +795,7 @@ const res =
 
     <p
       className="
-        text-slate-400
+        text-[#002314]
         text-sm
         mt-1
       "
@@ -823,7 +823,7 @@ const res =
       <p
         className="
           text-xs
-          text-red-400
+          text-red-800
         "
       >
         Mínimo 10 caracteres
@@ -835,7 +835,7 @@ const res =
       <p
         className="
           text-xs
-          text-emerald-400
+          text-emerald-800
         "
       >
         ✓ Premio válido
@@ -879,7 +879,7 @@ const res =
         <p
           className="
             text-sm
-            text-red-400
+            text-red-800
           "
         >
           ⚠ La descripción del premio debe tener al menos 20 caracteres
@@ -892,7 +892,7 @@ const res =
     <p
       className="
         text-xs
-        text-slate-500
+        text-[#002314]
       "
     >
       {form.prize_description.length} caracteres
@@ -920,7 +920,7 @@ const res =
         <p
           className="
             text-xs
-            text-red-400
+            text-red-800
           "
         >
           Mínimo 20 caracteres
@@ -931,7 +931,7 @@ const res =
         <p
           className="
             text-xs
-            text-emerald-400
+            text-emerald-800
           "
         >
           ✓ Descripción de premio válida
@@ -947,9 +947,9 @@ const res =
 
 <div
   className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
   "
@@ -968,7 +968,7 @@ const res =
 
     <p
       className="
-        text-slate-400
+        text-[#002314]
         text-sm
         mt-1
       "
@@ -980,9 +980,9 @@ const res =
 
         <div
   className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-5
   "
@@ -1018,8 +1018,8 @@ const res =
       w-full
       rounded-xl
       border
-      border-slate-700
-      bg-slate-950
+      border-[#002314]/20
+      bg-[#FAF9F5]
       p-3
     "
   />
@@ -1030,7 +1030,7 @@ const res =
       className="
         mt-4
         text-sm
-        text-blue-400
+        text-[#7048E8]
       "
     >
       Subiendo imagen...
@@ -1049,7 +1049,7 @@ const res =
           w-full
           rounded-2xl
           border
-          border-slate-700
+          border-[#002314]/20
           max-h-[400px]
           object-cover
         "
@@ -1059,7 +1059,7 @@ const res =
         className="
           mt-3
           text-xs
-          text-emerald-400
+          text-emerald-800
         "
       >
         ✓ Imagen cargada correctamente
@@ -1075,7 +1075,7 @@ const res =
     className="
       mt-3
       text-sm
-      text-red-400
+      text-red-800
     "
   >
     ⚠ Debes cargar una imagen principal
@@ -1088,9 +1088,9 @@ const res =
   <div
   className="
     mt-6
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-5
   "
@@ -1131,8 +1131,8 @@ const res =
       w-full
       rounded-xl
       border
-      border-slate-700
-      bg-slate-950
+      border-[#002314]/20
+      bg-[#FAF9F5]
       p-3
     "
   />
@@ -1163,7 +1163,7 @@ const res =
             className="
               rounded-2xl
               border
-              border-slate-700
+              border-[#002314]/20
               h-36
               w-full
               object-cover
@@ -1179,7 +1179,7 @@ const res =
       className="
         mt-4
         text-xs
-        text-slate-400
+        text-[#002314]
       "
     >
       {form.gallery.length} imagen(es) cargadas
@@ -1194,9 +1194,9 @@ const res =
 <div
   className="
     mt-6
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-5
   "
@@ -1232,8 +1232,8 @@ const res =
       w-full
       rounded-xl
       border
-      border-slate-700
-      bg-slate-950
+      border-[#002314]/20
+      bg-[#FAF9F5]
       p-3
     "
   />
@@ -1248,7 +1248,7 @@ const res =
         w-full
         rounded-2xl
         border
-        border-slate-700
+        border-[#002314]/20
       "
     >
       <source
@@ -1260,7 +1260,7 @@ const res =
       className="
         mt-3
         text-xs
-        text-emerald-400
+        text-emerald-800
       "
     >
       ✓ Video cargado correctamente
@@ -1276,9 +1276,9 @@ const res =
 
 <div
   className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
   "
@@ -1297,7 +1297,7 @@ const res =
 
     <p
       className="
-        text-slate-400
+        text-[#002314]
         text-sm
         mt-1
       "
@@ -1328,7 +1328,7 @@ const res =
       className="
         mt-2
         text-sm
-        text-red-400
+        text-red-800
       "
     >
       ⚠ El valor del ticket debe ser mayor a 0
@@ -1389,7 +1389,7 @@ const res =
     className="
       mt-2
       text-sm
-      text-red-400
+      text-red-800
     "
   >
     ⚠ El número máximo debe ser mayor que el mínimo
@@ -1420,7 +1420,7 @@ const res =
     className="
       mt-2
       text-sm
-      text-red-400
+      text-red-800
     "
   >
     ⚠ El objetivo mínimo supera la cantidad disponible de tickets
@@ -1432,9 +1432,9 @@ const res =
 
 <div
   className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
   "
@@ -1453,7 +1453,7 @@ const res =
 
     <p
       className="
-        text-slate-400
+        text-[#002314]
         text-sm
         mt-1
       "
@@ -1523,14 +1523,14 @@ const res =
       rounded-2xl
       border
       border-red-800
-      bg-red-950/30
+      bg-red-100/30
       p-4
     "
   >
 
     <p
       className="
-        text-red-400
+        text-red-800
         text-sm
       "
     >
@@ -1548,14 +1548,14 @@ const res =
       rounded-2xl
       border
       border-emerald-800
-      bg-emerald-950/30
+      bg-emerald-100/30
       p-4
     "
   >
 
     <p
       className="
-        text-emerald-400
+        text-emerald-800
         text-sm
       "
     >
@@ -1571,14 +1571,14 @@ const res =
       rounded-2xl
       border
       border-amber-800
-      bg-amber-950/30
+      bg-amber-100/30
       p-4
     "
   >
 
     <p
       className="
-        text-amber-400
+        text-amber-800
         text-sm
       "
     >
@@ -1597,9 +1597,9 @@ const res =
   }
           className="
 w-full
-bg-blue-600
-hover:bg-blue-500
-disabled:bg-slate-700
+bg-[#7048E8] text-white
+hover:bg-[#002314]
+disabled:bg-[#EDE8FD]
 disabled:cursor-not-allowed
 disabled:opacity-60
 transition

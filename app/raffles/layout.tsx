@@ -52,7 +52,7 @@ export default async function RafflesLayout({
 
     return (
 
-      <main className={`raffles-brand ${rafflesFontVariables} min-h-screen`}>
+      <main className={`raffles-brand bg-[#FAF9F5] text-[#002314] ${rafflesFontVariables} min-h-screen`}>
 
         {children}
 
@@ -66,7 +66,7 @@ export default async function RafflesLayout({
 
   return (
 
-    <main className={`raffles-brand ${rafflesFontVariables} min-h-screen`}>
+    <main className={`raffles-brand bg-[#FAF9F5] text-[#002314] ${rafflesFontVariables} min-h-screen`}>
 
       {children}
 
@@ -78,7 +78,7 @@ export default async function RafflesLayout({
 
 return (
 
-  <div className={`raffles-brand ${rafflesFontVariables}`}>
+  <div className={`raffles-brand bg-[#FAF9F5] text-[#002314] ${rafflesFontVariables}`}>
 
     <AffiliateTracker />
 
@@ -86,7 +86,7 @@ return (
 
     <RafflesNavbar />
 
-    <main className={`raffles-brand ${rafflesFontVariables} min-h-screen`}>
+    <main className={`raffles-brand bg-[#FAF9F5] text-[#002314] ${rafflesFontVariables} min-h-screen`}>
 
       {children}
 

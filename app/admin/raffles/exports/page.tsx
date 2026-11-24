@@ -248,7 +248,7 @@ export default function RaffleExportsPage() {
           📤 Exports
         </h1>
 
-        <p className="text-slate-400 mt-1">
+        <p className="text-[#002314] mt-1">
           Exports oficiales y auditoría
         </p>
 
@@ -258,8 +258,8 @@ export default function RaffleExportsPage() {
 
       <div
         className="
-          bg-slate-900
-          border border-slate-800
+          bg-[#EDE8FD]
+          border border-[#002314]/20
           rounded-xl
           overflow-hidden
         "
@@ -271,8 +271,8 @@ export default function RaffleExportsPage() {
 
             <thead
               className="
-                bg-slate-950
-                border-b border-slate-800
+                bg-[#FAF9F5]
+                border-b border-[#002314]/20
               "
             >
 
@@ -313,7 +313,7 @@ export default function RaffleExportsPage() {
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Cargando...
@@ -332,7 +332,7 @@ export default function RaffleExportsPage() {
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Sin sorteos finalizados
@@ -347,7 +347,7 @@ export default function RaffleExportsPage() {
                 <tr
                   key={raffle.id}
                   className="
-                    border-b border-slate-800
+                    border-b border-[#002314]/20
                   "
                 >
 
@@ -359,7 +359,7 @@ export default function RaffleExportsPage() {
                         {raffle.title}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
                         /{raffle.slug}
                       </p>
 
@@ -409,8 +409,8 @@ export default function RaffleExportsPage() {
                         className="
                           px-3 py-2
                           rounded-xl
-                          bg-slate-800
-                          hover:bg-slate-700
+                          bg-[#EDE8FD]
+                          hover:bg-[#EDE8FD]
                           text-sm
                         "
                       >
@@ -426,8 +426,8 @@ export default function RaffleExportsPage() {
                         className="
                           px-3 py-2
                           rounded-xl
-                          bg-blue-600
-                          hover:bg-blue-500
+                          bg-[#7048E8] text-white
+                          hover:bg-[#002314]
                           text-sm
                         "
                       >
@@ -467,8 +467,8 @@ function StatusBadge({
         rounded-full
         text-xs
         border border-white/10
-        bg-red-900/30
-        text-red-300
+        bg-red-100/30
+        text-red-800
       "
     >
       {status}

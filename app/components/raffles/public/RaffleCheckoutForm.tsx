@@ -6,9 +6,9 @@ export default function RaffleCheckoutForm() {
 
     <div
       className="
-        bg-slate-900
+        bg-[#EDE8FD]
         border
-        border-slate-800
+        border-[#002314]/20
         rounded-3xl
         p-6
       "
@@ -25,7 +25,7 @@ export default function RaffleCheckoutForm() {
           className="
             text-2xl
             font-black
-            text-white
+            text-[#002314]
           "
         >
           Checkout V2
@@ -33,7 +33,7 @@ export default function RaffleCheckoutForm() {
 
         <p
           className="
-            text-slate-400
+            text-[#002314]
             mt-2
           "
         >

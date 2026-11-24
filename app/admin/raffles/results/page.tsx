@@ -80,7 +80,7 @@ export default function RaffleResultsPage() {
 
       </h1>
 
-      <p className="mt-2 text-gray-400">
+      <p className="mt-2 text-[#002314]">
 
         Registro manual de ganadores
       </p>
@@ -118,7 +118,7 @@ export default function RaffleResultsPage() {
                 key={raffle.id}
                 className="
                   border
-                  border-gray-700
+                  border-[#002314]/20
                   rounded-lg
                   p-4
                 "
@@ -130,7 +130,7 @@ export default function RaffleResultsPage() {
 
                 </div>
 
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-[#002314]">
 
                   Tickets vendidos:
 
@@ -140,7 +140,7 @@ export default function RaffleResultsPage() {
 
                 </div>
 
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-[#002314]">
 
                   Revenue:
 

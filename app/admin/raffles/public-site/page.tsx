@@ -132,7 +132,7 @@ export default function PublicSitePage() {
       🌐 Sitio Público
     </h1>
 
-    <p className="text-slate-400 mt-2">
+    <p className="text-[#002314] mt-2">
       Administra la experiencia pública de Sorteos.
     </p>
 
@@ -140,19 +140,19 @@ export default function PublicSitePage() {
 
   <div className="grid gap-6">
 
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+    <div className="rounded-2xl border border-[#002314]/20 bg-[#EDE8FD] p-6">
 
   <h2 className="text-xl font-semibold">
     Estado del Sitio
   </h2>
 
-  <p className="text-slate-400 mt-2">
+  <p className="text-[#002314] mt-2">
     Controla cuándo mostrar el sitio normal o una landing especial.
   </p>
 
   {loading ? (
 
-    <div className="mt-6 text-slate-500">
+    <div className="mt-6 text-[#002314]">
 
       Cargando configuración...
 
@@ -160,7 +160,7 @@ export default function PublicSitePage() {
 
   ) : (
 
-    <div className="mt-6 rounded-xl bg-slate-950 p-4">
+    <div className="mt-6 rounded-xl bg-[#FAF9F5] p-4">
 
       <div className="mt-4 space-y-4">
 
@@ -204,7 +204,7 @@ export default function PublicSitePage() {
 
         ? "bg-emerald-600 text-white"
 
-        : "bg-slate-800 text-slate-400"
+        : "bg-[#EDE8FD] text-[#002314]"
 
       }
 
@@ -248,7 +248,7 @@ export default function PublicSitePage() {
 
         ? "bg-amber-500 text-black"
 
-        : "bg-slate-800 text-slate-400"
+        : "bg-[#EDE8FD] text-[#002314]"
 
       }
 
@@ -266,7 +266,7 @@ export default function PublicSitePage() {
 
   <div>
 
-    <div className="text-sm text-slate-400">
+    <div className="text-sm text-[#002314]">
 
       Título
 
@@ -282,7 +282,7 @@ export default function PublicSitePage() {
 
   <div>
 
-    <div className="text-sm text-slate-400">
+    <div className="text-sm text-[#002314]">
 
       Subtítulo
 
@@ -304,19 +304,19 @@ export default function PublicSitePage() {
   
 </div>
 
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+    <div className="rounded-2xl border border-[#002314]/20 bg-[#EDE8FD] p-6">
 
   <h2 className="text-xl font-semibold">
     Contenido
   </h2>
 
-  <p className="text-slate-400 mt-2">
+  <p className="text-[#002314] mt-2">
     Personaliza los textos visibles en la landing pública.
   </p>
 
   {loading ? (
 
-    <div className="mt-6 text-slate-500">
+    <div className="mt-6 text-[#002314]">
 
       Cargando...
 
@@ -343,9 +343,9 @@ export default function PublicSitePage() {
           className="
             w-full
             rounded-xl
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             px-4
             py-3
           "
@@ -370,9 +370,9 @@ export default function PublicSitePage() {
           className="
             w-full
             rounded-xl
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             px-4
             py-3
           "
@@ -398,9 +398,9 @@ export default function PublicSitePage() {
           className="
             w-full
             rounded-xl
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             px-4
             py-3
           "
@@ -414,13 +414,13 @@ export default function PublicSitePage() {
 
 </div>
 
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+    <div className="rounded-2xl border border-[#002314]/20 bg-[#EDE8FD] p-6">
 
   <h2 className="text-xl font-semibold">
     Landing
   </h2>
 
-  <p className="text-slate-400 mt-2">
+  <p className="text-[#002314] mt-2">
     Controla qué elementos se muestran en la landing.
   </p>
 
@@ -523,13 +523,13 @@ export default function PublicSitePage() {
 
 </div>
 
-<div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+<div className="rounded-2xl border border-[#002314]/20 bg-[#EDE8FD] p-6">
 
   <h2 className="text-xl font-semibold">
     Lanzamiento
   </h2>
 
-  <p className="text-slate-400 mt-2">
+  <p className="text-[#002314] mt-2">
     Configura el contador regresivo de la landing.
   </p>
 
@@ -598,9 +598,9 @@ export default function PublicSitePage() {
         className="
           w-full
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -613,13 +613,13 @@ export default function PublicSitePage() {
 
 </div>
 
-<div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+<div className="rounded-2xl border border-[#002314]/20 bg-[#EDE8FD] p-6">
 
   <h2 className="text-xl font-semibold">
     Redes Sociales
   </h2>
 
-  <p className="text-slate-400 mt-2">
+  <p className="text-[#002314] mt-2">
     Configura las redes sociales visibles en la landing.
   </p>
 
@@ -684,9 +684,9 @@ export default function PublicSitePage() {
         className="
           w-full
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -723,9 +723,9 @@ export default function PublicSitePage() {
         className="
           w-full
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -762,9 +762,9 @@ export default function PublicSitePage() {
         className="
           w-full
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -801,9 +801,9 @@ export default function PublicSitePage() {
         className="
           w-full
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -816,13 +816,13 @@ export default function PublicSitePage() {
 
 </div>
 
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+    <div className="rounded-2xl border border-[#002314]/20 bg-[#EDE8FD] p-6">
 
       <h2 className="text-xl font-semibold">
         Captación de Leads
       </h2>
 
-      <p className="text-slate-400 mt-2">
+      <p className="text-[#002314] mt-2">
         Administra los registros de personas interesadas antes del lanzamiento.
       </p>
 
@@ -837,11 +837,11 @@ export default function PublicSitePage() {
       py-3
       rounded-xl
       border
-      border-slate-700
-      hover:bg-slate-800
+      border-[#002314]/20
+      hover:bg-[#EDE8FD]
       transition
       font-semibold
-      text-white
+      text-[#002314]
     "
 
   >
@@ -860,8 +860,8 @@ export default function PublicSitePage() {
       px-6
       py-3
       rounded-xl
-      bg-cyan-600
-      hover:bg-cyan-700
+      bg-[#7048E8] text-white
+      hover:bg-[#002314]
       disabled:opacity-50
       font-semibold
       text-white
@@ -883,13 +883,13 @@ export default function PublicSitePage() {
 
 </div>
 
-<div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+<div className="rounded-2xl border border-[#002314]/20 bg-[#EDE8FD] p-6">
 
   <h2 className="text-xl font-semibold">
     Leads capturados
   </h2>
 
-  <p className="text-slate-400 mt-2">
+  <p className="text-[#002314] mt-2">
     Personas registradas para ser notificadas del lanzamiento.
   </p>
 
@@ -899,7 +899,7 @@ export default function PublicSitePage() {
 
     ?
 
-    <div className="mt-6 text-slate-500">
+    <div className="mt-6 text-[#002314]">
 
       Cargando...
 
@@ -915,7 +915,7 @@ export default function PublicSitePage() {
           inline-flex
           items-center
           rounded-xl
-          bg-cyan-600
+          bg-[#7048E8] text-white
           px-5
           py-3
           text-2xl
@@ -927,11 +927,11 @@ export default function PublicSitePage() {
 
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-xl border border-slate-800">
+      <div className="mt-8 overflow-hidden rounded-xl border border-[#002314]/20">
 
         <table className="w-full">
 
-          <thead className="bg-slate-950">
+          <thead className="bg-[#FAF9F5]">
 
             <tr>
 
@@ -957,7 +957,7 @@ export default function PublicSitePage() {
 
                   <tr
                     key={lead.email}
-                    className="border-t border-slate-800"
+                    className="border-t border-[#002314]/20"
                   >
 
                     <td className="px-4 py-3">
@@ -966,7 +966,7 @@ export default function PublicSitePage() {
 
                     </td>
 
-                    <td className="px-4 py-3 text-slate-400">
+                    <td className="px-4 py-3 text-[#002314]">
 
                       {
 

@@ -99,7 +99,7 @@ const res =
   📊 Analytics
 </h1>
 
-        <p className="text-slate-400 mt-2">
+        <p className="text-[#002314] mt-2">
   Revenue, conversiones, marketing e influencers
 </p>
 
@@ -118,9 +118,9 @@ gap-4
 <a
 href="/admin/raffles/create"
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-2xl
 p-5
 hover:border-blue-500
@@ -139,9 +139,9 @@ Crear Sorteo
 <a
 href="/admin/raffles/manage"
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-2xl
 p-5
 hover:border-blue-500
@@ -160,9 +160,9 @@ Gestionar
 <a
 href="/admin/raffles/orders"
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-2xl
 p-5
 hover:border-blue-500
@@ -181,9 +181,9 @@ transition
 <a
 href="/admin/raffles/payments"
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-2xl
 p-5
 hover:border-blue-500
@@ -202,9 +202,9 @@ Pagos
 <a
 href="/admin/raffles/tickets"
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-2xl
 p-5
 hover:border-blue-500
@@ -223,9 +223,9 @@ Tickets
 <a
 href="/admin/raffles/results"
 className="
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-800
+border-[#002314]/20
 rounded-2xl
 p-5
 hover:border-blue-500
@@ -319,10 +319,10 @@ Resultados
     href="/admin/raffles/system"
     className="
   bg-gradient-to-br
-  from-slate-900
-  to-slate-950
+  from-[#EDE8FD]
+  to-[#FAF9F5]
   border
-  border-slate-800
+  border-[#002314]/20
   rounded-3xl
   p-6
   hover:border-blue-500
@@ -343,7 +343,7 @@ Resultados
         <p
   className="
     text-xs
-    text-slate-400
+    text-[#002314]
     uppercase
     tracking-wider
   "
@@ -356,7 +356,7 @@ Resultados
     text-xl
     font-bold
     mt-2
-    text-white
+    text-[#002314]
   "
 >
           🛡️ Monitor
@@ -368,7 +368,7 @@ Resultados
         className="
   text-sm
   font-medium
-  text-blue-400
+  text-[#7048E8]
 "
       >
         View →
@@ -413,10 +413,10 @@ Resultados
 <div
   className="
     bg-gradient-to-br
-from-slate-900
-to-slate-950
+from-[#EDE8FD]
+to-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 rounded-3xl
 p-6
   "
@@ -426,7 +426,7 @@ p-6
   className="
     text-xl
     font-bold
-    text-white
+    text-[#002314]
     mb-4
   "
 >
@@ -447,7 +447,7 @@ p-6
             flex
             items-center
             justify-between
-            border-b border-slate-800
+            border-b border-[#002314]/20
             pb-2
           "
         >
@@ -457,7 +457,7 @@ p-6
             <p
   className="
     font-semibold
-    text-white
+    text-[#002314]
   "
 >
               {value.title}
@@ -470,7 +470,7 @@ p-6
             <p
   className="
     font-bold
-    text-emerald-400
+    text-emerald-800
   "
 >
 
@@ -481,7 +481,7 @@ p-6
 
             </p>
 
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-[#002314]">
 
               {value.conversions}
               {" "}
@@ -504,10 +504,10 @@ p-6
 <div
   className="
     bg-gradient-to-br
-    from-slate-900
-    to-slate-950
+    from-[#EDE8FD]
+    to-[#FAF9F5]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
   "
@@ -517,7 +517,7 @@ p-6
   className="
     text-xl
     font-bold
-    text-white
+    text-[#002314]
     mb-4
   "
 >
@@ -543,17 +543,17 @@ p-6
 
         <XAxis
   dataKey="date"
-  stroke="#94a3b8"
+  stroke="#002314"
 />
 
         <YAxis
-  stroke="#94a3b8"
+  stroke="#002314"
 />
 
         <Tooltip
   contentStyle={{
-    background: "#0f172a",
-    border: "1px solid #334155"
+    background: "#FAF9F5",
+    border: "1px solid #EDE8FD"
   }}
   formatter={(value: any) => [
     `$${Number(value).toLocaleString()}`,
@@ -564,7 +564,7 @@ p-6
        <Line
   type="monotone"
   dataKey="revenue"
-  stroke="#22c55e"
+  stroke="#7048E8"
   strokeWidth={3}
   dot={false}
   activeDot={{
@@ -585,10 +585,10 @@ p-6
 <div
   className="
    bg-gradient-to-br
-from-slate-900
-to-slate-950
+from-[#EDE8FD]
+to-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 rounded-3xl
 p-6
   "
@@ -598,7 +598,7 @@ p-6
   className="
     text-xl
     font-bold
-    text-white
+    text-[#002314]
     mb-4
   "
 >
@@ -619,7 +619,7 @@ p-6
                   flex
                   items-center
                   justify-between
-                  border-b border-slate-800
+                  border-b border-[#002314]/20
                   pb-2
                 "
               >
@@ -628,7 +628,7 @@ p-6
                   <p
   className="
     font-semibold
-    text-white
+    text-[#002314]
   "
 >
                     {key}
@@ -640,7 +640,7 @@ p-6
                   <p
   className="
     font-bold
-    text-emerald-400
+    text-emerald-800
   "
 >
                     $
@@ -649,7 +649,7 @@ p-6
                     ).toLocaleString()}
                   </p>
 
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-[#002314]">
                     {value.conversions}
                     {" "}
                     conversiones
@@ -670,10 +670,10 @@ p-6
 <div
   className="
     bg-gradient-to-br
-from-slate-900
-to-slate-950
+from-[#EDE8FD]
+to-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 rounded-3xl
 p-6
   "
@@ -683,7 +683,7 @@ p-6
   className="
     text-xl
     font-bold
-    text-white
+    text-[#002314]
     mb-4
   "
 >
@@ -704,7 +704,7 @@ p-6
             flex
             items-center
             justify-between
-            border-b border-slate-800
+            border-b border-[#002314]/20
             pb-2
           "
         >
@@ -714,7 +714,7 @@ p-6
             <p
   className="
     font-semibold
-    text-white
+    text-[#002314]
   "
 >
               {key}
@@ -727,7 +727,7 @@ p-6
             <p
   className="
     font-bold
-    text-emerald-400
+    text-emerald-800
   "
 >
 
@@ -738,7 +738,7 @@ p-6
 
             </p>
 
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-[#002314]">
 
               {value.conversions}
               {" "}
@@ -772,10 +772,10 @@ function Card({
     <div
       className="
         bg-gradient-to-br
-        from-slate-900
-        to-slate-950
+        from-[#EDE8FD]
+        to-[#FAF9F5]
         border
-        border-slate-800
+        border-[#002314]/20
         rounded-3xl
         p-5
       "
@@ -783,7 +783,7 @@ function Card({
 
       <p
         className="
-          text-slate-400
+          text-[#002314]
           text-sm
         "
       >
@@ -795,7 +795,7 @@ function Card({
           text-3xl
           font-bold
           mt-3
-          text-white
+          text-[#002314]
         "
       >
         {value}

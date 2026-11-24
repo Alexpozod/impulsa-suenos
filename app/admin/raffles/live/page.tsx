@@ -192,8 +192,8 @@ export default function AdminRafflesLivePage() {
 
           <thead
             className="
-              bg-slate-950
-              border-b border-slate-800
+              bg-[#FAF9F5]
+              border-b border-[#002314]/20
             "
           >
 
@@ -238,7 +238,7 @@ export default function AdminRafflesLivePage() {
                   className="
                     p-10
                     text-center
-                    text-slate-500
+                    text-[#002314]
                   "
                 >
                   Cargando...
@@ -258,7 +258,7 @@ export default function AdminRafflesLivePage() {
                   className="
                     p-10
                     text-center
-                    text-slate-500
+                    text-[#002314]
                   "
                 >
                   Sin eventos
@@ -274,7 +274,7 @@ export default function AdminRafflesLivePage() {
               <tr
                 key={event.id}
                 className="
-                  border-b border-slate-800
+                  border-b border-[#002314]/20
                 "
               >
 
@@ -294,7 +294,7 @@ export default function AdminRafflesLivePage() {
                       {event.raffle?.title || "-"}
                     </p>
 
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-[#002314]">
                       /{event.raffle?.slug}
                     </p>
 
@@ -323,7 +323,7 @@ export default function AdminRafflesLivePage() {
 
                 </td>
 
-                <td className="p-4 text-sm text-slate-400">
+                <td className="p-4 text-sm text-[#002314]">
 
                   {new Date(
                     event.created_at
@@ -355,25 +355,25 @@ function EventBadge({
 
     payment_success: `
       bg-emerald-500/10
-      text-emerald-300
+      text-emerald-800
       border-emerald-500/20
     `,
 
     payment_failed: `
       bg-red-500/10
-      text-red-300
+      text-red-800
       border-red-500/20
     `,
 
     begin_checkout: `
-      bg-blue-500/10
-      text-blue-300
+      bg-[#7048E8]/10
+      text-[#7048E8]
       border-blue-500/20
     `,
 
     ticket_reserved: `
       bg-amber-500/10
-      text-amber-300
+      text-amber-800
       border-amber-500/20
     `
   }
@@ -393,9 +393,9 @@ function EventBadge({
           styles[type] ||
 
           `
-            bg-slate-800
-            text-slate-300
-            border-slate-700
+            bg-[#EDE8FD]
+            text-[#002314]
+            border-[#002314]/20
           `
         }
       `}

@@ -174,8 +174,8 @@ xl:grid-cols-4
 
       <div
         className="
-          bg-slate-900
-          border border-slate-800
+          bg-[#EDE8FD]
+          border border-[#002314]/20
           rounded-xl
           p-4
         "
@@ -201,8 +201,8 @@ xl:grid-cols-4
               )
             }}
             className="
-              bg-slate-950
-              border border-slate-700
+              bg-[#FAF9F5]
+              border border-[#002314]/20
               rounded-xl
               px-4 py-3
               outline-none
@@ -234,8 +234,8 @@ xl:grid-cols-4
           <button
             onClick={load}
             className="
-              bg-blue-600
-              hover:bg-blue-500
+              bg-[#7048E8] text-white
+              hover:bg-[#002314]
               transition
               rounded-xl
               font-medium
@@ -259,9 +259,9 @@ xl:grid-cols-4
     sticky
     top-0
     z-10
-    bg-slate-950
+    bg-[#FAF9F5]
     border-b
-    border-slate-800
+    border-[#002314]/20
   "
 >
 
@@ -314,7 +314,7 @@ xl:grid-cols-4
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Cargando...
@@ -333,7 +333,7 @@ xl:grid-cols-4
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Sin pagos
@@ -349,8 +349,8 @@ xl:grid-cols-4
                   key={payment.id}
                  className="
   border-b
-  border-slate-800
-  hover:bg-slate-900/40
+  border-[#002314]/20
+  hover:bg-[#EDE8FD]/40
   transition
 "
                 >
@@ -363,7 +363,7 @@ xl:grid-cols-4
                         {payment.orders?.buyer_name}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
                         {payment.orders?.buyer_email}
                       </p>
 
@@ -379,7 +379,7 @@ xl:grid-cols-4
                         {payment.raffles?.title}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[#002314]">
                         /{payment.raffles?.slug}
                       </p>
 
@@ -396,8 +396,8 @@ xl:grid-cols-4
         inline-flex
         px-2 py-1
         rounded-full
-        bg-cyan-900/40
-        text-cyan-300
+        bg-cyan-100/40
+        text-[#7048E8]
         text-xs
         font-medium
       "
@@ -405,7 +405,7 @@ xl:grid-cols-4
       {payment.provider}
     </span>
 
-    <p className="text-xs text-slate-500">
+    <p className="text-xs text-[#002314]">
 
       {String(
         payment.provider_payment_id || ""
@@ -443,7 +443,7 @@ xl:grid-cols-4
 
                   </td>
 
-                  <td className="p-4 text-sm text-slate-400">
+                  <td className="p-4 text-sm text-[#002314]">
 
   {new Date(
     payment.created_at
@@ -464,8 +464,8 @@ xl:grid-cols-4
       px-3
       py-2
       rounded-xl
-      bg-blue-600
-      hover:bg-blue-500
+      bg-[#7048E8] text-white
+      hover:bg-[#002314]
       transition
       text-sm
     "
@@ -497,7 +497,7 @@ xl:grid-cols-4
           "
         >
 
-          <p className="text-slate-500">
+          <p className="text-[#002314]">
 
             Página {pagination.page}
             {" "}de{" "}
@@ -515,7 +515,7 @@ xl:grid-cols-4
               className="
                 px-4 py-2
                 rounded-xl
-                bg-slate-800
+                bg-[#EDE8FD]
                 disabled:opacity-40
               "
             >
@@ -532,7 +532,7 @@ xl:grid-cols-4
               className="
                 px-4 py-2
                 rounded-xl
-                bg-slate-800
+                bg-[#EDE8FD]
                 disabled:opacity-40
               "
             >

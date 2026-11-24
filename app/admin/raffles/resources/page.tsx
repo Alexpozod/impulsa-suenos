@@ -364,13 +364,13 @@ async function duplicateResource(resource:any){
 
       <div>
 
-        <h1 className="text-4xl font-bold text-white">
+        <h1 className="text-4xl font-bold text-[#002314]">
 
           📦 Recursos
 
         </h1>
 
-        <p className="text-slate-400 mt-2">
+        <p className="text-[#002314] mt-2">
 
           Material para Partners.
 
@@ -382,8 +382,8 @@ async function duplicateResource(resource:any){
         className="
           rounded-3xl
           border
-          border-slate-800
-          bg-slate-900
+          border-[#002314]/20
+          bg-[#EDE8FD]
           p-6
           space-y-4
         "
@@ -397,9 +397,9 @@ async function duplicateResource(resource:any){
           }
           className="
             w-full
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             rounded-xl
             p-3
           "
@@ -413,9 +413,9 @@ async function duplicateResource(resource:any){
           }
           className="
             w-full
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             rounded-xl
             p-3
             h-28
@@ -430,9 +430,9 @@ async function duplicateResource(resource:any){
             )
           }
           className="
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             rounded-xl
             p-3
           "
@@ -467,9 +467,9 @@ async function duplicateResource(resource:any){
         }
 
         className="
-        bg-slate-950
+        bg-[#FAF9F5]
         border
-        border-slate-700
+        border-[#002314]/20
         rounded-xl
         p-3
         w-full
@@ -502,7 +502,7 @@ async function duplicateResource(resource:any){
             className="
             border-2
             border-dashed
-            border-slate-700
+            border-[#002314]/20
             rounded-2xl
             p-8
             text-center
@@ -512,13 +512,13 @@ async function duplicateResource(resource:any){
 
             >
 
-            <p className="text-slate-400 mb-4">
+            <p className="text-[#002314] mb-4">
 
             Arrastra un archivo aquí
 
             </p>
 
-            <p className="text-slate-500 text-sm mb-4">
+            <p className="text-[#002314] text-sm mb-4">
 
             o selecciónalo manualmente
 
@@ -552,11 +552,11 @@ async function duplicateResource(resource:any){
             <div
             className="
             rounded-xl
-            bg-emerald-950
+            bg-emerald-100
             border
             border-emerald-800
             p-4
-            text-emerald-300
+            text-emerald-800
             "
             >
 
@@ -591,8 +591,8 @@ async function duplicateResource(resource:any){
                 px-6
                 py-3
                 rounded-xl
-                bg-cyan-500
-                text-slate-950
+                bg-[#7048E8] text-white
+                text-white
                 font-bold
             "
 
@@ -616,8 +616,8 @@ async function duplicateResource(resource:any){
             className="
             rounded-3xl
             border
-            border-slate-800
-            bg-slate-900
+            border-[#002314]/20
+            bg-[#EDE8FD]
             p-6
             space-y-4
             "
@@ -627,7 +627,7 @@ async function duplicateResource(resource:any){
             className="
             text-xl
             font-semibold
-            text-white
+            text-[#002314]
             "
             >
 
@@ -651,9 +651,9 @@ async function duplicateResource(resource:any){
 
             className="
             w-full
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             rounded-xl
             p-3
             "
@@ -677,9 +677,9 @@ async function duplicateResource(resource:any){
             className="
             w-full
             h-32
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             rounded-xl
             p-3
             "
@@ -838,8 +838,8 @@ async function duplicateResource(resource:any){
 className="
 rounded-3xl
 border
-border-slate-800
-bg-slate-900
+border-[#002314]/20
+bg-[#EDE8FD]
 overflow-hidden
 "
 >
@@ -849,7 +849,7 @@ className="
 px-6
 py-5
 border-b
-border-slate-800
+border-[#002314]/20
 "
 >
 
@@ -857,7 +857,7 @@ border-slate-800
 className="
 text-xl
 font-semibold
-text-white
+text-[#002314]
 "
 >
 
@@ -873,9 +873,9 @@ text-white
 
 <tr
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border-b
-border-slate-800
+border-[#002314]/20
 "
 >
 
@@ -910,7 +910,7 @@ colSpan={3}
 className="
 p-8
 text-center
-text-slate-500
+text-[#002314]
 "
 >
 
@@ -928,7 +928,7 @@ notifications.map(item=>(
 key={item.id}
 className="
 border-b
-border-slate-800
+border-[#002314]/20
 "
 >
 
@@ -940,7 +940,7 @@ border-slate-800
 
 </div>
 
-<div className="text-sm text-slate-500">
+<div className="text-sm text-[#002314]">
 
 {item.message}
 
@@ -993,8 +993,8 @@ new Date(item.created_at)
         className="
           rounded-3xl
           border
-          border-slate-800
-          bg-slate-900
+          border-[#002314]/20
+          bg-[#EDE8FD]
           overflow-hidden
         "
       >
@@ -1004,7 +1004,7 @@ new Date(item.created_at)
             px-6
             py-5
             border-b
-            border-slate-800
+            border-[#002314]/20
           "
         >
 
@@ -1012,7 +1012,7 @@ new Date(item.created_at)
             className="
                 text-xl
                 font-semibold
-                text-white
+                text-[#002314]
             "
             >
             Recursos ({
@@ -1055,9 +1055,9 @@ new Date(item.created_at)
 
             className="
             w-full
-            bg-slate-950
+            bg-[#FAF9F5]
             border
-            border-slate-700
+            border-[#002314]/20
             rounded-xl
             px-4
             py-3
@@ -1072,7 +1072,7 @@ new Date(item.created_at)
                 px-6
                 py-4
                 border-b
-                border-slate-800
+                border-[#002314]/20
                 flex
                 gap-3
                 flex-wrap
@@ -1109,9 +1109,9 @@ new Date(item.created_at)
                     ${
                     filterCategory === category
 
-                        ? "bg-cyan-500 text-slate-950"
+                        ? "bg-[#7048E8] text-white"
 
-                        : "bg-slate-950 border border-slate-700"
+                        : "bg-[#FAF9F5] border border-[#002314]/20"
                     }
                 `}
 
@@ -1137,9 +1137,9 @@ new Date(item.created_at)
 
               <tr
                 className="
-                  bg-slate-950
+                  bg-[#FAF9F5]
                   border-b
-                  border-slate-800
+                  border-[#002314]/20
                 "
               >
 
@@ -1192,7 +1192,7 @@ new Date(item.created_at)
                     className="
                       p-8
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Cargando...
@@ -1253,7 +1253,7 @@ new Date(item.created_at)
                     className="
                       p-8
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Sin recursos
@@ -1309,7 +1309,7 @@ new Date(item.created_at)
                     key={resource.id}
                     className="
                       border-b
-                      border-slate-800
+                      border-[#002314]/20
                     "
                   >
 
@@ -1351,7 +1351,7 @@ new Date(item.created_at)
 
                             </div>
 
-                            <div className="text-xs text-slate-500">
+                            <div className="text-xs text-[#002314]">
 
                                 {(resource.file_size / 1024 / 1024).toFixed(2)} MB
 
@@ -1381,7 +1381,7 @@ h-20
 object-cover
 rounded-xl
 border
-border-slate-700
+border-[#002314]/20
 "
 
 />
@@ -1470,8 +1470,8 @@ className="
 px-3
 py-1
 rounded-lg
-bg-cyan-500
-text-slate-950
+bg-[#7048E8] text-white
+text-white
 font-semibold
 "
 
@@ -1493,7 +1493,7 @@ className="
 px-3
 py-1
 rounded-lg
-bg-violet-600
+bg-[#7048E8] text-white
 text-white
 font-semibold
 "

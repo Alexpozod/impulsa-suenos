@@ -346,8 +346,8 @@ useEffect(() => {
       <div
         className="
           min-h-screen
-          bg-slate-950
-          text-white
+          bg-[#FAF9F5]
+          text-[#002314]
           flex
           items-center
           justify-center
@@ -365,8 +365,8 @@ useEffect(() => {
       <div
         className="
           min-h-screen
-          bg-slate-950
-          text-white
+          bg-[#FAF9F5]
+          text-[#002314]
           flex
           items-center
           justify-center
@@ -382,8 +382,8 @@ useEffect(() => {
     <div
       className="
         min-h-screen
-        bg-slate-950
-        text-white
+        bg-[#FAF9F5]
+        text-[#002314]
       "
     >
 
@@ -430,7 +430,7 @@ useEffect(() => {
               object-contain
               rounded-3xl
               border
-              border-slate-800
+              border-[#002314]/20
             "
           >
             <source
@@ -457,8 +457,8 @@ useEffect(() => {
     object-contain
     rounded-3xl
     border
-    border-slate-800
-    bg-slate-950
+    border-[#002314]/20
+    bg-[#FAF9F5]
   "
 />
 
@@ -486,7 +486,7 @@ useEffect(() => {
                 h-10
                 w-10
                 rounded-full
-                bg-black/70
+                bg-black/70 text-white
               "
             >
               ←
@@ -511,7 +511,7 @@ useEffect(() => {
                 h-10
                 w-10
                 rounded-full
-                bg-black/70
+                bg-black/70 text-white
               "
             >
               →
@@ -555,7 +555,7 @@ useEffect(() => {
                 ${
                  activeMedia === index
   ? "border-cyan-400 scale-105"
-  : "border-slate-700 opacity-70"
+  : "border-[#002314]/20 opacity-70"
                 }
               `}
             >
@@ -566,7 +566,7 @@ useEffect(() => {
                   className="
                     w-24
                     h-24
-                    bg-slate-900
+                    bg-[#EDE8FD]
                     flex
                     items-center
                     justify-center
@@ -585,7 +585,7 @@ useEffect(() => {
     w-24
     h-24
     object-contain
-    bg-slate-950
+    bg-[#FAF9F5]
   "
 />
 
@@ -605,16 +605,16 @@ useEffect(() => {
 <div
   className="
     mt-6
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
   "
 >
   <div
     className="
-      text-yellow-400
+      text-yellow-800
       text-sm
       uppercase
       tracking-wider
@@ -645,12 +645,12 @@ useEffect(() => {
         mt-5
         rounded-xl
         border
-        border-slate-800
-        bg-slate-950/40
+        border-[#002314]/20
+        bg-[#FAF9F5]/40
         p-4
         text-[14px]
         leading-8
-        text-slate-300
+        text-[#002314]
         whitespace-pre-line
       "
     >
@@ -666,9 +666,9 @@ useEffect(() => {
 <div
   className="
     mt-6
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-2xl
 p-5
   "
@@ -694,7 +694,7 @@ p-5
 
     <div
       className="
-        text-slate-300
+        text-[#002314]
         text-sm
       "
     >
@@ -713,9 +713,9 @@ p-5
       px-5
       py-3
       rounded-xl
-      bg-cyan-500
-hover:bg-cyan-400
-text-slate-950
+      bg-[#7048E8] text-white
+hover:bg-[#002314]
+text-white
       transition
       font-semibold
       w-fit
@@ -746,7 +746,7 @@ text-slate-950
     py-2
     rounded-full
     bg-emerald-500/20
-    text-emerald-300
+    text-emerald-800
     text-sm
     border
     border-emerald-500/30
@@ -787,7 +787,7 @@ text-slate-950
              <div
               className="
                 mt-5
-                text-slate-300
+                text-[#002314]
                 text-[14px]
                 leading-7
                 max-w-[640px]
@@ -812,10 +812,10 @@ text-slate-950
       px-4
       py-2
       rounded-full
-      bg-cyan-500/10
+      bg-[#7048E8]/10
       border
       border-cyan-500/30
-      text-cyan-300
+      text-[#7048E8]
       text-sm
       font-semibold
     "
@@ -839,9 +839,9 @@ text-slate-950
   
 <div
   className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
   "
@@ -866,16 +866,16 @@ text-slate-950
 
 <div
   className="
-    bg-slate-950
+    bg-[#FAF9F5]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-2xl
     p-4
     mb-6
   "
 >
 
-  <div className="text-slate-400 text-sm">
+  <div className="text-[#002314] text-sm">
   Valor participación
 </div>
 
@@ -954,8 +954,8 @@ transition
 
 ${
 active
-? "bg-cyan-500 border-cyan-400 text-slate-950"
-: "bg-slate-950 border-slate-800 text-slate-300"
+? "bg-[#7048E8] text-white border-[#7048E8] text-white"
+: "bg-[#FAF9F5] border-[#002314]/20 text-[#002314]"
 }
 `}
 >
@@ -982,9 +982,9 @@ mt-1
 ${
 active
 
-? "text-slate-700"
+? "text-[#002314]"
 
-: "text-slate-400"
+: "text-[#002314]"
 
 }
 `}
@@ -1007,9 +1007,9 @@ mt-2
 ${
 active
 
-? "text-slate-700"
+? "text-[#002314]"
 
-: "text-slate-500"
+: "text-[#002314]"
 
 }
 `}
@@ -1039,7 +1039,7 @@ active
 
 ? "text-emerald-800"
 
-: "text-emerald-400"
+: "text-emerald-800"
 
 }
 `}
@@ -1096,9 +1096,9 @@ raffle.status === "active" ? (
     text-center
     py-5
     rounded-2xl
-    bg-cyan-500
-hover:bg-cyan-400
-text-slate-950
+    bg-[#7048E8] text-white
+hover:bg-[#002314]
+text-white
     transition
     font-black
     text-lg
@@ -1118,7 +1118,7 @@ text-slate-950
     bg-emerald-600/20
     border
     border-emerald-500/30
-    text-emerald-300
+    text-emerald-800
     font-black
     text-lg
   "
@@ -1151,7 +1151,7 @@ text-slate-950
 
   <div
     className="
-      bg-slate-950
+      bg-[#FAF9F5]
       rounded-xl
       py-2 px-3
       text-xs
@@ -1162,7 +1162,7 @@ text-slate-950
 
   <div
     className="
-      bg-slate-950
+      bg-[#FAF9F5]
       rounded-xl
       py-2 px-3
       text-xs
@@ -1173,7 +1173,7 @@ text-slate-950
 
   <div
     className="
-      bg-slate-950
+      bg-[#FAF9F5]
       rounded-xl
       py-2 px-3
       text-xs
@@ -1184,7 +1184,7 @@ text-slate-950
 
   <div
     className="
-      bg-slate-950
+      bg-[#FAF9F5]
       rounded-xl
       py-2 px-3
       text-xs
@@ -1202,9 +1202,9 @@ text-slate-950
   <div
     className="
       mt-10
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-3xl
       p-6
     "
@@ -1228,7 +1228,7 @@ text-slate-950
           key={winner.id}
           className="
             border
-            border-slate-800
+            border-[#002314]/20
             rounded-2xl
             p-4
           "
@@ -1248,7 +1248,7 @@ text-slate-950
 
     <div
       className="
-        text-yellow-400
+        text-yellow-800
         text-xs
         uppercase
         tracking-wider
@@ -1269,13 +1269,13 @@ text-slate-950
       {winner.prize_title}
     </h3>
 
-    <div className="text-slate-300">
+    <div className="text-[#002314]">
       👤 Ganador:
       {" "}
       {winner.winner_name}
     </div>
 
-    <div className="text-slate-300 mt-1">
+    <div className="text-[#002314] mt-1">
       🎟 Ticket:
       {" "}
       {winner.ticket_code}
@@ -1295,8 +1295,8 @@ text-slate-950
 
         ${
           winner.delivery_status === "delivered"
-            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-            : "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+            ? "bg-emerald-500/20 text-emerald-800 border border-emerald-500/30"
+            : "bg-yellow-500/20 text-yellow-800 border border-yellow-500/30"
         }
       `}
     >
@@ -1332,7 +1332,7 @@ text-slate-950
                     className="
                       rounded-xl
                       border
-                      border-slate-700
+                      border-[#002314]/20
                     "
                   />
 
@@ -1368,7 +1368,7 @@ text-slate-950
             max-w-sm
             rounded-xl
             border
-            border-slate-700
+            border-[#002314]/20
           "
         >
           <source src={video} />

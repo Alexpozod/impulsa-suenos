@@ -315,7 +315,7 @@ async function exportExcel(
             🎟️ Gestión de Sorteos
           </h1>
 
-          <p className="text-slate-400 mt-1">
+          <p className="text-[#002314] mt-1">
             Administración completa del sistema de sorteos
           </p>
 
@@ -325,7 +325,7 @@ async function exportExcel(
           href="/admin/raffles/create"
           className="
             bg-white
-            text-slate-900
+            text-[#002314]
             hover:bg-slate-200
             transition
             px-5 py-3
@@ -376,8 +376,8 @@ async function exportExcel(
 
       <div
         className="
-          bg-slate-900
-          border border-slate-800
+          bg-[#EDE8FD]
+          border border-[#002314]/20
           rounded-3xl
           p-5
         "
@@ -401,8 +401,8 @@ async function exportExcel(
             }
             placeholder="Buscar..."
             className="
-              bg-slate-950
-              border border-slate-700
+              bg-[#FAF9F5]
+              border border-[#002314]/20
               rounded-2xl
               px-4 py-3
               outline-none
@@ -417,8 +417,8 @@ async function exportExcel(
               )
             }
             className="
-              bg-slate-950
-              border border-slate-700
+              bg-[#FAF9F5]
+              border border-[#002314]/20
               rounded-2xl
               px-4 py-3
               outline-none
@@ -458,8 +458,8 @@ async function exportExcel(
           <button
             onClick={load}
             className="
-              bg-blue-600
-              hover:bg-blue-500
+              bg-[#7048E8] text-white
+              hover:bg-[#002314]
               transition
               rounded-2xl
               font-medium
@@ -476,8 +476,8 @@ async function exportExcel(
 
       <div
         className="
-          bg-slate-900
-          border border-slate-800
+          bg-[#EDE8FD]
+          border border-[#002314]/20
           rounded-3xl
           overflow-hidden
         "
@@ -489,8 +489,8 @@ async function exportExcel(
 
             <thead
               className="
-                bg-slate-950
-                border-b border-slate-800
+                bg-[#FAF9F5]
+                border-b border-[#002314]/20
               "
             >
 
@@ -543,7 +543,7 @@ async function exportExcel(
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Cargando...
@@ -562,7 +562,7 @@ async function exportExcel(
                     className="
                       p-10
                       text-center
-                      text-slate-500
+                      text-[#002314]
                     "
                   >
                     Sin sorteos
@@ -578,8 +578,8 @@ async function exportExcel(
   key={raffle.id}
   className="
     border-b
-    border-slate-800
-    hover:bg-slate-800/40
+    border-[#002314]/20
+    hover:bg-[#EDE8FD]/40
     transition
   "
 >
@@ -754,7 +754,7 @@ async function exportExcel(
     rounded-xl
     bg-emerald-500
     hover:bg-emerald-400
-    text-slate-950
+    text-white
     font-semibold
     text-sm
   "
@@ -781,8 +781,8 @@ async function exportExcel(
   className="
     px-3 py-2
     rounded-xl
-    bg-sky-600
-    hover:bg-sky-500
+    bg-[#7048E8] text-white
+    hover:bg-[#002314]
     text-white
     text-sm
     font-medium
@@ -808,8 +808,8 @@ async function exportExcel(
                         className="
                           px-3 py-2
                           rounded-xl
-                          bg-slate-800
-                          hover:bg-slate-700
+                          bg-[#EDE8FD]
+                          hover:bg-[#EDE8FD]
                           text-sm
                         "
                       >
@@ -843,7 +843,7 @@ async function exportExcel(
           "
         >
 
-          <p className="text-slate-500">
+          <p className="text-[#002314]">
 
             Página {pagination.page}
             {" "}de{" "}
@@ -861,7 +861,7 @@ async function exportExcel(
               className="
                 px-4 py-2
                 rounded-xl
-                bg-slate-800
+                bg-[#EDE8FD]
                 disabled:opacity-40
               "
             >
@@ -878,7 +878,7 @@ async function exportExcel(
               className="
                 px-4 py-2
                 rounded-xl
-                bg-slate-800
+                bg-[#EDE8FD]
                 disabled:opacity-40
               "
             >
@@ -905,15 +905,15 @@ function MetricCard({
     <div
       className="
         bg-gradient-to-br
-        from-slate-900
-        to-slate-950
-        border border-slate-800
+        from-[#EDE8FD]
+        to-[#FAF9F5]
+        border border-[#002314]/20
         rounded-2xl
 p-4
       "
     >
 
-      <p className="text-slate-400 text-sm">
+      <p className="text-[#002314] text-sm">
         {title}
       </p>
 
@@ -938,25 +938,25 @@ function StatusBadge({
   const colors: any = {
 
     draft:
-      "bg-slate-700 text-slate-200",
+      "bg-[#EDE8FD] text-[#002314]",
 
     scheduled:
-      "bg-blue-900/40 text-blue-300",
+      "bg-blue-100/40 text-[#7048E8]",
 
     active:
-      "bg-green-900/40 text-green-300",
+      "bg-green-100/40 text-green-800",
 
     paused:
-      "bg-yellow-900/40 text-yellow-300",
+      "bg-yellow-100/40 text-yellow-800",
 
     ended:
-      "bg-red-900/40 text-red-300",
+      "bg-red-100/40 text-red-800",
 
       cancelled:
-    "bg-slate-700 text-slate-300",
+    "bg-[#EDE8FD] text-[#002314]",
 
     completed:
-      "bg-purple-900/40 text-purple-300"
+      "bg-purple-100/40 text-[#7048E8]"
 
   }
 
@@ -998,7 +998,7 @@ function ActionButton({
     `
     bg-amber-500
     hover:bg-amber-400
-    text-slate-950
+    text-[#002314]
     font-bold
     `,
 
@@ -1011,15 +1011,15 @@ function ActionButton({
 
   blue:
     `
-    bg-blue-600
-    hover:bg-blue-500
+    bg-[#7048E8] text-white
+    hover:bg-[#002314]
     text-white
     `,
 
     purple:
 `
-bg-fuchsia-600
-hover:bg-fuchsia-500
+bg-[#7048E8] text-white
+hover:bg-[#002314]
 text-white
 font-medium
 `,

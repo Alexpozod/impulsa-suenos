@@ -104,8 +104,8 @@ if (!email.trim()) {
     <div
       className="
         min-h-screen
-        bg-slate-950
-        text-white
+        bg-[#FAF9F5]
+        text-[#002314]
       "
     >
 
@@ -132,7 +132,7 @@ if (!email.trim()) {
 
   <p
     className="
-      text-slate-400
+      text-[#002314]
       max-w-2xl
       leading-relaxed
     "
@@ -146,9 +146,9 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
 
         <div
           className="
-            bg-slate-900
+            bg-[#EDE8FD]
             border
-            border-slate-800
+            border-[#002314]/20
             rounded-3xl
             p-6
             space-y-4
@@ -162,9 +162,9 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
             readOnly
             className="
               w-full
-              bg-slate-950
+              bg-[#FAF9F5]
               border
-              border-slate-700
+              border-[#002314]/20
               rounded-2xl
               px-4
               py-4
@@ -178,7 +178,7 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
               w-full
               py-4
               rounded-2xl
-              bg-cyan-500
+              bg-[#7048E8] text-white
               font-bold
             "
           >
@@ -208,9 +208,9 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
         group.raffle?.id
       }
       className="
-        bg-slate-900
+        bg-[#EDE8FD]
         border
-        border-slate-800
+        border-[#002314]/20
         rounded-3xl
         p-6
       "
@@ -253,7 +253,7 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
 
           <p
   className="
-    text-slate-400
+    text-[#002314]
     mt-1
   "
 >
@@ -298,10 +298,10 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
 
                     ${
             isWinner
-              ? "bg-yellow-500/20 border-yellow-500 text-yellow-300 font-bold"
+              ? "bg-yellow-500/20 border-yellow-500 text-yellow-800 font-bold"
               : isComplimentary
-                ? "bg-cyan-500/10 border-cyan-500/60 text-cyan-200"
-                : "bg-slate-950 border-slate-700"
+                ? "bg-[#7048E8]/10 border-cyan-500/60 text-[#7048E8]"
+                : "bg-[#FAF9F5] border-[#002314]/20"
           }
         `}
       >
@@ -323,7 +323,7 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
               text-xs
               mb-1
               font-bold
-              text-cyan-300
+              text-[#7048E8]
             "
           >
             🎁 PROMOCIONAL
@@ -353,9 +353,9 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
           <div
             className="
               mt-8
-              bg-slate-900
+              bg-[#EDE8FD]
               border
-              border-slate-800
+              border-[#002314]/20
               rounded-3xl
               p-10
               text-center
@@ -378,7 +378,7 @@ Inicia sesión con el correo que utilizaste al comprar para consultar tus partic
 
             <p
               className="
-                text-slate-400
+                text-[#002314]
                 max-w-xl
                 mx-auto
                 leading-relaxed

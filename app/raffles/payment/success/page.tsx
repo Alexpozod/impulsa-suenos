@@ -30,8 +30,8 @@ console.log(
     <main
       className="
         min-h-screen
-        bg-slate-950
-        text-white
+        bg-[#FAF9F5]
+        text-[#002314]
         flex
         items-center
         justify-center
@@ -43,9 +43,9 @@ console.log(
         className="
           max-w-xl
           w-full
-          bg-slate-900
+          bg-[#EDE8FD]
           border
-          border-slate-800
+          border-[#002314]/20
           rounded-3xl
           p-10
           text-center
@@ -73,7 +73,7 @@ console.log(
 
         <p
           className="
-            text-slate-300
+            text-[#002314]
             text-lg
             leading-relaxed
             mb-8
@@ -113,8 +113,8 @@ console.log(
   }
   className="
     w-full
-    bg-blue-600
-    hover:bg-blue-500
+    bg-[#7048E8] text-white
+    hover:bg-[#002314]
     transition
     py-4
     rounded-2xl
@@ -131,7 +131,7 @@ console.log(
   className="
     w-full
     border
-    border-slate-700
+    border-[#002314]/20
     py-4
     rounded-2xl
     font-bold
@@ -157,7 +157,7 @@ export default function Page() {
         <div
           className="
             min-h-screen
-            bg-slate-950
+            bg-[#FAF9F5]
           "
         />
       }

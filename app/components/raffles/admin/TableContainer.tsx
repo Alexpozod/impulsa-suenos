@@ -14,8 +14,8 @@ export default function TableContainer({
 
     <div
       className="
-        bg-slate-900
-        border border-slate-800
+        bg-[#EDE8FD]
+        border border-[#002314]/20
         rounded-xl
         overflow-hidden
       "

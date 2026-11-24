@@ -806,11 +806,11 @@ async function loadFinancialProgress(
 
       <div>
 
-        <h1 className="text-4xl font-bold text-white">
+        <h1 className="text-4xl font-bold text-[#002314]">
           🎟️ Sorteos ImpulsaSueños
         </h1>
 
-        <p className="text-slate-400 mt-2">
+        <p className="text-[#002314] mt-2">
           Centro de administración del sistema de sorteos
         </p>
 
@@ -843,8 +843,8 @@ async function loadFinancialProgress(
 
               ${
                 section.featured
-                  ? "border-blue-700 bg-blue-950/20"
-                  : "border-slate-800 bg-slate-900"
+                  ? "border-blue-700 bg-blue-100/20"
+                  : "border-[#002314]/20 bg-[#EDE8FD]"
               }
             `}
           >
@@ -858,7 +858,7 @@ async function loadFinancialProgress(
                 mt-3
                 text-lg
                 font-semibold
-                text-white
+                text-[#002314]
               "
             >
               {section.title}
@@ -868,7 +868,7 @@ async function loadFinancialProgress(
               className="
                 mt-1
                 text-xs
-                text-slate-400
+                text-[#002314]
               "
             >
               {section.description}
@@ -887,8 +887,8 @@ dashboardData && (
   className="
     rounded-3xl
     border
-    border-slate-800
-    bg-slate-900
+    border-[#002314]/20
+    bg-[#EDE8FD]
     p-6
   "
 >
@@ -908,7 +908,7 @@ dashboardData && (
         className="
           text-2xl
           font-bold
-          text-white
+          text-[#002314]
         "
       >
         📊 Dashboard Ejecutivo
@@ -916,7 +916,7 @@ dashboardData && (
 
       <p
         className="
-          text-slate-400
+          text-[#002314]
           mt-2
         "
       >
@@ -939,12 +939,12 @@ dashboardData && (
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         p-5
       "
     >
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-[#002314] text-sm">
         Facturación
       </div>
 
@@ -960,12 +960,12 @@ dashboardData && (
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         p-5
       "
     >
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-[#002314] text-sm">
         Pagos
       </div>
 
@@ -978,12 +978,12 @@ dashboardData && (
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         p-5
       "
     >
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-[#002314] text-sm">
         Tickets Vendidos
       </div>
 
@@ -996,12 +996,12 @@ dashboardData && (
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         p-5
       "
     >
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-[#002314] text-sm">
         Conversión
       </div>
 
@@ -1029,12 +1029,12 @@ dashboardData && (
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         p-5
       "
     >
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-[#002314] text-sm">
         Visitas
       </div>
 
@@ -1047,12 +1047,12 @@ dashboardData && (
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         p-5
       "
     >
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-[#002314] text-sm">
         Ticket Promedio
       </div>
 
@@ -1068,12 +1068,12 @@ dashboardData && (
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         p-5
       "
     >
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-[#002314] text-sm">
         Ingreso por Visita
       </div>
 
@@ -1099,8 +1099,8 @@ dashboardData && (
   className="
     rounded-3xl
     border
-    border-slate-800
-    bg-slate-900
+    border-[#002314]/20
+    bg-[#EDE8FD]
     p-6
     space-y-6
   "
@@ -1112,13 +1112,13 @@ dashboardData && (
       className="
         text-2xl
         font-bold
-        text-white
+        text-[#002314]
       "
     >
       💰 Financial Planner
     </h2>
 
-    <p className="text-slate-400 mt-2">
+    <p className="text-[#002314] mt-2">
       Simulación financiera para nuevos sorteos
     </p>
 
@@ -1127,7 +1127,7 @@ dashboardData && (
   <label
     className="
       text-sm
-      text-slate-400
+      text-[#002314]
     "
   >
     Sorteo
@@ -1158,9 +1158,9 @@ dashboardData && (
       mt-2
       w-full
       rounded-xl
-      bg-slate-950
+      bg-[#FAF9F5]
       border
-      border-slate-700
+      border-[#002314]/20
       px-4
       py-3
     "
@@ -1206,7 +1206,7 @@ dashboardData && (
 
     <div>
 
-      <label className="text-sm text-slate-400">
+      <label className="text-sm text-[#002314]">
         Premio Principal
       </label>
 
@@ -1221,9 +1221,9 @@ dashboardData && (
           w-full
           mt-2
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -1233,7 +1233,7 @@ dashboardData && (
 
     <div>
 
-      <label className="text-sm text-slate-400">
+      <label className="text-sm text-[#002314]">
         Costos Fijos
       </label>
 
@@ -1248,9 +1248,9 @@ dashboardData && (
           w-full
           mt-2
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -1260,7 +1260,7 @@ dashboardData && (
 
     <div>
 
-      <label className="text-sm text-slate-400">
+      <label className="text-sm text-[#002314]">
         Marketing %
       </label>
 
@@ -1275,9 +1275,9 @@ dashboardData && (
           w-full
           mt-2
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -1287,7 +1287,7 @@ dashboardData && (
 
     <div>
 
-      <label className="text-sm text-slate-400">
+      <label className="text-sm text-[#002314]">
         Influencers %
       </label>
 
@@ -1302,9 +1302,9 @@ dashboardData && (
           w-full
           mt-2
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -1314,7 +1314,7 @@ dashboardData && (
 
     <div>
 
-      <label className="text-sm text-slate-400">
+      <label className="text-sm text-[#002314]">
         Flow %
       </label>
 
@@ -1329,9 +1329,9 @@ dashboardData && (
           w-full
           mt-2
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -1341,7 +1341,7 @@ dashboardData && (
 
     <div>
 
-      <label className="text-sm text-slate-400">
+      <label className="text-sm text-[#002314]">
         IVA %
       </label>
 
@@ -1356,9 +1356,9 @@ dashboardData && (
           w-full
           mt-2
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -1368,7 +1368,7 @@ dashboardData && (
 
     <div>
 
-<label className="text-sm text-slate-400">
+<label className="text-sm text-[#002314]">
 Impuesto Anual %
 </label>
 
@@ -1383,9 +1383,9 @@ className="
 w-full
 mt-2
 rounded-xl
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 px-4
 py-3
 "
@@ -1395,7 +1395,7 @@ py-3
 
         <div>
 
-      <label className="text-sm text-slate-400">
+      <label className="text-sm text-[#002314]">
         Utilidad Objetivo
       </label>
 
@@ -1410,9 +1410,9 @@ py-3
           w-full
           mt-2
           rounded-xl
-          bg-slate-950
+          bg-[#FAF9F5]
           border
-          border-slate-700
+          border-[#002314]/20
           px-4
           py-3
         "
@@ -1434,14 +1434,14 @@ py-3
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         border
-        border-slate-800
+        border-[#002314]/20
         p-5
       "
     >
 
-      <p className="text-slate-400 text-sm">
+      <p className="text-[#002314] text-sm">
         Facturación Objetivo
       </p>
 
@@ -1457,14 +1457,14 @@ py-3
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         border
-        border-slate-800
+        border-[#002314]/20
         p-5
       "
     >
 
-      <p className="text-slate-400 text-sm">
+      <p className="text-[#002314] text-sm">
         Ticket Recomendado
       </p>
 
@@ -1478,14 +1478,14 @@ py-3
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         border
-        border-slate-800
+        border-[#002314]/20
         p-5
       "
     >
 
-      <p className="text-slate-400 text-sm">
+      <p className="text-[#002314] text-sm">
         Tickets Necesarios
       </p>
 
@@ -1498,14 +1498,14 @@ py-3
     <div
       className="
         rounded-2xl
-        bg-slate-950
+        bg-[#FAF9F5]
         border
-        border-slate-800
+        border-[#002314]/20
         p-5
       "
     >
 
-      <p className="text-slate-400 text-sm">
+      <p className="text-[#002314] text-sm">
         Punto de Equilibrio
       </p>
 
@@ -1518,18 +1518,18 @@ py-3
     <div
 className="
 rounded-2xl
-bg-emerald-950
+bg-emerald-100
 border
 border-emerald-800
 p-5
 "
 >
 
-<p className="text-slate-300 text-sm">
+<p className="text-[#002314] text-sm">
 Caja Libre Proyectada
 </p>
 
-<p className="text-2xl font-bold mt-2 text-emerald-400">
+<p className="text-2xl font-bold mt-2 text-emerald-800">
 $
 {Math.round(
 projectedFreeCash
@@ -1552,14 +1552,14 @@ gap-4
 <div
 className="
 rounded-2xl
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 p-5
 "
 >
 
-<p className="text-slate-400 text-sm">
+<p className="text-[#002314] text-sm">
 Marketing
 </p>
 
@@ -1579,14 +1579,14 @@ marketingAmount
 <div
 className="
 rounded-2xl
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 p-5
 "
 >
 
-<p className="text-slate-400 text-sm">
+<p className="text-[#002314] text-sm">
 Influencers
 </p>
 
@@ -1606,14 +1606,14 @@ influencerAmount
 <div
 className="
 rounded-2xl
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 p-5
 "
 >
 
-<p className="text-slate-400 text-sm">
+<p className="text-[#002314] text-sm">
 Flow
 </p>
 
@@ -1633,14 +1633,14 @@ flowAmount
 <div
 className="
 rounded-2xl
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 p-5
 "
 >
 
-<p className="text-slate-400 text-sm">
+<p className="text-[#002314] text-sm">
 IVA
 </p>
 
@@ -1660,14 +1660,14 @@ ivaAmount
 <div
 className="
 rounded-2xl
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 p-5
 "
 >
 
-<p className="text-slate-400 text-sm">
+<p className="text-[#002314] text-sm">
 Reserva Impuesto
 </p>
 
@@ -1741,7 +1741,7 @@ taxReserveAmount
       <div
         className="
           text-sm
-          text-slate-300
+          text-[#002314]
         "
       >
 
@@ -1765,7 +1765,7 @@ className="
 rounded-3xl
 border
 border-emerald-900
-bg-emerald-950/20
+bg-emerald-100/20
 p-6
 "
 >
@@ -1774,7 +1774,7 @@ p-6
 className="
 text-2xl
 font-bold
-text-white
+text-[#002314]
 mb-5
 "
 >
@@ -1794,13 +1794,13 @@ gap-4
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 
 Ventas Reales
 
@@ -1822,13 +1822,13 @@ progressData.revenue || 0
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 
 Tickets Vendidos
 
@@ -1844,13 +1844,13 @@ Tickets Vendidos
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 
 Meta Financiera
 
@@ -1872,13 +1872,13 @@ progressData.requiredRevenue || 0
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 
 Avance
 
@@ -1904,13 +1904,13 @@ progressData.progress || 0
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 
 Utilidad Proyectada
 
@@ -1944,13 +1944,13 @@ mt-5
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 🎯 Faltante Meta
 </div>
 
@@ -1970,13 +1970,13 @@ progressData.remainingRevenue || 0
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 🎟 Tickets Faltantes
 </div>
 
@@ -1994,13 +1994,13 @@ progressData.remainingTickets || 0
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 🚀 Exceso sobre Meta
 </div>
 
@@ -2020,13 +2020,13 @@ progressData.surplusRevenue || 0
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 💰 Caja Disponible
 </div>
 
@@ -2046,13 +2046,13 @@ progressData.availableCash || 0
 
 <div
 className="
-bg-slate-900
+bg-[#EDE8FD]
 rounded-2xl
 p-4
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 🎁 Premio Extra Posible
 </div>
 
@@ -2081,8 +2081,8 @@ progressData.extraPrizeCapacity || 0
 className="
 rounded-3xl
 border
-border-slate-800
-bg-slate-900
+border-[#002314]/20
+bg-[#EDE8FD]
 p-6
 space-y-6
 "
@@ -2094,7 +2094,7 @@ space-y-6
 className="
 text-2xl
 font-bold
-text-white
+text-[#002314]
 "
 >
 
@@ -2102,7 +2102,7 @@ text-white
 
 </h2>
 
-<p className="text-slate-400 mt-2">
+<p className="text-[#002314] mt-2">
 
 Premios que podrían agregarse si el sorteo supera la meta financiera.
 
@@ -2132,9 +2132,9 @@ placeholder="Nombre premio"
 
 className="
 rounded-xl
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 px-4
 py-3
 "
@@ -2155,9 +2155,9 @@ placeholder="Costo"
 
 className="
 rounded-xl
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 px-4
 py-3
 "
@@ -2172,8 +2172,8 @@ createExtraPrize
 
 className="
 rounded-xl
-bg-blue-600
-hover:bg-blue-500
+bg-[#7048E8] text-white
+hover:bg-[#002314]
 font-semibold
 "
 
@@ -2190,7 +2190,7 @@ className="
 overflow-x-auto
 rounded-2xl
 border
-border-slate-800
+border-[#002314]/20
 "
 >
 
@@ -2201,8 +2201,8 @@ border-slate-800
 <tr
 className="
 border-b
-border-slate-800
-bg-slate-950
+border-[#002314]/20
+bg-[#FAF9F5]
 "
 >
 
@@ -2240,7 +2240,7 @@ extraPrizes.length === 0
 
 <td
 colSpan={3}
-className="p-6 text-center text-slate-500"
+className="p-6 text-center text-[#002314]"
 >
 
 Sin premios adicionales
@@ -2257,7 +2257,7 @@ extraPrizes.map(
 key={item.id}
 className="
 border-b
-border-slate-800
+border-[#002314]/20
 "
 >
 
@@ -2323,8 +2323,8 @@ scenarioData?.scenarios?.length > 0 && (
 className="
 rounded-2xl
 border
-border-slate-800
-bg-slate-950
+border-[#002314]/20
+bg-[#FAF9F5]
 p-5
 "
 >
@@ -2355,7 +2355,7 @@ flex
 items-center
 justify-between
 border-b
-border-slate-800
+border-[#002314]/20
 pb-3
 "
 >
@@ -2368,7 +2368,7 @@ pb-3
 
 </div>
 
-<div className="text-sm text-slate-400">
+<div className="text-sm text-[#002314]">
 
 $
 
@@ -2446,10 +2446,10 @@ text-sm
         className="
           rounded-3xl
           border
-          border-slate-800
+          border-[#002314]/20
           bg-gradient-to-br
-          from-slate-900
-          to-slate-950
+          from-[#EDE8FD]
+          to-[#FAF9F5]
           p-6
         "
       >
@@ -2469,7 +2469,7 @@ text-sm
                 text-xs
                 uppercase
                 tracking-wider
-                text-slate-500
+                text-[#002314]
               "
             >
               System
@@ -2479,7 +2479,7 @@ text-sm
               className="
                 text-2xl
                 font-bold
-                text-white
+                text-[#002314]
                 mt-2
               "
             >
@@ -2489,7 +2489,7 @@ text-sm
             <p
               className="
                 mt-2
-                text-slate-400
+                text-[#002314]
               "
             >
               Estado general de pagos, tickets, webhooks y procesos automáticos.
@@ -2504,7 +2504,7 @@ text-sm
               py-3
               rounded-xl
               bg-white
-              text-slate-900
+              text-[#002314]
               font-semibold
               hover:bg-slate-200
               transition

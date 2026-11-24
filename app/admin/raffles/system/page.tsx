@@ -405,14 +405,14 @@ if (
   disabled={reconciling}
   className="
     rounded-lg
-    bg-blue-600
+    bg-[#7048E8] text-white
     px-4
     py-2
     text-sm
     font-medium
     text-white
     transition
-    hover:bg-blue-700
+    hover:bg-[#002314]
     disabled:opacity-50
   "
 >
@@ -436,14 +436,14 @@ if (
   disabled={cleaning}
   className="
     rounded-lg
-    bg-slate-700
+    bg-[#EDE8FD]
     px-4
     py-2
     text-sm
     font-medium
-    text-white
+    text-[#002314]
     transition
-    hover:bg-slate-800
+    hover:bg-[#EDE8FD]
     disabled:opacity-50
   "
 >
@@ -476,13 +476,13 @@ if (
   <div
     className="
       rounded-xl
-      border border-slate-800
-      bg-slate-900
+      border border-[#002314]/20
+      bg-[#EDE8FD]
       p-4
     "
   >
 
-    <p className="text-xs text-slate-400">
+    <p className="text-xs text-[#002314]">
       Health Score
     </p>
 
@@ -505,13 +505,13 @@ if (
   <div
     className="
       rounded-xl
-      border border-slate-800
-      bg-slate-900
+      border border-[#002314]/20
+      bg-[#EDE8FD]
       p-4
     "
   >
 
-    <p className="text-xs text-slate-400">
+    <p className="text-xs text-[#002314]">
       System Issues
     </p>
 
@@ -536,13 +536,13 @@ if (
   <div
     className="
       rounded-xl
-      border border-slate-800
-      bg-slate-900
+      border border-[#002314]/20
+      bg-[#EDE8FD]
       p-4
     "
   >
 
-    <p className="text-xs text-slate-400">
+    <p className="text-xs text-[#002314]">
       Revenue Anomalies
     </p>
 
@@ -567,13 +567,13 @@ if (
   <div
     className="
       rounded-xl
-      border border-slate-800
-      bg-slate-900
+      border border-[#002314]/20
+      bg-[#EDE8FD]
       p-4
     "
   >
 
-    <p className="text-xs text-slate-400">
+    <p className="text-xs text-[#002314]">
       Status
     </p>
 
@@ -655,14 +655,14 @@ if (
   <div
     className="
       rounded-xl
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       p-4
     "
   >
 
-    <div className="text-xs text-slate-400">
+    <div className="text-xs text-[#002314]">
       Critical
     </div>
 
@@ -675,14 +675,14 @@ if (
   <div
     className="
       rounded-xl
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       p-4
     "
   >
 
-    <div className="text-xs text-slate-400">
+    <div className="text-xs text-[#002314]">
       High
     </div>
 
@@ -695,14 +695,14 @@ if (
   <div
     className="
       rounded-xl
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       p-4
     "
   >
 
-    <div className="text-xs text-slate-400">
+    <div className="text-xs text-[#002314]">
       Medium
     </div>
 
@@ -715,14 +715,14 @@ if (
   <div
     className="
       rounded-xl
-      bg-slate-900
+      bg-[#EDE8FD]
       border
-      border-slate-800
+      border-[#002314]/20
       p-4
     "
   >
 
-    <div className="text-xs text-slate-400">
+    <div className="text-xs text-[#002314]">
       Low
     </div>
 
@@ -738,7 +738,7 @@ if (
   className="
     text-sm
     font-semibold
-    text-slate-500
+    text-[#002314]
   "
 >
   System Issues
@@ -750,7 +750,7 @@ if (
 
           <thead
             className="
-              border-b border-slate-800
+              border-b border-[#002314]/20
             "
           >
 
@@ -805,7 +805,7 @@ if (
                   key={index}
                   className="
                     border-b
-                    border-slate-800
+                    border-[#002314]/20
                   "
                 >
 
@@ -842,7 +842,7 @@ if (
 
               ? "bg-yellow-100 text-yellow-700"
 
-              : "bg-slate-100 text-slate-700"
+              : "bg-slate-100 text-[#002314]"
 
       }
 
@@ -879,7 +879,7 @@ if (
     className="
       text-sm
       font-semibold
-      text-slate-500
+      text-[#002314]
       mb-2
     "
   >
@@ -892,7 +892,7 @@ if (
 
           <thead
             className="
-              border-b border-slate-800
+              border-b border-[#002314]/20
             "
           >
 
@@ -927,7 +927,7 @@ if (
                   key={index}
                   className="
                     border-b
-                    border-slate-800
+                    border-[#002314]/20
                   "
                 >
 
@@ -964,7 +964,7 @@ if (
 
               ? "bg-yellow-100 text-yellow-700"
 
-              : "bg-slate-100 text-slate-700"
+              : "bg-slate-100 text-[#002314]"
 
       }
 

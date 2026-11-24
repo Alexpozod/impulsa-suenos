@@ -732,7 +732,7 @@ if (!res.ok) {
   if (loading) {
 
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAF9F5] text-[#002314] flex items-center justify-center">
         Cargando checkout...
       </div>
     )
@@ -742,7 +742,7 @@ if (!res.ok) {
   if (!raffle) {
 
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAF9F5] text-[#002314] flex items-center justify-center">
         Sorteo no encontrado
       </div>
     )
@@ -751,7 +751,7 @@ if (!res.ok) {
 
   return (
 
-    <div className="min-h-screen bg-slate-950 text-white py-12 px-4">
+    <div className="min-h-screen bg-[#FAF9F5] text-[#002314] py-12 px-4">
 
       <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
 
@@ -764,7 +764,7 @@ if (!res.ok) {
               w-full
               rounded-3xl
               border
-              border-slate-800
+              border-[#002314]/20
             "
           />
 
@@ -772,16 +772,16 @@ if (!res.ok) {
 
         <div
   className="
-    bg-slate-900
+    bg-[#EDE8FD]
     border
-    border-slate-800
+    border-[#002314]/20
     rounded-3xl
     p-6
     max-w-xl
   "
 >
 
-          <p className="text-cyan-400 font-semibold mb-2">
+          <p className="text-[#7048E8] font-semibold mb-2">
             Checkout Seguro
           </p>
 
@@ -789,7 +789,7 @@ if (!res.ok) {
             {raffle.prize_title}
           </h1>
 
-          <p className="text-slate-300 mb-6">
+          <p className="text-[#002314] mb-6">
   Participación oficial del sorteo
 </p>
 
@@ -805,16 +805,16 @@ if (!res.ok) {
 
   <div
     className="
-      bg-slate-950
+      bg-[#FAF9F5]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-xl
       py-2
       px-2
       text-center
       text-[13px]
       leading-5
-      text-slate-300
+      text-[#002314]
     "
   >
     🔒 Pago seguro mediante Flow
@@ -823,16 +823,16 @@ if (!res.ok) {
 
   <div
     className="
-      bg-slate-950
+      bg-[#FAF9F5]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-xl
       py-2
       px-2
       text-center
       text-[13px]
       leading-5
-      text-slate-300
+      text-[#002314]
     "
   >
     🎟️ Participaciones asignadas automáticamente
@@ -840,16 +840,16 @@ if (!res.ok) {
 
   <div
     className="
-      bg-slate-950
+      bg-[#FAF9F5]
       border
-      border-slate-800
+      border-[#002314]/20
       rounded-xl
       py-2
       px-2
       text-center
       text-[13px]
       leading-5
-      text-slate-300
+      text-[#002314]
     "
   >
     🏆 Sorteo verificable
@@ -888,8 +888,8 @@ if (!res.ok) {
 
                       ${
                         active
-? "bg-cyan-500 border-cyan-400 text-slate-950"
-                          : "bg-slate-900 border-slate-700 text-slate-300"
+? "bg-[#7048E8] text-white border-[#7048E8] text-white"
+                          : "bg-[#EDE8FD] border-[#002314]/20 text-[#002314]"
                       }
                     `}
                   >
@@ -951,9 +951,9 @@ if (!res.ok) {
                   ${
                   active
 
-                  ? "text-slate-800"
+                  ? "text-[#002314]"
 
-                  : "text-slate-400"
+                  : "text-[#002314]"
                   }
                   `}
                   >
@@ -974,9 +974,9 @@ if (!res.ok) {
                   ${
                   active
 
-                  ? "text-slate-700"
+                  ? "text-[#002314]"
 
-                  : "text-slate-500"
+                  : "text-[#002314]"
                   }
                   `}
                   >
@@ -1004,7 +1004,7 @@ if (!res.ok) {
 
                   ? "text-emerald-800"
 
-                  : "text-emerald-400"
+                  : "text-emerald-800"
                   }
                   `}
                   >
@@ -1052,9 +1052,9 @@ if (!res.ok) {
           <div
             className="
               mt-8
-              bg-slate-950
+              bg-[#FAF9F5]
               border
-              border-slate-800
+              border-[#002314]/20
               rounded-2xl
               p-4
               space-y-3
@@ -1077,9 +1077,9 @@ if (!res.ok) {
               }
               className="
                 w-full
-                bg-slate-900
+                bg-[#EDE8FD]
                 border
-                border-slate-700
+                border-[#002314]/20
                 rounded-2xl
                 px-4
                 py-3
@@ -1098,9 +1098,9 @@ if (!res.ok) {
               }
               className="
                 w-full
-                bg-slate-900
+                bg-[#EDE8FD]
                 border
-                border-slate-700
+                border-[#002314]/20
                 rounded-2xl
                 px-4
                 py-3
@@ -1119,9 +1119,9 @@ placeholder="RUT"
                 }
                 className="
                 w-full
-                bg-slate-900
+                bg-[#EDE8FD]
                 border
-                border-slate-700
+                border-[#002314]/20
                 rounded-2xl
                 px-4
                 py-3
@@ -1140,9 +1140,9 @@ placeholder="Teléfono móvil"
               }
               className="
                 w-full
-                bg-slate-900
+                bg-[#EDE8FD]
                 border
-                border-slate-700
+                border-[#002314]/20
                 rounded-2xl
                 px-4
                 py-3
@@ -1152,9 +1152,9 @@ placeholder="Teléfono móvil"
             <div
               className="
                 w-full
-                bg-slate-900
+                bg-[#EDE8FD]
                 border
-                border-slate-700
+                border-[#002314]/20
                 rounded-2xl
                 px-4
                 py-3
@@ -1167,7 +1167,7 @@ placeholder="Teléfono móvil"
                   block
                   text-sm
                   font-semibold
-                  text-white
+                  text-[#002314]
                   mb-1
                 "
               >
@@ -1177,7 +1177,7 @@ placeholder="Teléfono móvil"
               <p
                 className="
                   text-xs
-                  text-slate-400
+                  text-[#002314]
                   mb-3
                 "
               >
@@ -1197,7 +1197,7 @@ placeholder="Teléfono móvil"
                   className="
                     text-lg
                     font-bold
-                    text-slate-300
+                    text-[#002314]
                   "
                 >
                   $
@@ -1240,7 +1240,7 @@ placeholder="Teléfono móvil"
                     w-full
                     bg-transparent
                     outline-none
-                    text-white
+                    text-[#002314]
                     text-lg
                     font-semibold
                   "
@@ -1251,7 +1251,7 @@ placeholder="Teléfono móvil"
               <p
                 className="
                   text-xs
-                  text-amber-300
+                  text-amber-800
                   mt-3
                   leading-relaxed
                 "
@@ -1269,16 +1269,16 @@ placeholder="Teléfono móvil"
             <div
 className="
 w-full
-bg-slate-900
+bg-[#EDE8FD]
 border
-border-slate-700
+border-[#002314]/20
 rounded-2xl
 px-4
 py-3
 "
 >
 
-<div className="text-xs text-slate-400 mb-2">
+<div className="text-xs text-[#002314] mb-2">
 Código promocional (opcional)
 </div>
 
@@ -1310,7 +1310,7 @@ className="
 w-full
 bg-transparent
 outline-none
-text-white
+text-[#002314]
 "
 />
 
@@ -1320,16 +1320,16 @@ text-white
   className="
     pt-4
     border-t
-    border-slate-800
+    border-[#002314]/20
     space-y-3
   "
 >
 
 <div
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-800
+border-[#002314]/20
 rounded-2xl
 p-4
 mb-4
@@ -1337,7 +1337,7 @@ text-left
 "
 >
 
-<div className="text-slate-400 text-sm">
+<div className="text-[#002314] text-sm">
 Resumen de compra
 </div>
 
@@ -1399,11 +1399,11 @@ p-3
 "
 >
 
-<div className="text-emerald-400 text-sm font-semibold">
+<div className="text-emerald-800 text-sm font-semibold">
 🎉 Promoción aplicada
 </div>
 
-<div className="mt-1 text-white">
+<div className="mt-1 text-[#002314]">
 {quote.promotion.name}
 </div>
 
@@ -1419,18 +1419,18 @@ quote?.affiliate?.code && (
 className="
 mt-3
 rounded-xl
-bg-cyan-500/10
+bg-[#7048E8]/10
 border
 border-cyan-500/30
 p-3
 "
 >
 
-<div className="text-cyan-400 text-sm font-semibold">
+<div className="text-[#7048E8] text-sm font-semibold">
 ⭐ Código aplicado
 </div>
 
-<div className="mt-1 text-white">
+<div className="mt-1 text-[#002314]">
 
 {quote.affiliate.code}
 
@@ -1444,7 +1444,7 @@ p-3
 {
 quote?.discount > 0 && (
 
-<div className="flex justify-between mt-2 text-green-400">
+<div className="flex justify-between mt-2 text-green-800">
 
 <span>
 💰 Descuento
@@ -1470,7 +1470,7 @@ quote.discount
 
 quote?.coupon?.code && (
 
-<div className="flex justify-between mt-2 text-blue-400">
+<div className="flex justify-between mt-2 text-[#7048E8]">
 
 <span>
 🏷 Cupón
@@ -1488,7 +1488,7 @@ quote?.coupon?.code && (
 
 }
 
-<div className="border-t border-slate-800 mt-4 pt-4 flex justify-between font-black text-2xl">
+<div className="border-t border-[#002314]/20 mt-4 pt-4 flex justify-between font-black text-2xl">
 
 <span>
 
@@ -1496,7 +1496,7 @@ Total
 
 </span>
 
-<span className="text-cyan-400">
+<span className="text-[#7048E8]">
 
 $
 
@@ -1523,7 +1523,7 @@ quantity
       gap-3
       items-start
       text-sm
-      text-slate-300
+      text-[#002314]
     "
   >
 
@@ -1549,7 +1549,7 @@ quantity
       gap-3
       items-start
       text-sm
-      text-slate-400
+      text-[#002314]
     "
   >
 
@@ -1593,16 +1593,16 @@ processing ||
   mt-4
   py-4
   rounded-2xl
-  bg-cyan-500
-hover:bg-cyan-400
-text-slate-950
+  bg-[#7048E8] text-white
+hover:bg-[#002314]
+text-white
   transition
   font-black
   text-lg
   disabled:opacity-60
   disabled:cursor-not-allowed
-  disabled:bg-slate-700
-  disabled:text-slate-400
+  disabled:bg-[#EDE8FD]
+  disabled:text-white
 "
 >
 

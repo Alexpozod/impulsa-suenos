@@ -2,7 +2,7 @@ export default function RafflesPrivacyPage() {
 
   return (
 
-    <section className="bg-slate-950 text-white">
+    <section className="bg-[#FAF9F5] text-[#002314]">
 
       <div className="max-w-5xl mx-auto px-6 py-16">
 
@@ -12,7 +12,7 @@ export default function RafflesPrivacyPage() {
             Política de Privacidad
           </h1>
 
-          <p className="text-slate-400">
+          <p className="text-[#002314]">
             Última actualización: {new Date().toLocaleDateString()}
           </p>
 
@@ -26,7 +26,7 @@ export default function RafflesPrivacyPage() {
               1. Información recopilada
             </h2>
 
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-[#002314] leading-relaxed">
               Podemos recopilar información proporcionada durante procesos
               de compra, participación, registro, contacto, navegación o
               utilización de cualquiera de los servicios disponibles dentro
@@ -41,7 +41,7 @@ export default function RafflesPrivacyPage() {
               2. Datos que podemos solicitar
             </h2>
 
-            <ul className="list-disc pl-6 space-y-2 text-slate-300">
+            <ul className="list-disc pl-6 space-y-2 text-[#002314]">
 
               <li>Nombre y apellidos.</li>
 
@@ -67,7 +67,7 @@ export default function RafflesPrivacyPage() {
               3. Finalidad del tratamiento
             </h2>
 
-            <ul className="list-disc pl-6 space-y-2 text-slate-300">
+            <ul className="list-disc pl-6 space-y-2 text-[#002314]">
 
               <li>Procesar compras realizadas dentro de la plataforma.</li>
 
@@ -97,7 +97,7 @@ export default function RafflesPrivacyPage() {
               4. Resultados, ganadores y evidencias
             </h2>
 
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-[#002314] leading-relaxed">
               Para fines de transparencia, la organización podrá publicar
               información relacionada con resultados, ganadores y evidencias
               de entrega de premios. Dicha publicación podrá incluir nombre
@@ -114,7 +114,7 @@ export default function RafflesPrivacyPage() {
               5. Seguridad de la información
             </h2>
 
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-[#002314] leading-relaxed">
               Aplicamos medidas técnicas, administrativas y organizativas
               razonables para proteger la información almacenada contra
               accesos no autorizados, pérdida, alteración, divulgación o uso
@@ -129,7 +129,7 @@ export default function RafflesPrivacyPage() {
               6. Compartición de información
             </h2>
 
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-[#002314] leading-relaxed">
               La información podrá compartirse únicamente con proveedores
               tecnológicos, procesadores de pago, plataformas de comunicación,
               autoridades competentes o terceros que resulten necesarios para
@@ -144,7 +144,7 @@ export default function RafflesPrivacyPage() {
               7. Transferencias internacionales
             </h2>
 
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-[#002314] leading-relaxed">
               Debido a la naturaleza global de internet y de los servicios
               tecnológicos utilizados, parte de la información podrá ser
               almacenada o procesada en servidores ubicados fuera del país de
@@ -159,7 +159,7 @@ export default function RafflesPrivacyPage() {
               8. Conservación de datos
             </h2>
 
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-[#002314] leading-relaxed">
               La información podrá conservarse durante el tiempo necesario
               para cumplir fines operativos, legales, regulatorios,
               contables, de seguridad o prevención de fraude.
@@ -173,7 +173,7 @@ export default function RafflesPrivacyPage() {
               9. Derechos del usuario
             </h2>
 
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-[#002314] leading-relaxed">
               Los usuarios podrán solicitar acceso, actualización,
               rectificación o eliminación de la información personal que
               hayan proporcionado, sujeto a las limitaciones legales,
@@ -188,7 +188,7 @@ export default function RafflesPrivacyPage() {
               10. Modificaciones
             </h2>
 
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-[#002314] leading-relaxed">
               Esta política podrá ser modificada periódicamente para reflejar
               cambios operativos, legales o tecnológicos. Las versiones
               actualizadas serán publicadas dentro de la plataforma.

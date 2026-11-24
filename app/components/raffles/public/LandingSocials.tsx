@@ -101,11 +101,11 @@ export default function LandingSocials({
 
             rounded-xl
 
-            bg-slate-900
+            bg-[#EDE8FD]
 
             border
 
-            border-slate-800
+            border-[#002314]/20
 
             hover:border-pink-500
 
@@ -157,15 +157,15 @@ export default function LandingSocials({
 
             rounded-xl
 
-            bg-slate-900
+            bg-[#EDE8FD]
 
             border
 
-            border-slate-800
+            border-[#002314]/20
 
             hover:border-blue-500
 
-            hover:text-blue-400
+            hover:text-[#7048E8]
 
             transition-all
             duration-200
@@ -213,15 +213,15 @@ export default function LandingSocials({
 
             rounded-xl
 
-            bg-slate-900
+            bg-[#EDE8FD]
 
             border
 
-            border-slate-800
+            border-[#002314]/20
 
             hover:border-cyan-400
 
-            hover:text-cyan-300
+            hover:text-[#7048E8]
 
             transition-all
             duration-200
@@ -268,15 +268,15 @@ export default function LandingSocials({
 
             rounded-xl
 
-            bg-slate-900
+            bg-[#EDE8FD]
 
             border
 
-            border-slate-800
+            border-[#002314]/20
 
             hover:border-red-500
 
-            hover:text-red-400
+            hover:text-red-800
 
             transition-all
             duration-200

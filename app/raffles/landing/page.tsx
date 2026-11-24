@@ -33,7 +33,7 @@ export default async function LandingPage() {
 
   return (
 
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+    <div className="min-h-screen bg-[#FAF9F5] text-[#002314] flex items-center justify-center">
 
       <div className="max-w-3xl w-full px-6 text-center">
 
@@ -42,9 +42,9 @@ export default async function LandingPage() {
 <div className="flex flex-col items-center mb-8">
 
   <img
-    src="/logo-icon.png"
+    src="/raffles/brand/logo-impulsa.svg"
     alt="ImpulsaSueños"
-    className="w-36 h-36"
+    className="w-36 h-auto"
   />
 
   <div className="mt-5 text-center">
@@ -54,7 +54,7 @@ export default async function LandingPage() {
         text-5xl
         font-black
         leading-none
-        text-white
+        text-[#002314]
       "
     >
       ImpulsaSueños
@@ -63,7 +63,7 @@ export default async function LandingPage() {
     <div
       className="
         mt-2
-        text-cyan-400
+        text-[#7048E8]
         text-sm
         font-bold
         tracking-[0.45em]
@@ -81,7 +81,7 @@ export default async function LandingPage() {
 
         {data?.show_subtitle && (
 
-          <p className="mt-6 text-xl text-slate-300">
+          <p className="mt-6 text-xl text-[#002314]">
             {data?.subtitle}
           </p>
 
@@ -89,7 +89,7 @@ export default async function LandingPage() {
 
         {data?.show_description && (
 
-          <p className="mt-8 text-slate-400 whitespace-pre-line">
+          <p className="mt-8 text-[#002314] whitespace-pre-line">
             {data?.description}
           </p>
 

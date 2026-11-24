@@ -159,7 +159,7 @@ return(
 className="
 text-4xl
 font-bold
-text-white
+text-[#002314]
 "
 >
 🎁 Promociones
@@ -167,7 +167,7 @@ text-white
 
 <p
 className="
-text-slate-400
+text-[#002314]
 mt-2
 "
 >
@@ -180,8 +180,8 @@ Bundles, cupones, promociones y reglas comerciales.
 className="
 rounded-3xl
 border
-border-slate-800
-bg-slate-900
+border-[#002314]/20
+bg-[#EDE8FD]
 overflow-hidden
 "
 >
@@ -191,7 +191,7 @@ className="
 px-6
 py-5
 border-b
-border-slate-800
+border-[#002314]/20
 "
 >
 
@@ -199,7 +199,7 @@ border-slate-800
 className="
 text-xl
 font-semibold
-text-white
+text-[#002314]
 "
 >
 Reglas Comerciales
@@ -219,9 +219,9 @@ overflow-x-auto
 
 <tr
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border-b
-border-slate-800
+border-[#002314]/20
 "
 >
 
@@ -273,7 +273,7 @@ colSpan={7}
 className="
 p-8
 text-center
-text-slate-500
+text-[#002314]
 "
 >
 Cargando...
@@ -292,7 +292,7 @@ colSpan={7}
 className="
 p-8
 text-center
-text-slate-500
+text-[#002314]
 "
 >
 Sin promociones
@@ -307,7 +307,7 @@ rules.map(rule=>(
 key={rule.id}
 className="
 border-b
-border-slate-800
+border-[#002314]/20
 "
 >
 
@@ -421,7 +421,7 @@ px-3
 py-1
 rounded-lg
 border
-border-slate-700
+border-[#002314]/20
 "
 >
 
@@ -546,8 +546,8 @@ className="
 px-3
 py-1
 rounded-lg
-bg-cyan-500
-text-slate-950
+bg-[#7048E8] text-white
+text-white
 font-semibold
 "
 >
@@ -576,8 +576,8 @@ Editar
 className="
 rounded-3xl
 border
-border-slate-800
-bg-slate-900
+border-[#002314]/20
+bg-[#EDE8FD]
 p-6
 "
 >
@@ -586,7 +586,7 @@ p-6
 className="
 text-xl
 font-semibold
-text-white
+text-[#002314]
 mb-6
 "
 >
@@ -601,7 +601,7 @@ editingId
 
 <p
 className="
-text-slate-400
+text-[#002314]
 text-sm
 mb-6
 "
@@ -630,9 +630,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -667,7 +667,7 @@ className="
 block
 mb-2
 text-sm
-text-slate-400
+text-[#002314]
 font-medium
 "
 >
@@ -684,9 +684,9 @@ e.target.value
 }
 className="
 w-full
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -701,7 +701,7 @@ className="
 block
 mb-2
 text-sm
-text-slate-400
+text-[#002314]
 font-medium
 "
 >
@@ -718,9 +718,9 @@ e.target.value
 }
 className="
 w-full
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -732,7 +732,7 @@ p-3
 className="
 md:col-span-2
 text-xs
-text-amber-400
+text-amber-800
 "
 >
 💡 Si no defines fechas la promoción permanecerá activa permanentemente.
@@ -746,9 +746,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -777,9 +777,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -794,9 +794,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -811,9 +811,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -827,9 +827,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -854,9 +854,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "/>
@@ -869,9 +869,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -886,9 +886,9 @@ e.target.value
 )
 }
 className="
-bg-slate-950
+bg-[#FAF9F5]
 border
-border-slate-700
+border-[#002314]/20
 rounded-xl
 p-3
 "
@@ -1021,8 +1021,8 @@ mt-6
 px-6
 py-3
 rounded-xl
-bg-cyan-500
-text-slate-950
+bg-[#7048E8] text-white
+text-white
 font-bold
 "
 >

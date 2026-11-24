@@ -92,7 +92,7 @@ const signUp = async () => {
 
   return (
 
-    <main className="min-h-screen bg-slate-950 flex items-center justify-center px-6 pt-28">
+    <main className="min-h-screen bg-[#FAF9F5] flex items-center justify-center px-6 pt-28">
 
       <div
         className="
@@ -100,8 +100,8 @@ const signUp = async () => {
           max-w-md
           rounded-3xl
           border
-          border-slate-800
-          bg-slate-900
+          border-[#002314]/20
+          bg-[#EDE8FD]
           p-8
           shadow-2xl
         "
@@ -112,7 +112,7 @@ const signUp = async () => {
     text-3xl
     font-black
     text-center
-    text-white
+    text-[#002314]
     mb-2
   "
 >
@@ -122,7 +122,7 @@ const signUp = async () => {
 <p
   className="
     text-center
-    text-slate-400
+    text-[#002314]
     mb-8
   "
 >
@@ -138,11 +138,11 @@ const signUp = async () => {
     w-full
     rounded-xl
     border
-    border-slate-700
-    bg-slate-800
+    border-[#002314]/20
+    bg-[#EDE8FD]
     p-3
-    text-white
-    placeholder:text-slate-400
+    text-[#002314]
+    placeholder:text-[#002314]
     outline-none
     focus:border-cyan-500
     mb-4
@@ -158,18 +158,18 @@ const signUp = async () => {
     w-full
     rounded-xl
     border
-    border-slate-700
-    bg-slate-800
+    border-[#002314]/20
+    bg-[#EDE8FD]
     p-3
-    text-white
-    placeholder:text-slate-400
+    text-[#002314]
+    placeholder:text-[#002314]
     outline-none
     focus:border-cyan-500
     mb-2
   "
 />
 
-<p className="text-xs text-slate-500 mb-6">
+<p className="text-xs text-[#002314] mb-6">
   Mínimo 8 caracteres, una mayúscula, un número y un símbolo.
 </p>
 
@@ -180,12 +180,12 @@ const signUp = async () => {
   className="
     w-full
     rounded-xl
-    bg-cyan-500
-    hover:bg-cyan-400
+    bg-[#7048E8] text-white
+    hover:bg-[#002314]
     transition
     py-3
     font-bold
-    text-slate-950
+    text-white
     disabled:opacity-60
   "
 >
@@ -198,8 +198,8 @@ const signUp = async () => {
   className="
     w-full
     mt-4
-    text-slate-400
-    hover:text-white
+    text-[#002314]
+    hover:text-[#002314]
     transition
   "
 >
@@ -212,7 +212,7 @@ const signUp = async () => {
       mt-6
       text-center
       text-sm
-      text-slate-300
+      text-[#002314]
     "
   >
     {message}

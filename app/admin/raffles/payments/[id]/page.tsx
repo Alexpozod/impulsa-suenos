@@ -108,7 +108,7 @@ export default function PaymentDetailPage() {
           💳 Payment Detail
         </h1>
 
-        <p className="text-slate-400 mt-2">
+        <p className="text-[#002314] mt-2">
           Auditoría y trazabilidad
         </p>
 
@@ -321,8 +321,8 @@ export default function PaymentDetailPage() {
               items-center
               rounded-xl
               border
-              border-slate-800
-              bg-slate-950
+              border-[#002314]/20
+              bg-[#FAF9F5]
               p-3
             "
           >
@@ -335,7 +335,7 @@ export default function PaymentDetailPage() {
 
               </p>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#002314]">
 
                 Número:
                 {" "}
@@ -353,8 +353,8 @@ export default function PaymentDetailPage() {
                   py-1
                   rounded-full
                   text-xs
-                  bg-green-900/40
-                  text-green-300
+                  bg-green-100/40
+                  text-green-800
                 "
               >
                 {ticket.status}
@@ -371,7 +371,7 @@ export default function PaymentDetailPage() {
 
   ) : (
 
-    <p className="text-slate-500">
+    <p className="text-[#002314]">
       Sin tickets asociados
     </p>
 
@@ -416,15 +416,15 @@ function Card({
 
     <div
       className="
-        bg-slate-900
+        bg-[#EDE8FD]
         border
-        border-slate-800
+        border-[#002314]/20
         rounded-3xl
         p-5
       "
     >
 
-      <p className="text-slate-400">
+      <p className="text-[#002314]">
         {title}
       </p>
 
@@ -451,9 +451,9 @@ function Section({
 
     <div
       className="
-        bg-slate-900
+        bg-[#EDE8FD]
         border
-        border-slate-800
+        border-[#002314]/20
         rounded-3xl
         p-6
       "
@@ -492,7 +492,7 @@ function Info({
       "
     >
 
-      <span className="text-slate-400">
+      <span className="text-[#002314]">
         {label}
       </span>
 

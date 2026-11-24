@@ -205,7 +205,7 @@ window.location.href = "/raffles"
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-950 px-6 pt-28">
+    <main className="min-h-screen flex items-center justify-center bg-[#FAF9F5] px-6 pt-28">
 
       <div
   className="
@@ -213,8 +213,8 @@ window.location.href = "/raffles"
     max-w-md
     rounded-3xl
     border
-    border-slate-800
-    bg-slate-900
+    border-[#002314]/20
+    bg-[#EDE8FD]
     p-8
     shadow-cyan-950/30
   "
@@ -226,7 +226,7 @@ window.location.href = "/raffles"
     text-3xl
     font-black
     text-center
-    text-white
+    text-[#002314]
     mb-2
   "
 >
@@ -236,7 +236,7 @@ window.location.href = "/raffles"
        <p
   className="
     text-center
-    text-slate-400
+    text-[#002314]
     text-sm
     mb-6
   "
@@ -255,10 +255,10 @@ justify-center
 gap-3
 rounded-xl
 border
-border-slate-700
-bg-slate-800
+border-[#002314]/20
+bg-[#EDE8FD]
 py-3
-text-white
+text-[#002314]
 hover:border-cyan-400
 transition
 "
@@ -272,9 +272,9 @@ transition
 
         {/* DIVIDER */}
         <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-slate-700" />
-          <span className="text-xs text-slate-500">o con email</span>
-          <div className="flex-1 h-px bg-slate-700" />
+          <div className="flex-1 h-px bg-[#EDE8FD]" />
+          <span className="text-xs text-[#002314]">o con email</span>
+          <div className="flex-1 h-px bg-[#EDE8FD]" />
         </div>
 
         {/* EMAIL */}
@@ -285,10 +285,10 @@ transition
 w-full
 rounded-lg
 border
-border-slate-700
-bg-slate-800
-text-white
-placeholder:text-slate-500
+border-[#002314]/20
+bg-[#EDE8FD]
+text-[#002314]
+placeholder:text-[#002314]
 p-3
 mb-3
 focus:border-cyan-400
@@ -311,10 +311,10 @@ outline-none
         w-full
         rounded-lg
         border
-        border-slate-700
-        bg-slate-800
-        text-white
-        placeholder:text-slate-500
+        border-[#002314]/20
+        bg-[#EDE8FD]
+        text-[#002314]
+        placeholder:text-[#002314]
         p-3
         mb-1
         focus:border-cyan-400
@@ -325,7 +325,7 @@ outline-none
         />
 
         {/* PASSWORD INFO */}
-        <p className="text-xs text-slate-500 mb-3">
+        <p className="text-xs text-[#002314] mb-3">
           Mínimo 8 caracteres, una mayúscula, un número y un símbolo
         </p>
 
@@ -333,7 +333,7 @@ outline-none
         <div className="flex justify-end mb-4">
           <button
             onClick={() => window.location.href = "/raffles/recover"}
-            className="text-sm text-cyan-400 hover:text-cyan-300 hover:underline"
+            className="text-sm text-[#7048E8] hover:text-[#7048E8] hover:underline"
           >
             ¿Olvidaste tu contraseña?
           </button>
@@ -355,11 +355,11 @@ outline-none
 w-full
 rounded-lg
 border
-border-slate-700
-bg-slate-800
+border-[#002314]/20
+bg-[#EDE8FD]
 py-3
 font-semibold
-text-white
+text-[#002314]
 hover:border-cyan-400
 transition
 "
@@ -370,13 +370,13 @@ transition
 
         {/* LEGAL */}
 
-<p className="text-xs text-slate-500 text-center mt-4">
+<p className="text-xs text-[#002314] text-center mt-4">
 
   Al continuar aceptas nuestros{" "}
 
   <a
     href="/raffles/terminos"
-    className="text-cyan-400 hover:text-cyan-300 underline"
+    className="text-[#7048E8] hover:text-[#7048E8] underline"
   >
     Términos
   </a>
@@ -385,7 +385,7 @@ transition
 
   <a
     href="/raffles/privacidad"
-    className="text-cyan-400 hover:text-cyan-300 underline"
+    className="text-[#7048E8] hover:text-[#7048E8] underline"
   >
     Política de Privacidad
   </a>
@@ -396,7 +396,7 @@ transition
 
         {/* MESSAGE */}
         {message && (
-          <p className="mt-4 text-center text-sm text-red-400">
+          <p className="mt-4 text-center text-sm text-red-800">
             {message}
           </p>
         )}
