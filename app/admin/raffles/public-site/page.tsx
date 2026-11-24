@@ -861,7 +861,7 @@ export default function PublicSitePage() {
       py-3
       rounded-xl
       bg-cyan-600
-      hover:bg-cyan-500
+      hover:bg-cyan-700
       disabled:opacity-50
       font-semibold
       text-white

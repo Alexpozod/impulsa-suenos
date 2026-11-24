@@ -900,7 +900,7 @@ Detalles
 
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
 
-          <div className="w-full max-w-3xl rounded-xl border bg-[#090d18] shadow-2xl">
+          <div className="w-full max-w-3xl rounded-xl border bg-[#002314] shadow-2xl">
 
             <div className="flex items-center justify-between border-b px-6 py-4">
 
@@ -1048,7 +1048,7 @@ Detalles
 
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
 
-            <div className="w-full max-w-3xl rounded-xl border bg-[#090d18] shadow-2xl">
+            <div className="w-full max-w-3xl rounded-xl border bg-[#002314] shadow-2xl">
 
               <div className="flex items-center justify-between border-b px-6 py-4">
 
@@ -1157,7 +1157,7 @@ Detalles
 
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
 
-          <div className="w-full max-w-xl rounded-xl border bg-[#090d18] shadow-2xl">
+          <div className="w-full max-w-xl rounded-xl border bg-[#002314] shadow-2xl">
 
             <div className="flex items-center justify-between border-b px-6 py-4">
 

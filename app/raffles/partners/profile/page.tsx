@@ -636,7 +636,7 @@ setUnlockUntil("")
       ${
         affiliateType === "person"
 
-        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white"
+        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-[#5030AD] text-white"
 
         : "border"
       }
@@ -662,7 +662,7 @@ setUnlockUntil("")
       ${
         affiliateType === "company"
 
-        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white"
+        ? "bg-gradient-to-r from-blue-600 via-purple-600 to-[#5030AD] text-white"
 
         : "border"
       }
@@ -771,7 +771,7 @@ setUnlockUntil("")
             bg-gradient-to-r
             from-blue-600
             via-purple-600
-            to-cyan-500
+            to-[#5030AD]
           "
         >
 
@@ -1183,7 +1183,7 @@ affiliateType === "company" && (
           bg-gradient-to-r
           from-blue-600
           via-purple-600
-          to-cyan-500
+          to-[#5030AD]
         "
       >
         {

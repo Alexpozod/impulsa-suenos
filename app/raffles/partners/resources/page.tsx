@@ -300,7 +300,7 @@ export default function PartnerResourcesPage() {
                     rounded-xl
                     bg-cyan-500
                     hover:bg-cyan-400
-                    text-white
+                    text-slate-950
                     font-bold
                     transition
                   "

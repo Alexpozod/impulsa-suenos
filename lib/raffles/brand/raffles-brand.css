@@ -91,3 +91,62 @@
   outline-color: var(--raffles-purple);
   outline-offset: 2px;
 }
+
+/* Tailwind utilities inherit these tokens from the public and admin raffle layouts. */
+.raffles-brand {
+  --primary: var(--raffles-purple);
+  --primary-foreground: var(--raffles-white);
+  --ring: var(--raffles-purple);
+  --color-slate-50: #FAF9F5;
+  --color-slate-100: #F3F3ED;
+  --color-slate-200: #DDDCD5;
+  --color-slate-300: #CBD4CD;
+  --color-slate-400: #ABBAB0;
+  --color-slate-500: #798B80;
+  --color-slate-600: #52675B;
+  --color-slate-700: #345544;
+  --color-slate-800: #224335;
+  --color-slate-900: #092D1F;
+  --color-slate-950: #002314;
+  --color-blue-300: #D1C4FA;
+  --color-blue-400: #B9A2FA;
+  --color-blue-500: #7048E8;
+  --color-blue-600: #6440D5;
+  --color-blue-700: #5030AD;
+  --color-blue-800: #402D78;
+  --color-blue-900: #33255D;
+  --color-blue-950: #22183F;
+  --color-cyan-50: #F4F6EC;
+  --color-cyan-200: #DCE7BE;
+  --color-cyan-300: #CDDE96;
+  --color-cyan-400: #B9D458;
+  --color-cyan-500: #A8C63A;
+  --color-cyan-600: #526B19;
+  --color-cyan-700: #455718;
+  --color-cyan-800: #364815;
+  --color-cyan-900: #293910;
+  --color-cyan-950: #18260F;
+  --color-purple-100: #EDE8FD;
+  --color-purple-300: #D1C4FA;
+  --color-purple-400: #B9A2FA;
+  --color-purple-500: #7048E8;
+  --color-purple-600: #5D36CC;
+  --color-purple-700: #5030AD;
+  --color-purple-900: #33255D;
+  --color-sky-400: #B9A2FA;
+  --color-sky-500: #7048E8;
+  --color-sky-600: #5D36CC;
+  --color-indigo-600: #7048E8;
+  --color-indigo-700: #5D36CC;
+  --color-violet-50: #F5F2FE;
+  --color-violet-600: #7048E8;
+}
+.raffles-brand .bg-primary { background-color: var(--raffles-purple); }
+.raffles-brand .hover\:bg-primaryHover:hover { background-color: var(--raffles-purple-hover); }
+.raffles-brand :is(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--raffles-purple);
+  outline-offset: 3px;
+}
+.raffles-brand-admin :is(a, button, input, select, textarea):focus-visible {
+  outline-color: var(--raffles-green-accent);
+}

@@ -875,7 +875,7 @@ export default function RaffleTicketsPage() {
               px-5 py-3
               rounded-xl
               bg-cyan-600
-              hover:bg-cyan-500
+              hover:bg-cyan-700
               disabled:opacity-50
               disabled:cursor-not-allowed
               transition

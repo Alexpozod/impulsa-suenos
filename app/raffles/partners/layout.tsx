@@ -70,7 +70,7 @@ export default function PartnersLayout({
         className="
           max-w-[1500px]
           mx-auto
-          flex
+          flex flex-col lg:flex-row
           gap-4
           px-4
           py-8
@@ -79,7 +79,7 @@ export default function PartnersLayout({
 
         <aside
           className="
-            w-56
+            w-full lg:w-56
             shrink-0
           "
         >
@@ -91,7 +91,7 @@ export default function PartnersLayout({
               rounded-3xl
               shadow-xl
               p-5
-              sticky
+              lg:sticky
               top-6
             "
           >
@@ -139,7 +139,7 @@ export default function PartnersLayout({
             <nav
               className="
                 flex
-                flex-col
+                flex-wrap lg:flex-col
                 gap-2
               "
             >
@@ -154,6 +154,7 @@ export default function PartnersLayout({
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={active ? "page" : undefined}
                     className={`
                       flex
                       items-center

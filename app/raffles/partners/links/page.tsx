@@ -276,7 +276,7 @@ py-2
                         bg-gradient-to-r
                         from-blue-600
                         via-purple-600
-                        to-cyan-500
+                        to-[#5030AD]
                       "
                     >
                       Copiar Link

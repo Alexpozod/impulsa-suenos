@@ -527,7 +527,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
       bg-gradient-to-r
       from-blue-600
       via-purple-600
-      to-cyan-500
+      to-[#5030AD]
     "
   >
 
@@ -681,7 +681,7 @@ El tiempo estimado de procesamiento es de 24 a 72 horas hábiles.`)
               bg-gradient-to-r
               from-blue-600
               via-purple-600
-              to-cyan-500
+              to-[#5030AD]
             "
           >
 
