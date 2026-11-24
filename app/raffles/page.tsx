@@ -133,7 +133,7 @@ export default async function RafflesHomePage() {
 
   return (
 
-    <div className="bg-[#002314] text-white">
+    <div className="bg-[#FAF9F5] text-[#002314]">
 
       <section className="py-16 lg:py-24">
 
@@ -145,7 +145,7 @@ export default async function RafflesHomePage() {
 
             <span
               className="
-                text-[#A8C63A]
+                text-[#7048E8]
                 font-semibold
                 tracking-[0.2em]
                 uppercase
@@ -161,7 +161,7 @@ export default async function RafflesHomePage() {
 
             </h1>
 
-            <p className="text-[#EDE8FD] text-lg mt-6 max-w-xl leading-relaxed">
+            <p className="text-[#002314] text-lg mt-6 max-w-xl leading-relaxed">
 
   No prometemos milagros.
 
@@ -176,8 +176,8 @@ export default async function RafflesHomePage() {
                 href="#sorteos-activos"
                 className="
                   bg-[#7048E8]
-                  hover:bg-[#5D36CC]
-                  text-slate-950
+                  hover:bg-[#002314]
+                  text-white
                   px-8
                   py-4
                   rounded-xl
@@ -192,11 +192,11 @@ export default async function RafflesHomePage() {
                 href="/raffles/my-tickets"
                 className="
                   border
-                  border-[#49705F]
+                  border-[#002314]
                   px-8
                   py-4
                   rounded-xl
-                  text-white
+                  text-[#002314]
                 "
               >
                 Buscar Mis Tickets
@@ -219,8 +219,8 @@ export default async function RafflesHomePage() {
                   overflow-hidden
                   rounded-3xl
                   border
-                  border-[#285143]
-                  bg-[#05291B]
+                  border-[#002314]
+                  bg-[#002314] text-[#FAF9F5]
                   hover:border-[#7048E8]
                   transition-all
                 "
@@ -270,7 +270,7 @@ export default async function RafflesHomePage() {
 
                   <p
                     className="
-                      text-[#C3C8C2]
+                      text-[#EDE8FD]
                       line-clamp-3
                     "
                   >
@@ -284,7 +284,7 @@ export default async function RafflesHomePage() {
 
                     <div>
 
-                      <p className="text-xs text-[#B3BDB7]">
+                      <p className="text-xs text-[#EDE8FD]">
                         Participación desde
                       </p>
 
@@ -324,8 +324,8 @@ export default async function RafflesHomePage() {
                 className="
                   rounded-3xl
                   border
-                  border-[#285143]
-                  bg-[#05291B]
+                  border-[#002314]
+                  bg-[#002314] text-[#FAF9F5]
                   h-[500px]
                   flex
                   items-center

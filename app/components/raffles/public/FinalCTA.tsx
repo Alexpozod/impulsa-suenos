@@ -13,9 +13,7 @@ export default function FinalCTA() {
             rounded-3xl
             border
             border-slate-800
-            bg-gradient-to-br
-            from-blue-600/20
-            to-slate-900
+            bg-[#002314] text-[#FAF9F5]
             p-8 md:p-10
             text-center
           "
@@ -43,13 +41,13 @@ y sigue cada proceso con total transparencia.
             <Link
               href="#sorteos-activos"
               className="
-                bg-cyan-500
-                hover:bg-cyan-400
+                bg-[#7048E8]
+                
                 px-8
                 py-4
                 rounded-2xl
                 font-bold
-                text-slate-950
+                text-white
                 transition
               "
             >

@@ -57,7 +57,7 @@ export default function RafflesGrid() {
 
       <div className="max-w-7xl mx-auto px-6">
 
-        <p className="text-slate-400">
+        <p className="text-[#002314]">
           Cargando sorteos...
         </p>
 
@@ -80,7 +80,7 @@ if (!raffles.length) {
           Próximamente nuevos sorteos
         </h2>
 
-        <p className="text-slate-400">
+        <p className="text-[#002314]">
           Estamos preparando los primeros premios.
         </p>
 
@@ -102,11 +102,11 @@ if (!raffles.length) {
 
         <div className="mb-12">
 
-          <h2 className="text-4xl font-black text-white mb-4">
+          <h2 className="text-4xl font-black text-[#002314] mb-4">
             Sorteos Activos
           </h2>
 
-          <p className="text-slate-400">
+          <p className="text-[#002314]">
             Participa y recibe tus tickets automáticamente por correo.
           </p>
 
@@ -129,7 +129,7 @@ if (!raffles.length) {
   href={`/raffles/${raffle.slug}`}
   className="
     group
-    bg-slate-900
+    bg-[#002314] text-[#FAF9F5]
     border
     border-slate-800
     rounded-3xl
@@ -253,8 +253,8 @@ text-cyan-400
                       px-4
                       py-2
                       rounded-xl
-                      bg-cyan-500
-                      text-slate-950
+                      bg-[#7048E8]
+                      text-white
                       font-semibold
                     "
                   >
