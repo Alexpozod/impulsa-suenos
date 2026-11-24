@@ -12,109 +12,17 @@ interface RecalculateRaffleCountersParams {
 export async function recalculateRaffleCounters({
   raffle_id
 }: RecalculateRaffleCountersParams) {
+  const { data, error } = await supabase.schema("raffles")
+    .rpc("recalculate_raffle_counters_atomic", { p_raffle_id: raffle_id })
 
-  /* =========================================
-     GENERATED
-  ========================================= */
-
-  const { count: generatedCount } =
-    await supabase
-      .schema("raffles")
-      .from("ticket_inventory")
-      .select("*", {
-        count: "exact",
-        head: true
-      })
-      .eq("raffle_id", raffle_id)
-
-  /* =========================================
-     SOLD
-  ========================================= */
-
-  const paidResult =
-  await supabase
-    .schema("raffles")
-    .from("ticket_inventory")
-    .select("*", {
-      count: "exact",
-      head: true
-    })
-    .eq("raffle_id", raffle_id)
-    .eq("status", "paid")
-
-const winnerResult =
-  await supabase
-    .schema("raffles")
-    .from("ticket_inventory")
-    .select("*", {
-      count: "exact",
-      head: true
-    })
-    .eq("raffle_id", raffle_id)
-    .eq("status", "winner")
-
-const soldCount =
-  (paidResult.count || 0) +
-  (winnerResult.count || 0)
-
-  /* =========================================
-     RESERVED
-  ========================================= */
-
-  const { count: reservedCount } =
-    await supabase
-      .schema("raffles")
-      .from("ticket_inventory")
-      .select("*", {
-        count: "exact",
-        head: true
-      })
-      .eq("raffle_id", raffle_id)
-      .eq("status", "reserved")
-
-  /* =========================================
-     UPDATE RAFFLE
-  ========================================= */
-
-  const { error } =
-    await supabase
-      .schema("raffles")
-      .from("raffles")
-      .update({
-
-        generated_ticket_count:
-          generatedCount || 0,
-
-        sold_ticket_count:
-          soldCount || 0,
-
-        reserved_ticket_count:
-          reservedCount || 0
-
-      })
-      .eq("id", raffle_id)
-
-  if (error) {
-
-    console.error(
-      "recalculateRaffleCounters error",
-      error
-    )
-
-    throw new Error(
-      "raffle_counter_recalculation_failed"
-    )
+  if (error || !data) {
+    console.error("raffles_atomic_counter_recalculation_failed", error?.code)
+    throw new Error("raffle_counter_recalculation_failed")
   }
 
   return {
-
-    generated:
-      generatedCount || 0,
-
-    sold:
-      soldCount || 0,
-
-    reserved:
-      reservedCount || 0
+    generated: Number(data.generated ?? 0),
+    sold: Number(data.sold ?? 0),
+    reserved: Number(data.reserved ?? 0)
   }
 }
