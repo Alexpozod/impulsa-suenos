@@ -4,7 +4,7 @@ export default function RafflesFooter() {
 
   return (
 
-    <footer className="bg-slate-950 border-t border-slate-800">
+    <footer className="bg-[#002314] border-t border-[#285143]">
 
       <div className="max-w-7xl mx-auto px-6 py-10">
 
@@ -18,7 +18,7 @@ export default function RafflesFooter() {
               ImpulsaSueños Sorteos
             </h3>
 
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-[#EDE8FD]/75 leading-relaxed">
               Participa en iniciativas transparentes,
 sigue cada proceso y consulta
 los resultados públicamente.
@@ -39,8 +39,8 @@ los resultados públicamente.
               <Link
   href="/raffles#sorteos-activos"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -50,8 +50,8 @@ los resultados públicamente.
               <Link
   href="/raffles/winners"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -61,8 +61,8 @@ los resultados públicamente.
               <Link
   href="/raffles/my-tickets"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -86,8 +86,8 @@ los resultados públicamente.
               <Link
   href="/raffles/como-funciona"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -97,8 +97,8 @@ los resultados públicamente.
               <Link
   href="/raffles/faq"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -108,8 +108,8 @@ los resultados públicamente.
               <a
   href="mailto:contacto@impulsasuenos.com"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -133,8 +133,8 @@ los resultados públicamente.
               <Link
   href="/raffles/terminos"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -144,8 +144,8 @@ los resultados públicamente.
               <Link
   href="/raffles/privacidad"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -155,8 +155,8 @@ los resultados públicamente.
               <Link
   href="/raffles/cookies"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -166,8 +166,8 @@ los resultados públicamente.
               <Link
   href="/raffles/bases"
   className="
-    text-slate-400
-    hover:text-cyan-400
+    text-[#EDE8FD]/75
+    hover:text-[#A8C63A]
     transition-colors
   "
 >
@@ -184,11 +184,11 @@ los resultados públicamente.
       
       {/* COPYRIGHT */}
 
-      <div className="border-t border-slate-800">
+      <div className="border-t border-[#285143]">
 
         <div className="max-w-7xl mx-auto px-6 py-4 text-center">
 
-          <div className="text-slate-500 text-sm">
+          <div className="text-[#EDE8FD]/60 text-sm">
 
             © {new Date().getFullYear()} ImpulsaSueños
 
@@ -200,11 +200,11 @@ los resultados públicamente.
 
       {/* AVISO */}
 
-      <div className="bg-black/30 border-t border-slate-800">
+      <div className="bg-black/20 border-t border-[#285143]">
 
         <div className="max-w-7xl mx-auto px-6 py-3">
 
-          <p className="text-xs text-slate-500 text-center leading-relaxed">
+          <p className="text-xs text-[#EDE8FD]/60 text-center leading-relaxed">
 
             ImpulsaSueños Sorteos es una plataforma tecnológica
             de participación en sorteos promocionales. La

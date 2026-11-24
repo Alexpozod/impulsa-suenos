@@ -36,6 +36,7 @@ export default function PageHeader({
           className="
             text-3xl
             font-bold
+            text-[var(--raffles-cream)]
           "
         >
           {title}
@@ -45,7 +46,7 @@ export default function PageHeader({
 
           <p
             className="
-              text-slate-400
+              text-[#C3C8C2]
               mt-1
             "
           >

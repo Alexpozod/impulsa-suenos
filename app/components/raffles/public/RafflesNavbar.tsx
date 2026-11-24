@@ -50,7 +50,7 @@ useEffect(() => {
 
   return (
 
-    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur border-b-0">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#002314]/95 backdrop-blur border-b-0">
 
       <div className="max-w-7xl mx-auto px-4 lg:px-6">
 
@@ -75,7 +75,7 @@ useEffect(() => {
                 ImpulsaSueños
               </div>
 
-              <div className="text-cyan-400 text-xs font-semibold uppercase tracking-wider">
+              <div className="text-[#A8C63A] text-xs font-semibold uppercase tracking-wider">
                 Sorteos
               </div>
 
@@ -89,28 +89,28 @@ useEffect(() => {
 
             <Link
               href="/raffles"
-              className="text-slate-200 hover:text-white transition"
+              className="text-[#EDE8FD] hover:text-white transition"
             >
               Sorteos
             </Link>
 
             <Link
               href="/raffles/winners"
-              className="text-slate-200 hover:text-white transition"
+              className="text-[#EDE8FD] hover:text-white transition"
             >
               Ganadores
             </Link>
 
             <Link
               href="/raffles/my-tickets"
-              className="text-slate-200 hover:text-white transition"
+              className="text-[#EDE8FD] hover:text-white transition"
             >
               Mis Participaciones
             </Link>
 
             <Link
   href="/raffles/faq"
-  className="text-slate-200 hover:text-white transition"
+  className="text-[#EDE8FD] hover:text-white transition"
 >
   FAQ
 </Link>
@@ -131,7 +131,7 @@ useEffect(() => {
 
               <Link
                 href="/raffles/partners/dashboard"
-                className="text-slate-300 hover:text-white transition"
+                className="text-[#EDE8FD] hover:text-white transition"
               >
 
               Dashboard
@@ -148,7 +148,7 @@ useEffect(() => {
 
               }}
 
-              className="text-red-400 hover:text-red-300 transition"
+              className="text-[#EDE8FD] hover:text-white transition"
 
               >
 
@@ -162,7 +162,7 @@ useEffect(() => {
 
               <Link
                 href="/raffles/login"
-                className="text-slate-300 hover:text-white transition"
+                className="text-[#EDE8FD] hover:text-white transition"
               >
 
               Entrar
@@ -174,9 +174,9 @@ useEffect(() => {
             <Link
               href="#sorteos-activos"
               className="
-                bg-cyan-500
-hover:bg-cyan-400
-text-slate-950
+                bg-[#7048E8]
+hover:bg-[#5D36CC]
+text-white
                 px-5
                 py-3
                 rounded-xl
@@ -210,7 +210,7 @@ text-slate-950
 
       {open && (
 
-        <div className="lg:hidden border-t border-slate-800 bg-slate-950">
+        <div className="lg:hidden border-t border-[#285143] bg-[#002314]">
 
           <div className="px-6 py-6 flex flex-col gap-5">
 
@@ -278,7 +278,7 @@ text-slate-950
 
             }}
 
-            className="text-left text-red-400"
+            className="text-left text-[#EDE8FD]"
 
             >
 
@@ -296,7 +296,7 @@ text-slate-950
 
             onClick={()=>setOpen(false)}
 
-            className="text-slate-300"
+            className="text-[#EDE8FD]"
 
             >
 
@@ -310,9 +310,9 @@ text-slate-950
               href="#sorteos-activos"
               onClick={() => setOpen(false)}
               className="
-                bg-cyan-500
+                bg-[#7048E8]
                 text-center
-                text-slate-950
+                text-white
                 py-3
                 rounded-xl
                 font-bold

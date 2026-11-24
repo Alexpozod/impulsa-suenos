@@ -19,14 +19,14 @@ export default function MetricCard({
 
     <div
       className="
-        bg-slate-900
-        border border-slate-800
+        bg-[#05291B]
+        border border-[#285143]
         rounded-xl
         p-4
       "
     >
 
-      <p className="text-slate-400 text-sm">
+      <p className="text-[#C3C8C2] text-sm">
         {title}
       </p>
 
@@ -34,6 +34,7 @@ export default function MetricCard({
         className="
           text-2xl
           font-bold
+          text-[#FAF9F5]
           mt-2
         "
       >
@@ -45,7 +46,7 @@ export default function MetricCard({
         <p
           className="
             text-xs
-            text-slate-500
+            text-[#B3BDB7]
             mt-2
           "
         >
