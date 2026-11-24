@@ -91,9 +91,24 @@ export default function AdminLayout({ children }: any) {
         className={raffleMenuOpen ? "w-72 bg-[#05291B] p-5 space-y-6 border-r border-[#285143]" : "w-72 bg-slate-900 p-5 space-y-6 border-r border-slate-800"}
       >
 
-        <h2 className="text-xl font-bold">
-          🚀 Impulsa Admin
-        </h2>
+        {raffleMenuOpen ? (
+          <div className="space-y-3">
+            <div className="rounded-xl bg-[#FAF9F5] px-3 py-3">
+              <img
+                src="/raffles/brand/logo-impulsa.svg"
+                alt="ImpulsaSueños"
+                className="h-11 w-auto max-w-full object-contain"
+              />
+            </div>
+            <h2 className="text-base font-bold text-[#EDE8FD]">
+              Administración de Sorteos
+            </h2>
+          </div>
+        ) : (
+          <h2 className="text-xl font-bold">
+            🚀 Impulsa Admin
+          </h2>
+        )}
 
         {/* DASHBOARD */}
         <div>

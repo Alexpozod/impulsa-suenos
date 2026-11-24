@@ -106,13 +106,9 @@ export default function PartnersLayout({
             >
 
               <img
-                src="/logo-email.png"
+                src="/raffles/brand/logo-impulsa.svg"
                 alt="ImpulsaSueños Partners"
-                className="
-                  w-10
-                  h-10
-                  object-contain
-                "
+                className="w-24 h-auto object-contain"
                 draggable={false}
               />
 

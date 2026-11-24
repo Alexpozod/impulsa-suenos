@@ -14,6 +14,13 @@ export default function RafflesFooter() {
 
           <div>
 
+            <div className="inline-flex rounded-xl bg-[#FAF9F5] px-3 py-2 mb-3">
+              <img
+                src="/raffles/brand/logo-impulsa.svg"
+                alt="ImpulsaSueños"
+                className="h-12 w-auto max-w-[190px] object-contain"
+              />
+            </div>
             <h3 className="text-white text-xl font-black mb-3">
               ImpulsaSueños Sorteos
             </h3>

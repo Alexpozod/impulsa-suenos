@@ -63,15 +63,17 @@ useEffect(() => {
             className="flex items-center gap-3"
           >
 
-            <img
-              src="/logo.png"
-              alt="ImpulsaSueños"
-              className="h-10 w-auto"
-            />
+            <span className="flex items-center rounded-xl bg-[#FAF9F5] px-3 py-2">
+              <img
+                src="/raffles/brand/logo-impulsa.svg"
+                alt="ImpulsaSueños"
+                className="h-10 w-auto max-w-[180px] object-contain"
+              />
+            </span>
 
             <div className="hidden sm:block">
 
-              <div className="text-white font-black text-lg leading-none">
+              <div className="text-white font-bold text-sm leading-none">
                 ImpulsaSueños
               </div>
 
